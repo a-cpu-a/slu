@@ -18,10 +18,10 @@ namespace slua
 		Bool() {}
 		Bool(const bool value) :val(value) {}
 
-		static bool push(lua_State* L, const Bool& data)
+		static int push(lua_State* L, const Bool& data)
 		{
 			lua_pushboolean(L, data.val);
-			return true;
+			return 1;
 		}
 		static Bool read(lua_State* L, const int idx) {
 			return Bool(lua_toboolean(L, idx));

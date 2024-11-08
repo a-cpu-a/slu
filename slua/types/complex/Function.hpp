@@ -20,7 +20,7 @@ namespace slua
 
 		Function() {}
 
-		static bool push(lua_State* L, const Function& data)
+		static int push(lua_State* L, const Function& data)
 		{
 			if (data.func.empty())
 			{
@@ -29,7 +29,7 @@ namespace slua
 			}
 
 			slua::loadFunction(L, data.func, data.name.c_str(), true);
-			return true;
+			return 1;
 		}
 		static Function read(lua_State* L, const int idx) {
 			if (lua_isnil(L, idx)) return Function();

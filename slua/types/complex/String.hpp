@@ -19,10 +19,10 @@ namespace slua
 		String() {}
 		String(const std::string& value) :val(value) {}
 
-		static bool push(lua_State* L, const String& data)
+		static int push(lua_State* L, const String& data)
 		{
 			lua_pushlstring(L, data.val.data(), data.val.size());
-			return true;
+			return 1;
 		}
 		static String read(lua_State* L, const int idx) {
 			return slua::readString(L, idx);
@@ -44,10 +44,10 @@ namespace slua
 		StringView() {}
 		StringView(const std::string_view& value) :val(value) {}
 
-		static bool push(lua_State* L, const StringView& data)
+		static int push(lua_State* L, const StringView& data)
 		{
 			lua_pushlstring(L, data.val.data(), data.val.size());
-			return true;
+			return 1;
 		}
 
 		static constexpr const char* getName() { return LUACC_STRING_DOUBLE "string-view" LUACC_DEFAULT; }
@@ -68,10 +68,10 @@ namespace slua
 		DangerString() {}
 		DangerString(const std::string_view& value) :val(value) {}
 
-		static bool push(lua_State* L, const DangerString& data)
+		static int push(lua_State* L, const DangerString& data)
 		{
 			lua_pushlstring(L, data.val.data(), data.val.size());
-			return true;
+			return 1;
 		}
 		static DangerString read(lua_State* L, const int idx) {
 			size_t len;

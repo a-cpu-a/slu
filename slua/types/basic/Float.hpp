@@ -18,10 +18,10 @@ namespace slua
 		Float() {}
 		Float(const double value) :val(value) {}
 
-		static bool push(lua_State* L, const Float& data)
+		static int push(lua_State* L, const Float& data)
 		{
 			lua_pushnumber(L, data.val);
-			return true;
+			return 1;
 		}
 		static Float read(lua_State* L, const int idx) {
 			return Float((double)lua_tonumber(L, idx));

@@ -45,7 +45,7 @@ namespace slua
 			}
 		}
 
-		static bool push(lua_State* L, const TableKey& data)
+		static int push(lua_State* L, const TableKey& data)
 		{
 			switch (type)
 			{
@@ -59,7 +59,7 @@ namespace slua
 				slua::push(L, data.strVal);
 				break;
 			}
-			return true;
+			return 1;
 		}
 		static TableKey read(lua_State* L, const int idx) {
 
