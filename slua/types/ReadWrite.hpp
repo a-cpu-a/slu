@@ -33,17 +33,42 @@ namespace slua
 	}
 
 
+	/* Check if something on the lua stack is of a type, will throw with a message on some failures */
+	template<typename T>
+	inline bool checkThrowing(lua_State* L, const int idx, T) {
+		return ToLua<T>::check(L, idx);
+	}
+	/* Check if something on the lua stack is of a type, will throw with a message on some failures */
+	template<typename T>
+	inline bool checkThrowing(lua_State* L, const int idx) {
+		return ToLua<T>::check(L, idx);
+	}
+
+
 	/* Check if something on the lua stack is of a type */
 	template<typename T>
 	inline bool check(lua_State* L, const int idx, T) {
-		return ToLua<T>::check(L, idx);
+		try
+		{
+			return checkThrowing<T>(L, idx);
+		}
+		catch (...)
+		{
+			return false;//failed
+		}
 	}
 	/* Check if something on the lua stack is of a type */
 	template<typename T>
 	inline bool check(lua_State* L, const int idx) {
-		return ToLua<T>::check(L, idx);
+		try
+		{
+			return checkThrowing<T>(L, idx);
+		}
+		catch (...)
+		{
+			return false;//failed
+		}
 	}
-
 
 	template<typename T>
 	inline constexpr const char* getName() {

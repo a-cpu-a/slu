@@ -34,7 +34,7 @@ namespace slua
 			" needs " LUACC_NUMBER #_COUNT LUACC_ARGUMENT " arguments" LUACC_DEFAULT ".")
 
 #define _SLua_CHECK_ARG(_ARG) \
-	const bool arg_ ## _ARG ## _res = slua::check<IN ## _ARG ## _T>(L, _ARG); \
+	const bool arg_ ## _ARG ## _res = slua::checkThrowing<IN ## _ARG ## _T>(L, _ARG); \
 	if (!arg_ ## _ARG ## _res) \
 		return slua::error(L, LUACC_ARGUMENT "Argument " \
 			LUACC_NUMBER #_ARG LUACC_DEFAULT " of " LUACC_FUNCTION "function" \
