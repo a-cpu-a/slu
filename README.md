@@ -13,11 +13,14 @@ Intended for C++ 20, might work for older versions.
 
 inline slua::Ret<std::string> luaGet(const uint32_t& id) {
 	
-	if(id==UINT32_MAX)
+	if( id == UINT32_MAX )
 		return slua::Error("Invalid id!");
 
-	if(rand()<100)                      // This one automaticaly adds the function name to
+	if( rand() < 100 )                    // This one automaticaly adds the function name to
 		throw slua::Error("Unlucky!"); // the message, and doesnt need slua::Ret<>
+
+	if( id == 0 )
+		return slua::Nil(); // This requires slua::Ret<>
 	
 	return std::to_string(id);
 }
