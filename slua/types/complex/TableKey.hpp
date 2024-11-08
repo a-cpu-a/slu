@@ -9,7 +9,7 @@
 #include <slua/Utils.hpp>
 #include <slua/types/Converter.hpp>
 #include <slua/types/ReadWrite.hpp>
-#include <slua/types/basic/String.hpp> //This uses slua::push, with a string
+#include <slua/types/complex/String.hpp> //This uses slua::push, with a string
 
 namespace slua
 {
@@ -47,7 +47,7 @@ namespace slua
 
 		static int push(lua_State* L, const TableKey& data)
 		{
-			switch (type)
+			switch (data.type)
 			{
 			case slua::TableKeyType::INT:
 				lua_pushinteger(L, data.intVal);
@@ -91,16 +91,16 @@ namespace slua
 		static constexpr const char* getName() { return "table-key"; }
 
 		bool operator==(const double& other) const {
-			return type == TableKeyType::FLOAT && nValue == other;
+			return type == TableKeyType::FLOAT && floatVal == other;
 		}
 		bool operator==(const int64_t& other) const {
-			return type == TableKeyType::INT && nValue == other;
+			return type == TableKeyType::INT && intVal == other;
 		}
 		bool operator==(const std::string_view& other) const {
-			return type == TableKeyType::STRING && sValue == other;
+			return type == TableKeyType::STRING && strVal == other;
 		}
 		bool operator==(const char other[]) const {
-			return type == TableKeyType::STRING && sValue == other;
+			return type == TableKeyType::STRING && strVal == other;
 		}
 	};
 }
