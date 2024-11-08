@@ -151,14 +151,14 @@ namespace slua
 
 
 	// Wrap a C++ into a lua function, ment for lua_pushcfunction
-#define SLua_WrapRaw(_LUA_NAME,_CPP_FUNC) [](lua_State* L){return ::slua::runCppFuncWrapped(_LUA_NAME,_CPP_FUNC,L);}
+#define SLua_WrapRaw(_LUA_NAME,_CPP_FUNC) [](lua_State* L){return ::slua::runCppFuncWrapped(L,_LUA_NAME,_CPP_FUNC);}
 	// Wrap a C++ into a lua function, name pair, for your library function tables
 #define SLua_Wrap(_LUA_NAME,_CPP_FUNC) {_LUA_NAME,SLua_WrapRaw(_LUA_NAME,_CPP_FUNC)}
 
 
 
 
-#define _SLua_MULTI_WRAP_CASE(_LUA_NAME,_COUNT,_CPP_FUNC) case _COUNT:return ::slua::runCppFuncWrapped(_LUA_NAME "(" #_COUNT ")",_CPP_FUNC,L)
+#define _SLua_MULTI_WRAP_CASE(_LUA_NAME,_COUNT,_CPP_FUNC) case _COUNT:return ::slua::runCppFuncWrapped(L,_LUA_NAME "(" #_COUNT ")",_CPP_FUNC)
 
 
 	// Wrap 2 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction
