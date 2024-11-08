@@ -86,7 +86,7 @@ namespace slua
 	}
 
 	template <typename RET_T, typename IN1_T, typename IN2_T>
-	inline int runCppFunc(lua_State* L, const std::string& funcName, Args2CppFunc<RET_T, IN1_T, IN1_T> func)
+	inline int runCppFunc(lua_State* L, const std::string& funcName, Args2CppFunc<RET_T, IN1_T, IN2_T> func)
 	{
 		_SLua_REQUIRE_ARGS(2);
 
@@ -96,7 +96,7 @@ namespace slua
 		_SLua_RUN_N_RETURN(in1, in2);
 	}
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T>
-	inline int runCppFunc(lua_State* L, const std::string& funcName, Args3CppFunc<RET_T, IN1_T, IN1_T, IN3_T> func)
+	inline int runCppFunc(lua_State* L, const std::string& funcName, Args3CppFunc<RET_T, IN1_T, IN2_T, IN3_T> func)
 	{
 		_SLua_REQUIRE_ARGS(3);
 
@@ -107,7 +107,7 @@ namespace slua
 		_SLua_RUN_N_RETURN(in1, in2, in3);
 	}
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T>
-	inline int runCppFunc(lua_State* L, const std::string& funcName, Args4CppFunc<RET_T, IN1_T, IN1_T, IN3_T, IN4_T> func)
+	inline int runCppFunc(lua_State* L, const std::string& funcName, Args4CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T> func)
 	{
 		_SLua_REQUIRE_ARGS(4);
 
@@ -119,7 +119,7 @@ namespace slua
 		_SLua_RUN_N_RETURN(in1, in2, in3, in4);
 	}
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T>
-	inline int runCppFunc(lua_State* L, const std::string& funcName, Args5CppFunc<RET_T, IN1_T, IN1_T, IN3_T, IN4_T, IN5_T> func)
+	inline int runCppFunc(lua_State* L, const std::string& funcName, Args5CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T, IN5_T> func)
 	{
 		_SLua_REQUIRE_ARGS(5);
 
@@ -132,7 +132,7 @@ namespace slua
 		_SLua_RUN_N_RETURN(in1, in2, in3, in4, in5);
 	}
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T, typename IN6_T>
-	inline int runCppFunc(lua_State* L, const std::string& funcName, Args6CppFunc<RET_T, IN1_T, IN1_T, IN3_T, IN4_T, IN5_T, IN6_T> func)
+	inline int runCppFunc(lua_State* L, const std::string& funcName, Args6CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T, IN5_T, IN6_T> func)
 	{
 		_SLua_REQUIRE_ARGS(6);
 
