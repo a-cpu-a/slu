@@ -30,8 +30,8 @@ namespace slua
 			setU8(size() + 1, value);
 		}
 
-		static IntRef read(lua_State* L, const int idx) {
-			return IntRef(L, idx);
+		static TableRef read(lua_State* L, const int idx) {
+			return TableRef(L, idx);
 		}
 		static bool check(lua_State* L, const int idx) {
 			return lua_istable(L, idx);
