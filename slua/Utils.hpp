@@ -72,8 +72,8 @@ namespace slua
 		else
 			return lua_load(L, _binExecuteReader, &pairData, name, "t");
 	}
-	inline int loadScript(lua_State* L, const std::string& strData, const char* name, const bool binary = false) {
-		return loadScript(L, strData, name, binary);
+	inline int loadFunction(lua_State* L, const std::string& strData, const char* name, const bool binary = false) {
+		return loadFunction(L, strData, name, binary);
 	}
 
 

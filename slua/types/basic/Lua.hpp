@@ -17,12 +17,12 @@ namespace slua
 	struct Ret
 	{
 		Error errorMsg;
-		slua::ToLua<T> value;
+		slua::ToLua<T> val;
 		bool errored = false;
 		bool isNil = false;
 
-		Ret(const T& _value)
-			:value(_value)
+		Ret(const T& val)
+			:val(val)
 		{}
 		Ret(Nil)
 			:isNil(true)
@@ -39,7 +39,7 @@ namespace slua
 				return slua::error(L, data.errorMsg.msg);
 
 			if (!data.isNil)
-				return slua::push(L, data.value);
+				return slua::push(L, data.val);
 
 			lua_pushnil(L);
 			return 1;
