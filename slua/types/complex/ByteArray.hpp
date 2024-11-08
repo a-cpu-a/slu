@@ -58,7 +58,7 @@ namespace slua
 
 			for (size_t i = 0; i < checkLen; i++)//check types
 			{
-				const int ty = getTableElement(L, idx, i);
+				const int ty = slua::lua_getTableValue(L, idx, i);
 				lua_pop(L, 1);
 
 				if (ty != LUA_TNUMBER)//|| ty == LUA_TSTRING
@@ -76,4 +76,4 @@ namespace slua
 	};
 }
 // Map basic types to slua::ByteArray to allow easy pushing, reading, and checking
-SLUA_MAP_TYPE(std::array<uint8_t, SIZE>, slua::ByteArray<SIZE>, size_t SIZE);
+SLua_MAP_TYPE(std::array<uint8_t, SIZE>, slua::ByteArray<SIZE>, size_t SIZE);

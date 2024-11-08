@@ -18,13 +18,13 @@ namespace slua
 	template<typename RET_T, typename IN1_T, typename IN2_T>
 	using Args2CppFunc = RET_T(*)(IN1_T&, IN2_T&);
 	template<typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T>
-	using Args3ArgCppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&);
+	using Args3CppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&);
 	template<typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T>
-	using Args4ArgCppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&, IN4_T&);
+	using Args4CppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&, IN4_T&);
 	template<typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T>
-	using Args5ArgCppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&, IN4_T&, IN5_T&);
+	using Args5CppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&, IN4_T&, IN5_T&);
 	template<typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T, typename IN6_T>
-	using Args6ArgCppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&, IN4_T&, IN5_T&, IN6_T&);
+	using Args6CppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&, IN4_T&, IN5_T&, IN6_T&);
 
 
 #define _SLua_REQUIRE_ARGS(_COUNT) \
@@ -133,17 +133,32 @@ namespace slua
 		_SLua_RUN_N_RETURN(in1, in2, in3, in4, in5, in6);
 	}
 
+	inline int runCppFuncWrapped(lua_State* L, const std::string& funcName, auto func)
+	{
+		try
+		{
+			runCppFunc(L, funcName, func);
+		}
+		catch (const slua::Error& e)
+		{
+			return slua::error(L, LUACC_FUNCTION "Function"
+				LUACC_STRING_SINGLE " '" LUACC_DEFAULT + funcName + LUACC_STRING_SINGLE "'" LUACC_DEFAULT
+				" had a " LUACC_INVALID "error" LUACC_DEFAULT ": "
+				, e);
+		}
+	}
+
 
 
 	// Wrap a C++ into a lua function, ment for lua_pushcfunction
-#define SLua_WrapRaw(_LUA_NAME,_CPP_FUNC) [](lua_State* L){return ::slua::runCppFunc(_LUA_NAME,_CPP_FUNC,L);}
+#define SLua_WrapRaw(_LUA_NAME,_CPP_FUNC) [](lua_State* L){return ::slua::runCppFuncWrapped(_LUA_NAME,_CPP_FUNC,L);}
 	// Wrap a C++ into a lua function, name pair, for your library function tables
 #define SLua_Wrap(_LUA_NAME,_CPP_FUNC) {_LUA_NAME,SLua_WrapRaw(_LUA_NAME,_CPP_FUNC)}
 
 
 
 
-#define _SLua_MULTI_WRAP_CASE(_LUA_NAME,_COUNT,_CPP_FUNC) case _COUNT:return ::slua::runCppFunc(_LUA_NAME "(" #_COUNT ")",_CPP_FUNC,L)
+#define _SLua_MULTI_WRAP_CASE(_LUA_NAME,_COUNT,_CPP_FUNC) case _COUNT:return ::slua::runCppFuncWrapped(_LUA_NAME "(" #_COUNT ")",_CPP_FUNC,L)
 
 
 	// Wrap 2 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction

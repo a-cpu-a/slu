@@ -12,7 +12,6 @@
 namespace slua
 {
 	struct Nil {};
-	struct Error { std::string msg; };
 
 	template <typename T>
 	struct Ret
@@ -34,7 +33,7 @@ namespace slua
 		Ret() {}
 
 		//Returns how many items were pushed to the stack, or negative in case of error
-		static int push(lua_State* L, const Ret& data) const
+		static int push(lua_State* L, const Ret& data)
 		{
 			if (data.errored)
 				return slua::error(L, data.errorMsg.msg);
@@ -54,5 +53,5 @@ namespace slua
 	};
 
 	//Like Void, except allows you to return errors too
-	struct VoidRet = Ret<Void>;
+	using VoidRet = Ret<Void>;
 }
