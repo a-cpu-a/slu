@@ -41,6 +41,9 @@ inline int initLib(lua_State* L)
 
 
 # Custom Types
+You can wrap types like in the example bellow, or
+just add the methods to one of your
+existing types (val wont be needed then).
 ```cpp
 
 struct Int
