@@ -9,6 +9,7 @@
 
 #include <slua/Utils.hpp>
 #include <slua/types/Converter.hpp>
+#include <slua/types/TypeUtils.hpp>
 
 namespace slua
 {
@@ -78,12 +79,9 @@ namespace slua
 			else
 				type = 'f';//float, f64vec4
 
-			return ret + std::to_string(BITS) + "vec" + std::to_string(SIZE) + "\0";
+			return type + slua::cexpToString(BITS) + "vec" + slua::cexpToString(T::length()) + "\0";
 		}
-		inline const static constexpr std::array<char, getStrName().size()> name_buf = getStrName();
-	public:
-
-		static constexpr const char* getName() { return name_buf.data(); }
+		SLua_WrapGetStrName(getStrName);
 	};
 }
 // Map basic types to slua::Vec, to allow easy pushing, reading, and checking

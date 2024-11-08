@@ -36,6 +36,9 @@ namespace slua
 	};
 }
 
+//To let you use commas inside SLua_MAP_TYPE types
+#define SLua_CO ,
+
 // MUSN'T be inside a namespace !!!
 // 
 // the ... means template args
