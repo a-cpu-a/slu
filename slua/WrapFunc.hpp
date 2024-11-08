@@ -135,7 +135,7 @@ namespace slua
 
 
 
-	// Wrap a C++ into a lua function
+	// Wrap a C++ into a lua function, ment for lua_pushcfunction
 #define SLua_WrapRaw(_LUA_NAME,_CPP_FUNC) [](lua_State* L){return ::slua::runCppFunc(_LUA_NAME,_CPP_FUNC,L);}
 	// Wrap a C++ into a lua function, name pair, for your library function tables
 #define SLua_Wrap(_LUA_NAME,_CPP_FUNC) {_LUA_NAME,SLua_WrapRaw(_LUA_NAME,_CPP_FUNC)}
@@ -146,7 +146,7 @@ namespace slua
 #define _SLua_MULTI_WRAP_CASE(_LUA_NAME,_COUNT,_CPP_FUNC) case _COUNT:return ::slua::runCppFunc(_LUA_NAME "(" #_COUNT ")",_CPP_FUNC,L)
 
 
-	// Wrap 2 C++ functions overloaded by arg count into 1 lua function
+	// Wrap 2 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction
 	// _C1 is the argument count of _CPP_FUNC
 	// _C2 is the argument count of _CPP_FUNC2
 #define SLua_Wrap2Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2) [](lua_State* L){switch(lua_gettop(L)){ \
@@ -162,7 +162,7 @@ namespace slua
 #define SLua_Wrap2(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2) {_LUA_NAME,SLua_Wrap2Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2)}
 
 
-	// Wrap 3 C++ functions overloaded by arg count into 1 lua function
+	// Wrap 3 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction
 	// _C1 is the argument count of _CPP_FUNC
 	// _C2 is the argument count of _CPP_FUNC2
 	// _C3 is the argument count of _CPP_FUNC3
@@ -183,7 +183,7 @@ namespace slua
 #define SLua_Wrap3(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3) {_LUA_NAME,SLua_Wrap3Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3)}
 
 
-	// Wrap 4 C++ functions overloaded by arg count into 1 lua function
+	// Wrap 4 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction
 	// _C1 is the argument count of _CPP_FUNC
 	// _C2 is the argument count of _CPP_FUNC2
 	// _C3 is the argument count of _CPP_FUNC3
