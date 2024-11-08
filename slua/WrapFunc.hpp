@@ -72,7 +72,7 @@ namespace slua
 		_SLua_RUN_N_RETURN();
 	}
 	template <typename RET_T, typename IN1_T>
-	inline int runCppFunc(const std::string& funcName, Args1CppFunc< RET_T, IN1_T> func, lua_State* L)
+	inline int runCppFunc(lua_State* L, const std::string& funcName, Args1CppFunc< RET_T, IN1_T> func)
 	{
 		if (lua_gettop(L) != 1)
 			return slua::error(L, LUACC_FUNCTION "Function"
@@ -150,7 +150,7 @@ namespace slua
 	{
 		try
 		{
-			runCppFunc(L, funcName, func);
+			return runCppFunc(L, funcName, func);
 		}
 		catch (const slua::Error& e)
 		{
