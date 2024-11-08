@@ -43,6 +43,7 @@ namespace slua
 			case slua::TableKeyType::STRING:
 				return strVal;
 			}
+			return "memory corrupted";
 		}
 
 		static int push(lua_State* L, const TableKey& data)
