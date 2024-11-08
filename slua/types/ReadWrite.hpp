@@ -11,7 +11,7 @@ namespace slua
 {
 	/* Push something to the lua stack */
 	template <typename T>
-	inline int push(lua_State* L, const T& data) {
+	inline bool push(lua_State* L, const T& data) {
 
 		using LuaType = slua::ToLua<T>;
 
@@ -35,12 +35,12 @@ namespace slua
 
 	/* Check if something on the lua stack is of a type */
 	template<typename T>
-	inline int check(lua_State* L, const int idx, T) {
+	inline bool check(lua_State* L, const int idx, T) {
 		return ToLua<T>::check(L, idx);
 	}
 	/* Check if something on the lua stack is of a type */
 	template<typename T>
-	inline int check(lua_State* L, const int idx) {
+	inline bool check(lua_State* L, const int idx) {
 		return ToLua<T>::check(L, idx);
 	}
 }
