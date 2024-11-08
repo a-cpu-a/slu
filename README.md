@@ -16,8 +16,8 @@ inline slua::Ret<std::string> luaGet(const uint32_t& id) {
 	if(id==UINT32_MAX)
 		return slua::Error("Invalid id!");
 
-	if(rand()<100)                     // This one automaticaly adds the function
-		throw slua::Error("Unlucky!"); // name, and doesnt need slua::Ret<>
+	if(rand()<100)                      // This one automaticaly adds the function name to
+		throw slua::Error("Unlucky!"); // the message, and doesnt need slua::Ret<>
 	
 	return std::to_string(id);
 }
