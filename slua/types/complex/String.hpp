@@ -61,7 +61,6 @@ namespace slua
 	{
 		std::string_view val;
 
-
 		size_t size() const { return val.size(); }
 		uint8_t operator[](const size_t idx)const { return val[idx]; }
 
@@ -75,7 +74,7 @@ namespace slua
 		}
 		static DangerString read(lua_State* L, const int idx) {
 			size_t len;
-			const char* ptr = lua_tolstring(L, offset, &_len);
+			const char* ptr = lua_tolstring(L, idx, &len);
 			return std::string_view(ptr, len);
 		}
 		static bool check(lua_State* L, const int idx) {

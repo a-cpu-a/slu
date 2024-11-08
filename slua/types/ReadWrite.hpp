@@ -74,4 +74,8 @@ namespace slua
 	inline constexpr const char* getName() {
 		return ToLua<T>::getName();
 	}
+	template<typename T>
+	inline constexpr const char* getName(T) {
+		return ToLua<T>::getName();
+	}
 }
