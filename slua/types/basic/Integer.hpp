@@ -33,11 +33,11 @@ namespace slua
 	};
 }
 // Map basic types to slua::Int, to allow easy pushing, reading, and checking
-SLUA_MAP_TYPE(uint8_t, slua::Int);
-SLUA_MAP_TYPE(uint16_t, slua::Int);
-SLUA_MAP_TYPE(uint32_t, slua::Int);
-SLUA_MAP_TYPE(uint64_t, slua::Int);
-SLUA_MAP_TYPE(int8_t, slua::Int);
-SLUA_MAP_TYPE(int16_t, slua::Int);
-SLUA_MAP_TYPE(int32_t, slua::Int);
-SLUA_MAP_TYPE(int64_t, slua::Int);
+SLua_MAP_TYPE(uint8_t, slua::Int);
+SLua_MAP_TYPE(uint16_t, slua::Int);
+SLua_MAP_TYPE(uint32_t, slua::Int);
+SLua_MAP_TYPE(uint64_t, slua::Int);
+SLua_MAP_TYPE(int8_t, slua::Int);
+SLua_MAP_TYPE(int16_t, slua::Int);
+SLua_MAP_TYPE(int32_t, slua::Int);
+SLua_MAP_TYPE(int64_t, slua::Int);

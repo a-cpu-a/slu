@@ -18,6 +18,8 @@ namespace slua
 		std::vector<uint8_t> func;
 		std::string name;
 
+		Function(const std::vector<uint8_t>& func, const std::string& name) :func(func), name(name) {}
+		Function(const std::vector<uint8_t>& func) :func(func) {}
 		Function() {}
 
 		static int push(lua_State* L, const Function& data)

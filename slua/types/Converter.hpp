@@ -14,10 +14,13 @@ namespace slua
 
 	//Internal, used bc, const T != T, etc
 	template<typename T>
-	using _ToLua = T;
+	struct _ToLua
+	{
+		using Type = T;
+	};
 
 	template<typename T>
-	using ToLua = _ToLua<_RawType<T>>;
+	using ToLua = _ToLua<_RawType<T>>::Type;
 
 
 
@@ -37,4 +40,4 @@ namespace slua
 // 
 // the ... means template args
 //
-#define SLUA_MAP_TYPE(_WRAPPER,_NORMAL_TYPE,...) namespace slua { template<__VA_ARGS__>using _ToLua<_NORMAL_TYPE> = _WRAPPER; }
+#define SLua_MAP_TYPE(_NORMAL_TYPE,_WRAPPER,...) namespace slua { template<__VA_ARGS__>struct _ToLua<_NORMAL_TYPE> {using Type = _WRAPPER;}; }
