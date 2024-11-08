@@ -8,8 +8,8 @@ Intended for C++ 20, might work for older versions.
 ```cpp
 
 #include <slua/WrapFunc.hpp>
-#include <slua/types/basic/Integer.hpp>  // Needed for automatic integer type encoding
-#include <slua/types/complex/String.hpp> // Needed for automatic std::string encoding
+#include <slua/types/basic/Integer.hpp>  // REQUIRED for automatic integer type encoding
+#include <slua/types/complex/String.hpp> // REQUIRED for automatic std::string encoding
 
 inline slua::Ret<std::string> luaGet(const uint32_t& id) {
 	
@@ -48,7 +48,7 @@ existing types (val wont be needed then).
 
 struct Int
 {
-	int64_t val; // Special variable, used to unconvert automaticaly in SLua_MAP_TYPE
+	int64_t val; // Special variable name, used to unconvert automaticaly in SLua_MAP_TYPE
 
 	Int() {}
 	Int(const int64_t value) :val(value) {}
