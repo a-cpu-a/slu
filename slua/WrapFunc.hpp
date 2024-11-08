@@ -7,6 +7,19 @@
 #include <slua/types/ReadWrite.hpp>
 #include <slua/types/basic/Lua.hpp>
 
+//include by default, cuz error messages are confusing
+/*#include <slua/types/basic/Bool.hpp>
+#include <slua/types/basic/Float.hpp>
+#include <slua/types/basic/Integer.hpp>
+#include <slua/types/basic/TableRef.hpp>
+
+#include <slua/types/complex/ByteArray.hpp>
+#include <slua/types/complex/Function.hpp>
+#include <slua/types/complex/IntRef.hpp>
+#include <slua/types/complex/OptFunc.hpp>
+#include <slua/types/complex/String.hpp>
+#include <slua/types/complex/TableKey.hpp>*/
+
 namespace slua
 {
 

@@ -9,6 +9,7 @@
 
 #include <slua/Utils.hpp>
 #include <slua/types/Converter.hpp>
+#include <slua/types/TypeUtils.hpp>
 
 namespace slua
 {
@@ -26,7 +27,7 @@ namespace slua
 			for (size_t i = 0; i < SIZE; i++)
 			{
 				lua_pushinteger(L, data.val[i]);
-				slua::setTableValue(L, i + 1);
+				slua::lua_setTableValue(L, i + 1);
 			}
 			return 1;
 		}
@@ -37,7 +38,7 @@ namespace slua
 
 			for (size_t i = 0; i < checkLen; i++)//load in first ones
 			{
-				const int ty = getTableValue(L, idx, i + 1);
+				const int ty = slua::lua_getTableValue(L, idx, i + 1);
 				ret.val[i] = (uint8_t)lua_tointeger(L, -1);
 
 				lua_pop(L, 1);
@@ -68,12 +69,10 @@ namespace slua
 		}
 
 	private:
-		static constexpr std::string getStrName() { return "byte-array[" LUACC_NUMBER + std::to_string(SIZE) + LUACC_DEFAULT "]\0"; }
-		inline const static constexpr std::array<char, getStrName().size()> name_buf = getStrName();
-	public:
+		static constexpr std::string getStrName() { return "byte-array[" LUACC_NUMBER + slua::cexpToString(SIZE) + LUACC_DEFAULT "]\0"; }
 
-		static constexpr const char* getName() { return name_buf.data(); }
+		SLua_WrapGetStrName(getStrName);
 	};
 }
 // Map basic types to slua::ByteArray to allow easy pushing, reading, and checking
-SLua_MAP_TYPE(std::array<uint8_t, SIZE>, slua::ByteArray<SIZE>, size_t SIZE);
+SLua_MAP_TYPE(std::array<uint8_t SLua_CO SIZE>, slua::ByteArray<SIZE>, size_t SIZE);
