@@ -73,7 +73,14 @@ namespace slua
 			return lua_load(L, _binExecuteReader, &pairData, name, "t");
 	}
 	inline int loadFunction(lua_State* L, const std::string& strData, const char* name, const bool binary = false) {
-		return loadFunction(L, strData, name, binary);
+		return loadFunction(L,
+			//convert from char to uint8_t
+			std::bit_cast<std::span<const uint8_t>>(
+				std::span<const char>(
+					strData.begin(), strData.end()
+				)
+			),
+			name, binary);
 	}
 
 
