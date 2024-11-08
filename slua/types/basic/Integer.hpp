@@ -18,10 +18,10 @@ namespace slua
 		Int() {}
 		Int(const int64_t value) :val(value) {}
 
-		static bool push(lua_State* L, const Int& data)
+		static int push(lua_State* L, const Int& data)
 		{
 			lua_pushinteger(L, data.val);
-			return true;
+			return 1;
 		}
 		static Int read(lua_State* L, const int idx) {
 			return Int((int64_t)lua_tointeger(L, idx));

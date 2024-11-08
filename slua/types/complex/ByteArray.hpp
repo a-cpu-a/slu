@@ -20,7 +20,7 @@ namespace slua
 		ByteArray() {}
 		ByteArray(const std::array<uint8_t, SIZE>& value) :val(value) {}
 
-		static bool push(lua_State* L, const ByteArray& data)
+		static int push(lua_State* L, const ByteArray& data)
 		{
 			lua_newtable(L);
 			for (size_t i = 0; i < SIZE; i++)
@@ -28,7 +28,7 @@ namespace slua
 				lua_pushinteger(L, data.val[i]);
 				slua::setTableValue(L, i + 1);
 			}
-			return true;
+			return 1;
 		}
 		static ByteArray<SIZE> read(lua_State* L, const int idx) {
 			ByteArray<SIZE> ret;

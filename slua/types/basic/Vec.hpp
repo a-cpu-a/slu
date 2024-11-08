@@ -20,7 +20,7 @@ namespace slua
 		Vec() {}
 		Vec(const T& value) :val(value) {}
 
-		static bool push(lua_State* L, const Vec<T, INT, SIGNED, BITS>& data)
+		static int push(lua_State* L, const Vec<T, INT, SIGNED, BITS>& data)
 		{
 			lua_newtable(L);
 			for (int i = 0; i < T::length(); i++)
@@ -30,7 +30,7 @@ namespace slua
 				else
 					SLua_SetTableValue(L, i + 1, lua_pushnumber(L, data.val[i]));
 			}
-			return true;
+			return 1;
 		}
 		static Vec<T, INT, SIGNED, BITS> read(lua_State* L, const int idx)
 		{

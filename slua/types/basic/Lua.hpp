@@ -33,13 +33,14 @@ namespace slua
 		{}
 		Ret() {}
 
-		int push(lua_State* L) const
+		//Returns how many items were pushed to the stack, or negative in case of error
+		static int push(lua_State* L, const Ret& data) const
 		{
-			if (errored)
-				return slua::error(L, errorMsg.msg);
+			if (data.errored)
+				return slua::error(L, data.errorMsg.msg);
 
-			if (!isNil)
-				return slua::push(L, value);
+			if (!data.isNil)
+				return slua::push(L, data.value);
 
 			lua_pushnil(L);
 			return 1;
@@ -52,5 +53,6 @@ namespace slua
 		static constexpr const char* getName() { return "void"; }
 	};
 
-	using VoidRet = Ret<Void>;
+	//Like Void, except allows you to return errors too
+	struct VoidRet = Ret<Void>;
 }
