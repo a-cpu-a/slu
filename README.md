@@ -6,6 +6,11 @@ Intended for C++ 20, might work for older versions.
 
 
 ```cpp
+
+#include <slua/WrapFunc.hpp>
+#include <slua/types/basic/Integer.hpp> //needed for automatic integer type encoding
+#include <slua/types/complex/String.hpp> //needed for automatic std::string encoding
+
 inline slua::Ret<std::string> luaGet(const uint32_t& id) {
 	
 	if(id==UINT32_MAX)
