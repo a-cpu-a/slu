@@ -12,18 +12,18 @@
 
 namespace slua
 {
-	struct Any
+	struct AnyRef
 	{
 		lua_State* L;
 		const int idx = 0;
 
-		static int push(lua_State* L, const Any& data)
+		static int push(lua_State* L, const AnyRef& data)
 		{
 			lua_pushvalue(data.L, data.idx);//make copy
 			return 1;
 		}
-		static Any read(lua_State* L, const int idx) {
-			return Any(L, idx);
+		static AnyRef read(lua_State* L, const int idx) {
+			return AnyRef(L, idx);
 		}
 		static bool check(lua_State* L, const int idx) {
 			return true;
