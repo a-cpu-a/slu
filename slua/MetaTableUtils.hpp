@@ -26,23 +26,32 @@ namespace slua
 	{
 		std::vector<MetaTableGetter> list;
 		size_t maxFieldLen = 0;
+
+
+		MetaTableGetters& _add(const char* name, lua_CFunction func, bool doCall = true)
+		{
+			list.emplace_back(name, func, doCall);
+			maxFieldLen = std::max(maxFieldLen, strlen(list.back().name));
+			return *this;
+		}
+
+		template<typename RET_T, typename THIS_T>
+		using MetaTableGetterFunc = RET_T(*)(THIS_T& thisObject, const slua::TableKey& key);
+
+		template<typename RET_T, typename THIS_T>
+		MetaTableGetters& newGetter(const char* name, MetaTableGetterFunc<RET_T, THIS_T> cppFunc) {
+			return _add(name, SLua_WrapRaw(cppFunc));
+		}
+
+		// Lets you add a method
+		MetaTableGetters& newMethod(const char* name, auto cppFunc) {
+			return _add(name, SLua_WrapRaw(cppFunc), true);
+		}
+		// Lets you add a method
+		MetaTableGetters& newMethod(const char* name, lua_CFunction cFunc) {
+			return _add(name, cFunc, true);
+		}
 	};
-
-	template<typename RET_T, typename THIS_T>
-	using MetaTableGetterFunc = RET_T(*)(THIS_T& objectThis, const slua::TableKey&);
-
-	template<typename RET_T, typename THIS_T>
-	inline MetaTableGetter newGetter(const char* name, MetaTableGetterFunc<RET_T, THIS_T> cppFunc) {
-		return MetaTableGetter(name, SLua_WrapRaw(cppFunc));
-	}
-	// Lets you add a method
-	inline MetaTableGetter newMethod(const char* name, auto cppFunc) {
-		return MetaTableGetter(name, SLua_WrapRaw(cppFunc), true);
-	}
-	// Lets you add a method
-	inline MetaTableGetter newMethod(const char* name, lua_CFunction cFunc) {
-		return MetaTableGetter(name, cFunc, true);
-	}
 
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
 	{
@@ -94,18 +103,26 @@ namespace slua
 	{
 		std::vector<MetaTableSetter> list;
 		size_t maxFieldLen = 0;
+
+
+		MetaTableSetters& _add(const char* name, lua_CFunction func)
+		{
+			list.emplace_back(name, func);
+			maxFieldLen = std::max(maxFieldLen, strlen(list.back().name));
+			return *this;
+		}
+
+		template<typename RET_T, typename THIS_T, typename VAL_T>
+		using MetaTableSetterFunc = RET_T(*)(THIS_T& thisObject, const slua::TableKey&, VAL_T& val);
+
+		template<typename RET_T, typename THIS_T, typename VAL_T>
+		MetaTableSetters& newSetter(const char* name, MetaTableSetterFunc<RET_T, THIS_T, VAL_T> cppFunc) {
+			return _add(name, SLua_WrapRaw(cppFunc));
+		}
+		MetaTableSetters& newSetter(const char* name, lua_CFunction cFunc) {
+			return _add(name, cFunc);
+		}
 	};
-
-	template<typename RET_T, typename THIS_T, typename VAL_T>
-	using MetaTableSetterFunc = RET_T(*)(THIS_T& objectThis, const slua::TableKey&, VAL_T& val);
-
-	template<typename RET_T, typename THIS_T, typename VAL_T>
-	inline MetaTableSetter newSetter(const char* name, MetaTableSetterFunc<RET_T, THIS_T, VAL_T> cppFunc) {
-		return MetaTableSetter(name, SLua_WrapRaw(cppFunc));
-	}
-	inline MetaTableGetter newSetter(const char* name, lua_CFunction cFunc) {
-		return MetaTableGetter(name, cFunc);
-	}
 
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
