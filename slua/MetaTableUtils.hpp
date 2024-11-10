@@ -125,7 +125,7 @@ namespace slua
 
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
-		if (lua_gettop(L) != 2)
+		if (lua_gettop(L) != 3)
 			return slua::error(L, "Setters must have " LUACC_NUMBER "3" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key, newVal)");
 
 		if (!slua::TableKey::check(L, 2))
@@ -150,7 +150,7 @@ namespace slua
 
 		return slua::error(L, "Unknown key in setter " LUACC_STRING_SINGLE "'" LUACC_STRING_INNER + strKey + LUACC_STRING_SINGLE "'");
 	}
-#define SLua_SetupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } } }
+#define SLua_SetupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
 
 }
 
@@ -170,3 +170,46 @@ namespace slua
 			throw slua::Error(_ERROR); \
 		return _RET_VAL; \
 	})
+
+
+
+#define SLua_MakeSetter(_THIS_OBJ_ARG,_VAL_OBJ_ARG,_SET_CODE) \
+	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key,_VAL_OBJ_ARG) \
+	{ \
+		_SET_CODE; \
+		return slua::Void(); \
+	})
+
+//Checks if _CHECK is true, and if not, will throw a error
+#define SLua_MakeSetterChecking(_THIS_OBJ_ARG,_VAL_OBJ_ARG,_CHECK,_ERROR,_SET_CODE) \
+	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key,_VAL_OBJ_ARG) \
+	{ \
+		if(!(_CHECK)) \
+			throw slua::Error(_ERROR); \
+		_SET_CODE; \
+		return slua::Void(); \
+	})
+
+
+#define SLua_SetterBuilder(_FIELD_NAME,    _FIELD_OBJ,_THIS_OBJ_T,_FIELD_OBJ_T,    _CHECK,_ERROR) \
+	SLua_newSetter(#_FIELD_NAME, \
+		SLua_MakeSetterChecking(\
+			const _THIS_OBJ_T & thisObj, \
+			const decltype(_FIELD_OBJ_T ::_FIELD_NAME)& val, \
+			_CHECK, \
+			_ERROR, \
+			_FIELD_OBJ._FIELD_NAME = val \
+		) \
+	)
+
+
+// _FIELD_VAL_WRAPPER can be empty, so you get "... ,, ..."
+#define SLua_GetterBuilder(_FIELD_NAME,_FIELD_VAL_WRAPPER,    _FIELD_OBJ,_THIS_OBJ_T,    _CHECK,_ERROR) \
+	SLua_newGetter(#_FIELD_NAME, \
+		SLua_MakeGetterChecking(\
+			const _THIS_OBJ_T & thisObj, \
+			_CHECK, \
+			_ERROR, \
+			_FIELD_VAL_WRAPPER (_FIELD_OBJ._FIELD_NAME) \
+		) \
+	)
