@@ -40,22 +40,25 @@ namespace slua
 
 		template<typename RET_T, typename THIS_T>
 		MetaTableGetters& newGetter(const char* name, MetaTableGetterFunc<RET_T, THIS_T> cppFunc) {
-			return _add(name, SLua_WrapRaw(cppFunc));
+			return _add(name, SLua_WrapRaw(name, cppFunc));
+		}
+		MetaTableGetters& newGetterRaw(const char* name, lua_CFunction cFunc) {
+			return _add(name, cFunc);
 		}
 
 		// Lets you add a method
 		MetaTableGetters& newMethod(const char* name, auto cppFunc) {
-			return _add(name, SLua_WrapRaw(cppFunc), true);
+			return _add(name, SLua_WrapRaw(name, cppFunc), false);
 		}
 		// Lets you add a method
-		MetaTableGetters& newMethod(const char* name, lua_CFunction cFunc) {
-			return _add(name, cFunc, true);
+		MetaTableGetters& newMethodRaw(const char* name, lua_CFunction cFunc) {
+			return _add(name, cFunc, false);
 		}
 	};
 
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
 	{
-		if (lua_gettop(_L) != 2)
+		if (lua_gettop(L) != 2)
 			return slua::error(L, "Getters must have " LUACC_NUMBER "2" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key)");
 
 		if (!slua::TableKey::check(L, 2))
@@ -90,6 +93,7 @@ namespace slua
 
 
 
+
 	struct MetaTableSetter
 	{
 		const char* name;
@@ -117,9 +121,9 @@ namespace slua
 
 		template<typename RET_T, typename THIS_T, typename VAL_T>
 		MetaTableSetters& newSetter(const char* name, MetaTableSetterFunc<RET_T, THIS_T, VAL_T> cppFunc) {
-			return _add(name, SLua_WrapRaw(cppFunc));
+			return _add(name, SLua_WrapRaw(name, cppFunc));
 		}
-		MetaTableSetters& newSetter(const char* name, lua_CFunction cFunc) {
+		MetaTableSetters& newSetterRaw(const char* name, lua_CFunction cFunc) {
 			return _add(name, cFunc);
 		}
 	};
@@ -154,3 +158,15 @@ namespace slua
 #define SLua_SetupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } } }
 
 }
+
+
+
+
+//Checks if _CHECK is true, and if not, will throw a error
+#define SLua_MakeGetterChecking(_THIS_OBJ_ARG,_CHECK,_ERROR,_RET_VAL) \
+	[](_THIS_OBJ_ARG, const slua::TableKey& key) \
+	{ \
+		if(!(_CHECK)) \
+			throw slua::Error(_ERROR); \
+		return _RET_VAL; \
+	}
