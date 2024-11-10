@@ -155,6 +155,11 @@ namespace slua
 }
 
 
+#define SLua_MakeGetter(_THIS_OBJ_ARG,_RET_VAL) \
+	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key) \
+	{ \
+		return _RET_VAL; \
+	})
 
 
 //Checks if _CHECK is true, and if not, will throw a error
