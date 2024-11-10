@@ -47,7 +47,7 @@ namespace slua
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
 	{
 		if (lua_gettop(_L) != 2)
-			return slua::error(L, "Getters must have " LUACC_NUMBER "2" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject,key)");
+			return slua::error(L, "Getters must have " LUACC_NUMBER "2" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key)");
 
 		if (!slua::TableKey::check(L, 2))
 			return slua::error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " getter key");
@@ -75,7 +75,7 @@ namespace slua
 			}
 		}
 
-		return slua::error(L, "Unknown key for getting " LUACC_STRING_SINGLE "'" LUACC_STRING_INNER + strKey + LUACC_STRING_SINGLE "'");
+		return slua::error(L, "Unknown key in getter " LUACC_STRING_SINGLE "'" LUACC_STRING_INNER + strKey + LUACC_STRING_SINGLE "'");
 	}
 #define SLua_SetupGetHandler(_GETTERS) {"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
 
@@ -110,7 +110,7 @@ namespace slua
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
 		if (lua_gettop(_L) != 2)
-			return slua::error(L, "Setters must have " LUACC_NUMBER "3" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject,key,newVal)");
+			return slua::error(L, "Setters must have " LUACC_NUMBER "3" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key, newVal)");
 
 		if (!slua::TableKey::check(L, 2))
 			return slua::error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " setter key");
@@ -132,7 +132,7 @@ namespace slua
 			}
 		}
 
-		return slua::error(L, "Unknown key for writing " LUACC_STRING_SINGLE "'" LUACC_STRING_INNER + strKey + LUACC_STRING_SINGLE "'");
+		return slua::error(L, "Unknown key in setter " LUACC_STRING_SINGLE "'" LUACC_STRING_INNER + strKey + LUACC_STRING_SINGLE "'");
 	}
 #define SLua_SetupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } } }
 
