@@ -35,21 +35,19 @@ namespace slua
 			return *this;
 		}
 
-		template<typename RET_T, typename THIS_T>
-		using MetaTableGetterFunc = RET_T(*)(THIS_T& thisObject, const slua::TableKey& key);
+		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key), /*const*/ -> optionally const
+		// Call it as if this was a method inside MetaTableGetters (var.SLua_newGetter("fn", abc);)
+#define SLua_newGetter(_NAME,_CPP_FUNC) _add(_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC))
 
-		template<typename RET_T, typename THIS_T>
-		MetaTableGetters& newGetter(const char* name, MetaTableGetterFunc<RET_T, THIS_T> cppFunc) {
-			return _add(name, SLua_WrapRaw(name, cppFunc));
-		}
+
 		MetaTableGetters& newGetterRaw(const char* name, lua_CFunction cFunc) {
 			return _add(name, cFunc);
 		}
 
 		// Lets you add a method
-		MetaTableGetters& newMethod(const char* name, auto cppFunc) {
-			return _add(name, SLua_WrapRaw(name, cppFunc), false);
-		}
+		// Call it as if this was a method inside MetaTableGetters (var.SLua_newMethod("fn", abc);)
+#define SLua_newMethod(_NAME,_CPP_FUNC) _add(_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC), false)
+
 		// Lets you add a method
 		MetaTableGetters& newMethodRaw(const char* name, lua_CFunction cFunc) {
 			return _add(name, cFunc, false);
@@ -116,13 +114,10 @@ namespace slua
 			return *this;
 		}
 
-		template<typename RET_T, typename THIS_T, typename VAL_T>
-		using MetaTableSetterFunc = RET_T(*)(THIS_T& thisObject, const slua::TableKey&, VAL_T& val);
+		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key, /*const*/ VAL_T& val), /*const*/ -> optionally const
+		// Call it as if this was a method inside MetaTableSetters (var.SLua_newSetter("fn", abc);)
+#define SLua_newSetter(_NAME,_CPP_FUNC) _add(_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC))
 
-		template<typename RET_T, typename THIS_T, typename VAL_T>
-		MetaTableSetters& newSetter(const char* name, MetaTableSetterFunc<RET_T, THIS_T, VAL_T> cppFunc) {
-			return _add(name, SLua_WrapRaw(name, cppFunc));
-		}
 		MetaTableSetters& newSetterRaw(const char* name, lua_CFunction cFunc) {
 			return _add(name, cFunc);
 		}
@@ -164,9 +159,9 @@ namespace slua
 
 //Checks if _CHECK is true, and if not, will throw a error
 #define SLua_MakeGetterChecking(_THIS_OBJ_ARG,_CHECK,_ERROR,_RET_VAL) \
-	[](_THIS_OBJ_ARG, const slua::TableKey& key) \
+	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key) \
 	{ \
 		if(!(_CHECK)) \
 			throw slua::Error(_ERROR); \
 		return _RET_VAL; \
-	}
+	})
