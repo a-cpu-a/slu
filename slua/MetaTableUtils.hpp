@@ -130,7 +130,7 @@ namespace slua
 
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
-		if (lua_gettop(_L) != 2)
+		if (lua_gettop(L) != 2)
 			return slua::error(L, "Setters must have " LUACC_NUMBER "3" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key, newVal)");
 
 		if (!slua::TableKey::check(L, 2))
