@@ -18,7 +18,7 @@ namespace slua
 
 		// Could return a function, or a value, or... a error
 		lua_CFunction func;//maybe wrapped, maybe custom
-		bool doCall = true;// If true, then func will be called, to get the return value & push stuff to lua
+		bool doCall = false;// If true, then func will be called, to get the return value & push stuff to lua
 	};
 
 	// Allows you to create methods, fields
@@ -37,13 +37,12 @@ namespace slua
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key), /*const*/ -> optionally const
 		// Call it as if this was a method inside MetaTableGetters (var.SLua_newGetter("fn", abc);)
-#define SLua_Getter(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC)}
+#define SLua_Getter(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC),true}
 
 
 
 		// Lets you add a method
-		// Call it as if this was a method inside MetaTableGetters (var.SLua_newMethod("fn", abc);)
-#define SLua_Method(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC), false}
+#define SLua_Method(_NAME,_CPP_FUNC) SLua_Wrap(_NAME,_CPP_FUNC)
 
 	};
 
