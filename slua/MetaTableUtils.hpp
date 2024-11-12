@@ -27,31 +27,24 @@ namespace slua
 		std::vector<MetaTableGetter> list;
 		size_t maxFieldLen = 0;
 
-
-		MetaTableGetters& _add(const char* name, lua_CFunction func, bool doCall = true)
+		MetaTableGetters() {}
+		MetaTableGetters(const std::initializer_list<MetaTableGetter>& setters)
 		{
-			list.emplace_back(name, func, doCall);
-			maxFieldLen = std::max(maxFieldLen, strlen(list.back().name));
-			return *this;
+			list = setters;
+			for (const MetaTableGetter& setter : list)
+				maxFieldLen = std::max(maxFieldLen, strlen(setter.name));
 		}
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key), /*const*/ -> optionally const
 		// Call it as if this was a method inside MetaTableGetters (var.SLua_newGetter("fn", abc);)
-#define SLua_newGetter(_NAME,_CPP_FUNC) _add(_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC))
+#define SLua_Getter(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC)}
 
 
-		MetaTableGetters& newGetterRaw(const char* name, lua_CFunction cFunc) {
-			return _add(name, cFunc);
-		}
 
 		// Lets you add a method
 		// Call it as if this was a method inside MetaTableGetters (var.SLua_newMethod("fn", abc);)
-#define SLua_newMethod(_NAME,_CPP_FUNC) _add(_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC), false)
+#define SLua_Method(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC), false}
 
-		// Lets you add a method
-		MetaTableGetters& newMethodRaw(const char* name, lua_CFunction cFunc) {
-			return _add(name, cFunc, false);
-		}
 	};
 
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
@@ -106,21 +99,16 @@ namespace slua
 		std::vector<MetaTableSetter> list;
 		size_t maxFieldLen = 0;
 
-
-		MetaTableSetters& _add(const char* name, lua_CFunction func)
+		MetaTableSetters() {}
+		MetaTableSetters(const std::initializer_list<MetaTableSetter>& setters)
 		{
-			list.emplace_back(name, func);
-			maxFieldLen = std::max(maxFieldLen, strlen(list.back().name));
-			return *this;
+			list = setters;
+			for (const MetaTableSetter& setter : list)
+				maxFieldLen = std::max(maxFieldLen, strlen(setter.name));
 		}
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key, /*const*/ VAL_T& val), /*const*/ -> optionally const
-		// Call it as if this was a method inside MetaTableSetters (var.SLua_newSetter("fn", abc);)
-#define SLua_newSetter(_NAME,_CPP_FUNC) _add(_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC))
-
-		MetaTableSetters& newSetterRaw(const char* name, lua_CFunction cFunc) {
-			return _add(name, cFunc);
-		}
+#define SLua_Setter(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC)}
 	};
 
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
@@ -192,7 +180,7 @@ namespace slua
 
 
 #define SLua_SetterBuilder(_FIELD_NAME,    _FIELD_OBJ,_THIS_OBJ_T,_FIELD_OBJ_T,    _CHECK,_ERROR) \
-	SLua_newSetter(#_FIELD_NAME, \
+	SLua_Setter(#_FIELD_NAME, \
 		SLua_MakeSetterChecking(\
 			const _THIS_OBJ_T & thisObj, \
 			const decltype(_FIELD_OBJ_T ::_FIELD_NAME)& val, \
@@ -205,7 +193,7 @@ namespace slua
 
 // _FIELD_VAL_WRAPPER can be empty, so you get "... ,, ..."
 #define SLua_GetterBuilder(_FIELD_NAME,_FIELD_VAL_WRAPPER,    _FIELD_OBJ,_THIS_OBJ_T,    _CHECK,_ERROR) \
-	SLua_newGetter(#_FIELD_NAME, \
+	SLua_Getter(#_FIELD_NAME, \
 		SLua_MakeGetterChecking(\
 			const _THIS_OBJ_T & thisObj, \
 			_CHECK, \
