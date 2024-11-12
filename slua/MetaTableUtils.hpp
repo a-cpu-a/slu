@@ -107,7 +107,7 @@ namespace slua
 		}
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key, /*const*/ VAL_T& val), /*const*/ -> optionally const
-#define SLua_Setter(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC)}
+#define SLua_Setter(_NAME,_CPP_FUNC) SLua_Wrap(_NAME,_CPP_FUNC)
 	};
 
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
