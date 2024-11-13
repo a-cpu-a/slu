@@ -31,7 +31,7 @@ namespace slua
 	concept NonLuaType = !std::is_same_v<_RawType<T>, slua::ToLua<T>>;
 
 	template<typename T>
-	concept PushableLuaType = requires(slua::ToLua<T> t) {
+	concept Pushable = requires(slua::ToLua<T> t) {
 		{ t.push(nullptr, t) } -> std::same_as<int>;
 	};
 }
