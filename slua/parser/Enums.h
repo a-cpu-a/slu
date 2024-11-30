@@ -63,7 +63,7 @@ namespace sluaParse
 		BITWISE_NOT    // "~"
 	};
 
-	enum class ExpType : uint8_t
+	enum class ExprType : uint8_t
 	{
 		NIL,                   // "nil"
 		FALSE,                 // "false"
@@ -75,6 +75,36 @@ namespace sluaParse
 		PREFIX_EXP,            // "prefixexp"
 		TABLE_CONSTRUCTOR,     // "tableconstructor"
 		BINARY_OPERATION,      // "exp binop exp"
-		UNARY_OPERATION        // "unop exp"
+		UNARY_OPERATION,       // "unop exp"
+
+
+		NUMERAL_I64,           // "Numeral"
+		NUMERAL_U64,           // "Numeral"
+	};
+
+	enum class VarType : uint8_t
+	{
+		VAR_NAME,	   // "Name"
+		EXP_INDEX,     // "prefixexp [ exp ]"
+		EXP_INDEX_STR  // "prefixexp.Name"
+	};
+
+	enum class PrefixExprType : uint8_t
+	{
+		VAR,			// "var"
+		FUNC_CALL,      // "functioncall"
+		EXPR 			// "'(' exp ')'"
+	};
+	enum class ArgsType : uint8_t
+	{
+		EXPLIST,		// "'(' [explist] ')'"
+		TABLE,	        // "tableconstructor"
+		LITERAL 		// "LiteralString"
+	};
+	enum class FieldType : uint8_t
+	{
+		EXPR2EXPR,		// "‘[’ exp ‘]’ ‘=’ exp"
+		NAME2EXPR,	    // "Name ‘=’ exp"
+		EXPR 			// "exp"
 	};
 }
