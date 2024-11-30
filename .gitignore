@@ -14,3 +14,7 @@ testes/libs/all
 temp
 lua
 /.vs
+
+
+*.sln
+*.vcxproj*
