@@ -152,6 +152,13 @@ namespace slua
 		{
 			return runCppFunc(L, funcName, func);
 		}
+		catch (const std::exception& e)
+		{
+			return slua::error(L, LUACC_FUNCTION "Function"
+				LUACC_STRING_SINGLE " '" LUACC_DEFAULT + funcName + LUACC_STRING_SINGLE "'" LUACC_DEFAULT
+				" had a " LUACC_INVALID "error" LUACC_DEFAULT ": "
+				, e.what());
+		}
 		catch (const slua::Error& e)
 		{
 			return slua::error(L, LUACC_FUNCTION "Function"
