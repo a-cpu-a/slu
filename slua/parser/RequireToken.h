@@ -20,6 +20,7 @@ namespace sluaParse
 {
 	inline void requireToken(AnyInput auto& in, const char* tok)
 	{
+		skipSpace(in);
 		try
 		{
 			size_t i = 0;
@@ -44,5 +45,38 @@ namespace sluaParse
 				LUACC_START_SINGLE_STRING + std::to_string(tok) + LUACC_END_SINGLE_STRING
 				", but file ended");
 		}
+	}
+	inline bool checkToken(AnyInput auto& in, const char* tok, const bool nameLike = false, const bool readIfGood = false)
+	{
+		size_t off = spacesToSkip(in);
+
+		size_t i = 0;
+		while (tok[i] != 0)
+		{
+			if (in.checkOOB(off))
+				return false;
+
+			if (in.peek(off++) != tok[i])
+				return false;
+
+			i++;
+		}
+
+
+		if (nameLike)
+		{
+			const uint8_t ch = in.peek(off);
+			if (ch == '_' || std::isalnum(ch))
+				return false;
+		}
+
+		if (readIfGood)
+			in.skip(off);
+
+
+		return true;
+	}
+	inline bool checkReadToken(AnyInput auto& in, const char* tok, const bool requireNonName = false) {
+		return checkToken(in, tok, requireNonName, true);
 	}
 }

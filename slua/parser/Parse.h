@@ -23,16 +23,15 @@ namespace sluaParse
 	{
 		//label ::= ‘::’ Name ‘::’
 
-		skipSpace(in);
 		requireToken(in, "::");
 
 		const std::string res = readName(in);
 
-		skipSpace(in);
 		requireToken(in, "::");
 
 		return res;
 	}
+
 	inline Statement readStatment(AnyInput auto& in)
 	{
 		/*
@@ -52,6 +51,82 @@ namespace sluaParse
 		 local function Name funcbody |
 		 local attnamelist [‘=’ explist]
 		*/
+
+		skipSpace(in);
+
+		switch (in.peek())
+		{
+		case ';':
+			return { StatementData::with<StatementType::SEMICOLON>(),in.getLoc() };
+
+		case ':'://must be label
+			return { StatementData::with<StatementType::LABEL>(readLabel(in)),in.getLoc() };
+
+		case 'f'://for?,func?
+			if (checkReadToken(in, "for", true))
+			{
+				requireToken(in, "end");
+				break;//TODO: replace with return
+			}
+			if (checkReadToken(in, "function", true))
+			{
+				break;//TODO: replace with return
+			}
+
+			break;
+		case 'l'://local?
+			if (checkReadToken(in, "local", true))
+			{//func, or var
+				if (checkReadToken(in, "function", true))
+				{
+					break;//TODO: replace with return
+				}
+				//var
+
+				break;//TODO: replace with return
+			}
+			break;
+		case 'd'://do?
+			if (checkReadToken(in, "do", true)) // do block end
+			{
+				//TODO
+
+				requireToken(in, "end");
+			}
+			break;
+		case 'b'://break?
+			if (checkReadToken(in, "break", true))
+				return { StatementData::with<StatementType::BREAK>(),in.getLoc() };
+			break;
+		case 'g'://goto?
+			if (checkReadToken(in, "goto", true))//goto Name
+				return { StatementData::with<StatementType::GOTO>(readName(in)),in.getLoc() };
+			break;
+		case 'w'://while?
+			if (checkReadToken(in, "while", true))
+			{
+				requireToken(in, "end");
+				break;//TODO: replace with return
+			}
+			break;
+		case 'r'://repeat?
+			if (checkReadToken(in, "repeat", true))
+			{
+				break;//TODO: replace with return
+			}
+			break;
+		case 'i'://if?
+			if (checkReadToken(in, "if", true))
+			{
+				requireToken(in, "end");
+				break;//TODO: replace with return
+			}
+			break;
+
+		default://none of the above...
+			break;
+		}
+		//try assign or func-call
 	}
 	inline Block readBlock(AnyInput auto& in)
 	{

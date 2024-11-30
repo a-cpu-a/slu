@@ -10,6 +10,8 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+#include "State.hpp"
+
 namespace sluaParse
 {
 	struct EndOfStreamError : std::exception
@@ -90,6 +92,13 @@ namespace sluaParse
 		operator bool() const {
 			return idx < text.size();
 		}
+		//Passing 0 is the same as (!in)
+		bool checkOOB(const size_t offset) const {
+			return (
+				idx + offset >= text.size()
+				|| idx > SIZE_MAX - offset
+				);
+		}
 
 
 		//Error output
@@ -97,11 +106,8 @@ namespace sluaParse
 		std::string fileName() const {
 			return fName;
 		}
-		size_t line() const {
-			return curLine;
-		}
-		size_t linePos() const {
-			return curLinePos;
+		Position getLoc() const {
+			return { curLine,curLinePos };
 		}
 		void newLine() {
 			curLine++;
@@ -127,11 +133,13 @@ namespace sluaParse
 		{ (bool)t } -> std::same_as<bool>;
 
 
+		{ t.checkOOB((size_t)100) } -> std::same_as<bool>;
+
+
 		//Error output
 
 		{ t.fileName() } -> std::same_as<std::string>;
-		{ t.line() } -> std::same_as<size_t>;
-		{ t.linePos() } -> std::same_as<size_t>;
+		{ t.getLoc() } -> std::same_as<Position>;
 
 		//Management
 		{ t.newLine() } -> std::same_as<void>;
