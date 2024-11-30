@@ -25,6 +25,9 @@ namespace slua
 	inline int error(lua_State* L, const std::string& prefix, const slua::Error& e) {
 		return luaL_error(L, (prefix + e.msg).c_str());
 	}
+	inline int error(lua_State* L, const std::string& prefix, const char* e) {
+		return luaL_error(L, (prefix + e).c_str());
+	}
 	inline int error(lua_State* L, const char* str) {
 		return luaL_error(L, str);
 	}
