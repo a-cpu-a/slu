@@ -63,21 +63,21 @@ namespace sluaParse
 			return { StatementData::with<StatementType::LABEL>(readLabel(in)),in.getLoc() };
 
 		case 'f'://for?,func?
-			if (checkReadToken(in, "for", true))
+			if (checkReadTextToken(in, "for"))
 			{
 				requireToken(in, "end");
 				break;//TODO: replace with return
 			}
-			if (checkReadToken(in, "function", true))
+			if (checkReadTextToken(in, "function"))
 			{
 				break;//TODO: replace with return
 			}
 
 			break;
 		case 'l'://local?
-			if (checkReadToken(in, "local", true))
+			if (checkReadTextToken(in, "local"))
 			{//func, or var
-				if (checkReadToken(in, "function", true))
+				if (checkReadTextToken(in, "function"))
 				{
 					break;//TODO: replace with return
 				}
@@ -87,7 +87,7 @@ namespace sluaParse
 			}
 			break;
 		case 'd'://do?
-			if (checkReadToken(in, "do", true)) // do block end
+			if (checkReadTextToken(in, "do")) // do block end
 			{
 				//TODO
 
@@ -95,28 +95,28 @@ namespace sluaParse
 			}
 			break;
 		case 'b'://break?
-			if (checkReadToken(in, "break", true))
+			if (checkReadTextToken(in, "break"))
 				return { StatementData::with<StatementType::BREAK>(),in.getLoc() };
 			break;
 		case 'g'://goto?
-			if (checkReadToken(in, "goto", true))//goto Name
+			if (checkReadTextToken(in, "goto"))//goto Name
 				return { StatementData::with<StatementType::GOTO>(readName(in)),in.getLoc() };
 			break;
 		case 'w'://while?
-			if (checkReadToken(in, "while", true))
+			if (checkReadTextToken(in, "while"))
 			{
 				requireToken(in, "end");
 				break;//TODO: replace with return
 			}
 			break;
 		case 'r'://repeat?
-			if (checkReadToken(in, "repeat", true))
+			if (checkReadTextToken(in, "repeat"))
 			{
 				break;//TODO: replace with return
 			}
 			break;
 		case 'i'://if?
-			if (checkReadToken(in, "if", true))
+			if (checkReadTextToken(in, "if"))
 			{
 				requireToken(in, "end");
 				break;//TODO: replace with return

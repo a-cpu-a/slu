@@ -76,7 +76,10 @@ namespace sluaParse
 
 		return true;
 	}
-	inline bool checkReadToken(AnyInput auto& in, const char* tok, const bool requireNonName = false) {
-		return checkToken(in, tok, requireNonName, true);
+	inline bool checkReadToken(AnyInput auto& in, const char* tok, const bool nameLike = false) {
+		return checkToken(in, tok, nameLike, true);
+	}
+	inline bool checkReadTextToken(AnyInput auto& in, const char* tok) {
+		return checkToken(in, tok, true, true);
 	}
 }
