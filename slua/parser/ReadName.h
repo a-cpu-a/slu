@@ -18,7 +18,7 @@
 
 namespace sluaParse
 {
-	inline std::string readName(AnyInput auto& in)
+	inline std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
 		Names (also called identifiers) in Lua can be any string
@@ -48,7 +48,11 @@ namespace sluaParse
 
 		// Ensure the first character is valid (a letter or underscore)
 		if (!std::isalpha(firstChar) && firstChar != '_')
+		{
+			if (allowError)
+				return "";
 			throw UnexpectedCharacterError("Invalid identifier start: must begin with a letter or underscore" + errorLocStr(in));
+		}
 
 
 		std::string res = in.get(); // Consume the first valid character
@@ -67,8 +71,45 @@ namespace sluaParse
 
 		// Check if the resulting string is a reserved keyword
 		if (reservedKeywords.find(res) != reservedKeywords.end())
+		{
+			if (allowError)
+				return "";
 			throw ReservedNameError("Invalid identifier: matches a reserved keyword" + errorLocStr(in));
+		}
 
 		return res;
+	}
+
+
+	inline std::vector<std::string> readNames(AnyInput auto& in, const bool requires1 = true)
+	{
+		std::vector<std::string> res;
+
+		if (requires1)
+			res.push_back(readName(in));
+
+		bool skipComma = !requires1;//comma wont exist if the first one doesnt exist
+		bool allowNameError = !requires1;//if the first one doesnt exist
+
+		while (true)
+		{
+			if (!skipComma)
+			{
+				if (!requireTokenNoThrow(in, ","))
+					return res;// that must have been the last item
+			}
+			else
+				skipComma = false;// Only skip first comma
+
+			const std::string str = readName(in, allowNameError);
+
+			if (allowNameError && str.empty())
+				return {};//no names
+
+			res.push_back(str);
+
+			allowNameError = false;//not the first one anymore
+		}
+
 	}
 }
