@@ -77,7 +77,7 @@ namespace slua
 			}
 		}
 
-		return slua::error(L, "Unknown key in getter " LUACC_STRING_SINGLE "'" LUACC_STRING_INNER + strKey + LUACC_STRING_SINGLE "'");
+		return slua::error(L, "Unknown key in getter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
 	}
 #define SLua_SetupGetHandler(_GETTERS) {"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
 
@@ -135,7 +135,7 @@ namespace slua
 			}
 		}
 
-		return slua::error(L, "Unknown key in setter " LUACC_STRING_SINGLE "'" LUACC_STRING_INNER + strKey + LUACC_STRING_SINGLE "'");
+		return slua::error(L, "Unknown key in setter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
 	}
 #define SLua_SetupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
 
