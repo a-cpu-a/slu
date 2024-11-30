@@ -56,7 +56,7 @@ namespace sluaParse
 		bool insideMultilineComment = false;//TODO: use
 		size_t multilineCommentLevel = SIZE_MAX;//TODO: use
 
-		while (in.checkEndOfStream())
+		while (in)
 		{
 			const uint8_t ch = in.peek();
 
@@ -93,7 +93,7 @@ namespace sluaParse
 			}
 
 			/*
-			
+
 			In source code, Lua recognizes as
 			spaces the standard ASCII whitespace characters
 			space, form feed, newline, carriage return,

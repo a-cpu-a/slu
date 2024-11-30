@@ -19,6 +19,10 @@ namespace sluaParse
 
 	struct Input
 	{
+		std::string fName;
+		size_t curLine = 0;
+		size_t curLinePos = 0;
+
 		std::span<const uint8_t> text;
 		size_t idx;
 
@@ -56,7 +60,7 @@ namespace sluaParse
 			//if (idx >= text.size())
 			//	throw EndOfStreamError();
 
-			idx+= count;
+			idx += count;
 		}
 
 		uint8_t get()
@@ -64,6 +68,7 @@ namespace sluaParse
 			if (idx >= text.size())
 				throw EndOfStreamError();
 
+			curLinePos++;
 			return text[idx++];
 		}
 		// span must be valid until next get(), so, any peek()'s must not invalidate these!!!
@@ -76,14 +81,33 @@ namespace sluaParse
 			std::span<const uint8_t> res = text.subspan(idx, count);
 
 			idx += count;
+			curLinePos += count;
 
 			return res;
 		}
 
 		/* Returns true, while stream still has stuff */
-		bool checkEndOfStream() const {
+		operator bool() const {
 			return idx < text.size();
 		}
+
+
+		//Error output
+
+		std::string fileName() const {
+			return fName;
+		}
+		size_t line() const {
+			return curLine;
+		}
+		size_t linePos() const {
+			return curLinePos;
+		}
+		void newLine() {
+			curLine++;
+			curLinePos = 0;
+		}
+
 	};
 
 	//Here, so streamed inputs can be made
@@ -100,6 +124,16 @@ namespace sluaParse
 		{ t.peek((size_t)100) } -> std::same_as<std::span<const uint8_t>>;
 
 		/* Returns true, while stream still has stuff */
-		{ t.checkEndOfStream() } -> std::same_as<bool>;
+		{ (bool)t } -> std::same_as<bool>;
+
+
+		//Error output
+
+		{ t.fileName() } -> std::same_as<std::string>;
+		{ t.line() } -> std::same_as<size_t>;
+		{ t.linePos() } -> std::same_as<size_t>;
+
+		//Management
+		{ t.newLine() } -> std::same_as<void>;
 	};
 }
