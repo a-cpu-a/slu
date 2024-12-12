@@ -6,6 +6,7 @@
 #include <slua/types/Converter.hpp>
 #include <slua/types/ReadWrite.hpp>
 #include <slua/types/basic/Lua.hpp>
+#include <slua/Context.hpp>
 
 //include by default, cuz error messages are confusing
 /*#include <slua/types/basic/Bool.hpp>
@@ -144,6 +145,59 @@ namespace slua
 		_SLua_CHECK_N_READ_ARG(6);
 
 		_SLua_RUN_N_RETURN(in1, in2, in3, in4, in5, in6);
+	}
+
+	template<class RET_T, class... ARGS>
+	using CtxCppFunc = RET_T(*)(slua::Context& ctx, ARGS...);
+
+	template <class RET_T,class... ARGS>
+	inline int runCppFunc(lua_State* L, const std::string& funcName, CtxCppFunc<RET_T,ARGS...> func)
+	{
+		if (sizeof...(ARGS) != lua_gettop(L))
+		{
+			if constexpr (sizeof...(ARGS) == 1)
+			{
+				return slua::error(L, LUACC_FUNCTION "Function "
+					LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
+					" needs " LUACC_NUMBER "1" LUACC_ARGUMENT " argument" LUACC_DEFAULT ".");
+			}
+			return slua::error(L, LUACC_FUNCTION "Function "
+				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
+				" needs " LUACC_NUMBER + TS(sizeof...(ARGS)) + LUACC_ARGUMENT " arguments" LUACC_DEFAULT ".");
+		}
+
+
+
+		//TODO: replace the following with a template/constexpr for loop... or just reflection maybe
+		std::tuple<slua::Context, ARGS...> args;
+
+		int i = 0;
+		std::apply(
+			[&](auto&... argss) {(
+				[&](auto& arg) {
+					if constexpr (std::is_same_v<decltype(arg), slua::Context&>)//NOTE: reference to pointer
+						arg= L;
+					else
+					{
+						i++;
+						if (slua::checkThrowing(L, i, arg))
+							arg = slua::read(L, i, arg);
+						else
+							throw slua::Error(
+								LUACC_ARGUMENT "Argument " 
+								LUACC_NUMBER +TS(i) + LUACC_DEFAULT 
+								//" of " LUACC_FUNCTION "function " 
+								//LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING 
+								", is " LUACC_INVALID "not" LUACC_DEFAULT " a " 
+								LUACC_END_SINGLE_STRING + slua::getName(arg) + LUACC_STRING_SINGLE "'"
+							);
+					}
+				}(argss)
+					, ...); }
+		, args);
+
+		const slua::ToLua<RET_T> _VAR = std::apply(func,args);
+		return slua::push(L, _VAR);
 	}
 
 	inline int runCppFuncWrapped(lua_State* L, const std::string& funcName, auto func)
