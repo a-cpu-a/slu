@@ -43,14 +43,20 @@ namespace slua
 	// Checks the last 2 bytes, returns true if all is good
 	// Uses sizeof(PTR_T) to find where type id is at
 	template<typename TYPE, typename PTR_T>
-	inline bool checkTypeIdSeperate(const PTR_T* ptr) {
-		const uint8_t* dataPtr = reinterpret_cast<const uint8_t*>(ptr);
+	inline bool checkTypeIdSeperate(const void* ptr) {
+		const uint8_t* dataPtr = (const uint8_t*)ptr;
 
 		const uint16_t typeId = getTypeId<TYPE>();
 		return (
 			dataPtr[sizeof(PTR_T) + 0] == (typeId & 0xFF))
 			&& (
 				dataPtr[sizeof(PTR_T) + 1] == (typeId >> 8));
+	}
+	// Checks the last 2 bytes, returns true if all is good
+	// Uses sizeof(PTR_T) to find where type id is at
+	template<typename TYPE, typename PTR_T>
+	inline bool checkTypeIdSeperate(const PTR_T* ptr) {
+		return checkTypeId<TYPE, PTR_T>((const void*)ptr);
 	}
 	// Checks the last 2 bytes, returns true if all is good
 	// Uses sizeof(TYPE) to find where type id is at
