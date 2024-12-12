@@ -7,9 +7,41 @@
 
 namespace slua
 {
+	struct Math
+	{
+		lua_State* L = nullptr;//Shared with the var inside Context
+
+		double random() {
+			if (lua_getglobal(L, "math") != LUA_TTABLE)
+				lua_pop(L,1);
+			else
+			{
+				lua_pushliteral(L, "random");
+				if (lua_rawget(L, -2) != LUA_TFUNCTION 
+					|| !lua_iscfunction(L,-1))//require it to be a C function
+					lua_pop(L, 2);//val & table
+				else
+				{
+					if (lua_pcall(L, 0, 1, 0) == LUA_OK)
+					{
+						double ret = lua_tonumber(L, -1);
+						lua_pop(L, 2);//val & table
+						return ret;
+					}
+					lua_pop(L, 2);//val/err & table
+				}
+			}
+			return 0.0;//error
+		}
+	};
+
 	struct Context
 	{
-		lua_State* L = nullptr;
+		union //Both are just a lua_State*
+		{
+			lua_State* L = nullptr;
+			Math math;//This will share the L variable
+		};
 		bool autoDelete = false;
 
 		Context() {}
