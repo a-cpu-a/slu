@@ -19,10 +19,15 @@ namespace slua
 	}
 
 
-	template<typename T>
+	template<slua::NonLuaType T>
 	inline T read(lua_State* L, const int idx, T) {
 		return (T)slua::ToLua<T>::read(L, idx).val;
 	}
+	template<slua::LuaType T>
+	inline T read(lua_State* L, const int idx, T) {
+		return T::read(L, idx);
+	}
+
 	template<slua::NonLuaType T>
 	inline T read(lua_State* L, const int idx) {
 		return (T)slua::ToLua<T>::read(L, idx).val;
