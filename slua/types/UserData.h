@@ -29,13 +29,33 @@ namespace slua
 
 		const uint16_t typeId = getTypeId<TYPE>();
 
-		dataPtr[sizeof(PTR_T)+0] = typeId;
-		dataPtr[sizeof(PTR_T)+1] = typeId>>8;
+		dataPtr[sizeof(PTR_T)+0] = typeId & 0xFF;
+		dataPtr[sizeof(PTR_T)+1] = typeId >> 8;
 	}
 	// Changes the last 2 bytes into the types id
 	// Uses sizeof(TYPE) to find where to change stuff
 	template<typename TYPE>
 	inline void setTypeId(TYPE* ptr) {
-		setUserTypeIdSeperate<TYPE,TYPE>(ptr);
+		setTypeIdSeperate<TYPE,TYPE>(ptr);
+	}
+
+
+	// Checks the last 2 bytes, returns true if all is good
+	// Uses sizeof(PTR_T) to find where type id is at
+	template<typename TYPE, typename PTR_T>
+	inline bool checkTypeIdSeperate(const PTR_T* ptr) {
+		const uint8_t* dataPtr = reinterpret_cast<const uint8_t*>(ptr);
+
+		const uint16_t typeId = getTypeId<TYPE>();
+		return (
+			dataPtr[sizeof(PTR_T) + 0] == (typeId & 0xFF))
+			&& (
+				dataPtr[sizeof(PTR_T) + 1] == (typeId >> 8));
+	}
+	// Checks the last 2 bytes, returns true if all is good
+	// Uses sizeof(TYPE) to find where type id is at
+	template<typename TYPE>
+	inline bool checkTypeId(const TYPE* ptr) {
+		return checkTypeIdSeperate<TYPE, TYPE>(ptr);
 	}
 }
