@@ -60,13 +60,13 @@ namespace sluaParse
 		case '7':
 		case '8':
 		case '9':
-			//numeral
+			//TODO: numeral
 
 			break;
 		case '"':
 		case '\'':
 		case '[':
-			//literal?
+			//TODO: literal?
 			break;
 		case '.':
 			if (checkReadToken(in, "..."))
@@ -76,10 +76,10 @@ namespace sluaParse
 			}
 			break;
 		case '(':
-			//prefixexp
+			//TODO: prefixexp
 			break;
 		case '{':
-			//tableconstructor
+			//TODO: tableconstructor
 			break;
 		}
 
@@ -138,6 +138,33 @@ namespace sluaParse
 		case 'f'://for?,func?
 			if (checkReadTextToken(in, "for"))
 			{
+				/*
+				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+				 for namelist in explist do block end | 
+				*/
+
+				//TODO: namelist
+
+				if (true &&checkReadToken(in,"="))//1 name, then equal
+				{
+					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+					Expression initExpr = readExpr(in);
+					requireToken(in, ",");
+					Expression lmitExpr = readExpr(in);
+					if(checkReadToken(in,","))
+					{
+						Expression stepExpr = readExpr(in);
+					}
+				}
+				else
+				{
+					// for namelist in explist do block end | 
+					requireToken(in, "in");
+					//TODO: explist
+
+				}
+				requireToken(in, "do");
+				//TODO: block
 				requireToken(in, "end");
 				break;//TODO: replace with return
 			}
@@ -162,9 +189,9 @@ namespace sluaParse
 		case 'd'://do?
 			if (checkReadTextToken(in, "do")) // do block end
 			{
-				//TODO
-
+				//TODO: block
 				requireToken(in, "end");
+				break;//TODO: replace with return
 			}
 			break;
 		case 'b'://break?
@@ -179,7 +206,8 @@ namespace sluaParse
 			if (checkReadTextToken(in, "while"))
 			{
 				Expression expr = readExpr(in);
-
+				requireToken(in, "do");
+				//TODO: block
 				requireToken(in, "end");
 				break;//TODO: replace with return
 			}
@@ -187,12 +215,24 @@ namespace sluaParse
 		case 'r'://repeat?
 			if (checkReadTextToken(in, "repeat"))
 			{
+				//TODO: block
+				requireToken(in, "until");
+				Expression expr = readExpr(in);
+
 				break;//TODO: replace with return
 			}
 			break;
 		case 'i'://if?
 			if (checkReadTextToken(in, "if"))
 			{
+				Expression expr = readExpr(in);
+
+				requireToken(in, "then");
+
+				//TODO: block
+				//TODO: {elseif}
+				//TODO: [else]
+
 				requireToken(in, "end");
 				break;//TODO: replace with return
 			}
