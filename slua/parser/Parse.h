@@ -16,13 +16,40 @@
 #include "SkipSpace.h"
 #include "RequireToken.h"
 #include "ReadName.h"
+#include "ReadOperators.h"
 
 namespace sluaParse
 {
 	inline Expression readExpr(AnyInput auto& in)
 	{
+		/*
+		nil | false | true | Numeral | LiteralString | ‘...’ | functiondef | 
+		 prefixexp | tableconstructor | exp binop exp | unop exp 
+		*/
+
+		Expression res;
+
+		const UnOpType unOp = readOptUnOp(in);
+
+		skipSpace(in);
+
 		switch (in.peek())
 		{
+		case 'n':
+			if (checkReadTextToken(in, "nil"))
+			{
+				//the in args
+				break;
+			}
+			break;
+		case 'f':
+
+			if (checkReadTextToken(in, "false")) { break; }
+			if (checkReadTextToken(in, "function")) { break; }
+			break;
+		case 't':
+			if (checkReadTextToken(in, "true")) { break; }
+			break;
 		case '0':
 		case '1':
 		case '2':
@@ -33,24 +60,35 @@ namespace sluaParse
 		case '7':
 		case '8':
 		case '9':
+			//numeral
+			break;
+		case '"':
+		case '\'':
+		case '[':
+			//literal?
 			break;
 		case '.':
 			if (checkReadToken(in, "..."))
 			{
 				//the in args
+				break;
 			}
 			break;
-		case 'n':
-			if (checkReadTextToken(in, "nil"))
-			{
-				//the in args
-			}
+		case '(':
+			//prefixexp
 			break;
-		case 'f':
-			break;
-		case 't':
+		case '{':
+			//tableconstructor
 			break;
 		}
+
+		//check bin op
+
+
+		const BinOpType unOp = readOptBinOp(in);
+
+		if (unOp == BinOpType::NONE)
+			return res;
 	}
 
 	inline std::string readLabel(AnyInput auto& in)
