@@ -29,7 +29,7 @@ namespace sluaParse
 
 		Expression res;
 
-		const UnOpType unOp = readOptUnOp(in);
+		res.unOp = readOptUnOp(in);
 
 		skipSpace(in);
 
@@ -61,6 +61,7 @@ namespace sluaParse
 		case '8':
 		case '9':
 			//numeral
+
 			break;
 		case '"':
 		case '\'':
@@ -85,9 +86,9 @@ namespace sluaParse
 		//check bin op
 
 
-		const BinOpType unOp = readOptBinOp(in);
+		const BinOpType binOp = readOptBinOp(in);
 
-		if (unOp == BinOpType::NONE)
+		if (binOp == BinOpType::NONE)
 			return res;
 	}
 

@@ -79,11 +79,10 @@ namespace sluaParse
 		PREFIX_EXP,            // "prefixexp"
 		TABLE_CONSTRUCTOR,     // "tableconstructor"
 		BINARY_OPERATION,      // "exp binop exp"
-		UNARY_OPERATION,       // "unop exp"
+		//UNARY_OPERATION,     // "unop exp"	//Inlined as opt prefix
 
 
-		NUMERAL_I64,           // "Numeral"
-		NUMERAL_U64,           // "Numeral"
+		NUMERAL_I64            // "Numeral"
 	};
 
 	enum class VarType : uint8_t

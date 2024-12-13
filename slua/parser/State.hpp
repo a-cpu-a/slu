@@ -85,7 +85,7 @@ namespace sluaParse
 		(ExprType::TRUE, void),                   // "true"
 		(ExprType::NUMERAL, double),              // "Numeral" (e.g., a floating-point number)
 		(ExprType::NUMERAL_I64, int64_t),         // "Numeral"
-		(ExprType::NUMERAL_U64, uint64_t),        // "Numeral"
+		//(ExprType::NUMERAL_U64, uint64_t),      // "Numeral"
 		(ExprType::LITERAL_STRING, std::string),  // "LiteralString"
 		(ExprType::VARARGS, void),                // "..." (varargs)
 		(ExprType::FUNCTION_DEF, Function),       // "functiondef"
@@ -95,17 +95,18 @@ namespace sluaParse
 		(ExprType::BINARY_OPERATION, // "exp binop exp"
 			BinOpType, 
 			std::unique_ptr<struct Expression>, 
-			std::unique_ptr<struct Expression>),
+			std::unique_ptr<struct Expression>) //,
 
-		(ExprType::UNARY_OPERATION,// "unop exp"
-			UnOpType,
-			std::unique_ptr<struct Expression>)
+		//(ExprType::UNARY_OPERATION,// "unop exp"
+		//	UnOpType,
+		//	std::unique_ptr<struct Expression>)
 	)>;
 
 	struct Expression
 	{
 		ExprData data;
 		Position place;
+		UnOpType unOp;//might be NONE
 	};
 
 	using Var = sus::Choice<sus_choice_types(
