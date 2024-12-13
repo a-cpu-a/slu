@@ -19,6 +19,40 @@
 
 namespace sluaParse
 {
+	inline Expression readExpr(AnyInput auto& in)
+	{
+		switch (in.peek())
+		{
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			break;
+		case '.':
+			if (checkReadToken(in, "..."))
+			{
+				//the in args
+			}
+			break;
+		case 'n':
+			if (checkReadTextToken(in, "nil"))
+			{
+				//the in args
+			}
+			break;
+		case 'f':
+			break;
+		case 't':
+			break;
+		}
+	}
+
 	inline std::string readLabel(AnyInput auto& in)
 	{
 		//label ::= ‘::’ Name ‘::’
@@ -35,7 +69,7 @@ namespace sluaParse
 	inline Statement readStatment(AnyInput auto& in)
 	{
 		/*
-		stat ::=  ‘;’ |
+		 stat ::=  ‘;’ |
 		 varlist ‘=’ explist |
 		 functioncall |
 		 label |
@@ -105,6 +139,8 @@ namespace sluaParse
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))
 			{
+				Expression expr = readExpr(in);
+
 				requireToken(in, "end");
 				break;//TODO: replace with return
 			}

@@ -18,15 +18,16 @@
 
 namespace sluaParse
 {
-	inline void requireToken(AnyInput auto& in, const char* tok)
+	template<size_t TOK_SIZE>
+	inline void requireToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
 	{
 		skipSpace(in);
 		try
 		{
-			size_t i = 0;
-			while (tok[i] != 0)
+			for (size_t i = 0; i < TOK_SIZE-1; i++)//skip null
 			{
 				if (in.get() != tok[i])
+				{
 					throw UnexpectedCharacterError(
 						"Expected "
 						LUACC_START_SINGLE_STRING + std::to_string(tok) + LUACC_END_SINGLE_STRING
@@ -34,8 +35,7 @@ namespace sluaParse
 						LUACC_START_SINGLE_STRING + tok[i] + LUACC_END_SINGLE_STRING
 						+ errorLocStr(in)
 					);
-
-				i++;
+				}
 			}
 		}
 		catch (EndOfStreamError&)
@@ -46,20 +46,18 @@ namespace sluaParse
 				", but file ended");
 		}
 	}
-	inline bool checkToken(AnyInput auto& in, const char* tok, const bool nameLike = false, const bool readIfGood = false)
+	template<size_t TOK_SIZE>
+	inline bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false)
 	{
 		size_t off = spacesToSkip(in);
 
-		size_t i = 0;
-		while (tok[i] != 0)
+		for (size_t i = 0; i < TOK_SIZE - 1; i++)//skip null
 		{
 			if (in.checkOOB(off))
 				return false;
 
 			if (in.peek(off++) != tok[i])
 				return false;
-
-			i++;
 		}
 
 
@@ -76,10 +74,12 @@ namespace sluaParse
 
 		return true;
 	}
-	inline bool checkReadToken(AnyInput auto& in, const char* tok, const bool nameLike = false) {
+	template<size_t TOK_SIZE>
+	inline bool checkReadToken(AnyInput auto& in, const char (&tok)[TOK_SIZE], const bool nameLike = false) {
 		return checkToken(in, tok, nameLike, true);
 	}
-	inline bool checkReadTextToken(AnyInput auto& in, const char* tok) {
+	template<size_t TOK_SIZE>
+	inline bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
 		return checkToken(in, tok, true, true);
 	}
 }
