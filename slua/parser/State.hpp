@@ -106,7 +106,6 @@ namespace sluaParse
 	{
 		ExprData data;
 		Position place;
-
 	};
 
 	using Var = sus::Choice<sus_choice_types(

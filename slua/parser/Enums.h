@@ -32,6 +32,8 @@ namespace sluaParse
 
 	enum class BinOpType : uint8_t
 	{
+		NONE,
+
 		ADD,            // "+"
 		SUBTRACT,       // "-"
 		MULTIPLY,       // "*"
@@ -57,6 +59,8 @@ namespace sluaParse
 
 	enum class UnOpType : uint8_t
 	{
+		NONE,
+
 		NEGATE,        // "-"
 		LOGICAL_NOT,   // "not"
 		LENGTH,        // "#"
