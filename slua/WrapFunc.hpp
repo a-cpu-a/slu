@@ -74,6 +74,7 @@ namespace slua
 	}
 	template <typename RET_T, typename IN1_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args1CppFunc< RET_T, IN1_T> func)
+		requires (!std::is_same_v<IN1_T, slua::Context>)
 	{
 		if (lua_gettop(L) != 1)
 			return slua::error(L, LUACC_FUNCTION "Function "
@@ -150,6 +151,7 @@ namespace slua
 	template<class RET_T, class... ARGS>
 	using CtxCppFunc = RET_T(*)(slua::Context& ctx, ARGS...);
 
+	//Throws std::exception, slua::Error
 	template <class RET_T,class... ARGS>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, CtxCppFunc<RET_T,ARGS...> func)
 	{
@@ -196,8 +198,15 @@ namespace slua
 					, ...); }
 		, args);
 
-		const slua::ToLua<RET_T> _VAR = std::apply(func,args);
-		return slua::push(L, _VAR);
+		if constexpr (std::is_same_v<RET_T, void>)
+		{
+			std::apply(func, args);
+			return 0;// Nothing returned!
+		}
+		else
+		{
+			return slua::push(L, std::apply(func, args));
+		}
 	}
 
 	inline int runCppFuncWrapped(lua_State* L, const std::string& funcName, auto func)
