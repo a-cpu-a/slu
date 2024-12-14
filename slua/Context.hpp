@@ -11,14 +11,15 @@ namespace slua
 	{
 		lua_State* L = nullptr;//Shared with the var inside Context
 
-		double random() {
+		double random() 
+		{
 			if (lua_getglobal(L, "math") != LUA_TTABLE)
-				lua_pop(L,1);
+				lua_pop(L, 1);
 			else
 			{
 				lua_pushliteral(L, "random");
-				if (lua_rawget(L, -2) != LUA_TFUNCTION 
-					|| !lua_iscfunction(L,-1))//require it to be a C function
+				if (lua_rawget(L, -2) != LUA_TFUNCTION
+					|| !lua_iscfunction(L, -1))//require it to be a C function
 					lua_pop(L, 2);//val & table
 				else
 				{
@@ -32,6 +33,32 @@ namespace slua
 				}
 			}
 			return 0.0;//error
+		}
+		//inclusive
+		int64_t random(const int64_t min, const int64_t max)
+		{
+			if (lua_getglobal(L, "math") != LUA_TTABLE)
+				lua_pop(L, 1);
+			else
+			{
+				lua_pushliteral(L, "random");
+				if (lua_rawget(L, -2) != LUA_TFUNCTION
+					|| !lua_iscfunction(L, -1))//require it to be a C function
+					lua_pop(L, 2);//val & table
+				else
+				{
+					lua_pushinteger(L, min);
+					lua_pushinteger(L, max);
+					if (lua_pcall(L, 2, 1, 0) == LUA_OK)
+					{
+						int64_t ret = lua_tointeger(L, -1);
+						lua_pop(L, 2);//val & table
+						return ret;
+					}
+					lua_pop(L, 2);//val/err & table
+				}
+			}
+			return min;//error
 		}
 	};
 
