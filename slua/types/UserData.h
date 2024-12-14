@@ -11,10 +11,10 @@ namespace slua
 	inline const size_t TYPE_ID_SIZE = 2;
 
 // After all typeids are initialized, this will contain a value that will always be more than any existing type id
-	inline uint16_t TYPE_ID_COUNT=0;
+	inline uint16_t _nextTypeId=1;
 
 	template<typename TYPE>
-	inline const uint16_t _typeId = TYPE_ID_COUNT++;
+	inline const uint16_t _typeId = _nextTypeId++;
 
 	template<typename TYPE>
 	inline uint16_t getTypeId() {
@@ -39,29 +39,72 @@ namespace slua
 		setTypeIdSeperate<TYPE,TYPE>(ptr);
 	}
 
+	// First checks if it is a userdata, then
+	// checks the last 2 bytes, returns true if all is good
+	// Does NOT check lua_gettop
+	template<typename TYPE>
+	inline bool checkTypeId(lua_State* L, const int idx) 
+	{
+		if (!lua_isuserdata(L, idx))
+			return false;
 
-	// Checks the last 2 bytes, returns true if all is good
-	// Uses sizeof(PTR_T) to find where type id is at
-	template<typename TYPE, typename PTR_T>
-	inline bool checkTypeIdSeperate(const void* ptr) {
-		const uint8_t* dataPtr = (const uint8_t*)ptr;
+		const size_t len = lua_rawlen(L, idx);
+		if (len <= 2)
+			return false;//empty type, or too small for typeid
+
+		const uint8_t* dataPtr = (const uint8_t*)lua_touserdata(L, idx);
 
 		const uint16_t typeId = getTypeId<TYPE>();
 		return (
-			dataPtr[sizeof(PTR_T) + 0] == (typeId & 0xFF))
+			dataPtr[len-2] == (typeId & 0xFF))
 			&& (
-				dataPtr[sizeof(PTR_T) + 1] == (typeId >> 8));
+				dataPtr[len- 1] == (typeId >> 8));
 	}
-	// Checks the last 2 bytes, returns true if all is good
-	// Uses sizeof(PTR_T) to find where type id is at
-	template<typename TYPE, typename PTR_T>
-	inline bool checkTypeIdSeperate(const PTR_T* ptr) {
-		return checkTypeId<TYPE, PTR_T>((const void*)ptr);
-	}
-	// Checks the last 2 bytes, returns true if all is good
-	// Uses sizeof(TYPE) to find where type id is at
+
+
+	// Use this inside __gc, to stop any double frees
+	//
+	// First checks if it is a userdata, then
+	// checks the last 2 bytes, returns true if all is good
+	// Does NOT check lua_gettop
 	template<typename TYPE>
-	inline bool checkTypeId(const TYPE* ptr) {
-		return checkTypeIdSeperate<TYPE, TYPE>(ptr);
+	inline bool checkAndClearTypeId(lua_State* L,const int idx) {
+		if (!lua_isuserdata(L, idx))
+			return false;
+
+		const size_t len = lua_rawlen(L, idx);
+		if (len <= 2)
+			return false;//empty type, or too small for typeid
+
+
+		uint8_t* dataPtr = reinterpret_cast<uint8_t*>(lua_touserdata(L,idx));
+
+		const uint16_t typeId = getTypeId<TYPE>();
+
+		if (
+			dataPtr[len - 2] != (typeId & 0xFF)
+			|| dataPtr[len - 1] != (typeId >>8)
+			)
+			return false;
+
+		//clear it
+		dataPtr[len - 2] = 0;
+		dataPtr[len - 1] = 0;
+
+		return true;
 	}
+}
+
+//Pushes userdata
+//Note: it will have 0 uservalues
+template<class T,class... ARGS_T>
+inline T& slua_newuserdata(lua_State* L,ARGS_T... constructorArgs)
+{
+	void* place = lua_newuserdatauv(L, sizeof(T) + slua::TYPE_ID_SIZE, 0);
+
+	// https://isocpp.org/wiki/faq/dtors#placement-new
+	auto id = new(place) T(constructorArgs...);
+	slua::setTypeId(id);
+
+	return *id;
 }
