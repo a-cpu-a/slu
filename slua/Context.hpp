@@ -82,6 +82,11 @@ namespace slua
 			if (L == nullptr)
 				throw std::bad_alloc();
 		}
+
+		operator lua_State* () {
+			return L;
+		}
+
 		~Context()
 		{
 			if (autoDelete)

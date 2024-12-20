@@ -7,28 +7,28 @@
 #include <span>
 #include <vector>
 #include <utility>
+
 #include <slua/Include.hpp>
+#include <slua/ErrorType.h>
 
 namespace slua
 {
 	//if a function is prefixed with lua_, its kinda unsafe
 
-	//throw inside a check to provide a custom message
-	struct Error { std::string msg; };
 
-	inline int error(lua_State* L, const std::string& str) {
+	inline int lua_error(lua_State* L, const std::string& str) {
 		return luaL_error(L, str.c_str());
 	}
-	inline int error(lua_State* L, const slua::Error& e) {
+	inline int lua_error(lua_State* L, const slua::Error& e) {
 		return luaL_error(L, e.msg.c_str());
 	}
-	inline int error(lua_State* L, const std::string& prefix, const slua::Error& e) {
+	inline int lua_error(lua_State* L, const std::string& prefix, const slua::Error& e) {
 		return luaL_error(L, (prefix + e.msg).c_str());
 	}
-	inline int error(lua_State* L, const std::string& prefix, const char* e) {
+	inline int lua_error(lua_State* L, const std::string& prefix, const char* e) {
 		return luaL_error(L, (prefix + e).c_str());
 	}
-	inline int error(lua_State* L, const char* str) {
+	inline int lua_error(lua_State* L, const char* str) {
 		return luaL_error(L, str);
 	}
 

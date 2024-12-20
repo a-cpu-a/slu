@@ -4,6 +4,9 @@
 #pragma once
 
 #include <iostream>
+#include <exception>
+
+#include <slua/ErrorType.h>
 
 #ifndef LUA_INCL_IMPLEMENTATION
 #define LUA_INCL_IMPLEMENTATION

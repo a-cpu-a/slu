@@ -43,14 +43,14 @@ namespace slua
 
 #define _SLua_REQUIRE_ARGS(_COUNT) \
 	if(lua_gettop(L)!=_COUNT) \
-		return slua::error(L, LUACC_FUNCTION "Function " \
+		return slua::lua_error(L, LUACC_FUNCTION "Function " \
 			LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING \
 			" needs " LUACC_NUMBER #_COUNT LUACC_ARGUMENT " arguments" LUACC_DEFAULT ".")
 
 #define _SLua_CHECK_ARG(_ARG) \
 	const bool arg_ ## _ARG ## _res = slua::checkThrowing<IN ## _ARG ## _T>(L, _ARG); \
 	if (!arg_ ## _ARG ## _res) \
-		return slua::error(L, LUACC_ARGUMENT "Argument " \
+		throw slua::Error(LUACC_ARGUMENT "Argument " \
 			LUACC_NUMBER #_ARG LUACC_DEFAULT " of " LUACC_FUNCTION "function " \
 			LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING \
 			", is " LUACC_INVALID "not" LUACC_DEFAULT " a " \
@@ -77,7 +77,7 @@ namespace slua
 		requires (!std::is_same_v<IN1_T, slua::Context>)
 	{
 		if (lua_gettop(L) != 1)
-			return slua::error(L, LUACC_FUNCTION "Function "
+			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
 				" needs " LUACC_NUMBER "1" LUACC_ARGUMENT " argument" LUACC_DEFAULT "."
 			);
@@ -159,11 +159,11 @@ namespace slua
 		{
 			if constexpr (sizeof...(ARGS) == 1)
 			{
-				return slua::error(L, LUACC_FUNCTION "Function "
+				return slua::lua_error(L, LUACC_FUNCTION "Function "
 					LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
 					" needs " LUACC_NUMBER "1" LUACC_ARGUMENT " argument" LUACC_DEFAULT ".");
 			}
-			return slua::error(L, LUACC_FUNCTION "Function "
+			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
 				" needs " LUACC_NUMBER + TS(sizeof...(ARGS)) + LUACC_ARGUMENT " arguments" LUACC_DEFAULT ".");
 		}
@@ -204,9 +204,7 @@ namespace slua
 			return 0;// Nothing returned!
 		}
 		else
-		{
 			return slua::push(L, std::apply(func, args));
-		}
 	}
 
 	inline int runCppFuncWrapped(lua_State* L, const std::string& funcName, auto func)
@@ -217,14 +215,14 @@ namespace slua
 		}
 		catch (const std::exception& e)
 		{
-			return slua::error(L, LUACC_FUNCTION "Function "
+			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
 				" had a " LUACC_INVALID "error" LUACC_DEFAULT ": "
 				, e.what());
 		}
 		catch (const slua::Error& e)
 		{
-			return slua::error(L, LUACC_FUNCTION "Function "
+			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
 				" had a " LUACC_INVALID "error" LUACC_DEFAULT ": "
 				, e);
@@ -251,7 +249,7 @@ namespace slua
 #define SLua_Wrap2Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2) [](lua_State* L){switch(lua_gettop(L)){ \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
-		default: return ::slua::error(L,LUACC_FUNCTION "Function " \
+		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
 			LUACC_START_SINGLE_STRING _LUA_NAME LUACC_END_SINGLE_STRING \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT " or " LUACC_NUMBER #_C2 " " LUACC_ARGUMENT "arguments" LUACC_DEFAULT "." );} }
 
@@ -269,7 +267,7 @@ namespace slua
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
-		default: return ::slua::error(L,LUACC_FUNCTION "Function " \
+		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
 			LUACC_START_SINGLE_STRING _LUA_NAME LUACC_END_SINGLE_STRING \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C2 LUACC_DEFAULT \
@@ -292,7 +290,7 @@ namespace slua
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C4,_CPP_FUNC4); \
-		default: return ::slua::error(L,LUACC_FUNCTION "Function " \
+		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
 			LUACC_START_SINGLE_STRING _LUA_NAME LUACC_END_SINGLE_STRING \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C2 LUACC_DEFAULT \
