@@ -49,10 +49,10 @@ namespace slua
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
 	{
 		if (lua_gettop(L) != 2)
-			return slua::error(L, "Getters must have " LUACC_NUMBER "2" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key)");
+			return slua::lua_error(L, "Getters must have " LUACC_NUMBER "2" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key)");
 
 		if (!slua::TableKey::check(L, 2))
-			return slua::error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " getter key");
+			return slua::lua_error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " getter key");
 
 		const slua::TableKey key = slua::TableKey::read(L, 2);
 
@@ -77,7 +77,7 @@ namespace slua
 			}
 		}
 
-		return slua::error(L, "Unknown key in getter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
+		throw slua::Error("Unknown key in getter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
 	}
 #define SLua_SetupGetHandler(_GETTERS) {"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
 
@@ -113,10 +113,10 @@ namespace slua
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
 		if (lua_gettop(L) != 3)
-			return slua::error(L, "Setters must have " LUACC_NUMBER "3" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key, newVal)");
+			return slua::lua_error(L, "Setters must have " LUACC_NUMBER "3" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key, newVal)");
 
 		if (!slua::TableKey::check(L, 2))
-			return slua::error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " setter key");
+			return slua::lua_error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " setter key");
 
 		const slua::TableKey key = slua::TableKey::read(L, 2);
 
@@ -135,7 +135,7 @@ namespace slua
 			}
 		}
 
-		return slua::error(L, "Unknown key in setter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
+		throw slua::Error("Unknown key in setter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
 	}
 #define SLua_SetupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
 

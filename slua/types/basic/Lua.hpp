@@ -36,7 +36,7 @@ namespace slua
 		static int push(lua_State* L, const Ret& data)
 		{
 			if (data.errored)
-				return slua::error(L, data.errorMsg.msg);
+				throw data.errorMsg;
 
 			if (!data.isNil)
 				return slua::push(L, data.val);
