@@ -23,7 +23,6 @@
 #include <compare>
 #include <functional>  // TODO: remove this but we need to hash things > size_t.
 
-#include "fmt/format.h"
 #include "sus/assertions/check.h"
 #include "sus/iter/iterator_concept.h"
 #include "sus/lib/__private/forward_decl.h"
@@ -40,7 +39,6 @@
 #include "sus/num/float_concepts.h"
 #include "sus/num/integer_concepts.h"
 #include "sus/num/try_from_int_error.h"
-#include "sus/string/__private/format_to_stream.h"
 
 namespace sus::num {
 

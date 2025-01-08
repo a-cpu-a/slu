@@ -16,8 +16,6 @@
 // IWYU pragma: friend "sus/.*"
 #pragma once
 
-#include "fmt/core.h"
-#include "sus/string/__private/format_to_stream.h"
 
 namespace sus {
 /// Marker types, such as for accessing unsafe APIs, for overload resolution,
@@ -59,21 +57,3 @@ struct UnsafeFnMarker {
 constexpr inline auto unsafe_fn = UnsafeFnMarker();
 
 }  // namespace sus::marker
-
-// fmt support.
-template <class Char>
-struct fmt::formatter<::sus::marker::UnsafeFnMarker, Char> {
-  template <class ParseContext>
-  constexpr auto parse(ParseContext& ctx) {
-    return ctx.begin();
-  }
-
-  template <class FormatContext>
-  constexpr auto format(const ::sus::marker::UnsafeFnMarker&,
-                        FormatContext& ctx) const {
-    return fmt::format_to(ctx.out(), "unsafe_fn");
-  }
-};
-
-// Stream support.
-_sus_format_to_stream(sus::marker, UnsafeFnMarker);

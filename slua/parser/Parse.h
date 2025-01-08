@@ -18,6 +18,83 @@
 #include "ReadName.h"
 #include "ReadOperators.h"
 
+
+
+/*
+
+	TODO:
+
+	[X] chunk ::= block
+
+	[_] block ::= {stat} [retstat]
+
+	[_] stat ::= [X] ‘;’ |
+		[_] varlist ‘=’ explist |
+		[_] functioncall |
+		[X] label |
+		[X] break |
+		[X] goto Name |
+		[~] do block end |
+		[_] while exp do block end |
+		[~] repeat block until exp |
+		[_] if exp then block {elseif exp then block} [else block] end |
+		[~] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
+		[~] for namelist in explist do block end |
+		[_] function funcname funcbody |
+		[_] local function Name funcbody |
+		[_] local attnamelist [‘=’ explist]
+
+	[_] attnamelist ::=  Name attrib {‘,’ Name attrib}
+
+	[_] attrib ::= [‘<’ Name ‘>’]
+
+	[_] retstat ::= return [explist] [‘;’]
+
+	[X] label ::= ‘::’ Name ‘::’
+
+	[_] funcname ::= Name {‘.’ Name} [‘:’ Name]
+
+	[_] varlist ::= var {‘,’ var}
+
+	[_] var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
+
+	[_] namelist ::= Name {‘,’ Name}
+
+	[_] explist ::= exp {‘,’ exp}
+
+	[_] exp ::=  (~)nil | (~)false | (~)true | Numeral | LiteralString | (~)‘...’ | functiondef |
+		 prefixexp | tableconstructor | [X] exp binop exp | [X] unop exp
+
+	[_] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
+
+	[_] functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
+
+	[_] args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString
+
+	[_] functiondef ::= function funcbody
+
+	[_] funcbody ::= ‘(’ [parlist] ‘)’ block end
+
+	[_] parlist ::= namelist [‘,’ ‘...’] | ‘...’
+
+	[_] tableconstructor ::= ‘{’ [fieldlist] ‘}’
+
+	[_] fieldlist ::= field {fieldsep field} [fieldsep]
+
+	[_] field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+
+	[X] fieldsep ::= ‘,’ | ‘;’
+
+	[X] binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ |
+		 ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ |
+		 ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ |
+		 and | or
+
+	[X] unop ::= ‘-’ | not | ‘#’ | ‘~’
+
+*/
+
+
 namespace sluaParse
 {
 	inline Expression readExpr(AnyInput auto& in)
