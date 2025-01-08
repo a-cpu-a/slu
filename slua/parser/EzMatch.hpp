@@ -9,12 +9,12 @@
 
 // Overloaded utility for std::visit
 template<class... Ts>
-struct overloaded : Ts... { using Ts::operator()...; };
+struct _EzMatchOverloader : Ts... { using Ts::operator()...; };
 template<class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
+_EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
 // Macro Definitions
-#define ezmatch(value) [&](auto... __ez_cases) { std::visit(overloaded{__ez_cases...}, value); } // Passes value and cases
+#define ezmatch(value) [&](auto... __ez_cases) { std::visit(_EzMatchOverloader{__ez_cases...}, value); } // Passes value and cases
 #define ezcase(type) [&](type& var)
 
 /*
