@@ -13,10 +13,10 @@
 #include <slua/parser/State.hpp>
 #include <slua/parser/Input.hpp>
 
-#include "SkipSpace.h"
-#include "RequireToken.h"
-#include "ReadName.h"
-#include "ReadOperators.h"
+#include "SkipSpace.hpp"
+#include "RequireToken.hpp"
+#include "ReadName.hpp"
+#include "ReadOperators.hpp"
 
 
 
@@ -207,10 +207,10 @@ namespace sluaParse
 		switch (in.peek())
 		{
 		case ';':
-			return { StatementData::with<StatementType::SEMICOLON>(),in.getLoc() };
+			return { StatementType::SEMICOLON(),in.getLoc()};
 
 		case ':'://must be label
-			return { StatementData::with<StatementType::LABEL>(readLabel(in)),in.getLoc() };
+			return { StatementType::LABEL(readLabel(in)),in.getLoc() };
 
 		case 'f'://for?,func?
 			if (checkReadTextToken(in, "for"))
@@ -273,11 +273,11 @@ namespace sluaParse
 			break;
 		case 'b'://break?
 			if (checkReadTextToken(in, "break"))
-				return { StatementData::with<StatementType::BREAK>(),in.getLoc() };
+				return { StatementType::BREAK(),in.getLoc() };
 			break;
 		case 'g'://goto?
 			if (checkReadTextToken(in, "goto"))//goto Name
-				return { StatementData::with<StatementType::GOTO>(readName(in)),in.getLoc() };
+				return { StatementType::GOTO(readName(in)),in.getLoc() };
 			break;
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))

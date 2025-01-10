@@ -14,7 +14,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include "Enums.h"
+#include "Enums.hpp"
 
 namespace sluaParse
 {
@@ -44,8 +44,16 @@ namespace sluaParse
 		//size_t typeId;
 	};
 
+	namespace FieldType { struct EXPR2EXPR;struct NAME2EXPR;struct EXPR; }
+
+	using Field = std::variant<
+		FieldType::EXPR2EXPR, // "'[' exp ']' = exp"
+		FieldType::NAME2EXPR, // "Name = exp"
+		FieldType::EXPR       // "exp"
+	>;
+
 	// ‘{’ [fieldlist] ‘}’
-	using TableConstructor = std::vector<struct Field>;
+	using TableConstructor = std::vector<Field>;
 
 
 
@@ -116,7 +124,7 @@ namespace sluaParse
 		ExprType::PREFIX_EXP,			// "prefixexp"
 		ExprType::TABLE_CONSTRUCTOR,	// "tableconstructor"
 
-		ExprType::BINARY_OPERATION,		// "exp binop exp"
+		ExprType::BINARY_OPERATION		// "exp binop exp"
 
 		//ExprType::UNARY_OPERATION,	// "unop exp"
 	>;
@@ -126,6 +134,13 @@ namespace sluaParse
 		ExprData data;
 		Position place;
 		UnOpType unOp;//might be NONE
+	};
+
+	namespace FieldType
+	{
+		struct EXPR2EXPR { Expression i; Expression v; };	// "‘[’ exp ‘]’ ‘=’ exp"
+		struct NAME2EXPR { std::string i; Expression v; };	// "Name ‘=’ exp"
+		struct EXPR { Expression v; };						// "exp"
 	};
 
 	namespace VarType
@@ -138,7 +153,7 @@ namespace sluaParse
 	using Var = std::variant<
 		VarType::INDEX,
 		VarType::INDEX_STR,
-		VarType::VAR_NAME,
+		VarType::VAR_NAME
 	>;
 
 	namespace PrefixExprType
@@ -151,18 +166,6 @@ namespace sluaParse
 		PrefixExprType::VAR,
 		PrefixExprType::FUNC_CALL,
 		PrefixExprType::EXPR
-	>;
-
-	namespace FieldType
-	{
-		struct EXPR2EXPR { Expression i; Expression v; };	// "‘[’ exp ‘]’ ‘=’ exp"
-		struct NAME2EXPR { std::string i; Expression v; };	// "Name ‘=’ exp"
-		struct EXPR { Expression v; };						// "exp"
-	};
-	using Field = std::variant<
-		FieldType::EXPR2EXPR, // "'[' exp ']' = exp"
-		FieldType::NAME2EXPR, // "Name = exp"
-		FieldType::EXPR       // "exp"
 	>;
 
 	namespace ArgsType
@@ -257,7 +260,7 @@ namespace sluaParse
 
 		StatementType::FUNCTION_DEF, // "function funcname funcbody"
 
-		StatementType::LOCAL_FUNCTION_DEF, // "local function Name funcbody"
+		StatementType::LOCAL_FUNCTION_DEF // "local function Name funcbody"
 	>;
 
 
