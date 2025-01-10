@@ -11,23 +11,44 @@
 
 namespace sluaParse
 {
-	enum class StatementType : uint8_t
+	namespace StatementType
 	{
-		SEMICOLON,              // ";"
-		ASSIGN,                 // "varlist = explist"
-		FUNC_CALL,              // "functioncall"
-		LABEL,                  // "label"
-		BREAK,                  // "break"
-		GOTO,                   // "goto Name"
-		DO_BLOCK,               // "do block end"
-		WHILE_LOOP,             // "while exp do block end"
-		REPEAT_UNTIL,           // "repeat block until exp"
-		IF_THEN_ELSE,           // "if exp then block {elseif exp then block} [else block] end"
-		FOR_LOOP_NUMERIC,       // "for Name = exp , exp [, exp] do block end"
-		FOR_LOOP_GENERIC,       // "for namelist in explist do block end"
-		FUNCTION_DEF,           // "function funcname funcbody"
-		LOCAL_FUNCTION_DEF,     // "local function Name funcbody"
-		LOCAL_ASSIGN            // "local attnamelist [= explist]"
+		struct SEMICOLON {};									// ";"
+		struct ASSIGN { AttribNameList n; ExpList e; };         // "varlist = explist" //e.size must be > 0
+		struct FUNC_CALL { FuncCall v; };						// "functioncall"
+		struct LABEL {};										// "label"
+		struct BREAK { std::string v; };						// "break"
+		struct GOTO { std::string v; };							// "goto Name"
+		struct DO_BLOCK { Block v; };							// "do block end"
+		struct WHILE_LOOP { Expression c; Block b; };           // "while exp do block end"
+		struct REPEAT_UNTIL :WHILE_LOOP {};						// "repeat block until exp"
+
+		// "if exp then block {elseif exp then block} [else block] end"
+		struct IF_THEN_ELSE 
+		{
+			Expression c; 
+			Block b;
+			std::vector<std::pair<Expression, Block>> elseIfs;
+			std::optional<Block> elseBlock;
+		};            
+		// "for Name = exp , exp [, exp] do block end"
+		struct FOR_LOOP_NUMERIC 
+		{
+			std::string varN;
+			Expression start;
+			Expression end;//inclusive
+			std::optional<Expression> step;
+			Block b;
+		};
+		// "for namelist in explist do block end"
+		struct FOR_LOOP_GENERIC {
+			NameList varNs;
+			ExpList eList;//size must be > 0
+			Block b;
+		};
+		struct FUNCTION_DEF { std::string n; Function f; };// "function funcname funcbody"    //n may contain dots, 1 colon
+		struct LOCAL_FUNCTION_DEF :FUNCTION_DEF {};        // "local function Name funcbody" //n may not ^^^
+		struct LOCAL_ASSIGN :ASSIGN {};			   // "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 	};
 
 	enum class BinOpType : uint8_t
