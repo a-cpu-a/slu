@@ -10,13 +10,13 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slua/parser/State.hpp>
 #include <slua/parser/Input.hpp>
+#include <slua/parser/State.hpp>
 
-#include "SkipSpace.hpp"
-#include "RequireToken.hpp"
 #include "ReadName.hpp"
 #include "ReadOperators.hpp"
+#include "RequireToken.hpp"
+#include "SkipSpace.hpp"
 
 
 
