@@ -13,7 +13,7 @@
 #include <slua/types/Converter.hpp>
 #include <slua/types/ReadWrite.hpp>
 #include <slua/types/TypeUtils.hpp>
-#include <slua/types/UserData.h>
+#include <slua/types/UserData.hpp>
 #include <slua/types/complex/AnyRef.hpp>
 #include <slua/types/complex/OptFunc.hpp>
 #include <slua/types/complex/Vector.hpp>
