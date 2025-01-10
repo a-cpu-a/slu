@@ -67,47 +67,54 @@ namespace sluaParse
 		BITWISE_NOT    // "~"
 	};
 
-	enum class ExprType : uint8_t
+	namespace ExprType
 	{
-		NIL,                   // "nil"
-		FALSE,                 // "false"
-		TRUE,                  // "true"
-		NUMERAL,               // "Numeral"
-		LITERAL_STRING,        // "LiteralString"
-		VARARGS,               // "..."
-		FUNCTION_DEF,          // "functiondef"
-		PREFIX_EXP,            // "prefixexp"
-		TABLE_CONSTRUCTOR,     // "tableconstructor"
-		BINARY_OPERATION,      // "exp binop exp"
-		//UNARY_OPERATION,     // "unop exp"	//Inlined as opt prefix
+		struct NIL {};													// "nil"
+		struct FALSE {};												// "false"
+		struct TRUE {};													// "true"
+		struct NUMERAL { double v; };									// "Numeral"
+		struct LITERAL_STRING{ std::string v; };						// "LiteralString"
+		struct VARARGS{};												// "..."
+		struct FUNCTION_DEF { Function v; };							// "functiondef"
+		struct PREFIX_EXP { std::unique_ptr<struct PrefixExpr> v; };	// "prefixexp"
+		struct TABLE_CONSTRUCTOR { TableConstructor v; };				// "tableconstructor"
+
+		struct BINARY_OPERATION 
+		{
+			BinOpType t;
+			std::unique_ptr<struct Expression> l;
+			std::unique_ptr<struct Expression> r;
+		};      // "exp binop exp"
+
+		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<struct Expression>};     // "unop exp"	//Inlined as opt prefix
 
 
-		NUMERAL_I64            // "Numeral"
-	};
+		struct NUMERAL_I64{ int64_t v; };            // "Numeral"
+	}
 
-	enum class VarType : uint8_t
+	namespace VarType
 	{
-		VAR_NAME,	   // "Name"
-		EXP_INDEX,     // "prefixexp [ exp ]"
-		EXP_INDEX_STR  // "prefixexp.Name"
-	};
+		struct INDEX_STR { std::unique_ptr<struct PrefixExpr> var; std::string idx; };	// "prefixexp.Name"
+		struct INDEX { std::unique_ptr<struct PrefixExpr> var; Expression idx; };		// "prefixexp [ exp ]"
+		struct VAR_NAME { std::string var; };											// "Name"
+	}
 
-	enum class PrefixExprType : uint8_t
+	namespace PrefixExprType
 	{
-		VAR,			// "var"
-		FUNC_CALL,      // "functioncall"
-		EXPR 			// "'(' exp ')'"
+		struct VAR { Var v; };										// "var"
+		struct FUNC_CALL { std::unique_ptr<struct FuncCall> c; };	// "functioncall"
+		struct EXPR { Expression e; };								// "'(' exp ')'"
+	}
+	namespace ArgsType
+	{
+		struct EXPLIST { ExpList v; };			// "'(' [explist] ')'"
+		struct TABLE { TableConstructor v; };	// "tableconstructor"
+		struct LITERAL { std::string v; };		// "LiteralString"
 	};
-	enum class ArgsType : uint8_t
+	namespace FieldType
 	{
-		EXPLIST,		// "'(' [explist] ')'"
-		TABLE,	        // "tableconstructor"
-		LITERAL 		// "LiteralString"
-	};
-	enum class FieldType : uint8_t
-	{
-		EXPR2EXPR,		// "‘[’ exp ‘]’ ‘=’ exp"
-		NAME2EXPR,	    // "Name ‘=’ exp"
-		EXPR 			// "exp"
+		struct EXPR2EXPR { Expression i; Expression v; };	// "‘[’ exp ‘]’ ‘=’ exp"
+		struct NAME2EXPR { std::string i; Expression v; };	// "Name ‘=’ exp"
+		struct EXPR { Expression v; };						// "exp"
 	};
 }
