@@ -8,6 +8,7 @@
 #include <vector>
 #include <optional>
 #include <memory>
+#include <variant>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -79,28 +80,24 @@ namespace sluaParse
 		bool hasVarArgParam = false;// does params end with '...'
 	};
 
-	using ExprData = sus::Choice<sus_choice_types(
-		(ExprType::NIL, void),                    // "nil"
-		(ExprType::FALSE, void),                  // "false"
-		(ExprType::TRUE, void),                   // "true"
-		(ExprType::NUMERAL, double),              // "Numeral" (e.g., a floating-point number)
-		(ExprType::NUMERAL_I64, int64_t),         // "Numeral"
-		//(ExprType::NUMERAL_U64, uint64_t),      // "Numeral"
-		(ExprType::LITERAL_STRING, std::string),  // "LiteralString"
-		(ExprType::VARARGS, void),                // "..." (varargs)
-		(ExprType::FUNCTION_DEF, Function),       // "functiondef"
-		(ExprType::PREFIX_EXP, std::unique_ptr<struct PrefixExpr>),      // "prefixexp"
-		(ExprType::TABLE_CONSTRUCTOR, TableConstructor),				// "tableconstructor"
 
-		(ExprType::BINARY_OPERATION, // "exp binop exp"
-			BinOpType, 
-			std::unique_ptr<struct Expression>, 
-			std::unique_ptr<struct Expression>) //,
+	using ExprData = std::variant<
+		ExprType::NIL,                  // "nil"
+		ExprType::FALSE,                // "false"
+		ExprType::TRUE,                 // "true"
+		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
+		ExprType::NUMERAL_I64,			// "Numeral"
+		//ExprType::NUMERAL_U64,		// "Numeral"
+		ExprType::LITERAL_STRING,		// "LiteralString"
+		ExprType::VARARGS,              // "..." (varargs)
+		ExprType::FUNCTION_DEF,			// "functiondef"
+		ExprType::PREFIX_EXP,			// "prefixexp"
+		ExprType::TABLE_CONSTRUCTOR,	// "tableconstructor"
 
-		//(ExprType::UNARY_OPERATION,// "unop exp"
-		//	UnOpType,
-		//	std::unique_ptr<struct Expression>)
-	)>;
+		ExprType::BINARY_OPERATION,		// "exp binop exp"
+
+		//ExprType::UNARY_OPERATION,	// "unop exp"
+	>;
 
 	struct Expression
 	{
@@ -109,29 +106,29 @@ namespace sluaParse
 		UnOpType unOp;//might be NONE
 	};
 
-	using Var = sus::Choice<sus_choice_types(
-		(VarType::EXP_INDEX, std::unique_ptr<struct PrefixExpr>, Expression),
-		(VarType::EXP_INDEX_STR, std::unique_ptr<struct PrefixExpr>, std::string),
-		(VarType::VAR_NAME, std::string)
-	)>;
+	using Var = std::variant<
+		VarType::INDEX,
+		VarType::INDEX_STR,
+		VarType::VAR_NAME,
+	>;
 
-	using PrefixExpr = sus::Choice<sus_choice_types(
-		(PrefixExprType::VAR, Var),
-		(PrefixExprType::FUNC_CALL, std::unique_ptr<struct FuncCall>),
-		(PrefixExprType::EXPR, Expression)
-	)>;
+	using PrefixExpr = std::variant<
+		PrefixExprType::VAR,
+		PrefixExprType::FUNC_CALL,
+		PrefixExprType::EXPR
+	>;
 
-	using Field = sus::Choice<sus_choice_types(
-		(FieldType::EXPR2EXPR, Expression, Expression),  // "[ exp ] = exp"
-		(FieldType::NAME2EXPR, std::string, Expression), // "Name = exp"
-		(FieldType::EXPR, Expression)                    // "exp"
-	)>;
+	using Field = std::variant<
+		FieldType::EXPR2EXPR, // "'[' exp ']' = exp"
+		FieldType::NAME2EXPR, // "Name = exp"
+		FieldType::EXPR       // "exp"
+	>;
 
-	using Args = sus::Choice<sus_choice_types(
-		(ArgsType::EXPLIST, ExpList),
-		(ArgsType::TABLE, TableConstructor),
-		(ArgsType::LITERAL, std::string)
-	)>;
+	using Args = std::variant<
+		ArgsType::EXPLIST,
+		ArgsType::TABLE,
+		ArgsType::LITERAL
+	>;
 
 	struct FuncCall
 	{
