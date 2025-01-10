@@ -14,8 +14,6 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <sus/choice/choice.h>
-
 #include "Enums.h"
 
 namespace sluaParse
@@ -146,51 +144,31 @@ namespace sluaParse
 	using AttribNameList = std::vector<AttribName>;
 	using NameList = std::vector<std::string>;
 
-	using StatementData = sus::Choice < sus_choice_types(
-		(StatementType::SEMICOLON,void), // ";"
+	using StatementData = std::variant< 
+		StatementType::SEMICOLON, // ";"
 
-		(StatementType::ASSIGN, // "varlist = explist"
-			AttribNameList,
-			ExpList),//size must be > 0
+		StatementType::ASSIGN, // "varlist = explist"
 
-		(StatementType::LOCAL_ASSIGN, // "local attnamelist [= explist]"
-			AttribNameList,
-			ExpList),//size 0 means "only define, no assign"
+		StatementType::LOCAL_ASSIGN, // "local attnamelist [= explist]"
 
-		(StatementType::FUNC_CALL, FuncCall), // "functioncall"
-		(StatementType::LABEL, std::string), // "label"
-		(StatementType::BREAK, void), // "break"
-		(StatementType::GOTO, std::string), // "goto Name"
-		(StatementType::DO_BLOCK, Block), // "do block end"
-		(StatementType::WHILE_LOOP, Expression, Block), // "while exp do block end"
-		(StatementType::REPEAT_UNTIL, Block, Expression), // "repeat block until exp"
+		StatementType::FUNC_CALL, // "functioncall"
+		StatementType::LABEL, // "label"
+		StatementType::BREAK, // "break"
+		StatementType::GOTO, // "goto Name"
+		StatementType::DO_BLOCK, // "do block end"
+		StatementType::WHILE_LOOP, // "while exp do block end"
+		StatementType::REPEAT_UNTIL, // "repeat block until exp"
 
-		(StatementType::IF_THEN_ELSE, // "if exp then block {elseif exp then block} [else block] end"
-			Expression,               // Initial condition
-			Block,                    // Initial block
-			std::vector<std::pair<Expression, Block>>, // {elseif exp then block}
-			std::optional<Block>),    // [else block]
+		StatementType::IF_THEN_ELSE, // "if exp then block {elseif exp then block} [else block] end"
 
-		(StatementType::FOR_LOOP_NUMERIC, // "for Name = exp , exp [, exp] do block end"
-			std::string,              // Name
-			Expression,               // Start
-			Expression,               // End (inclusive)
-			std::optional<Expression>,// Step
-			Block),                   // Block
+		StatementType::FOR_LOOP_NUMERIC, // "for Name = exp , exp [, exp] do block end"
 
-		(StatementType::FOR_LOOP_GENERIC, // "for namelist in explist do block end"
-			NameList,                  // namelist
-			ExpList,                   // explist !!! size must be > 0
-			Block),                    // Block
+		StatementType::FOR_LOOP_GENERIC, // "for namelist in explist do block end"
 
-		(StatementType::FUNCTION_DEF, // "function funcname funcbody"
-			std::string,              // funcname, may contain dots, 1 colon
-			Function),                // funcbody
+		StatementType::FUNCTION_DEF, // "function funcname funcbody"
 
-		(StatementType::LOCAL_FUNCTION_DEF, // "local function Name funcbody"
-			std::string,              // Name
-			Function)                 // funcbody
-	)>;
+		StatementType::LOCAL_FUNCTION_DEF, // "local function Name funcbody"
+	>;
 
 
 	struct Statement
