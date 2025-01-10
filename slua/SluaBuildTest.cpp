@@ -9,6 +9,7 @@
 #include <slua/MetaTableUtils.hpp>
 #include <slua/WrapFunc.hpp>
 #include <slua/Utils.hpp>
+
 #include <slua/types/Converter.hpp>
 #include <slua/types/ReadWrite.hpp>
 #include <slua/types/TypeUtils.hpp>
@@ -17,3 +18,5 @@
 #include <slua/types/complex/OptFunc.hpp>
 #include <slua/types/complex/Vector.hpp>
 #include <slua/types/complex/Function.hpp>
+
+#include <slua/parser/Parse.hpp>
