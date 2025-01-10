@@ -19,3 +19,4 @@ lua
 *.sln
 *.vcxproj*
 /x64/Debug
+/build/
