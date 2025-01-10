@@ -187,7 +187,7 @@ namespace slua
 						else
 							throw slua::Error(
 								LUACC_ARGUMENT "Argument " 
-								LUACC_NUMBER +TS(i) + LUACC_DEFAULT 
+								LUACC_NUMBER +std::to_string(i) + LUACC_DEFAULT 
 								//" of " LUACC_FUNCTION "function " 
 								//LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING 
 								", is " LUACC_INVALID "not" LUACC_DEFAULT " a " 

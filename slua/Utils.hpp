@@ -7,9 +7,10 @@
 #include <span>
 #include <vector>
 #include <utility>
+#include <bit>
 
 #include <slua/Include.hpp>
-#include <slua/ErrorType.h>
+#include <slua/ErrorType.hpp>
 
 namespace slua
 {

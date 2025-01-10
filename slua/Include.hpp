@@ -6,7 +6,7 @@
 #include <iostream>
 #include <exception>
 
-#include <slua/ErrorType.h>
+#include <slua/ErrorType.hpp>
 
 #ifndef LUA_INCL_IMPLEMENTATION
 #define LUA_INCL_IMPLEMENTATION
