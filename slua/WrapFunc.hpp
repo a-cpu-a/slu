@@ -66,12 +66,20 @@ namespace slua
 
 #define _SLua_RUN_N_RETURN(...) _SLua_RUN_CPP_FUNC(ret,__VA_ARGS__); _SLua_RETURN_VALUE(ret)
 
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <typename RET_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args0CppFunc<RET_T> func)
 	{
 		_SLua_REQUIRE_ARGS(0);
 		_SLua_RUN_N_RETURN();
 	}
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <typename RET_T, typename IN1_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args1CppFunc< RET_T, IN1_T> func)
 		requires (!std::is_same_v<IN1_T, slua::Context>)
@@ -87,6 +95,10 @@ namespace slua
 		_SLua_RUN_N_RETURN(in1);
 	}
 
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <typename RET_T, typename IN1_T, typename IN2_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args2CppFunc<RET_T, IN1_T, IN2_T> func)
 	{
@@ -97,6 +109,10 @@ namespace slua
 
 		_SLua_RUN_N_RETURN(in1, in2);
 	}
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args3CppFunc<RET_T, IN1_T, IN2_T, IN3_T> func)
 	{
@@ -108,6 +124,10 @@ namespace slua
 
 		_SLua_RUN_N_RETURN(in1, in2, in3);
 	}
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args4CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T> func)
 	{
@@ -120,6 +140,10 @@ namespace slua
 
 		_SLua_RUN_N_RETURN(in1, in2, in3, in4);
 	}
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args5CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T, IN5_T> func)
 	{
@@ -133,6 +157,10 @@ namespace slua
 
 		_SLua_RUN_N_RETURN(in1, in2, in3, in4, in5);
 	}
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T, typename IN6_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args6CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T, IN5_T, IN6_T> func)
 	{
@@ -151,7 +179,10 @@ namespace slua
 	template<class RET_T, class... ARGS>
 	using CtxCppFunc = RET_T(*)(slua::Context& ctx, ARGS...);
 
-	//Throws std::exception, slua::Error
+	/**
+	* @throws slua::Error
+	* @throws std::exception
+	*/
 	template <class RET_T,class... ARGS>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, CtxCppFunc<RET_T,ARGS...> func)
 	{
