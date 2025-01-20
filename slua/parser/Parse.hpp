@@ -34,7 +34,7 @@
 		[X] label |
 		[X] break |
 		[X] goto Name |
-		[~] do block end |
+		[X] do block end |
 		[_] while exp do block end |
 		[~] repeat block until exp |
 		[_] if exp then block {elseif exp then block} [else block] end |
@@ -97,11 +97,25 @@
 
 namespace sluaParse
 {
+	inline Block readBlock(AnyInput auto& in)
+	{
+		/*
+			block ::= {stat} [retstat]
+		*/
+		Block ret{};
+		ret.start = in.getLoc();
+
+		//TODO: implement
+
+		ret.end = in.getLoc();
+		return ret;
+	}
+
 	inline Expression readExpr(AnyInput auto& in)
 	{
 		/*
-		nil | false | true | Numeral | LiteralString | ‘...’ | functiondef | 
-		 prefixexp | tableconstructor | exp binop exp | unop exp 
+			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
+			| prefixexp | tableconstructor | exp binop exp | unop exp
 		*/
 
 		Expression res;
@@ -207,7 +221,7 @@ namespace sluaParse
 		switch (in.peek())
 		{
 		case ';':
-			return { StatementType::SEMICOLON(),in.getLoc()};
+			return { StatementType::SEMICOLON(),in.getLoc() };
 
 		case ':'://must be label
 			return { StatementType::LABEL(readLabel(in)),in.getLoc() };
@@ -216,19 +230,19 @@ namespace sluaParse
 			if (checkReadTextToken(in, "for"))
 			{
 				/*
-				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-				 for namelist in explist do block end | 
+				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
+				 for namelist in explist do block end |
 				*/
 
 				//TODO: namelist
 
-				if (true &&checkReadToken(in,"="))//1 name, then equal
+				if (true && checkReadToken(in, "="))//1 name, then equal
 				{
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					Expression initExpr = readExpr(in);
 					requireToken(in, ",");
 					Expression lmitExpr = readExpr(in);
-					if(checkReadToken(in,","))
+					if (checkReadToken(in, ","))
 					{
 						Expression stepExpr = readExpr(in);
 					}
@@ -266,9 +280,9 @@ namespace sluaParse
 		case 'd'://do?
 			if (checkReadTextToken(in, "do")) // do block end
 			{
-				//TODO: block
+				Block bl = readBlock(in);
 				requireToken(in, "end");
-				break;//TODO: replace with return
+				break {StatementType::DO_BLOCK(bl), in.getLoc()};
 			}
 			break;
 		case 'b'://break?
