@@ -37,7 +37,7 @@
 		[X] do block end |
 		[X] while exp do block end |
 		[X] repeat block until exp |
-		[_] if exp then block {elseif exp then block} [else block] end |
+		[X] if exp then block {elseif exp then block} [else block] end |
 		[~] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
 		[~] for namelist in explist do block end |
 		[_] function funcname funcbody |
@@ -106,6 +106,9 @@ namespace sluaParse
 		ret.start = in.getLoc();
 
 		//TODO: implement
+
+		//0+ stat
+		//0/1 return
 
 		ret.end = in.getLoc();
 		return ret;
@@ -315,17 +318,30 @@ namespace sluaParse
 			break;
 		case 'i'://if?
 			if (checkReadTextToken(in, "if"))
-			{
-				Expression expr = readExpr(in);
+			{ //if exp then block {elseif exp then block} [else block] end
+
+				StatementType::IF_THEN_ELSE ret{};
+
+				ret.cond = readExpr(in);
 
 				requireToken(in, "then");
 
-				Block bl = readBlock(in);
-				//TODO: {elseif}
-				//TODO: [else]
+				ret.bl = readBlock(in);
+
+				while (checkReadTextToken(in, "elseif"))
+				{
+					Expression elExpr = readExpr(in);
+					requireToken(in, "then");
+					Block elBlock = readBlock(in);
+
+					ret.elseIfs.push_back({ elExpr,elBlock });
+				}
+
+				if (checkReadTextToken(in, "else"))
+					ret.elseBlock = readBlock(in);
 
 				requireToken(in, "end");
-				break;//TODO: replace with return
+				return { ret,in.getLoc() };
 			}
 			break;
 
@@ -333,13 +349,6 @@ namespace sluaParse
 			break;
 		}
 		//try assign or func-call
-	}
-	inline Block readBlock(AnyInput auto& in)
-	{
-		//block ::= {stat} [retstat]
-
-		//0+ stat
-		//0/1 return
 	}
 
 	struct ParsedFile
