@@ -129,8 +129,9 @@ namespace sluaParse
 		{ t.peekAt((size_t)100) } -> std::same_as<uint8_t>;
 		{ t.peek((size_t)100) } -> std::same_as<std::span<const uint8_t>>;
 
+
 		/* Returns true, while stream still has stuff */
-		{ (bool)t } -> std::same_as<bool>;
+		//{ (bool)t } -> std::same_as<bool>; //Crashes intelisense
 
 
 		{ t.checkOOB((size_t)100) } -> std::same_as<bool>;
