@@ -204,15 +204,15 @@ namespace sluaParse
 		struct LABEL {};										// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
-		struct DO_BLOCK { Block v; };							// "do block end"
-		struct WHILE_LOOP { Expression c; Block b; };           // "while exp do block end"
+		struct DO_BLOCK { Block bl; };							// "do block end"
+		struct WHILE_LOOP { Expression cond; Block bl; };           // "while exp do block end"
 		struct REPEAT_UNTIL :WHILE_LOOP {};						// "repeat block until exp"
 
 		// "if exp then block {elseif exp then block} [else block] end"
 		struct IF_THEN_ELSE
 		{
-			Expression c;
-			Block b;
+			Expression cond;
+			Block bl;
 			std::vector<std::pair<Expression, Block>> elseIfs;
 			std::optional<Block> elseBlock;
 		};
@@ -223,14 +223,14 @@ namespace sluaParse
 			Expression start;
 			Expression end;//inclusive
 			std::optional<Expression> step;
-			Block b;
+			Block bl;
 		};
 		// "for namelist in explist do block end"
 		struct FOR_LOOP_GENERIC
 		{
 			NameList varNs;
 			ExpList eList;//size must be > 0
-			Block b;
+			Block bl;
 		};
 		struct FUNCTION_DEF { std::string n; Function f; };// "function funcname funcbody"    //n may contain dots, 1 colon
 		struct LOCAL_FUNCTION_DEF :FUNCTION_DEF {};        // "local function Name funcbody" //n may not ^^^
