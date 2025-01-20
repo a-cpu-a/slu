@@ -13,6 +13,34 @@
 
 namespace sluaParse
 {
+	enum class ParseNewlineState : uint8_t
+	{
+		NONE,
+		CARI,
+	};
+
+	inline void manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
+	{
+		switch (nlState)
+		{
+		case sluaParse::ParseNewlineState::NONE:
+			if (ch == '\n')
+				in.newLine();
+			else if (ch == '\r')
+				nlState = sluaParse::ParseNewlineState::CARI;
+			break;
+		case sluaParse::ParseNewlineState::CARI:
+			if (ch == '\n')
+			{//  \r\n
+				in.newLine();
+				nlState = sluaParse::ParseNewlineState::NONE;
+			}
+			else if (ch == '\r')//   \r\r
+				in.newLine();
+			break;
+		}
+	}
+
 	inline size_t spacesToSkip(AnyInput auto& in)
 	{
 		/*
@@ -52,6 +80,7 @@ namespace sluaParse
 		*/
 
 		bool insideLineComment = false;
+		ParseNewlineState nlState = ParseNewlineState::NONE;
 
 		bool insideMultilineComment = false;//TODO: use
 		size_t multilineCommentLevel = SIZE_MAX;//TODO: use
@@ -65,7 +94,10 @@ namespace sluaParse
 			if (insideLineComment)
 			{
 				if (ch == '\n' || ch == '\r')
+				{
+					manageNewlineState(ch);
 					insideLineComment = false;//new line, so exit comment
+				}
 
 				res++;
 				continue;
@@ -87,7 +119,8 @@ namespace sluaParse
 						continue;
 					}
 				}
-
+				else //not a ']'
+					manageNewlineState(ch);
 				res++; // Skip other characters in multiline comment
 				continue;
 			}
@@ -103,6 +136,7 @@ namespace sluaParse
 
 			if (ch == ' ' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v')
 			{
+				manageNewlineState(ch);
 				res++;
 				continue;
 			}
