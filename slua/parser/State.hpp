@@ -29,7 +29,7 @@ namespace sluaParse
 		std::vector<struct Variable> variables;
 		std::vector<struct Function> functions;
 
-		Scope* owner;//nullptr -> this is the global scope
+		//Scope* owner;//nullptr -> this is the global scope
 
 		Position start;
 		Position end;
@@ -38,13 +38,13 @@ namespace sluaParse
 	struct Variable
 	{
 		std::string name;
-		Scope* owner;//nullptr -> error
+		//Scope* owner;//nullptr -> error
 
 		Position place;
 		//size_t typeId;
 	};
 
-	namespace FieldType { struct EXPR2EXPR;struct NAME2EXPR;struct EXPR; }
+	namespace FieldType { struct EXPR2EXPR; struct NAME2EXPR; struct EXPR; }
 
 	using Field = std::variant<
 		FieldType::EXPR2EXPR, // "'[' exp ']' = exp"
@@ -237,7 +237,7 @@ namespace sluaParse
 		struct LOCAL_ASSIGN :ASSIGN {};			   // "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 	};
 
-	using StatementData = std::variant< 
+	using StatementData = std::variant <
 		StatementType::SEMICOLON, // ";"
 
 		StatementType::ASSIGN, // "varlist = explist"
@@ -261,7 +261,7 @@ namespace sluaParse
 		StatementType::FUNCTION_DEF, // "function funcname funcbody"
 
 		StatementType::LOCAL_FUNCTION_DEF // "local function Name funcbody"
-	>;
+	> ;
 
 
 	struct Statement
