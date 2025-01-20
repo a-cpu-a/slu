@@ -35,8 +35,8 @@
 		[X] break |
 		[X] goto Name |
 		[X] do block end |
-		[_] while exp do block end |
-		[~] repeat block until exp |
+		[X] while exp do block end |
+		[X] repeat block until exp |
 		[_] if exp then block {elseif exp then block} [else block] end |
 		[~] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
 		[~] for namelist in explist do block end |
@@ -255,7 +255,7 @@ namespace sluaParse
 
 				}
 				requireToken(in, "do");
-				//TODO: block
+				Block bl = readBlock(in);
 				requireToken(in, "end");
 				break;//TODO: replace with return
 			}
@@ -282,7 +282,7 @@ namespace sluaParse
 			{
 				Block bl = readBlock(in);
 				requireToken(in, "end");
-				break {StatementType::DO_BLOCK(bl), in.getLoc()};
+				return { StatementType::DO_BLOCK(bl), in.getLoc() };
 			}
 			break;
 		case 'b'://break?
@@ -298,19 +298,19 @@ namespace sluaParse
 			{
 				Expression expr = readExpr(in);
 				requireToken(in, "do");
-				//TODO: block
+				Block bl = readBlock(in);
 				requireToken(in, "end");
-				break;//TODO: replace with return
+				return { StatementType::WHILE_LOOP(expr,bl),in.getLoc() };
 			}
 			break;
 		case 'r'://repeat?
 			if (checkReadTextToken(in, "repeat"))
 			{
-				//TODO: block
+				Block bl = readBlock(in);
 				requireToken(in, "until");
 				Expression expr = readExpr(in);
 
-				break;//TODO: replace with return
+				return { StatementType::REPEAT_UNTIL(expr,bl),in.getLoc() };
 			}
 			break;
 		case 'i'://if?
@@ -320,7 +320,7 @@ namespace sluaParse
 
 				requireToken(in, "then");
 
-				//TODO: block
+				Block bl = readBlock(in);
 				//TODO: {elseif}
 				//TODO: [else]
 
