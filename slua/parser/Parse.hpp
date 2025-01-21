@@ -26,9 +26,9 @@
 
 	[X] chunk ::= block
 
-	[_] block ::= {stat} [retstat]
+	[~] block ::= {stat} [retstat]
 
-	[_] stat ::= [X] ‘;’ |
+	[~] stat ::= [X] ‘;’ |
 		[_] varlist ‘=’ explist |
 		[_] functioncall |
 		[X] label |
@@ -60,7 +60,7 @@
 
 	[_] namelist ::= Name {‘,’ Name}
 
-	[_] explist ::= exp {‘,’ exp}
+	[X] explist ::= exp {‘,’ exp}
 
 	[_] exp ::=  (~)nil | (~)false | (~)true | Numeral | LiteralString | (~)‘...’ | functiondef |
 		 prefixexp | tableconstructor | [X] exp binop exp | [X] unop exp
@@ -111,6 +111,21 @@ namespace sluaParse
 		//0/1 return
 
 		ret.end = in.getLoc();
+		return ret;
+	}
+	inline ExpList readExpList(AnyInput auto& in)
+	{
+		/*
+			explist ::= exp {‘,’ exp}
+		*/
+		ExpList ret{};
+		ret.push_back(readExpr(in));
+
+		while (checkReadToken(in, ","))
+		{
+			ret.push_back(readExpr(in));
+		}
+
 		return ret;
 	}
 
@@ -237,13 +252,14 @@ namespace sluaParse
 					{
 						Expression stepExpr = readExpr(in);
 					}
+					//TODO: export data
 				}
 				else
 				{
 					// for namelist in explist do block end | 
 					requireToken(in, "in");
-					//TODO: explist
-
+					ExpList expList = readExpList(in);
+					//TODO: export data
 				}
 				requireToken(in, "do");
 				Block bl = readBlock(in);
@@ -254,7 +270,6 @@ namespace sluaParse
 			{ // function funcname funcbody
 				break;//TODO: replace with return
 			}
-
 			break;
 		case 'l'://local?
 			if (checkReadTextToken(in, "local"))
@@ -267,14 +282,18 @@ namespace sluaParse
 				{ // local function Name funcbody
 					break;//TODO: replace with return
 				}
-				//var
+				// Local Variable
+
+				StatementType::LOCAL_ASSIGN ret;
+
+				//TODO: attnamelist
 
 				if (checkReadToken(in, "="))
 				{ // [‘=’ explist]
-					//TODO: parse explist
+					ret.exprs = readExpList(in);
 				}
 
-				break;//TODO: replace with return
+				return { ret,in.getLoc() };
 			}
 			break;
 		case 'd'://do?
