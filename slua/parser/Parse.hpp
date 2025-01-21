@@ -144,6 +144,7 @@ namespace sluaParse
 		*/
 
 		Expression res;
+		res.place = in.getLoc();
 
 		res.unOp = readOptUnOp(in);
 
@@ -231,13 +232,18 @@ namespace sluaParse
 
 		skipSpace(in);
 
+		Statement ret;
+		ret.place = in.getLoc();
+
 		switch (in.peek())
 		{
 		case ';':
-			return { StatementType::SEMICOLON(),in.getLoc() };
+			ret.data = StatementType::SEMICOLON();
+			return ret;
 
 		case ':'://must be label
-			return { StatementType::LABEL(readLabel(in)),in.getLoc() };
+			ret.data = StatementType::LABEL(readLabel(in));
+			return ret;
 
 		case 'f'://for?,func?
 			if (checkReadTextToken(in, "for"))
@@ -291,16 +297,16 @@ namespace sluaParse
 				}
 				// Local Variable
 
-				StatementType::LOCAL_ASSIGN ret;
+				StatementType::LOCAL_ASSIGN res;
 
 				//TODO: attnamelist
 
 				if (checkReadToken(in, "="))
 				{ // [‘=’ explist]
-					ret.exprs = readExpList(in);
+					res.exprs = readExpList(in);
 				}
-
-				return { ret,in.getLoc() };
+				ret.data = res;
+				return ret;
 			}
 			break;
 		case 'd'://do?
@@ -308,16 +314,23 @@ namespace sluaParse
 			{
 				Block bl = readBlock(in);
 				requireToken(in, "end");
-				return { StatementType::DO_BLOCK(bl), in.getLoc() };
+				ret.data = StatementType::DO_BLOCK(bl);
+				return ret;
 			}
 			break;
 		case 'b'://break?
 			if (checkReadTextToken(in, "break"))
-				return { StatementType::BREAK(),in.getLoc() };
+			{
+				ret.data = StatementType::BREAK();
+				return ret;
+			}
 			break;
 		case 'g'://goto?
 			if (checkReadTextToken(in, "goto"))//goto Name
-				return { StatementType::GOTO(readName(in)),in.getLoc() };
+			{
+				ret.data = StatementType::GOTO(readName(in));
+				return ret;
+			}
 			break;
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))
@@ -326,7 +339,8 @@ namespace sluaParse
 				requireToken(in, "do");
 				Block bl = readBlock(in);
 				requireToken(in, "end");
-				return { StatementType::WHILE_LOOP(expr,bl),in.getLoc() };
+				ret.data = StatementType::WHILE_LOOP(expr, bl);
+				return ret;
 			}
 			break;
 		case 'r'://repeat?
@@ -336,20 +350,21 @@ namespace sluaParse
 				requireToken(in, "until");
 				Expression expr = readExpr(in);
 
-				return { StatementType::REPEAT_UNTIL(expr,bl),in.getLoc() };
+				ret.data = StatementType::REPEAT_UNTIL(expr, bl);
+				return ret;
 			}
 			break;
 		case 'i'://if?
 			if (checkReadTextToken(in, "if"))
 			{ // if exp then block {elseif exp then block} [else block] end
 
-				StatementType::IF_THEN_ELSE ret{};
+				StatementType::IF_THEN_ELSE res{};
 
-				ret.cond = readExpr(in);
+				res.cond = readExpr(in);
 
 				requireToken(in, "then");
 
-				ret.bl = readBlock(in);
+				res.bl = readBlock(in);
 
 				while (checkReadTextToken(in, "elseif"))
 				{
@@ -357,14 +372,16 @@ namespace sluaParse
 					requireToken(in, "then");
 					Block elBlock = readBlock(in);
 
-					ret.elseIfs.push_back({ elExpr,elBlock });
+					res.elseIfs.push_back({ elExpr,elBlock });
 				}
 
 				if (checkReadTextToken(in, "else"))
-					ret.elseBlock = readBlock(in);
+					res.elseBlock = readBlock(in);
 
 				requireToken(in, "end");
-				return { ret,in.getLoc() };
+
+				ret.data = res;
+				return ret;
 			}
 			break;
 
