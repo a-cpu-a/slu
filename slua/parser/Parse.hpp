@@ -42,7 +42,7 @@
 		[~] for namelist in explist do block end |
 		[_] function funcname funcbody |
 		[_] local function Name funcbody |
-		[_] local attnamelist [‘=’ explist]
+		[~] local attnamelist [‘=’ explist]
 
 	[_] attnamelist ::=  Name attrib {‘,’ Name attrib}
 
@@ -205,13 +205,6 @@ namespace sluaParse
 		 stat ::=  ‘;’ |
 		 varlist ‘=’ explist |
 		 functioncall |
-		 while exp do block end |
-		 repeat block until exp |
-		 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
-		 for namelist in explist do block end |
-		 function funcname funcbody |
-		 local function Name funcbody |
-		 local attnamelist [‘=’ explist]
 		*/
 
 		skipSpace(in);
@@ -258,7 +251,7 @@ namespace sluaParse
 				break;//TODO: replace with return
 			}
 			if (checkReadTextToken(in, "function"))
-			{
+			{ // function funcname funcbody
 				break;//TODO: replace with return
 			}
 
@@ -266,11 +259,20 @@ namespace sluaParse
 		case 'l'://local?
 			if (checkReadTextToken(in, "local"))
 			{//func, or var
+				/*
+					local function Name funcbody |
+					local attnamelist [‘=’ explist]
+				*/
 				if (checkReadTextToken(in, "function"))
-				{
+				{ // local function Name funcbody
 					break;//TODO: replace with return
 				}
 				//var
+
+				if (checkReadToken(in, "="))
+				{ // [‘=’ explist]
+					//TODO: parse explist
+				}
 
 				break;//TODO: replace with return
 			}
@@ -293,7 +295,7 @@ namespace sluaParse
 			break;
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))
-			{
+			{ // while exp do block end
 				Expression expr = readExpr(in);
 				requireToken(in, "do");
 				Block bl = readBlock(in);
@@ -303,7 +305,7 @@ namespace sluaParse
 			break;
 		case 'r'://repeat?
 			if (checkReadTextToken(in, "repeat"))
-			{
+			{ // repeat block until exp
 				Block bl = readBlock(in);
 				requireToken(in, "until");
 				Expression expr = readExpr(in);
@@ -313,7 +315,7 @@ namespace sluaParse
 			break;
 		case 'i'://if?
 			if (checkReadTextToken(in, "if"))
-			{ //if exp then block {elseif exp then block} [else block] end
+			{ // if exp then block {elseif exp then block} [else block] end
 
 				StatementType::IF_THEN_ELSE ret{};
 
