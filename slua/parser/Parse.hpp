@@ -103,21 +103,51 @@ namespace sluaParse
 			block ::= {stat} [retstat]
 			retstat ::= return [explist] [‘;’]
 		*/
+
+		skipSpace(in);
+
 		Block ret{};
 		ret.start = in.getLoc();
 
 		//TODO: implement
 		//0+ stat
+		/*
+		TODO: check for the following, to allow for 0 statements
+			end
+			until
+			elseif
+			else
+			return
+		*/
 
 		if (checkReadTextToken(in, "return"))
 		{
 			ret.hadReturn = true;
-			//TODO: check for reserved tokens, or chars like ';', to allow for empty returns
+			/*
+			TODO: check for the following, to allow for empty returns
+				end
+				until
+				elseif
+				else
+				';'
+			*/
 			ret.retExprs = readExpList(in);
 			readOptToken(in, ";");
 		}
 
 		ret.end = in.getLoc();
+		return ret;
+	}
+
+	inline Function readFuncBody(AnyInput auto& in)
+	{
+		/*
+			block ::= {stat} [retstat]
+			retstat ::= return [explist] [‘;’]
+		*/
+		Function ret{};
+		ret.start = in.getLoc();
+
 		return ret;
 	}
 
