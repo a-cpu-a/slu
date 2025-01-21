@@ -112,7 +112,7 @@ namespace sluaParse
 		if (checkReadTextToken(in, "return"))
 		{
 			ret.hadReturn = true;
-			//TODO: check for reserved tokens, or ';', to allow for empty returns
+			//TODO: check for reserved tokens, or chars like ';', to allow for empty returns
 			ret.retExprs = readExpList(in);
 			readOptToken(in, ";");
 		}
