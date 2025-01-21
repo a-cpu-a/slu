@@ -48,7 +48,7 @@
 
 	[_] attrib ::= [‘<’ Name ‘>’]
 
-	[_] retstat ::= return [explist] [‘;’]
+	[~] retstat ::= return [explist] [‘;’]
 
 	[X] label ::= ‘::’ Name ‘::’
 
@@ -97,22 +97,6 @@
 
 namespace sluaParse
 {
-	inline Block readBlock(AnyInput auto& in)
-	{
-		/*
-			block ::= {stat} [retstat]
-		*/
-		Block ret{};
-		ret.start = in.getLoc();
-
-		//TODO: implement
-
-		//0+ stat
-		//0/1 return
-
-		ret.end = in.getLoc();
-		return ret;
-	}
 	inline ExpList readExpList(AnyInput auto& in)
 	{
 		/*
@@ -126,6 +110,29 @@ namespace sluaParse
 			ret.push_back(readExpr(in));
 		}
 
+		return ret;
+	}
+	inline Block readBlock(AnyInput auto& in)
+	{
+		/*
+			block ::= {stat} [retstat]
+			retstat ::= return [explist] [‘;’]
+		*/
+		Block ret{};
+		ret.start = in.getLoc();
+
+		//TODO: implement
+		//0+ stat
+
+		if (checkReadTextToken(in, "return"))
+		{
+			ret.hadReturn = true;
+			//TODO: check for reserved tokens, or ';', to allow for empty returns
+			ret.retExprs = readExpList(in);
+			readOptToken(in, ";");
+		}
+
+		ret.end = in.getLoc();
 		return ret;
 	}
 

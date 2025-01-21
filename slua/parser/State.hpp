@@ -62,14 +62,14 @@ namespace sluaParse
 	struct Block
 	{
 		std::vector<struct Statement> statList;
-		ExpList ret;//if empty, then no return, see hadEmptyReturn
+		ExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
 
-		Scope scope;
+		//Scope scope;
 
 		Position start;
 		Position end;
 
-		bool hadEmptyReturn = false;
+		bool hadReturn = false;
 	};
 
 
