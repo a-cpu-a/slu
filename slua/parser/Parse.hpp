@@ -58,7 +58,7 @@
 
 	[_] var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
 
-	[_] namelist ::= Name {‘,’ Name}
+	[X] namelist ::= Name {‘,’ Name}
 
 	[X] explist ::= exp {‘,’ exp}
 
@@ -97,6 +97,20 @@
 
 namespace sluaParse
 {
+	inline NameList readNameList(AnyInput auto& in)
+	{
+		/*
+			namelist ::= Name {‘,’ Name}
+		*/
+		NameList ret{};
+		ret.push_back(readName(in));
+
+		while (checkReadToken(in, ","))
+		{
+			ret.push_back(readName(in));
+		}
+		return ret;
+	}
 	inline ExpList readExpList(AnyInput auto& in)
 	{
 		/*
@@ -109,7 +123,6 @@ namespace sluaParse
 		{
 			ret.push_back(readExpr(in));
 		}
-
 		return ret;
 	}
 	inline Block readBlock(AnyInput auto& in)
