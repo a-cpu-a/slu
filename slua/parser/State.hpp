@@ -199,13 +199,13 @@ namespace sluaParse
 	namespace StatementType
 	{
 		struct SEMICOLON {};									// ";"
-		struct ASSIGN { AttribNameList n; ExpList e; };         // "varlist = explist" //e.size must be > 0
+		struct ASSIGN { AttribNameList name; ExpList exprs; };  // "varlist = explist" //e.size must be > 0
 		struct FUNC_CALL { FuncCall v; };						// "functioncall"
 		struct LABEL {};										// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
 		struct DO_BLOCK { Block bl; };							// "do block end"
-		struct WHILE_LOOP { Expression cond; Block bl; };           // "while exp do block end"
+		struct WHILE_LOOP { Expression cond; Block bl; };       // "while exp do block end"
 		struct REPEAT_UNTIL :WHILE_LOOP {};						// "repeat block until exp"
 
 		// "if exp then block {elseif exp then block} [else block] end"
