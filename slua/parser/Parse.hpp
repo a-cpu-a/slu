@@ -38,8 +38,8 @@
 		[X] while exp do block end |
 		[X] repeat block until exp |
 		[X] if exp then block {elseif exp then block} [else block] end |
-		[~] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
-		[~] for namelist in explist do block end |
+		[X] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
+		[X] for namelist in explist do block end |
 		[_] function funcname funcbody |
 		[_] local function Name funcbody |
 		[~] local attnamelist [‘=’ explist]
@@ -134,6 +134,15 @@ namespace sluaParse
 		return res;
 	}
 
+	inline Block readDoEndBlock(AnyInput auto& in)
+	{
+		requireToken(in, "do");
+		Block bl = readBlock(in);
+		requireToken(in, "end");
+
+		return bl;
+	}
+
 	inline Statement readStatment(AnyInput auto& in)
 	{
 		/*
@@ -169,27 +178,34 @@ namespace sluaParse
 
 				if (names.size() == 1 && checkReadToken(in, "="))//1 name, then MAYBE equal
 				{
+					StatementType::FOR_LOOP_NUMERIC res{};
+					res.varName = names[0];
+
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-					Expression initExpr = readExpr(in);
+					res.start = readExpr(in);
 					requireToken(in, ",");
-					Expression lmitExpr = readExpr(in);
+					res.end = readExpr(in);
+
 					if (checkReadToken(in, ","))
-					{
-						Expression stepExpr = readExpr(in);
-					}
-					//TODO: export data
+						res.step = readExpr(in);
+
+					res.bl = readDoEndBlock(in);
+
+					ret.data = res;
+					return ret;
 				}
-				else
-				{
-					// for namelist in explist do block end | 
-					requireToken(in, "in");
-					ExpList expList = readExpList(in);
-					//TODO: export data
-				}
-				requireToken(in, "do");
-				Block bl = readBlock(in);
-				requireToken(in, "end");
-				break;//TODO: replace with return
+				// Generic Loop
+				// for namelist in explist do block end | 
+
+				StatementType::FOR_LOOP_GENERIC res{};
+				res.varNames = names;
+
+				requireToken(in, "in");
+				res.exprs = readExpList(in);
+				res.bl = readDoEndBlock(in);
+
+				ret.data = res;
+				return ret;
 			}
 			if (checkReadTextToken(in, "function"))
 			{ // function funcname funcbody
@@ -248,9 +264,7 @@ namespace sluaParse
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
 				Expression expr = readExpr(in);
-				requireToken(in, "do");
-				Block bl = readBlock(in);
-				requireToken(in, "end");
+				Block bl = readDoEndBlock(in);
 				ret.data = StatementType::WHILE_LOOP(expr, bl);
 				return ret;
 			}

@@ -222,7 +222,7 @@ namespace sluaParse
 		// "for Name = exp , exp [, exp] do block end"
 		struct FOR_LOOP_NUMERIC
 		{
-			std::string varN;
+			std::string varName;
 			Expression start;
 			Expression end;//inclusive
 			std::optional<Expression> step;
@@ -231,8 +231,8 @@ namespace sluaParse
 		// "for namelist in explist do block end"
 		struct FOR_LOOP_GENERIC
 		{
-			NameList varNs;
-			ExpList eList;//size must be > 0
+			NameList varNames;
+			ExpList exprs;//size must be > 0
 			Block bl;
 		};
 		struct FUNCTION_DEF { std::string n; Function f; };// "function funcname funcbody"    //n may contain dots, 1 colon
