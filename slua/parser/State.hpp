@@ -83,7 +83,7 @@ namespace sluaParse
 	{
 		std::vector<Parameter> params;
 		Block block;
-		bool hasVarArgParam = false;// does params end with '...'
+		bool hasVarArgParam = false;// do params end with '...'
 	};
 
 	namespace ExprType
