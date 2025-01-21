@@ -266,9 +266,9 @@ namespace sluaParse
 				 for namelist in explist do block end |
 				*/
 
-				//TODO: namelist
+				NameList names = readNameList(in);
 
-				if (true && checkReadToken(in, "="))//1 name, then equal
+				if (names.size() == 1 && checkReadToken(in, "="))//1 name, then MAYBE equal
 				{
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					Expression initExpr = readExpr(in);
