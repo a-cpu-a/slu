@@ -112,4 +112,19 @@ namespace sluaParse
 		}
 
 	}
+
+	inline NameList readNameList(AnyInput auto& in)
+	{
+		/*
+			namelist ::= Name {‘,’ Name}
+		*/
+		NameList ret{};
+		ret.push_back(readName(in));
+
+		while (checkReadToken(in, ","))
+		{
+			ret.push_back(readName(in));
+		}
+		return ret;
+	}
 }
