@@ -40,8 +40,8 @@
 		[X] if exp then block {elseif exp then block} [else block] end |
 		[X] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
 		[X] for namelist in explist do block end |
-		[_] function funcname funcbody |
-		[_] local function Name funcbody |
+		[~] function funcname funcbody |
+		[X] local function Name funcbody |
 		[~] local attnamelist [‘=’ explist]
 
 	[_] attnamelist ::=  Name attrib {‘,’ Name attrib}
@@ -73,9 +73,9 @@
 
 	[_] functiondef ::= function funcbody
 
-	[_] funcbody ::= ‘(’ [parlist] ‘)’ block end
+	[X] funcbody ::= ‘(’ [parlist] ‘)’ block end
 
-	[_] parlist ::= namelist [‘,’ ‘...’] | ‘...’
+	[X] parlist ::= namelist [‘,’ ‘...’] | ‘...’
 
 	[_] tableconstructor ::= ‘{’ [fieldlist] ‘}’
 
@@ -142,13 +142,41 @@ namespace sluaParse
 	inline Function readFuncBody(AnyInput auto& in)
 	{
 		/*
-			block ::= {stat} [retstat]
-			retstat ::= return [explist] [‘;’]
+			funcbody ::= ‘(’ [parlist] ‘)’ block end
+			parlist ::= namelist [‘,’ ‘...’] | ‘...’
 		*/
 		Function ret{};
 		ret.start = in.getLoc();
 
-		return ret;
+		requireToken(in, "(");
+
+		skipSpace(in);
+
+		const char ch = in.peek();
+
+		if (ch == '.')
+		{
+			requireToken(in, "...");
+			ret.hasVarArgParam = true;
+		}
+		else if (ch != ')')
+		{//must have non-empty namelist
+			ret.params.emplace_back(readName(in));
+
+			while (checkReadToken(in, ","))
+			{
+				if (checkReadToken(in, "..."))
+				{
+					ret.hasVarArgParam = true;
+					break;//cant have anything after the ... arg
+				}
+				ret.emplace_back(readName(in));
+			}
+		}
+
+		requireToken(in, ")");
+		ret.block = readBlock(in);
+		requireToken(in, "end");
 	}
 
 	inline std::string readLabel(AnyInput auto& in)
@@ -239,6 +267,8 @@ namespace sluaParse
 			}
 			if (checkReadTextToken(in, "function"))
 			{ // function funcname funcbody
+				//TODO: funcname
+				Function fun = readFuncBody(in);
 				break;//TODO: replace with return
 			}
 			break;
@@ -251,7 +281,12 @@ namespace sluaParse
 				*/
 				if (checkReadTextToken(in, "function"))
 				{ // local function Name funcbody
-					break;//TODO: replace with return
+					StatementType::LOCAL_FUNCTION_DEF res;
+					res.name = readName(in);
+					res.func = readFuncBody(in);
+
+					ret.data = res;
+					return ret;
 				}
 				// Local Variable
 
