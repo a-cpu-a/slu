@@ -12,10 +12,9 @@
 
 #include <slua/parser/State.hpp>
 #include <slua/parser/Input.hpp>
-
-#include "SkipSpace.hpp"
-#include "RequireToken.hpp"
-#include "ReadName.hpp"
+#include <slua/parser/SkipSpace.hpp>
+#include <slua/parser/RequireToken.hpp>
+#include <slua/parser/ReadName.hpp>
 
 namespace sluaParse
 {

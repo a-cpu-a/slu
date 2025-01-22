@@ -15,7 +15,7 @@
 
 #include "SkipSpace.hpp"
 #include "RequireToken.hpp"
-#include "ReadOperators.hpp"
+#include "basic/ReadOperators.hpp"
 
 namespace sluaParse
 {
