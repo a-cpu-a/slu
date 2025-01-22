@@ -40,7 +40,7 @@
 		[X] if exp then block {elseif exp then block} [else block] end |
 		[X] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
 		[X] for namelist in explist do block end |
-		[~] function funcname funcbody |
+		[X] function funcname funcbody |
 		[X] local function Name funcbody |
 		[~] local attnamelist [‘=’ explist]
 
@@ -52,7 +52,7 @@
 
 	[X] label ::= ‘::’ Name ‘::’
 
-	[_] funcname ::= Name {‘.’ Name} [‘:’ Name]
+	[X] funcname ::= Name {‘.’ Name} [‘:’ Name]
 
 	[_] varlist ::= var {‘,’ var}
 
@@ -97,6 +97,22 @@
 
 namespace sluaParse
 {
+	inline std::string readFuncName(AnyInput auto& in)
+	{
+		//funcname ::= Name {‘.’ Name} [‘:’ Name]
+
+		std::string ret = readName(in);
+
+		while (checkReadToken(in, "."))
+		{
+			ret += "." + readName(in);
+		}
+		if (checkReadToken(in, ":"))
+			ret += ":" + readName(in);
+
+		return ret;
+
+	}
 	inline Block readBlock(AnyInput auto& in)
 	{
 		/*
@@ -267,9 +283,13 @@ namespace sluaParse
 			}
 			if (checkReadTextToken(in, "function"))
 			{ // function funcname funcbody
-				//TODO: funcname
-				Function fun = readFuncBody(in);
-				break;//TODO: replace with return
+				StatementType::FUNCTION_DEF res{};
+
+				res.name = readFuncName(in);
+				res.func = readFuncBody(in);
+
+				ret.data = res;
+				return ret;
 			}
 			break;
 		case 'l'://local?
