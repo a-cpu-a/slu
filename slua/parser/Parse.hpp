@@ -13,11 +13,11 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/State.hpp>
 
-#include "ReadName.hpp"
 #include "basic/ReadMiscNames.hpp"
-#include "RequireToken.hpp"
-#include "SkipSpace.hpp"
-#include "ReadExpr.hpp"
+#include "adv/ReadName.hpp"
+#include "adv/RequireToken.hpp"
+#include "adv/SkipSpace.hpp"
+#include "adv/ReadExpr.hpp"
 
 
 
