@@ -42,11 +42,11 @@
 		[X] for namelist in explist do block end |
 		[X] function funcname funcbody |
 		[X] local function Name funcbody |
-		[~] local attnamelist [‘=’ explist]
+		[X] local attnamelist [‘=’ explist]
 
-	[_] attnamelist ::=  Name attrib {‘,’ Name attrib}
+	[X] attnamelist ::=  Name attrib {‘,’ Name attrib}
 
-	[_] attrib ::= [‘<’ Name ‘>’]
+	[X] attrib ::= [‘<’ Name ‘>’]
 
 	[~] retstat ::= return [explist] [‘;’]
 
@@ -97,10 +97,35 @@
 
 namespace sluaParse
 {
+	inline AttribName readAttribName(AnyInput auto& in)
+	{
+		AttribName ret;
+		ret.name = readName(in);
+		if (checkReadToken(in, "<"))
+		{// attrib ::= [‘<’ Name ‘>’]
+			ret.attrib = readName(in);
+			requireToken(in, ">");
+		}
+
+		return ret;
+	}
+	inline AttribNameList readAttNameList(AnyInput auto& in)
+	{
+		/*
+			attnamelist ::=  Name attrib {‘,’ Name attrib}
+			attrib ::= [‘<’ Name ‘>’]
+		*/
+		AttribNameList ret = readAttribName(in);
+
+		while (checkReadToken(in, ","))
+		{
+			ret.push_back(readAttribName(in));
+		}
+		return ret;
+	}
 	inline std::string readFuncName(AnyInput auto& in)
 	{
-		//funcname ::= Name {‘.’ Name} [‘:’ Name]
-
+		// funcname ::= Name {‘.’ Name} [‘:’ Name]
 		std::string ret = readName(in);
 
 		while (checkReadToken(in, "."))
@@ -111,7 +136,6 @@ namespace sluaParse
 			ret += ":" + readName(in);
 
 		return ret;
-
 	}
 	inline Block readBlock(AnyInput auto& in)
 	{
@@ -311,11 +335,10 @@ namespace sluaParse
 				// Local Variable
 
 				StatementType::LOCAL_ASSIGN res;
-
-				//TODO: attnamelist
+				res.name = readAttNameList(in);
 
 				if (checkReadToken(in, "="))
-				{ // [‘=’ explist]
+				{// [‘=’ explist]
 					res.exprs = readExpList(in);
 				}
 				ret.data = res;
