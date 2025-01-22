@@ -149,32 +149,57 @@ namespace sluaParse
 		Block ret{};
 		ret.start = in.getLoc();
 
-		//TODO: implement
-		//0+ stat
-		/*
-		TODO: check for the following, to allow for 0 statements
-			end
-			until
-			elseif
-			else
-			return
-		*/
+		bool sOver = false;
 
-		if (checkReadTextToken(in, "return"))
+		while (!sOver)
 		{
-			ret.hadReturn = true;
-			/*
-			TODO: check for the following, to allow for empty returns
-				end
-				until
-				elseif
-				else
-				';'
-			*/
-			ret.retExprs = readExpList(in);
-			readOptToken(in, ";");
-		}
+			const char ch = in.peek();
 
+			switch (ch)
+			{
+			case 'r':
+				if (checkReadTextToken(in, "return"))
+				{
+					ret.hadReturn = true;
+					/*
+					TODO: check for the following, to allow for empty returns
+						end
+						until
+						elseif
+						else
+						';'
+					*/
+					ret.retExprs = readExpList(in);
+					readOptToken(in, ";");
+
+					sOver = true;
+				}
+				break;
+			case 'u':
+				if (checkTextToken(in, "until"))
+					sOver = true;
+				break;
+			case 'e':
+			{
+				const char ch1 = in.peekAt(1);
+				if (ch1 == 'n')
+				{
+					if (checkTextToken(in, "end"))
+						sOver = true;
+				}
+				else if (ch1 == 'l')
+				{
+					if (checkTextToken(in, "else") || checkTextToken(in, "elseif"))
+						sOver = true;
+				}
+			}
+			default:
+				break;
+			}
+			if (sOver)break;
+
+			ret.statList.push_back(readStatment(in));
+		}
 		ret.end = in.getLoc();
 		return ret;
 	}
