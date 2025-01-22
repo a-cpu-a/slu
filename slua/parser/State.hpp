@@ -191,7 +191,7 @@ namespace sluaParse
 	struct AttribName
 	{
 		std::string name;
-		std::optional<std::string> attrib;
+		std::string attrib;//empty -> no attrib
 	};
 
 	using AttribNameList = std::vector<AttribName>;
