@@ -149,15 +149,12 @@ namespace sluaParse
 		Block ret{};
 		ret.start = in.getLoc();
 
-		bool sOver = false;
-
-		while (!sOver)
+		while (true)
 		{
 			const char ch = in.peek();
 
-			switch (ch)
+			if (ch == 'r')
 			{
-			case 'r':
 				if (checkReadTextToken(in, "return"))
 				{
 					ret.hadReturn = true;
@@ -172,31 +169,29 @@ namespace sluaParse
 					ret.retExprs = readExpList(in);
 					readOptToken(in, ";");
 
-					sOver = true;
+					break;// no more loop
 				}
-				break;
-			case 'u':
+			}
+			else if (ch == 'u')
+			{
 				if (checkTextToken(in, "until"))
-					sOver = true;
-				break;
-			case 'e':
+					break;// no more loop
+			}
+			else if (ch == 'e')
 			{
 				const char ch1 = in.peekAt(1);
 				if (ch1 == 'n')
 				{
 					if (checkTextToken(in, "end"))
-						sOver = true;
+						break;// no more loop
 				}
 				else if (ch1 == 'l')
 				{
 					if (checkTextToken(in, "else") || checkTextToken(in, "elseif"))
-						sOver = true;
+						break;// no more loop
 				}
 			}
-			default:
-				break;
-			}
-			if (sOver)break;
+			// Not some end / return keyword, must be a statement
 
 			ret.statList.push_back(readStatment(in));
 		}
