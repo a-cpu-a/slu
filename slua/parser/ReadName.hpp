@@ -35,7 +35,7 @@ namespace sluaParse
 		skipSpace(in);
 
 		if (!in)
-			throw UnexpectedFileEndError("Expected identifier: but file ended" + errorLocStr(in));
+			throw UnexpectedFileEndError("Expected identifier/name: but file ended" + errorLocStr(in));
 
 
 		static const std::unordered_set<std::string> reservedKeywords = {
@@ -51,7 +51,7 @@ namespace sluaParse
 		{
 			if (allowError)
 				return "";
-			throw UnexpectedCharacterError("Invalid identifier start: must begin with a letter or underscore" + errorLocStr(in));
+			throw UnexpectedCharacterError("Invalid identifier/name start: must begin with a letter or underscore" + errorLocStr(in));
 		}
 
 
@@ -80,10 +80,10 @@ namespace sluaParse
 		return res;
 	}
 
-
-	inline std::vector<std::string> readNames(AnyInput auto& in, const bool requires1 = true)
+	//uhhh, dont use?
+	inline NameList readNames(AnyInput auto& in, const bool requires1 = true)
 	{
-		std::vector<std::string> res;
+		NameList res;
 
 		if (requires1)
 			res.push_back(readName(in));
@@ -91,15 +91,9 @@ namespace sluaParse
 		bool skipComma = !requires1;//comma wont exist if the first one doesnt exist
 		bool allowNameError = !requires1;//if the first one doesnt exist
 
-		while (true)
+		while (skipComma || checkReadToken(in, ','))
 		{
-			if (!skipComma)
-			{
-				if (!requireTokenNoThrow(in, ","))
-					return res;// that must have been the last item
-			}
-			else
-				skipComma = false;// Only skip first comma
+			skipComma = false;// Only skip first comma
 
 			const std::string str = readName(in, allowNameError);
 
@@ -110,21 +104,6 @@ namespace sluaParse
 
 			allowNameError = false;//not the first one anymore
 		}
-
-	}
-
-	inline NameList readNameList(AnyInput auto& in)
-	{
-		/*
-			namelist ::= Name {‘,’ Name}
-		*/
-		NameList ret{};
-		ret.push_back(readName(in));
-
-		while (checkReadToken(in, ","))
-		{
-			ret.push_back(readName(in));
-		}
-		return ret;
+		return res;
 	}
 }
