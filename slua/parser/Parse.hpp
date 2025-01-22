@@ -162,7 +162,7 @@ namespace sluaParse
 			parlist ::= namelist [‘,’ ‘...’] | ‘...’
 		*/
 		Function ret{};
-		ret.start = in.getLoc();
+		ret.place = in.getLoc();
 
 		requireToken(in, "(");
 
@@ -186,7 +186,7 @@ namespace sluaParse
 					ret.hasVarArgParam = true;
 					break;//cant have anything after the ... arg
 				}
-				ret.emplace_back(readName(in));
+				ret.params.emplace_back(readName(in));
 			}
 		}
 
