@@ -79,8 +79,9 @@ namespace sluaParse
 		//size_t typeId;
 	};
 
-	struct Function : Variable
+	struct Function
 	{
+		Position place;
 		std::vector<Parameter> params;
 		Block block;
 		bool hasVarArgParam = false;// do params end with '...'
@@ -235,7 +236,7 @@ namespace sluaParse
 			ExpList exprs;//size must be > 0
 			Block bl;
 		};
-		struct FUNCTION_DEF { std::string n; Function f; };// "function funcname funcbody"    //n may contain dots, 1 colon
+		struct FUNCTION_DEF { std::string name; Function func; };// "function funcname funcbody"    //n may contain dots, 1 colon
 		struct LOCAL_FUNCTION_DEF :FUNCTION_DEF {};        // "local function Name funcbody" //n may not ^^^
 		struct LOCAL_ASSIGN :ASSIGN {};			   // "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 	};
