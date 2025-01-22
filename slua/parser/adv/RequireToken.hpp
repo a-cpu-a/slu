@@ -12,9 +12,8 @@
 
 #include <slua/parser/State.hpp>
 #include <slua/parser/Input.hpp>
-
-#include "SkipSpace.hpp"
-#include "SimpleErrors.hpp"
+#include <slua/parser/SimpleErrors.hpp>
+#include <slua/parser/adv/SkipSpace.hpp>
 
 namespace sluaParse
 {
