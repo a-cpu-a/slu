@@ -26,7 +26,7 @@
 
 	[X] chunk ::= block
 
-	[~] block ::= {stat} [retstat]
+	[X] block ::= {stat} [retstat]
 
 	[~] stat ::= [X] ‘;’ |
 		[_] varlist ‘=’ explist |
@@ -48,7 +48,7 @@
 
 	[X] attrib ::= [‘<’ Name ‘>’]
 
-	[~] retstat ::= return [explist] [‘;’]
+	[X] retstat ::= return [explist] [‘;’]
 
 	[X] label ::= ‘::’ Name ‘::’
 
@@ -97,6 +97,31 @@
 
 namespace sluaParse
 {
+	//startCh == in.peek() !!!
+	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
+	{
+		if (startCh == 'u')
+		{
+			if (checkTextToken(in, "until"))
+				return true;
+		}
+		else if (startCh == 'e')
+		{
+			const char ch1 = in.peekAt(1);
+			if (ch1 == 'n')
+			{
+				if (checkTextToken(in, "end"))
+					return true;
+			}
+			else if (ch1 == 'l')
+			{
+				if (checkTextToken(in, "else") || checkTextToken(in, "elseif"))
+					return true;
+			}
+		}
+		return false;
+	}
+
 	inline Block readBlock(AnyInput auto& in)
 	{
 		/*
@@ -118,39 +143,24 @@ namespace sluaParse
 				if (checkReadTextToken(in, "return"))
 				{
 					ret.hadReturn = true;
-					/*
-					TODO: check for the following, to allow for empty returns
-						end
-						until
-						elseif
-						else
-						';'
-					*/
-					ret.retExprs = readExpList(in);
-					readOptToken(in, ";");
 
+					skipSpace(in);
+
+					const char ch1 = in.peek();
+
+					if (ch1 == ';')
+						in.skip();//thats it
+					else if (!isBasicBlockEnding(in, ch1))
+					{
+						ret.retExprs = readExpList(in);
+						readOptToken(in, ";");
+					}
 					break;// no more loop
 				}
 			}
-			else if (ch == 'u')
-			{
-				if (checkTextToken(in, "until"))
-					break;// no more loop
-			}
-			else if (ch == 'e')
-			{
-				const char ch1 = in.peekAt(1);
-				if (ch1 == 'n')
-				{
-					if (checkTextToken(in, "end"))
-						break;// no more loop
-				}
-				else if (ch1 == 'l')
-				{
-					if (checkTextToken(in, "else") || checkTextToken(in, "elseif"))
-						break;// no more loop
-				}
-			}
+			else if (isBasicBlockEnding(in, ch))
+				break;// no more loop
+
 			// Not some end / return keyword, must be a statement
 
 			ret.statList.push_back(readStatment(in));
