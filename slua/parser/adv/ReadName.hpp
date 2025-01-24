@@ -17,6 +17,14 @@
 
 namespace sluaParse
 {
+	constexpr bool isValidNameStartChar(const char c) {
+		// Check if the character is in the range of 'A' to 'Z' or 'a' to 'z', or '_'
+		return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c=='_';
+	}
+	constexpr bool isValidNameChar(const char c) {
+		// Check if the character is in the range of '0' to '9', 'A' to 'Z' or 'a' to 'z', or '_'
+		return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c=='_';
+	}
 	inline std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
@@ -46,7 +54,7 @@ namespace sluaParse
 		const uint8_t firstChar = in.peek();
 
 		// Ensure the first character is valid (a letter or underscore)
-		if (!std::isalpha(firstChar) && firstChar != '_')
+		if (!isValidNameStartChar(firstChar))
 		{
 			if (allowError)
 				return "";
@@ -60,7 +68,7 @@ namespace sluaParse
 		while (in)
 		{
 			const uint8_t ch = in.peek();
-			if (std::isalnum(ch) || ch == '_')
+			if (isValidNameChar(ch))
 			{
 				res += in.get();
 				continue;

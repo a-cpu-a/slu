@@ -44,9 +44,11 @@ namespace sluaParse
 		//size_t typeId;
 	};
 
-	namespace FieldType { struct EXPR2EXPR; struct NAME2EXPR; struct EXPR; }
+	namespace FieldType { struct NONE {}; struct EXPR2EXPR; struct NAME2EXPR; struct EXPR; }
 
 	using Field = std::variant<
+		FieldType::NONE,// Here, so variant has a default value (DO NOT USE)
+
 		FieldType::EXPR2EXPR, // "'[' exp ']' = exp"
 		FieldType::NAME2EXPR, // "Name = exp"
 		FieldType::EXPR       // "exp"
@@ -138,9 +140,9 @@ namespace sluaParse
 
 	namespace FieldType
 	{
-		struct EXPR2EXPR { Expression i; Expression v; };	// "‘[’ exp ‘]’ ‘=’ exp"
-		struct NAME2EXPR { std::string i; Expression v; };	// "Name ‘=’ exp"
-		struct EXPR { Expression v; };						// "exp"
+		struct EXPR2EXPR { Expression idx; Expression v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		struct NAME2EXPR { std::string idx; Expression v; };	// "Name ‘=’ exp"
+		struct EXPR { Expression v; };							// "exp"
 	};
 
 	namespace VarType
@@ -198,7 +200,7 @@ namespace sluaParse
 
 	namespace StatementType
 	{
-		struct NONE {}; //Here, so variant has a default value (DO NOT USE)
+		struct NONE {};// Here, so variant has a default value (DO NOT USE)
 
 
 		struct SEMICOLON {};									// ";"
