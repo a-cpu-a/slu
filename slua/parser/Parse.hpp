@@ -104,8 +104,23 @@ namespace sluaParse
 	}
 	inline Field readField(AnyInput auto& in)
 	{
-		//TODO
-		return {};
+		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
+		skipSpace(in);
+		Field ret;
+
+		if (checkReadToken(in,"["))
+		{
+			FieldType::EXPR2EXPR res{};
+
+			res.idx = readExpr(in);
+
+			requireToken(in, "]");
+			requireToken(in, "=");
+
+			res.v = readExpr(in);
+
+			return res;
+		}
 	}
 
 	//Will NOT check/read the first char '{' !!!
@@ -114,7 +129,6 @@ namespace sluaParse
 		/*
 			tableconstructor ::= ‘{’ [fieldlist] ‘}’
 			fieldlist ::= field {fieldsep field} [fieldsep]
-			field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
 			fieldsep ::= ‘,’ | ‘;’
 		*/
 
