@@ -99,11 +99,10 @@ namespace sluaParse
 		struct PREFIX_EXP { std::unique_ptr<struct PrefixExpr> v; };	// "prefixexp"
 		struct TABLE_CONSTRUCTOR { TableConstructor v; };				// "tableconstructor"
 
-		struct BINARY_OPERATION
+		struct MULTI_OPERATION
 		{
-			BinOpType t;
-			std::unique_ptr<struct Expression> l;
-			std::unique_ptr<struct Expression> r;
+			std::unique_ptr<struct Expression> first;
+			std::vector<std::pair<BinOpType, struct Expression>> extra;//size>=1
 		};      // "exp binop exp"
 
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<struct Expression>};     // "unop exp"	//Inlined as opt prefix
@@ -125,7 +124,7 @@ namespace sluaParse
 		ExprType::PREFIX_EXP,			// "prefixexp"
 		ExprType::TABLE_CONSTRUCTOR,	// "tableconstructor"
 
-		ExprType::BINARY_OPERATION		// "exp binop exp"
+		ExprType::MULTI_OPERATION		// "exp binop exp {binop exp}"
 
 		//ExprType::UNARY_OPERATION,	// "unop exp"
 	>;
