@@ -182,7 +182,7 @@ namespace sluaParse
 	{
 		skipSpace(in);
 		const char ch = in.peek();
-		if (ch == '"' || ch=='[')
+		if (ch == '"' || ch=='\'' || ch=='[')
 		{
 			return ArgsType::LITERAL(readStringLiteral(in));
 		}
