@@ -17,7 +17,7 @@
 
 namespace sluaParse
 {
-	inline std::string readStringLiteral(AnyInput auto& in)
+	inline std::string readStringLiteral(AnyInput auto& in,const char typeCh)
 	{
 		//TODO
 		return "";
