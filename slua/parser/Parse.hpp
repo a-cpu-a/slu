@@ -105,7 +105,7 @@ namespace sluaParse
 	inline Field readField(AnyInput auto& in)
 	{
 		//TODO
-		return {}
+		return {};
 	}
 
 	//Will NOT check/read the first char '{' !!!
