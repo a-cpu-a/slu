@@ -64,7 +64,7 @@
 
 	[X] explist ::= exp {‘,’ exp}
 
-	[_] exp ::=  [X]nil | [X]false | [X]true | Numeral | LiteralString | [X]‘...’ | [X]functiondef |
+	[_] exp ::=  [X]nil | [X]false | [X]true | Numeral | [X]LiteralString | [X]‘...’ | [X]functiondef |
 		 prefixexp | tableconstructor | [X]exp binop exp | [X]unop exp
 
 	[_] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
@@ -184,7 +184,7 @@ namespace sluaParse
 		const char ch = in.peek();
 		if (ch == '"' || ch=='\'' || ch=='[')
 		{
-			return ArgsType::LITERAL(readStringLiteral(in));
+			return ArgsType::LITERAL(readStringLiteral(in, ch));
 		}
 		else if (ch == '(')
 		{

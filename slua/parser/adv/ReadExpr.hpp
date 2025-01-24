@@ -14,6 +14,7 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
+#include <slua/parser/adv/ReadStringLiteral.h>
 #include <slua/parser/basic/ReadOperators.hpp>
 
 namespace sluaParse
@@ -33,7 +34,8 @@ namespace sluaParse
 
 		skipSpace(in);
 
-		switch (in.peek())
+		const char firstChar = in.peek();
+		switch (firstChar)
 		{
 		case 'n':
 			if (checkReadTextToken(in, "nil"))
@@ -66,7 +68,7 @@ namespace sluaParse
 		case '"':
 		case '\'':
 		case '[':
-			//TODO: literal?
+			basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
 			break;
 		case '.':
 			if (checkReadToken(in, "..."))
