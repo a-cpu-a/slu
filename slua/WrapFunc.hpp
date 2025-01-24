@@ -281,7 +281,7 @@ namespace slua
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
 		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
-			LUACC_START_SINGLE_STRING _LUA_NAME LUACC_END_SINGLE_STRING \
+			LUACC_SINGLE_STRING( _LUA_NAME) \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT " or " LUACC_NUMBER #_C2 " " LUACC_ARGUMENT "arguments" LUACC_DEFAULT "." );} }
 
 	// Wrap 2 C++ functions overloaded by arg count into 1 lua function, name pair, for your library function tables
@@ -299,7 +299,7 @@ namespace slua
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
 		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
-			LUACC_START_SINGLE_STRING _LUA_NAME LUACC_END_SINGLE_STRING \
+			LUACC_SINGLE_STRING( _LUA_NAME) \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C2 LUACC_DEFAULT \
 			" or " LUACC_NUMBER #_C3 " " LUACC_ARGUMENT "arguments" LUACC_DEFAULT "." );} }
@@ -322,7 +322,7 @@ namespace slua
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C4,_CPP_FUNC4); \
 		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
-			LUACC_START_SINGLE_STRING _LUA_NAME LUACC_END_SINGLE_STRING \
+			LUACC_SINGLE_STRING( _LUA_NAME) \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C2 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C3 LUACC_DEFAULT \
