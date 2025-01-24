@@ -63,7 +63,7 @@
 
 	[X] explist ::= exp {‘,’ exp}
 
-	[_] exp ::=  [X]nil | [X]false | [X]true | Numeral | LiteralString | [X]‘...’ | functiondef |
+	[_] exp ::=  [X]nil | [X]false | [X]true | Numeral | LiteralString | [X]‘...’ | [X]functiondef |
 		 prefixexp | tableconstructor | [X]exp binop exp | [X]unop exp
 
 	[_] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
@@ -72,15 +72,15 @@
 
 	[_] args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString
 
-	[_] functiondef ::= function funcbody
+	[X] functiondef ::= function funcbody
 
 	[X] funcbody ::= ‘(’ [parlist] ‘)’ block end
 
 	[X] parlist ::= namelist [‘,’ ‘...’] | ‘...’
 
-	[_] tableconstructor ::= ‘{’ [fieldlist] ‘}’
+	[X] tableconstructor ::= ‘{’ [fieldlist] ‘}’
 
-	[_] fieldlist ::= field {fieldsep field} [fieldsep]
+	[X] fieldlist ::= field {fieldsep field} [fieldsep]
 
 	[_] field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
 
@@ -98,6 +98,69 @@
 
 namespace sluaParse
 {
+	constexpr bool isFieldSep(const char ch)
+	{
+		return ch == ',' || ch == ';';
+	}
+	inline Field readField(AnyInput auto& in)
+	{
+		//TODO
+		return {}
+	}
+
+	//Will NOT check/read the first char '{' !!!
+	inline TableConstructor readTableConstructor(AnyInput auto& in)
+	{
+		/*
+			tableconstructor ::= ‘{’ [fieldlist] ‘}’
+			fieldlist ::= field {fieldsep field} [fieldsep]
+			field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+			fieldsep ::= ‘,’ | ‘;’
+		*/
+
+		skipSpace(in);
+
+		TableConstructor tbl{};
+
+		if (in.peek() == '}')
+		{
+			in.skip();
+			return tbl;
+		}
+		//must be field
+		tbl.push_back(readField(in));
+
+		while (true)
+		{
+			skipSpace(in);
+			const char ch = in.peek();
+			if (ch == '}')
+			{
+				in.skip();
+				break;
+			}
+			if (!isFieldSep(ch))
+			{
+				throw UnexpectedCharacterError(
+					"Expected table separator ("
+					LUACC_SINGLE_STRING(",")
+					" or "
+					LUACC_SINGLE_STRING(";")
+					"), found " LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
+					+ errorLocStr(in));
+			}
+			in.skip();//skip field-sep
+
+			skipSpace(in);
+			if (in.peek() == '}')
+			{
+				in.skip();
+				break;
+			}
+			tbl.push_back(readField(in));
+		}
+		return tbl;
+	}
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
 	{
