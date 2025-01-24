@@ -18,6 +18,7 @@
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
 #include "adv/ReadExpr.hpp"
+#include "adv/ReadStringLiteral.h"
 
 
 
@@ -70,7 +71,7 @@
 
 	[_] functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
 
-	[_] args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString
+	[X] args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString
 
 	[X] functiondef ::= function funcbody
 
@@ -82,7 +83,7 @@
 
 	[X] fieldlist ::= field {fieldsep field} [fieldsep]
 
-	[_] field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+	[~] field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
 
 	[X] fieldsep ::= ‘,’ | ‘;’
 
@@ -121,6 +122,8 @@ namespace sluaParse
 
 			return res;
 		}
+
+		//TODO: Aaaaa, how do i seperate Name from exp, EFFICIENTLY that is....
 	}
 
 	//Will NOT check/read the first char '{' !!!
@@ -175,6 +178,40 @@ namespace sluaParse
 		}
 		return tbl;
 	}
+	inline Args readArgs(AnyInput auto& in)
+	{
+		skipSpace(in);
+		const char ch = in.peek();
+		if (ch == '"' || ch=='[')
+		{
+			return ArgsType::LITERAL(readStringLiteral(in));
+		}
+		else if (ch == '(')
+		{
+			skipSpace(in);
+			ArgsType::EXPLIST res{};
+			if (in.peek() == ')')// Check if 0 args
+			{
+				in.skip();
+				return res;
+			}
+			res.v = readExpList(in);
+			requireToken(in, ")");
+			return res;
+		}
+		else if (ch == '{')
+		{
+			return ArgsType::TABLE(readTableConstructor(in));
+		}
+		throw UnexpectedCharacterError(
+			"Expected function arguments ("
+			LUACC_SINGLE_STRING(",")
+			" or "
+			LUACC_SINGLE_STRING(";")
+			"), found " LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
+			+ errorLocStr(in));
+	}
+
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
 	{
