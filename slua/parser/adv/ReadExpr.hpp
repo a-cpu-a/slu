@@ -25,10 +25,11 @@ namespace sluaParse
 			| prefixexp | tableconstructor | exp binop exp | unop exp
 		*/
 
-		Expression res;
-		res.place = in.getLoc();
+		const Position startPos = in.getLoc();
 
-		res.unOp = readOptUnOp(in);
+		Expression basicRes;
+		basicRes.place = startPos;
+		basicRes.unOp = readOptUnOp(in);
 
 		skipSpace(in);
 
@@ -37,17 +38,17 @@ namespace sluaParse
 		case 'n':
 			if (checkReadTextToken(in, "nil"))
 			{
-				res.data = ExprType::NIL();
+				basicRes.data = ExprType::NIL();
 				break;
 			}
 			break;
 		case 'f':
 
-			if (checkReadTextToken(in, "false")) { res.data = ExprType::FALSE(); break; }
-			if (checkReadTextToken(in, "function")) { res.data = ExprType::FUNCTION_DEF(readFuncBody(in)); break; }
+			if (checkReadTextToken(in, "false")) { basicRes.data = ExprType::FALSE(); break; }
+			if (checkReadTextToken(in, "function")) { basicRes.data = ExprType::FUNCTION_DEF(readFuncBody(in)); break; }
 			break;
 		case 't':
-			if (checkReadTextToken(in, "true")) { res.data = ExprType::TRUE(); break; }
+			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
 		case '0':
 		case '1':
@@ -70,7 +71,7 @@ namespace sluaParse
 		case '.':
 			if (checkReadToken(in, "..."))
 			{
-				res.data = ExprType::VARARGS();
+				basicRes.data = ExprType::VARARGS();
 				break;
 			}
 			break;
@@ -85,10 +86,30 @@ namespace sluaParse
 		//check bin op
 
 
-		const BinOpType binOp = readOptBinOp(in);
+		const BinOpType firstBinOp = readOptBinOp(in);
 
-		if (binOp == BinOpType::NONE)
-			return res;
+		if (firstBinOp == BinOpType::NONE)
+			return basicRes;
+
+		ExprType::MULTI_OPERATION resData{};
+
+		resData.first = std::make_unique(basicRes);
+		resData.extra.emplace_back(firstBinOp, readExpr(in));
+
+		while (true)
+		{
+			const BinOpType binOp = readOptBinOp(in);
+
+			if (binOp == BinOpType::NONE)
+				break;
+
+			resData.extra.emplace_back(binOp, readExpr(in));
+		}
+		Expression ret;
+		ret.place = startPos;
+		ret.data = resData;
+
+		return ret;
 	}
 
 	inline ExpList readExpList(AnyInput auto& in)
