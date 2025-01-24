@@ -124,7 +124,7 @@ namespace sluaParse
 		ExprType::PREFIX_EXP,			// "prefixexp"
 		ExprType::TABLE_CONSTRUCTOR,	// "tableconstructor"
 
-		ExprType::MULTI_OPERATION		// "exp binop exp {binop exp}"
+		ExprType::MULTI_OPERATION		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
 		//ExprType::UNARY_OPERATION,	// "unop exp"
 	>;
