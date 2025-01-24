@@ -37,17 +37,17 @@ namespace sluaParse
 		case 'n':
 			if (checkReadTextToken(in, "nil"))
 			{
-				//the in args
+				res.data = ExprType::NIL();
 				break;
 			}
 			break;
 		case 'f':
 
-			if (checkReadTextToken(in, "false")) { break; }
-			if (checkReadTextToken(in, "function")) { break; }
+			if (checkReadTextToken(in, "false")) { res.data = ExprType::FALSE(); break; }
+			if (checkReadTextToken(in, "function")) { res.data = ExprType::FUNCTION_DEF(readFuncBody(in)); break; }
 			break;
 		case 't':
-			if (checkReadTextToken(in, "true")) { break; }
+			if (checkReadTextToken(in, "true")) { res.data = ExprType::TRUE(); break; }
 			break;
 		case '0':
 		case '1':
@@ -70,7 +70,7 @@ namespace sluaParse
 		case '.':
 			if (checkReadToken(in, "..."))
 			{
-				//the in args
+				res.data = ExprType::VARARGS();
 				break;
 			}
 			break;
