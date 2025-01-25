@@ -18,7 +18,8 @@
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
 #include "adv/ReadExpr.hpp"
-#include "adv/ReadStringLiteral.h"
+#include "adv/ReadStringLiteral.hpp"
+#include "adv/ReadTable.hpp"
 
 
 
@@ -99,98 +100,7 @@
 
 namespace sluaParse
 {
-	constexpr bool isFieldSep(const char ch)
-	{
-		return ch == ',' || ch == ';';
-	}
-	inline Field readField(AnyInput auto& in)
-	{
-		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
-		skipSpace(in);
-		Field ret;
-
-		if (checkReadToken(in,"["))
-		{
-			FieldType::EXPR2EXPR res{};
-
-			res.idx = readExpr(in);
-
-			requireToken(in, "]");
-			requireToken(in, "=");
-
-			res.v = readExpr(in);
-
-			return res;
-		}
-
-		std::string name = peekName(in);
-
-		if (!name.empty())
-		{
-			if (checkReadToken(in, "="))
-			{
-				return FieldType::NAME2EXPR(name, readExpr(in));
-			}
-		}
-
-		return FieldType::EXPR(readExpr(in));
-	}
-
-	//Will NOT check the first char '{' !!!
-	//But will skip it
-	inline TableConstructor readTableConstructor(AnyInput auto& in)
-	{
-		/*
-			tableconstructor ::= ‘{’ [fieldlist] ‘}’
-			fieldlist ::= field {fieldsep field} [fieldsep]
-			fieldsep ::= ‘,’ | ‘;’
-		*/
-
-		in.skip();//get rid of '{'
-
-		skipSpace(in);
-
-		TableConstructor tbl{};
-
-		if (in.peek() == '}')
-		{
-			in.skip();
-			return tbl;
-		}
-		//must be field
-		tbl.push_back(readField(in));
-
-		while (true)
-		{
-			skipSpace(in);
-			const char ch = in.peek();
-			if (ch == '}')
-			{
-				in.skip();
-				break;
-			}
-			if (!isFieldSep(ch))
-			{
-				throw UnexpectedCharacterError(
-					"Expected table separator ("
-					LUACC_SINGLE_STRING(",")
-					" or "
-					LUACC_SINGLE_STRING(";")
-					"), found " LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
-					+ errorLocStr(in));
-			}
-			in.skip();//skip field-sep
-
-			skipSpace(in);
-			if (in.peek() == '}')
-			{
-				in.skip();
-				break;
-			}
-			tbl.push_back(readField(in));
-		}
-		return tbl;
-	}
+	
 	inline Args readArgs(AnyInput auto& in)
 	{
 		skipSpace(in);
