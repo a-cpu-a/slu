@@ -65,7 +65,7 @@
 	[X] explist ::= exp {‘,’ exp}
 
 	[_] exp ::=  [X]nil | [X]false | [X]true | Numeral | [X]LiteralString | [X]‘...’ | [X]functiondef |
-		 prefixexp | tableconstructor | [X]exp binop exp | [X]unop exp
+		 prefixexp | [X]tableconstructor | [X]exp binop exp | [X]unop exp
 
 	[_] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
 
@@ -126,7 +126,8 @@ namespace sluaParse
 		//TODO: Aaaaa, how do i seperate Name from exp, EFFICIENTLY that is....
 	}
 
-	//Will NOT check/read the first char '{' !!!
+	//Will NOT check the first char '{' !!!
+	//But will skip it
 	inline TableConstructor readTableConstructor(AnyInput auto& in)
 	{
 		/*
@@ -134,6 +135,8 @@ namespace sluaParse
 			fieldlist ::= field {fieldsep field} [fieldsep]
 			fieldsep ::= ‘,’ | ‘;’
 		*/
+
+		in.skip();//get rid of '{'
 
 		skipSpace(in);
 
