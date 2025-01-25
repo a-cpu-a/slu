@@ -49,7 +49,7 @@ namespace slua
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
 	{
 		if (lua_gettop(L) != 2)
-			return slua::lua_error(L, "Getters must have " LUACC_NUMBER "2" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key)");
+			return slua::lua_error(L, "Getters must have " LUACC_NUMBER "2 " LC_arguments " (thisObject, key)");
 
 		if (!slua::TableKey::check(L, 2))
 			return slua::lua_error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " getter key");
@@ -113,7 +113,7 @@ namespace slua
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
 		if (lua_gettop(L) != 3)
-			return slua::lua_error(L, "Setters must have " LUACC_NUMBER "3" LUACC_ARGUMENT " arguments" LUACC_DEFAULT " (thisObject, key, newVal)");
+			return slua::lua_error(L, "Setters must have " LUACC_NUMBER "3 " LC_arguments " (thisObject, key, newVal)");
 
 		if (!slua::TableKey::check(L, 2))
 			return slua::lua_error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " setter key");

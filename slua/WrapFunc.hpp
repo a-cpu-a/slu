@@ -45,7 +45,7 @@ namespace slua
 	if(lua_gettop(L)!=_COUNT) \
 		return slua::lua_error(L, LUACC_FUNCTION "Function " \
 			LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING \
-			" needs " LUACC_NUMBER #_COUNT LUACC_ARGUMENT " arguments" LUACC_DEFAULT ".")
+			" needs " LUACC_NUMBER #_COUNT " " LC_arguments ".")
 
 #define _SLua_CHECK_ARG(_ARG) \
 	const bool arg_ ## _ARG ## _res = slua::checkThrowing<IN ## _ARG ## _T>(L, _ARG); \
@@ -87,7 +87,7 @@ namespace slua
 		if (lua_gettop(L) != 1)
 			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-				" needs " LUACC_NUMBER "1" LUACC_ARGUMENT " argument" LUACC_DEFAULT "."
+				" needs " LUACC_NUMBER "1 " LC_argument "."
 			);
 
 		_SLua_CHECK_N_READ_ARG(1);
@@ -192,11 +192,11 @@ namespace slua
 			{
 				return slua::lua_error(L, LUACC_FUNCTION "Function "
 					LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-					" needs " LUACC_NUMBER "1" LUACC_ARGUMENT " argument" LUACC_DEFAULT ".");
+					" needs " LUACC_NUMBER "1 " LC_argument ".");
 			}
 			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-				" needs " LUACC_NUMBER + TS(sizeof...(ARGS)) + LUACC_ARGUMENT " arguments" LUACC_DEFAULT ".");
+				" needs " LUACC_NUMBER + TS(sizeof...(ARGS)) + " " LC_arguments ".");
 		}
 
 
@@ -282,7 +282,7 @@ namespace slua
 		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
 		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
 			LUACC_SINGLE_STRING( _LUA_NAME) \
-			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT " or " LUACC_NUMBER #_C2 " " LUACC_ARGUMENT "arguments" LUACC_DEFAULT "." );} }
+			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT " or " LUACC_NUMBER #_C2 " " LC_arguments "." );} }
 
 	// Wrap 2 C++ functions overloaded by arg count into 1 lua function, name pair, for your library function tables
 	// _C1 is the argument count of _CPP_FUNC
@@ -302,7 +302,7 @@ namespace slua
 			LUACC_SINGLE_STRING( _LUA_NAME) \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C2 LUACC_DEFAULT \
-			" or " LUACC_NUMBER #_C3 " " LUACC_ARGUMENT "arguments" LUACC_DEFAULT "." );} }
+			" or " LUACC_NUMBER #_C3 " " LC_arguments "." );} }
 
 	// Wrap 3 C++ functions overloaded by arg count into 1 lua function, name pair, for your library function tables
 	// _C1 is the argument count of _CPP_FUNC
@@ -326,7 +326,7 @@ namespace slua
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C2 LUACC_DEFAULT \
 			", " LUACC_NUMBER #_C3 LUACC_DEFAULT \
-			" or " LUACC_NUMBER #_C4 " " LUACC_ARGUMENT "arguments" LUACC_DEFAULT "." );} }
+			" or " LUACC_NUMBER #_C4 " " LC_arguments "." );} }
 
 	// Wrap 4 C++ functions overloaded by arg count into 1 lua function, name pair, for your library function tables
 	// _C1 is the argument count of _CPP_FUNC

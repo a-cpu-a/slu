@@ -382,7 +382,7 @@ namespace sluaParse
 				// Local Variable
 
 				StatementType::LOCAL_ASSIGN res;
-				res.name = readAttNameList(in);
+				res.names = readAttNameList(in);
 
 				if (checkReadToken(in, "="))
 				{// [‘=’ explist]
@@ -481,18 +481,23 @@ namespace sluaParse
 
 		//TODO: try assign or func-call
 
+		std::vector<Var> varData;
+		OptArgFuncCall funcCallData;
+
 		//This requires manual parsing, and stuff (at every step, complex code)
 		while (true)
 		{
 			if (firstChar == '(')
 			{// Will be '(' exp ')'
 				in.skip();
-				Expression ex = readExpr(in);
+				BaseVarType::EXPR res(readExpr(in));
 				requireToken(in, ")");
+				//TODO: do sub-thingy (detecting raw func-call at the same time ofc -> (no dot, or arr-idx))
+				varData = std::vector<Var>(Var(res));
 			}
 			else
 			{// Will be Name
-				std::string name = readName(in);
+				varData.push_back(Var(BaseVarType::NAME(readName(in))));
 			}
 			skipSpace(in);
 
@@ -503,10 +508,19 @@ namespace sluaParse
 				//TODO: repeat
 				break;
 			case '=':// Assign
+				if(funcCallData.has_value())
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to " LC_function " calls, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
 				in.skip();
-				readExpList(in);
-				//TODO: export
-				break;
+				StatementType::ASSIGN res{};
+				res.vars = std::move(varData).value();
+				res.exprs = readExpList(in);
+				ret.data = res;
+				return ret;
 			case ':'://This funccall
 				in.skip();
 				readName(in);
