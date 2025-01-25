@@ -300,7 +300,8 @@ namespace sluaParse
 		Statement ret;
 		ret.place = in.getLoc();
 
-		switch (in.peek())
+		const char firstChar = in.peek();
+		switch (firstChar)
 		{
 		case ';':
 			ret.data = StatementType::SEMICOLON();
@@ -468,7 +469,14 @@ namespace sluaParse
 		default://none of the above...
 			break;
 		}
-		//try assign or func-call
+		//TODO: try assign or func-call
+
+		//This requires manual parsing, and stuff (at every step, complex code)
+
+		if (firstChar == '(')
+		{
+			//Will be '(' exp ')'
+		}
 	}
 
 	struct ParsedFile
