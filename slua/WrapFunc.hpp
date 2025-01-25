@@ -53,7 +53,7 @@ namespace slua
 		throw slua::Error(LUACC_ARGUMENT "Argument " \
 			LUACC_NUMBER #_ARG LUACC_DEFAULT " of " LUACC_FUNCTION "function " \
 			LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING \
-			", is " LUACC_INVALID "not" LUACC_DEFAULT " a " \
+			", is " LC_not " a " \
 			LUACC_END_SINGLE_STRING + slua::getName<IN ## _ARG ## _T>() + LUACC_STRING_SINGLE "'" \
 		); /*\
 	if(arg_ ## _ARG ## _res>0) return arg_ ## _ARG ## _res*/ //why did this exist, lol
@@ -221,7 +221,7 @@ namespace slua
 								LUACC_NUMBER +std::to_string(i) + LUACC_DEFAULT 
 								//" of " LUACC_FUNCTION "function " 
 								//LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING 
-								", is " LUACC_INVALID "not" LUACC_DEFAULT " a " 
+								", is " LC_not " a "
 								LUACC_END_SINGLE_STRING + slua::getName(arg) + LUACC_STRING_SINGLE "'"
 							);
 					}
@@ -248,14 +248,14 @@ namespace slua
 		{
 			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-				" had a " LUACC_INVALID "error" LUACC_DEFAULT ": "
+				" had a " LC_error ": "
 				, e.what());
 		}
 		catch (const slua::Error& e)
 		{
 			return slua::lua_error(L, LUACC_FUNCTION "Function "
 				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-				" had a " LUACC_INVALID "error" LUACC_DEFAULT ": "
+				" had a " LC_error ": "
 				, e);
 		}
 	}

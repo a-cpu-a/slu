@@ -29,7 +29,7 @@ namespace slua
 		static bool check(lua_State* L, const int idx) {
 			return lua_isnumber(L, idx);
 		}
-		static constexpr const char* getName() { return LUACC_NUMBER "double" LUACC_DEFAULT; }
+		static constexpr const char* getName() { return LC_double; }
 	};
 }
 // Map basic types to slua::Float, to allow easy pushing, reading, and checking

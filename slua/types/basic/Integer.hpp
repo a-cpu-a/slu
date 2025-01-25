@@ -36,7 +36,7 @@ namespace slua
 		}
 		// The name of your type, used inside error messages, so coloring is
 		// a good idea (LUACC_NUMBER -> number color, LUACC_DEFAULT -> no color)
-		static constexpr const char* getName() { return LUACC_NUMBER "integer" LUACC_DEFAULT; }
+		static constexpr const char* getName() { return LC_integer; }
 	};
 }
 // Map basic types to slua::Int, to allow easy pushing, reading, and checking
