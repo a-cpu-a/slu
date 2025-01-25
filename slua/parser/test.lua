@@ -20,6 +20,8 @@ function string.u8(bStr,str)
   return bStr.." "..str
 end
 
+(u8)("")("")(""){}""""{}{}""""()()
+
 v.x"":y{}.q
 .q().q()[2]
 :a()[2]""["ww"]
