@@ -163,14 +163,13 @@ namespace sluaParse
 		std::string funcName;
 		Args args;
 	};
-	using OptArgFuncCall = std::optional<ArgFuncCall>;
 
 	namespace SubVarType
 	{
-		struct BASE { OptArgFuncCall args; };
+		struct BASE { std::vector<ArgFuncCall> funcCalls; };
 
-		struct NAME :BASE { std::string var; }; // [funcArgs] ‘.’ Name
-		struct EXPR :BASE { Expression var; };	// [funcArgs] ‘[’ exp ‘]’
+		struct NAME :BASE { std::string var; }; // {funcArgs} ‘.’ Name
+		struct EXPR :BASE { Expression var; };	// {funcArgs} ‘[’ exp ‘]’
 	}
 
 	using SubVar = std::variant<
