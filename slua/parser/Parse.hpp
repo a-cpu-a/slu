@@ -469,13 +469,74 @@ namespace sluaParse
 		default://none of the above...
 			break;
 		}
+
+		/*
+			var ::= baseVar {subvar}
+			
+			baseVar ::= Name | ‘(’ exp ‘)’ subvar
+
+			funcArgs ::=  [‘:’ Name] args
+			subvar ::= [funcArgs] ‘[’ exp ‘]’ | [funcArgs] ‘.’ Name
+		*/
+
 		//TODO: try assign or func-call
 
 		//This requires manual parsing, and stuff (at every step, complex code)
-
-		if (firstChar == '(')
+		while (true)
 		{
-			//Will be '(' exp ')'
+			if (firstChar == '(')
+			{// Will be '(' exp ')'
+				in.skip();
+				Expression ex = readExpr(in);
+				requireToken(in, ")");
+			}
+			else
+			{// Will be Name
+				std::string name = readName(in);
+			}
+			skipSpace(in);
+
+			const char opType = in.peek();
+
+			// ',' = varlist
+			// '=' = assign
+			// ':{"(' = funccall
+			// '[' = arr-index
+			// '.' = index
+
+			switch (opType)
+			{
+			case ',':
+				//TODO: repeat
+				break;
+			case '=':
+				in.skip();
+				readExpList(in);
+				//TODO: export
+				break;
+			case ':':
+			case '{':
+			case '"':
+			case '(':
+				//TODO: read
+				break;
+			case '.':
+				in.skip();
+				//TODO: repeat
+				break;
+			case '[':
+				in.skip();
+				readExpr(in);
+				requireToken(in, "]");
+				//TODO: export
+				break;
+
+			default:
+				throw UnexpectedCharacterError(
+					"Expected character for assignment or func-call, found "
+					LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
+					+ errorLocStr(in));
+			}
 		}
 	}
 
