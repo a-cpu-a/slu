@@ -31,7 +31,7 @@
 
 	[X] block ::= {stat} [retstat]
 
-	[~] stat ::= [X] ‘;’ |
+	[_] stat ::= [X] ‘;’ |
 		[_] varlist ‘=’ explist |
 		[_] functioncall |
 		[X] label |
@@ -100,7 +100,6 @@
 
 namespace sluaParse
 {
-	
 	inline Args readArgs(AnyInput auto& in)
 	{
 		skipSpace(in);
@@ -134,6 +133,25 @@ namespace sluaParse
 			"), found " LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
 			+ errorLocStr(in));
 	}
+	inline Var readVar(AnyInput auto& in)
+	{
+		/*
+			var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
+			prefixexp ::= var | functioncall | ‘(’ exp ‘)’
+			functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
+
+			--->
+
+			var ::= baseVar {subvar}
+			
+			baseVar ::= Name | ‘(’ exp ‘)’ subvar
+
+			funcArgs ::=  [‘:’ Name] args
+			subvar ::= [funcArgs] ‘[’ exp ‘]’ | [funcArgs] ‘.’ Name
+		*/
+		return {};
+	}
+
 
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
