@@ -497,34 +497,34 @@ namespace sluaParse
 			skipSpace(in);
 
 			const char opType = in.peek();
-
-			// ',' = varlist
-			// '=' = assign
-			// ':{"(' = funccall
-			// '[' = arr-index
-			// '.' = index
-
 			switch (opType)
 			{
-			case ',':
+			case ',':// Varlist
 				//TODO: repeat
 				break;
-			case '=':
+			case '=':// Assign
 				in.skip();
 				readExpList(in);
 				//TODO: export
 				break;
-			case ':':
+			case ':'://This funccall
+				in.skip();
+				readName(in);
+				readArgs(in);
+				//TODO: export
+				break;
 			case '{':
 			case '"':
-			case '(':
-				//TODO: read
+			case '('://Funccall
+				readArgs(in);
+				//TODO: export
 				break;
-			case '.':
+			case '.':// Index
 				in.skip();
-				//TODO: repeat
+				readName(in);
+				//TODO: export
 				break;
-			case '[':
+			case '[':// Arr-index
 				in.skip();
 				readExpr(in);
 				requireToken(in, "]");
