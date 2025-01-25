@@ -145,18 +145,54 @@ namespace sluaParse
 		struct EXPR { Expression v; };							// "exp"
 	};
 
-	namespace VarType
+	namespace ArgsType
 	{
-		struct INDEX_STR { std::unique_ptr<struct PrefixExpr> var; std::string idx; };	// "prefixexp.Name"
-		struct INDEX { std::unique_ptr<struct PrefixExpr> var; Expression idx; };		// "prefixexp [ exp ]"
-		struct VAR_NAME { std::string var; };											// "Name"
+		struct EXPLIST { ExpList v; };			// "'(' [explist] ')'"
+		struct TABLE { TableConstructor v; };	// "tableconstructor"
+		struct LITERAL { std::string v; };		// "LiteralString"
+	};
+	using Args = std::variant<
+		ArgsType::EXPLIST,
+		ArgsType::TABLE,
+		ArgsType::LITERAL
+	>;
+
+	struct ArgFuncCall
+	{// funcArgs ::=  [‘:’ Name] args
+
+		std::string funcName;
+		Args args;
+	};
+	using OptArgFuncCall = std::optional<ArgFuncCall>;
+
+	namespace SubVarType
+	{
+		struct BASE { OptArgFuncCall args; };
+
+		struct NAME :BASE { std::string var; }; // [funcArgs] ‘.’ Name
+		struct EXPR :BASE { Expression var; };	// [funcArgs] ‘[’ exp ‘]’
 	}
 
-	using Var = std::variant<
-		VarType::INDEX,
-		VarType::INDEX_STR,
-		VarType::VAR_NAME
+	using SubVar = std::variant<
+		SubVarType::NAME,
+		SubVarType::EXPR
 	>;
+
+	namespace BaseVarType
+	{
+		using NAME = std::string;
+		struct EXPR { Expression start; SubVar sub; };
+	}
+	using BaseVar = std::variant<
+		BaseVarType::NAME,
+		BaseVarType::EXPR
+	>;
+
+	struct Var
+	{
+		BaseVar base;
+		std::vector<SubVar> sub;
+	};
 
 	namespace PrefixExprType
 	{
@@ -170,23 +206,10 @@ namespace sluaParse
 		PrefixExprType::EXPR
 	>;
 
-	namespace ArgsType
-	{
-		struct EXPLIST { ExpList v; };			// "'(' [explist] ')'"
-		struct TABLE { TableConstructor v; };	// "tableconstructor"
-		struct LITERAL { std::string v; };		// "LiteralString"
-	};
-	using Args = std::variant<
-		ArgsType::EXPLIST,
-		ArgsType::TABLE,
-		ArgsType::LITERAL
-	>;
-
 	struct FuncCall
 	{
 		PrefixExpr val;
-		std::optional<std::string> funcName;// for abc:___()
-		Args args;
+		ArgFuncCall args;
 	};
 
 	struct AttribName
