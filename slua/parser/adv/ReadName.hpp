@@ -116,7 +116,7 @@ namespace sluaParse
 		}
 
 		// Check if the resulting string is a reserved keyword
-		if (reservedKeywords.find(res) != reservedKeywords.end())
+		if (RESERVED_KEYWORDS.find(res) != RESERVED_KEYWORDS.end())
 			return "";
 
 		return res;
