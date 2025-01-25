@@ -123,7 +123,12 @@ namespace sluaParse
 			return res;
 		}
 
-		//TODO: Aaaaa, how do i seperate Name from exp, EFFICIENTLY that is....
+		if (isValidNameStartChar(in.peek()))
+		{
+			//TODO: Aaaaa, how do i seperate Name from exp, EFFICIENTLY that is....
+		}
+
+		return FieldType::EXPR(readExpr(in));
 	}
 
 	//Will NOT check the first char '{' !!!
