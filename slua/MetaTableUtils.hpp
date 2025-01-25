@@ -52,7 +52,7 @@ namespace slua
 			return slua::lua_error(L, "Getters must have " LUACC_NUMBER "2 " LC_arguments " (thisObject, key)");
 
 		if (!slua::TableKey::check(L, 2))
-			return slua::lua_error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " getter key");
+			return slua::lua_error(L, LC_invalid " getter key");
 
 		const slua::TableKey key = slua::TableKey::read(L, 2);
 
@@ -116,7 +116,7 @@ namespace slua
 			return slua::lua_error(L, "Setters must have " LUACC_NUMBER "3 " LC_arguments " (thisObject, key, newVal)");
 
 		if (!slua::TableKey::check(L, 2))
-			return slua::lua_error(L, LUACC_INVALID "Invalid" LUACC_DEFAULT " setter key");
+			return slua::lua_error(L, LC_invalid " setter key");
 
 		const slua::TableKey key = slua::TableKey::read(L, 2);
 
