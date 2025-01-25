@@ -17,6 +17,12 @@
 
 namespace sluaParse
 {
+	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
+		"and", "break", "do", "else", "elseif", "end", "false", "for", "function",
+		"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return",
+		"then", "true", "until", "while"
+	};
+
 	constexpr bool isValidNameStartChar(const char c) 
 	{// Check if the character is in the range of 'A' to 'Z' or 'a' to 'z', or '_'
 
@@ -46,13 +52,6 @@ namespace sluaParse
 		if (!in)
 			throw UnexpectedFileEndError("Expected identifier/name: but file ended" + errorLocStr(in));
 
-
-		static const std::unordered_set<std::string> reservedKeywords = {
-			"and", "break", "do", "else", "elseif", "end", "false", "for", "function",
-			"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return",
-			"then", "true", "until", "while"
-		};
-
 		const uint8_t firstChar = in.peek();
 
 		// Ensure the first character is valid (a letter or underscore)
@@ -70,21 +69,55 @@ namespace sluaParse
 		while (in)
 		{
 			const uint8_t ch = in.peek();
-			if (isValidNameChar(ch))
-			{
-				res += in.get();
-				continue;
-			}
-			break; // Stop when a non-identifier character is found
+			if (!isValidNameChar(ch))
+				break; // Stop when a non-identifier character is found
+
+			res += in.get();
+			continue;
 		}
 
 		// Check if the resulting string is a reserved keyword
-		if (reservedKeywords.find(res) != reservedKeywords.end())
+		if (RESERVED_KEYWORDS.find(res) != RESERVED_KEYWORDS.end())
 		{
 			if (allowError)
 				return "";
 			throw ReservedNameError("Invalid identifier: matches a reserved keyword" + errorLocStr(in));
 		}
+
+		return res;
+	}
+	//No space skip!
+	inline std::string peekName(AnyInput auto& in)
+	{
+		if (!in)
+			throw UnexpectedFileEndError("Expected identifier/name: but file ended" + errorLocStr(in));
+
+
+		const uint8_t firstChar = in.peek();
+
+		// Ensure the first character is valid (a letter or underscore)
+		if (!isValidNameStartChar(firstChar))
+			return "";
+
+
+		std::string res;
+		res += firstChar; // Consume the first valid character
+
+		// Consume subsequent characters (letters, digits, or underscores)
+		size_t i = 1;
+		while (in)
+		{
+			const uint8_t ch = in.peekAt(i++);// Starts at 1
+			if (!isValidNameChar(ch))
+				break; // Stop when a non-identifier character is found
+
+			res += ch;
+			continue;
+		}
+
+		// Check if the resulting string is a reserved keyword
+		if (reservedKeywords.find(res) != reservedKeywords.end())
+			return "";
 
 		return res;
 	}

@@ -83,7 +83,7 @@
 
 	[X] fieldlist ::= field {fieldsep field} [fieldsep]
 
-	[~] field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+	[X] field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
 
 	[X] fieldsep ::= ‘,’ | ‘;’
 
@@ -123,9 +123,14 @@ namespace sluaParse
 			return res;
 		}
 
-		if (isValidNameStartChar(in.peek()))
+		std::string name = peekName(in);
+
+		if (!name.empty())
 		{
-			//TODO: Aaaaa, how do i seperate Name from exp, EFFICIENTLY that is....
+			if (checkReadToken(in, "="))
+			{
+				return FieldType::NAME2EXPR(name, readExpr(in));
+			}
 		}
 
 		return FieldType::EXPR(readExpr(in));
