@@ -476,42 +476,49 @@ namespace sluaParse
 			baseVar ::= Name | ‘(’ exp ‘)’ subvar
 
 			funcArgs ::=  [‘:’ Name] args
-			subvar ::= [funcArgs] ‘[’ exp ‘]’ | [funcArgs] ‘.’ Name
+			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
 		*/
 
 		//TODO: try assign or func-call
 
 		std::vector<Var> varData;
-		OptArgFuncCall funcCallData;
+		std::vector<ArgFuncCall> funcCallData;// Current func call chain, empty->no chain
+
+		if (firstChar == '(')
+		{// Must be '(' exp ')'
+			in.skip();
+			BaseVarType::EXPR res(readExpr(in));
+			requireToken(in, ")");
+			//TODO: do sub-thingy (detecting raw func-call at the same time ofc -> (no dot, or arr-idx))
+			varData = std::vector<Var>(Var(res));
+		}
+		else
+		{// Must be Name
+			varData.push_back(Var(BaseVarType::NAME(readName(in))));
+		}
 
 		//This requires manual parsing, and stuff (at every step, complex code)
 		while (true)
 		{
-			if (firstChar == '(')
-			{// Will be '(' exp ')'
-				in.skip();
-				BaseVarType::EXPR res(readExpr(in));
-				requireToken(in, ")");
-				//TODO: do sub-thingy (detecting raw func-call at the same time ofc -> (no dot, or arr-idx))
-				varData = std::vector<Var>(Var(res));
-			}
-			else
-			{// Will be Name
-				varData.push_back(Var(BaseVarType::NAME(readName(in))));
-			}
 			skipSpace(in);
 
 			const char opType = in.peek();
 			switch (opType)
 			{
 			case ',':// Varlist
+				if (!funcCallData.empty())
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to " LC_function " call (Found in variable list)"
+						+ errorLocStr(in));
+				}
 				//TODO: repeat
 				break;
 			case '=':// Assign
-				if(funcCallData.has_value())
+				if(!funcCallData.empty())
 				{
 					throw UnexpectedCharacterError(
-						"Cant assign to " LC_function " calls, found "
+						"Cant assign to " LC_function " call, found "
 						LUACC_SINGLE_STRING("=")
 						+ errorLocStr(in));
 				}
@@ -523,9 +530,9 @@ namespace sluaParse
 				return ret;
 			case ':'://This funccall
 				in.skip();
-				readName(in);
-				readArgs(in);
-				//TODO: export
+				std::string name = readName(in);
+
+				funcCallData.emplace_back(name, readArgs(in));
 				break;
 			case '{':
 			case '"':
@@ -534,11 +541,15 @@ namespace sluaParse
 				//TODO: export
 				break;
 			case '.':// Index
+
+				//TODO: flatten funcData
 				in.skip();
 				readName(in);
 				//TODO: export
 				break;
 			case '[':// Arr-index
+
+				//TODO: flatten funcData
 				in.skip();
 				readExpr(in);
 				requireToken(in, "]");
