@@ -81,7 +81,7 @@ namespace sluaParse
 			//TODO: prefixexp
 			break;
 		case '{':
-			//TODO: tableconstructor
+			basicRes.data = ExprType::TABLE_CONSTRUCTOR(readTableConstructor(in));
 			break;
 		}
 
