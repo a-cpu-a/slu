@@ -483,13 +483,14 @@ namespace sluaParse
 
 		std::vector<Var> varData;
 		std::vector<ArgFuncCall> funcCallData;// Current func call chain, empty->no chain
+		bool varDataNeedsSubThing = false;
 
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
 			BaseVarType::EXPR res(readExpr(in));
 			requireToken(in, ")");
-			//TODO: do sub-thingy (detecting raw func-call at the same time ofc -> (no dot, or arr-idx))
+			varDataNeedsSubThing = true;
 			varData = std::vector<Var>(Var(res));
 		}
 		else
@@ -512,6 +513,13 @@ namespace sluaParse
 						"Cant assign to " LC_function " call (Found in variable list)"
 						+ errorLocStr(in));
 				}
+				if (varDataNeedsSubThing)
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to expression, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
 				//TODO: repeat
 				break;
 			case '=':// Assign
@@ -519,6 +527,13 @@ namespace sluaParse
 				{
 					throw UnexpectedCharacterError(
 						"Cant assign to " LC_function " call, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
+				if(varDataNeedsSubThing)
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to expression, found "
 						LUACC_SINGLE_STRING("=")
 						+ errorLocStr(in));
 				}
@@ -542,14 +557,14 @@ namespace sluaParse
 				break;
 			case '.':// Index
 
-				//TODO: flatten funcData
+				//TODO: flatten funcData & varDataNeedsSubThing
 				in.skip();
 				readName(in);
 				//TODO: export
 				break;
 			case '[':// Arr-index
 
-				//TODO: flatten funcData
+				//TODO: flatten funcData & varDataNeedsSubThing
 				in.skip();
 				readExpr(in);
 				requireToken(in, "]");
@@ -557,10 +572,15 @@ namespace sluaParse
 				break;
 
 			default:
-				throw UnexpectedCharacterError(
-					"Expected character for assignment or func-call, found "
-					LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
-					+ errorLocStr(in));
+				if(funcCallData.empty())
+				{
+					throw UnexpectedCharacterError(
+						"Expected assignment or " LC_function " call, found "
+						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
+						+ errorLocStr(in));
+				}
+				//TODO: export func-call
+				return {};
 			}
 		}
 	}
