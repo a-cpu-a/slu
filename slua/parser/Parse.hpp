@@ -491,11 +491,11 @@ namespace sluaParse
 			BaseVarType::EXPR res(readExpr(in));
 			requireToken(in, ")");
 			varDataNeedsSubThing = true;
-			varData = std::vector<Var>(Var(res));
+			varData.emplace_back(res);
 		}
 		else
 		{// Must be Name
-			varData.push_back(Var(BaseVarType::NAME(readName(in))));
+			varData.emplace_back(BaseVarType::NAME(readName(in)));
 		}
 
 		//This requires manual parsing, and stuff (at every step, complex code)
@@ -523,6 +523,7 @@ namespace sluaParse
 				//TODO: repeat
 				break;
 			case '=':// Assign
+			{
 				if(!funcCallData.empty())
 				{
 					throw UnexpectedCharacterError(
@@ -543,6 +544,7 @@ namespace sluaParse
 				res.exprs = readExpList(in);
 				ret.data = res;
 				return ret;
+			}
 			case ':'://This funccall
 				in.skip();
 				std::string name = readName(in);
@@ -572,6 +574,15 @@ namespace sluaParse
 				break;
 
 			default:
+			{
+				_ASSERT(!varData.empty());
+				if (varData.size() != 1)
+				{
+					throw UnexpectedCharacterError(
+						"Expected multi-assignment, found "
+						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
+						+ errorLocStr(in));
+				}
 				if(funcCallData.empty())
 				{
 					if (varDataNeedsSubThing)
@@ -585,8 +596,15 @@ namespace sluaParse
 						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
 						+ errorLocStr(in));
 				}
-				//TODO: export func-call
-				return {};
+				if (varDataNeedsSubThing)
+				{
+					BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
+					ret.data = StatementType::FUNC_CALL(LimPrefixExprType::EXPR(std::move(bVarExpr.start)), funcCallData);
+					return ret;
+				}
+				ret.data = StatementType::FUNC_CALL(LimPrefixExprType::VAR(std::move(varData.back())), funcCallData);
+				return ret;
+			}
 			}
 		}
 	}

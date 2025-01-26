@@ -91,15 +91,16 @@ namespace sluaParse
 
 	namespace ExprType
 	{
-		struct NIL {};													// "nil"
-		struct FALSE {};												// "false"
-		struct TRUE {};													// "true"
-		struct NUMERAL { double v; };									// "Numeral"
-		struct LITERAL_STRING { std::string v; };						// "LiteralString"
-		struct VARARGS {};												// "..."
-		struct FUNCTION_DEF { Function v; };							// "functiondef"
-		struct PREFIX_EXP { std::unique_ptr<struct PrefixExpr> v; };	// "prefixexp"
-		struct TABLE_CONSTRUCTOR { TableConstructor v; };				// "tableconstructor"
+		struct NIL {};														// "nil"
+		struct FALSE {};													// "false"
+		struct TRUE {};														// "true"
+		struct NUMERAL { double v; };										// "Numeral"
+		struct LITERAL_STRING { std::string v; };							// "LiteralString"
+		struct VARARGS {};													// "..."
+		struct FUNCTION_DEF { Function v; };								// "functiondef"
+		struct LIM_PREFIX_EXP { std::unique_ptr<struct LimPrefixExpr> v; };	// "prefixexp"
+		struct FUNC_CALL { std::unique_ptr<struct FuncCall> c; };			// "functioncall"
+		struct TABLE_CONSTRUCTOR { TableConstructor v; };					// "tableconstructor"
 
 		struct MULTI_OPERATION
 		{
@@ -123,7 +124,8 @@ namespace sluaParse
 		ExprType::LITERAL_STRING,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
 		ExprType::FUNCTION_DEF,			// "functiondef"
-		ExprType::PREFIX_EXP,			// "prefixexp"
+		ExprType::LIM_PREFIX_EXP,		// "prefixexp"
+		ExprType::FUNC_CALL,			// "prefixexp argsThing {argsThing}"
 		ExprType::TABLE_CONSTRUCTOR,	// "tableconstructor"
 
 		ExprType::MULTI_OPERATION		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
@@ -168,8 +170,8 @@ namespace sluaParse
 	{
 		struct BASE { std::vector<ArgFuncCall> funcCalls; };
 
-		struct NAME :BASE { std::string var; }; // {funcArgs} ‘.’ Name
-		struct EXPR :BASE { Expression var; };	// {funcArgs} ‘[’ exp ‘]’
+		struct NAME :BASE { std::string idx; }; // {funcArgs} ‘.’ Name
+		struct EXPR :BASE { Expression idx; };	// {funcArgs} ‘[’ exp ‘]’
 	}
 
 	using SubVar = std::variant<
@@ -193,22 +195,20 @@ namespace sluaParse
 		std::vector<SubVar> sub;
 	};
 
-	namespace PrefixExprType
+	namespace LimPrefixExprType
 	{
-		struct VAR { Var v; };										// "var"
-		struct FUNC_CALL { std::unique_ptr<struct FuncCall> c; };	// "functioncall"
-		struct EXPR { Expression e; };								// "'(' exp ')'"
+		using VAR = Var;										// "var"
+		using EXPR = Expression;								// "'(' exp ')'"
 	}
-	using PrefixExpr = std::variant<
-		PrefixExprType::VAR,
-		PrefixExprType::FUNC_CALL,
-		PrefixExprType::EXPR
+	using LimPrefixExpr = std::variant<
+		LimPrefixExprType::VAR,
+		LimPrefixExprType::EXPR
 	>;
 
 	struct FuncCall
 	{
-		PrefixExpr val;
-		ArgFuncCall args;
+		LimPrefixExpr val;
+		std::vector<ArgFuncCall> argChain;
 	};
 
 	struct AttribName
@@ -227,7 +227,7 @@ namespace sluaParse
 
 		struct SEMICOLON {};									// ";"
 		struct ASSIGN { std::vector<Var> vars; ExpList exprs; };// "varlist = explist" //e.size must be > 0
-		struct FUNC_CALL { FuncCall v; };						// "functioncall"
+		using FUNC_CALL = FuncCall;								// "functioncall"
 		struct LABEL {};										// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
