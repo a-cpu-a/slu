@@ -2,7 +2,7 @@
 
 Intended for C++ 20, might work for older versions.
 
-.hpp for C++ header files, .h for C header files
+.hpp for C++ header files, .h for old header files
 
 # Function Wrapping
 ```cpp
