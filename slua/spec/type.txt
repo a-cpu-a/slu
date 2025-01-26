@@ -94,7 +94,7 @@ Type Specifiers {
 		
 		if ... is a integer, then the size is fixed, and cant be changed
 		
-		Note: accessing elements through normal lua code is not supported
+		Implementation: accessing elements through normal lua code is not supported
 	}
 	Optional {
 		Format: "?" X
