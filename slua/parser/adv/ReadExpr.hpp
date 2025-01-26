@@ -84,7 +84,7 @@ namespace sluaParse
 			break;
 		}
 
-		if (!isNilIntentional && std::holds_alternative<ExprType::NIL>(basicRes))
+		if (!isNilIntentional && std::holds_alternative<ExprType::NIL>(basicRes.data))
 		{//Prefix expr! or func-call
 			//TODO: add code from Parse.hpp to here
 		}
