@@ -545,7 +545,7 @@ namespace sluaParse
 				ret.data = res;
 				return ret;
 			}
-			case ':'://This funccall
+			case ':'://Self funccall
 				in.skip();
 				std::string name = readName(in);
 
@@ -554,25 +554,33 @@ namespace sluaParse
 			case '{':
 			case '"':
 			case '('://Funccall
-				readArgs(in);
-				//TODO: export
+				funcCallData.emplace_back("", readArgs(in));
 				break;
 			case '.':// Index
-
-				//TODO: flatten funcData & varDataNeedsSubThing
+			{
 				in.skip();
-				readName(in);
-				//TODO: export
+
+				SubVarType::NAME res{};
+				res.funcCalls = std::move(funcCallData);// Move auto-clears it
+				res.idx = readName(in);
+
+				varDataNeedsSubThing = false;
+				varData.back().sub.emplace_back(res);
 				break;
+			}
 			case '[':// Arr-index
+			{
+				SubVarType::EXPR res{};
+				res.funcCalls = std::move(funcCallData);// Move auto-clears it
 
-				//TODO: flatten funcData & varDataNeedsSubThing
 				in.skip();
-				readExpr(in);
+				res.idx = readExpr(in);
 				requireToken(in, "]");
-				//TODO: export
-				break;
 
+				varDataNeedsSubThing = false;
+				varData.back().sub.emplace_back(res);
+				break;
+			}
 			default:
 			{
 				_ASSERT(!varData.empty());
