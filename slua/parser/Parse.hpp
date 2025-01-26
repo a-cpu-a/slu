@@ -65,8 +65,8 @@
 
 	[X] explist ::= exp {‘,’ exp}
 
-	[_] exp ::=  [X]nil | [X]false | [X]true | Numeral | [X]LiteralString | [X]‘...’ | [X]functiondef |
-		 prefixexp | [X]tableconstructor | [X]exp binop exp | [X]unop exp
+	[_] exp ::=  [X]nil | [X]false | [X]true | [_]Numeral | [_]LiteralString | [X]‘...’ | [X]functiondef |
+		 [_]prefixexp | [X]tableconstructor | [X]exp binop exp | [X]unop exp
 
 	[X] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
 
