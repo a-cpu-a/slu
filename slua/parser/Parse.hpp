@@ -574,6 +574,12 @@ namespace sluaParse
 			default:
 				if(funcCallData.empty())
 				{
+					if (varDataNeedsSubThing)
+					{
+						throw UnexpectedCharacterError(
+							"Raw expressions are not allowed, expected assignment or " LC_function " call"
+							+ errorLocStr(in));
+					}
 					throw UnexpectedCharacterError(
 						"Expected assignment or " LC_function " call, found "
 						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
