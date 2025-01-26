@@ -28,6 +28,7 @@ namespace sluaParse
 
 		const Position startPos = in.getLoc();
 
+		bool isNilIntentional = false;
 		Expression basicRes;
 		basicRes.place = startPos;
 		basicRes.unOp = readOptUnOp(in);
@@ -41,6 +42,7 @@ namespace sluaParse
 			if (checkReadTextToken(in, "nil"))
 			{
 				basicRes.data = ExprType::NIL();
+				isNilIntentional = true;
 				break;
 			}
 			break;
@@ -77,14 +79,15 @@ namespace sluaParse
 				break;
 			}
 			break;
-		case '(':
-			//TODO: prefixexp
-			break;
 		case '{':
 			basicRes.data = ExprType::TABLE_CONSTRUCTOR(readTableConstructor(in));
 			break;
 		}
 
+		if (!isNilIntentional && std::holds_alternative<ExprType::NIL>(basicRes))
+		{//Prefix expr! or func-call
+			//TODO: add code from Parse.hpp to here
+		}
 		//check bin op
 
 
