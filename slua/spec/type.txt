@@ -1,0 +1,109 @@
+#
+# Dependencies: Lua
+#
+
+New Syntax {
+
+	type ::= ["?"] typeItem { "|" typeItem }
+
+	typeItem ::= typeName | "(" type ")" {typeSpecifierSuffix}
+	typeName ::= Name {typeSpecifierSuffix}
+
+	typeSpecifierSuffix ::= "[" [UnsignedIntegral] "]" | "{" "}"
+}
+
+New Keywords {
+	void
+	bool
+	int
+	num
+	ptrdata
+	Any
+	string
+	Table
+	Func
+	Userdata
+	Thread
+}
+
+Official Types {
+
+	(names starting with a capital are complex types)
+
+	void {
+		Nothing, no type is allowed
+		Variables and function arguments cant have this type
+		Only allowed as function return type
+	}
+	bool {
+		A lua boolean
+	}
+	int {
+		A 32, or 64 bit integer
+		/* Todo: what should this be on "Lua Jit and the like"
+		** 
+		** Maybe: Emulated 64bit int
+		** Maybe: Emulated 32bit int
+		*/
+	}
+	num {
+		A 32 or 64 bit float, might also be a integer
+	}
+	ptrdata {
+		Lightdata passed from C
+	}
+	
+	Any {
+		Any type is allowed (even void)
+	}
+	String {
+		A lua string, immutable
+	}
+	Table {
+		A lua table, can have fields and indices
+	}
+	Func {
+		Any function C, lua, etc
+	}
+	Userdata {
+		Things passed from C
+	}
+	Thread {
+		the coroutines
+	}
+}
+
+Type Specifiers {
+	
+	Table Array {
+		Format: X "{" "}"
+		
+		Just a array of X, can have negative, 0, positive integer indices
+		Cant have string fields
+		
+		Since this is a table, indices start at 1
+		
+		Note: string fields might not be checked at runtime
+	}
+	Array {
+		Format: X "[" [UnsignedIntegral] "]"
+		UnsignedIntegral must be a positive integer (non zero), or nothing at all
+		
+		Unlike table arrays, negative indices will error
+		Unlike table arrays, this starts at 0, since it offsets, instead of indexes
+		
+		if ... is a integer, then the size is fixed, and cant be changed
+		
+		Note: accessing elements through normal lua code is not supported
+	}
+	Optional {
+		Format: "?" X
+		
+		Applied after any array thingies, so "?X[]" is nil, or a array of X
+		To get the opposite, just do "(?X)[]"
+		
+		Its basicly just a shortcut for " nil | "
+		
+		Allows X to be nil
+	}
+}
