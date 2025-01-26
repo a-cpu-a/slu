@@ -108,7 +108,6 @@ namespace sluaParse
 				return BinOpType::LOGICAL_OR;
 			break;
 		}
-
 		return BinOpType::NONE;
 	}
 }
