@@ -31,9 +31,9 @@
 
 	[X] block ::= {stat} [retstat]
 
-	[_] stat ::= [X] ‘;’ |
-		[_] varlist ‘=’ explist |
-		[_] functioncall |
+	[X] stat ::= [X] ‘;’ |
+		[X] varlist ‘=’ explist |
+		[X] functioncall |
 		[X] label |
 		[X] break |
 		[X] goto Name |
@@ -57,9 +57,9 @@
 
 	[X] funcname ::= Name {‘.’ Name} [‘:’ Name]
 
-	[_] varlist ::= var {‘,’ var}
+	[X] varlist ::= var {‘,’ var}
 
-	[_] var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
+	[X] var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
 
 	[X] namelist ::= Name {‘,’ Name}
 
@@ -68,9 +68,9 @@
 	[_] exp ::=  [X]nil | [X]false | [X]true | Numeral | [X]LiteralString | [X]‘...’ | [X]functiondef |
 		 prefixexp | [X]tableconstructor | [X]exp binop exp | [X]unop exp
 
-	[_] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
+	[X] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
 
-	[_] functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
+	[X] functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
 
 	[X] args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString
 
@@ -133,25 +133,6 @@ namespace sluaParse
 			"), found " LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
 			+ errorLocStr(in));
 	}
-	inline Var readVar(AnyInput auto& in)
-	{
-		/*
-			var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
-			prefixexp ::= var | functioncall | ‘(’ exp ‘)’
-			functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
-
-			--->
-
-			var ::= baseVar {subvar}
-			
-			baseVar ::= Name | ‘(’ exp ‘)’ subvar
-
-			funcArgs ::=  [‘:’ Name] args
-			subvar ::= [funcArgs] ‘[’ exp ‘]’ | [funcArgs] ‘.’ Name
-		*/
-		return {};
-	}
-
 
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
@@ -287,10 +268,25 @@ namespace sluaParse
 		return bl;
 	}
 
+	inline void parseVarBase(AnyInput auto& in, std::vector<Var>& varData, bool& varDataNeedsSubThing)
+	{
+		if (firstChar == '(')
+		{// Must be '(' exp ')'
+			in.skip();
+			BaseVarType::EXPR res(readExpr(in));
+			requireToken(in, ")");
+			varDataNeedsSubThing = true;
+			varData.emplace_back(res);
+		}
+		else
+		{// Must be Name
+			varData.emplace_back(BaseVarType::NAME(readName(in)));
+		}
+	}
+
 	inline Statement readStatment(AnyInput auto& in)
 	{
 		/*
-		 stat ::=  ‘;’ |
 		 varlist ‘=’ explist |
 		 functioncall |
 		*/
@@ -304,6 +300,7 @@ namespace sluaParse
 		switch (firstChar)
 		{
 		case ';':
+			in.skip();
 			ret.data = StatementType::SEMICOLON();
 			return ret;
 
@@ -479,24 +476,11 @@ namespace sluaParse
 			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
 		*/
 
-		//TODO: try assign or func-call
-
 		std::vector<Var> varData;
 		std::vector<ArgFuncCall> funcCallData;// Current func call chain, empty->no chain
 		bool varDataNeedsSubThing = false;
 
-		if (firstChar == '(')
-		{// Must be '(' exp ')'
-			in.skip();
-			BaseVarType::EXPR res(readExpr(in));
-			requireToken(in, ")");
-			varDataNeedsSubThing = true;
-			varData.emplace_back(res);
-		}
-		else
-		{// Must be Name
-			varData.emplace_back(BaseVarType::NAME(readName(in)));
-		}
+		parseVarBase(in,varData,varDataNeedsSubThing);
 
 		//This requires manual parsing, and stuff (at every step, complex code)
 		while (true)
@@ -520,7 +504,7 @@ namespace sluaParse
 						LUACC_SINGLE_STRING("=")
 						+ errorLocStr(in));
 				}
-				//TODO: repeat
+				parseVarBase(in, varData, varDataNeedsSubThing);
 				break;
 			case '=':// Assign
 			{
