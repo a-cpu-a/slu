@@ -15,6 +15,7 @@
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/adv/ReadStringLiteral.hpp>
+#include <slua/parser/adv/ReadNumeral.h>
 #include <slua/parser/basic/ReadOperators.hpp>
 
 namespace sluaParse
@@ -64,8 +65,7 @@ namespace sluaParse
 		case '7':
 		case '8':
 		case '9':
-			//TODO: numeral
-
+			basicRes.data = readNumeral(in,firstChar);
 			break;
 		case '"':
 		case '\'':
