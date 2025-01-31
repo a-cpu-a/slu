@@ -21,6 +21,7 @@ namespace sluaParse
 	/*
 
 		// NOTE: NO WHITESPACE BETWEEN CHARS!!!
+		// NOTE: approximate!!
 
 		Numeral ::= HexNum | DecNum
 
@@ -44,7 +45,100 @@ namespace sluaParse
 
 	inline ExprData readNumeralExtra(AnyInput auto& in, const bool hex, const bool decPart, const char firstChar)
 	{
-		return {};
+        std::string number;
+        number += firstChar;
+        bool hasDot = decPart;
+        bool hasExp = false;
+        bool isFloat = decPart;
+
+        bool requireExpCh = false;
+
+        const char expChar = hex ? 'p' : 'e';
+
+        while (in)
+        {
+            const char c = in.peek();
+
+            const bool digit = hex ? isHexDigitChar(c) : isDigitChar(c);
+
+            if (digit)
+            {
+                number += in.get();
+                requireExpCh = false;
+            }
+            else if (c == '.' && !hasDot && !hasExp)
+            {
+                hasDot = true;
+                isFloat = true;
+                number += in.get();
+            }
+            else if (isLowerCaseEqual(c, expChar) && !hasExp)
+            {
+                hasExp = true;
+                isFloat = true;
+                number += in.get();
+                if (in.peek() == '+' || in.peek() == '-')
+                {
+                    number += in.get();
+                }
+                requireExpCh = true;
+            }
+            else if (requireExpCh)
+            {
+                throw UnexpectedCharacterError(
+                    "Expected a digit or " LUACC_SINGLE_STRING("+") "/" LUACC_SINGLE_STRING("-") " for exponent of " LC_number
+                    + errorLocStr(in));
+            }
+            else
+                break;
+        }
+
+        if (requireExpCh && !in)
+        {
+            throw 333;
+        }
+
+        if (in && isAlpha(in.peek()))
+        {
+            throw UnexpectedCharacterError(
+                "Found a text character after a " LC_number
+                + errorLocStr(in));
+        }
+        try {
+        if (isFloat)
+        {
+            if (hex)
+            {
+                number = "0x" + number;
+            }
+            return ExprType::NUMERAL(std::stod(number));
+        }
+        else
+        {
+            try
+            {
+                return ExprType::NUMERAL_I64(std::stoll(number, nullptr, hex ? 16 : 10));
+            }
+            catch (const std::exception& e)
+            {
+                if (hex)
+                {
+                    number = "0x" + number;
+                }
+                return ExprType::NUMERAL(std::stod(number));
+            }
+        }
+        }
+        catch (const std::exception& e)
+        {
+            throw UnexpectedCharacterError(
+                LUACC_INVALID "Malformed " LC_number
+                " "
+                LUACC_START_SINGLE_STRING
+                +number+
+                LUACC_END_SINGLE_STRING
+                + errorLocStr(in));
+        }
 	}
 
 	inline ExprData readNumeral(AnyInput auto& in, const char firstChar)
