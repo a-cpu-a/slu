@@ -11,6 +11,10 @@ namespace sluaParse
 	{
 		return c >= '0' && c <= '9';
 	}
+	constexpr bool isHexDigitChar(const char c)
+	{
+		return isDigitChar(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+	}
 	constexpr bool isValidNameStartChar(const char c)
 	{// Check if the character is in the range of 'A' to 'Z' or 'a' to 'z', or '_'
 
