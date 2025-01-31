@@ -7,6 +7,14 @@
 
 namespace sluaParse
 {
+	constexpr uint8_t CAPITAL_BIT = 'x' - 'X';
+	static_assert('x' - 'X' == 32);//is simple bit flip?
+
+	constexpr char toLowerCase(const char c)
+	{
+		return c | CAPITAL_BIT;
+	}
+
 	constexpr bool isDigitChar(const char c)
 	{
 		return c >= '0' && c <= '9';
