@@ -14,7 +14,9 @@ template<class... Ts>
 _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
 // Macro Definitions
-#define ezmatch(_VALUE) [&](auto... ez_cases) { return std::visit(_EzMatchOverloader{ez_cases...}, _VALUE); } // Passes value and cases
+#define ezmatch(_VALUE) [&](auto... ez_cases) \
+		{ return std::visit(_EzMatchOverloader{ez_cases...}, _VALUE); }
+
 #define ezcase(_VAR,_TYPE) [&](_TYPE& _VAR)
 #define ezcaseVar(_TYPE) [&](_TYPE& var)
 
