@@ -27,6 +27,8 @@
 
 	TODO:
 
+	[_] EOS handling
+
 	[X] chunk ::= block
 
 	[X] block ::= {stat} [retstat]
