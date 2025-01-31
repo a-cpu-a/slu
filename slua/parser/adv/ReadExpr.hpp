@@ -55,6 +55,14 @@ namespace sluaParse
 		case 't':
 			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
+		case '.':
+			if (checkReadToken(in, "..."))
+			{
+				basicRes.data = ExprType::VARARGS();
+				break;
+			}
+			//break;
+			[[fallthrough]];//handle as numeral instead (.0123, etc)
 		case '0':
 		case '1':
 		case '2':
@@ -71,13 +79,6 @@ namespace sluaParse
 		case '\'':
 		case '[':
 			basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
-			break;
-		case '.':
-			if (checkReadToken(in, "..."))
-			{
-				basicRes.data = ExprType::VARARGS();
-				break;
-			}
 			break;
 		case '{':
 			basicRes.data = ExprType::TABLE_CONSTRUCTOR(readTableConstructor(in));
