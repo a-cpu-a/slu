@@ -76,7 +76,7 @@ inline void test2()
 
 #include <iostream>
 
-inline int test3()
+consteval int test3()
 {
 	std::variant<int, bool> v{ 0 };
 
