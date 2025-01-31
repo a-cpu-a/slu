@@ -100,10 +100,10 @@ consteval int test3()
 {
 	std::variant<int, bool> v{ 0 };
 
-	// The return type of the cases must be identical!
+	// The return types of the cases must be identical.
 
-	// The compiler will try to guess it, so you
-	// might need to explicitly state it using "-> Type")
+	// The compiler will add the return type itself, so
+	// using "-> Type" is optional, but required in some cases
 
 	return ezmatch(v)(
 		varcase(int) -> char { return 1; },
