@@ -14,27 +14,31 @@ template<class... Ts>
 _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
 // Macro Definitions
-#define ezmatch(_VALUE) [&](auto... ez_cases) { std::visit(_EzMatchOverloader{ez_cases...}, _VALUE); } // Passes value and cases
-#define ezcase(_TYPE,_VAR) [&](_TYPE& _VAR)
-#define ezcaseVal(_TYPE) [&](_TYPE& var)
+#define ezmatch(_VALUE) [&](auto... ez_cases) { return std::visit(_EzMatchOverloader{ez_cases...}, _VALUE); } // Passes value and cases
+#define ezcase(_VAR,_TYPE) [&](_TYPE& _VAR)
+#define ezcaseVar(_TYPE) [&](_TYPE& var)
 
 /*
+
+#include <iostream>
+
 inline void test()
 {
 	std::variant<int, double, float> v{ 0.0f };
 
-	ezmatch(v)(
+	ezmatch(v)(// note that this isnt a curly brace!
 
-		ezcaseVar(int) { std::cout<<"Int "<< var <<"\n"; },
+		ezcaseVar(int) { std::cout<<"Int "<< var <<"\n"; },// note the comma
 		ezcaseVar(double) { std::cout<<"Double "<< var <<"\n";},
-		ezcase(float,var) { std::cout<<"Float "<< var <<"\n";}
+		ezcase(var,float) { std::cout<<"Float "<< var <<"\n";}// Note the missing comma!
 
 	);
 }
+
 */
-
-
 /*
+
+#include <iostream>
 
 namespace MyEnumType
 {
@@ -64,4 +68,25 @@ inline void test2()
 
 	);
 }
+
+*/
+/*
+
+#include <iostream>
+
+inline int test3()
+{
+	std::variant<int, bool> v{ 0 };
+
+	// The return type of the cases must be identical!
+
+	// The compiler will try to guess it, so you
+	// might need to explicitly state it using "-> Type")
+
+	return ezmatch(v)(
+		ezcaseVar(int)-> char { return 1; },
+		ezcaseVar(bool)-> char { return 0;}
+	);
+}
+
 */
