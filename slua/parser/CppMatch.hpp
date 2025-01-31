@@ -38,7 +38,7 @@ _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 		{ return std::visit(_EzMatchOverloader{ez_cases...}, _VALUE); }
 
 #define ezcase(_VAR,_TYPE) [&](_TYPE& _VAR)
-#define ezcaseVar(_TYPE) [&](_TYPE& var)
+#define varcase(_TYPE) [&](_TYPE& var)
 
 /*
 
@@ -50,10 +50,10 @@ inline void test()
 
 	ezmatch(v)(// note that this isnt a curly brace!
 
-		ezcaseVar(int) { std::cout<<"Int "<< var <<"\n"; },// note the comma
-		ezcaseVar(double) { std::cout<<"Double "<< var <<"\n";},
-		ezcase(var,float) { std::cout<<"Float "<< var <<"\n";}// Note the missing comma!
-
+		varcase(int) { std::cout<<"Int "<< var <<"\n"; },// note the comma
+		varcase(double) { std::cout<<"Double "<< var <<"\n";},
+		ezcase(varName,float) { std::cout<<"Float "<< varName <<"\n";}
+		// Note the missing comma!
 	);
 }
 
@@ -80,10 +80,10 @@ inline void test2()
 
 	ezmatch(v)(
 
-		ezcaseVar(MyEnumType::INT) { std::cout<<"Int "<< var <<"\n"; },
-		ezcaseVar(double) { std::cout<<"Double "<< var <<"\n";},
+		varcase(MyEnumType::INT) { std::cout<<"Int "<< var <<"\n"; },
+		varcase(double) { std::cout<<"Double "<< var <<"\n";},
 
-		ezcaseVar(MyEnumType::STRNUM) {
+		varcase(MyEnumType::STRNUM) {
 			std::cout <<"Strnum "<< var.str 
 				<<" N: "<< var.num <<"\n";
 		}
@@ -106,8 +106,8 @@ consteval int test3()
 	// might need to explicitly state it using "-> Type")
 
 	return ezmatch(v)(
-		ezcaseVar(int)-> char { return 1; },
-		ezcaseVar(bool)-> char { return 0;}
+		varcase(int) -> char { return 1; },
+		varcase(bool) -> char { return 0;}
 	);
 }
 
