@@ -29,9 +29,9 @@ namespace sluaParse
 
 		HexNum ::= "0" HexSep ((HexDigList ["." [HexDigList]]) | "." HexDigList) [HexExpSep [NumSign] DigList]
 
-		DecExpSep ::= "e" | "E"
-		HexSep ::= "x" | "X"
-		HexExpSep ::= "p" | "P"
+		DecExpSep	::= "e" | "E"
+		HexSep		::= "x" | "X"
+		HexExpSep	::= "p" | "P"
 
 		DigList ::= Digit {Digit}
 		HexDigList ::= HexDigit {HexDigit}
