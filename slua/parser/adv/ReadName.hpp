@@ -14,6 +14,7 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
+#include <slua/parser/basic/CharInfo.hpp>
 
 namespace sluaParse
 {
@@ -23,16 +24,6 @@ namespace sluaParse
 		"then", "true", "until", "while"
 	};
 
-	constexpr bool isValidNameStartChar(const char c) 
-	{// Check if the character is in the range of 'A' to 'Z' or 'a' to 'z', or '_'
-
-		return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c=='_';
-	}
-	constexpr bool isValidNameChar(const char c)
-	{// Check if the character is in the range of '0' to '9', 'A' to 'Z' or 'a' to 'z', or '_'
-
-		return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c=='_';
-	}
 	inline std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
