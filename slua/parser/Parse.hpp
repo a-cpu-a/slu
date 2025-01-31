@@ -175,6 +175,9 @@ namespace sluaParse
 
 		while (true)
 		{
+			if (!in)//File ended, so block ended too
+				break;
+
 			const char ch = in.peek();
 
 			if (ch == 'r')
