@@ -16,7 +16,6 @@ namespace slua
 {
 	//if a function is prefixed with lua_, its kinda unsafe
 
-
 	inline int lua_error(lua_State* L, const std::string& str) {
 		return luaL_error(L, str.c_str());
 	}
