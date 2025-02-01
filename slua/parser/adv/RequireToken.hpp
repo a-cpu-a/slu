@@ -17,19 +17,24 @@
 
 namespace sluaParse
 {
-	template<size_t TOK_SIZE>
-	inline [[nodiscard]] void requireToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
+	template<bool SKIP_SPACE=true,size_t TOK_SIZE>
+	inline void requireToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
 	{
-		skipSpace(in);
+		if constexpr(SKIP_SPACE)
+			skipSpace(in);
+
 		try
 		{
 			for (size_t i = 0; i < TOK_SIZE - 1; i++)//skip null
 			{
-				if (in.get() != tok[i])
+				const char ch = in.get();
+				if (ch != tok[i])
 				{
 					throw UnexpectedCharacterError(
 						"Expected "
 						LUACC_START_SINGLE_STRING + std::to_string(tok) + LUACC_END_SINGLE_STRING
+						", character "
+						LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
 						", but found "
 						LUACC_START_SINGLE_STRING + tok[i] + LUACC_END_SINGLE_STRING
 						+ errorLocStr(in)

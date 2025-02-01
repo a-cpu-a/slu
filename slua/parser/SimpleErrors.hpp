@@ -20,6 +20,11 @@ namespace sluaParse
 		return " " + in.fileName() + " (" LUACC_NUMBER + std::to_string(in.getLoc().line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(in.getLoc().index);
 	}
 
+	struct UnicodeError : std::exception
+	{
+		std::string m;
+		const char* what() const { return m.c_str(); }
+	};
 	struct UnexpectedCharacterError : std::exception
 	{
 		std::string m;
