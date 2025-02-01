@@ -31,6 +31,17 @@ namespace sluaParse
 	{
 		return isDigitChar(c) || isAlpha(c);
 	}
+
+	static_assert('9' < 'a');
+	static_assert('9' < 'A');
+	constexpr uint8_t hexDigit2Num(const char c)
+	{
+		if (c <= '9')
+		{
+			return c - '0';//to num
+		}
+		return toLowerCase(c) -'a' +10;
+	}
 	constexpr bool isValidNameStartChar(const char c)
 	{// Check if the character is in the range of 'A' to 'Z' or 'a' to 'z', or '_'
 

@@ -13,6 +13,14 @@
 
 namespace sluaParse
 {
+	constexpr bool isSimpleSpaceChar(const char ch)
+	{
+		return ch == ' ' || ch == '\f' || ch == '\t' || ch == '\v';
+	}
+	constexpr bool isSpaceChar(const char ch)
+	{
+		return isSimpleSpaceChar(ch) || ch == '\n' || ch == '\r';
+	}
 	enum class ParseNewlineState : uint8_t
 	{
 		NONE,
@@ -134,7 +142,7 @@ namespace sluaParse
 
 			*/
 
-			if (ch == ' ' || ch == '\f' || ch == '\n' || ch == '\r' || ch == '\t' || ch == '\v')
+			if (isSpaceChar(ch))
 			{
 				manageNewlineState(ch);
 				res++;
