@@ -30,7 +30,7 @@ namespace slua
 		static bool check(lua_State* L, const int idx) {
 			return lua_isstring(L, idx);
 		}
-		static constexpr const char* getName() { return LUACC_STRING_DOUBLE "string" LUACC_DEFAULT; }
+		static constexpr const char* getName() { return LC_string; }
 	};
 
 
