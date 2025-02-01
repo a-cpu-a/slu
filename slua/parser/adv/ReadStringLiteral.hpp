@@ -189,15 +189,26 @@ namespace sluaParse
 		std::string result;
 		if (firstTypeChar == '"' || firstTypeChar == '\'')
 		{
+			ParseNewlineState nlState = ParseNewlineState::NONE;
 			while(true)
 			{
 				const char c = in.get();
 				if (c == firstTypeChar) break;
+
 				if (c == '\\')
 				{
+					manageNewlineState(next, c, in);
+
 					const char next = in.get();
 					switch (next)
 					{
+					case '\n':
+					case '\r':
+						manageNewlineState(next, nlState, in);
+						//TODO
+						result += '\n';
+						break;
+
 					case 'a': result += '\a'; break;
 					case 'b': result += '\b'; break;
 					case 'f': result += '\f'; break;
@@ -205,7 +216,20 @@ namespace sluaParse
 					case 'r': result += '\r'; break;
 					case 't': result += '\t'; break;
 					case 'v': result += '\v'; break;
-					case 'z': while (isSimpleSpaceChar(in.peek())) { in.skip(); } break;
+					case 'z':
+					{
+						while (true)
+						{
+							const char checkChar = in.peek();
+							if (!isSpaceChar(checkChar))
+								break;
+
+							manageNewlineState(checkChar, nlState, in);
+
+							in.skip();
+						}
+						break;
+					}
 					case 'x':
 					{
 						const char hex1 = in.get(), hex2 = in.get();
@@ -261,8 +285,16 @@ namespace sluaParse
 						);
 					}
 				}
+				else if(c=='\n' || c=='\r')
+				{
+					throw UnexpectedCharacterError(
+						LUACC_INVALID "Unfinished " LC_string ", line ended"
+						+ errorLocStr(in)
+					);
+				}
 				else
 				{
+					manageNewlineState(next, c, in);
 					result += c;
 				}
 			}
@@ -280,6 +312,8 @@ namespace sluaParse
 			while (true)
 			{
 				const char c = in.get();
+				manageNewlineState(c, nlState, in);
+
 				if (c == ']')
 				{
 					size_t closeLevel = 0;

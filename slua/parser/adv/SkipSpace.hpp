@@ -13,13 +13,9 @@
 
 namespace sluaParse
 {
-	constexpr bool isSimpleSpaceChar(const char ch)
-	{
-		return ch == ' ' || ch == '\f' || ch == '\t' || ch == '\v';
-	}
 	constexpr bool isSpaceChar(const char ch)
 	{
-		return isSimpleSpaceChar(ch) || ch == '\n' || ch == '\r';
+		return ch == ' ' || ch == '\f' || ch == '\t' || ch == '\v' || ch == '\n' || ch == '\r';
 	}
 	enum class ParseNewlineState : uint8_t
 	{
@@ -38,12 +34,12 @@ namespace sluaParse
 				nlState = sluaParse::ParseNewlineState::CARI;
 			break;
 		case sluaParse::ParseNewlineState::CARI:
-			if (ch == '\n')
-			{//  \r\n
+			if (ch != '\r')
+			{//  \r\n, or \r(normal char)
 				in.newLine();
 				nlState = sluaParse::ParseNewlineState::NONE;
 			}
-			else if (ch == '\r')//   \r\r
+			else// \r\r
 				in.newLine();
 			break;
 		}
@@ -98,12 +94,12 @@ namespace sluaParse
 		while (in)
 		{
 			const uint8_t ch = in.peek(res);
+			manageNewlineState(ch, nlState, in);
 
 			if (insideLineComment)
 			{
 				if (ch == '\n' || ch == '\r')
 				{
-					manageNewlineState(ch);
 					insideLineComment = false;//new line, so exit comment
 				}
 
@@ -127,8 +123,6 @@ namespace sluaParse
 						continue;
 					}
 				}
-				else //not a ']'
-					manageNewlineState(ch);
 				res++; // Skip other characters in multiline comment
 				continue;
 			}
@@ -144,7 +138,6 @@ namespace sluaParse
 
 			if (isSpaceChar(ch))
 			{
-				manageNewlineState(ch);
 				res++;
 				continue;
 			}
