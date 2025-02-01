@@ -98,7 +98,7 @@ namespace sluaParse
             throw 333;
         }
 
-        if (in && isAlpha(in.peek()))
+        if (in && isValidNameStartChar(in.peek()))
         {
             throw UnexpectedCharacterError(
                 "Found a text character after a " LC_number
