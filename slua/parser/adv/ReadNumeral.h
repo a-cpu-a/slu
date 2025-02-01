@@ -145,7 +145,6 @@ namespace sluaParse
 	{
 		in.skip();
 
-
 		if (firstChar == '.')
 		{
 			//must be non-hex, float(or must it..?)
