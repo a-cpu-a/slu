@@ -20,7 +20,8 @@ namespace sluaParse
 	/**
 	 * Encode a code point using UTF-8
 	 *
-	 * @author Ondřej Hruška <ondra@ondrovo.com> (31 bit support added by a-cpu-a)
+	 * @author Ondřej Hruška <ondra@ondrovo.com> 
+	 * @author 31 bit support added by a-cpu-a | credits: https://github.com/ww898/utf-cpp/blob/master/include/ww898/cp_utf8.hpp
 	 * @license MIT
 	 *
 	 * @param utf - code point 0-0x7FFFFFFF
