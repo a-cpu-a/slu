@@ -212,7 +212,7 @@ namespace sluaParse
 		}
 	}
 
-	inline Expression readExpr(AnyInput auto& in)
+	inline Expression readExpr(AnyInput auto& in, const bool readBiOp = true)
 	{
 		/*
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
@@ -286,6 +286,7 @@ namespace sluaParse
 		}
 		//check bin op
 
+		if (!readBiOp)return basicRes;
 
 		skipSpace(in);
 
@@ -314,7 +315,7 @@ namespace sluaParse
 			if (binOp == BinOpType::NONE)
 				break;
 
-			resData.extra.emplace_back(binOp, readExpr(in));
+			resData.extra.emplace_back(binOp, readExpr(in,false));
 		}
 		Expression ret;
 		ret.place = startPos;

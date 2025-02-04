@@ -181,7 +181,7 @@ namespace sluaParse
 	{
 		ExprData data;
 		Position place;
-		UnOpType unOp;//might be NONE
+		UnOpType unOp = UnOpType::NONE;//might be NONE
 
 		Expression() = default;
 		Expression(const Expression&) = delete;
