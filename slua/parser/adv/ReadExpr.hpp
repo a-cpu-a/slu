@@ -148,9 +148,9 @@ namespace sluaParse
 						{
 							Expression res;
 							res = std::move(std::get<BaseVarType::EXPR>(varData.base));
-							return ExprType::LIM_PREFIX_EXP(new LimPrefixExpr(res));
+							return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(res));
 						}
-						return ExprType::LIM_PREFIX_EXP(new LimPrefixExpr(varData));
+						return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(varData));
 					}
 					if (varDataNeedsSubThing)
 					{

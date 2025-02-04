@@ -110,8 +110,8 @@ namespace sluaParse
 
 	namespace LimPrefixExprType
 	{
-		using VAR = struct Var;										// "var"
-		using EXPR = struct Expression;								// "'(' exp ')'"
+		struct VAR;										// "var"
+		struct EXPR;								// "'(' exp ')'"
 	}
 	using LimPrefixExpr = std::variant<
 		LimPrefixExprType::VAR,
@@ -175,13 +175,6 @@ namespace sluaParse
 		UnOpType unOp;//might be NONE
 	};
 
-	namespace FieldType
-	{
-		struct EXPR2EXPR { Expression idx; Expression v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		struct NAME2EXPR { std::string idx; Expression v; };	// "Name ‘=’ exp"
-		struct EXPR { Expression v; };							// "exp"
-	};
-
 	namespace SubVarType
 	{
 		struct BASE { std::vector<ArgFuncCall> funcCalls; };
@@ -216,6 +209,18 @@ namespace sluaParse
 		std::string name;
 		std::string attrib;//empty -> no attrib
 	};
+
+	namespace FieldType
+	{
+		struct EXPR2EXPR { Expression idx; Expression v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		struct NAME2EXPR { std::string idx; Expression v; };	// "Name ‘=’ exp"
+		struct EXPR { Expression v; };							// "exp"
+	}
+	namespace LimPrefixExprType
+	{
+		struct VAR { Var v; };										// "var"
+		struct EXPR { Expression v; };								// "'(' exp ')'"
+	}
 
 	using AttribNameList = std::vector<AttribName>;
 	using NameList = std::vector<std::string>;
