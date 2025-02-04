@@ -145,7 +145,7 @@ namespace sluaParse
 				res.idx = readName(in);
 
 				varDataNeedsSubThing = false;
-				varData.back().sub.emplace_back(res);
+				varData.back().sub.emplace_back(std::move(res));
 				break;
 			}
 			case '[':// Arr-index
@@ -203,10 +203,10 @@ namespace sluaParse
 				{
 					BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
 					auto limP = LimPrefixExprType::EXPR(std::move(bVarExpr.start));
-					return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), funcCallData);
+					return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
 				}
 				auto limP = LimPrefixExprType::VAR(std::move(varData.back()));
-				return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), funcCallData);
+				return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
 			}
 			}
 		}
