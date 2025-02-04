@@ -24,7 +24,7 @@ namespace sluaParse
 	}
 	inline Field readField(AnyInput auto& in)
 	{
-		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
+		// field :: = â€˜[â€™ exp â€˜]â€™ â€˜ = â€™ exp | Name â€˜ = â€™ exp | exp
 		skipSpace(in);
 
 		if (checkReadToken(in, "["))
@@ -59,9 +59,9 @@ namespace sluaParse
 	inline TableConstructor readTableConstructor(AnyInput auto& in)
 	{
 		/*
-			tableconstructor ::= ‘{’ [fieldlist] ‘}’
+			tableconstructor ::= â€˜{â€™ [fieldlist] â€˜}â€™
 			fieldlist ::= field {fieldsep field} [fieldsep]
-			fieldsep ::= ‘,’ | ‘;’
+			fieldsep ::= â€˜,â€™ | â€˜;â€™
 		*/
 
 		in.skip();//get rid of '{'

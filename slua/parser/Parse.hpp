@@ -33,8 +33,8 @@
 
 	[X] block ::= {stat} [retstat]
 
-	[X] stat ::= [X] ‘;’ |
-		[X] varlist ‘=’ explist |
+	[X] stat ::= [X] â€˜;â€™ |
+		[X] varlist â€˜=â€™ explist |
 		[X] functioncall |
 		[X] label |
 		[X] break |
@@ -43,59 +43,59 @@
 		[X] while exp do block end |
 		[X] repeat block until exp |
 		[X] if exp then block {elseif exp then block} [else block] end |
-		[X] for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
+		[X] for Name â€˜=â€™ exp â€˜,â€™ exp [â€˜,â€™ exp] do block end |
 		[X] for namelist in explist do block end |
 		[X] function funcname funcbody |
 		[X] local function Name funcbody |
-		[X] local attnamelist [‘=’ explist]
+		[X] local attnamelist [â€˜=â€™ explist]
 
-	[X] attnamelist ::=  Name attrib {‘,’ Name attrib}
+	[X] attnamelist ::=  Name attrib {â€˜,â€™ Name attrib}
 
-	[X] attrib ::= [‘<’ Name ‘>’]
+	[X] attrib ::= [â€˜<â€™ Name â€˜>â€™]
 
-	[X] retstat ::= return [explist] [‘;’]
+	[X] retstat ::= return [explist] [â€˜;â€™]
 
-	[X] label ::= ‘::’ Name ‘::’
+	[X] label ::= â€˜::â€™ Name â€˜::â€™
 
-	[X] funcname ::= Name {‘.’ Name} [‘:’ Name]
+	[X] funcname ::= Name {â€˜.â€™ Name} [â€˜:â€™ Name]
 
-	[X] varlist ::= var {‘,’ var}
+	[X] varlist ::= var {â€˜,â€™ var}
 
-	[X] var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name
+	[X] var ::=  Name | prefixexp â€˜[â€™ exp â€˜]â€™ | prefixexp â€˜.â€™ Name
 
-	[X] namelist ::= Name {‘,’ Name}
+	[X] namelist ::= Name {â€˜,â€™ Name}
 
-	[X] explist ::= exp {‘,’ exp}
+	[X] explist ::= exp {â€˜,â€™ exp}
 
-	[X] exp ::=  [X]nil | [X]false | [X]true | [X]Numeral | [X]LiteralString | [X]‘...’ | [X]functiondef |
+	[X] exp ::=  [X]nil | [X]false | [X]true | [X]Numeral | [X]LiteralString | [X]â€˜...â€™ | [X]functiondef |
 		 [X]prefixexp | [X]tableconstructor | [X]exp binop exp | [X]unop exp
 
-	[X] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
+	[X] prefixexp ::= var | functioncall | â€˜(â€™ exp â€˜)â€™
 
-	[X] functioncall ::=  prefixexp args | prefixexp ‘:’ Name args
+	[X] functioncall ::=  prefixexp args | prefixexp â€˜:â€™ Name args
 
-	[X] args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString
+	[X] args ::=  â€˜(â€™ [explist] â€˜)â€™ | tableconstructor | LiteralString
 
 	[X] functiondef ::= function funcbody
 
-	[X] funcbody ::= ‘(’ [parlist] ‘)’ block end
+	[X] funcbody ::= â€˜(â€™ [parlist] â€˜)â€™ block end
 
-	[X] parlist ::= namelist [‘,’ ‘...’] | ‘...’
+	[X] parlist ::= namelist [â€˜,â€™ â€˜...â€™] | â€˜...â€™
 
-	[X] tableconstructor ::= ‘{’ [fieldlist] ‘}’
+	[X] tableconstructor ::= â€˜{â€™ [fieldlist] â€˜}â€™
 
 	[X] fieldlist ::= field {fieldsep field} [fieldsep]
 
-	[X] field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+	[X] field ::= â€˜[â€™ exp â€˜]â€™ â€˜=â€™ exp | Name â€˜=â€™ exp | exp
 
-	[X] fieldsep ::= ‘,’ | ‘;’
+	[X] fieldsep ::= â€˜,â€™ | â€˜;â€™
 
-	[X] binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ |
-		 ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ |
-		 ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ |
+	[X] binop ::=  â€˜+â€™ | â€˜-â€™ | â€˜*â€™ | â€˜/â€™ | â€˜//â€™ | â€˜^â€™ | â€˜%â€™ |
+		 â€˜&â€™ | â€˜~â€™ | â€˜|â€™ | â€˜>>â€™ | â€˜<<â€™ | â€˜..â€™ |
+		 â€˜<â€™ | â€˜<=â€™ | â€˜>â€™ | â€˜>=â€™ | â€˜==â€™ | â€˜~=â€™ |
 		 and | or
 
-	[X] unop ::= ‘-’ | not | ‘#’ | ‘~’
+	[X] unop ::= â€˜-â€™ | not | â€˜#â€™ | â€˜~â€™
 
 */
 
@@ -166,7 +166,7 @@ namespace sluaParse
 	{
 		/*
 			block ::= {stat} [retstat]
-			retstat ::= return [explist] [‘;’]
+			retstat ::= return [explist] [â€˜;â€™]
 		*/
 
 		skipSpace(in);
@@ -215,8 +215,8 @@ namespace sluaParse
 	inline Function readFuncBody(AnyInput auto& in)
 	{
 		/*
-			funcbody ::= ‘(’ [parlist] ‘)’ block end
-			parlist ::= namelist [‘,’ ‘...’] | ‘...’
+			funcbody ::= â€˜(â€™ [parlist] â€˜)â€™ block end
+			parlist ::= namelist [â€˜,â€™ â€˜...â€™] | â€˜...â€™
 		*/
 		Function ret{};
 		ret.place = in.getLoc();
@@ -256,7 +256,7 @@ namespace sluaParse
 
 	inline std::string readLabel(AnyInput auto& in)
 	{
-		//label ::= ‘::’ Name ‘::’
+		//label ::= â€˜::â€™ Name â€˜::â€™
 
 		requireToken(in, "::");
 
@@ -279,7 +279,7 @@ namespace sluaParse
 	inline Statement readStatment(AnyInput auto& in)
 	{
 		/*
-		 varlist ‘=’ explist |
+		 varlist â€˜=â€™ explist |
 		 functioncall |
 		*/
 
@@ -304,7 +304,7 @@ namespace sluaParse
 			if (checkReadTextToken(in, "for"))
 			{
 				/*
-				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
+				 for Name â€˜=â€™ exp â€˜,â€™ exp [â€˜,â€™ exp] do block end |
 				 for namelist in explist do block end |
 				*/
 
@@ -315,7 +315,7 @@ namespace sluaParse
 					StatementType::FOR_LOOP_NUMERIC res{};
 					res.varName = names[0];
 
-					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+					// for Name â€˜=â€™ exp â€˜,â€™ exp [â€˜,â€™ exp] do block end | 
 					res.start = readExpr(in);
 					requireToken(in, ",");
 					res.end = readExpr(in);
@@ -357,7 +357,7 @@ namespace sluaParse
 			{//func, or var
 				/*
 					local function Name funcbody |
-					local attnamelist [‘=’ explist]
+					local attnamelist [â€˜=â€™ explist]
 				*/
 				if (checkReadTextToken(in, "function"))
 				{ // local function Name funcbody
@@ -374,7 +374,7 @@ namespace sluaParse
 				res.names = readAttNameList(in);
 
 				if (checkReadToken(in, "="))
-				{// [‘=’ explist]
+				{// [â€˜=â€™ explist]
 					res.exprs = readExpList(in);
 				}
 				ret.data = std::move(res);
