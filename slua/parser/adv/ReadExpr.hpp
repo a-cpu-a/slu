@@ -20,6 +20,159 @@
 
 namespace sluaParse
 {
+	inline void parseVarBase(AnyInput auto& in, const char firstChar, Var& varDataOut, bool& varDataNeedsSubThing)
+	{
+		if (firstChar == '(')
+		{// Must be '(' exp ')'
+			in.skip();
+			BaseVarType::EXPR res(readExpr(in));
+			requireToken(in, ")");
+			varDataNeedsSubThing = true;
+			varDataOut = res;
+		}
+		else
+		{// Must be Name
+			varDataOut = BaseVarType::NAME(readName(in));
+		}
+	}
+
+	template<class T>
+	inline T parsePrefixExprVar(AnyInput auto& in, const char firstChar)
+	{
+		/*
+			var ::= baseVar {subvar}
+
+			baseVar ::= Name | ‘(’ exp ‘)’ subvar
+
+			funcArgs ::=  [‘:’ Name] args
+			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
+		*/
+
+		std::vector<Var> varData;
+		std::vector<ArgFuncCall> funcCallData;// Current func call chain, empty->no chain
+		bool varDataNeedsSubThing = false;
+
+		varData.emplace_back();
+		parseVarBase(in, firstChar, varData.back(), varDataNeedsSubThing);
+
+		//This requires manual parsing, and stuff (at every step, complex code)
+		while (true)
+		{
+			skipSpace(in);
+
+			const char opType = in.peek();
+			switch (opType)
+			{
+			case ',':// Varlist
+				if (!funcCallData.empty())
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to " LC_function " call (Found in variable list)"
+						+ errorLocStr(in));
+				}
+				if (varDataNeedsSubThing)
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to expression, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
+				skipSpace(in);
+				varData.emplace_back();
+				parseVarBase(in, in.peek(), varData.back(), varDataNeedsSubThing);
+				break;
+			case '=':// Assign
+			{
+				if (!funcCallData.empty())
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to " LC_function " call, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
+				if (varDataNeedsSubThing)
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign to expression, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
+				in.skip();
+				StatementType::ASSIGN res{};
+				res.vars = std::move(varData).value();
+				res.exprs = readExpList(in);
+				return res;
+			}
+			case ':'://Self funccall
+				in.skip();
+				std::string name = readName(in);
+
+				funcCallData.emplace_back(name, readArgs(in));
+				break;
+			case '{':
+			case '"':
+			case '('://Funccall
+				funcCallData.emplace_back("", readArgs(in));
+				break;
+			case '.':// Index
+			{
+				in.skip();
+
+				SubVarType::NAME res{};
+				res.funcCalls = std::move(funcCallData);// Move auto-clears it
+				res.idx = readName(in);
+
+				varDataNeedsSubThing = false;
+				varData.back().sub.emplace_back(res);
+				break;
+			}
+			case '[':// Arr-index
+			{
+				SubVarType::EXPR res{};
+				res.funcCalls = std::move(funcCallData);// Move auto-clears it
+
+				in.skip();
+				res.idx = readExpr(in);
+				requireToken(in, "]");
+
+				varDataNeedsSubThing = false;
+				varData.back().sub.emplace_back(res);
+				break;
+			}
+			default:
+			{
+				_ASSERT(!varData.empty());
+				if (varData.size() != 1)
+				{
+					throw UnexpectedCharacterError(
+						"Expected multi-assignment, found "
+						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
+						+ errorLocStr(in));
+				}
+				if (funcCallData.empty())
+				{
+					if (varDataNeedsSubThing)
+					{
+						throw UnexpectedCharacterError(
+							"Raw expressions are not allowed, expected assignment or " LC_function " call"
+							+ errorLocStr(in));
+					}
+					throw UnexpectedCharacterError(
+						"Expected assignment or " LC_function " call, found "
+						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
+						+ errorLocStr(in));
+				}
+				if (varDataNeedsSubThing)
+				{
+					BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
+					return FuncCall(LimPrefixExprType::EXPR(std::move(bVarExpr.start)), funcCallData);
+				}
+				return FuncCall(LimPrefixExprType::VAR(std::move(varData.back())), funcCallData);
+			}
+			}
+		}
+	}
+
 	inline Expression readExpr(AnyInput auto& in)
 	{
 		/*
