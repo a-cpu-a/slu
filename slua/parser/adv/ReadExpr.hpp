@@ -89,7 +89,78 @@ namespace sluaParse
 			&&(firstChar=='(' || isValidNameStartChar(firstChar))
 			)
 		{//Prefix expr! or func-call
-			//TODO: add code from Parse.hpp to here
+
+			Var varData;
+			std::vector<ArgFuncCall> funcCallData;// Current func call chain, empty->no chain
+			bool varDataNeedsSubThing = false;
+
+			parseVarBase(in, firstChar, varData, varDataNeedsSubThing);
+
+			//This requires manual parsing, and stuff (at every step, complex code)
+			while (true)
+			{
+				skipSpace(in);
+
+				const char opType = in.peek();
+				switch (opType)
+				{
+				case ':'://Self funccall
+					in.skip();
+					std::string name = readName(in);
+
+					funcCallData.emplace_back(name, readArgs(in));
+					break;
+				case '{':
+				case '"':
+				case '('://Funccall
+					funcCallData.emplace_back("", readArgs(in));
+					break;
+				case '.':// Index
+				{
+					in.skip();
+
+					SubVarType::NAME res{};
+					res.funcCalls = std::move(funcCallData);// Move auto-clears it
+					res.idx = readName(in);
+
+					varDataNeedsSubThing = false;
+					varData.sub.emplace_back(res);
+					break;
+				}
+				case '[':// Arr-index
+				{
+					SubVarType::EXPR res{};
+					res.funcCalls = std::move(funcCallData);// Move auto-clears it
+
+					in.skip();
+					res.idx = readExpr(in);
+					requireToken(in, "]");
+
+					varDataNeedsSubThing = false;
+					varData.sub.emplace_back(res);
+					break;
+				}
+				default:
+				{
+					if (funcCallData.empty())
+					{
+						if (varDataNeedsSubThing)
+						{
+							Expression res;
+							res = std::move(std::get<BaseVarType::EXPR>(varData.base));
+							return ExprType::LIM_PREFIX_EXP(new LimPrefixExpr(res));
+						}
+						return ExprType::LIM_PREFIX_EXP(new LimPrefixExpr(varData));
+					}
+					if (varDataNeedsSubThing)
+					{
+						BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.base);
+						return FuncCall(LimPrefixExprType::EXPR(std::move(bVarExpr.start)), funcCallData);
+					}
+					return FuncCall(LimPrefixExprType::VAR(std::move(varData)), funcCallData);
+				}
+				}
+			}
 		}
 		//check bin op
 

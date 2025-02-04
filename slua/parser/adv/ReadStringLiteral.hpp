@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdint>
+#include <format>
 #include <unordered_set>
 
 //https://www.lua.org/manual/5.4/manual.html
@@ -186,10 +187,11 @@ namespace sluaParse
 	{
 		in.skip();//skip firstTypeChar
 
+		ParseNewlineState nlState = ParseNewlineState::NONE;
+
 		std::string result;
 		if (firstTypeChar == '"' || firstTypeChar == '\'')
 		{
-			ParseNewlineState nlState = ParseNewlineState::NONE;
 			while(true)
 			{
 				const char c = in.get();
@@ -197,7 +199,7 @@ namespace sluaParse
 
 				if (c == '\\')
 				{
-					manageNewlineState(next, c, in);
+					manageNewlineState(c, nlState, in);
 
 					const char next = in.get();
 					switch (next)
@@ -267,7 +269,7 @@ namespace sluaParse
 						if (ch > INT32_MAX)
 						{
 							throw UnicodeError(std::format(
-								LUACC_Invalid " unicode character (more than " LUACC_NUM_COL("31") " bits!) "
+								LC_Invalid " unicode character (more than " LUACC_NUM_COL("31") " bits!) "
 								LUACC_NUMBER "{:x}" LUACC_DEFAULT
 								"{}"
 								, ch, errorLocStr(in))
@@ -294,7 +296,7 @@ namespace sluaParse
 				}
 				else
 				{
-					manageNewlineState(next, c, in);
+					manageNewlineState(c, nlState, in);
 					result += c;
 				}
 			}

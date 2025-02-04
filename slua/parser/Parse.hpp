@@ -67,8 +67,8 @@
 
 	[X] explist ::= exp {‘,’ exp}
 
-	[_] exp ::=  [X]nil | [X]false | [X]true | [X]Numeral | [_]LiteralString | [X]‘...’ | [X]functiondef |
-		 [_]prefixexp | [X]tableconstructor | [X]exp binop exp | [X]unop exp
+	[X] exp ::=  [X]nil | [X]false | [X]true | [X]Numeral | [X]LiteralString | [X]‘...’ | [X]functiondef |
+		 [X]prefixexp | [X]tableconstructor | [X]exp binop exp | [X]unop exp
 
 	[X] prefixexp ::= var | functioncall | ‘(’ exp ‘)’
 
@@ -273,7 +273,7 @@ namespace sluaParse
 		return bl;
 	}
 
-	inline void parseVarBase(AnyInput auto& in,const char firstChar, std::vector<Var>& varData, bool& varDataNeedsSubThing)
+	inline void parseVarBase(AnyInput auto& in,const char firstChar, Var& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
@@ -281,11 +281,11 @@ namespace sluaParse
 			BaseVarType::EXPR res(readExpr(in));
 			requireToken(in, ")");
 			varDataNeedsSubThing = true;
-			varData.emplace_back(res);
+			varDataOut = res;
 		}
 		else
 		{// Must be Name
-			varData.emplace_back(BaseVarType::NAME(readName(in)));
+			varDataOut = BaseVarType::NAME(readName(in));
 		}
 	}
 
@@ -305,7 +305,8 @@ namespace sluaParse
 		std::vector<ArgFuncCall> funcCallData;// Current func call chain, empty->no chain
 		bool varDataNeedsSubThing = false;
 
-		parseVarBase(in, firstChar, varData, varDataNeedsSubThing);
+		varData.emplace_back();
+		parseVarBase(in, firstChar, varData.back(), varDataNeedsSubThing);
 
 		//This requires manual parsing, and stuff (at every step, complex code)
 		while (true)
@@ -330,7 +331,8 @@ namespace sluaParse
 						+ errorLocStr(in));
 				}
 				skipSpace(in);
-				parseVarBase(in,in.peek(), varData, varDataNeedsSubThing);
+				varData.emplace_back();
+				parseVarBase(in,in.peek(), varData.back(), varDataNeedsSubThing);
 				break;
 			case '=':// Assign
 			{
