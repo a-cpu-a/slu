@@ -3,6 +3,7 @@
 */
 #pragma once
 
+#include <format>
 #include <cstdint>
 #include <luaconf.h>
 
@@ -30,15 +31,15 @@ namespace sluaParse
 				const char ch = in.get();
 				if (ch != tok[i])
 				{
-					throw UnexpectedCharacterError(
+					throw UnexpectedCharacterError(std::format(
 						"Expected "
-						LUACC_START_SINGLE_STRING + std::to_string(tok) + LUACC_END_SINGLE_STRING
+						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
 						", character "
-						LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
+						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
 						", but found "
-						LUACC_START_SINGLE_STRING + tok[i] + LUACC_END_SINGLE_STRING
-						+ errorLocStr(in)
-					);
+						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+						"{}"
+					, tok, ch, tok[i], errorLocStr(in)));
 				}
 			}
 		}
@@ -46,7 +47,7 @@ namespace sluaParse
 		{
 			throw UnexpectedFileEndError(
 				"Expected "
-				LUACC_START_SINGLE_STRING + std::to_string(tok) + LUACC_END_SINGLE_STRING
+				LUACC_START_SINGLE_STRING + std::string(tok) + LUACC_END_SINGLE_STRING
 				", but file ended");
 		}
 	}
@@ -60,14 +61,14 @@ namespace sluaParse
 			if (in.checkOOB(off))
 				return false;
 
-			if (in.peek(off++) != tok[i])
+			if (in.peekAt(off++) != tok[i])
 				return false;
 		}
 
 
 		if (nameLike)
 		{
-			const uint8_t ch = in.peek(off);
+			const uint8_t ch = in.peekAt(off);
 			if (ch == '_' || std::isalnum(ch))
 				return false;
 		}

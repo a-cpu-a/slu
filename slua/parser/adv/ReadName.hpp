@@ -54,7 +54,9 @@ namespace sluaParse
 		}
 
 
-		std::string res = in.get(); // Consume the first valid character
+		std::string res;
+		res += firstChar;
+		in.skip(); // Consume the first valid character
 
 		// Consume subsequent characters (letters, digits, or underscores)
 		while (in)

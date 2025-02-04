@@ -93,7 +93,7 @@ namespace sluaParse
 
 		while (in)
 		{
-			const uint8_t ch = in.peek(res);
+			const uint8_t ch = in.peekAt(res);
 			manageNewlineState(ch, nlState, in);
 
 			if (insideLineComment)

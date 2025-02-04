@@ -97,32 +97,37 @@ namespace sluaParse
 						LUACC_SINGLE_STRING("=")
 						+ errorLocStr(in));
 				}
-				if (!funcCallData.empty())
+				else
 				{
-					throw UnexpectedCharacterError(
-						"Cant assign to " LC_function " call, found "
-						LUACC_SINGLE_STRING("=")
-						+ errorLocStr(in));
+					if (!funcCallData.empty())
+					{
+						throw UnexpectedCharacterError(
+							"Cant assign to " LC_function " call, found "
+							LUACC_SINGLE_STRING("=")
+							+ errorLocStr(in));
+					}
+					if (varDataNeedsSubThing)
+					{
+						throw UnexpectedCharacterError(
+							"Cant assign to expression, found "
+							LUACC_SINGLE_STRING("=")
+							+ errorLocStr(in));
+					}
+					in.skip();
+					StatementType::ASSIGN res{};
+					res.vars = std::move(varData);
+					res.exprs = readExpList(in);
+					return res;
 				}
-				if (varDataNeedsSubThing)
-				{
-					throw UnexpectedCharacterError(
-						"Cant assign to expression, found "
-						LUACC_SINGLE_STRING("=")
-						+ errorLocStr(in));
-				}
-				in.skip();
-				StatementType::ASSIGN res{};
-				res.vars = std::move(varData).value();
-				res.exprs = readExpList(in);
-				return res;
 			}
 			case ':'://Self funccall
+			{
 				in.skip();
 				std::string name = readName(in);
 
 				funcCallData.emplace_back(name, readArgs(in));
 				break;
+			}
 			case '{':
 			case '"':
 			case '('://Funccall
@@ -158,10 +163,11 @@ namespace sluaParse
 				_ASSERT(!varData.empty());
 				if (varData.size() != 1)
 				{
-					throw UnexpectedCharacterError(
+					throw UnexpectedCharacterError(std::format(
 						"Expected multi-assignment, found "
-						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
-						+ errorLocStr(in));
+						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+						"{}"
+					, opType, errorLocStr(in)));
 				}
 				if (funcCallData.empty())
 				{
@@ -170,7 +176,7 @@ namespace sluaParse
 						if (varDataNeedsSubThing)
 						{
 							Expression res;
-							res = std::move(std::get<BaseVarType::EXPR>(varData.back().base));
+							res = std::move(std::get<BaseVarType::EXPR>(varData.back().base).start);
 							return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(res));
 						}
 						return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(varData.back()));
@@ -183,18 +189,21 @@ namespace sluaParse
 								"Raw expressions are not allowed, expected assignment or " LC_function " call"
 								+ errorLocStr(in));
 						}
-						throw UnexpectedCharacterError(
+						throw UnexpectedCharacterError(std::format(
 							"Expected assignment or " LC_function " call, found "
-							LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
-							+ errorLocStr(in));
+							LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+							"{}"
+						, opType, errorLocStr(in)));
 					}
 				}
 				if (varDataNeedsSubThing)
 				{
 					BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
-					return FuncCall(LimPrefixExprType::EXPR(std::move(bVarExpr.start)), funcCallData);
+					auto limP = LimPrefixExprType::EXPR(std::move(bVarExpr.start));
+					return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), funcCallData);
 				}
-				return FuncCall(LimPrefixExprType::VAR(std::move(varData.back())), funcCallData);
+				auto limP = LimPrefixExprType::VAR(std::move(varData.back()));
+				return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), funcCallData);
 			}
 			}
 		}
@@ -282,7 +291,7 @@ namespace sluaParse
 
 		ExprType::MULTI_OPERATION resData{};
 
-		resData.first = std::make_unique(basicRes);
+		resData.first = std::make_unique<Expression>(std::move(basicRes));
 		resData.extra.emplace_back(firstBinOp, readExpr(in));
 
 		while (true)
@@ -296,7 +305,7 @@ namespace sluaParse
 		}
 		Expression ret;
 		ret.place = startPos;
-		ret.data = resData;
+		ret.data = std::move(resData);
 
 		return ret;
 	}
