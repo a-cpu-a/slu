@@ -207,7 +207,6 @@ namespace sluaParse
 					case '\n':
 					case '\r':
 						manageNewlineState(next, nlState, in);
-						//TODO
 						result += '\n';
 						break;
 
@@ -303,6 +302,7 @@ namespace sluaParse
 		}
 		else if (firstTypeChar == '[')
 		{
+			//TODO: correct newline handling!
 			size_t level = 0;
 			while (in.peek() == '=')
 			{
