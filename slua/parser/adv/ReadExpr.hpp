@@ -155,7 +155,7 @@ namespace sluaParse
 				requireToken(in, "]");
 
 				varDataNeedsSubThing = false;
-				varData.back().sub.emplace_back(res);
+				varData.back().sub.emplace_back(std::move(res));
 				break;
 			}
 			default:
