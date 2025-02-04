@@ -301,7 +301,7 @@ namespace sluaParse
 		ExprType::MULTI_OPERATION resData{};
 
 		resData.first = std::make_unique<Expression>(std::move(basicRes));
-		resData.extra.emplace_back(firstBinOp, readExpr(in));
+		resData.extra.emplace_back(firstBinOp, readExpr(in,false));
 
 		while (true)
 		{
