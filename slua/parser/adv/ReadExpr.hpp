@@ -28,11 +28,11 @@ namespace sluaParse
 			BaseVarType::EXPR res(readExpr(in));
 			requireToken(in, ")");
 			varDataNeedsSubThing = true;
-			varDataOut = res;
+			varDataOut.base = res;
 		}
 		else
 		{// Must be Name
-			varDataOut = BaseVarType::NAME(readName(in));
+			varDataOut.base = BaseVarType::NAME(readName(in));
 		}
 	}
 
@@ -177,9 +177,9 @@ namespace sluaParse
 						{
 							Expression res;
 							res = std::move(std::get<BaseVarType::EXPR>(varData.back().base).start);
-							return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(res));
+							return std::make_unique<LimPrefixExpr>(res);
 						}
-						return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(varData.back()));
+						return std::make_unique<LimPrefixExpr>(varData.back());
 					}
 					else
 					{
@@ -279,7 +279,7 @@ namespace sluaParse
 			)
 		{//Prefix expr! or func-call
 
-			return parsePrefixExprVar<Expression,true>(in, firstChar);
+			basicRes.data = parsePrefixExprVar<ExprData,true>(in, firstChar);
 		}
 		//check bin op
 
