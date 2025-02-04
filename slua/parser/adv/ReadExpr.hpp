@@ -28,7 +28,7 @@ namespace sluaParse
 			BaseVarType::EXPR res(readExpr(in));
 			requireToken(in, ")");
 			varDataNeedsSubThing = true;
-			varDataOut.base = res;
+			varDataOut.base = std::move(res);
 		}
 		else
 		{// Must be Name

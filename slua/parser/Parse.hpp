@@ -127,13 +127,14 @@ namespace sluaParse
 		{
 			return ArgsType::TABLE(readTableConstructor(in));
 		}
-		throw UnexpectedCharacterError(
+		throw UnexpectedCharacterError(std::format(
 			"Expected function arguments ("
 			LUACC_SINGLE_STRING(",")
 			" or "
 			LUACC_SINGLE_STRING(";")
-			"), found " LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
-			+ errorLocStr(in));
+			"), found " LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+			"{}"
+		, ch, errorLocStr(in)));
 	}
 
 	//startCh == in.peek() !!!
