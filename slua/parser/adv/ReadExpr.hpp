@@ -287,6 +287,11 @@ namespace sluaParse
 		//check bin op
 
 
+		skipSpace(in);
+
+		if(!in)
+			return basicRes;//File ended
+
 		const BinOpType firstBinOp = readOptBinOp(in);
 
 		if (firstBinOp == BinOpType::NONE)
@@ -299,6 +304,11 @@ namespace sluaParse
 
 		while (true)
 		{
+			skipSpace(in);
+
+			if (!in)
+				break;//File ended
+
 			const BinOpType binOp = readOptBinOp(in);
 
 			if (binOp == BinOpType::NONE)

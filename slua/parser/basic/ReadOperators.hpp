@@ -42,8 +42,6 @@ namespace sluaParse
 
 	inline BinOpType readOptBinOp(AnyInput auto& in)
 	{
-		skipSpace(in);
-
 		switch (in.peek())
 		{
 		case '+':
