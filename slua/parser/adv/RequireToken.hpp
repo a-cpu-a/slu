@@ -82,16 +82,18 @@ namespace sluaParse
 	[[nodiscard]] inline bool checkTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
 		return checkToken(in, tok, true);
 	}
+
 	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkReadToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
 		return checkToken(in, tok, nameLike, true);
 	}
 	template<size_t TOK_SIZE>
-	inline void readOptToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
-		(void)checkReadToken(in, tok, nameLike);
-	}
-	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
 		return checkToken(in, tok, true, true);
+	}
+
+	template<size_t TOK_SIZE>
+	inline void readOptToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
+		(void)checkReadToken(in, tok, nameLike);
 	}
 }
