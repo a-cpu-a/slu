@@ -51,7 +51,7 @@ namespace sluaParse
 		}
 	}
 	template<size_t TOK_SIZE>
-	inline [[nodiscard]] bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false)
+	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false)
 	{
 		size_t off = spacesToSkip(in);
 
@@ -79,7 +79,11 @@ namespace sluaParse
 		return true;
 	}
 	template<size_t TOK_SIZE>
-	inline [[nodiscard]] bool checkReadToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
+	[[nodiscard]] inline bool checkTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
+		return checkToken(in, tok, true);
+	}
+	template<size_t TOK_SIZE>
+	[[nodiscard]] inline bool checkReadToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
 		return checkToken(in, tok, nameLike, true);
 	}
 	template<size_t TOK_SIZE>
@@ -87,7 +91,7 @@ namespace sluaParse
 		(void)checkReadToken(in, tok, nameLike);
 	}
 	template<size_t TOK_SIZE>
-	inline [[nodiscard]] bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
+	[[nodiscard]] inline bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
 		return checkToken(in, tok, true, true);
 	}
 }
