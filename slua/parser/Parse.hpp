@@ -456,7 +456,7 @@ namespace sluaParse
 			break;
 		}
 
-		ret.data = parsePrefixExprVar<StatementData>(in, firstChar);
+		ret.data = parsePrefixExprVar<StatementData,false>(in, firstChar);
 		return ret;
 	}
 

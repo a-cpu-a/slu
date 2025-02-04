@@ -36,7 +36,7 @@ namespace sluaParse
 		}
 	}
 
-	template<class T>
+	template<class T,bool FOR_EXPR>
 	inline T parsePrefixExprVar(AnyInput auto& in, const char firstChar)
 	{
 		/*
@@ -64,6 +64,13 @@ namespace sluaParse
 			switch (opType)
 			{
 			case ',':// Varlist
+				if constexpr (FOR_EXPR)
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign in expression, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
 				if (!funcCallData.empty())
 				{
 					throw UnexpectedCharacterError(
@@ -83,6 +90,13 @@ namespace sluaParse
 				break;
 			case '=':// Assign
 			{
+				if constexpr (FOR_EXPR)
+				{
+					throw UnexpectedCharacterError(
+						"Cant assign in expression, found "
+						LUACC_SINGLE_STRING("=")
+						+ errorLocStr(in));
+				}
 				if (!funcCallData.empty())
 				{
 					throw UnexpectedCharacterError(
@@ -151,16 +165,29 @@ namespace sluaParse
 				}
 				if (funcCallData.empty())
 				{
-					if (varDataNeedsSubThing)
+					if constexpr (FOR_EXPR)
 					{
+						if (varDataNeedsSubThing)
+						{
+							Expression res;
+							res = std::move(std::get<BaseVarType::EXPR>(varData.back().base));
+							return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(res));
+						}
+						return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(varData.back()));
+					}
+					else
+					{
+						if (varDataNeedsSubThing)
+						{
+							throw UnexpectedCharacterError(
+								"Raw expressions are not allowed, expected assignment or " LC_function " call"
+								+ errorLocStr(in));
+						}
 						throw UnexpectedCharacterError(
-							"Raw expressions are not allowed, expected assignment or " LC_function " call"
+							"Expected assignment or " LC_function " call, found "
+							LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
 							+ errorLocStr(in));
 					}
-					throw UnexpectedCharacterError(
-						"Expected assignment or " LC_function " call, found "
-						LUACC_START_SINGLE_STRING + opType + LUACC_END_SINGLE_STRING
-						+ errorLocStr(in));
 				}
 				if (varDataNeedsSubThing)
 				{
@@ -243,77 +270,7 @@ namespace sluaParse
 			)
 		{//Prefix expr! or func-call
 
-			Var varData;
-			std::vector<ArgFuncCall> funcCallData;// Current func call chain, empty->no chain
-			bool varDataNeedsSubThing = false;
-
-			parseVarBase(in, firstChar, varData, varDataNeedsSubThing);
-
-			//This requires manual parsing, and stuff (at every step, complex code)
-			while (true)
-			{
-				skipSpace(in);
-
-				const char opType = in.peek();
-				switch (opType)
-				{
-				case ':'://Self funccall
-					in.skip();
-					std::string name = readName(in);
-
-					funcCallData.emplace_back(name, readArgs(in));
-					break;
-				case '{':
-				case '"':
-				case '('://Funccall
-					funcCallData.emplace_back("", readArgs(in));
-					break;
-				case '.':// Index
-				{
-					in.skip();
-
-					SubVarType::NAME res{};
-					res.funcCalls = std::move(funcCallData);// Move auto-clears it
-					res.idx = readName(in);
-
-					varDataNeedsSubThing = false;
-					varData.sub.emplace_back(res);
-					break;
-				}
-				case '[':// Arr-index
-				{
-					SubVarType::EXPR res{};
-					res.funcCalls = std::move(funcCallData);// Move auto-clears it
-
-					in.skip();
-					res.idx = readExpr(in);
-					requireToken(in, "]");
-
-					varDataNeedsSubThing = false;
-					varData.sub.emplace_back(res);
-					break;
-				}
-				default:
-				{
-					if (funcCallData.empty())
-					{
-						if (varDataNeedsSubThing)
-						{
-							Expression res;
-							res = std::move(std::get<BaseVarType::EXPR>(varData.base));
-							return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(res));
-						}
-						return ExprType::LIM_PREFIX_EXP(std::make_unique<LimPrefixExpr>(varData));
-					}
-					if (varDataNeedsSubThing)
-					{
-						BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.base);
-						return FuncCall(LimPrefixExprType::EXPR(std::move(bVarExpr.start)), funcCallData);
-					}
-					return FuncCall(LimPrefixExprType::VAR(std::move(varData)), funcCallData);
-				}
-				}
-			}
+			return parsePrefixExprVar<Expression,true>(in, firstChar);
 		}
 		//check bin op
 
