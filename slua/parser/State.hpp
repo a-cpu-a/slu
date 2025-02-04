@@ -16,6 +16,10 @@
 
 #include "Enums.hpp"
 
+//for enums...
+#undef FALSE
+#undef TRUE
+
 namespace sluaParse
 {
 	struct Position
@@ -129,7 +133,6 @@ namespace sluaParse
 		std::unique_ptr<LimPrefixExpr> val;
 		std::vector<ArgFuncCall> argChain;
 	};
-
 	namespace ExprType
 	{
 		struct NIL {};														// "nil"
