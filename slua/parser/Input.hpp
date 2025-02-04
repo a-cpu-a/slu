@@ -26,7 +26,7 @@ namespace sluaParse
 		size_t curLinePos = 0;
 
 		std::span<const uint8_t> text;
-		size_t idx;
+		size_t idx=0;
 
 		uint8_t peek()
 		{
