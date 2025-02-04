@@ -25,5 +25,5 @@
 void _test()
 {
 	sluaParse::Input in;
-	sluaParse::readArgs(in);
+	sluaParse::readTableConstructor(in);
 }

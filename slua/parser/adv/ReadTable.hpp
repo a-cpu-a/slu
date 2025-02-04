@@ -26,7 +26,6 @@ namespace sluaParse
 	{
 		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
 		skipSpace(in);
-		Field ret;
 
 		if (checkReadToken(in, "["))
 		{
@@ -77,7 +76,7 @@ namespace sluaParse
 			return tbl;
 		}
 		//must be field
-		tbl.push_back(readField(in));
+		tbl.emplace_back(readField(in));
 
 		while (true)
 		{
@@ -107,7 +106,7 @@ namespace sluaParse
 				in.skip();
 				break;
 			}
-			tbl.push_back(readField(in));
+			tbl.emplace_back(readField(in));
 		}
 		return tbl;
 	}
