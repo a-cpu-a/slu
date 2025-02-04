@@ -50,7 +50,7 @@ namespace sluaParse
 			attnamelist ::=  Name attrib {‘,’ Name attrib}
 			attrib ::= [‘<’ Name ‘>’]
 		*/
-		AttribNameList ret = readAttribName(in);
+		AttribNameList ret = { readAttribName(in) };
 
 		while (checkReadToken(in, ","))
 		{

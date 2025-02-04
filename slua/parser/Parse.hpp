@@ -322,7 +322,7 @@ namespace sluaParse
 
 					res.bl = readDoEndBlock(in);
 
-					ret.data = res;
+					ret.data = std::move(res);
 					return ret;
 				}
 				// Generic Loop
@@ -406,7 +406,7 @@ namespace sluaParse
 			{ // while exp do block end
 				Expression expr = readExpr(in);
 				Block bl = readDoEndBlock(in);
-				ret.data = StatementType::WHILE_LOOP(expr, bl);
+				ret.data = StatementType::WHILE_LOOP(std::move(expr), std::move(bl));
 				return ret;
 			}
 			break;
@@ -417,7 +417,7 @@ namespace sluaParse
 				requireToken(in, "until");
 				Expression expr = readExpr(in);
 
-				ret.data = StatementType::REPEAT_UNTIL(expr, bl);
+				ret.data = StatementType::REPEAT_UNTIL({ std::move(expr), std::move(bl) });
 				return ret;
 			}
 			break;
@@ -439,7 +439,7 @@ namespace sluaParse
 					requireToken(in, "then");
 					Block elBlock = readBlock(in);
 
-					res.elseIfs.push_back({ elExpr,elBlock });
+					res.elseIfs.push_back({ std::move(elExpr),std::move(elBlock)});
 				}
 
 				if (checkReadTextToken(in, "else"))
@@ -447,7 +447,7 @@ namespace sluaParse
 
 				requireToken(in, "end");
 
-				ret.data = res;
+				ret.data = std::move(res);
 				return ret;
 			}
 			break;

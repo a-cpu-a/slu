@@ -256,11 +256,11 @@ namespace sluaParse
 
 							if (!isHexDigitChar(escapeChar))
 							{
-								throw UnexpectedCharacterError(
-									"Expected a hex digit or " LUACC_SINGLE_STRING_INCOL(LUACC_BRACKET,"}") " for unicode character, but found "
-									LUACC_START_SINGLE_STRING + escapeChar + LUACC_END_SINGLE_STRING
-									+ errorLocStr(in)
-								);
+								throw UnexpectedCharacterError(std::format(
+									"Expected a hex digit or " LUACC_SINGLE_STRING_INCOL(LUACC_BRACKET,"}}") " for unicode character, but found "
+									LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+									"{}"
+								, escapeChar, errorLocStr(in)));
 							}
 							ch <<= 4;
 							ch |= hexDigit2Num(escapeChar);
@@ -279,11 +279,11 @@ namespace sluaParse
 						break;
 					}
 					default: 
-						throw UnexpectedCharacterError(
+						throw UnexpectedCharacterError(std::format(
 							"Expected a escape sequence, but found "
-							LUACC_START_SINGLE_STRING + next + LUACC_END_SINGLE_STRING
-							+ errorLocStr(in)
-						);
+							LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+							"{}"
+						, next, errorLocStr(in)));
 					}
 				}
 				else if(c=='\n' || c=='\r')

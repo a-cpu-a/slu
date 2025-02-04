@@ -90,13 +90,14 @@ namespace sluaParse
 			}
 			if (!isFieldSep(ch))
 			{
-				throw UnexpectedCharacterError(
+				throw UnexpectedCharacterError(std::format(
 					"Expected table separator ("
 					LUACC_SINGLE_STRING(",")
 					" or "
 					LUACC_SINGLE_STRING(";")
-					"), found " LUACC_START_SINGLE_STRING + ch + LUACC_END_SINGLE_STRING
-					+ errorLocStr(in));
+					"), found " LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+					"{}"
+				, ch, errorLocStr(in)));
 			}
 			in.skip();//skip field-sep
 
