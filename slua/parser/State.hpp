@@ -58,7 +58,7 @@ namespace sluaParse
 		FieldType::EXPR       // "exp"
 	>;
 
-	// ‘{’ [fieldlist] ‘}’
+	// â€˜{â€™ [fieldlist] â€˜}â€™
 	using TableConstructor = std::vector<Field>;
 
 
@@ -112,7 +112,7 @@ namespace sluaParse
 	>;
 
 	struct ArgFuncCall
-	{// funcArgs ::=  [‘:’ Name] args
+	{// funcArgs ::=  [â€˜:â€™ Name] args
 
 		std::string funcName;
 		Args args;
@@ -193,8 +193,8 @@ namespace sluaParse
 	{
 		struct BASE { std::vector<ArgFuncCall> funcCalls; };
 
-		struct NAME :BASE { std::string idx; }; // {funcArgs} ‘.’ Name
-		struct EXPR :BASE { Expression idx; };	// {funcArgs} ‘[’ exp ‘]’
+		struct NAME :BASE { std::string idx; }; // {funcArgs} â€˜.â€™ Name
+		struct EXPR :BASE { Expression idx; };	// {funcArgs} â€˜[â€™ exp â€˜]â€™
 	}
 
 	using SubVar = std::variant<
@@ -226,8 +226,8 @@ namespace sluaParse
 
 	namespace FieldType
 	{
-		struct EXPR2EXPR { Expression idx; Expression v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		struct NAME2EXPR { std::string idx; Expression v; };	// "Name ‘=’ exp"
+		struct EXPR2EXPR { Expression idx; Expression v; };		// "â€˜[â€™ exp â€˜]â€™ â€˜=â€™ exp"
+		struct NAME2EXPR { std::string idx; Expression v; };	// "Name â€˜=â€™ exp"
 		struct EXPR { Expression v; };							// "exp"
 	}
 	namespace LimPrefixExprType

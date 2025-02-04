@@ -21,7 +21,7 @@ namespace sluaParse
 	inline NameList readNameList(AnyInput auto& in)
 	{
 		/*
-			namelist ::= Name {‘,’ Name}
+			namelist ::= Name {â€˜,â€™ Name}
 		*/
 		NameList ret{};
 		ret.push_back(readName(in));
@@ -37,7 +37,7 @@ namespace sluaParse
 		AttribName ret;
 		ret.name = readName(in);
 		if (checkReadToken(in, "<"))
-		{// attrib ::= [‘<’ Name ‘>’]
+		{// attrib ::= [â€˜<â€™ Name â€˜>â€™]
 			ret.attrib = readName(in);
 			requireToken(in, ">");
 		}
@@ -47,8 +47,8 @@ namespace sluaParse
 	inline AttribNameList readAttNameList(AnyInput auto& in)
 	{
 		/*
-			attnamelist ::=  Name attrib {‘,’ Name attrib}
-			attrib ::= [‘<’ Name ‘>’]
+			attnamelist ::=  Name attrib {â€˜,â€™ Name attrib}
+			attrib ::= [â€˜<â€™ Name â€˜>â€™]
 		*/
 		AttribNameList ret = { readAttribName(in) };
 
@@ -60,7 +60,7 @@ namespace sluaParse
 	}
 	inline std::string readFuncName(AnyInput auto& in)
 	{
-		// funcname ::= Name {‘.’ Name} [‘:’ Name]
+		// funcname ::= Name {â€˜.â€™ Name} [â€˜:â€™ Name]
 		std::string ret = readName(in);
 
 		while (checkReadToken(in, "."))

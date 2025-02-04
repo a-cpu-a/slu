@@ -42,10 +42,10 @@ namespace sluaParse
 		/*
 			var ::= baseVar {subvar}
 
-			baseVar ::= Name | ‘(’ exp ‘)’ subvar
+			baseVar ::= Name | â€˜(â€™ exp â€˜)â€™ subvar
 
-			funcArgs ::=  [‘:’ Name] args
-			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
+			funcArgs ::=  [â€˜:â€™ Name] args
+			subvar ::= {funcArgs} â€˜[â€™ exp â€˜]â€™ | {funcArgs} â€˜.â€™ Name
 		*/
 
 		std::vector<Var> varData;
@@ -215,7 +215,7 @@ namespace sluaParse
 	inline Expression readExpr(AnyInput auto& in)
 	{
 		/*
-			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
+			nil | false | true | Numeral | LiteralString | â€˜...â€™ | functiondef
 			| prefixexp | tableconstructor | exp binop exp | unop exp
 		*/
 
@@ -316,7 +316,7 @@ namespace sluaParse
 	inline ExpList readExpList(AnyInput auto& in)
 	{
 		/*
-			explist ::= exp {‘,’ exp}
+			explist ::= exp {â€˜,â€™ exp}
 		*/
 		ExpList ret{};
 		ret.emplace_back(readExpr(in));
