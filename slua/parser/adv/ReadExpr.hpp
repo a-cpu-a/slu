@@ -37,6 +37,70 @@ namespace sluaParse
 	}
 
 	template<class T,bool FOR_EXPR>
+	inline T returnPrefixExprVar(AnyInput auto& in, std::vector<Var>& varData, std::vector<ArgFuncCall>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
+	{
+		char opType[4] = "EOS";
+
+		//Turn opType into "EOS", or opTypeCh
+		if (opTypeCh != 0)
+		{
+			opType[0] = opTypeCh;
+			opType[1] = 0;
+		}
+
+		_ASSERT(!varData.empty());
+		if (varData.size() != 1)
+		{
+			if constexpr (FOR_EXPR)
+			{
+				throw UnexpectedCharacterError(std::format(
+					"Found list of variables inside expression "
+					"{}"
+					, errorLocStr(in)));
+			}
+			throw UnexpectedCharacterError(std::format(
+				"Expected multi-assignment, since there is a list of variables, but found "
+				LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+				"{}"
+				, opType, errorLocStr(in)));
+		}
+		if (funcCallData.empty())
+		{
+			if constexpr (FOR_EXPR)
+			{
+				if (varDataNeedsSubThing)
+				{
+					LimPrefixExprType::EXPR res;
+					res.v = std::move(std::get<BaseVarType::EXPR>(varData.back().base).start);
+					return std::make_unique<LimPrefixExpr>(std::move(res));
+				}
+				return std::make_unique<LimPrefixExpr>(LimPrefixExprType::VAR(std::move(varData.back())));
+			}
+			else
+			{
+				if (varDataNeedsSubThing)
+				{
+					throw UnexpectedCharacterError(
+						"Raw expressions are not allowed, expected assignment or " LC_function " call"
+						+ errorLocStr(in));
+				}
+				throw UnexpectedCharacterError(std::format(
+					"Expected assignment or " LC_function " call, found "
+					LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+					"{}"
+					, opType, errorLocStr(in)));
+			}
+		}
+		if (varDataNeedsSubThing)
+		{
+			BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
+			auto limP = LimPrefixExprType::EXPR(std::move(bVarExpr.start));
+			return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
+		}
+		auto limP = LimPrefixExprType::VAR(std::move(varData.back()));
+		return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
+	}
+	template<class T,bool FOR_EXPR>
 	inline T parsePrefixExprVar(AnyInput auto& in, const char firstChar)
 	{
 		/*
@@ -59,6 +123,9 @@ namespace sluaParse
 		while (true)
 		{
 			skipSpace(in);
+
+			if (!in)
+				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, funcCallData, varDataNeedsSubThing,0);
 
 			const char opType = in.peek();
 			switch (opType)
@@ -170,52 +237,7 @@ namespace sluaParse
 				break;
 			}
 			default:
-			{
-				_ASSERT(!varData.empty());
-				if (varData.size() != 1)
-				{
-					throw UnexpectedCharacterError(std::format(
-						"Expected multi-assignment, found "
-						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
-						"{}"
-					, opType, errorLocStr(in)));
-				}
-				if (funcCallData.empty())
-				{
-					if constexpr (FOR_EXPR)
-					{
-						if (varDataNeedsSubThing)
-						{
-							LimPrefixExprType::EXPR res;
-							res.v = std::move(std::get<BaseVarType::EXPR>(varData.back().base).start);
-							return std::make_unique<LimPrefixExpr>(std::move(res));
-						}
-						return std::make_unique<LimPrefixExpr>(LimPrefixExprType::VAR(std::move(varData.back())));
-					}
-					else
-					{
-						if (varDataNeedsSubThing)
-						{
-							throw UnexpectedCharacterError(
-								"Raw expressions are not allowed, expected assignment or " LC_function " call"
-								+ errorLocStr(in));
-						}
-						throw UnexpectedCharacterError(std::format(
-							"Expected assignment or " LC_function " call, found "
-							LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
-							"{}"
-						, opType, errorLocStr(in)));
-					}
-				}
-				if (varDataNeedsSubThing)
-				{
-					BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
-					auto limP = LimPrefixExprType::EXPR(std::move(bVarExpr.start));
-					return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
-				}
-				auto limP = LimPrefixExprType::VAR(std::move(varData.back()));
-				return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
-			}
+				return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing,opType);
 			}
 		}
 	}
