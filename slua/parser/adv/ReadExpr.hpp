@@ -175,11 +175,11 @@ namespace sluaParse
 					{
 						if (varDataNeedsSubThing)
 						{
-							Expression res;
-							res = std::move(std::get<BaseVarType::EXPR>(varData.back().base).start);
-							return std::make_unique<LimPrefixExpr>(res);
+							LimPrefixExprType::EXPR res;
+							res.v = std::move(std::get<BaseVarType::EXPR>(varData.back().base).start);
+							return std::make_unique<LimPrefixExpr>(std::move(res));
 						}
-						return std::make_unique<LimPrefixExpr>(varData.back());
+						return std::make_unique<LimPrefixExpr>(LimPrefixExprType::VAR(std::move(varData.back())));
 					}
 					else
 					{

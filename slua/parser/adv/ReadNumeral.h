@@ -119,7 +119,7 @@ namespace sluaParse
             {
                 return ExprType::NUMERAL_I64(std::stoll(number, nullptr, hex ? 16 : 10));
             }
-            catch (const std::exception& e)
+            catch (const std::exception&)
             {
                 if (hex)
                 {
@@ -129,7 +129,7 @@ namespace sluaParse
             }
         }
         }
-        catch (const std::exception& e)
+        catch (const std::exception&)
         {
             throw UnexpectedCharacterError(
                 LUACC_INVALID "Malformed " LC_number
