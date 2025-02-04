@@ -54,7 +54,7 @@ namespace sluaParse
 	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false)
 	{
-		size_t off = spacesToSkip(in);
+		size_t off = 0;
 
 		for (size_t i = 0; i < TOK_SIZE - 1; i++)//skip null
 		{
@@ -79,6 +79,7 @@ namespace sluaParse
 
 		return true;
 	}
+	//Will NOT skip space!!!
 	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
 		return checkToken(in, tok, true);
@@ -86,10 +87,12 @@ namespace sluaParse
 
 	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkReadToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
+		skipSpace(in);
 		return checkToken(in, tok, nameLike, true);
 	}
 	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
+		skipSpace(in);
 		return checkToken(in, tok, true, true);
 	}
 

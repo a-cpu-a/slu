@@ -45,7 +45,7 @@ namespace sluaParse
 		}
 	}
 
-	inline size_t spacesToSkip(AnyInput auto& in)
+	inline void skipSpace(AnyInput auto& in)
 	{
 		/*
 
@@ -89,11 +89,9 @@ namespace sluaParse
 		bool insideMultilineComment = false;
 		size_t multilineCommentLevel = SIZE_MAX;
 
-		size_t res = 0;
-
 		while (in)
 		{
-			const uint8_t ch = in.peekAt(res);
+			const uint8_t ch = in.peek();
 			manageNewlineState(ch, nlState, in);
 
 			if (insideLineComment)
@@ -103,7 +101,7 @@ namespace sluaParse
 					insideLineComment = false;//new line, so exit comment
 				}
 
-				res++;
+				in.skip();
 				continue;
 			}
 
@@ -113,17 +111,17 @@ namespace sluaParse
 				if (ch == ']') // Check for possible multiline comment closing
 				{
 					size_t level = 0;
-					while (in.peekAt(res + 1 + level) == '=') // Count '=' signs
+					while (in.peekAt(1 + level) == '=') // Count '=' signs
 						level++;
 
-					if (in.peekAt(res + 1 + level) == ']' && level == multilineCommentLevel)
+					if (in.peekAt(1 + level) == ']' && level == multilineCommentLevel)
 					{
 						insideMultilineComment = false;
-						res += (2 + level); // Skip closing bracket
+						in.skip(2 + level); // Skip closing bracket
 						continue;
 					}
 				}
-				res++; // Skip other characters in multiline comment
+				in.skip(); // Skip other characters in multiline comment
 				continue;
 			}
 
@@ -138,42 +136,37 @@ namespace sluaParse
 
 			if (isSpaceChar(ch))
 			{
-				res++;
+				in.skip();
 				continue;
 			}
 
 			if (ch == '-')
 			{//maybe comment?
-				const uint8_t nextCh = in.peekAt(res + 1);
+				const uint8_t nextCh = in.peekAt(1);
 				if (nextCh == '-') // Single-line or multiline comment starts
 				{
-					const uint8_t nextNextCh = in.peekAt(res + 2);
+					const uint8_t nextNextCh = in.peekAt(2);
 					if (nextNextCh == '[') // Possible multiline comment
 					{
 						size_t level = 0;
-						while (in.peekAt(res + 3 + level) == '=') // Count '=' signs
+						while (in.peekAt(3 + level) == '=') // Count '=' signs
 							level++;
 
-						if (in.peekAt(res + 3 + level) == '[') // Confirm multiline comment start
+						if (in.peekAt(3 + level) == '[') // Confirm multiline comment start
 						{
 							insideMultilineComment = true;
 							multilineCommentLevel = level;
-							res += (4 + level); // Skip "--[=["
+							in.skip(4 + level); // Skip "--[=["
 							continue;
 						}
 					}
 
 					insideLineComment = true; // Otherwise, it's a single-line comment
-					res += (2); // Skip "--"
+					in.skip(2); // Skip "--"
 					continue;
 				}
 			}
 			break;
 		}
-		return res;
-	}
-
-	inline void skipSpace(AnyInput auto& in) {
-		in.skip(spacesToSkip(in));
 	}
 }

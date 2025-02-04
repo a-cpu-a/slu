@@ -62,6 +62,7 @@ namespace sluaParse
 			//if (idx >= text.size())
 			//	throw EndOfStreamError();
 
+			curLinePos += count;
 			idx += count;
 		}
 
