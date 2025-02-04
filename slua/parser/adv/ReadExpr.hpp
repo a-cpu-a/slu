@@ -133,6 +133,7 @@ namespace sluaParse
 			}
 			case '{':
 			case '"':
+			case '\'':
 			case '('://Funccall
 				funcCallData.emplace_back("", readArgs(in));
 				break;
@@ -150,6 +151,13 @@ namespace sluaParse
 			}
 			case '[':// Arr-index
 			{
+				const char secondCh = in.peekAt(1);
+
+				if (secondCh == '[' || secondCh == '=')//is multi-line string?
+				{
+					funcCallData.emplace_back("", readArgs(in));
+					break;
+				}
 				SubVarType::EXPR res{};
 				res.funcCalls = std::move(funcCallData);// Move auto-clears it
 
