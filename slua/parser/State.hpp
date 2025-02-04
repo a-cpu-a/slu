@@ -133,7 +133,7 @@ namespace sluaParse
 		struct LITERAL_STRING { std::string v; };							// "LiteralString"
 		struct VARARGS {};													// "..."
 		struct FUNCTION_DEF { Function v; };								// "functiondef"
-		struct LIM_PREFIX_EXP { std::unique_ptr<LimPrefixExpr> v; };	// "prefixexp"
+		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExpr>;				// "prefixexp"
 		using FUNC_CALL = FuncCall;											// "functioncall"
 		struct TABLE_CONSTRUCTOR { TableConstructor v; };					// "tableconstructor"
 
