@@ -20,3 +20,10 @@
 #include <slua/types/complex/Function.hpp>
 
 #include <slua/parser/Parse.hpp>
+
+
+void _test()
+{
+	sluaParse::Input in;
+	sluaParse::parseFile(in);
+}
