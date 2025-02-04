@@ -72,6 +72,12 @@ namespace sluaParse
 		Position end;
 
 		bool hadReturn = false;
+
+
+		Block() = default;
+		Block(const Block&) = delete;
+		Block(Block&&) = default;
+		Block& operator=(Block&&) = default;
 	};
 
 
@@ -173,6 +179,11 @@ namespace sluaParse
 		ExprData data;
 		Position place;
 		UnOpType unOp;//might be NONE
+
+		Expression() = default;
+		Expression(const Expression&) = delete;
+		Expression(Expression&&) = default;
+		Expression& operator=(Expression&&) = default;
 	};
 
 	namespace SubVarType
@@ -302,5 +313,10 @@ namespace sluaParse
 	{
 		StatementData data;
 		Position place;
+
+		Statement() = default;
+		Statement(const Statement&) = delete;
+		Statement(Statement&&) = default;
+		Statement& operator=(Statement&&) = default;
 	};
 }

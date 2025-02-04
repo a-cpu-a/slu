@@ -206,7 +206,7 @@ namespace sluaParse
 
 			// Not some end / return keyword, must be a statement
 
-			ret.statList.push_back(readStatment(in));
+			ret.statList.emplace_back(readStatment(in));
 		}
 		ret.end = in.getLoc();
 		return ret;
@@ -250,6 +250,8 @@ namespace sluaParse
 		requireToken(in, ")");
 		ret.block = readBlock(in);
 		requireToken(in, "end");
+
+		return ret;
 	}
 
 	inline std::string readLabel(AnyInput auto& in)
@@ -336,7 +338,7 @@ namespace sluaParse
 				res.exprs = readExpList(in);
 				res.bl = readDoEndBlock(in);
 
-				ret.data = res;
+				ret.data = std::move(res);
 				return ret;
 			}
 			if (checkReadTextToken(in, "function"))
@@ -346,7 +348,7 @@ namespace sluaParse
 				res.name = readFuncName(in);
 				res.func = readFuncBody(in);
 
-				ret.data = res;
+				ret.data = std::move(res);
 				return ret;
 			}
 			break;
@@ -363,7 +365,7 @@ namespace sluaParse
 					res.name = readName(in);
 					res.func = readFuncBody(in);
 
-					ret.data = res;
+					ret.data = std::move(res);
 					return ret;
 				}
 				// Local Variable
@@ -375,7 +377,7 @@ namespace sluaParse
 				{// [‘=’ explist]
 					res.exprs = readExpList(in);
 				}
-				ret.data = res;
+				ret.data = std::move(res);
 				return ret;
 			}
 			break;
@@ -384,7 +386,7 @@ namespace sluaParse
 			{
 				Block bl = readBlock(in);
 				requireToken(in, "end");
-				ret.data = StatementType::DO_BLOCK(bl);
+				ret.data = StatementType::DO_BLOCK(std::move(bl));
 				return ret;
 			}
 			break;
@@ -440,7 +442,7 @@ namespace sluaParse
 					requireToken(in, "then");
 					Block elBlock = readBlock(in);
 
-					res.elseIfs.push_back({ std::move(elExpr),std::move(elBlock)});
+					res.elseIfs.emplace_back( std::move(elExpr),std::move(elBlock));
 				}
 
 				if (checkReadTextToken(in, "else"))

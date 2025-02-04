@@ -71,23 +71,26 @@ namespace sluaParse
 						LUACC_SINGLE_STRING("=")
 						+ errorLocStr(in));
 				}
-				if (!funcCallData.empty())
+				else
 				{
-					throw UnexpectedCharacterError(
-						"Cant assign to " LC_function " call (Found in variable list)"
-						+ errorLocStr(in));
+					if (!funcCallData.empty())
+					{
+						throw UnexpectedCharacterError(
+							"Cant assign to " LC_function " call (Found in variable list)"
+							+ errorLocStr(in));
+					}
+					if (varDataNeedsSubThing)
+					{
+						throw UnexpectedCharacterError(
+							"Cant assign to expression, found "
+							LUACC_SINGLE_STRING("=")
+							+ errorLocStr(in));
+					}
+					skipSpace(in);
+					varData.emplace_back();
+					parseVarBase(in, in.peek(), varData.back(), varDataNeedsSubThing);
+					break;
 				}
-				if (varDataNeedsSubThing)
-				{
-					throw UnexpectedCharacterError(
-						"Cant assign to expression, found "
-						LUACC_SINGLE_STRING("=")
-						+ errorLocStr(in));
-				}
-				skipSpace(in);
-				varData.emplace_back();
-				parseVarBase(in, in.peek(), varData.back(), varDataNeedsSubThing);
-				break;
 			case '=':// Assign
 			{
 				if constexpr (FOR_EXPR)
@@ -316,11 +319,11 @@ namespace sluaParse
 			explist ::= exp {‘,’ exp}
 		*/
 		ExpList ret{};
-		ret.push_back(readExpr(in));
+		ret.emplace_back(readExpr(in));
 
 		while (checkReadToken(in, ","))
 		{
-			ret.push_back(readExpr(in));
+			ret.emplace_back(readExpr(in));
 		}
 		return ret;
 	}
