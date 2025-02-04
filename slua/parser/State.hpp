@@ -233,7 +233,7 @@ namespace sluaParse
 		struct SEMICOLON {};									// ";"
 		struct ASSIGN { std::vector<Var> vars; ExpList exprs; };// "varlist = explist" //e.size must be > 0
 		using FUNC_CALL = FuncCall;								// "functioncall"
-		struct LABEL {};										// "label"
+		struct LABEL { std::string v; };						// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
 		struct DO_BLOCK { Block bl; };							// "do block end"
