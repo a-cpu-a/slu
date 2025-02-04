@@ -86,8 +86,8 @@ namespace sluaParse
 		bool insideLineComment = false;
 		ParseNewlineState nlState = ParseNewlineState::NONE;
 
-		bool insideMultilineComment = false;//TODO: use
-		size_t multilineCommentLevel = SIZE_MAX;//TODO: use
+		bool insideMultilineComment = false;
+		size_t multilineCommentLevel = SIZE_MAX;
 
 		size_t res = 0;
 
