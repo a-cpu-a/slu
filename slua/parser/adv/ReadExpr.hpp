@@ -150,6 +150,7 @@ namespace sluaParse
 							LUACC_SINGLE_STRING("=")
 							+ errorLocStr(in));
 					}
+					in.skip();//skip comma
 					skipSpace(in);
 					varData.emplace_back();
 					parseVarBase(in, in.peek(), varData.back(), varDataNeedsSubThing);
@@ -177,7 +178,7 @@ namespace sluaParse
 							LUACC_SINGLE_STRING("=")
 							+ errorLocStr(in));
 					}
-					in.skip();
+					in.skip();//skip eq
 					StatementType::ASSIGN res{};
 					res.vars = std::move(varData);
 					res.exprs = readExpList(in);
@@ -186,7 +187,7 @@ namespace sluaParse
 			}
 			case ':'://Self funccall
 			{
-				in.skip();
+				in.skip();//skip colon
 				std::string name = readName(in);
 
 				funcCallData.emplace_back(name, readArgs(in));
@@ -206,7 +207,7 @@ namespace sluaParse
 						goto exit;
 				}
 
-				in.skip();
+				in.skip();//skip dot
 
 				SubVarType::NAME res{};
 				res.funcCalls = std::move(funcCallData);// Move auto-clears it
@@ -228,7 +229,7 @@ namespace sluaParse
 				SubVarType::EXPR res{};
 				res.funcCalls = std::move(funcCallData);// Move auto-clears it
 
-				in.skip();
+				in.skip();//skip first char
 				res.idx = readExpr(in);
 				requireToken(in, "]");
 

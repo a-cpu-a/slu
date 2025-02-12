@@ -80,17 +80,19 @@ namespace sluaParse
 		return res;
 	}
 	//No space skip!
-	inline std::string peekName(AnyInput auto& in)
+	//Returns SIZE_MAX, on non name inputs
+	//Otherwise, returns last peek() idx that returns a part of the name
+	inline size_t peekName(AnyInput auto& in)
 	{
 		if (!in)
-			throw UnexpectedFileEndError("Expected identifier/name: but file ended" + errorLocStr(in));
+			return SIZE_MAX;
 
 
 		const uint8_t firstChar = in.peek();
 
 		// Ensure the first character is valid (a letter or underscore)
 		if (!isValidNameStartChar(firstChar))
-			return "";
+			return SIZE_MAX;
 
 
 		std::string res;
@@ -100,9 +102,11 @@ namespace sluaParse
 		size_t i = 1;
 		while (in)
 		{
-			const uint8_t ch = in.peekAt(i++);// Starts at 1
+			const uint8_t ch = in.peekAt(i);// Starts at 1
 			if (!isValidNameChar(ch))
 				break; // Stop when a non-identifier character is found
+
+			i++;
 
 			res += ch;
 			continue;
@@ -110,9 +114,9 @@ namespace sluaParse
 
 		// Check if the resulting string is a reserved keyword
 		if (RESERVED_KEYWORDS.find(res) != RESERVED_KEYWORDS.end())
-			return "";
+			return SIZE_MAX;
 
-		return res;
+		return i;
 	}
 
 	//uhhh, dont use?
