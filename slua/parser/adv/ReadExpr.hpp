@@ -204,8 +204,11 @@ namespace sluaParse
 				break;
 			case '.':// Index
 			{
-				if (in.peekAt(1) == '.') //is concat (..)
-					goto exit;
+				if constexpr (FOR_EXPR)
+				{
+					if (in.peekAt(1) == '.') //is concat (..)
+						goto exit;
+				}
 
 				in.skip();
 
