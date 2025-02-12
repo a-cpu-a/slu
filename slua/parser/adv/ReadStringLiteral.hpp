@@ -220,6 +220,8 @@ namespace sluaParse
 						break;
 
 					case '\\': result += '\\'; break;
+					case '\'': result += '\''; break;
+					case '"': result += '"'; break;
 					case 'a': result += '\a'; break;
 					case 'b': result += '\b'; break;
 					case 'f': result += '\f'; break;
