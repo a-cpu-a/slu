@@ -133,7 +133,9 @@ namespace sluaParse
 			switch (opType)
 			{
 			case ',':// Varlist
-				if constexpr (!FOR_EXPR)
+				if constexpr (FOR_EXPR)
+					goto exit;
+				else
 				{
 					if (!funcCallData.empty())
 					{
@@ -153,18 +155,12 @@ namespace sluaParse
 					parseVarBase(in, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
-				[[fallthrough]];//in non-expr cases, try default instead
 			default:
 				goto exit;
 			case '=':// Assign
 			{
 				if constexpr (FOR_EXPR)
-				{
-					throw UnexpectedCharacterError(
-						"Cant assign in expression, found "
-						LUACC_SINGLE_STRING("=")
-						+ errorLocStr(in));
-				}
+					goto exit;
 				else
 				{
 					if (!funcCallData.empty())
