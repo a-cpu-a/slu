@@ -45,6 +45,7 @@ namespace sluaParse
 
 		if (!name.empty())
 		{
+			//TODO: check at the CORRECT position... AND ISNT ==, so...
 			if (checkReadToken(in, "="))
 			{
 				return FieldType::NAME2EXPR(name, readExpr(in));
