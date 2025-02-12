@@ -177,6 +177,8 @@ namespace sluaParse
 
 		while (true)
 		{
+			skipSpace(in);
+
 			if (!in)//File ended, so block ended too
 				break;
 
