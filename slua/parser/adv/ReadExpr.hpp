@@ -119,6 +119,8 @@ namespace sluaParse
 		varData.emplace_back();
 		parseVarBase(in, firstChar, varData.back(), varDataNeedsSubThing);
 
+		char opType;
+
 		//This requires manual parsing, and stuff (at every step, complex code)
 		while (true)
 		{
@@ -127,7 +129,7 @@ namespace sluaParse
 			if (!in)
 				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, funcCallData, varDataNeedsSubThing,0);
 
-			const char opType = in.peek();
+			opType = in.peek();
 			switch (opType)
 			{
 			case ',':// Varlist
