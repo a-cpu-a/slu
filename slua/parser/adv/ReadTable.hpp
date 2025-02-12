@@ -46,7 +46,7 @@ namespace sluaParse
 		if (nameOffset !=SIZE_MAX)
 		{
 			//Lazy-TODO: eof handling lol
-			const size_t spacedOffset = weakSkipSpace(in, nameOffset+1);
+			const size_t spacedOffset = weakSkipSpace(in, nameOffset);
 
 			//check at the CORRECT position, AND that it ISNT ==
 			if (in.peekAt(spacedOffset)=='=' && in.peekAt(spacedOffset+1)!='=')
