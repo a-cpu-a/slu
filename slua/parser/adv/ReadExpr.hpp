@@ -153,7 +153,7 @@ namespace sluaParse
 				}
 				[[fallthrough]];//in non-expr cases, try default instead
 			default:
-				return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing, opType);
+				goto exit;
 			case '=':// Assign
 			{
 				if constexpr (FOR_EXPR)
@@ -202,6 +202,9 @@ namespace sluaParse
 				break;
 			case '.':// Index
 			{
+				if (in.peekAt(1) == '.') //is concat (..)
+					goto exit;
+
 				in.skip();
 
 				SubVarType::NAME res{};
@@ -234,6 +237,10 @@ namespace sluaParse
 			}
 			}
 		}
+
+	exit:
+
+		return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing, opType);
 	}
 
 	inline Expression readExpr(AnyInput auto& in, const bool readBiOp = true)
