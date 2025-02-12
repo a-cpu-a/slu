@@ -109,7 +109,7 @@ namespace sluaParse
 
 		HexEscape ::= "\x" HexDigit HexDigit
 		U8Escape ::= "\u{" [[[[[[[Digits_0_To_8] HexDigit] HexDigit] HexDigit] HexDigit] HexDigit] HexDigit] HexDigit "}"
-		DecEscape ::= "\" Digit Digit Digit
+		DecEscape ::= "\" Digit [Digit [Digit]]
 
 
 	*/
@@ -286,6 +286,49 @@ namespace sluaParse
 						}
 
 						result += u32ToUtf8(ch);
+						break;
+					}
+					case '0':
+					case '1':
+					case '2':
+					case '3':
+					case '4':
+					case '5':
+					case '6':
+					case '7':
+					case '8':
+					case '9':
+					{
+						uint16_t num = next-'0';
+
+						const char ch2 = in.peek();
+						if (isDigitChar(ch2))
+						{
+							in.skip();
+							num *= 10;
+							num += ch2 - '0';
+
+
+							const char ch3 = in.peek();
+							if (isDigitChar(ch3))
+							{
+								in.skip();
+								num *= 10;
+								num += ch3 - '0';
+
+								if (num > 0xFF)
+								{
+									throw UnicodeError(std::format(
+										"Unicode " LC_not " allowed in " LUACC_SINGLE_STRING("\\ddd") "! "
+										LUACC_NUMBER "{}" LUACC_DEFAULT
+										"{}"
+										, num, errorLocStr(in))
+									);
+								}
+							}
+						}
+
+						result += (char)num;
 						break;
 					}
 					default: 
