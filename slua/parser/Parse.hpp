@@ -468,7 +468,12 @@ namespace sluaParse
 		//TypeList types
 		Block code;
 	};
-
+	/**
+	 * @throws sluaParse::UnicodeError
+	 * @throws sluaParse::UnexpectedCharacterError
+	 * @throws sluaParse::UnexpectedFileEndError
+	 * @throws sluaParse::ReservedNameError
+	 */
 	inline ParsedFile parseFile(AnyInput auto& in)
 	{
 		Block bl = readBlock(in);
