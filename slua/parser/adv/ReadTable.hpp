@@ -41,13 +41,20 @@ namespace sluaParse
 			return res;
 		}
 
-		std::string name = peekName(in);
+		const size_t nameOffset = peekName(in);
 
-		if (!name.empty())
+		if (nameOffset !=SIZE_MAX)
 		{
-			//TODO: check at the CORRECT position... AND ISNT ==, so...
-			if (checkReadToken(in, "="))
+			//Lazy-TODO: eof handling lol
+			const size_t spacedOffset = weakSkipSpace(in, nameOffset+1);
+
+			//check at the CORRECT position, AND that it ISNT ==
+			if (in.peekAt(spacedOffset)=='=' && in.peekAt(spacedOffset+1)!='=')
 			{
+				std::string name = readName(in);
+				skipSpace(in);
+				in.skip();// '='
+
 				return FieldType::NAME2EXPR(name, readExpr(in));
 			}
 		}

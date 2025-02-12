@@ -45,6 +45,63 @@ namespace sluaParse
 		}
 	}
 
+	//Returns idx of non-space/comment char
+	inline size_t weakSkipSpace(AnyInput auto& in, size_t idx)
+	{
+		while (true)
+		{
+			//start by skipping ez stuff
+			while (isSpaceChar(in.peekAt(idx))) { idx++; }
+			//then hard stuff...
+
+			if (in.peekAt(idx) != '-' || in.peekAt(idx + 1) != '-')
+				break;
+			idx += 2;//skip --
+
+			// Otherwise, it's a single-line comment
+			while (true)
+			{
+				const char ch = in.peekAt(idx);
+
+				if (ch == '[')
+				{
+					//todo: try multiline, else continue as single line
+					size_t level = 0;
+					while (in.peekAt(idx + 1 + level) == '=') level++;
+
+					if (in.peekAt(idx + 1 + level) == '[') // Confirm multiline comment
+					{
+						idx += 2 + level; // Skip opening '[=['
+
+						// Consume until closing long bracket
+						while (true)
+						{
+							if (in.peekAt(idx) == ']')
+							{
+								size_t closeLevel = 0;
+								while (in.peekAt(idx + 1 + closeLevel) == '=') closeLevel++;
+
+								if (in.peekAt(idx + 1 + closeLevel) == ']' && closeLevel == level)
+								{
+									idx += 2 + closeLevel; // Skip closing ']=]'
+									break;
+								}
+							}
+							idx++;
+						}
+						break;//no longer single line comment
+					}
+				}
+
+				if (ch != '\n' && ch != '\r')
+					break;
+				idx++; // Skip until newline or multiline comment
+			}
+			
+			//try skipping normal space again
+		}
+		return idx;
+	}
 	inline void skipSpace(AnyInput auto& in)
 	{
 		/*
