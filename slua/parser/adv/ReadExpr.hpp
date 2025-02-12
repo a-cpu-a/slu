@@ -131,14 +131,7 @@ namespace sluaParse
 			switch (opType)
 			{
 			case ',':// Varlist
-				if constexpr (FOR_EXPR)
-				{
-					throw UnexpectedCharacterError(
-						"Cant assign in expression, found "
-						LUACC_SINGLE_STRING("=")
-						+ errorLocStr(in));
-				}
-				else
+				if constexpr (!FOR_EXPR)
 				{
 					if (!funcCallData.empty())
 					{
@@ -158,6 +151,9 @@ namespace sluaParse
 					parseVarBase(in, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
+				[[fallthrough]];//in non-expr cases, try default instead
+			default:
+				return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing, opType);
 			case '=':// Assign
 			{
 				if constexpr (FOR_EXPR)
@@ -236,8 +232,6 @@ namespace sluaParse
 				varData.back().sub.emplace_back(std::move(res));
 				break;
 			}
-			default:
-				return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing,opType);
 			}
 		}
 	}
