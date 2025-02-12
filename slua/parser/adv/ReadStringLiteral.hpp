@@ -207,6 +207,15 @@ namespace sluaParse
 					case '\n':
 					case '\r':
 						manageNewlineState(next, nlState, in);
+						if (next == '\r')
+						{// \r\n is treated as 1 char here
+							if (in.peek() == '\n')
+							{// Manual newline state handling
+								in.skip();
+								in.newLine();
+								nlState = ParseNewlineState::NONE;
+							}
+						}
 						result += '\n';
 						break;
 
