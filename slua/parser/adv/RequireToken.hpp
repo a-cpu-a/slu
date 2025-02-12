@@ -69,7 +69,7 @@ namespace sluaParse
 		if (nameLike)
 		{
 			const uint8_t ch = in.peekAt(off);
-			if (ch == '_' || std::isalnum(ch))
+			if (isValidNameChar(ch))
 				return false;
 		}
 
