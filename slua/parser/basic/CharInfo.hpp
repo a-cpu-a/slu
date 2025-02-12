@@ -25,11 +25,11 @@ namespace sluaParse
 	}
 	constexpr bool isAlpha(const char c)
 	{
-		return (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+		return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 	}
 	constexpr bool isHexDigitChar(const char c)
 	{
-		return isDigitChar(c) || isAlpha(c);
+		return isDigitChar(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
 	}
 
 	static_assert('9' < 'a');
