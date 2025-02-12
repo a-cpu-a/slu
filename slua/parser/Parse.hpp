@@ -112,6 +112,7 @@ namespace sluaParse
 		}
 		else if (ch == '(')
 		{
+			in.skip();//skip start
 			skipSpace(in);
 			ArgsType::EXPLIST res{};
 			if (in.peek() == ')')// Check if 0 args
