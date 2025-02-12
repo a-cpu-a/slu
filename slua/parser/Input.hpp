@@ -22,7 +22,7 @@ namespace sluaParse
 	struct Input
 	{
 		std::string fName;
-		size_t curLine = 0;
+		size_t curLine = 1;
 		size_t curLinePos = 0;
 
 		std::span<const uint8_t> text;
