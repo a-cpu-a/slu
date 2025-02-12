@@ -21,6 +21,10 @@ function string.u8(bStr,str)
 end
 
 
+--[[Multi unary operator test + self func]]
+function x.y.z:w() return not- -##not not~~~~~-###not#1  end
+
+
 assert((0xe-1)==13)
 assert((0x0e-1)==13)
 
