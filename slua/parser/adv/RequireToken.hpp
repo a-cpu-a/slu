@@ -40,7 +40,7 @@ namespace sluaParse
 						", but found "
 						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
 						"{}"
-					, tok, ch, tok[i], errorLocStr(in)));
+					, tok, tok[i], ch, errorLocStr(in)));
 				}
 			}
 		}
