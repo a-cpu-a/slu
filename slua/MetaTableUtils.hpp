@@ -142,7 +142,7 @@ namespace slua
 }
 
 
-#define SLua_MakeGetter(_THIS_OBJ_ARG,_RET_VAL) \
+#define Slua_makeGetter(_THIS_OBJ_ARG,_RET_VAL) \
 	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key) \
 	{ \
 		return _RET_VAL; \
@@ -150,7 +150,7 @@ namespace slua
 
 
 //Checks if _CHECK is true, and if not, will throw a error
-#define SLua_MakeGetterChecking(_THIS_OBJ_ARG,_CHECK,_ERROR,_RET_VAL) \
+#define Slua_makeGetterChecking(_THIS_OBJ_ARG,_CHECK,_ERROR,_RET_VAL) \
 	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key) \
 	{ \
 		if(!(_CHECK)) \
@@ -160,7 +160,7 @@ namespace slua
 
 
 
-#define SLua_MakeSetter(_THIS_OBJ_ARG,_VAL_OBJ_ARG,_SET_CODE) \
+#define Slua_makeSetter(_THIS_OBJ_ARG,_VAL_OBJ_ARG,_SET_CODE) \
 	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key,_VAL_OBJ_ARG) \
 	{ \
 		_SET_CODE; \
@@ -168,7 +168,7 @@ namespace slua
 	})
 
 //Checks if _CHECK is true, and if not, will throw a error
-#define SLua_MakeSetterChecking(_THIS_OBJ_ARG,_VAL_OBJ_ARG,_CHECK,_ERROR,_SET_CODE) \
+#define Slua_makeSetterChecking(_THIS_OBJ_ARG,_VAL_OBJ_ARG,_CHECK,_ERROR,_SET_CODE) \
 	/* wrap inside + to turn into function pointer */ (+[](_THIS_OBJ_ARG, const slua::TableKey& key,_VAL_OBJ_ARG) \
 	{ \
 		if(!(_CHECK)) \
@@ -178,9 +178,9 @@ namespace slua
 	})
 
 
-#define SLua_SetterBuilder(_FIELD_NAME,    _FIELD_OBJ,_THIS_OBJ_T,_FIELD_OBJ_T,    _CHECK,_ERROR) \
-	SLua_Setter(#_FIELD_NAME, \
-		SLua_MakeSetterChecking(\
+#define Slua_setterBuilder(_FIELD_NAME,    _FIELD_OBJ,_THIS_OBJ_T,_FIELD_OBJ_T,    _CHECK,_ERROR) \
+	Slua_setter(#_FIELD_NAME, \
+		Slua_makeSetterChecking(\
 			const _THIS_OBJ_T & thisObj, \
 			const decltype(_FIELD_OBJ_T ::_FIELD_NAME)& val, \
 			_CHECK, \
@@ -191,9 +191,9 @@ namespace slua
 
 
 // _FIELD_VAL_WRAPPER can be empty, so you get "... ,, ..."
-#define SLua_GetterBuilder(_FIELD_NAME,_FIELD_VAL_WRAPPER,    _FIELD_OBJ,_THIS_OBJ_T,    _CHECK,_ERROR) \
-	SLua_Getter(#_FIELD_NAME, \
-		SLua_MakeGetterChecking(\
+#define Slua_getterBuilder(_FIELD_NAME,_FIELD_VAL_WRAPPER,    _FIELD_OBJ,_THIS_OBJ_T,    _CHECK,_ERROR) \
+	Slua_getter(#_FIELD_NAME, \
+		Slua_makeGetterChecking(\
 			const _THIS_OBJ_T & thisObj, \
 			_CHECK, \
 			_ERROR, \
