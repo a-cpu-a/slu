@@ -28,11 +28,11 @@ namespace slua
 			{
 				if constexpr (INT)
 				{
-					SLua_SetTableValue(L, i + 1, lua_pushinteger(L, data.val[i]));
+					Slua_setTableValue(L, i + 1, lua_pushinteger(L, data.val[i]));
 				}
 				else
 				{
-					SLua_SetTableValue(L, i + 1, lua_pushnumber(L, data.val[i]));
+					Slua_setTableValue(L, i + 1, lua_pushnumber(L, data.val[i]));
 				}
 			}
 			return 1;
@@ -81,35 +81,35 @@ namespace slua
 
 			return type + slua::cexpToString(BITS) + "vec" + slua::cexpToString(T::length()) + "\0";
 		}
-		SLua_WrapGetStrName(getStrName);
+		Slua_wrapGetStrName(getStrName);
 	};
 }
 // Map basic types to slua::Vec, to allow easy pushing, reading, and checking
-SLua_MAP_TYPE1(glm::u64vec4, slua::Vec<glm::u64vec4, true, false, 64>);
-SLua_MAP_TYPE1(glm::i64vec4, slua::Vec<glm::i64vec4, true, true, 64>);
-SLua_MAP_TYPE1(glm::u64vec3, slua::Vec<glm::u64vec3, true, false, 64>);
-SLua_MAP_TYPE1(glm::i64vec3, slua::Vec<glm::i64vec3, true, true, 64>);
-SLua_MAP_TYPE1(glm::u64vec2, slua::Vec<glm::u64vec2, true, false, 64>);
-SLua_MAP_TYPE1(glm::i64vec2, slua::Vec<glm::i64vec2, true, true, 64>);
+Slua_mapType1(glm::u64vec4, slua::Vec<glm::u64vec4, true, false, 64>);
+Slua_mapType1(glm::i64vec4, slua::Vec<glm::i64vec4, true, true, 64>);
+Slua_mapType1(glm::u64vec3, slua::Vec<glm::u64vec3, true, false, 64>);
+Slua_mapType1(glm::i64vec3, slua::Vec<glm::i64vec3, true, true, 64>);
+Slua_mapType1(glm::u64vec2, slua::Vec<glm::u64vec2, true, false, 64>);
+Slua_mapType1(glm::i64vec2, slua::Vec<glm::i64vec2, true, true, 64>);
 
-SLua_MAP_TYPE1(glm::u32vec4, slua::Vec<glm::u32vec4, true, false, 32>);
-SLua_MAP_TYPE1(glm::i32vec4, slua::Vec<glm::i32vec4, true, true, 32>);
-SLua_MAP_TYPE1(glm::u32vec3, slua::Vec<glm::u32vec3, true, false, 32>);
-SLua_MAP_TYPE1(glm::i32vec3, slua::Vec<glm::i32vec3, true, true, 32>);
-SLua_MAP_TYPE1(glm::u32vec2, slua::Vec<glm::u32vec2, true, false, 32>);
-SLua_MAP_TYPE1(glm::i32vec2, slua::Vec<glm::i32vec2, true, true, 32>);
+Slua_mapType1(glm::u32vec4, slua::Vec<glm::u32vec4, true, false, 32>);
+Slua_mapType1(glm::i32vec4, slua::Vec<glm::i32vec4, true, true, 32>);
+Slua_mapType1(glm::u32vec3, slua::Vec<glm::u32vec3, true, false, 32>);
+Slua_mapType1(glm::i32vec3, slua::Vec<glm::i32vec3, true, true, 32>);
+Slua_mapType1(glm::u32vec2, slua::Vec<glm::u32vec2, true, false, 32>);
+Slua_mapType1(glm::i32vec2, slua::Vec<glm::i32vec2, true, true, 32>);
 
-SLua_MAP_TYPE1(glm::u16vec4, slua::Vec<glm::u16vec4, true, false, 16>);
-SLua_MAP_TYPE1(glm::i16vec4, slua::Vec<glm::i16vec4, true, true, 16>);
-SLua_MAP_TYPE1(glm::u16vec3, slua::Vec<glm::u16vec3, true, false, 16>);
-SLua_MAP_TYPE1(glm::i16vec3, slua::Vec<glm::i16vec3, true, true, 16>);
-SLua_MAP_TYPE1(glm::u16vec2, slua::Vec<glm::u16vec2, true, false, 16>);
-SLua_MAP_TYPE1(glm::i16vec2, slua::Vec<glm::i16vec2, true, true, 16>);
+Slua_mapType1(glm::u16vec4, slua::Vec<glm::u16vec4, true, false, 16>);
+Slua_mapType1(glm::i16vec4, slua::Vec<glm::i16vec4, true, true, 16>);
+Slua_mapType1(glm::u16vec3, slua::Vec<glm::u16vec3, true, false, 16>);
+Slua_mapType1(glm::i16vec3, slua::Vec<glm::i16vec3, true, true, 16>);
+Slua_mapType1(glm::u16vec2, slua::Vec<glm::u16vec2, true, false, 16>);
+Slua_mapType1(glm::i16vec2, slua::Vec<glm::i16vec2, true, true, 16>);
 
-SLua_MAP_TYPE1(glm::vec2, slua::Vec<glm::vec2, false, true, 32>);
-SLua_MAP_TYPE1(glm::vec3, slua::Vec<glm::vec3, false, true, 32>);
-SLua_MAP_TYPE1(glm::vec4, slua::Vec<glm::vec4, false, true, 32>);
+Slua_mapType1(glm::vec2, slua::Vec<glm::vec2, false, true, 32>);
+Slua_mapType1(glm::vec3, slua::Vec<glm::vec3, false, true, 32>);
+Slua_mapType1(glm::vec4, slua::Vec<glm::vec4, false, true, 32>);
 
-SLua_MAP_TYPE1(glm::dvec2, slua::Vec<glm::dvec2, false, true, 64>);
-SLua_MAP_TYPE1(glm::dvec3, slua::Vec<glm::dvec3, false, true, 64>);
-SLua_MAP_TYPE1(glm::dvec4, slua::Vec<glm::dvec4, false, true, 64>);
+Slua_mapType1(glm::dvec2, slua::Vec<glm::dvec2, false, true, 64>);
+Slua_mapType1(glm::dvec3, slua::Vec<glm::dvec3, false, true, 64>);
+Slua_mapType1(glm::dvec4, slua::Vec<glm::dvec4, false, true, 64>);

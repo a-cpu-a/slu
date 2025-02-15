@@ -35,7 +35,7 @@ namespace slua
 
 
 // The proper way to use std::string for names
-#define SLua_WrapGetStrName(_FUNC_NAME) \
+#define Slua_wrapGetStrName(_FUNC_NAME) \
 	private: inline const static constexpr auto \
 		name_buf = slua::cexpStrToArray( \
 			[]() constexpr {return _FUNC_NAME(); }, \

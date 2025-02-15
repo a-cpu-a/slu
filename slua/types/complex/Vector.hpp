@@ -101,7 +101,7 @@ namespace slua
 			return name + "[" + slua::cexpToString(MAX_VEC_SIZE) + "]";
 		}
 
-		SLua_WrapGetStrName(getStrName);
+		Slua_wrapGetStrName(getStrName);
 	};
 
 	template<typename T>
@@ -113,4 +113,4 @@ namespace slua
 	concept _is_std_vector = __is_std_vector<T>::v::value;
 }
 // Map basic types to slua::Vector, to allow easy pushing, reading, and checking
-SLua_MAP_TYPE(VEC_T, slua::Vector<typename VEC_T::value_type>, slua::_is_std_vector VEC_T);
+Slua_mapType(VEC_T, slua::Vector<typename VEC_T::value_type>, slua::_is_std_vector VEC_T);

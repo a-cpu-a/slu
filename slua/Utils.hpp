@@ -140,5 +140,5 @@ namespace slua
 
 
 //changes a value of the table you just created
-#define SLua_SetStrKeyTableValue(_L,_KEY,...) lua_pushstring(_L, (_KEY));__VA_ARGS__;lua_rawset(_L, -3)
-#define SLua_SetTableValue(_L,_IDX,...) __VA_ARGS__;slua::lua_setTableValue(_L,_IDX)
+#define Slua_setStrKeyTableValue(_L,_KEY,...) lua_pushstring(_L, (_KEY));__VA_ARGS__;lua_rawset(_L, -3)
+#define Slua_setTableValue(_L,_IDX,...) __VA_ARGS__;slua::lua_setTableValue(_L,_IDX)

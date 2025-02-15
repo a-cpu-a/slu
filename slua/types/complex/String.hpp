@@ -86,5 +86,5 @@ namespace slua
 
 }
 // Map basic types to slua::String(View), to allow easy pushing, reading, and checking
-SLua_MAP_TYPE(std::string, slua::String);
-SLua_MAP_TYPE(std::string_view, slua::StringView);
+Slua_mapType(std::string, slua::String);
+Slua_mapType(std::string_view, slua::StringView);

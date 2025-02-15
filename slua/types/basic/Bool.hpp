@@ -33,4 +33,4 @@ namespace slua
 	};
 }
 // Map basic types to slua::Bool to allow easy pushing, reading, and checking
-SLua_MAP_TYPE(bool, slua::Bool);
+Slua_mapType(bool, slua::Bool);

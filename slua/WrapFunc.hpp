@@ -41,13 +41,13 @@ namespace slua
 	using Args6CppFunc = RET_T(*)(IN1_T&, IN2_T&, IN3_T&, IN4_T&, IN5_T&, IN6_T&);
 
 
-#define _SLua_REQUIRE_ARGS(_COUNT) \
+#define _Slua_REQUIRE_ARGS(_COUNT) \
 	if(lua_gettop(L)!=_COUNT) \
 		return slua::lua_error(L, LUACC_FUNCTION "Function " \
 			LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING \
 			" needs " LUACC_NUMBER #_COUNT " " LC_arguments ".")
 
-#define _SLua_CHECK_ARG(_ARG) \
+#define _Slua_CHECK_ARG(_ARG) \
 	const bool arg_ ## _ARG ## _res = slua::checkThrowing<IN ## _ARG ## _T>(L, _ARG); \
 	if (!arg_ ## _ARG ## _res) \
 		throw slua::Error(LUACC_ARGUMENT "Argument " \
@@ -58,13 +58,13 @@ namespace slua
 		); /*\
 	if(arg_ ## _ARG ## _res>0) return arg_ ## _ARG ## _res*/ //why did this exist, lol
 
-#define _SLua_READ_ARG(_ARG) IN ## _ARG ## _T in ## _ARG = slua::read<IN ## _ARG ## _T>(L, _ARG)
-#define _SLua_CHECK_N_READ_ARG(_ARG) _SLua_CHECK_ARG(_ARG); _SLua_READ_ARG(_ARG)
+#define _Slua_READ_ARG(_ARG) IN ## _ARG ## _T in ## _ARG = slua::read<IN ## _ARG ## _T>(L, _ARG)
+#define _Slua_CHECK_N_READ_ARG(_ARG) _Slua_CHECK_ARG(_ARG); _Slua_READ_ARG(_ARG)
 
-#define _SLua_RUN_CPP_FUNC(_VAR,...) const slua::ToLua<RET_T> _VAR = func(__VA_ARGS__)
-#define _SLua_RETURN_VALUE(_VAR)  return slua::ToLua<RET_T>::push(L,_VAR)
+#define _Slua_RUN_CPP_FUNC(_VAR,...) const slua::ToLua<RET_T> _VAR = func(__VA_ARGS__)
+#define _Slua_RETURN_VALUE(_VAR)  return slua::ToLua<RET_T>::push(L,_VAR)
 
-#define _SLua_RUN_N_RETURN(...) _SLua_RUN_CPP_FUNC(ret,__VA_ARGS__); _SLua_RETURN_VALUE(ret)
+#define _Slua_RUN_N_RETURN(...) _Slua_RUN_CPP_FUNC(ret,__VA_ARGS__); _Slua_RETURN_VALUE(ret)
 
 	/**
 	* @throws slua::Error
@@ -73,8 +73,8 @@ namespace slua
 	template <typename RET_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args0CppFunc<RET_T> func)
 	{
-		_SLua_REQUIRE_ARGS(0);
-		_SLua_RUN_N_RETURN();
+		_Slua_REQUIRE_ARGS(0);
+		_Slua_RUN_N_RETURN();
 	}
 	/**
 	* @throws slua::Error
@@ -90,9 +90,9 @@ namespace slua
 				" needs " LUACC_NUMBER "1 " LC_argument "."
 			);
 
-		_SLua_CHECK_N_READ_ARG(1);
+		_Slua_CHECK_N_READ_ARG(1);
 
-		_SLua_RUN_N_RETURN(in1);
+		_Slua_RUN_N_RETURN(in1);
 	}
 
 	/**
@@ -102,12 +102,12 @@ namespace slua
 	template <typename RET_T, typename IN1_T, typename IN2_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args2CppFunc<RET_T, IN1_T, IN2_T> func)
 	{
-		_SLua_REQUIRE_ARGS(2);
+		_Slua_REQUIRE_ARGS(2);
 
-		_SLua_CHECK_N_READ_ARG(1);
-		_SLua_CHECK_N_READ_ARG(2);
+		_Slua_CHECK_N_READ_ARG(1);
+		_Slua_CHECK_N_READ_ARG(2);
 
-		_SLua_RUN_N_RETURN(in1, in2);
+		_Slua_RUN_N_RETURN(in1, in2);
 	}
 	/**
 	* @throws slua::Error
@@ -116,13 +116,13 @@ namespace slua
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args3CppFunc<RET_T, IN1_T, IN2_T, IN3_T> func)
 	{
-		_SLua_REQUIRE_ARGS(3);
+		_Slua_REQUIRE_ARGS(3);
 
-		_SLua_CHECK_N_READ_ARG(1);
-		_SLua_CHECK_N_READ_ARG(2);
-		_SLua_CHECK_N_READ_ARG(3);
+		_Slua_CHECK_N_READ_ARG(1);
+		_Slua_CHECK_N_READ_ARG(2);
+		_Slua_CHECK_N_READ_ARG(3);
 
-		_SLua_RUN_N_RETURN(in1, in2, in3);
+		_Slua_RUN_N_RETURN(in1, in2, in3);
 	}
 	/**
 	* @throws slua::Error
@@ -131,14 +131,14 @@ namespace slua
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args4CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T> func)
 	{
-		_SLua_REQUIRE_ARGS(4);
+		_Slua_REQUIRE_ARGS(4);
 
-		_SLua_CHECK_N_READ_ARG(1);
-		_SLua_CHECK_N_READ_ARG(2);
-		_SLua_CHECK_N_READ_ARG(3);
-		_SLua_CHECK_N_READ_ARG(4);
+		_Slua_CHECK_N_READ_ARG(1);
+		_Slua_CHECK_N_READ_ARG(2);
+		_Slua_CHECK_N_READ_ARG(3);
+		_Slua_CHECK_N_READ_ARG(4);
 
-		_SLua_RUN_N_RETURN(in1, in2, in3, in4);
+		_Slua_RUN_N_RETURN(in1, in2, in3, in4);
 	}
 	/**
 	* @throws slua::Error
@@ -147,15 +147,15 @@ namespace slua
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args5CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T, IN5_T> func)
 	{
-		_SLua_REQUIRE_ARGS(5);
+		_Slua_REQUIRE_ARGS(5);
 
-		_SLua_CHECK_N_READ_ARG(1);
-		_SLua_CHECK_N_READ_ARG(2);
-		_SLua_CHECK_N_READ_ARG(3);
-		_SLua_CHECK_N_READ_ARG(4);
-		_SLua_CHECK_N_READ_ARG(5);
+		_Slua_CHECK_N_READ_ARG(1);
+		_Slua_CHECK_N_READ_ARG(2);
+		_Slua_CHECK_N_READ_ARG(3);
+		_Slua_CHECK_N_READ_ARG(4);
+		_Slua_CHECK_N_READ_ARG(5);
 
-		_SLua_RUN_N_RETURN(in1, in2, in3, in4, in5);
+		_Slua_RUN_N_RETURN(in1, in2, in3, in4, in5);
 	}
 	/**
 	* @throws slua::Error
@@ -164,16 +164,16 @@ namespace slua
 	template <typename RET_T, typename IN1_T, typename IN2_T, typename IN3_T, typename IN4_T, typename IN5_T, typename IN6_T>
 	inline int runCppFunc(lua_State* L, const std::string& funcName, Args6CppFunc<RET_T, IN1_T, IN2_T, IN3_T, IN4_T, IN5_T, IN6_T> func)
 	{
-		_SLua_REQUIRE_ARGS(6);
+		_Slua_REQUIRE_ARGS(6);
 
-		_SLua_CHECK_N_READ_ARG(1);
-		_SLua_CHECK_N_READ_ARG(2);
-		_SLua_CHECK_N_READ_ARG(3);
-		_SLua_CHECK_N_READ_ARG(4);
-		_SLua_CHECK_N_READ_ARG(5);
-		_SLua_CHECK_N_READ_ARG(6);
+		_Slua_CHECK_N_READ_ARG(1);
+		_Slua_CHECK_N_READ_ARG(2);
+		_Slua_CHECK_N_READ_ARG(3);
+		_Slua_CHECK_N_READ_ARG(4);
+		_Slua_CHECK_N_READ_ARG(5);
+		_Slua_CHECK_N_READ_ARG(6);
 
-		_SLua_RUN_N_RETURN(in1, in2, in3, in4, in5, in6);
+		_Slua_RUN_N_RETURN(in1, in2, in3, in4, in5, in6);
 	}
 
 	template<class RET_T, class... ARGS>
@@ -263,23 +263,23 @@ namespace slua
 
 
 	// Wrap a C++ into a lua function, ment for lua_pushcfunction
-#define SLua_WrapRaw(_LUA_NAME,_CPP_FUNC) [](lua_State* L){return ::slua::runCppFuncWrapped(L,_LUA_NAME,_CPP_FUNC);}
+#define Slua_wrapRaw(_LUA_NAME,_CPP_FUNC) [](lua_State* L){return ::slua::runCppFuncWrapped(L,_LUA_NAME,_CPP_FUNC);}
 
 	// Wrap a C++ into a lua function, name pair, for your library function tables
-#define SLua_Wrap(_LUA_NAME,_CPP_FUNC) {_LUA_NAME,SLua_WrapRaw(_LUA_NAME,_CPP_FUNC)}
+#define Slua_wrap(_LUA_NAME,_CPP_FUNC) {_LUA_NAME,Slua_wrapRaw(_LUA_NAME,_CPP_FUNC)}
 
 
 
 
-#define _SLua_MULTI_WRAP_CASE(_LUA_NAME,_COUNT,_CPP_FUNC) case _COUNT:return ::slua::runCppFuncWrapped(L,_LUA_NAME "(" #_COUNT ")",_CPP_FUNC)
+#define _Slua_MULTI_WRAP_CASE(_LUA_NAME,_COUNT,_CPP_FUNC) case _COUNT:return ::slua::runCppFuncWrapped(L,_LUA_NAME "(" #_COUNT ")",_CPP_FUNC)
 
 
 	// Wrap 2 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction
 	// _C1 is the argument count of _CPP_FUNC
 	// _C2 is the argument count of _CPP_FUNC2
-#define SLua_Wrap2Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2) [](lua_State* L){switch(lua_gettop(L)){ \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
+#define Slua_wrap2Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2) [](lua_State* L){switch(lua_gettop(L)){ \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
 		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
 			LUACC_SINGLE_STRING( _LUA_NAME) \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT " or " LUACC_NUMBER #_C2 " " LC_arguments "." );} }
@@ -287,17 +287,17 @@ namespace slua
 	// Wrap 2 C++ functions overloaded by arg count into 1 lua function, name pair, for your library function tables
 	// _C1 is the argument count of _CPP_FUNC
 	// _C2 is the argument count of _CPP_FUNC2
-#define SLua_Wrap2(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2) {_LUA_NAME,SLua_Wrap2Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2)}
+#define Slua_wrap2(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2) {_LUA_NAME,Slua_wrap2Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2)}
 
 
 	// Wrap 3 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction
 	// _C1 is the argument count of _CPP_FUNC
 	// _C2 is the argument count of _CPP_FUNC2
 	// _C3 is the argument count of _CPP_FUNC3
-#define SLua_Wrap3Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3) [](lua_State* L){switch(lua_gettop(L)){ \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
+#define Slua_wrap3Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3) [](lua_State* L){switch(lua_gettop(L)){ \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
 		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
 			LUACC_SINGLE_STRING( _LUA_NAME) \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
@@ -308,7 +308,7 @@ namespace slua
 	// _C1 is the argument count of _CPP_FUNC
 	// _C2 is the argument count of _CPP_FUNC2
 	// _C3 is the argument count of _CPP_FUNC3
-#define SLua_Wrap3(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3) {_LUA_NAME,SLua_Wrap3Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3)}
+#define Slua_wrap3(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3) {_LUA_NAME,Slua_wrap3Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3)}
 
 
 	// Wrap 4 C++ functions overloaded by arg count into 1 lua function, ment for lua_pushcfunction
@@ -316,11 +316,11 @@ namespace slua
 	// _C2 is the argument count of _CPP_FUNC2
 	// _C3 is the argument count of _CPP_FUNC3
 	// _C4 is the argument count of _CPP_FUNC4
-#define SLua_Wrap4Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3,_C4,_CPP_FUNC4) [](lua_State* L){switch(lua_gettop(L)){ \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
-		_SLua_MULTI_WRAP_CASE(_LUA_NAME,_C4,_CPP_FUNC4); \
+#define Slua_wrap4Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3,_C4,_CPP_FUNC4) [](lua_State* L){switch(lua_gettop(L)){ \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C1,_CPP_FUNC); \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C2,_CPP_FUNC2); \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C3,_CPP_FUNC3); \
+		_Slua_MULTI_WRAP_CASE(_LUA_NAME,_C4,_CPP_FUNC4); \
 		default: return ::slua::lua_error(L,LUACC_FUNCTION "Function " \
 			LUACC_SINGLE_STRING( _LUA_NAME) \
 			" needs " LUACC_NUMBER #_C1 LUACC_DEFAULT \
@@ -333,5 +333,5 @@ namespace slua
 	// _C2 is the argument count of _CPP_FUNC2
 	// _C3 is the argument count of _CPP_FUNC3
 	// _C4 is the argument count of _CPP_FUNC4
-#define SLua_Wrap4(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3,_C4,_CPP_FUNC4) {_LUA_NAME,SLua_Wrap4Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3,_C4,_CPP_FUNC4)}
+#define Slua_wrap4(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3,_C4,_CPP_FUNC4) {_LUA_NAME,Slua_wrap4Raw(_LUA_NAME,_C1,_CPP_FUNC,_C2,_CPP_FUNC2,_C3,_CPP_FUNC3,_C4,_CPP_FUNC4)}
 }
