@@ -24,6 +24,15 @@ end
 --[[Multi unary operator test + self func]]
 function x.y.z:w() return not- -##not not~~~~~-###not#1  end
 
+local longUnOpTest = -~-~-~-~###~~~####~~~~#####~~~~~######~~~~~~- - - - - - -not not not not not not not not#1;
+
+:: a ::
+
+_G:a()
+:: fnCallLabelTest ::
+
+_G.a()
+:: fnCallLabelTest2 ::
 
 assert((0xe-1)==13)
 assert((0x0e-1)==13)
