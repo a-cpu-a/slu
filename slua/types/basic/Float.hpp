@@ -33,5 +33,5 @@ namespace slua
 	};
 }
 // Map basic types to slua::Float, to allow easy pushing, reading, and checking
-SLua_MAP_TYPE(float, slua::Float);
-SLua_MAP_TYPE(double, slua::Float);
+Slua_mapType(float, slua::Float);
+Slua_mapType(double, slua::Float);

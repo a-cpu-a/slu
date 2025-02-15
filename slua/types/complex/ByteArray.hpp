@@ -75,4 +75,4 @@ namespace slua
 	};
 }
 // Map basic types to slua::ByteArray, to allow easy pushing, reading, and checking
-SLua_MAP_TYPE(std::array<uint8_t SLua_CO SIZE>, slua::ByteArray<SIZE>, size_t SIZE);
+Slua_mapType(std::array<uint8_t Slua_co SIZE>, slua::ByteArray<SIZE>, size_t SIZE);

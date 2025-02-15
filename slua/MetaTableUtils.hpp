@@ -37,12 +37,12 @@ namespace slua
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key), /*const*/ -> optionally const
 		// Call it as if this was a method inside MetaTableGetters (var.SLua_newGetter("fn", abc);)
-#define SLua_Getter(_NAME,_CPP_FUNC) {_NAME, SLua_WrapRaw(_NAME, _CPP_FUNC),true}
+#define Slua_getter(_NAME,_CPP_FUNC) {_NAME, Slua_wrapRaw(_NAME, _CPP_FUNC),true}
 
 
 
 		// Lets you add a method
-#define SLua_Method(_NAME,_CPP_FUNC) SLua_Wrap(_NAME,_CPP_FUNC)
+#define Slua_method(_NAME,_CPP_FUNC) Slua_wrap(_NAME,_CPP_FUNC)
 
 	};
 
@@ -79,7 +79,7 @@ namespace slua
 
 		throw slua::Error("Unknown key in getter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
 	}
-#define SLua_SetupGetHandler(_GETTERS) {"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
+#define Slua_setupGetHandler(_GETTERS) {"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
 
 
 
@@ -107,7 +107,7 @@ namespace slua
 		}
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key, /*const*/ VAL_T& val), /*const*/ -> optionally const
-#define SLua_Setter(_NAME,_CPP_FUNC) SLua_Wrap(_NAME,_CPP_FUNC)
+#define Slua_setter(_NAME,_CPP_FUNC) Slua_wrap(_NAME,_CPP_FUNC)
 	};
 
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
@@ -137,7 +137,7 @@ namespace slua
 
 		throw slua::Error("Unknown key in setter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
 	}
-#define SLua_SetupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
+#define Slua_setupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
 
 }
 

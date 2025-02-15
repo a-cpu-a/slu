@@ -92,12 +92,14 @@ sluaParse::ParsedFile f = sluaParse::parseFile(in);
 # Style guide
 
 
-.hpp for C++ header files, .h for old header files
+.hpp for C++ header files, .h for old header files  
 
-somethingLikeThis for variables, functions, namespaces.
-StartingWithUpperCase for types, concepts.
+somethingLikeThis for variables, functions, namespaces.  
+StartingWithUpperCase for types, concepts.  
 
-prefixed with m_ for private things.
-prefixed with _ for implementation only stuff.
+prefixed with m_ for private things.  
+prefixed with _ for implementation only stuff.  
 
-Slua_nameNameName for macros.
+Slua_nameNameName for macros.  
+
+_Slua_NAME_NAME_NAME for implementation macros.  

@@ -4,40 +4,45 @@
 #pragma once
 
 #include <string>
+#include <variant>
 #include <slua/Include.hpp>
 
 #include <slua/Utils.hpp>
 #include <slua/types/Converter.hpp>
 #include <slua/types/ReadWrite.hpp>
+#include <slua/types/complex/String.hpp>
+#include <slua/types/basic/Integer.hpp>
+#include <slua/ext/CppMatch.hpp>
+
+
+namespace slua { struct StackItemRef; }//Forward decl
+
+//Turns the item on the top of the stack into a StackItemRef
+slua::StackItemRef Slua_makeStackItemRef(lua_State* _L, const lua_Integer key, const int parentIdx);
+//Turns the item on the top of the stack into a StackItemRef
+slua::StackItemRef Slua_makeStackItemRef(lua_State* _L, const std::string& key, const int parentIdx);
 
 namespace slua
 {
-	//Turns the item on the top of the stack into a StackItemRef
-	struct StackItemRef makeStackItemRef(lua_State* _L, const lua_Integer key);
-
-	//Turns the item on the top of the stack into a StackItemRef
-	struct StackItemRef makeStackItemRef(lua_State* _L, const std::string& key);
-
 	// Note: dont mix scopes
 	struct StackItem
 	{
-		lua_State* L;
+		lua_State* L=nullptr;
 
 		const int idx = 0;
 
-		StackItem() {}
-		StackItem(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
-
+		constexpr StackItem() = default;
+		constexpr StackItem(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
 
 		//normal
-		StackItem& set(const slua::Pushable auto& newVal, const lua_Integer key)
+		const StackItem& set(const slua::Pushable auto& newVal, const lua_Integer key)const
 		{
 			slua::push(newVal);
 			lua_seti(L, idx, key);
 			return *this;
 		}
 		//normal
-		StackItem& set(const slua::Pushable auto& newVal, const std::string& key)
+		const StackItem& set(const slua::Pushable auto& newVal, const std::string& key)const
 		{
 			lua_pushlstring(L, key.data(), key.size());
 			slua::push(newVal);
@@ -46,35 +51,17 @@ namespace slua
 		}
 
 		//normal, but will raw-set by default
-		struct StackItemRef get(const lua_Integer key)
-		{
-			lua_geti(L, idx, key);
-			return makeStackItemRef(L, key);
-		}
+		slua::StackItemRef get(const lua_Integer key)const;
 		//normal, but will raw-set by default
-		struct StackItemRef get(const std::string& key)
-		{
-			lua_pushlstring(L, key.data(), key.size());
-			lua_gettable(L, idx);
-			return makeStackItemRef(L, key);
-		}
+		slua::StackItemRef get(const std::string& key)const;
 
 		//raw
-		struct StackItemRef operator[](const lua_Integer key)
-		{
-			lua_rawgeti(L, idx, key);
-			return makeStackItemRef(L, key);
-		}
+		slua::StackItemRef operator[](const lua_Integer key)const;
 		//raw
-		struct StackItemRef operator[](const std::string& key)
-		{
-			lua_pushlstring(L, key.data(), key.size());
-			lua_rawget(L, idx);
-			return makeStackItemRef(L, key);
-		}
+		slua::StackItemRef operator[](const std::string& key)const;
 
 		//normal
-		std::string toString() {
+		std::string toString()const {
 			size_t len;
 			return std::string(lua_tolstring(L, idx, &len), len);
 		}
@@ -84,7 +71,7 @@ namespace slua
 		}
 
 		//normal
-		bool equals(const StackItem& o) {
+		bool equals(const StackItem& o)const {
 
 			return L == o.L && lua_compare(L, idx, o.idx, LUA_OPEQ);
 		}
@@ -94,7 +81,7 @@ namespace slua
 		}
 
 		//normal
-		bool lessThan(const StackItem& o) {
+		bool lessThan(const StackItem& o)const {
 			return L == o.L && lua_compare(L, idx, o.idx, LUA_OPLT) != 0;
 		}
 		//"raw"
@@ -105,7 +92,7 @@ namespace slua
 			return lua_tonumber(L, idx) < lua_tonumber(o.L, o.idx);
 		}
 		//normal
-		bool lessThanEqual(const StackItem& o) {
+		bool lessThanEqual(const StackItem& o) const {
 			return L == o.L && lua_compare(L, idx, o.idx, LUA_OPLE) != 0;
 		}
 		//"raw"
@@ -116,7 +103,7 @@ namespace slua
 			return lua_tonumber(L, idx) <= lua_tonumber(o.L, o.idx);
 		}
 
-		StackItem& setStack(const slua::Pushable auto& newVal)
+		const StackItem& setStack(const slua::Pushable auto& newVal)const
 		{
 			slua::push(L, newVal);
 			lua_replace(L, idx);// replace this item with the value just pushed
@@ -125,7 +112,7 @@ namespace slua
 		}
 
 		//raw
-		StackItem& operator=(const slua::Pushable auto& newVal) {
+		const StackItem& operator=(const slua::Pushable auto& newVal)const {
 			setStack(newVal);
 			return *this;
 		}
@@ -137,21 +124,15 @@ namespace slua
 
 	struct StackItemRef : StackItem
 	{
+		const std::variant<std::string, lua_Integer> key;
+
 		const int parentIdx;// -3 -> _G, LUA_REGISTRYINDEX -> registry
 
-		union
-		{
-			const std::string strKey;
-			const lua_Integer intKey;
-		};
-
-		const bool wasKeyInt;
-
-		StackItemRef(lua_State* L, const int idx, const std::string& key)
-			:StackItem(L, idx), strKey(key), wasKeyInt(false)
+		constexpr StackItemRef(lua_State* L, const int idx, const std::string& key, const int parentIdx)
+			:StackItem(L, idx), key(key), parentIdx(parentIdx)
 		{}
-		StackItemRef(lua_State* L, const int idx, const lua_Integer& key)
-			:StackItem(L, idx), intKey(key), wasKeyInt(true)
+		constexpr StackItemRef(lua_State* L, const int idx, const lua_Integer& key, const int parentIdx)
+			:StackItem(L, idx), key(key), parentIdx(parentIdx)
 		{}
 
 		//normal
@@ -163,17 +144,17 @@ namespace slua
 			if (parentIdx == -3)
 				lua_pushglobaltable(L);
 
-			if (wasKeyInt)
-			{
-				lua_pushvalue(L, idx);//make a copy
-				lua_seti(L, parentIdx, intKey);
-			}
-			else
-			{
-				lua_pushlstring(L, strKey.data(), strKey.size());
-				lua_pushvalue(L, idx);//make a copy
-				lua_settable(L, parentIdx);
-			}
+			ezmatch(key)(
+				varcase(const lua_Integer) {
+					lua_pushvalue(L, idx);//make a copy
+					lua_seti(L, parentIdx, var);
+				},
+				varcase(const std::string) {
+					lua_pushlstring(L, var.data(), var.size());
+					lua_pushvalue(L, idx);//make a copy
+					lua_settable(L, parentIdx);
+				}
+			);
 
 			if (parentIdx == -3)
 				lua_pop();//remove the global table
@@ -190,17 +171,17 @@ namespace slua
 			if (parentIdx == -3)
 				lua_pushglobaltable(L);
 
-			if (wasKeyInt)
-			{
-				lua_pushvalue(L, idx);//make a copy
-				lua_rawseti(L, parentIdx, intKey);
-			}
-			else
-			{
-				lua_pushlstring(L, strKey.data(), strKey.size());
-				lua_pushvalue(L, idx);//make a copy
-				lua_rawset(L, parentIdx);
-			}
+			ezmatch(key)(
+				varcase(const lua_Integer){
+					lua_pushvalue(L, idx);//make a copy
+					lua_rawseti(L, parentIdx, var);
+				},
+				varcase(const std::string){
+					lua_pushlstring(L, var.data(), var.size());
+					lua_pushvalue(L, idx);//make a copy
+					lua_rawset(L, parentIdx);
+				}
+			);
 
 
 			if (parentIdx == -3)
@@ -208,23 +189,41 @@ namespace slua
 
 			return *this;
 		}
-
-		//handle string inside union
-		~StackItemRef()
-		{
-			if (!wasKeyInt)
-				~strKey();
-			else
-				~intKey();
-		}
 	};
 
 
+	//normal, but will raw-set by default
+	inline slua::StackItemRef slua::StackItem::get(const lua_Integer key) const
+	{
+		lua_geti(L, idx, key);
+		return Slua_makeStackItemRef(L, key, idx);
+	}
+	//normal, but will raw-set by default
+	inline slua::StackItemRef slua::StackItem::get(const std::string& key)const
+	{
+		lua_pushlstring(L, key.data(), key.size());
+		lua_gettable(L, idx);
+		return Slua_makeStackItemRef(L, key, idx);
+	}
 
-	StackItemRef makeStackItemRef(lua_State* _L, const lua_Integer key) {
-		return StackItemRef(L, lua_gettop(L), key);
+	//raw
+	slua::StackItemRef slua::StackItem::operator[](const lua_Integer key)const
+	{
+		lua_rawgeti(L, idx, key);
+		return Slua_makeStackItemRef(L, key, idx);
 	}
-	StackItemRef makeStackItemRef(lua_State* _L, const std::string& key) {
-		return StackItemRef(L, lua_gettop(L), key);
+	//raw
+	slua::StackItemRef slua::StackItem::operator[](const std::string& key)const
+	{
+		lua_pushlstring(L, key.data(), key.size());
+		lua_rawget(L, idx);
+		return Slua_makeStackItemRef(L, key, idx);
 	}
+
+}
+slua::StackItemRef Slua_makeStackItemRef(lua_State* L, const lua_Integer key, const int parentIdx) {
+	return slua::StackItemRef(L, lua_gettop(L), key, parentIdx);
+}
+slua::StackItemRef Slua_makeStackItemRef(lua_State* L, const std::string& key, const int parentIdx) {
+	return slua::StackItemRef(L, lua_gettop(L), key, parentIdx);
 }
