@@ -19,10 +19,6 @@
 namespace sluaParse
 {
 
-	inline std::string errorLocStr(AnyInput auto& in) {
-		return " " + in.fileName() + " (" LUACC_NUMBER + std::to_string(in.getLoc().line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(in.getLoc().index);
-	}
-
 	struct UnicodeError : std::exception
 	{
 		std::string m;
