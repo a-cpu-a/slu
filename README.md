@@ -1,8 +1,7 @@
 # Star Lua
+Type wrapping, function wrapping, simple lua parsing.
 
 Intended for C++ 20, might work for older versions.
-
-.hpp for C++ header files, .h for old header files
 
 # Function Wrapping
 ```cpp
@@ -78,3 +77,27 @@ struct Int
 SLua_MAP_TYPE(uint8_t, slua::Int);
 
 ```
+
+# Lua Parsing
+```cpp
+std::vector<uint8_t> srcCode = ...;
+
+sluaParse::Input in;
+in.fName = ...;
+in.text = srcCode;
+
+sluaParse::ParsedFile f = sluaParse::parseFile(in);
+```
+
+# Style guide
+
+
+.hpp for C++ header files, .h for old header files
+
+somethingLikeThis for variables, functions, namespaces.
+StartingWithUpperCase for types, concepts.
+
+prefixed with m_ for private things.
+prefixed with _ for implementation only stuff.
+
+Slua_nameNameName for macros.
