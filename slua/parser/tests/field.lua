@@ -2,47 +2,64 @@
 
 local fieldTest = {
 	apple,
-	syn = 4,
-	syn --[[]]= 3,
-	syn = --[[]]2,
-	syn --[[]]= --[[]]1,
+	syn4 = 4,
+	syn3 --[[]]= 3,
+	syn2 = --[[]]2,
+	syn1 --[[]]= --[[]]1,
 
-	synW--[[]]= 3,
-	synW=--[[]]2,
-	synW--[[]]=--[[]]1,
+	synW3--[[]]= 3,
+	synW2=--[[]]2,
+	synW1--[[]]=--[[]]1,
 
 	
-	sgnl --[[
+	sgnl3 --[[
 	]]= 3,
-	sgnl = --[[
+	sgnl2 = --[[
 	]]2,
-	sgnl --[[
+	sgnl1 --[[
 	]]= --[[
 	]]1,
 
-	sgnlW--[[
+	sgnlW3--[[
 	]]= 3,
-	sgnlW=--[[
+	sgnlW2=--[[
 	]]2,
-	sgnlW--[[
+	sgnlW1--[[
 	]]=--[[
 	]]1,
 	
 	
-	sgn --comment
+	sgn3 --comment
 	= 3,
-	sgn = --comment
+	sgn2 = --comment
 	2,
-	sgn --comment
+	sgn1 --comment
 	= --comment
 	1,
 
-	sgnW--comment
+	sgnW3--comment
 	= 3,
-	sgnW=--comment
+	sgnW2=--comment
 	2,
-	sgnW--comment
+	sgnW1--comment
 	=--comment
+	1,
+	
+	
+	sgnl3Word --comment[[
+	= 3,
+	sgnl2Word = --comment[[
+	2,
+	sgnl1Word --comment[[
+	= --comment[[
+	1,
+
+	sgnlW3Word--comment[[
+	= 3,
+	sgnlW2Word=--comment[[
+	2,
+	sgnlW1Word--comment[[
+	=--comment[[
 	1,
 
 	"",

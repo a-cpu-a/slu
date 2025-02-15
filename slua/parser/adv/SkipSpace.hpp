@@ -58,44 +58,42 @@ namespace sluaParse
 				break;
 			idx += 2;//skip --
 
+			char ch = in.peekAt(idx);
+			if (ch == '[')
+			{
+				size_t level = 0;
+				while (in.peekAt(idx + 1 + level) == '=') level++;
+
+				if (in.peekAt(idx + 1 + level) == '[') // Confirm multiline comment
+				{
+					idx += 2 + level; // Skip opening '[=['
+
+					// Consume until closing long bracket
+					while (true)
+					{
+						if (in.peekAt(idx) == ']')
+						{
+							size_t closeLevel = 0;
+							while (in.peekAt(idx + 1 + closeLevel) == '=') closeLevel++;
+
+							if (in.peekAt(idx + 1 + closeLevel) == ']' && closeLevel == level)
+							{
+								idx += 2 + closeLevel; // Skip closing ']=]'
+								break;
+							}
+						}
+						idx++;
+					}
+					break;//no longer single line comment
+				}
+			}
 			// Otherwise, it's a single-line comment
 			while (true)
 			{
-				const char ch = in.peekAt(idx);
-
-				if (ch == '[')
-				{
-					//todo: try multiline, else continue as single line
-					size_t level = 0;
-					while (in.peekAt(idx + 1 + level) == '=') level++;
-
-					if (in.peekAt(idx + 1 + level) == '[') // Confirm multiline comment
-					{
-						idx += 2 + level; // Skip opening '[=['
-
-						// Consume until closing long bracket
-						while (true)
-						{
-							if (in.peekAt(idx) == ']')
-							{
-								size_t closeLevel = 0;
-								while (in.peekAt(idx + 1 + closeLevel) == '=') closeLevel++;
-
-								if (in.peekAt(idx + 1 + closeLevel) == ']' && closeLevel == level)
-								{
-									idx += 2 + closeLevel; // Skip closing ']=]'
-									break;
-								}
-							}
-							idx++;
-						}
-						break;//no longer single line comment
-					}
-				}
-
 				if (ch == '\n' || ch == '\r')
 					break;
 				idx++; // Skip until newline or multiline comment
+				ch = in.peekAt(idx);//Get next char
 			}
 			
 			//try skipping normal space again
