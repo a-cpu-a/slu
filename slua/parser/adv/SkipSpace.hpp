@@ -93,7 +93,7 @@ namespace sluaParse
 					}
 				}
 
-				if (ch != '\n' && ch != '\r')
+				if (ch == '\n' || ch == '\r')
 					break;
 				idx++; // Skip until newline or multiline comment
 			}
