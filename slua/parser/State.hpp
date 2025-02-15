@@ -15,6 +15,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include "Enums.hpp"
+#include "UnOpList.hpp"
 
 //for enums...
 #undef FALSE
@@ -146,6 +147,7 @@ namespace sluaParse
 		using FUNC_CALL = FuncCall;											// "functioncall"
 		struct TABLE_CONSTRUCTOR { TableConstructor v; };					// "tableconstructor"
 
+		//unOps is always empty for this type
 		struct MULTI_OPERATION
 		{
 			std::unique_ptr<struct Expression> first;
@@ -181,7 +183,7 @@ namespace sluaParse
 	{
 		ExprData data;
 		Position place;
-		UnOpType unOp = UnOpType::NONE;//might be NONE
+		UnOpList unOps;
 
 		Expression() = default;
 		Expression(const Expression&) = delete;

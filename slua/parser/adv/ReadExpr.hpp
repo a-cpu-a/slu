@@ -187,6 +187,8 @@ namespace sluaParse
 			}
 			case ':'://Self funccall
 			{
+				if (in.peekAt(1) == ':') //is label / '::'
+					goto exit;
 				in.skip();//skip colon
 				std::string name = readName(in);
 
@@ -257,7 +259,12 @@ namespace sluaParse
 		bool isNilIntentional = false;
 		Expression basicRes;
 		basicRes.place = startPos;
-		basicRes.unOp = readOptUnOp(in);
+		while (true)
+		{
+			const UnOpType uOp = readOptUnOp(in);
+			if (uOp == UnOpType::NONE)break;
+			basicRes.unOps.push_back(uOp);
+		}
 
 		skipSpace(in);
 
