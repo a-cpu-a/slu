@@ -28,7 +28,7 @@ namespace sluaParse
 				};
 				uint8_t size = 0;
 				uint8_t isBig = 0;
-			} small;
+			} small{};
 			struct
 			{
 				UnOpType* ptr;
@@ -41,7 +41,7 @@ namespace sluaParse
 			return small.isBig == 0;
 		}
 	public:
-		constexpr UnOpList() {}
+		constexpr UnOpList() = default;
 
 		constexpr size_t size() const {
 			return m_isSmall() ? small.size : large.size;
@@ -169,11 +169,16 @@ namespace sluaParse
 				std::free(large.ptr);
 		}
 		UnOpList(UnOpList&& o) noexcept {
-			*this = std::move(o);
+			//No need to check if small
+			this->operator=<true>(std::move(o));
 		}
+		template<bool NO_SMALL_CHECK=false>
 		UnOpList& operator=(UnOpList&& o) noexcept {
-			if (!m_isSmall())
-				std::free(large.ptr);
+			if constexpr (!NO_SMALL_CHECK)
+			{
+				if (!m_isSmall())
+					std::free(large.ptr);
+			}
 
 			if (o.small.isBig == 0)//Other one, NOT THIS one
 			{// its small
