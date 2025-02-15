@@ -53,12 +53,10 @@ namespace sluaParse
 		{
 			if (m_isSmall())
 			{
-				if (idx >= small.size)
-					SLua_panic();
+				Slua_require(idx < small.size);
 				return small.first14[idx];
 			}
-			if (idx >= large.size)
-				SLua_panic();
+			Slua_require(idx < large.size);
 			return large.ptr[idx];
 		}
 		void push_back(const UnOpType t)
@@ -94,8 +92,8 @@ namespace sluaParse
 			{// (re)Alloc
 				const uint8_t reserv = (uint8_t)std::min((size_t)UINT8_MAX, large.size + 1);//+1 for storage method
 
-				if (reserv + large.size > MAX_LARGE_SIZE)
-					SLua_panic();
+
+				Slua_require((reserv + large.size) <= MAX_LARGE_SIZE);
 
 				UnOpType* ptr = (UnOpType*)std::realloc(large.ptr, large.size + reserv - 1);// -1, cuz large.reserve is stored in +1
 
@@ -132,8 +130,7 @@ namespace sluaParse
 
 			UnOpListIterator& operator++() {
 				++m_index;
-				if (m_index > m_list->size())
-					SLua_panic();
+				Slua_require(m_index<= m_list->size());//allow == size, as that is end()
 				return *this;
 			}
 
