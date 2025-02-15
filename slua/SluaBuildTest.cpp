@@ -21,6 +21,7 @@
 #include <slua/types/basic/StackItem.hpp>
 
 #include <slua/parser/Parse.hpp>
+#include <slua/MetaTableUtils.hpp>
 
 
 void _test()
