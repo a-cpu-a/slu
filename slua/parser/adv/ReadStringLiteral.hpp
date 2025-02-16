@@ -357,7 +357,6 @@ namespace sluaParse
 		}
 		else if (firstTypeChar == '[')
 		{
-			//TODO: correct newline handling!
 			size_t level = 0;
 			while (in.peek() == '=')
 			{
@@ -366,10 +365,20 @@ namespace sluaParse
 			}
 			requireToken<false>(in, "[");
 
+			bool skipNl = true;
+
 			while (true)
 			{
 				const char c = in.get();
-				manageNewlineState(c, nlState, in);
+				if (manageNewlineState(c, nlState, in))
+				{
+					if (!skipNl)
+						result += '\n';
+					skipNl = false;//dont skip 2 newlines
+				}
+				if (c == '\n' || c == '\r')
+					continue;
+				skipNl = false;//dont skip newlines, after non-newline chars
 
 				if (c == ']')
 				{

@@ -23,13 +23,17 @@ namespace sluaParse
 		CARI,
 	};
 
-	inline void manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
+	//Returns if newline was added
+	inline bool manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
 	{
 		switch (nlState)
 		{
 		case sluaParse::ParseNewlineState::NONE:
 			if (ch == '\n')
+			{
 				in.newLine();
+				return true;
+			}
 			else if (ch == '\r')
 				nlState = sluaParse::ParseNewlineState::CARI;
 			break;
@@ -38,11 +42,16 @@ namespace sluaParse
 			{//  \r\n, or \r(normal char)
 				in.newLine();
 				nlState = sluaParse::ParseNewlineState::NONE;
+				return true;
 			}
 			else// \r\r
+			{
 				in.newLine();
+				return true;
+			}
 			break;
 		}
+		return false;
 	}
 
 	//Returns idx of non-space/comment char
