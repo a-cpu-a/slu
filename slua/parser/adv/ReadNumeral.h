@@ -131,7 +131,7 @@ namespace sluaParse
         }
         catch (const std::out_of_range&)
         {
-            return ExprType::NUMERAL(INFINITY);
+            return ExprType::NUMERAL(INFINITY);//Always positive, since negative is handled by un-ops, in expressions
         }
         catch (const std::exception&)
         {
