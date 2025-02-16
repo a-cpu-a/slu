@@ -121,8 +121,8 @@ namespace sluaParse
 
 	namespace LimPrefixExprType
 	{
-		struct VAR;										// "var"
-		struct EXPR;								// "'(' exp ')'"
+		struct VAR;		// "var"
+		struct EXPR;	// "'(' exp ')'"
 	}
 	using LimPrefixExpr = std::variant<
 		LimPrefixExprType::VAR,
@@ -136,16 +136,16 @@ namespace sluaParse
 	};
 	namespace ExprType
 	{
-		struct NIL {};														// "nil"
-		struct FALSE {};													// "false"
-		struct TRUE {};														// "true"
-		struct NUMERAL { double v; };										// "Numeral"
-		struct LITERAL_STRING { std::string v; };							// "LiteralString"
-		struct VARARGS {};													// "..."
-		struct FUNCTION_DEF { Function v; };								// "functiondef"
-		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExpr>;				// "prefixexp"
-		using FUNC_CALL = FuncCall;											// "functioncall"
-		struct TABLE_CONSTRUCTOR { TableConstructor v; };					// "tableconstructor"
+		struct NIL {};											// "nil"
+		struct FALSE {};										// "false"
+		struct TRUE {};											// "true"
+		struct NUMERAL { double v; };							// "Numeral"
+		struct LITERAL_STRING { std::string v; };				// "LiteralString"
+		struct VARARGS {};										// "..."
+		struct FUNCTION_DEF { Function v; };					// "functiondef"
+		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExpr>;	// "prefixexp"
+		using FUNC_CALL = FuncCall;								// "functioncall"
+		struct TABLE_CONSTRUCTOR { TableConstructor v; };		// "tableconstructor"
 
 		//unOps is always empty for this type
 		struct MULTI_OPERATION
@@ -234,8 +234,8 @@ namespace sluaParse
 	}
 	namespace LimPrefixExprType
 	{
-		struct VAR { Var v; };										// "var"
-		struct EXPR { Expression v; };								// "'(' exp ')'"
+		struct VAR { Var v; };			// "var"
+		struct EXPR { Expression v; };	// "'(' exp ')'"
 	}
 
 	using AttribNameList = std::vector<AttribName>;
@@ -288,29 +288,29 @@ namespace sluaParse
 	using StatementData = std::variant <
 		StatementType::NONE,
 
-		StatementType::SEMICOLON, // ";"
+		StatementType::SEMICOLON,		// ";"
 
-		StatementType::ASSIGN, // "varlist = explist"
+		StatementType::ASSIGN,			// "varlist = explist"
 
-		StatementType::LOCAL_ASSIGN, // "local attnamelist [= explist]"
+		StatementType::LOCAL_ASSIGN,	// "local attnamelist [= explist]"
 
-		StatementType::FUNC_CALL, // "functioncall"
-		StatementType::LABEL, // "label"
-		StatementType::BREAK, // "break"
-		StatementType::GOTO, // "goto Name"
-		StatementType::DO_BLOCK, // "do block end"
-		StatementType::WHILE_LOOP, // "while exp do block end"
-		StatementType::REPEAT_UNTIL, // "repeat block until exp"
+		StatementType::FUNC_CALL,		// "functioncall"
+		StatementType::LABEL,			// "label"
+		StatementType::BREAK,			// "break"
+		StatementType::GOTO,			// "goto Name"
+		StatementType::DO_BLOCK,		// "do block end"
+		StatementType::WHILE_LOOP,		// "while exp do block end"
+		StatementType::REPEAT_UNTIL,	// "repeat block until exp"
 
-		StatementType::IF_THEN_ELSE, // "if exp then block {elseif exp then block} [else block] end"
+		StatementType::IF_THEN_ELSE,	// "if exp then block {elseif exp then block} [else block] end"
 
-		StatementType::FOR_LOOP_NUMERIC, // "for Name = exp , exp [, exp] do block end"
+		StatementType::FOR_LOOP_NUMERIC,// "for Name = exp , exp [, exp] do block end"
 
-		StatementType::FOR_LOOP_GENERIC, // "for namelist in explist do block end"
+		StatementType::FOR_LOOP_GENERIC,// "for namelist in explist do block end"
 
-		StatementType::FUNCTION_DEF, // "function funcname funcbody"
+		StatementType::FUNCTION_DEF,	// "function funcname funcbody"
 
-		StatementType::LOCAL_FUNCTION_DEF // "local function Name funcbody"
+		StatementType::LOCAL_FUNCTION_DEF// "local function Name funcbody"
 	> ;
 
 
