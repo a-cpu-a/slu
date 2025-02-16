@@ -129,6 +129,10 @@ namespace sluaParse
             }
         }
         }
+        catch (const std::out_of_range&)
+        {
+            return ExprType::NUMERAL(INFINITY);
+        }
         catch (const std::exception&)
         {
             throw UnexpectedCharacterError(
