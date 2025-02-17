@@ -1,0 +1,14 @@
+#
+# Dependencies: Lua, type, constStatement, exportPrefix
+#
+
+New Syntax {
+
+	stat @::= | OptExportPrefix "const" TableTupleType "[" namelist "]" ["=" explist]
+	stat @::= | OptExportPrefix "const" Type Name ["=" Expression]
+}
+
+Const Statment {
+	
+	Lets you specify the type for a const variable.
+}

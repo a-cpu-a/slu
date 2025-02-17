@@ -1,0 +1,29 @@
+#
+# Dependencies: Lua, type, exportPrefix
+#
+
+New Syntax {
+
+	stat @::= | OptExportPrefix "let" namelist "=" explist
+}
+
+New Keywords {
+	let
+}
+
+Let Statment {
+	
+	Creates a new global or local variable with a name 'Name'
+	
+	Types are assigned automatically.
+	
+	
+	Equivelant to "local x = 1234", or "x = 1234"
+	except, it can be exported.
+	
+	
+	Implementation {
+		May be a local variable
+		Or a global variable
+	}
+}

@@ -1,0 +1,24 @@
+#
+# Dependencies: Lua
+#
+
+New Syntax {
+
+	ExportPrefix ::= "exs"
+	
+	OptExportPrefix ::= [ ExportPrefix ]
+}
+
+New Keywords {
+	exs
+}
+
+Export Prefix {
+	
+	Exports a type, function, variable, etc, for use inside other files, projects, modules, ...
+	
+	"exs" was chosen, as "ext" was too common inside existing code.
+	
+	"exs" is also easy to type.
+	
+}
