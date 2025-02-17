@@ -16,7 +16,7 @@
 namespace sluaParse
 {
 	//Here, so streamed inputs can be made
-	template<class T = Input>
+	template<class T>
 	concept AnyInput = requires(T t) {
 		{ t.skip() } -> std::same_as<void>;
 		{ t.skip((size_t)100) } -> std::same_as<void>;
