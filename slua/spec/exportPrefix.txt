@@ -4,21 +4,27 @@
 
 New Syntax {
 
-	ExportPrefix ::= "exs"
+	ExportPrefix ::= "ex"
 	
 	OptExportPrefix ::= [ ExportPrefix ]
 }
 
 New Keywords {
-	exs
+	ex
 }
 
 Export Prefix {
 	
 	Exports a type, function, variable, etc, for use inside other files, projects, modules, ...
 	
-	"exs" was chosen, as "ext" was too common inside existing code.
+	"ex" is easy to type, isnt rly used.
 	
-	"exs" is also easy to type.
+	"pub" -> too hard to type
+	"pb" -> hard to understand
+	"exp" -> exponent
+	"expo" -> exponent, looks odd
+	"export" -> too long, and also kinda common
+	"ext" -> too common "cuz extension"
+	"exs" -> hard to type
 	
 }
