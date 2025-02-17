@@ -15,7 +15,7 @@
 namespace sluaParse
 {
 	//Here, so streamed outputs can be made
-	template<class T = Output>
+	template<class T>
 	concept AnyOutput = requires(T t) {
 		{ t.add(char(1)) } -> std::same_as<T&>;
 		{ t.add(std::string_view()) } -> std::same_as<T&>;
