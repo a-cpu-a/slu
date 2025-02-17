@@ -1,10 +1,10 @@
 #
-# Dependencies: Lua
+# Dependencies: Lua, type, exportPrefix
 #
 
 New Syntax {
 
-	stat @::= | "const" namelist "=" explist
+	stat @::= | OptExportPrefix "const" namelist "=" explist
 }
 
 New Keywords {
@@ -13,11 +13,13 @@ New Keywords {
 
 Const Statment {
 	
-	Creates a new global variable with a name 'Name', that cant be modified (not even its contents)
+	Creates a new global or local variable with a name 'Name', that cant be modified (not even its contents)
+	
+	Types are assigned automatically.
 	
 	
 	Partialy equivelant to "local <const> x = 1234",
-	except, it can be imported (and if x is a table / whatever, its contents cant be edited)
+	except, it can be exported (and if x is a table / whatever, its contents cant be edited)
 	
 	
 	Implementation {

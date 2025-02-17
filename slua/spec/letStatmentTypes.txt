@@ -1,0 +1,14 @@
+#
+# Dependencies: Lua, type, letStatement, exportPrefix
+#
+
+New Syntax {
+
+	stat @::= | OptExportPrefix "let" TableTupleType "[" namelist "]" ["=" explist]
+	stat @::= | OptExportPrefix "let" Type Name ["=" Expression]
+}
+
+Let Statment {
+	
+	Lets you specify the type for a let variable.
+}

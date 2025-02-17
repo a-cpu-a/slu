@@ -4,10 +4,15 @@
 
 New Syntax {
 
-	type ::= ["?"] typeItem { "|" typeItem }
+	Type ::= ["?"] typeItem { "|" typeItem }
+	TypeList ::= Type {"," Type}
+	TableTupleType ::= "{" TypeList "}"
 
-	typeItem ::= typeName | "(" type ")" {typeSpecifierSuffix}
-	typeName ::= Name {typeSpecifierSuffix}
+	typeItem ::= specType | "(" Type ")" {typeSpecifierSuffix}
+	specType ::= typeObj {typeSpecifierSuffix}
+	
+	typeObj ::= Name | TableTupleType
+	
 
 	typeSpecifierSuffix ::= "[" [UnsignedIntegral] "]" | "{" "}"
 }
@@ -24,6 +29,20 @@ New Keywords {
 	Func
 	Userdata
 	Thread
+	
+	i8
+	i16
+	i32
+	i64
+	i128
+	isize
+	
+	u8
+	u16
+	u32
+	u64
+	u128
+	usize
 }
 
 Official Types {
@@ -31,20 +50,20 @@ Official Types {
 	(names starting with a capital are complex types)
 
 	void {
-		Nothing, no type is allowed
-		Variables and function arguments cant have this type
-		Only allowed as function return type
+		Nothing, no type is allowed.
+		Variables and function arguments cant have this type.
+		Only allowed as function return type.
 	}
 	bool {
 		A lua boolean
 	}
 	int {
-		A 32, or 64 bit integer
-		/* Todo: what should this be on "Lua Jit and the like"
-		** 
-		** Maybe: Emulated 64bit int
-		** Maybe: Emulated 32bit int
-		*/
+		A 32, 64, or 53 bit integer
+		53 bit integers are only for luajit.
+		--[[
+			Should old lua use 53 bit aswell?
+			What about 32bit old lua? 24 bit ints?
+		]]
 	}
 	num {
 		A 32 or 64 bit float, might also be a integer
@@ -69,7 +88,25 @@ Official Types {
 		Things passed from C
 	}
 	Thread {
-		the coroutines
+		The coroutines
+	}
+	
+	i8,i16,i32,i64,i128 {
+		Optimized 8,16,32 or 64 bit signed integers.
+		i64 may be emulated on platforms like luajit, or 32bit versions of lua.
+		i128 is always emulated.
+	}
+	u8,u16,u32,u64,u128 {
+		Optimized 8,16,32 or 64 bit unsigned integers.
+		u64 may be emulated on platforms like luajit, or 32bit versions of lua.
+		u64 multiplication, division, modulo, exp are all emulated on normal lua, but are optimized on slua runtimes (luajit might be optimized when possible too).
+		u128 is always emulated.
+	}
+	isize {
+		Currently the same as i64, but may change to "i128" in the far future (2160?)
+	}
+	usize {
+		Currently the same as u64, but may change to "u128" in the far future (2160?)
 	}
 }
 

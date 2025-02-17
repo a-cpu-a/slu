@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	stat @::= | "using" Name "=" type
+	stat @::= | "using" Name "=" Type
 }
 
 New Keywords {
@@ -13,6 +13,6 @@ New Keywords {
 
 Using Statment {
 	
-	Creates a new type with a name 'Name', that is equivelant to 'type'
+	Creates a new type with a name 'Name', that is equivelant to 'Type'
 	
 }
