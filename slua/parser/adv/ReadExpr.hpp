@@ -212,11 +212,12 @@ namespace sluaParse
 				in.skip();//skip dot
 
 				SubVarType::NAME res{};
-				res.funcCalls = std::move(funcCallData);// Move auto-clears it
 				res.idx = readName(in);
 
 				varDataNeedsSubThing = false;
-				varData.back().sub.emplace_back(std::move(res));
+				// Move auto-clears funcCallData
+				varData.back().sub.emplace_back(std::move(funcCallData),std::move(res));
+				funcCallData.clear();
 				break;
 			}
 			case '[':// Arr-index
@@ -229,14 +230,15 @@ namespace sluaParse
 					break;
 				}
 				SubVarType::EXPR res{};
-				res.funcCalls = std::move(funcCallData);// Move auto-clears it
 
 				in.skip();//skip first char
 				res.idx = readExpr(in);
 				requireToken(in, "]");
 
 				varDataNeedsSubThing = false;
-				varData.back().sub.emplace_back(std::move(res));
+				// Move auto-clears funcCallData
+				varData.back().sub.emplace_back(std::move(funcCallData),std::move(res));
+				funcCallData.clear();
 				break;
 			}
 			}
