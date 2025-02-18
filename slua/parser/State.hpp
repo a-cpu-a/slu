@@ -115,7 +115,7 @@ namespace sluaParse
 	struct ArgFuncCall
 	{// funcArgs ::=  [‘:’ Name] args
 
-		std::string funcName;
+		std::string funcName;//If empty, then no colon needed. Only used for ":xxx"
 		Args args;
 	};
 
@@ -193,16 +193,19 @@ namespace sluaParse
 
 	namespace SubVarType
 	{
-		struct BASE { std::vector<ArgFuncCall> funcCalls; };
-
-		struct NAME :BASE { std::string idx; }; // {funcArgs} ‘.’ Name
-		struct EXPR :BASE { Expression idx; };	// {funcArgs} ‘[’ exp ‘]’
+		struct NAME { std::string idx; };	// {funcArgs} ‘.’ Name
+		struct EXPR { Expression idx; };	// {funcArgs} ‘[’ exp ‘]’
 	}
 
-	using SubVar = std::variant<
-		SubVarType::NAME,
-		SubVarType::EXPR
-	>;
+	struct SubVar
+	{
+		std::vector<ArgFuncCall> funcCalls;
+
+		std::variant<
+			SubVarType::NAME,
+			SubVarType::EXPR
+		> idx;
+	};
 
 	namespace BaseVarType
 	{
@@ -291,7 +294,6 @@ namespace sluaParse
 		StatementType::SEMICOLON,		// ";"
 
 		StatementType::ASSIGN,			// "varlist = explist"
-
 		StatementType::LOCAL_ASSIGN,	// "local attnamelist [= explist]"
 
 		StatementType::FUNC_CALL,		// "functioncall"
@@ -305,11 +307,9 @@ namespace sluaParse
 		StatementType::IF_THEN_ELSE,	// "if exp then block {elseif exp then block} [else block] end"
 
 		StatementType::FOR_LOOP_NUMERIC,// "for Name = exp , exp [, exp] do block end"
-
 		StatementType::FOR_LOOP_GENERIC,// "for namelist in explist do block end"
 
 		StatementType::FUNCTION_DEF,	// "function funcname funcbody"
-
 		StatementType::LOCAL_FUNCTION_DEF// "local function Name funcbody"
 	> ;
 

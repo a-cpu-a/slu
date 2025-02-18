@@ -8,13 +8,16 @@ New Syntax {
 	TypeList ::= Type {"," Type}
 	TableTupleType ::= "{" TypeList "}"
 
-	typeItem ::= specType | "(" Type ")" {typeSpecifierSuffix}
-	specType ::= typeObj {typeSpecifierSuffix}
+	typeItem ::= typePrefix specType {typeSpecifierSuffix}
+	specType ::= typeObj | "(" Type ")"
 	
 	typeObj ::= Name | TableTupleType
 	
 
+	typePrefix ::= ["&"] ["^" ["mut"]]
 	typeSpecifierSuffix ::= "[" [UnsignedIntegral] "]" | "{" "}"
+	
+	BorrowAnnotation ::= "'" var
 }
 
 New Keywords {
@@ -142,5 +145,16 @@ Type Specifiers {
 		Its basicly just a shortcut for " nil | "
 		
 		Allows X to be nil
+	}
+	Reference {
+		Format: "&" X
+		
+		Turns the type into a reference, this means that it can be passed into other
+		functions, and they can then modify that variable.
+	}
+	Borrow {
+		Format "^" ["mut"] X
+		
+		Makes the type borrowing, this means that it is a borrowed value.
 	}
 }
