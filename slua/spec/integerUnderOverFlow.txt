@@ -3,29 +3,43 @@
 #
 Behaviour {
 	
-	Integer overflow or underflow must throw a error, hex literals that overflow also need to do the same.
-	Right shift is allowed to underflow.
-	Division by zero must throw a error, when using floor division.
+	Integer overflow or underflow must error, hex literals that overflow also need to do the same.
+	Right shift is not allowed to underflow, if used on a signed type.
+	Division by zero must error, when using floor division.
 	
-	Any operations that produce one of the above, also need to throw a error.
+	Any operations that produce one of the above, also need to error.
 	
 	(This includes bit-shifting.)
 	
 	
-	(-1>>1) -> no error, as this is a exception.
+	(-1>>1) --> error, as this is a unsigned right shift on a negative signed int.
 	
-	(1<<64) -> error
-	(1>>64) -> no error
+	((1<<32)<<32) --> error, overflow
+	(1<<64) --> same as above
+	(1<<999) --> same as above
 	
-	(1//0) -> error (already happens in normal lua)
-	(1%0) -> error (already happens in normal lua)
+	(0<<999) --> no error, cuz nothing changed
+	(0<<0) --> same as above
 	
-	(1.5%0) -> no error, since one of the types is not a integer
-	(1%0.0) -> no error, same as above
+	(1>>32) --> no error, cuz output is 0
+	(1>>64) --> same as above
+	
+	
+	(1//0) --> error (already happens in normal lua)
+	(1%0) --> error (already happens in normal lua)
+	
+	(1.5%0) --> no error, since one of the types is not a integer
+	(1%0.0) --> no error, same as above
 	
 	(0x7FFFFFFFFFFFFFFF+1) -> error
 	
 	(-0x8000000000000000) -> error, due to integer overflow (there is no +9223372036854776028 integer)
+	(0x8000000000000000*-1) -> error, same as above
 	
 	(0xF000000000000000F) -> error, too big to fit in a 64 bit integer.
+	
+	Implementation {
+		
+		The compiler is allowed to disable over/underflow checks when compiling for "release"
+	}
 }

@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <unordered_set>
+#include <string_view>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -18,40 +19,172 @@
 
 namespace sluaParse
 {
+	inline std::string_view getBinOpAsStr(const BinOpType t)
+	{
+		using namespace std::literals;
+		switch (t)
+		{
+		case BinOpType::ADD:
+			return "+"sv;
+		case BinOpType::SUBTRACT:
+			return "-"sv;
+		case BinOpType::MULTIPLY:
+			return "*"sv;
+		case BinOpType::DIVIDE:
+			return "/"sv;
+		case BinOpType::FLOOR_DIVIDE:
+			return "//"sv;
+		case BinOpType::EXPONENT:
+			return "^"sv;
+		case BinOpType::MODULO:
+			return "%"sv;
+		case BinOpType::BITWISE_AND:
+			return "&"sv;
+		case BinOpType::BITWISE_XOR:
+			return "~"sv;
+		case BinOpType::BITWISE_OR:
+			return "|"sv;
+		case BinOpType::SHIFT_RIGHT:
+			return ">>"sv;
+		case BinOpType::SHIFT_LEFT:
+			return "<<"sv;
+		case BinOpType::CONCATENATE:
+			return ".."sv;
+		case BinOpType::LESS_THAN:
+			return "<"sv;
+		case BinOpType::LESS_EQUAL:
+			return "<="sv;
+		case BinOpType::GREATER_THAN:
+			return ">"sv;
+		case BinOpType::GREATER_EQUAL:
+			return ">="sv;
+		case BinOpType::EQUAL:
+			return "=="sv;
+		case BinOpType::NOT_EQUAL:
+			return "~="sv;
+		case BinOpType::LOGICAL_AND:
+			return "and"sv;
+		case BinOpType::LOGICAL_OR:
+			return "or"sv;
+		default:
+			_ASSERT(false);
+			return "<ERROR>"sv;
+		}
+	}
+	inline std::string_view getUnOpAsStr(const UnOpType t)
+	{
+		using namespace std::literals;
+		switch (t)
+		{
+		case UnOpType::NEGATE:
+			return " -"sv;//TODO: elide space, when there is one already
+		case UnOpType::LOGICAL_NOT:
+			return " not "sv;
+		case UnOpType::LENGTH:
+			return " #"sv;
+		case UnOpType::BITWISE_NOT:
+			return " ~"sv;
+		default:
+			_ASSERT(false);
+			return "<ERROR>"sv;
+		}
+	}
+
+	inline void genTableConstructor(AnyOutput auto& out, const TableConstructor& obj)
+	{
+		out.add('{')
+			.tabUpNewl();
+
+		for (const Field& f : obj)
+		{
+			ezmatch(f)(
+			varcase(FieldType::EXPR2EXPR) {
+				out.add('[');
+				genExpr(out, var.idx);
+				out.add("] = ");
+				genExpr(out, var.v);
+			},
+			varcase(FieldType::NAME2EXPR) {
+				out.add(var.idx)
+					.add(" = ");
+				genExpr(out, var.v);
+			},
+			varcase(FieldType::EXPR) {
+				genExpr(out, var.v);
+			}
+			);
+			out.addNewl(',');
+		}
+
+		out.add('}')
+			.unTabNewl();
+	}
+
+	inline void genLimPrefixExpr(AnyOutput auto& out, const LimPrefixExpr& obj)
+	{
+		ezmatch(obj)(
+		varcase(LimPrefixExprType::VAR) {
+			genVar(out, var.v);
+		},
+		varcase(LimPrefixExprType::EXPR) {
+			out.add('(');
+			genExpr(out, var.v);
+			out.add(')');
+		}
+		);
+	}
+
+	inline void genFuncCall(AnyOutput auto& out,const FuncCall& obj)
+	{
+		genLimPrefixExpr(out, *obj.val);
+		for (const ArgFuncCall& arg : obj.argChain)
+		{
+			genArgFuncCall(out, arg);
+		}
+	}
+
 	inline void genExpr(AnyOutput auto& out, const Expression& obj)
 	{
+		for (const UnOpType t : obj.unOps)
+		{
+			out.add(getUnOpAsStr(t));
+		}
+		using namespace std::literals;
 		ezmatch(obj.data)(
 		varcase(ExprType::NIL) {
-			out.add("nil");
+			out.add("nil"sv);
 		},
 		varcase(ExprType::FALSE) {
-			out.add("false");
+			out.add("false"sv);
 		},
 		varcase(ExprType::TRUE) {
-			out.add("true");
+			out.add("true"sv);
 		},
 		varcase(ExprType::VARARGS) {
-			out.add("...");
+			out.add("..."sv);
 		},
 		varcase(ExprType::FUNCTION_DEF) {
-			genFuncDef(out, var);
+			genFuncDef(out, var.v,""sv);
 		},
 		varcase(ExprType::FUNC_CALL) {
-			genVar(out, var.v);
+			genFuncCall(out, var);
 		},
 		varcase(ExprType::LIM_PREFIX_EXP) {
-			genVar(out, var.v);
+			genLimPrefixExpr(out, *var);
 		},
 		varcase(ExprType::TABLE_CONSTRUCTOR) {
 			genTableConstructor(out, var.v);
 		},
 		varcase(ExprType::MULTI_OPERATION) {
-			genExpr(out, var.left);
-			out.add(' ')
-				.add(var.op)
-				.add(' ');
-			genExpr(out, var.right);
-		},
+			genExpr(out, *var.first);
+			for (const auto& [op,ex] : var.extra)
+			{
+				out.add(' ')
+					.add(getBinOpAsStr(op))
+					.add(' ');
+				genExpr(out, ex);
+			}
+		}
 		);
 	}
 
@@ -66,8 +199,27 @@ namespace sluaParse
 	}
 	inline void genLiteral(AnyOutput auto& out, const std::string& obj)
 	{
-		//TODO: escape, quote.
-		out.add(obj);
+		out.add('"');
+		for (const char ch : obj)
+		{
+			switch (ch)
+			{
+			case '\n': out.add("\\n"); break;
+			case '\r': out.add("\\r"); break;
+			case '\t': out.add("\\t"); break;
+			case '\b': out.add("\\b");	break;
+			case '\a': out.add("\\a"); break;
+			case '\f': out.add("\\f"); break;
+			case '\v': out.add("\\v"); break;
+			case '"': out.add("\\\""); break;
+			case '\\': out.add("\\\\"); break;
+			case '\0': out.add("\\x00"); break;
+			default:
+				out.add(ch);
+				break;
+			}
+		}
+		out.add('"');
 	}
 
 	inline void genArgFuncCall(AnyOutput auto& out, const ArgFuncCall& arg)
@@ -78,15 +230,15 @@ namespace sluaParse
 				.add(arg.funcName);
 		}
 		ezmatch(arg.args)(
-			varcase(ArgsType::EXPLIST) {
+		varcase(ArgsType::EXPLIST) {
 			out.add('(');
 			genExpList(out, var.v);
 			out.add(')');
 		},
-			varcase(ArgsType::TABLE) {
+		varcase(ArgsType::TABLE) {
 			genTableConstructor(out, var.v);
 		},
-			varcase(ArgsType::LITERAL) {
+		varcase(ArgsType::LITERAL) {
 			genLiteral(out, var.v);
 		}
 		);
@@ -94,15 +246,15 @@ namespace sluaParse
 
 	inline void genSubVar(AnyOutput auto& out, const SubVar& obj)
 	{
-		ezmatch(obj)(
-			varcase(SubVarType::EXPR) {
+		ezmatch(obj.idx)(
+		varcase(SubVarType::EXPR) {
 			out.add('[');
-			genExpr(out, var);
+			genExpr(out, var.idx);
 			out.add(']');
 		},
-			varcase(SubVarType::NAME) {
+		varcase(SubVarType::NAME) {
 			out.add('.')
-				.add(var);
+				.add(var.idx);
 		}
 		);
 		for (const ArgFuncCall& arg : obj.funcCalls)
@@ -114,10 +266,10 @@ namespace sluaParse
 	inline void genVar(AnyOutput auto& out, const Var& obj)
 	{
 		ezmatch(obj.base)(
-			varcase(BaseVarType::NAME) {
+		varcase(BaseVarType::NAME) {
 			out.add(var);
 		},
-			varcase(BaseVarType::EXPR) {
+		varcase(BaseVarType::EXPR) {
 			genExpr(out, var.start);
 			genSubVar(out, var.sub);
 		}
@@ -127,23 +279,26 @@ namespace sluaParse
 			genSubVar(out, sub);
 		}
 	}
-	inline void genFuncDef(AnyOutput auto& out, const StatementType::FUNCTION_DEF& var)
+	inline void genFuncDef(AnyOutput auto& out, const Function& var,const std::string_view name)
 	{
 		out.add("function ")
-			.add(var.name)
+			.add(name)
 			.add('(');
 
-		for (const Parameter& par : var.func.params)
+		for (const Parameter& par : var.params)
 		{
 			out.add(par.name);
-			if (&par != &var.func.params.back())
+			if (&par != &var.params.back() || var.hasVarArgParam)
 				out.add(", ");
 
 		}
+		if (var.hasVarArgParam)
+			out.add("...");
+
 		out.add(')')
 			.tabUpNewl();
 
-		genBlock(out, var.func.block);
+		genBlock(out, var.block);
 
 		out.unTabNewl()
 			.addNewl("end");
@@ -187,7 +342,7 @@ namespace sluaParse
 	{
 		ezmatch(obj.data)(
 
-			varcase(StatementType::NONE) { _ASSERT(false); },
+		varcase(StatementType::NONE) { _ASSERT(false); },
 
 		varcase(StatementType::SEMICOLON) {
 			out.add(';');//TODO: should elide duplicate semicolons?
@@ -208,20 +363,7 @@ namespace sluaParse
 		},
 
 		varcase(StatementType::FUNC_CALL) {
-			ezmatch(var.val)(
-			ezcase(varObj,LimPrefixExprType::VAR) {
-				genVar(out,varObj.v);
-			},
-			ezcase(expr,LimPrefixExprType::EXPR) {
-				out.add('(');
-				genExpr(out, expr.v);
-				out.add(')');
-			}
-			);
-			for (const ArgFuncCall& arg : var.argChain)
-			{
-				genArgFuncCall(out, arg);
-			}
+			genFuncCall(out, var);
 			out.addNewl(';');
 		},
 		varcase(StatementType::LABEL) {
@@ -329,11 +471,11 @@ namespace sluaParse
 		},
 
 		varcase(StatementType::FUNCTION_DEF) {
-			genFuncDef(out, var);
+			genFuncDef(out, var.func,var.name);
 		},
 		varcase(StatementType::LOCAL_FUNCTION_DEF) {
 			out.add("local ");
-			genFuncDef(out, var);
+			genFuncDef(out, var.func, var.name);
 		}
 
 		);
@@ -360,6 +502,6 @@ namespace sluaParse
 
 	inline void genFile(AnyOutput auto& out,const ParsedFile& obj)
 	{
-		genBlock(obj.code, out);
+		genBlock(out, obj.code);
 	}
 }

@@ -61,16 +61,19 @@ namespace sluaParse
 		Output& add(const char ch) 
 		{
 			text.push_back(ch);
+			curLinePos++;
 			return *this;
 		}
 		Output& add(const std::string_view sv) 
 		{
 			text.insert(text.end(), sv.begin(), sv.end());
+			curLinePos+= sv.size();
 			return *this;
 		}
 		Output& add(std::span<const uint8_t> sp) 
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
+			curLinePos += sp.size();
 			return *this;
 		}
 		Output& addMultiline(std::span<const uint8_t> sp,const size_t linePos)
@@ -89,6 +92,7 @@ namespace sluaParse
 		Output& addIndent()
 		{
 			text.insert(text.end(), tabs, '\t');
+			curLinePos += tabs*4;
 			return *this;
 		}
 		Output& tabUp()
