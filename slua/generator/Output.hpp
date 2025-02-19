@@ -54,7 +54,7 @@ namespace sluaParse
 	struct Output
 	{
 		std::vector<uint8_t> text;
-		uint64_t tabs;
+		uint64_t tabs=0;
 		size_t curLinePos = 0;
 		bool tempDownTab = false;
 

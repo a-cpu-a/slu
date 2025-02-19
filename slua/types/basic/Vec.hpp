@@ -46,9 +46,9 @@ namespace slua
 			{
 				lua_rawgeti(L, idx, i + 1);
 				if constexpr (INT)
-					ret.val[i] = T::value_type(lua_tointeger(L, -1));
+					ret.val[i] = typename T::value_type(lua_tointeger(L, -1));
 				else
-					ret.val[i] = T::value_type(lua_tonumber(L, -1));
+					ret.val[i] = typename T::value_type(lua_tonumber(L, -1));
 				lua_pop(L, 1);
 			}
 
