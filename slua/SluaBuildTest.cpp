@@ -29,4 +29,7 @@ void _test()
 {
 	sluaParse::Input in;
 	sluaParse::parseFile(in);
+
+	sluaParse::Output out;
+	sluaParse::genFile(out, sluaParse::ParsedFile());
 }
