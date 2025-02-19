@@ -6,16 +6,21 @@ New Syntax {
 
 	Type ::= ["?"] typeItem { "|" typeItem }
 	TypeList ::= Type {"," Type}
-	TableTupleType ::= "{" TypeList "}"
+	TupleType ::= tableTupleType | optimalArrayType
 
-	typeItem ::= typePrefix specType {typeSpecifierSuffix}
+	typeItem ::= typePrefix specType
 	specType ::= typeObj | "(" Type ")"
 	
-	typeObj ::= Name | TableTupleType
+	typeObj ::= Name | TupleType | dynamicArrayType
 	
+	tableTupleType ::= "{" TypeList "}"
+	dynamicArrayType ::= "[" Type "]"
+	optimalArrayType ::= "[" Type arraySizer {arraySizer} "]"
+	
+	
+	arraySizer ::= ";" Expression
 
 	typePrefix ::= ["&"] ["^" ["mut"]]
-	typeSpecifierSuffix ::= "[" [UnsignedIntegral] "]" | "{" "}"
 	
 	BorrowAnnotation ::= "'" var
 }
@@ -32,6 +37,12 @@ New Keywords {
 	Func
 	Userdata
 	Thread
+	
+	f8
+	f16
+	f32
+	f64
+	f128
 	
 	i8
 	i16
@@ -61,15 +72,18 @@ Official Types {
 		A lua boolean
 	}
 	int {
-		A 32, 64, or 53 bit integer
+		A 24, 32, 64, or 53 bit integer
 		53 bit integers are only for luajit.
+		24 bit integers are for 32bit versions of lua pre 5.3
 		--[[
-			Should old lua use 53 bit aswell?
-			What about 32bit old lua? 24 bit ints?
+			Should slua types be allowed here? u128, i128 too?
 		]]
 	}
 	num {
-		A 32 or 64 bit float, might also be a integer
+		A 32 or 64 bit float, might also be a int on some lua versions.
+		--[[
+			Should slua types be allowed here? u128, i128 too?
+		]]
 	}
 	ptrdata {
 		Lightdata passed from C
@@ -93,17 +107,33 @@ Official Types {
 	Thread {
 		The coroutines
 	}
-	
+	f8,f16,f128 {
+		Reserved, may be used in the future.
+	}
+	f32,f64 {
+		32 or 64 bit floats.
+		
+		Implementation {
+			When compiling to lua, f32 may be interpreted as f64, for performance reasons.
+			Do not rely on that!
+			
+			if only f32 is natively available, then f64 is emulated.
+		}
+	}
 	i8,i16,i32,i64,i128 {
-		Optimized 8,16,32 or 64 bit signed integers.
-		i64 may be emulated on platforms like luajit, or 32bit versions of lua.
-		i128 is always emulated.
+		Optimized 8,16,32,64 or 128 bit signed integers.
+		Implementation {
+			i64 may be emulated on platforms like luajit, or 32bit versions of lua.
+			i128 is always emulated.
+		}
 	}
 	u8,u16,u32,u64,u128 {
-		Optimized 8,16,32 or 64 bit unsigned integers.
-		u64 may be emulated on platforms like luajit, or 32bit versions of lua.
-		u64 multiplication, division, modulo, exp are all emulated on normal lua, but are optimized on slua runtimes (luajit might be optimized when possible too).
-		u128 is always emulated.
+		Optimized 8,16,32,64 or 128 bit unsigned integers.
+		Implementation {
+			u64 may be emulated on platforms like luajit, or 32bit versions of lua.
+			u64 multiplication, division, modulo, exp are all emulated on normal lua, but are optimized on slua runtimes (luajit might be optimized when possible too).
+			u128 is always emulated.
+		}
 	}
 	isize {
 		Currently the same as i64, but may change to "i128" in the far future (2160?)
@@ -116,25 +146,38 @@ Official Types {
 Type Specifiers {
 	
 	Table Array {
-		Format: X "{" "}"
+		Format: "[" X arraySizer {arraySizer} "]"
+		Sizes must be positive integers, or be zero
 		
-		Just a array of X, can have negative, 0, positive integer indices
-		Cant have string fields
+		Multiple array sizers can be used, to create multi-dimensional arrays
 		
-		Since this is a table, indices start at 1
+		Unlike table arrays, negative or zero indices will error.
+		Out of bounds access will also error.
 		
-		Note: string fields might not be checked at runtime
+		Indices start at 1
+		
+		Implementation {
+			Accessing elements through normal lua code is not supported.
+			
+			multi-dimensional arrays may be flattened into 1 dimension.
+			
+			The compiler must prove that indices will always be valid, to remove run-time checks.
+		}
 	}
-	Array {
-		Format: X "[" [UnsignedIntegral] "]"
-		UnsignedIntegral must be a positive integer (non zero), or nothing at all
+	Dynamic Array {
+		Format: "[" X "]"
+		Sizes: same as table
 		
-		Unlike table arrays, negative indices will error
-		Unlike table arrays, this starts at 0, since it offsets, instead of indexes
+		Unlike table arrays, negative or zero indices will error.
+		Out of bounds access will also error.
 		
-		if ... is a integer, then the size is fixed, and cant be changed
-		
-		Implementation: accessing elements through normal lua code is not supported
+		Implementation {
+			Accessing elements through normal lua code is not supported.
+			
+			multi-dimensional arrays must not be flattened into 1 dimension, unless sizes can be predicted at compile time.
+			
+			The compiler must prove that indices will always be valid, to remove run-time checks.
+		}
 	}
 	Optional {
 		Format: "?" X
@@ -151,6 +194,7 @@ Type Specifiers {
 		
 		Turns the type into a reference, this means that it can be passed into other
 		functions, and they can then modify that variable.
+		It is also garbage collected, unless lifetime is simple enough to be inlined into some value type + borrows
 	}
 	Borrow {
 		Format "^" ["mut"] X

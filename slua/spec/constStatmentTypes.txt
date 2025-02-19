@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	stat @::= | OptExportPrefix "const" TableTupleType "[" namelist "]" ["=" explist]
+	stat @::= | OptExportPrefix "const" TupleType "[" namelist "]" ["=" explist]
 	stat @::= | OptExportPrefix "const" Type Name ["=" Expression]
 }
 
