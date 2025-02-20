@@ -172,7 +172,7 @@ namespace sluaParse
 			out.add(std::to_string(var.v));
 		},
 		varcase(const ExprType::LITERAL_STRING&) {
-			out.add(var.v);
+			genLiteral(out,var.v);
 		},
 		varcase(const ExprType::FUNCTION_DEF&) {
 			genFuncDef(out, var.v,""sv);
