@@ -38,6 +38,8 @@ namespace sluaParse
 
 		{ t.tabUpTemp() } -> std::same_as<T&>;
 		{ t.unTabTemp() } -> std::same_as<T&>;
+
+		{ t.wasSemicolon } -> std::same_as<bool&>;
 	};
 
 	inline void updateLinePos(size_t& curLinePos, std::span<const uint8_t> sp)
@@ -57,35 +59,41 @@ namespace sluaParse
 		uint64_t tabs=0;
 		size_t curLinePos = 0;
 		bool tempDownTab = false;
+		bool wasSemicolon = false;
 
 		Output& add(const char ch) 
 		{
 			text.push_back(ch);
 			curLinePos++;
+			wasSemicolon = false;
 			return *this;
 		}
 		Output& add(const std::string_view sv) 
 		{
 			text.insert(text.end(), sv.begin(), sv.end());
 			curLinePos+= sv.size();
+			wasSemicolon = false;
 			return *this;
 		}
 		Output& add(std::span<const uint8_t> sp) 
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
 			curLinePos += sp.size();
+			wasSemicolon = false;
 			return *this;
 		}
 		Output& addMultiline(std::span<const uint8_t> sp,const size_t linePos)
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
 			curLinePos = linePos;
+			wasSemicolon = false;
 			return *this;
 		}
 		Output& addMultiline(std::span<const uint8_t> sp)
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
 			updateLinePos(curLinePos,sp);
+			wasSemicolon = false;
 			return *this;
 		}
 
