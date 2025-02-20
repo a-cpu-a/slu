@@ -20,3 +20,4 @@ lua
 *.vcxproj*
 /x64/Debug
 /build/
+**/_TEST_OUT
