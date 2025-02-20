@@ -20,19 +20,24 @@ namespace sluaParse
 		{ t.add(char(1)) } -> std::same_as<T&>;
 		{ t.add(std::string_view()) } -> std::same_as<T&>;
 		{ t.add(std::span<const uint8_t>()) } -> std::same_as<T&>;
+
+		{ t.template addNewl<true>(char(1)) } -> std::same_as<T&>;
 		{ t.addNewl(char(1)) } -> std::same_as<T&>;
 		{ t.addNewl(std::string_view()) } -> std::same_as<T&>;
 		{ t.addNewl(std::span<const uint8_t>()) } -> std::same_as<T&>;
+
 		{ t.addMultiline(std::span<const uint8_t>(),size_t()) } -> std::same_as<T&>;
 		{ t.addMultiline(std::span<const uint8_t>()) } -> std::same_as<T&>;
 
 		{ t.newLine() } -> std::same_as<T&>;
+		{ t.template newLine<true>() } -> std::same_as<T&>;
 
 		{ t.addIndent() } -> std::same_as<T&>;
 
 		{ t.tabUp() } -> std::same_as<T&>;
 		{ t.unTab() } -> std::same_as<T&>;
 
+		{ t.template tabUpNewl<true>() } -> std::same_as<T&>;
 		{ t.tabUpNewl() } -> std::same_as<T&>;
 		{ t.unTabNewl() } -> std::same_as<T&>;
 
@@ -124,23 +129,29 @@ namespace sluaParse
 			return *this;
 		}
 
+		template<bool runIndent=true>
 		Output& newLine()
 		{
 			text.push_back('\n');
-			addIndent();
+
+			if constexpr (runIndent)
+				addIndent();
+
 			curLinePos = 0;
 			return *this;
 		}
 
+		template<bool runIndent = true>
 		Output& tabUpNewl() {
-			return tabUp().newLine();
+			return tabUp().newLine<runIndent>();
 		}
 		Output& unTabNewl() {
 			return unTab().newLine();
 		}
 
+		template<bool runIndent = true>
 		Output& addNewl(const char ch) {
-			return add(ch).newLine();
+			return add(ch).newLine<runIndent>();
 		}
 		Output& addNewl(const std::string_view sv) {
 			return add(sv).newLine();
