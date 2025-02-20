@@ -264,6 +264,7 @@ namespace sluaParse
 			out.add(']');
 		},
 		varcase(const SubVarType::NAME&) {
+			if (var.idx.empty())return;
 			out.add('.')
 				.add(var.idx);
 		}
@@ -281,7 +282,9 @@ namespace sluaParse
 			out.add(var);
 		},
 		varcase(const BaseVarType::EXPR&) {
+			out.add('(');
 			genExpr(out, var.start);
+			out.add(')');
 			genSubVar(out, var.sub);
 		}
 		);
@@ -356,7 +359,9 @@ namespace sluaParse
 		varcase(const StatementType::NONE) { _ASSERT(false); },
 
 		varcase(const StatementType::SEMICOLON) {
-			out.add(';');//TODO: should elide duplicate semicolons?
+			if(!out.wasSemicolon)
+				out.add(';');
+			out.wasSemicolon = true;
 		},
 
 		varcase(const StatementType::ASSIGN&) {
@@ -364,18 +369,24 @@ namespace sluaParse
 			out.add(" = ");
 			genExpList(out, var.exprs);
 			out.addNewl(';');
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::LOCAL_ASSIGN&) {
 			out.add("local ");
 			genAtribNameList(out,var.names);
-			out.add(" = ");
-			genExpList(out, var.exprs);
+			if (!var.exprs.empty())
+			{
+				out.add(" = ");
+				genExpList(out, var.exprs);
+			}
 			out.addNewl(';');
+			out.wasSemicolon = true;
 		},
 
 		varcase(const StatementType::FUNC_CALL&) {
 			genFuncCall(out, var);
 			out.addNewl(';');
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::LABEL&) {
 			out.unTabTemp()
@@ -386,11 +397,13 @@ namespace sluaParse
 		},
 		varcase(const StatementType::BREAK) {
 			out.addNewl("break;");
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::GOTO&) {
 			out.add("goto ")
 				.add(var.v)
 				.addNewl(';');
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::DO_BLOCK&) {
 			out.newLine();//Extra spacing
@@ -419,6 +432,7 @@ namespace sluaParse
 			genExpr(out, var.cond);
 			out.addNewl(';');
 			out.newLine();//Extra spacing
+			out.wasSemicolon = true;
 		},
 
 		varcase(const StatementType::IF_THEN_ELSE&) {
@@ -508,6 +522,7 @@ namespace sluaParse
 				genExpList(out, obj.retExprs);
 			}
 			out.add(";");
+			out.wasSemicolon = true;
 		}
 	}
 
