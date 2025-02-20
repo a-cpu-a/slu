@@ -119,7 +119,7 @@ namespace sluaParse
 		}
 
 		out.add('}')
-			.unTabNewl();
+			.unTab();
 	}
 
 	inline void genLimPrefixExpr(AnyOutput auto& out, const LimPrefixExpr& obj)
