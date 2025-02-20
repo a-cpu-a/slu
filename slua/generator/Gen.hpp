@@ -257,6 +257,10 @@ namespace sluaParse
 
 	inline void genSubVar(AnyOutput auto& out, const SubVar& obj)
 	{
+		for (const ArgFuncCall& arg : obj.funcCalls)
+		{
+			genArgFuncCall(out, arg);
+		}
 		ezmatch(obj.idx)(
 		varcase(const SubVarType::EXPR&) {
 			out.add('[');
@@ -269,10 +273,6 @@ namespace sluaParse
 				.add(var.idx);
 		}
 		);
-		for (const ArgFuncCall& arg : obj.funcCalls)
-		{
-			genArgFuncCall(out, arg);
-		}
 	}
 
 	inline void genVar(AnyOutput auto& out, const Var& obj)
