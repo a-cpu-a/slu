@@ -59,7 +59,7 @@ namespace sluaParse
 
 		for (size_t i = 0; i < TOK_SIZE - 1; i++)//skip null
 		{
-			if (in.checkOOB(off))
+			if (in.isOob(off))
 				return false;
 
 			if (in.peekAt(off++) != tok[i])
@@ -69,9 +69,13 @@ namespace sluaParse
 
 		if (nameLike)
 		{
-			const uint8_t ch = in.peekAt(off);
-			if (isValidNameChar(ch))
-				return false;
+			if (!in.isOob(off))
+			{
+
+				const uint8_t ch = in.peekAt(off);
+				if (isValidNameChar(ch))
+					return false;
+			}
 		}
 
 		if (readIfGood)

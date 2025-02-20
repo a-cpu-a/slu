@@ -33,7 +33,7 @@ namespace sluaParse
 		//{ (bool)t } -> std::same_as<bool>; //Crashes intelisense
 
 
-		{ t.checkOOB((size_t)100) } -> std::same_as<bool>;
+		{ t.isOob((size_t)100) } -> std::same_as<bool>;
 
 
 		//Error output
@@ -76,9 +76,11 @@ namespace sluaParse
 		//offset 0 is the same as peek()
 		uint8_t peekAt(const size_t offset)
 		{
-			if (idx + offset >= text.size()
-				|| idx > SIZE_MAX - offset)	//idx + offset overflows, so...
+			if (idx > SIZE_MAX - offset ||	//idx + count overflows, so...
+				idx + offset >= text.size())
+			{
 				throw EndOfStreamError(*this);
+			}
 
 			return text[idx + offset];
 		}
@@ -86,9 +88,11 @@ namespace sluaParse
 		// span must be valid until next get(), so, any other peek()'s must not invalidate these!!!
 		std::span<const uint8_t> peek(const size_t count)
 		{
-			if (idx + count > text.size()	//position after this peek() can be at text.size(), but not above it
-				|| idx > SIZE_MAX - count)	//idx + count overflows, so...
+			if (idx > SIZE_MAX - count ||	//idx + count overflows, so...
+				idx + count > text.size())	//position after this peek() can be at text.size(), but not above it
+			{
 				throw EndOfStreamError(*this);
+			}
 
 			std::span<const uint8_t> res = text.subspan(idx, count);
 
@@ -114,9 +118,11 @@ namespace sluaParse
 		// span must be valid until next get(), so, any peek()'s must not invalidate these!!!
 		std::span<const uint8_t> get(const size_t count)
 		{
-			if (idx + count > text.size()	//position after this get() can be at text.size(), but not above it
-				|| idx > SIZE_MAX - count)	//idx + count overflows, so...
+			if (idx > SIZE_MAX - count ||	//idx + count overflows, so...
+				idx + count > text.size())	//position after this get() can be at text.size(), but not above it
+			{
 				throw EndOfStreamError(*this);
+			}
 
 			std::span<const uint8_t> res = text.subspan(idx, count);
 
@@ -131,10 +137,10 @@ namespace sluaParse
 			return idx < text.size();
 		}
 		//Passing 0 is the same as (!in)
-		bool checkOOB(const size_t offset) const {
+		bool isOob(const size_t offset) const {
 			return (
+				idx > SIZE_MAX - offset || 
 				idx + offset >= text.size()
-				|| idx > SIZE_MAX - offset
 				);
 		}
 
