@@ -6,12 +6,13 @@ New Syntax {
 
 	Type ::= ["?"] typeItem { "|" typeItem }
 	TypeList ::= Type {"," Type}
-	TupleType ::= tableTupleType | optimalArrayType
 
 	typeItem ::= typePrefix specType
 	specType ::= typeObj | "(" Type ")"
 	
-	typeObj ::= Name | TupleType | dynamicArrayType
+	typeObj ::= Name | dynamicArrayType | tupleType
+	
+	tupleType ::= tableTupleType | optimalArrayType
 	
 	tableTupleType ::= "{" TypeList "}"
 	dynamicArrayType ::= "[" Type "]"
@@ -20,7 +21,7 @@ New Syntax {
 	
 	arraySizer ::= ";" Expression
 
-	typePrefix ::= ["&"] ["^" ["mut"]]
+	typePrefix ::= ["#"] ["^" ["mut"]]
 	
 	BorrowAnnotation ::= "'" var
 }
@@ -189,10 +190,10 @@ Type Specifiers {
 		
 		Allows X to be nil
 	}
-	Reference {
-		Format: "&" X
+	GC {
+		Format: "#" X
 		
-		Turns the type into a reference, this means that it can be passed into other
+		Turns the type into a gc-value, this means that it can be passed into other
 		functions, and they can then modify that variable.
 		It is also garbage collected, unless lifetime is simple enough to be inlined into some value type + borrows
 	}

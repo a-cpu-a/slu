@@ -98,18 +98,20 @@ namespace sluaParse
 		for (const Field& f : obj)
 		{
 			ezmatch(f)(
-			varcase(FieldType::EXPR2EXPR) {
+			varcase(const FieldType::NONE) { _ASSERT(false); },
+
+			varcase(const FieldType::EXPR2EXPR&) {
 				out.add('[');
 				genExpr(out, var.idx);
 				out.add("] = ");
 				genExpr(out, var.v);
 			},
-			varcase(FieldType::NAME2EXPR) {
+			varcase(const FieldType::NAME2EXPR&) {
 				out.add(var.idx)
 					.add(" = ");
 				genExpr(out, var.v);
 			},
-			varcase(FieldType::EXPR) {
+			varcase(const FieldType::EXPR&) {
 				genExpr(out, var.v);
 			}
 			);
@@ -123,10 +125,10 @@ namespace sluaParse
 	inline void genLimPrefixExpr(AnyOutput auto& out, const LimPrefixExpr& obj)
 	{
 		ezmatch(obj)(
-		varcase(LimPrefixExprType::VAR) {
+		varcase(const LimPrefixExprType::VAR&) {
 			genVar(out, var.v);
 		},
-		varcase(LimPrefixExprType::EXPR) {
+		varcase(const LimPrefixExprType::EXPR&) {
 			out.add('(');
 			genExpr(out, var.v);
 			out.add(')');
@@ -151,31 +153,40 @@ namespace sluaParse
 		}
 		using namespace std::literals;
 		ezmatch(obj.data)(
-		varcase(ExprType::NIL) {
+		varcase(const ExprType::NIL) {
 			out.add("nil"sv);
 		},
-		varcase(ExprType::FALSE) {
+		varcase(const ExprType::FALSE) {
 			out.add("false"sv);
 		},
-		varcase(ExprType::TRUE) {
+		varcase(const ExprType::TRUE) {
 			out.add("true"sv);
 		},
-		varcase(ExprType::VARARGS) {
+		varcase(const ExprType::VARARGS) {
 			out.add("..."sv);
 		},
-		varcase(ExprType::FUNCTION_DEF) {
+		varcase(const ExprType::NUMERAL) {
+			out.add(std::to_string(var.v));
+		},
+		varcase(const ExprType::NUMERAL_I64) {
+			out.add(std::to_string(var.v));
+		},
+		varcase(const ExprType::LITERAL_STRING&) {
+			out.add(var.v);
+		},
+		varcase(const ExprType::FUNCTION_DEF&) {
 			genFuncDef(out, var.v,""sv);
 		},
-		varcase(ExprType::FUNC_CALL) {
+		varcase(const ExprType::FUNC_CALL&) {
 			genFuncCall(out, var);
 		},
-		varcase(ExprType::LIM_PREFIX_EXP) {
+		varcase(const ExprType::LIM_PREFIX_EXP&) {
 			genLimPrefixExpr(out, *var);
 		},
-		varcase(ExprType::TABLE_CONSTRUCTOR) {
+		varcase(const ExprType::TABLE_CONSTRUCTOR&) {
 			genTableConstructor(out, var.v);
 		},
-		varcase(ExprType::MULTI_OPERATION) {
+		varcase(const ExprType::MULTI_OPERATION&) {
 			genExpr(out, *var.first);
 			for (const auto& [op,ex] : var.extra)
 			{
@@ -230,15 +241,15 @@ namespace sluaParse
 				.add(arg.funcName);
 		}
 		ezmatch(arg.args)(
-		varcase(ArgsType::EXPLIST) {
+		varcase(const ArgsType::EXPLIST&) {
 			out.add('(');
 			genExpList(out, var.v);
 			out.add(')');
 		},
-		varcase(ArgsType::TABLE) {
+		varcase(const ArgsType::TABLE&) {
 			genTableConstructor(out, var.v);
 		},
-		varcase(ArgsType::LITERAL) {
+		varcase(const ArgsType::LITERAL&) {
 			genLiteral(out, var.v);
 		}
 		);
@@ -247,12 +258,12 @@ namespace sluaParse
 	inline void genSubVar(AnyOutput auto& out, const SubVar& obj)
 	{
 		ezmatch(obj.idx)(
-		varcase(SubVarType::EXPR) {
+		varcase(const SubVarType::EXPR&) {
 			out.add('[');
 			genExpr(out, var.idx);
 			out.add(']');
 		},
-		varcase(SubVarType::NAME) {
+		varcase(const SubVarType::NAME&) {
 			out.add('.')
 				.add(var.idx);
 		}
@@ -266,10 +277,10 @@ namespace sluaParse
 	inline void genVar(AnyOutput auto& out, const Var& obj)
 	{
 		ezmatch(obj.base)(
-		varcase(BaseVarType::NAME) {
+		varcase(const BaseVarType::NAME&) {
 			out.add(var);
 		},
-		varcase(BaseVarType::EXPR) {
+		varcase(const BaseVarType::EXPR&) {
 			genExpr(out, var.start);
 			genSubVar(out, var.sub);
 		}
@@ -342,19 +353,19 @@ namespace sluaParse
 	{
 		ezmatch(obj.data)(
 
-		varcase(StatementType::NONE) { _ASSERT(false); },
+		varcase(const StatementType::NONE) { _ASSERT(false); },
 
-		varcase(StatementType::SEMICOLON) {
+		varcase(const StatementType::SEMICOLON) {
 			out.add(';');//TODO: should elide duplicate semicolons?
 		},
 
-		varcase(StatementType::ASSIGN) {
+		varcase(const StatementType::ASSIGN&) {
 			genVarList(out, var.vars);
 			out.add(" = ");
 			genExpList(out, var.exprs);
 			out.addNewl(';');
 		},
-		varcase(StatementType::LOCAL_ASSIGN) {
+		varcase(const StatementType::LOCAL_ASSIGN&) {
 			out.add("local ");
 			genAtribNameList(out,var.names);
 			out.add(" = ");
@@ -362,26 +373,26 @@ namespace sluaParse
 			out.addNewl(';');
 		},
 
-		varcase(StatementType::FUNC_CALL) {
+		varcase(const StatementType::FUNC_CALL&) {
 			genFuncCall(out, var);
 			out.addNewl(';');
 		},
-		varcase(StatementType::LABEL) {
+		varcase(const StatementType::LABEL&) {
 			out.unTabTemp()
 				.add("::")
 				.add(var.v)
 				.addNewl("::")
 				.tabUpTemp();
 		},
-		varcase(StatementType::BREAK) {
+		varcase(const StatementType::BREAK) {
 			out.addNewl("break;");
 		},
-		varcase(StatementType::GOTO) {
+		varcase(const StatementType::GOTO&) {
 			out.add("goto ")
 				.add(var.v)
 				.addNewl(';');
 		},
-		varcase(StatementType::DO_BLOCK) {
+		varcase(const StatementType::DO_BLOCK&) {
 			out.newLine();//Extra spacing
 			out.add("do")
 				.tabUpNewl();
@@ -389,7 +400,7 @@ namespace sluaParse
 			out.unTabNewl()
 				.addNewl("end");
 		},
-		varcase(StatementType::WHILE_LOOP) {
+		varcase(const StatementType::WHILE_LOOP&) {
 			out.newLine();//Extra spacing
 			out.add("while ");
 			genExpr(out, var.cond);
@@ -399,7 +410,7 @@ namespace sluaParse
 			out.unTabNewl()
 				.addNewl("end");
 		},
-		varcase(StatementType::REPEAT_UNTIL) {
+		varcase(const StatementType::REPEAT_UNTIL&) {
 			out.add("repeat")
 				.tabUpNewl();
 			genBlock(out, var.bl);
@@ -410,7 +421,7 @@ namespace sluaParse
 			out.newLine();//Extra spacing
 		},
 
-		varcase(StatementType::IF_THEN_ELSE) {
+		varcase(const StatementType::IF_THEN_ELSE&) {
 			out.add("if ");
 			genExpr(out, var.cond);
 			out.add(" then")
@@ -440,7 +451,7 @@ namespace sluaParse
 				.addNewl("end");
 		},
 
-		varcase(StatementType::FOR_LOOP_NUMERIC) {
+		varcase(const StatementType::FOR_LOOP_NUMERIC&) {
 			out.add("for ")
 				.add(var.varName)
 				.add(" = ");
@@ -458,7 +469,7 @@ namespace sluaParse
 			out.unTabNewl()
 				.addNewl("end");
 		},
-		varcase(StatementType::FOR_LOOP_GENERIC) {
+		varcase(const StatementType::FOR_LOOP_GENERIC&) {
 			out.add("for ");
 			genNames(out, var.varNames);
 			out.add(" in ");
@@ -470,10 +481,10 @@ namespace sluaParse
 				.addNewl("end");
 		},
 
-		varcase(StatementType::FUNCTION_DEF) {
+		varcase(const StatementType::FUNCTION_DEF&) {
 			genFuncDef(out, var.func,var.name);
 		},
-		varcase(StatementType::LOCAL_FUNCTION_DEF) {
+		varcase(const StatementType::LOCAL_FUNCTION_DEF&) {
 			out.add("local ");
 			genFuncDef(out, var.func, var.name);
 		}

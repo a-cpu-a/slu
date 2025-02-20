@@ -4,8 +4,7 @@
 
 New Syntax {
 
-	stat @::= | OptExportPrefix "let" TupleType "[" namelist "]" ["=" explist]
-	stat @::= | OptExportPrefix "let" Type Name ["=" Expression]
+	stat @::= | OptExportPrefix "let" Type namelist ["=" explist]
 }
 
 Let Statment {
