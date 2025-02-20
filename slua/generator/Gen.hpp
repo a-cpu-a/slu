@@ -93,7 +93,7 @@ namespace sluaParse
 	inline void genTableConstructor(AnyOutput auto& out, const TableConstructor& obj)
 	{
 		out.add('{')
-			.tabUpNewl();
+			.template tabUpNewl<false>();
 
 		for (const Field& f : obj)
 		{
@@ -101,21 +101,24 @@ namespace sluaParse
 			varcase(const FieldType::NONE) { _ASSERT(false); },
 
 			varcase(const FieldType::EXPR2EXPR&) {
+				out.addIndent();
 				out.add('[');
 				genExpr(out, var.idx);
 				out.add("] = ");
 				genExpr(out, var.v);
 			},
 			varcase(const FieldType::NAME2EXPR&) {
+				out.addIndent();
 				out.add(var.idx)
 					.add(" = ");
 				genExpr(out, var.v);
 			},
 			varcase(const FieldType::EXPR&) {
+				out.addIndent();
 				genExpr(out, var.v);
 			}
 			);
-			out.addNewl(',');
+			out.template addNewl<false>(',');
 		}
 
 		out.unTab()
