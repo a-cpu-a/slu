@@ -37,8 +37,10 @@ _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 #define ezmatch(_VALUE) [&](auto... ez_cases) \
 		{ return std::visit(_EzMatchOverloader{ez_cases...}, _VALUE); }
 
-#define ezcase(_VAR,_TYPE) [&](_TYPE& _VAR)
-#define varcase(_TYPE) [&](_TYPE& var)
+//Note: you need to add const and &/&& yourself
+
+#define ezcase(_VAR,_TYPE) [&](_TYPE _VAR)
+#define varcase(_TYPE) [&](_TYPE var)
 
 /*
 
