@@ -2,7 +2,7 @@
 # Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, rawVar
 #
 
-"Macro" Library Module {
+"std::macros" Module {
 	
 	--These are only available at comptime and macros
 	
