@@ -1,0 +1,31 @@
+#
+# Dependencies: Lua, rawVar
+#
+
+New Syntax {
+
+	annotations ::= {annotation}
+	
+	annotation ::= "@" rawVar args
+	
+	--TODO: finish injecting into existing syntax (pre stat, pre type defs, pre exp, pre ...)
+}
+
+Annotation {
+	
+	Allows adding info to stuff, for reflection, or compilation.
+	
+	There are some annotations that can change how code is compiled,
+	or how code is exported, etc.
+	
+	Some annotations error, when put on the wrong things.
+	
+	@Builtin(info=string) - allows for referencing some builtin value, type, etc.
+	The string is a namespaced path to something. 
+	For example 
+	```
+	ex type Expr = @Builtin("base::type/exp")void;
+	```
+	
+	A error is produced, if the builtin doesnt exist.
+}
