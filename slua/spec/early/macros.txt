@@ -2,6 +2,8 @@
 # Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, rawVar
 #
 
+--TODO: a way to splice out keywords, like "mut", "ex" and "comptime"
+
 "std::macros" Module {
 	
 	--These are only available at comptime and macros
