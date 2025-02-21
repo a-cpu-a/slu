@@ -1,0 +1,7 @@
+#
+# Dependencies: Lua
+#
+
+New Syntax {
+	rawVar ::= Name {"::" Name} {"." Name}
+}

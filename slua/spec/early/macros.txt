@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type, exportPrefix, comptime, library(TODO)
+# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, rawVar
 #
 
 "Macro" Library Module {
@@ -86,7 +86,7 @@
 
 New Syntax {
 	
-	macroInvoke ::= ("$" macroRawVar ProgrammableArgs)
+	macroInvoke ::= ("$" rawVar ProgrammableArgs)
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
 	
 	stat @::= | macroInvSpl
@@ -111,12 +111,11 @@ New Syntax {
 		| macroInvoke
 		| macroSplice
 	
-	macroRawVar ::= Name {"::" Name} {"." Name}
-	macroFunccall ::= macroRawVar "(" macroExp {"," macroExp} ")"
+	macroFunccall ::= rawVar "(" macroExp {"," macroExp} ")"
 	
 	macroBlock ::= {macroStat}
 	
-	macroType ::= macroRawVar
+	macroType ::= rawVar
 	macroParam ::= macroType macroVar
 	
 	macroParams ::= [macroParam {"," macroParam}]
