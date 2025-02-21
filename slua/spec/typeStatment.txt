@@ -1,0 +1,18 @@
+#
+# Dependencies: Lua, type
+#
+
+New Syntax {
+
+	stat @::= | "type" Name "=" type
+}
+
+New Keywords {
+	type
+}
+
+Type Statment {
+	
+	Creates a new type with a name 'Name', that is equivelant to 'type'
+	
+}

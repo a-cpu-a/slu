@@ -3,8 +3,10 @@
 #
 
 New Syntax {
-
-	stat @::= | OptExportPrefix "let" namelist "=" explist
+	
+	PreLet ::=
+	
+	stat @::= | OptExportPrefix PreLet "let" namelist "=" explist
 }
 
 New Keywords {
@@ -13,7 +15,7 @@ New Keywords {
 
 Let Statment {
 	
-	Creates a new global or local variable with a name 'Name'
+	Creates a new global or local variable(s) with names 'namelist'
 	
 	Types are assigned automatically.
 	

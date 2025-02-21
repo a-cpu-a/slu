@@ -3,8 +3,10 @@
 #
 
 New Syntax {
-
-	stat @::= | OptExportPrefix "const" namelist "=" explist
+	
+	PreConst ::=
+	
+	stat @::= | OptExportPrefix PreConst "const" namelist "=" explist
 }
 
 New Keywords {
@@ -13,7 +15,7 @@ New Keywords {
 
 Const Statment {
 	
-	Creates a new global or local variable with a name 'Name', that cant be modified (not even its contents)
+	Creates a new global or local variable(s) with names 'namelist', that cant be modified (not even its contents)
 	
 	Types are assigned automatically.
 	
