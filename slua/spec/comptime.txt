@@ -1,0 +1,31 @@
+#
+# Dependencies: Lua, fnStatment, letStatment, constStatment
+# MayModify: constStatmentTypes, letStatmentTypes
+#
+
+New Syntax {
+
+	PreFn ::= ["comptime"]
+	PreLet ::= ["comptime"]
+	PreConst ::= ["comptime"]
+}
+
+New Keywords {
+	comptime
+}
+
+Comptime Keyword {
+	
+	Marks a function, or variable as compile-time evaluated.
+	
+	This means that the variable must have its value computed at compile-time.
+	Or that the function must be executed at compile-time.
+	
+	
+	Implementation {
+		Likely just compile the needed functions, variables, constants, types into some lua_state, to run the stuff.
+		And then cache the results, until something changes.
+		
+		note: (Normal functions can be evaluated at compile-time, or run-time)
+	}
+}

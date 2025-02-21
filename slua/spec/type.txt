@@ -4,33 +4,40 @@
 
 New Syntax {
 
-	Type ::= ["?"] typeItem { "|" typeItem }
-	TypeList ::= Type {"," Type}
+	type ::= ["?"] typeItem { "|" typeItem }
+	TypeList ::= type {"," type}
 
 	typeItem ::= typePrefix specType
-	specType ::= typeObj | "(" Type ")"
+	specType ::= typeObj | "(" type ")"
 	
 	typeObj ::= Name | dynamicArrayType | tupleType
 	
 	tupleType ::= tableTupleType | optimalArrayType
 	
 	tableTupleType ::= "{" TypeList "}"
-	dynamicArrayType ::= "[" Type "]"
-	optimalArrayType ::= "[" Type arraySizer {arraySizer} "]"
+	dynamicArrayType ::= "[" type "]"
+	optimalArrayType ::= "[" type arraySizer {arraySizer} "]"
 	
 	
 	arraySizer ::= ";" Expression
 
-	typePrefix ::= ["#"] ["^" ["mut"]]
+	typePrefix ::= ["#"] ["&" ["mut"]]
 	
 	BorrowAnnotation ::= "'" var
+	
+	typedParam ::= ["mut"] [type] Name
+	TypedParamList ::= typedParam {"," typedParam}
+	
+	typedVarArg ::= ["mut"] [type] "..."
+	typedParamsVarArg ::= TypedParamList ["," typedVarArg]
+	TypedParamListVarArg ::= [typedParamsVarArg | typedVarArg]
 }
 
 New Keywords {
 	void
 	bool
-	int
-	num
+	o_int
+	o_num
 	ptrdata
 	Any
 	string
@@ -72,16 +79,22 @@ Official Types {
 	bool {
 		A lua boolean
 	}
-	int {
-		A 24, 32, 64, or 53 bit integer
-		53 bit integers are only for luajit.
-		24 bit integers are for 32bit versions of lua pre 5.3
+	o_int {
+		A 25, 32, 64, or 54 bit integer
+		54 bit integers are only for luajit (can store up to 2^53).
+		25 bit integers are for 32bit versions of lua pre 5.3 (can store up to 2^24)
+		
+		name is prefixed with "o_", cuz this is optimized for speed
+		
 		--[[
 			Should slua types be allowed here? u128, i128 too?
 		]]
 	}
-	num {
-		A 32 or 64 bit float, might also be a int on some lua versions.
+	o_num {
+		A 32 or 64 bit float, might also be a o_int on some lua versions.
+		
+		name is prefixed with "o_", cuz this is optimized for speed
+		
 		--[[
 			Should slua types be allowed here? u128, i128 too?
 		]]
@@ -198,7 +211,7 @@ Type Specifiers {
 		It is also garbage collected, unless lifetime is simple enough to be inlined into some value type + borrows
 	}
 	Borrow {
-		Format "^" ["mut"] X
+		Format "&" ["mut"] X
 		
 		Makes the type borrowing, this means that it is a borrowed value.
 	}

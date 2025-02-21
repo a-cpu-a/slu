@@ -4,10 +4,10 @@
 
 New Syntax {
 
-	stat @::= | OptExportPrefix "const" Type namelist ["=" explist]
+	stat @::= | OptExportPrefix PreConst "const" type namelist ["=" explist]
 }
 
 Const Statment {
 	
-	Lets you specify the type for a const variable.
+	Lets you specify the type for const variables.
 }
