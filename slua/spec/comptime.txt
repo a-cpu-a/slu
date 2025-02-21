@@ -8,6 +8,12 @@ New Syntax {
 	PreFn ::= ["comptime"]
 	PreLet ::= ["comptime"]
 	PreConst ::= ["comptime"]
+	
+	exp @::= | comptime(exp)
+	
+	--TODO: make it more intuitive, and seperated,
+	--	as, currently it looks like a function call.
+	--	it needs to look more variable-like, or smthn?
 }
 
 New Keywords {
@@ -16,7 +22,13 @@ New Keywords {
 
 Comptime Keyword {
 	
-	Marks a function, or variable as compile-time evaluated.
+	This can mark something, or make a expression run at compile-time.
+	
+	It can be used on a expression to make it run a compile-time,
+	this means you can speed up things like string concatentation,
+	it will error, if the expression uses something from the runtime.
+	
+	It can mark a function, or variable as compile-time evaluated.
 	
 	This means that the variable must have its value computed at compile-time.
 	Or that the function must be executed at compile-time.
