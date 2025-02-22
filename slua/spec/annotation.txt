@@ -1,12 +1,12 @@
 #
-# Dependencies: Lua, rawVar
+# Dependencies: Lua, comptime
 #
 
 New Syntax {
 
 	annotations ::= {annotation}
 	
-	annotation ::= "@" rawVar args
+	annotation ::= "@" comptimeVar args
 	
 	--TODO: finish injecting into existing syntax (pre stat, pre type defs, pre exp, pre ...)
 }

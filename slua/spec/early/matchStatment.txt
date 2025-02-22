@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	matchPatItem ::= "(" comptimeExp ")" | --TODO: finish
+	matchPatItem ::= "(" comptimeExp ")" | comptimeVar | comptimeFunccall | --TODO: finish
 	
 	matchPatBinOp ::= ".." | "or"
 	

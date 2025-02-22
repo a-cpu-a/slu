@@ -10,6 +10,8 @@ New Syntax {
 	PreConst ::= ["comptime"]
 	
 	comptimeExp ::= exp
+	comptimeFunccall ::= funccall
+	comptimeVar ::= Name {"::" Name} {"." Name}
 	
 	exp @::= | comptime(exp)
 	
