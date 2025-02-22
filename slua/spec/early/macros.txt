@@ -27,15 +27,16 @@
 	
 	--These return the tokens raw, without splicing them
 	
-	@Builtin("base::macro/tok") ex macro fn Block	 {macro Block _}	->Block		end
-	@Builtin("base::macro/tok") ex macro fn Stat	 {macro Stat _}		->Stat		end
-	@Builtin("base::macro/tok") ex macro fn Var		 {macro Var _}		->Var		end
-	@Builtin("base::macro/tok") ex macro fn Expr	 {macro Expr _}		->Expr		end
-	@Builtin("base::macro/tok") ex macro fn ExprList {macro ExprList _}	->ExprList	end
-	@Builtin("base::macro/tok") ex macro fn Name	 {macro Name _}		->Name		end
-	@Builtin("base::macro/tok") ex macro fn NameList {macro NameList _}	->NameList	end
-	@Builtin("base::macro/tok") ex macro fn Type	 {macro Type _}		->Type		end
-	@Builtin("base::macro/tok") ex macro fn TypeList {macro TypeList _}	->TypeList	end
+	--Do NOT use @Builtin("base::no_splice") on your own code, as it is only defined here.
+	@Builtin("base::no_splice") ex macro fn Block	 {macro Block v}	->Block		return v;end
+	@Builtin("base::no_splice") ex macro fn Stat	 {macro Stat v}		->Stat		return v;end
+	@Builtin("base::no_splice") ex macro fn Var		 {macro Var v}		->Var		return v;end
+	@Builtin("base::no_splice") ex macro fn Expr	 {macro Expr v}		->Expr		return v;end
+	@Builtin("base::no_splice") ex macro fn ExprList {macro ExprList v}	->ExprList	return v;end
+	@Builtin("base::no_splice") ex macro fn Name	 {macro Name v}		->Name		return v;end
+	@Builtin("base::no_splice") ex macro fn NameList {macro NameList v}	->NameList	return v;end
+	@Builtin("base::no_splice") ex macro fn Type	 {macro Type v}		->Type		return v;end
+	@Builtin("base::no_splice") ex macro fn TypeList {macro TypeList v}	->TypeList	return v;end
 	
 	--[[
 	--TODO: move this elsewhere
