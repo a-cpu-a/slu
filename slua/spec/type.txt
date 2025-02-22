@@ -19,7 +19,7 @@ New Syntax {
 	optimalArrayType ::= "[" type arraySizer {arraySizer} "]"
 	
 	
-	arraySizer ::= ";" Expression
+	arraySizer ::= ";" comptimeExp
 
 	typePrefix ::= ["#"] ["&" ["mut"]]
 	

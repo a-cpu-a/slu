@@ -1,10 +1,10 @@
 #
-# Dependencies: Lua, type
+# Dependencies: Lua, type, exportPrefix
 #
 
 New Syntax {
 
-	stat @::= | "type" Name "=" type
+	stat @::= | OptExportPrefix "type" Name "=" type
 }
 
 New Keywords {

@@ -133,7 +133,7 @@
 
 New Syntax {
 
-	macroSplice ::= "$(" exp ")"
+	macroSplice ::= "$(" comptimeExp ")"
 	macroInvoke ::= (rawVar "$" ProgrammableArgs)
 	macroVar ::= "$"RawName
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
