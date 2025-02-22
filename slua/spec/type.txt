@@ -31,6 +31,10 @@ New Syntax {
 	typedVarArg ::= ["mut"] [type] "..."
 	typedParamsVarArg ::= TypedParamList ["," typedVarArg]
 	TypedParamListVarArg ::= [typedParamsVarArg | typedVarArg]
+	
+	macroParam ::= ["macro"] typedParam
+	
+	macroParamList ::= macroParam {"," macroParam}
 }
 
 New Keywords {

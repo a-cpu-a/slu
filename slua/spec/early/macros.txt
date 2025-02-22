@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, rawVar
+# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, rawVar, fnStatment
 #
 
 --TODO: a way to splice out keywords, like "mut", "ex" and "comptime"
@@ -18,10 +18,6 @@
 	ex type Type = @Builtin("base::type/type")void;
 	ex type TypeList = @Builtin("base::type/typelist")void;
 	
-	ex type MacroExpr = @Builtin("base::type/macroExp")void;
-	ex type MacroStat = @Builtin("base::type/macroStat")void;
-	ex type MacroVar @Builtin("base::type/macroVar")void;
-	
 	--these exist for macro args, are actually converted to expressions.
 	ex type Numeral = @Builtin("base::type/Numeral")void;
 	ex type SignedNumeral = @Builtin("base::type/SignedNumeral")void;
@@ -29,21 +25,20 @@
 	ex type SignedIntegral = @Builtin("base::type/SignedIntegral")void;
 	ex type LiteralString = @Builtin("base::type/LiteralString")void;
 	
-	@Builtin("base::macro/tok") ex $macro_rules Block{Block _}end
-	@Builtin("base::macro/tok") ex $macro_rules Stat{Stat _}end
-	@Builtin("base::macro/tok") ex $macro_rules Var{Var _}end
-	@Builtin("base::macro/tok") ex $macro_rules Expr{Expr _}end
-	@Builtin("base::macro/tok") ex $macro_rules ExprList{ExprList _}end
-	@Builtin("base::macro/tok") ex $macro_rules Name{Name _}end
-	@Builtin("base::macro/tok") ex $macro_rules NameList{NameList _}end
-	@Builtin("base::macro/tok") ex $macro_rules Type{Type _}end
-	@Builtin("base::macro/tok") ex $macro_rules TypeList{TypeList _}end
+	--These return the tokens raw, without splicing them
 	
-	@Builtin("base::macro/tok") ex $macro_rules MacroExpr{MacroExpr _}end
-	@Builtin("base::macro/tok") ex $macro_rules MacroStat{MacroStat _}end
-	@Builtin("base::macro/tok") ex $macro_rules MacroVar{MacroVar _}end
+	@Builtin("base::macro/tok") ex macro fn Block	 {macro Block _}	->Block		end
+	@Builtin("base::macro/tok") ex macro fn Stat	 {macro Stat _}		->Stat		end
+	@Builtin("base::macro/tok") ex macro fn Var		 {macro Var _}		->Var		end
+	@Builtin("base::macro/tok") ex macro fn Expr	 {macro Expr _}		->Expr		end
+	@Builtin("base::macro/tok") ex macro fn ExprList {macro ExprList _}	->ExprList	end
+	@Builtin("base::macro/tok") ex macro fn Name	 {macro Name _}		->Name		end
+	@Builtin("base::macro/tok") ex macro fn NameList {macro NameList _}	->NameList	end
+	@Builtin("base::macro/tok") ex macro fn Type	 {macro Type _}		->Type		end
+	@Builtin("base::macro/tok") ex macro fn TypeList {macro TypeList _}	->TypeList	end
 	
 	--[[
+	--TODO: move this elsewhere
 		fn prefixUpperify(str prefix,mut str s) -> str
 			if #s == 0 then return s end
 			s[1] = s[1].upper()
@@ -51,14 +46,35 @@
 		end
 	]]
 	
-	$macro_rules implAdd(name_list $ns) -> [stat]
-		for $i,$n in $ns do
-			$($stat{
-				ex $$macro_rules $(lib::prefixUpperify("add",$n as str) as name)($($n as ty) $$v)
-					$$($$v)
-				end
-			});
+	--[[
+	
+	--
+	-- This is a example, for how to create a macro that instantly splices what you pass to it
+	--
+	-- (addType${u8}) -> (u8)
+	--
+	-- You can also call it like a normal function (you also need to use "()", or the other calling forms),
+	-- and it will return what you called it with, and nothing will change.
+	--
+	-- assert(addType($Type{u8}) == $Type{u8}, "These are equal");
+	--
+	
+	macro fn implAdd(macro NameList ns) -> Vec<Stat>
+		
+		let Vec<Stat> r;
+		
+		for k,v in ns do
+			let name = ("add"..(v as str)) as Name;
+			r:push(
+				$Stat{
+					ex macro fn $name{macro $(v as Type) val }
+						return val
+					end
+				}
+			);
 		end
+		
+		return r;
 	end
 	
 	$implAdd(
@@ -70,12 +86,9 @@
 		Name,
 		NameList,
 		Type,
-		TypeList,
-
-		MacroExpr,
-		MacroStat,
-		MacroVar
+		TypeList
 	);
+	]]
 	
 	Implementation {
 		The types may be implemented as "Userdata" or "ptrdata", with extra data
@@ -87,8 +100,10 @@
 
 
 New Syntax {
-	
-	macroInvoke ::= ("$" rawVar ProgrammableArgs)
+
+	macroSplice ::= "$(" exp ")"
+	macroInvoke ::= (rawVar "$" ProgrammableArgs)
+	macroVar ::= "$"RawName
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
 	
 	stat @::= | macroInvSpl
@@ -98,38 +113,18 @@ New Syntax {
 	type @::= | macroInvSpl
 	OptExportPrefix @::= | macroInvSpl
 	
-	macroVar ::= "$"RawName
+	macroParamsBlock ::= ("(" macroParamList ")")
+		| ("[" macroParamList "]")
+		| ("{" macroParamList "}") 
+		| ("!>" macroParamList "<!")
 	
-	macroExpRaw ::= false | true | Numeral | LiteralString 
-		| macroVar | macroInvoke | macroExp "as" type | macroFunccall
-	macroExpInternal ::= {unop} macroExpRaw
-	macroExp ::= macroExpInternal {binop macroExpInternal}
+	PreMacro ::=
 	
-	macroStat ::= ";"
-		| "if" macroExp "then" macroBlock {"elseif" macroExp "then" macroBlock} [ "else" macroBlock ] "end"
-		| "for" macroVar "," macroVar "in" macroExp "do" macroBlock "end"
-		| "for" macroVar "=" macroExp "," macroExp ["," macroExp] "do" macroBlock "end"
-		| "break"
-		| macroInvoke
-		| macroSplice
+	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name macroParamsBlock ["->" type] block "end"
 	
-	macroFunccall ::= rawVar "(" macroExp {"," macroExp} ")"
-	
-	macroBlock ::= {macroStat}
-	
-	macroType ::= rawVar
-	macroParam ::= macroType macroVar
-	
-	macroParams ::= [macroParam {"," macroParam}]
-	macroParamsBlock ::= ("(" macroParams ")") | ("[" macroParams "]") | ("{" macroParams "}") | ("!>" macroParams "<!")
-	
-	stat @::= | OptExportPrefix "$macro_rules" Name macroParamsBlock ["->" macroType] macroBlock "end"
-	
-	macroSplice ::= "$(" macroExp ")"
 }
 
 New Keywords {
-	macro_rules
 	macro
 }
 
@@ -137,15 +132,32 @@ Macro {
 	
 	Creates a new global or local macro with a name 'Name', that cant be modified.
 	
+	Macro's must return one of the macro types (or a simple container of them), if you need to return something else, use a comptime function.
+	
+	macroSplice -> splices the token sequence(s) resulting from a expresion
+	macroVar -> shortcut for macroSplice, only works for token typed local variables.
+	macroInvoke -> run a macro & splice it.
+	The !> <! args mean that there is nothing surrounding the args.
+	"macro" functions are implicitly comptime.
+	
+	macroInvoke gets turned from 
+	```
+	macroWithArgs_Name_Stat$(myNameArg,local x = 44)
+	```
+	into 
+	```
+	$(macroWithArgs_Name_Stat($Name{myNameArg},$Stat{local x = 44}))
+	```
+	macroVar gets turned from `$myVar` into `$(myVar)`
+	
+	Adding "macro" before a argument, makes it modify parsing behaviour, when
+	using "macroInvoke", if there is no macro, then you need to pass it by value.
+	
+	$$ is converted to $.
+	
 	Implementation {
 		Only exists inside slua land.
 		
 		Is programable syntax.
-		
-		You cant define a macro inside a macro argument that is stat/block.
-		
-		Cant use a macro to choose a name of another macro.
-		
-		($$m()(1,2,3)) -> error, raw var cant start with $
 	}
 }
