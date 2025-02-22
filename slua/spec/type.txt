@@ -34,7 +34,8 @@ New Syntax {
 	
 	macroParam ::= ["macro"] typedParam
 	
-	macroParamList ::= macroParam {"," macroParam}
+	macroParamSep ::= "," | ";"
+	macroParamList ::= macroParam {macroParamSep macroParam}
 }
 
 New Keywords {
