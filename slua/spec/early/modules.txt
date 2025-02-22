@@ -41,6 +41,7 @@ Modules {
 	Its the entry point for your module hierarchy.
 	
 	
+	When using the module system, global statments are restricted, so side-effects arent allowed.
 	
 	
 	The file, folder structure is strict, every folder represents a module.
