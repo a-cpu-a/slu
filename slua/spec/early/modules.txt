@@ -1,0 +1,89 @@
+#
+# Dependencies: Lua, exportPrefix
+#
+
+New Syntax {
+	
+	modpathStart ::= Name | "self" | "crate"
+	
+	modpath ::= modpathStart {"::" Name}
+	submodpath ::= Name {"::" Name}
+	
+	stat @::= | OptExportPrefix "mod" submodpath "as" block "end"
+	stat @::= | OptExportPrefix "mod" submodpath
+	stat @::= | OptExportPrefix "use" modpath ["as" Name]
+}
+
+New Keywords {
+	crate
+	self
+	mod
+	use
+	as
+}
+
+Modules {
+	
+	--TODO: finish documenting what mod, use, self, crate do.
+	
+	The mod keyword declares a new module.
+	It tells the compiler that the subsequent block (or file) defines a new namespace which may contain functions, variables, types, macros, or even nested modules.
+	The "as" form creates a module inline.
+	The simple form deffers the module to another file.
+	
+	The use keyword is used to import modules or specific names from modules into the current scope. 
+	This allows you to refer to items defined elsewhere without needing to specify the full path every time.
+	
+	The keyword self refers to the current module-the one in which the statement appears.
+	It is useful for referring to items (functions, types, etc.) within the same module, particularly in nested contexts.
+	
+	The keyword crate refers to the root of your project (i.e. the top-level module, represented by the src folder).
+	Its the entry point for your module hierarchy.
+	
+	
+	
+	
+	The file, folder structure is strict, every folder represents a module.
+	The src folder represents the crate.
+	For every module nest, you will need a folder, and a file (src/aaa/... + src/aaa.slua), the file defines things the modules inside it, and potentialy things like functions.
+	The src folder also needs atleast one file called "lib.slua" or "main.slua"
+	
+	# Example File Structure
+	
+	```
+	my_crate/
+	├─ src/
+	│  ├─ main.slua
+	│  ├─ lib.slua
+	│  ├─ module1.slua
+	│  ├─ module1/
+	│  │  └─ submod.slua
+	│  └─ utils.slua
+	├─ TODO_CHOOSE_NAME.toml
+	├─ TODO_CHOOSE_NAME.lock
+	├─ build/
+	├─ tests/
+	│  └─ test1.slua
+	└─ README.md
+	```
+	
+	# Manifests
+	
+	--TODO: choose a name for them, and the system of packaging.
+	
+	Crates are compiled to output-files, this is defined inside the maifests.
+	
+	Manifests can only lightly change the output-file format, limited
+		to switching between static & dynamic linking.
+	
+	Implementation {
+		Combines some files, into one IR(lua, llvm, js, ...) thing.
+		
+		All files are parsed, compiled seperately (including macros), possibly on multiple threads.
+		When a file encounters a dependency, it will wait for that file to be parsed, so it can check & know what symbols exist.
+		
+		Some standard modules may be optimized by the compiler, so you might not be able to modify them.
+		A great example would be the macro modules, as making them builtin, makes parsing alot faster in some cases.
+		These modules have their hashes stored inside the manifests, so modifications are flagged.
+	}
+}

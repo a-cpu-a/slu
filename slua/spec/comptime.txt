@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, fnStatment, letStatment, constStatment
+# Dependencies: Lua, fnStatment, letStatment, constStatment, modules
 # MayModify: constStatmentTypes, letStatmentTypes
 #
 
@@ -10,7 +10,7 @@ New Syntax {
 	PreConst ::= ["comptime"]
 	
 	comptimeExp ::= exp
-	comptimeVar ::= Name {"::" Name} {"." tupleableName}
+	comptimeVar ::= modpath {"." tupleableName}
 	comptimeFunccall ::= comptimeVar [":" tupleableName] args
 	
 	exp @::= | comptime(exp)
