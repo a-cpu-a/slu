@@ -1,0 +1,23 @@
+#
+# Dependencies: Lua, type
+#
+
+New Syntax {
+	
+	exp @::= | exp "as" type
+}
+
+New Keywords {
+	as
+}
+
+As Statment {
+	
+	No-op, lets you convert a type into another type.
+	
+	(111 as u16)
+	
+	when casting integers, overflow and underflow will be checked.
+	
+	
+}
