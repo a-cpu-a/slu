@@ -11,11 +11,14 @@ New Syntax {
 	matchPatBinOp ::= ".." | "or"
 	rangeishCasing ::= matchPatItem {matchPatBinOp matchPatItem}
 	
-	patField ::= ["&"] ["mut"] tupleableName "=" matchCasing
-	tableishCasing ::= type "{" patField {fieldsep patField} [fieldsep ".."] "}"
+	namedField ::= (optTypeOrRefMut Name ["=" matchCasing]) | "_"
 	
-	matchCasing ::= tableishCasing | rangeishCasing | "_"
-	matchPatCasing ::= tableishCasing | ([optTypeOrRefMut Name "="] rangeishCasing)
+	patField ::= ["&"] ["mut"] tupleableName ["=" matchCasing]
+	tableishCasing ::= type "{" patField {fieldsep patField} [fieldsep ".."] "}"
+	arrayishCasing ::= "[" namedField {"," namedField} ["," ".."] "]"
+	
+	matchCasing ::= tableishCasing | arrayishCasing | rangeishCasing | "_"
+	matchPatCasing ::= tableishCasing | arrayishCasing | ([optTypeOrRefMut Name "="] rangeishCasing)
 	
 	
 	matchPat ::= matchPatCasing ["if" exp]
