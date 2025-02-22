@@ -21,9 +21,11 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= ["#"] ["&" ["mut"]]
+	typePrefix ::= ["#"] ["&" ["mut"] {borrowAnnotation}]
 	
-	BorrowAnnotation ::= "'" var
+	optTypeOrRefMut ::= (["&"] ["mut"]) | type
+	
+	borrowAnnotation ::= "'" var
 	
 	typedParam ::= ["mut"] [type] Name
 	TypedParamList ::= typedParam {"," typedParam}
@@ -36,6 +38,8 @@ New Syntax {
 	
 	macroParamSep ::= "," | ";"
 	macroParamList ::= macroParam {macroParamSep macroParam}
+	
+	tupleableName ::= Name | Integral
 }
 
 New Keywords {

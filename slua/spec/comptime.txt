@@ -10,14 +10,10 @@ New Syntax {
 	PreConst ::= ["comptime"]
 	
 	comptimeExp ::= exp
-	comptimeVar ::= Name {"::" Name} {"." Name}
-	comptimeFunccall ::= comptimeVar [":" Name] args
+	comptimeVar ::= Name {"::" Name} {"." tupleableName}
+	comptimeFunccall ::= comptimeVar [":" tupleableName] args
 	
 	exp @::= | comptime(exp)
-	
-	--TODO: make it more intuitive, and seperated,
-	--	as, currently it looks like a function call.
-	--	it needs to look more variable-like, or smthn?
 }
 
 New Keywords {
@@ -39,6 +35,9 @@ Comptime Keyword {
 	
 	comptimeExp,comptimeFunccall -> must be runnable at compile-time
 	comptimeVar -> value must be known at compile-time
+	
+	
+	comptime(exp) can be used to force the expression to be run at compile-time
 	
 	Implementation {
 		Likely just compile the needed functions, variables, constants, types into some lua_state, to run the stuff.
