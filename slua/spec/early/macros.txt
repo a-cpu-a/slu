@@ -10,13 +10,11 @@
 	
 	ex type Block = @Builtin("base::type/block")void;
 	ex type Stat = @Builtin("base::type/stat")void;
+	
 	ex type Var = @Builtin("base::type/var")void;
 	ex type Expr = @Builtin("base::type/exp")void;
-	ex type ExprList = @Builtin("base::type/explist")void;
 	ex type Name = @Builtin("base::type/Name")void;
-	ex type NameList = @Builtin("base::type/namelist")void;
 	ex type Type = @Builtin("base::type/type")void;
-	ex type TypeList = @Builtin("base::type/typelist")void;
 	
 	--these exist for macro args, are actually converted to expressions.
 	ex type Numeral = @Builtin("base::type/Numeral")void;
@@ -25,20 +23,40 @@
 	ex type SignedIntegral = @Builtin("base::type/SignedIntegral")void;
 	ex type LiteralString = @Builtin("base::type/LiteralString")void;
 	
+	--
+	--wrap around one of the above things, to allow a list of someting
+	--note: only works for: (Name,Type,Expr,Var,*Numeral,*Integral,LiteralString)
+	--
+	ex type CommaList = @Builtin("base::type/comma_sep")void;
+	--semicollon seperators also allow statments
+	ex type SemicolList = @Builtin("base::type/semicol_sep")void;
+	
 	--These return the tokens raw, without splicing them
 	
 	--Do NOT use @Builtin("base::no_splice") on your own code, as it is only defined here.
 	--The $ after the name, makes it so it doesnt conflict with the types.
 	--It also means you cant call these in function-form
-	@Builtin("base::no_splice") ex macro fn Block	${macro Block v}	->Block		return v;end
-	@Builtin("base::no_splice") ex macro fn Stat	${macro Stat v}		->Stat		return v;end
-	@Builtin("base::no_splice") ex macro fn Var		${macro Var v}		->Var		return v;end
-	@Builtin("base::no_splice") ex macro fn Expr	${macro Expr v}		->Expr		return v;end
-	@Builtin("base::no_splice") ex macro fn ExprList${macro ExprList v}	->ExprList	return v;end
-	@Builtin("base::no_splice") ex macro fn Name	${macro Name v}		->Name		return v;end
-	@Builtin("base::no_splice") ex macro fn NameList${macro NameList v}	->NameList	return v;end
-	@Builtin("base::no_splice") ex macro fn Type	${macro Type v}		->Type		return v;end
-	@Builtin("base::no_splice") ex macro fn TypeList${macro TypeList v}	->TypeList	return v;end
+	@Builtin("base::no_splice") ex macro fn Block${macro Block v}->Block return v;end
+	
+	--You are not allowed to use semicolon statments with this!
+	@Builtin("base::no_splice") ex macro fn Stat ${macro Stat  v}->Stat  return v;end
+	
+	@Builtin("base::no_splice") ex macro fn Var  ${macro Var   v}->Var   return v;end
+	@Builtin("base::no_splice") ex macro fn Expr ${macro Expr  v}->Expr  return v;end
+	@Builtin("base::no_splice") ex macro fn Name ${macro Name  v}->Name  return v;end
+	@Builtin("base::no_splice") ex macro fn Type ${macro Type  v}->Type  return v;end
+	
+	--Statments cant be seperated by commas
+	@Builtin("base::no_splice") ex macro fn CommaList<Var> ${macro CommaList<Var>  v}->CommaList<Var>  return v;end
+	@Builtin("base::no_splice") ex macro fn CommaList<Expr>${macro CommaList<Expr> v}->CommaList<Expr> return v;end
+	@Builtin("base::no_splice") ex macro fn CommaList<Name>${macro CommaList<Name> v}->CommaList<Name> return v;end
+	@Builtin("base::no_splice") ex macro fn CommaList<Type>${macro CommaList<Type> v}->CommaList<Type> return v;end
+	
+	@Builtin("base::no_splice") ex macro fn SemicolList<Stat>${macro SemicolList<Stat> v}->SemicolList<Stat> return v;end
+	@Builtin("base::no_splice") ex macro fn SemicolList<Var> ${macro SemicolList<Var>  v}->SemicolList<Var>  return v;end
+	@Builtin("base::no_splice") ex macro fn SemicolList<Expr>${macro SemicolList<Expr> v}->SemicolList<Expr> return v;end
+	@Builtin("base::no_splice") ex macro fn SemicolList<Name>${macro SemicolList<Name> v}->SemicolList<Name> return v;end
+	@Builtin("base::no_splice") ex macro fn SemicolList<Type>${macro SemicolList<Type> v}->SemicolList<Type> return v;end
 	
 	--[[
 	--TODO: move this elsewhere
@@ -56,13 +74,13 @@
 	--
 	-- (addType${u8}) -> (u8)
 	--
-	-- You can also call it like a normal function (you also need to use "()", or the other calling forms),
+	-- You can also call it like a normal function (semicolon seperators use commas, and you also need to use "()", or the other calling forms),
 	-- and it will return what you called it with, and nothing will change.
 	--
 	-- assert(addType(Type${u8}) == Type${u8}, "These are equal");
 	--
 	
-	macro fn implAdd(macro NameList ns) -> Vec<Stat>
+	macro fn implAdd(macro CommaList<Name> ns) -> Vec<Stat>
 		
 		let Vec<Stat> r;
 		
@@ -83,13 +101,24 @@
 	implAdd$(
 		Block,
 		Stat,
+		
 		Var,
 		Expr,
-		ExprList,
 		Name,
-		NameList,
 		Type,
-		TypeList
+		
+		CommaList<Var>,
+		CommaList<Expr>,
+		CommaList<Name>,
+		CommaList<Type>,
+		
+		SemicolList<Stat>,
+		
+		--you cant splice these into code.
+		--SemicolList<Var>,
+		--SemicolList<Expr>,
+		--SemicolList<Name>,
+		--SemicolList<Type>,
 	);
 	]]
 	
@@ -149,13 +178,49 @@ Macro {
 	```
 	into 
 	```
-	$(macroWithArgs_Name_Stat($Name{myNameArg},$Stat{local x = 44}))
+	$(macroWithArgs_Name_Stat(Name${myNameArg},Stat${local x = 44}))
 	```
 	macroVar gets turned from `$myVar` into `$(myVar)`
 	
 	Adding "macro" before a argument, makes it modify parsing behaviour, when
-	using "macroInvoke", if there is no macro, then you need to pass it by value.
+		using "macroInvoke", if there is no macro, then you need to pass it by value.
 	
+	You can call macro-functions like normal comptime functions.
+	When doing that, semicolon seperators use commas, and you also need to use "()", or the other calling forms.
+	
+	Right after a CommaList, you are not allowed to use a comma seperator.
+	Right after a SemicolList, you are not allowed to use a semicolon seperator.
+	
+	Certain kinds of macro overloading are allowed.
+	Macro Overloading Rules {
+		
+		() is always allowed.
+		
+		All references to lists, allow both the list types, and also just manual 
+		list inlining, that means: `CommaList<T>` -> `T` or `T,T` or `T,T,T` ...
+		
+		T,T2,T3 ... can all be the same, cuz overloading doesnt care about the types, only the seperators.
+		
+		Overloading complicates calling macros in the function style.
+		--TODO: should "overload resolution" happen?
+		
+		(T;anyList<T2>)					+ (commaList<T>)
+		(T,anyList<T2>)					+ (semicolList<T>)
+		(T;anyList<T2>)					+ (T,commaList<T>;anyList<T3>)
+		(T,anyList<T2>)					+ (T;semicolList<T>,anyList<T3>)
+		(T;semicolList<T2>,anyList<T3>)	+ (commaList<T>)
+		(T,commaList<T2>;anyList<T3>)	+ (semicolList<T>)
+		(T;semicolList<T2>,anyList<T3>)	+ (T,commaList<T>;anyList<T4>)
+		(T,commaList<T2>;anyList<T3>)	+ (T;semicolList<T>,anyList<T4>)
+		
+		
+		Examples {
+			() + (T;T) + (CommaList<T>)
+			Valid as it is: (T;anyList<T2>) + (commaList<T>)
+		}
+	}
+	
+	Stat doesnt allow semicolon statments.
 	
 	adding a $ after the name of a macro def, makes it so it doesnt
 	conflict with existing symbols,	it also means you cant call them in function-form
