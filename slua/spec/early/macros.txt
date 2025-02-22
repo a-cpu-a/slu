@@ -59,7 +59,7 @@
 	-- You can also call it like a normal function (you also need to use "()", or the other calling forms),
 	-- and it will return what you called it with, and nothing will change.
 	--
-	-- assert(addType($Type{u8}) == $Type{u8}, "These are equal");
+	-- assert(addType(Type${u8}) == Type${u8}, "These are equal");
 	--
 	
 	macro fn implAdd(macro NameList ns) -> Vec<Stat>
@@ -69,7 +69,7 @@
 		for k,v in ns do
 			let name = ("add"..(v as str)) as Name;
 			r:push(
-				$Stat{
+				Stat${
 					ex macro fn $name{macro $(v as Type) val }
 						return val
 					end
@@ -80,7 +80,7 @@
 		return r;
 	end
 	
-	$implAdd(
+	implAdd$(
 		Block,
 		Stat,
 		Var,

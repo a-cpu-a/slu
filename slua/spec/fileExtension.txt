@@ -1,0 +1,12 @@
+#
+# Dependencies:
+#
+
+File Extension {
+	
+	it will be ".slua"
+	
+	it was once used for something called sharp lua, but that isnt rly developed anymore (13~ years ago).
+	
+	slua is used for some unity extension thing, but thats fine.
+}
