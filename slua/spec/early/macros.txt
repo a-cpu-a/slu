@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, rawVar, fnStatment
+# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, fnStatment
 #
 
 --TODO: a way to splice out keywords, like "mut", "ex" and "comptime"
@@ -134,8 +134,8 @@
 New Syntax {
 
 	macroSplice ::= "$(" comptimeExp ")"
-	macroInvoke ::= (rawVar "$" ProgrammableArgs)
-	macroVar ::= "$"RawName
+	macroInvoke ::= (comptimeVar"$" ProgrammableArgs)
+	macroVar ::= "$"comptimeVar
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
 	
 	stat @::= | macroInvSpl
@@ -144,6 +144,7 @@ New Syntax {
 	Name @::= | macroInvSpl
 	type @::= | macroInvSpl
 	OptExportPrefix @::= | macroInvSpl
+	comptimeVar @::= | macroInvSpl
 	
 	macroParamsBlock ::= ("(" macroParamList ")")
 		| ("[" macroParamList "]")
@@ -187,6 +188,8 @@ Macro {
 	
 	You can call macro-functions like normal comptime functions.
 	When doing that, semicolon seperators use commas, and you also need to use "()", or the other calling forms.
+	
+	When using "!> <!", you cant have more than 1 argument, and it cant be a list.
 	
 	Right after a CommaList, you are not allowed to use a comma seperator.
 	Right after a SemicolList, you are not allowed to use a semicolon seperator.
