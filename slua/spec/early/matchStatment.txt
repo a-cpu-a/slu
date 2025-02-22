@@ -4,13 +4,23 @@
 
 New Syntax {
 	
-	matchPatItem ::= "(" comptimeExp ")" | comptimeVar | comptimeFunccall | --TODO: finish
+	--TODO: finish this:
+	matchPatItem ::= {unop} 
+		("(" comptimeExp ")" | Numeral | StringLiteral | false | true | nil)
 	
 	matchPatBinOp ::= ".." | "or"
+	rangeishCasing ::= matchPatItem {matchPatBinOp matchPatItem}
 	
-	matchPat ::= matchPatItem {matchPatBinOp matchPatItem} "if" exp
+	patField ::= ["&"] ["mut"] tupleableName "=" matchCasing
+	tableishCasing ::= type "{" patField {fieldsep patField} [fieldsep ".."] "}"
 	
-	matchItem ::= ("_" | matchPat) "=>" explist
+	matchCasing ::= tableishCasing | rangeishCasing | "_"
+	matchPatCasing ::= tableishCasing | ([optTypeOrRefMut Name "="] rangeishCasing)
+	
+	
+	matchPat ::= matchPatCasing ["if" exp]
+	
+	matchItem ::= ("_" | type | matchPat) "=>" explist
 	
 	matchStat ::= matchItem | ";"
 	
