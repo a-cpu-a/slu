@@ -1,0 +1,8 @@
+#
+# Dependencies: Lua
+#
+
+Reserved Syntax {
+
+	Calling a function using the stirng arg type now requires some whitespace between the function and the argument.
+}
