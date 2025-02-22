@@ -4,5 +4,14 @@
 
 Reserved Syntax {
 
-	Calling a function using the stirng arg type now requires some whitespace between the function and the argument.
+	Calling a function using the string arg type now requires some whitespace between the function and the argument.
+	This applies to short & long form of string.
+	
+	(print[[Hello World!]]) -> error
+	(print"Hello World!") -> error
+	(print'Hello World!') -> error
+	
+	(print [[Hello World!]]) -> all good
+	(print "Hello World!") -> all good
+	(print 'Hello World!') -> all good
 }
