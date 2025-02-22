@@ -10,8 +10,8 @@ New Syntax {
 	PreConst ::= ["comptime"]
 	
 	comptimeExp ::= exp
-	comptimeFunccall ::= funccall
 	comptimeVar ::= Name {"::" Name} {"." Name}
+	comptimeFunccall ::= comptimeVar [":" Name] args
 	
 	exp @::= | comptime(exp)
 	
@@ -37,6 +37,8 @@ Comptime Keyword {
 	This means that the variable must have its value computed at compile-time.
 	Or that the function must be executed at compile-time.
 	
+	comptimeExp,comptimeFunccall -> must be runnable at compile-time
+	comptimeVar -> value must be known at compile-time
 	
 	Implementation {
 		Likely just compile the needed functions, variables, constants, types into some lua_state, to run the stuff.
