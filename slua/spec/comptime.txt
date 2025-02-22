@@ -9,6 +9,8 @@ New Syntax {
 	PreLet ::= ["comptime"]
 	PreConst ::= ["comptime"]
 	
+	comptimeExp ::= exp
+	
 	exp @::= | comptime(exp)
 	
 	--TODO: make it more intuitive, and seperated,

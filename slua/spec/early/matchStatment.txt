@@ -1,0 +1,40 @@
+#
+# Dependencies: Lua, type, comptime
+#
+
+New Syntax {
+	
+	matchPatItem ::= "(" comptimeExp ")" | --TODO: finish
+	
+	matchPatBinOp ::= ".." | "or"
+	
+	matchPat ::= matchPatItem {matchPatBinOp matchPatItem} "if" exp
+	
+	matchItem ::= ("_" | matchPat) "=>" explist
+	
+	matchStat ::= matchItem | ";"
+	
+	matchExp ::= "match" exp ["->" type] {matchStat} "end"
+	
+	exp @::= | matchExp
+	stat @::= | matchExp
+}
+
+New Keywords {
+	match
+}
+
+Match Statment {
+	
+	Lets you match on a expressions result.
+	
+	The return type is assigned automatically, if missing.
+	
+	First matching pattern will be used. (top to bottom)
+	
+	The order inside the patterns is undefined.
+	
+	Implementation {
+		May be a jump table, if else chain, etc.
+	}
+}
