@@ -66,4 +66,20 @@ namespace sluaParse
 
 
 #undef _Slua_MAKE_SETTING_CVAR
+
+
+
+	template<class T>
+	struct _AnySetting_impl
+	{
+		using v = std::false_type;
+	};
+	template<class T2, class... T3>
+	struct _AnySetting_impl<Setting<T2, T3...>>
+	{
+		using v = std::true_type;
+	};
+
+	template<class T>
+	concept AnySettings = _AnySetting_impl<std::remove_cvref_t<T>>::v::value;
 }
