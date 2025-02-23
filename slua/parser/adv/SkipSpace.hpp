@@ -109,7 +109,8 @@ namespace sluaParse
 		}
 		return idx;
 	}
-	inline void skipSpace(AnyInput auto& in)
+	//Returns true, when idx changed
+	inline bool skipSpace(AnyInput auto& in)
 	{
 		/*
 
@@ -146,6 +147,8 @@ namespace sluaParse
 		any other level.
 
 		*/
+
+		bool res = false;
 
 		bool insideLineComment = false;
 		ParseNewlineState nlState = ParseNewlineState::NONE;
@@ -201,6 +204,7 @@ namespace sluaParse
 			if (isSpaceChar(ch))
 			{
 				in.skip();
+				res = true;
 				continue;
 			}
 
@@ -209,6 +213,8 @@ namespace sluaParse
 				const uint8_t nextCh = in.peekAt(1);
 				if (nextCh == '-') // Single-line or multiline comment starts
 				{
+					res = true;
+
 					const uint8_t nextNextCh = in.peekAt(2);
 					if (nextNextCh == '[') // Possible multiline comment
 					{
@@ -232,5 +238,7 @@ namespace sluaParse
 			}
 			break;
 		}
+
+		return res;
 	}
 }

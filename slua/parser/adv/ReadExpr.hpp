@@ -124,7 +124,7 @@ namespace sluaParse
 		//This requires manual parsing, and stuff (at every step, complex code)
 		while (true)
 		{
-			skipSpace(in);
+			const bool skipped = skipSpace(in);
 
 			if (!in)
 				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, funcCallData, varDataNeedsSubThing,0);
@@ -192,12 +192,36 @@ namespace sluaParse
 				in.skip();//skip colon
 				std::string name = readName(in);
 
+				const bool skippedAfterName = skipSpace(in);
+
+				if constexpr (in.settings().spacedFuncCallStrForm())
+				{
+					if (!skippedAfterName)
+					{
+						throw UnexpectedCharacterError(std::format(
+							"Expected space before string argument, at "
+							"{}"
+							, errorLocStr(in)));
+					}
+				}
+
 				funcCallData.emplace_back(name, readArgs(in));
 				break;
 			}
-			case '{':
 			case '"':
 			case '\'':
+				if constexpr (in.settings().spacedFuncCallStrForm())
+				{
+					if (!skipped)
+					{
+						throw UnexpectedCharacterError(std::format(
+							"Expected space before string argument, at "
+							"{}"
+							, errorLocStr(in)));
+					}
+				}
+				[[fallthrough]];
+			case '{':
 			case '('://Funccall
 				funcCallData.emplace_back("", readArgs(in));
 				break;
@@ -226,6 +250,16 @@ namespace sluaParse
 
 				if (secondCh == '[' || secondCh == '=')//is multi-line string?
 				{
+					if constexpr (in.settings().spacedFuncCallStrForm())
+					{
+						if (!skipped)
+						{
+							throw UnexpectedCharacterError(std::format(
+								"Expected space before string argument, at "
+								"{}"
+								, errorLocStr(in)));
+						}
+					}
 					funcCallData.emplace_back("", readArgs(in));
 					break;
 				}

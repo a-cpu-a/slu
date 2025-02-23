@@ -102,9 +102,9 @@
 
 namespace sluaParse
 {
+	//Doesnt skip space, the current character must be a valid args starter
 	inline Args readArgs(AnyInput auto& in)
 	{
-		skipSpace(in);
 		const char ch = in.peek();
 		if (ch == '"' || ch=='\'' || ch=='[')
 		{
