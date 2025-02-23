@@ -199,7 +199,7 @@ namespace sluaParse
 					if (!skippedAfterName)
 					{
 						throw UnexpectedCharacterError(std::format(
-							"Expected space before string argument, at "
+							"Expected space before " LC_string " argument, at "
 							"{}"
 							, errorLocStr(in)));
 					}
@@ -215,7 +215,7 @@ namespace sluaParse
 					if (!skipped)
 					{
 						throw UnexpectedCharacterError(std::format(
-							"Expected space before string argument, at "
+							"Expected space before " LC_string " argument, at "
 							"{}"
 							, errorLocStr(in)));
 					}
@@ -255,7 +255,7 @@ namespace sluaParse
 						if (!skipped)
 						{
 							throw UnexpectedCharacterError(std::format(
-								"Expected space before string argument, at "
+								"Expected space before " LC_string " argument, at "
 								"{}"
 								, errorLocStr(in)));
 						}
