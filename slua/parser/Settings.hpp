@@ -8,7 +8,7 @@
 namespace sluaParse
 {
 #define _Slua_MAKE_SETTING_FUNC(_NAME) \
-	constexpr bool _NAME() const \
+	consteval bool _NAME() const \
 	{ \
 		bool r = false; \
 		((r |= SettingTs::_NAME()),...); \
@@ -57,7 +57,7 @@ namespace sluaParse
 #define _Slua_MAKE_SETTING_CVAR(_NAME) \
 	struct C_ ## _NAME : Setting<C_ ## _NAME> \
 	{ \
-		constexpr bool _NAME() const {return true;} \
+		consteval bool _NAME() const {return true;} \
 	}; \
 	inline constexpr auto _NAME = C_ ## _NAME()
 
