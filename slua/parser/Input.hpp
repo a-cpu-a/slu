@@ -12,9 +12,11 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include "State.hpp"
+#include "Settings.hpp"
 
 namespace sluaParse
 {
+
 	//Here, so streamed inputs can be made
 	template<class T>
 	concept AnyInput = requires(T t) {
@@ -43,6 +45,8 @@ namespace sluaParse
 
 		//Management
 		{ t.newLine() } -> std::same_as<void>;
+
+		{ t.settings } -> AnySettings;
 	};
 
 	inline std::string errorLocStr(const AnyInput auto& in) {
@@ -56,8 +60,11 @@ namespace sluaParse
 		const char* what() const { return m.c_str(); }
 	};
 
+	template<class SettingsT = Setting<void>>
 	struct Input
 	{
+		[[no_unique_address]] SettingsT settings;
+
 		std::string fName;
 		size_t curLine = 1;
 		size_t curLinePos = 0;
