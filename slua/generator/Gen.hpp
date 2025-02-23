@@ -169,7 +169,10 @@ namespace sluaParse
 			out.add("..."sv);
 		},
 		varcase(const ExprType::NUMERAL) {
-			out.add(std::to_string(var.v));
+			if (isinf(var.v) && var.v>0.0f)
+				out.add("1e999");
+			else
+				out.add(std::to_string(var.v));
 		},
 		varcase(const ExprType::NUMERAL_I64) {
 			out.add(std::to_string(var.v));
