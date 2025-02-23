@@ -17,6 +17,7 @@
 #include <slua/parser/adv/ReadStringLiteral.hpp>
 #include <slua/parser/adv/ReadNumeral.h>
 #include <slua/parser/basic/ReadOperators.hpp>
+#include <slua/parser/errors/CharErrors.h>
 
 namespace sluaParse
 {
@@ -52,12 +53,8 @@ namespace sluaParse
 		if (varData.size() != 1)
 		{
 			if constexpr (FOR_EXPR)
-			{
-				throw UnexpectedCharacterError(std::format(
-					"Found list of variables inside expression "
-					"{}"
-					, errorLocStr(in)));
-			}
+				throwVarlistInExpr(in);
+
 			throw UnexpectedCharacterError(std::format(
 				"Expected multi-assignment, since there is a list of variables, but found "
 				LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
@@ -79,11 +76,8 @@ namespace sluaParse
 			else
 			{
 				if (varDataNeedsSubThing)
-				{
-					throw UnexpectedCharacterError(
-						"Raw expressions are not allowed, expected assignment or " LC_function " call"
-						+ errorLocStr(in));
-				}
+					throwRawExpr(in);
+
 				throw UnexpectedCharacterError(std::format(
 					"Expected assignment or " LC_function " call, found "
 					LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
@@ -138,18 +132,10 @@ namespace sluaParse
 				else
 				{
 					if (!funcCallData.empty())
-					{
-						throw UnexpectedCharacterError(
-							"Cant assign to " LC_function " call (Found in variable list)"
-							+ errorLocStr(in));
-					}
+						throwFuncCallInVarList(in);
 					if (varDataNeedsSubThing)
-					{
-						throw UnexpectedCharacterError(
-							"Cant assign to expression, found "
-							LUACC_SINGLE_STRING("=")
-							+ errorLocStr(in));
-					}
+						throwExprInVarList(in);
+
 					in.skip();//skip comma
 					skipSpace(in);
 					varData.emplace_back();
@@ -165,19 +151,10 @@ namespace sluaParse
 				else
 				{
 					if (!funcCallData.empty())
-					{
-						throw UnexpectedCharacterError(
-							"Cant assign to " LC_function " call, found "
-							LUACC_SINGLE_STRING("=")
-							+ errorLocStr(in));
-					}
+						throwFuncCallAssignment(in);
 					if (varDataNeedsSubThing)
-					{
-						throw UnexpectedCharacterError(
-							"Cant assign to expression, found "
-							LUACC_SINGLE_STRING("=")
-							+ errorLocStr(in));
-					}
+						throwExprAssignment(in);
+
 					in.skip();//skip eq
 					StatementType::ASSIGN res{};
 					res.vars = std::move(varData);
@@ -197,12 +174,7 @@ namespace sluaParse
 				if constexpr (in.settings().spacedFuncCallStrForm())
 				{
 					if (!skippedAfterName)
-					{
-						throw UnexpectedCharacterError(std::format(
-							"Expected space before " LC_string " argument, at "
-							"{}"
-							, errorLocStr(in)));
-					}
+						throwSpaceMissingBeforeString(in);
 				}
 
 				funcCallData.emplace_back(name, readArgs(in));
@@ -213,12 +185,7 @@ namespace sluaParse
 				if constexpr (in.settings().spacedFuncCallStrForm())
 				{
 					if (!skipped)
-					{
-						throw UnexpectedCharacterError(std::format(
-							"Expected space before " LC_string " argument, at "
-							"{}"
-							, errorLocStr(in)));
-					}
+						throwSpaceMissingBeforeString(in);
 				}
 				[[fallthrough]];
 			case '{':
@@ -253,12 +220,7 @@ namespace sluaParse
 					if constexpr (in.settings().spacedFuncCallStrForm())
 					{
 						if (!skipped)
-						{
-							throw UnexpectedCharacterError(std::format(
-								"Expected space before " LC_string " argument, at "
-								"{}"
-								, errorLocStr(in)));
-						}
+							throwSpaceMissingBeforeString(in);
 					}
 					funcCallData.emplace_back("", readArgs(in));
 					break;
