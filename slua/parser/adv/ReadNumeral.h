@@ -86,7 +86,9 @@ namespace sluaParse
             else if (requireExpCh)
             {
                 throw UnexpectedCharacterError(
-                    "Expected a digit or " LUACC_SINGLE_STRING("+") "/" LUACC_SINGLE_STRING("-") " for exponent of " LC_number
+                    "Expected a digit or " 
+                    LUACC_SINGLE_STRING("+") "/" LUACC_SINGLE_STRING("-")
+                    " for exponent of " LC_number
                     + errorLocStr(in));
             }
             else
