@@ -46,7 +46,7 @@ namespace sluaParse
 		//Management
 		{ t.newLine() } -> std::same_as<void>;
 
-		{ t.settings } -> AnySettings;
+		{ t.settings() } -> AnySettings;
 	};
 
 	inline std::string errorLocStr(const AnyInput auto& in) {
@@ -63,7 +63,13 @@ namespace sluaParse
 	template<class SettingsT = Setting<void>>
 	struct Input
 	{
-		[[no_unique_address]] SettingsT settings;
+		constexpr Input(SettingsT) {}
+		constexpr Input() = default;
+
+		consteval static SettingsT settings()
+		{
+			return SettingsT();
+		}
 
 		std::string fName;
 		size_t curLine = 1;
