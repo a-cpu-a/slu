@@ -1,0 +1,17 @@
+#
+# Dependencies:
+#
+
+Logging {
+	
+	Error -> No executable is output, compilation will halt early.
+	
+	Soft-error {
+		A error that needs to be fixed, but a executable is output.
+		
+		Just like a warning, the compiler has to assume some intentions.
+		(missing '?' -> insert it for you)
+	}
+	
+	Warning -> Something that might need to be fixed, or annotated.
+}
