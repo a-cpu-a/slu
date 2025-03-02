@@ -1,0 +1,109 @@
+#
+# Dependencies: Lua, type, logging, matchStatment
+#
+
+New Syntax {
+
+	postunop @::= | ‘?’
+	
+	tryItem ::= "catch" pat ["if" exp] "=>" explist
+	tryStat ::= tryItem | matchElseItem | matchElseifItem | ";"
+	
+	tryExp ::= "try" exp ["->" type] {tryStat} "end"
+	
+	exp @::= | tryExp
+	stat @::= | tryExp
+	
+	
+	
+	stat @::= | "throw" exp
+}
+
+New Keywords {
+	try
+	throw
+	catch
+}
+
+Errors {
+	
+	The type specifier '?' is used to mark a function as possibly returning an error.
+	Those types are the only types allowed for the "?" unary operator.
+	When returning errors by value, it is a tuple containing the Error, and the Value.
+	When returning errors by exception, it is optimized into just the Value (or nothing at all).
+	It is an error to assign a possibly errored value to a variable (other than _, which will ignore the error)
+	
+	The error types also have some special functions {
+		get(self)->Value 						--Panics, if it is a error.
+		getOr(self,Value default)->Value		--Returns value, or the default value
+		wrapError(self,Func<E,Err> op)->Value?E	--Changes the error, (only if it is an error)
+	}
+	
+	Postfix "?" unary operator passes the error upwards.
+	If an error is silently ignored, a soft-error is logged at compile-time, and the operator is inserted.
+	Using the "?" operator on types that arent specified with '?', is a soft-error. (operator is ignored)
+	
+	To ignore a error assign to the "_" variable.
+	(_ = myErroringFunc();)
+	
+	The throw statment is used to return a error.
+	
+	--TODO: choose a way for devs to configure between "stack unwinding" and "return value"
+	-- AND make the differences clear.
+	-- Option: allow specifying the chance of error (1% -> stack unwind, 10% -> return value)
+	-- Option: allow specifying the code-size preferance (smaller -> stack unwind (only in big projects), bigger -> return value)
+	-- Option: ignore the fact devs are wrongly biased on this issue, and add some keywords. (errval | unwind)
+	Try expressions allow you to handle errors from a function call.
+	Any unmatched errors are automatically propagated outside, letting you use a "?" operator again.
+	
+	Try expressions are a wrapper for using match twice.
+	Once to unwrap into value & error, returning instantly unless it is an error.
+	Second to figure out what kind of error it is, and then handle it.
+	
+	Unmatched errors are passed down as if they werent ever caught, and are added to the return type, if it isnt already specified,
+	this means that you have to use the '?' operator, or catch it elsewhere.
+	
+	```slua
+	
+	fn myErrFunc() -> u8?Err
+		-- ...
+		throw Err::OOM{};-- Error!
+		-- ...
+	end
+
+	let u8 passTheError = myErrFunc()?;				-- Get the value or propagate the error
+	let u8 panicOnError = myErrFunc():get();		-- Get the value or panic
+	let u8 neverError = myErrFunc():getOr(100);	-- Get the value or return ...
+	
+	let u8 differentError = myErrFunc()
+		:wrapError(fn(e) return "Oh no: "..e end); -- Changes the error type, and prefixes the error message.
+	
+	let u8 qq = try myErrFunc() 
+	
+		-- The return type is optional. 
+		-- -> u8?(some variant), the ? and the stuff after it, would be needed since we arent matching every error.
+		
+		Err::PMsg x => panic$("Error " .. x.1);-- PMsg is a tuple, we are indexing into the first element
+		
+		Err::OOM => panic$("Out of memory!");
+		Err::Msg{v} => panic$(v);
+		
+		-- If this is was added, "?" suffix wouldnt be needed, cuz Err::Unknown would be caught.
+		--else => panic$("Unknown error"); 
+		
+	end?;-- Try is suffixed with a ?, since "Err::Unknown" isnt handled.
+	```
+	
+	Implementation {
+		
+		Errors can be handled via exceptions (stack unwinding) or returned as values.
+		
+		The compiler can choose which will be faster in some cases, but is recommended to trust the developer.
+		
+		Return by value could be implemented using a register flag.
+		
+		'?' types will either be turned into some tuple, just the value, or void.
+		Functions returning errors could be compiled twice, to allow users to use both exceptions and error values
+		
+	}
+}
