@@ -18,7 +18,7 @@ New Syntax {
 	destrFieldUncond ::= "[" tupleableName "]" destrTupFieldUncond
 	destrTupFieldUncond ::= "(" dPat ")" | ndPatFieldUncond
 	
-	extraFieldSignifier ::= "," ".."
+	extraFieldSignifier ::= "," "..."
 	
 	dPat ::= [comptimeVarType] "{" destrField {"," destrField} [extraFieldSignifier] "}" |
 		[comptimeVarType] "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
@@ -65,6 +65,9 @@ Match Statment {
 	First matching pattern will be used. (top to bottom)
 	
 	The order inside the patterns is undefined.
+	
+	
+	"extraFieldSignifier" is required, when a field / array element is ignored, or when matching on dynamicly-sized arrays.
 	
 	Implementation {
 		May be a jump table, if else chain, etc.
