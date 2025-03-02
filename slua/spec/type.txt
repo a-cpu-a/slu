@@ -45,8 +45,8 @@ New Syntax {
 New Keywords {
 	void
 	bool
-	o_int
-	o_num
+	integer
+	number
 	ptrdata
 	Any
 	string
@@ -88,21 +88,17 @@ Official Types {
 	bool {
 		A lua boolean
 	}
-	o_int {
+	integer {
 		A 25, 32, 64, or 54 bit integer
 		54 bit integers are only for luajit (can store up to 2^53).
-		25 bit integers are for 32bit versions of lua pre 5.3 (can store up to 2^24)
-		
-		name is prefixed with "o_", cuz this is optimized for speed
+		25 bit integers are for 32bit versions of lua pre 5.3 (can store up to 2^24
 		
 		--[[
 			Should slua types be allowed here? u128, i128 too?
 		]]
 	}
-	o_num {
-		A 32 or 64 bit float, might also be a o_int on some lua versions.
-		
-		name is prefixed with "o_", cuz this is optimized for speed
+	number {
+		A 32 or 64 bit float, might also be a integer on some lua versions.
 		
 		--[[
 			Should slua types be allowed here? u128, i128 too?
@@ -226,6 +222,18 @@ Type Specifiers {
 		
 		Makes the type borrowing, this means that it is a borrowed value.
 		
-		(&u8/firstArg/secondArg) -> a reference to a "u8", equivelant to using either firstArg, or secondArg.
+		```slua
+		let firstArg = --...
+		let secondArg = --...
+		
+		let &u8/firstArg myRef = &firstArg;
+		
+		let &mut u8 myRef2 = &mut secondArg;-- The annotation is inferred here.
+		
+		--drop myRef2;-- Automatically added here.
+		
+		let &u8/firstArg/secondArg = &firstArg;-- This automatically drops "myRef2", as it would conflict with this variable.
+		
+		```
 	}
 }
