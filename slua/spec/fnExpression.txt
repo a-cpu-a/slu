@@ -1,0 +1,32 @@
+#
+# Dependencies: Lua, type, exportPrefix
+#
+
+New Syntax {
+
+	exp @::= | PreFn "fn" "(" TypedParamList ")" ["->" type] block "end"
+}
+
+New Keywords {
+	fn
+}
+
+Fn Statment {
+	
+	Creates a lambda function.
+	
+	Param types, and return type are assigned automatically, if missing.
+	
+	Params are const by default.
+	
+	Partialy equivelant to "local function x() end",
+	except, it can be exported, and have types
+	
+	
+	Implementation {
+		Could be a function pointer,
+		or a pointer plus some captured data.
+		
+		In lua, this could be a table with a special metatable.
+	}
+}
