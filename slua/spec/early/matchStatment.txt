@@ -4,28 +4,45 @@
 
 New Syntax {
 	
-	--TODO: finish this:
-	matchPatItem ::= {unop} 
-		("(" comptimeExp ")" | Numeral | StringLiteral | false | true | nil)
+	matchPatItem ::= ["#" | "not" | "-" | "~"] "(" comptimeExp ")" | ["-" | "~"] Numeral | ["#"] StringLiteral | ["not"] false | ["not"] true | ["not"] nil | type
 	
 	matchPatBinOp ::= ".." | "or"
-	rangeishCasing ::= matchPatItem {matchPatBinOp matchPatItem}
+	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
-	namedField ::= (optTypeOrRefMut Name ["=" matchCasing]) | "_"
+	ndPatField ::= ndPatFieldUncond ["=" ndPat]
+	ndPatFieldUncond ::= ["mut"] ["&" ["mut"]] Name
 	
-	patField ::= ["&"] ["mut"] tupleableName ["=" matchCasing]
-	tableishCasing ::= type "{" patField {fieldsep patField} [fieldsep ".."] "}"
-	arrayishCasing ::= "[" namedField {"," namedField} ["," ".."] "]"
+	destrField ::= "[" tupleableName "]" destrTupField
+	destrTupField ::= "(" pat ")" | ndPatField
 	
-	matchCasing ::= tableishCasing | arrayishCasing | rangeishCasing | "_"
-	matchPatCasing ::= tableishCasing | arrayishCasing | ([optTypeOrRefMut Name "="] rangeishCasing)
+	destrFieldUncond ::= "[" tupleableName "]" destrTupFieldUncond
+	destrTupFieldUncond ::= "(" dPat ")" | ndPatFieldUncond
 	
+	extraFieldSignifier ::= "," ".."
 	
-	matchPat ::= matchPatCasing ["if" exp]
+	dPat ::= [comptimeVarType] "{" destrField {"," destrField} [extraFieldSignifier] "}" |
+		[comptimeVarType] "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
+		comptimeVarType "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
+		"[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" "of" type |
+		"_" |
+		["mut"] ["&" ["mut"]] comptimeVarType Name ["=" ndPat] |
+		Name
 	
-	matchItem ::= ("_" | type | matchPat) "=>" explist
+	uncondDestrPat ::= [comptimeVarType] "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
+		[comptimeVarType] "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
+		comptimeVarType "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
+		"[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" "of" type |
+		"_" |
+		["mut"] ["&" ["mut"]] comptimeVarType Name |
+		Name
 	
-	matchStat ::= matchItem | ";"
+	ndPat ::= sPat
+	pat ::= sPat | dPat
+	
+	matchItem ::= "case" pat ["if" exp] "=>" explist
+	matchElseItem ::= "else" "=>" explist
+	matchElseifItem ::= "elseif" exp "=>" explist
+	matchStat ::= matchItem | matchElseItem | matchElseifItem | ";"
 	
 	matchExp ::= "match" exp ["->" type] {matchStat} "end"
 	
@@ -35,6 +52,8 @@ New Syntax {
 
 New Keywords {
 	match
+	of
+	case
 }
 
 Match Statment {
