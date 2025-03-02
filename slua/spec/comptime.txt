@@ -1,6 +1,6 @@
 #
 # Dependencies: Lua, fnStatment, letStatment, constStatment, modules
-# MayModify: constStatmentTypes, letStatmentTypes
+# MayModify: constStatmentTypes, letStatmentTypes, fnExpression
 #
 
 New Syntax {
@@ -11,6 +11,7 @@ New Syntax {
 	
 	comptimeExp ::= exp
 	comptimeVar ::= modpath {"." tupleableName}
+	comptimeVarType ::= comptimeVar
 	comptimeFunccall ::= comptimeVar [":" tupleableName] args
 	
 	exp @::= | comptime(exp)
@@ -22,7 +23,7 @@ New Keywords {
 
 Comptime Keyword {
 	
-	This can mark something, or make a expression run at compile-time.
+	This can mark something to only run at compile-time.
 	
 	It can be used on a expression to make it run a compile-time,
 	this means you can speed up things like string concatentation,
@@ -30,19 +31,30 @@ Comptime Keyword {
 	
 	It can mark a function, or variable as compile-time evaluated.
 	
-	This means that the variable must have its value computed at compile-time.
-	Or that the function must be executed at compile-time.
+	Using comptime on global variables lets you initialize the values at compile-time.
+	On functions, it means that they must be executed at compile-time.
+	
+	Using comptime on a "let" local variable, forces the initial value to be stored in some private global state.
+	When using it on "const" local variables, the variables might be moved over to some private global state.
+	
 	
 	comptimeExp,comptimeFunccall -> must be runnable at compile-time
 	comptimeVar -> value must be known at compile-time
+	comptimeVarType -> only basic type paths allowed
+	
+	(comptime(exp)) can be used to force a expression to be run at compile-time
 	
 	
-	comptime(exp) can be used to force the expression to be run at compile-time
+	When there is a panic, or a error is propagated outside of comptime, a compiler error must be issued.
+	
+	For now, comptime code isnt allowed to write to comptime global variables.
 	
 	Implementation {
-		Likely just compile the needed functions, variables, constants, types into some lua_state, to run the stuff.
+		Likely just compile the needed functions, variables, constants, types into some lua_state, then run it.
 		And then cache the results, until something changes.
 		
-		note: (Normal functions can be evaluated at compile-time, or run-time)
+		Dangerous libraries like "debug", "io", "os" are disabled inside comptime.
+		
+		note: (All normal functions can be evaluated at compile-time and run-time)
 	}
 }
