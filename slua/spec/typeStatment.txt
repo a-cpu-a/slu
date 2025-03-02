@@ -15,4 +15,6 @@ Type Statment {
 	
 	Creates a new type with a name 'Name', that is equivelant to 'type'
 	
+	This is useful, for aliasing non-library types, like errorable types (u8?Err), etc ...
+	
 }
