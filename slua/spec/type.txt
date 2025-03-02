@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	type ::= ["?"] typeItem { "|" typeItem }
+	type ::= typeItem ["?" typeItem] { "|" typeItem }
 	TypeList ::= type {"," type}
 
 	typeItem ::= typePrefix specType
@@ -25,7 +25,7 @@ New Syntax {
 	
 	optTypeOrRefMut ::= (["&"] ["mut"]) | type
 	
-	borrowAnnotation ::= "'" var
+	borrowAnnotation ::= "/" var
 	
 	typedParam ::= ["mut"] [type] Name
 	TypedParamList ::= typedParam {"," typedParam}
@@ -132,6 +132,7 @@ Official Types {
 	}
 	f8,f16,f128 {
 		Reserved, may be used in the future.
+		(intended for uses outside of lua, but will be supported inside lua, when added)
 	}
 	f32,f64 {
 		32 or 64 bit floats.
@@ -147,7 +148,7 @@ Official Types {
 		Optimized 8,16,32,64 or 128 bit signed integers.
 		Implementation {
 			i64 may be emulated on platforms like luajit, or 32bit versions of lua.
-			i128 is always emulated.
+			i128 is always emulated in lua.
 		}
 	}
 	u8,u16,u32,u64,u128 {
@@ -155,14 +156,14 @@ Official Types {
 		Implementation {
 			u64 may be emulated on platforms like luajit, or 32bit versions of lua.
 			u64 multiplication, division, modulo, exp are all emulated on normal lua, but are optimized on slua runtimes (luajit might be optimized when possible too).
-			u128 is always emulated.
+			u128 is always emulated in lua.
 		}
 	}
 	isize {
-		Currently the same as i64, but may change to "i128" in the far future (2160?)
+		i32, i54, i64, ... depending on platform.
 	}
 	usize {
-		Currently the same as u64, but may change to "u128" in the far future (2160?)
+		u32, u54, u64, ... depending on platform.
 	}
 }
 
@@ -202,15 +203,12 @@ Type Specifiers {
 			The compiler must prove that indices will always be valid, to remove run-time checks.
 		}
 	}
-	Optional {
-		Format: "?" X
+	Result {
+		Format: [X] "?" X
 		
-		Applied after any array thingies, so "?X[]" is nil, or a array of X
-		To get the opposite, just do "(?X)[]"
+		Allows both a error, and a value, or just a error.
 		
-		Its basicly just a shortcut for " nil | "
-		
-		Allows X to be nil
+		Allows use of the "?" operator, and other error handling tools.
 	}
 	GC {
 		Format: "#" X
@@ -218,10 +216,16 @@ Type Specifiers {
 		Turns the type into a gc-value, this means that it can be passed into other
 		functions, and they can then modify that variable.
 		It is also garbage collected, unless lifetime is simple enough to be inlined into some value type + borrows
+		
+		Passing this to other threads is not allowed, this means you cant store gc-values in global variables.
+		
+		Mutably-borrowing these is also not allowed.
 	}
 	Borrow {
-		Format "&" ["mut"] X
+		Format "&" ["mut"] X {borrowAnnotation}
 		
 		Makes the type borrowing, this means that it is a borrowed value.
+		
+		(&u8/firstArg/secondArg) -> a reference to a "u8", equivelant to using either firstArg, or secondArg.
 	}
 }
