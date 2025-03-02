@@ -2,11 +2,9 @@
 # Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, fnStatment
 #
 
---TODO: a way to splice out keywords, like "mut", "ex" and "comptime"
-
 "std::macros" Module {
 	
-	--These are only available at comptime and macros
+	--These types are only available at comptime
 	
 	ex type Block = @Builtin("base::type/block")void;
 	ex type Stat = @Builtin("base::type/stat")void;
@@ -26,12 +24,12 @@
 	
 	--These return the tokens raw, without splicing them
 	
-	--Do NOT use @Builtin("base::no_splice") on your own code, as it is only defined here.
+	--Do NOT use @Builtin("base::no_splice") in your own code, as it is only supported here.
 	--The $ after the name, makes it so it doesnt conflict with the types.
 	--It also means you cant call these in function-form
 	@Builtin("base::no_splice") ex macro fn Block${macro Block v}->Block return v;end
 	
-	--You are not allowed to use semicolon statments with this!
+	--You are not allowed to use semicolon statments with this! (no "Stat${;}")
 	@Builtin("base::no_splice") ex macro fn Stat ${macro Stat  v}->Stat  return v;end
 	
 	@Builtin("base::no_splice") ex macro fn Var  ${macro Var   v}->Var   return v;end
@@ -45,7 +43,7 @@
 	@Builtin("base::no_splice") ex macro fn SemicolList<T>${macro SemicolList<T> v}->SemicolList<T> return v;end
 	
 	--[[
-	--TODO: move this elsewhere
+	--TODO: move this elsewhere, when its needed
 		fn prefixUpperify(str prefix,mut str s) -> str
 			if #s == 0 then return s end
 			s[1] = s[1].upper()
@@ -74,7 +72,7 @@
 			let name = ("add"..(v as str)) as Name;
 			r:push(
 				Stat${
-					ex macro fn $name{macro $(v as Type) val }
+					ex macro fn $name {macro @(v as Type) val }
 						return val
 					end
 				}
@@ -113,7 +111,7 @@
 
 New Syntax {
 
-	macroSplice ::= "$(" comptimeExp ")"
+	macroSplice ::= "@(" comptimeExp ")"
 	macroInvoke ::= (comptimeVar"$" ProgrammableArgs)
 	macroVar ::= "$"comptimeVar
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
@@ -143,6 +141,8 @@ New Keywords {
 
 Macro {
 	
+	--TODO: a way to splice out basic keywords, like "mut", "ex" and "comptime"
+	
 	Creates a new global or local macro with a name 'Name', that cant be modified.
 	
 	Macro's must return one of the macro types (or a simple container of them), if you need to return something else, use a comptime function.
@@ -150,18 +150,18 @@ Macro {
 	macroSplice -> splices the token sequence(s) resulting from a expresion
 	macroVar -> shortcut for macroSplice, only works for token typed local variables.
 	macroInvoke -> run a macro & splice it.
-	The !> <! args mean that there is nothing surrounding the args.
+	The "!>" "<!" args mean that there is nothing surrounding the args.
 	"macro" functions are implicitly comptime.
 	
 	macroInvoke gets turned from 
-	```
+	```slua
 	macroWithArgs_Name_Stat$(myNameArg,local x = 44)
 	```
 	into 
+	```slua
+	@(macroWithArgs_Name_Stat(Name${myNameArg},Stat${local x = 44}))
 	```
-	$(macroWithArgs_Name_Stat(Name${myNameArg},Stat${local x = 44}))
-	```
-	macroVar gets turned from `$myVar` into `$(myVar)`
+	macroVar gets turned from `$myVar` into `@(myVar)`
 	
 	Adding "macro" before a argument, makes it modify parsing behaviour, when
 		using "macroInvoke", if there is no macro, then you need to pass it by value.
@@ -184,9 +184,9 @@ Macro {
 		
 		T,T2,T3 ... can all be the same, cuz overloading doesnt care about the types, only the seperators.
 		
-		Overloading complicates calling macros in the function style.
-		--TODO: should "overload resolution" happen?
+		Overloading disables calling macros in the function style.
 		
+		--TODO: spec this out
 		(T;anyList<T2>)					+ (commaList<T>)
 		(T,anyList<T2>)					+ (semicolList<T>)
 		(T;anyList<T2>)					+ (T,commaList<T>;anyList<T3>)
@@ -203,16 +203,19 @@ Macro {
 		}
 	}
 	
-	Stat doesnt allow semicolon statments.
+	Stat${} doesnt allow semicolon statments.
 	
 	adding a $ after the name of a macro def, makes it so it doesnt
 	conflict with existing symbols,	it also means you cant call them in function-form
 	
 	$$ is converted to $.
+	@@ is converted to @.
+	
+	Error messages from macro code include both the macro splice-stack, and the place where it was spliced from.
 	
 	Implementation {
-		Only exists inside slua land.
+		Only exists inside parsing land, so you cant use it at runtime, or some of compile-time.
 		
-		Is programable syntax.
+		Could be implemented by wrapping the input stream temporarily, while something needs to be spliced in.
 	}
 }
