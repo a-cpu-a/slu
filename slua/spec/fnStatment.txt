@@ -20,7 +20,6 @@ Fn Statment {
 	Param types, and return type are assigned automatically, if missing.
 	
 	Params are const by default.
-	If a param has no type, then it defaults to "Any"
 	
 	Partialy equivelant to "local function x() end",
 	except, it can be exported, and have types
