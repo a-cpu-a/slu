@@ -9,30 +9,32 @@ New Syntax {
 	modpath ::= modpathStart {"::" Name}
 	submodpath ::= Name {"::" Name}
 	
-	stat @::= | OptExportPrefix "mod" submodpath "as" block "end"
-	stat @::= | OptExportPrefix "mod" submodpath
-	stat @::= | OptExportPrefix "use" modpath ["as" Name]
+	stat @::= | OptExportPrefix "module" submodpath "as" block "end"
+	stat @::= | OptExportPrefix "module" submodpath
+	stat @::= | OptExportPrefix "use" modpath ["as" Name | "::" "*" | "::" "{" namelist "}"]
 }
 
 New Keywords {
 	crate
 	self
-	mod
+	module
 	use
 	as
 }
 
 Modules {
 	
-	--TODO: finish documenting what mod, use, self, crate do.
-	
-	The mod keyword declares a new module.
+	The module keyword declares a new module.
 	It tells the compiler that the subsequent block (or file) defines a new namespace which may contain functions, variables, types, macros, or even nested modules.
 	The "as" form creates a module inline.
-	The simple form deffers the module to another file.
+	The simple form defers the module to another file (module X; is for file "/X.slua").
 	
-	The use keyword is used to import modules or specific names from modules into the current scope. 
+	The "use" keyword is used to import modules or specific names from modules into the current scope. 
 	This allows you to refer to items defined elsewhere without needing to specify the full path every time.
+	
+	(use std::macros;)					-- Lets you reference "std::macros" as "macros"
+	(use std::macros as conflicting;)	-- Lets you reference "std::macros" as "conflicting"
+	(use std::{macros,foo};)			-- Lets you reference "std::macros" and "std::foo", as "macros" and "foo"
 	
 	The keyword self refers to the current module-the one in which the statement appears.
 	It is useful for referring to items (functions, types, etc.) within the same module, particularly in nested contexts.
@@ -41,13 +43,14 @@ Modules {
 	Its the entry point for your module hierarchy.
 	
 	
-	When using the module system, global statments are restricted, so side-effects arent allowed.
+	When using the module system, global statements are restricted, so side-effects arent allowed.
 	
 	
 	The file, folder structure is strict, every folder represents a module.
 	The src folder represents the crate.
-	For every module nest, you will need a folder, and a file (src/aaa/... + src/aaa.slua), the file defines things the modules inside it, and potentialy things like functions.
-	The src folder also needs atleast one file called "lib.slua" or "main.slua"
+	For every module nest, you will need a folder, and a file (src/aaa/... + src/aaa.slua), the file defines things the modules inside it, and potentially things like functions.
+	The folder is only needed for file based submodules.
+	The src folder also needs at least one file called "lib.slua" or "main.slua"
 	
 	# Example File Structure
 	
@@ -72,19 +75,22 @@ Modules {
 	
 	--TODO: choose a name for them, and the system of packaging.
 	
-	Crates are compiled to output-files, this is defined inside the maifests.
+	Crates are compiled to output-files, this is defined inside the manifests.
 	
 	Manifests can only lightly change the output-file format, limited
-		to switching between static & dynamic linking.
+		to switching between static & dynamic linking (per crate for now).
 	
 	Implementation {
 		Combines some files, into one IR(lua, llvm, js, ...) thing.
 		
-		All files are parsed, compiled seperately (including macros), possibly on multiple threads.
+		All files are parsed, compiled separately (including macros), possibly on multiple threads.
 		When a file encounters a dependency, it will wait for that file to be parsed, so it can check & know what symbols exist.
 		
-		Some standard modules may be optimized by the compiler, so you might not be able to modify them.
-		A great example would be the macro modules, as making them builtin, makes parsing alot faster in some cases.
-		These modules have their hashes stored inside the manifests, so modifications are flagged.
+		When compiling, no order is specified, as it doesnt matter.
+		The compiler can choose to compile all files at the same time, or in subsets.
+		
+		Some builtin modules may be optimized by the compiler, so you might not be able to modify them.
+		A great example would be the macro modules, as making them immutable, makes parsing a lot faster in some cases.
+		These modules have their hashes stored inside the manifests, so modifications create compile time errors.
 	}
 }
