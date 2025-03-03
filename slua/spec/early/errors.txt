@@ -31,12 +31,12 @@ Errors {
 	Those types are the only types allowed for the "?" unary operator.
 	When returning errors by value, it is a tuple containing the Error, and the Value.
 	When returning errors by exception, it is optimized into just the Value (or nothing at all).
-	It is an error to assign a possibly errored value to a variable (other than _, which will ignore the error)
+	It is an error to assign a possibly errored value to a variable (other than _, which will ignore the error), this is because allowing that would complicate unwinding a lot.
 	
-	The error types also have some special functions {
-		get(self)->Value 						--Panics, if it is a error.
+	The error types also have some special functions, defined by the compiler {
+		get(self)->Value 						--Panics, if it is a error, otherwise returns the value.
 		getOr(self,Value default)->Value		--Returns value, or the default value
-		wrapError(self,Func<E,Err> op)->Value?E	--Changes the error, (only if it is an error)
+		wrapError(self,ErrWrapFunc<E,Err> op)->Value?E	--Changes the error, (only if it is an error)
 	}
 	
 	Postfix "?" unary operator passes the error upwards.
@@ -47,6 +47,7 @@ Errors {
 	(_ = myErroringFunc();)
 	
 	The throw statment is used to return a error.
+	It is converted to stack unwinding or a return, depending on what the "try" chooses.
 	
 	--TODO: choose a way for devs to configure between "stack unwinding" and "return value"
 	-- AND make the differences clear.
@@ -59,6 +60,9 @@ Errors {
 	Try expressions are a wrapper for using match twice.
 	Once to unwrap into value & error, returning instantly unless it is an error.
 	Second to figure out what kind of error it is, and then handle it.
+	
+	First matching pattern will be used. (top to bottom)
+	The order inside the patterns is undefined.
 	
 	Unmatched errors are passed down as if they werent ever caught, and are added to the return type, if it isnt already specified,
 	this means that you have to use the '?' operator, or catch it elsewhere.
@@ -86,7 +90,11 @@ Errors {
 		Err::PMsg x => panic$("Error " .. x.1);-- PMsg is a tuple, we are indexing into the first element
 		
 		Err::OOM => panic$("Out of memory!");
-		Err::Msg{v} => panic$(v);
+		Err::Msg{v} => gen
+			print(v);
+			
+			return 0;
+		end
 		
 		-- If this is was added, "?" suffix wouldnt be needed, cuz Err::Unknown would be caught.
 		--else => panic$("Unknown error"); 
@@ -99,11 +107,15 @@ Errors {
 		Errors can be handled via exceptions (stack unwinding) or returned as values.
 		
 		The compiler can choose which will be faster in some cases, but is recommended to trust the developer.
+		A compiler flag to choose the default should exist, and most of the time it should default to "unwind"
 		
 		Return by value could be implemented using a register flag.
 		
 		'?' types will either be turned into some tuple, just the value, or void.
-		Functions returning errors could be compiled twice, to allow users to use both exceptions and error values
+		Functions returning errors could be compiled twice, to allow users to use both exceptions and error values.
+		It is recommended for compilers to defer the duplication to as late as possible.
+		(Static linking -> no split)
+		(Dynamic linking -> no choice, but to split)
 		
 	}
 }
