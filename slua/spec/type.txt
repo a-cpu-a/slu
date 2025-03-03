@@ -49,7 +49,8 @@ New Keywords {
 	number
 	ptrdata
 	Any
-	string
+	str
+	String
 	Table
 	Func
 	Userdata
@@ -111,8 +112,20 @@ Official Types {
 	Any {
 		Any type is allowed (even void)
 	}
+	str {
+		A lua-like string, immutable.
+		Unlike lua, this is just a reference to a real string, or part of one.
+		
+		a sized array of utf8 bytes.
+		
+		Must be valid utf8, using the old standard that allows charaters up to 32~ bits.
+		Surrogate pairs are not allowed.
+	}
 	String {
-		A lua string, immutable
+		A mutable string.
+		
+		Must be valid utf8, using the old standard that allows charaters up to 32~ bits.
+		Surrogate pairs are not allowed.
 	}
 	Table {
 		A lua table, can have fields and indices
