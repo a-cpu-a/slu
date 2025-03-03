@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	stat @::= | OptExportPrefix PreLet "let" type namelist ["=" explist]
+	stat @::= | OptExportPrefix PreLet "let" ["mut"] type namelist ["=" explist]
 }
 
 Let Statment {
