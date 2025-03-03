@@ -1,0 +1,20 @@
+#
+# Dependencies: Lua
+#
+
+New Syntax {
+
+	stat @::= | "drop" Name
+}
+
+New Keywords {
+	drop
+}
+
+Drop Statment {
+	
+	Drop a variable explicitly
+	
+	This is useful, for deleting variables before they have gone out of scope.
+	
+}
