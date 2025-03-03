@@ -6,7 +6,7 @@ New Syntax {
 	
 	PreLet ::=
 	
-	stat @::= | OptExportPrefix PreLet "let" namelist "=" explist
+	stat @::= | OptExportPrefix PreLet "let" ["mut"] namelist "=" explist
 }
 
 New Keywords {
@@ -15,17 +15,22 @@ New Keywords {
 
 Let Statment {
 	
-	Creates a new global or local variable(s) with names 'namelist'
+	Creates a new global or local variable(s) with names 'namelist', that cant be modified (not even its contents), unless mut is added.
 	
 	Types are assigned automatically.
 	
 	
 	Equivelant to "local x = 1234", or "x = 1234"
 	except, it can be exported.
+	Aand if x is a table / whatever, its contents cant be edited, unless mut is added.
 	
 	
 	Implementation {
-		May be a local variable
+		May be a local ?<const>? variable
 		Or a global variable
+		
+		The value might be frozen at runtime (metatable, or internal stuff)
+		
+		If something somehow modifies a const variable, the changes might be ignored
 	}
 }
