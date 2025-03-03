@@ -1,0 +1,38 @@
+#
+# Dependencies: Lua, type, comptime
+#
+
+New Syntax {
+	
+	exp @::= | ["comptime"] "gen" ["->" type] block "return" explist [";"] "end"
+}
+
+New Keywords {
+	gen
+}
+
+Gen Expression {
+	
+	Lets you compute a value inside in a expression, while being able to use statments, and more complex code.
+	
+	Using comptime, forces it to run at compile-time.
+	
+	Using return inside gen blocks completes them, and returns the result, to be used for the expression outside.
+	Returning multiple expressions at once automatically produces a tuple, just like let, const, etc...
+	
+	Generate expressions must end with a return, since all paths must return a value.
+	
+	The return type is inferred, when missing.
+	
+	Generate expressions are not like lambdas, since they arent functions, but a different way to write expressions.
+	
+	Also useful for macros.
+	
+	Inside coroutines, gen blocks cant directly yield, and must return out the value first.
+	
+	Implementation {
+		May be implemented by lambdas that capture values.
+		
+		Can also be implemented as code outside of an expression.
+	}
+}
