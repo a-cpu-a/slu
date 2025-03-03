@@ -11,7 +11,6 @@ New Keywords {
 	yield  		(53.8k)		(2.3k)		Async / gen weak return
 	async  		(82.9k)		(5.7k)		Mark as async?
 	await  		(16.9k)		(1.2k)		Wait for something from a value.
-	gen    		(909k)		(89.6k)		Gen blocks
 	continue 	(162k)		(4.1k)		Try looping again.
 	
 	enum   		(129k)		(8.5k)		Define a enum
@@ -20,7 +19,6 @@ New Keywords {
 	union  		(25k)		(2k)		Define a union
 	copy   		(461k)		(41.7k)		Copy a value explicitly
 	move   		(1.7m)		(341k)		Borrow a value explicitly
-	drop   		(377k)		(40.3k)		Drop a value explicitly
 	super  		(207k)		(6.3k)		Super-type
 	impl   		(594k)		(23.8k)		Implement a trait
 	unsafe 		(6.4k)		(372)		Mark as unsafe
@@ -57,9 +55,12 @@ New Keywords {
 	try			(672k)		(73k)		try expr
 	use			(2.4m)		(140k)		use expr
 	mut			(85k)		(8.2k)		mutable
+	gen    		(909k)		(89.6k)		Generate expressions
+	drop   		(377k)		(40.3k)		Drop a value explicitly
 	case		(352k)		(8.2k)		match case
+	type		(1.9m)		(78.3k)		type alias
 	self		(1.5m)		(35.3k)		self arg / this module
-	Self		(174k)		(11.4k)		?
+	Self		(174k)		(11.4k)		This type
 	const		(317k)		(34.3k)		const var def
 	macro		(52.5k)		(5.8k)		macro def
 	match		(545k)		(27.4k)		match expr
@@ -70,7 +71,6 @@ New Keywords {
 	comptime	(256)		(4)			comptime marker / expr
 	
 	
-	type		(1.9m)		(78.3k)		type alias
 	
 	
 }
