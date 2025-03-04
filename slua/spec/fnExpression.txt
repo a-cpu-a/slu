@@ -15,18 +15,13 @@ Fn Expression {
 	
 	Creates a lambda function.
 	
-	Param types, and return type are assigned automatically, if missing.
-	
-	Params are const by default.
-	
-	Partially equivelant to "local function x() end",
-	except, it can be exported, and have types
+	Same rules for typing as normal fn statements.
 	
 	
 	Implementation {
 		Could be a function pointer,
 		or a pointer plus some captured data.
 		
-		In lua, this could be a table with a special metatable.
+		In lua, this could also be a table with a special metatable.
 	}
 }
