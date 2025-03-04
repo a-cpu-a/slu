@@ -231,7 +231,7 @@ Type Specifiers {
 		
 		Passing this to other threads is not allowed, this means you cant store gc-values in global variables.
 		
-		Mutably-borrowing these is also not allowed.
+		Borrowing these is also not allowed.
 	}
 	Borrow {
 		Format "&" ["mut"] X {borrowAnnotation}
@@ -246,9 +246,9 @@ Type Specifiers {
 		
 		let &mut u8 myRef2 = &mut secondArg;-- The annotation is inferred here.
 		
-		--drop myRef2;-- Automatically added here.
+		drop myRef2;-- Required, because not adding this, will produce a soft-error.
 		
-		let &u8/firstArg/secondArg = &firstArg;-- This automatically drops "myRef2", as it would conflict with this variable.
+		let &u8/firstArg/secondArg = &firstArg;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
 		
 		```
 	}
