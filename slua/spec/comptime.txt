@@ -1,6 +1,6 @@
 #
-# Dependencies: Lua, fnStatment, letStatment, constStatment, modules
-# MayModify: constStatmentTypes, letStatmentTypes, fnExpression
+# Dependencies: Lua, fnStatement, letStatement, modules
+# MayModify: letStatementTypes, fnExpression
 #
 
 New Syntax {
