@@ -116,16 +116,19 @@ Official Types {
 		A lua-like string, immutable.
 		Unlike lua, this is just a reference to a real string, or part of one.
 		
-		a sized array of utf8 bytes.
+		a sized array of utf8 bytes, or utf16 chars.
 		
-		Must be valid utf8, using the old standard that allows charaters up to 32~ bits.
-		Surrogate pairs are not allowed.
+		Must be valid utf8, using the old standard that allows charaters up to 32~ bits, and without any surrogate pairs.
+		Or valid utf16, with no malformed surrogate pairs.
+		
+		On most platforms the contents are utf8.
+		
+		Some platforms, like java & javascript use utf16.
 	}
 	String {
 		A mutable string.
 		
-		Must be valid utf8, using the old standard that allows charaters up to 32~ bits.
-		Surrogate pairs are not allowed.
+		Same restrictions on content as "str".
 	}
 	Table {
 		A lua table, can have fields and indices
