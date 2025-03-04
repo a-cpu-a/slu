@@ -11,7 +11,7 @@ New Keywords {
 	type
 }
 
-Type Statment {
+Type Statement {
 	
 	Creates a new type with a name 'Name', that is equivelant to 'type'
 	

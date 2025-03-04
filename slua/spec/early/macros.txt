@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, fnStatment
+# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, fnStatement
 #
 
 "std::macros" Module {
@@ -29,7 +29,7 @@
 	--It also means you cant call these in function-form
 	@Builtin("base::no_splice") ex macro fn Block${macro Block v}->Block return v;end
 	
-	--You are not allowed to use semicolon statments with this! (no "Stat${;}")
+	--You are not allowed to use semicolon statements with this! (no "Stat${;}")
 	@Builtin("base::no_splice") ex macro fn Stat ${macro Stat  v}->Stat  return v;end
 	
 	@Builtin("base::no_splice") ex macro fn Var  ${macro Var   v}->Var   return v;end
@@ -203,7 +203,7 @@ Macro {
 		}
 	}
 	
-	Stat${} doesnt allow semicolon statments.
+	Stat${} doesnt allow semicolon statements.
 	
 	adding a $ after the name of a macro def, makes it so it doesnt
 	conflict with existing symbols,	it also means you cant call them in function-form

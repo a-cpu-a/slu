@@ -13,15 +13,16 @@ New Keywords {
 	fn
 }
 
-Fn Statment {
+Fn Statement {
 	
 	Creates a new global or local function with a name 'Name', that cant be modified.
 	
 	Param types, and return type are assigned automatically, if missing.
 	
 	Params are const by default.
+	The default type for params is Any, as there is no information to infer anything.
 	
-	Partialy equivelant to "local function x() end",
+	Partially equivalent to "local function x() end",
 	except, it can be exported, and have types
 	
 	

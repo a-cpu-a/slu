@@ -56,7 +56,7 @@ New Keywords {
 	case
 }
 
-Match Statment {
+Match Statement {
 	
 	Lets you match on a expressions result.
 	

@@ -13,7 +13,7 @@ New Keywords {
 	let
 }
 
-Let Statment {
+Let Statement {
 	
 	Creates a new global or local variable(s) with names 'namelist', that cant be modified (not even its contents), unless mut is added.
 	

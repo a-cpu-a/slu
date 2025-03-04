@@ -7,7 +7,7 @@ New Syntax {
 	stat @::= | OptExportPrefix PreLet "let" ["mut"] type namelist ["=" explist]
 }
 
-Let Statment {
+Let Statement {
 	
 	Lets you specify the type for let variables.
 }
