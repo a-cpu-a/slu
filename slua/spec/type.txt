@@ -181,7 +181,7 @@ Official Types {
 
 Type Specifiers {
 	
-	Table Array {
+	Array {
 		Format: "[" X arraySizer {arraySizer} "]"
 		Sizes must be positive integers, or be zero
 		
@@ -193,26 +193,25 @@ Type Specifiers {
 		Indices start at 1
 		
 		Implementation {
-			Accessing elements through normal lua code is not supported.
+			Accessing elements through normal lua code is not supported, unless exported to lua.
 			
-			multi-dimensional arrays may be flattened into 1 dimension.
+			multi-dimensional arrays may be flattened into less dimensions.
 			
-			The compiler must prove that indices will always be valid, to remove run-time checks.
+			The compiler must prove that indices will always be valid, before removing run-time checks.
 		}
 	}
-	Dynamic Array {
+	Slice {
 		Format: "[" X "]"
-		Sizes: same as table
 		
 		Unlike table arrays, negative or zero indices will error.
 		Out of bounds access will also error.
 		
 		Implementation {
-			Accessing elements through normal lua code is not supported.
+			Accessing elements through normal lua code is not supported, unless exported to lua.
 			
 			multi-dimensional arrays must not be flattened into 1 dimension, unless sizes can be predicted at compile time.
 			
-			The compiler must prove that indices will always be valid, to remove run-time checks.
+			The compiler must prove that indices will always be valid, before removing run-time checks.
 		}
 	}
 	Result {
