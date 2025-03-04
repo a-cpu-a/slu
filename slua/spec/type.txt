@@ -91,19 +91,17 @@ Official Types {
 	}
 	integer {
 		A 25, 32, 64, or 54 bit integer
-		54 bit integers are only for luajit (can store up to 2^53).
+		54 bit integers are only for luajit, and older versions of lua (can store up to 2^53).
 		25 bit integers are for 32bit versions of lua pre 5.3 (can store up to 2^24
 		
-		--[[
-			Should slua types be allowed here? u128, i128 too?
-		]]
+		Slua types can be cast into this, any overflows are still handled.
+		
+		Platform specific, so on some very old platforms, might be 8 or 16 bit sized.
 	}
 	number {
 		A 32 or 64 bit float, might also be a integer on some lua versions.
 		
-		--[[
-			Should slua types be allowed here? u128, i128 too?
-		]]
+		Slua types can be cast into this, any overflows are still handled.
 	}
 	ptrdata {
 		Lightdata passed from C
