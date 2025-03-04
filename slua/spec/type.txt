@@ -127,6 +127,8 @@ Official Types {
 		A mutable string.
 		
 		Same restrictions on content as "str".
+		
+		Creating invalid content isnt ub in itself, but some libraries or functions will not handle that correctly.
 	}
 	Table {
 		A lua table, can have fields and indices
