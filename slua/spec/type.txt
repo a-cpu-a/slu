@@ -159,14 +159,14 @@ Official Types {
 	i8,i16,i32,i64,i128 {
 		Optimized 8,16,32,64 or 128 bit signed integers.
 		Implementation {
-			i64 may be emulated on platforms like luajit, or 32bit versions of lua.
+			i32, i64 may be emulated on platforms like luajit, or 32bit versions of lua.
 			i128 is always emulated in lua.
 		}
 	}
 	u8,u16,u32,u64,u128 {
 		Optimized 8,16,32,64 or 128 bit unsigned integers.
 		Implementation {
-			u64 may be emulated on platforms like luajit, or 32bit versions of lua.
+			u32, u64 may be emulated on platforms like luajit, or 32bit versions of lua.
 			u64 multiplication, division, modulo, exp are all emulated on normal lua, but are optimized on slua runtimes (luajit might be optimized when possible too).
 			u128 is always emulated in lua.
 		}
