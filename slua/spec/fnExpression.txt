@@ -11,7 +11,7 @@ New Keywords {
 	fn
 }
 
-Fn Statment {
+Fn Expression {
 	
 	Creates a lambda function.
 	
@@ -19,7 +19,7 @@ Fn Statment {
 	
 	Params are const by default.
 	
-	Partialy equivelant to "local function x() end",
+	Partially equivelant to "local function x() end",
 	except, it can be exported, and have types
 	
 	

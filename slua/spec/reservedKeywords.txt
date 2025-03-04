@@ -17,10 +17,10 @@ New Keywords {
 	struct 		(506k)		(62.2k)		Define a struct
 	trait  		(63.2k)		(4k)		Define a trait
 	union  		(25k)		(2k)		Define a union
+	impl   		(594k)		(23.8k)		Implement a trait
 	copy   		(461k)		(41.7k)		Copy a value explicitly
 	move   		(1.7m)		(341k)		Borrow a value explicitly
 	super  		(207k)		(6.3k)		Super-type
-	impl   		(594k)		(23.8k)		Implement a trait
 	unsafe 		(6.4k)		(372)		Mark as unsafe
 	safe   		(141k)		(17.2k)		Mark as safe
 	dyn    		(209k)		(5.5k)		Vtable traits
@@ -42,6 +42,7 @@ New Keywords {
 	typeof 		(44k)		(616)		?
 	virtual		(82.9k)		(3.2k)		?
 	unsized		(120)		(0)			?
+	const		(317k)		(34.3k)		?
 	
 	
 	--keywords from other spec things
@@ -52,21 +53,20 @@ New Keywords {
 	fn			(563k)		(48.1k)		function def
 	ex			(3.7m)		(573k)		export
 	let			(1.6m)		(199k)		var def
-	try			(672k)		(73k)		try expr
+	try			(672k)		(73k)		try expr/stat
 	use			(2.4m)		(140k)		use expr
 	mut			(85k)		(8.2k)		mutable
-	gen    		(909k)		(89.6k)		Generate expressions
+	gen    		(909k)		(89.6k)		Generate expression
 	drop   		(377k)		(40.3k)		Drop a value explicitly
 	case		(352k)		(8.2k)		match case
 	type		(1.9m)		(78.3k)		type alias
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
-	const		(317k)		(34.3k)		const var def
 	macro		(52.5k)		(5.8k)		macro def
 	match		(545k)		(27.4k)		match expr
 	crate		(73k)		(1.1k)		this crate
 	catch		(44k)		(3.3k)		catch stat
-	throw		(92.2k)		(7k)		?
+	throw		(92.2k)		(7k)		return a error
 	module		(651k)		(40.2k)		module def
 	comptime	(256)		(4)			comptime marker / expr
 	

@@ -11,7 +11,7 @@ New Keywords {
 	as
 }
 
-As Statment {
+As Expression {
 	
 	No-op, lets you convert a type into another type.
 	
