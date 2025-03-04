@@ -108,7 +108,7 @@ Official Types {
 	}
 	
 	Any {
-		Any type is allowed (even void)
+		Any type is allowed, except void
 	}
 	str {
 		A lua-like string, immutable.
