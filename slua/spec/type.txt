@@ -231,6 +231,8 @@ Type Specifiers {
 		Passing this to other threads is not allowed, this means you cant store gc-values in global variables.
 		
 		Borrowing these is also not allowed.
+		
+		Use the "alloc" unary operator, to create these.
 	}
 	Borrow {
 		Format "&" ["mut"] X {borrowAnnotation}
