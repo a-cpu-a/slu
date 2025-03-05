@@ -18,6 +18,35 @@
 
 namespace sluaParse
 {
+    inline constexpr uint64_t LAST_DIGIT_HEX = 0xFULL << (64 - 8);
+
+    constexpr int64_t parseHexInt(AnyInput auto& in, const std::string& str) {
+
+        int64_t result = 0;
+
+        for (const char c : str)
+        {
+            if constexpr (in.settings().noIntOverflow())
+            {
+                if (result & LAST_DIGIT_HEX)//does it have anything?
+                {// Yes, exit now!
+                    throw UnexpectedCharacterError(
+                        LC_Integer " is too big, "
+                        LUACC_START_SINGLE_STRING
+                        + str +
+                        LUACC_END_SINGLE_STRING
+                        + errorLocStr(in));
+                }
+            }
+
+            result <<= 4;// bits per digit
+            result |= hexDigit2Num(c);
+        }
+
+        return result;
+    }
+
+
 	/*
 
 		// NOTE: NO WHITESPACE BETWEEN CHARS!!!
@@ -119,14 +148,14 @@ namespace sluaParse
         {
             try
             {
-                return ExprType::NUMERAL_I64(std::stoll(number, nullptr, hex ? 16 : 10));
+                if (hex)
+                {
+                    return ExprType::NUMERAL_I64(parseHexInt(in,number));
+                }
+                return ExprType::NUMERAL_I64(std::stoll(number, nullptr, 10));
             }
             catch (const std::exception&)
             {
-                if (hex)
-                {
-                    number = "0x" + number;
-                }
                 return ExprType::NUMERAL(std::stod(number));
             }
         }
