@@ -57,13 +57,13 @@ New Keywords {
 	try			(672k)		(73k)		try expr/stat
 	use			(2.4m)		(140k)		use expr
 	mut			(85k)		(8.2k)		mutable
-	new 		(1.8m)		(303k)		Allocate something for gc?
 	gen    		(909k)		(89.6k)		Generate expression
 	drop   		(377k)		(40.3k)		Drop a value explicitly
 	case		(352k)		(8.2k)		match case
 	type		(1.9m)		(78.3k)		type alias
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
+	alloc		(??)		(??)		Allocate something for gc
 	macro		(52.5k)		(5.8k)		macro def
 	match		(545k)		(27.4k)		match expr
 	crate		(73k)		(1.1k)		this crate
@@ -73,6 +73,10 @@ New Keywords {
 	comptime	(256)		(4)			comptime marker / expr
 	
 	
+}
+Data {
 	
-	
+	--Not reserved currently
+
+	new 		(1.8m)		(303k)		?
 }
