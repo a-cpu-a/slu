@@ -6,7 +6,7 @@ New Syntax {
 	
 	matchPatItem ::= ["#" | "not" | "-" | "~"] "(" comptimeExp ")" | ["-" | "~"] Numeral | ["#"] StringLiteral | ["not"] false | ["not"] true | ["not"] nil | type
 	
-	matchPatBinOp ::= ".." | "or"
+	matchPatBinOp ::= "to" | "or"
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
 	ndPatField ::= ndPatFieldUncond ["=" ndPat]
@@ -54,6 +54,7 @@ New Keywords {
 	match
 	of
 	case
+	to
 }
 
 Match Statement {
