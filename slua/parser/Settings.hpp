@@ -19,6 +19,8 @@ namespace sluaParse
 	struct Setting : SettingTs...
 	{
 		_Slua_MAKE_SETTING_FUNC(spacedFuncCallStrForm);
+		_Slua_MAKE_SETTING_FUNC(noIntOverflow);
+		_Slua_MAKE_SETTING_FUNC(sluaSyn);
 
 		template<class... OSettingTs>
 		consteval auto operator|(const Setting<OSettingTs...>& o) const
@@ -55,14 +57,16 @@ namespace sluaParse
 
 
 #define _Slua_MAKE_SETTING_CVAR(_NAME) \
-	struct C_ ## _NAME : Setting<C_ ## _NAME> \
+	struct _C_ ## _NAME : Setting<_C_ ## _NAME> \
 	{ \
 		consteval bool _NAME() const {return true;} \
 	}; \
-	inline constexpr auto _NAME = C_ ## _NAME()
+	inline constexpr auto _NAME = _C_ ## _NAME()
 
 
 	_Slua_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
+	_Slua_MAKE_SETTING_CVAR(noIntOverflow);
+	_Slua_MAKE_SETTING_CVAR(sluaSyn);
 
 
 #undef _Slua_MAKE_SETTING_CVAR
