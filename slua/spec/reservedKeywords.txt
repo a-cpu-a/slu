@@ -24,7 +24,7 @@ New Keywords {
 	unsafe 		(6.4k)		(372)		Mark as unsafe
 	safe   		(141k)		(17.2k)		Mark as safe
 	dyn    		(209k)		(5.5k)		Vtable traits
-	new 		(1.8m)		(303k)		Allocate something for gc
+	generator	(??)		(??)		Generator function?
 	
 	delete 		(360k)		(37.4k)		Delete a pointer/something explicitly
 	reloc  		(6.1k)		(470)		Relocate a value
@@ -48,6 +48,7 @@ New Keywords {
 	--keywords from other spec things
 	
 	
+	to			(??)		(??)		range operator / match range
 	as			(4.6m)		(713k)		cast / use...as...
 	of			(2.5m)		(87k)		match [...] of ...
 	fn			(563k)		(48.1k)		function def
@@ -56,6 +57,7 @@ New Keywords {
 	try			(672k)		(73k)		try expr/stat
 	use			(2.4m)		(140k)		use expr
 	mut			(85k)		(8.2k)		mutable
+	new 		(1.8m)		(303k)		Allocate something for gc?
 	gen    		(909k)		(89.6k)		Generate expression
 	drop   		(377k)		(40.3k)		Drop a value explicitly
 	case		(352k)		(8.2k)		match case
