@@ -92,20 +92,20 @@ namespace sluaParse
 	};
 #undef _LUA_KWS
 
-	inline bool isNameValid(AnyInput auto& in, const std::string& n)
+	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
 		if constexpr (in.settings().sluaSyn())
 		{
 			// Check if the resulting string is a reserved keyword
 			if (RESERVED_KEYWORDS_SLUA.find(n) != RESERVED_KEYWORDS_SLUA.end())
-				return false;
-			return true;
+				return true;
+			return false;
 		}
 
 		// Check if the resulting string is a reserved keyword
 		if (RESERVED_KEYWORDS.find(n) != RESERVED_KEYWORDS.end())
-			return false;
-		return true;
+			return true;
+		return false;
 	}
 
 	inline std::string readName(AnyInput auto& in, const bool allowError = false)
@@ -154,7 +154,7 @@ namespace sluaParse
 		}
 
 		// Check if the resulting string is a reserved keyword
-		if (!isNameValid(in, res))
+		if (isNameInvalid(in, res))
 		{
 			if (allowError)
 				return "";
@@ -196,7 +196,7 @@ namespace sluaParse
 			continue;
 		}
 		// Check if the resulting string is a reserved keyword
-		if (!isNameValid(in, res))
+		if (isNameInvalid(in, res))
 			return SIZE_MAX;
 
 		return i;
