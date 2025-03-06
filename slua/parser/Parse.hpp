@@ -163,6 +163,7 @@ namespace sluaParse
 		return false;
 	}
 
+	template<bool isLoop>
 	inline Block readBlock(AnyInput auto& in)
 	{
 		/*
@@ -209,7 +210,7 @@ namespace sluaParse
 
 			// Not some end / return keyword, must be a statement
 
-			ret.statList.emplace_back(readStatment(in));
+			ret.statList.emplace_back(readStatment<isLoop>(in));
 		}
 		ret.end = in.getLoc();
 		return ret;
@@ -251,7 +252,7 @@ namespace sluaParse
 		}
 
 		requireToken(in, ")");
-		ret.block = readBlock(in);
+		ret.block = readBlock<false>(in);
 		requireToken(in, "end");
 
 		return ret;
@@ -270,15 +271,17 @@ namespace sluaParse
 		return res;
 	}
 
+	template<bool isLoop>
 	inline Block readDoEndBlock(AnyInput auto& in)
 	{
 		requireToken(in, "do");
-		Block bl = readBlock(in);
+		Block bl = readBlock<isLoop>(in);
 		requireToken(in, "end");
 
 		return bl;
 	}
 
+	template<bool isLoop>
 	inline Statement readStatment(AnyInput auto& in)
 	{
 		/*
@@ -326,7 +329,7 @@ namespace sluaParse
 					if (checkReadToken(in, ","))
 						res.step = readExpr(in);
 
-					res.bl = readDoEndBlock(in);
+					res.bl = readDoEndBlock<true>(in);
 
 					ret.data = std::move(res);
 					return ret;
@@ -339,7 +342,7 @@ namespace sluaParse
 
 				requireToken(in, "in");
 				res.exprs = readExpList(in);
-				res.bl = readDoEndBlock(in);
+				res.bl = readDoEndBlock<true>(in);
 
 				ret.data = std::move(res);
 				return ret;
@@ -387,7 +390,7 @@ namespace sluaParse
 		case 'd'://do?
 			if (checkReadTextToken(in, "do")) // do block end
 			{
-				Block bl = readBlock(in);
+				Block bl = readBlock<isLoop>(in);
 				requireToken(in, "end");
 				ret.data = StatementType::DO_BLOCK(std::move(bl));
 				return ret;
@@ -396,6 +399,12 @@ namespace sluaParse
 		case 'b'://break?
 			if (checkReadTextToken(in, "break"))
 			{
+				if constexpr (!isLoop)
+				{
+					throw ReservedNameError(std::format(
+						"Break used outside of loop{}"
+						, errorLocStr(in)));
+				}
 				ret.data = StatementType::BREAK();
 				return ret;
 			}
@@ -411,7 +420,7 @@ namespace sluaParse
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
 				Expression expr = readExpr(in);
-				Block bl = readDoEndBlock(in);
+				Block bl = readDoEndBlock<true>(in);
 				ret.data = StatementType::WHILE_LOOP(std::move(expr), std::move(bl));
 				return ret;
 			}
@@ -419,7 +428,7 @@ namespace sluaParse
 		case 'r'://repeat?
 			if (checkReadTextToken(in, "repeat"))
 			{ // repeat block until exp
-				Block bl = readBlock(in);
+				Block bl = readBlock<true>(in);
 				requireToken(in, "until");
 				Expression expr = readExpr(in);
 
@@ -437,19 +446,19 @@ namespace sluaParse
 
 				requireToken(in, "then");
 
-				res.bl = readBlock(in);
+				res.bl = readBlock<isLoop>(in);
 
 				while (checkReadTextToken(in, "elseif"))
 				{
 					Expression elExpr = readExpr(in);
 					requireToken(in, "then");
-					Block elBlock = readBlock(in);
+					Block elBlock = readBlock<isLoop>(in);
 
 					res.elseIfs.emplace_back( std::move(elExpr),std::move(elBlock));
 				}
 
 				if (checkReadTextToken(in, "else"))
-					res.elseBlock = readBlock(in);
+					res.elseBlock = readBlock<isLoop>(in);
 
 				requireToken(in, "end");
 
@@ -479,7 +488,7 @@ namespace sluaParse
 	 */
 	inline ParsedFile parseFile(AnyInput auto& in)
 	{
-		Block bl = readBlock(in);
+		Block bl = readBlock<false>(in);
 		skipSpace(in);
 		if (in)
 		{
