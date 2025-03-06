@@ -22,7 +22,7 @@ namespace sluaParse
 	{
 		return ch == ',' || ch == ';';
 	}
-	inline Field readField(AnyInput auto& in)
+	inline Field readField(AnyInput auto& in, const bool allowVarArg)
 	{
 		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
 		skipSpace(in);
@@ -31,12 +31,12 @@ namespace sluaParse
 		{
 			FieldType::EXPR2EXPR res{};
 
-			res.idx = readExpr(in);
+			res.idx = readExpr(in,allowVarArg);
 
 			requireToken(in, "]");
 			requireToken(in, "=");
 
-			res.v = readExpr(in);
+			res.v = readExpr(in,allowVarArg);
 
 			return res;
 		}
@@ -55,16 +55,16 @@ namespace sluaParse
 				skipSpace(in);
 				in.skip();// '='
 
-				return FieldType::NAME2EXPR(name, readExpr(in));
+				return FieldType::NAME2EXPR(name, readExpr(in,allowVarArg));
 			}
 		}
 
-		return FieldType::EXPR(readExpr(in));
+		return FieldType::EXPR(readExpr(in,allowVarArg));
 	}
 
 	//Will NOT check the first char '{' !!!
 	//But will skip it
-	inline TableConstructor readTableConstructor(AnyInput auto& in)
+	inline TableConstructor readTableConstructor(AnyInput auto& in, const bool allowVarArg)
 	{
 		/*
 			tableconstructor ::= ‘{’ [fieldlist] ‘}’
@@ -84,7 +84,7 @@ namespace sluaParse
 			return tbl;
 		}
 		//must be field
-		tbl.emplace_back(readField(in));
+		tbl.emplace_back(readField(in,allowVarArg));
 
 		while (true)
 		{
@@ -114,7 +114,7 @@ namespace sluaParse
 				in.skip();
 				break;
 			}
-			tbl.emplace_back(readField(in));
+			tbl.emplace_back(readField(in,allowVarArg));
 		}
 		return tbl;
 	}

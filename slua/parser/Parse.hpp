@@ -103,7 +103,7 @@
 namespace sluaParse
 {
 	//Doesnt skip space, the current character must be a valid args starter
-	inline Args readArgs(AnyInput auto& in)
+	inline Args readArgs(AnyInput auto& in, const bool allowVarArg)
 	{
 		const char ch = in.peek();
 		if (ch == '"' || ch=='\'' || ch=='[')
@@ -120,13 +120,13 @@ namespace sluaParse
 				in.skip();
 				return res;
 			}
-			res.v = readExpList(in);
+			res.v = readExpList(in,allowVarArg);
 			requireToken(in, ")");
 			return res;
 		}
 		else if (ch == '{')
 		{
-			return ArgsType::TABLE(readTableConstructor(in));
+			return ArgsType::TABLE(readTableConstructor(in,allowVarArg));
 		}
 		throw UnexpectedCharacterError(std::format(
 			"Expected function arguments ("
@@ -164,7 +164,7 @@ namespace sluaParse
 	}
 
 	template<bool isLoop>
-	inline Block readBlock(AnyInput auto& in)
+	inline Block readBlock(AnyInput auto& in,const bool allowVarArg)
 	{
 		/*
 			block ::= {stat} [retstat]
@@ -199,7 +199,7 @@ namespace sluaParse
 						in.skip();//thats it
 					else if (!isBasicBlockEnding(in, ch1))
 					{
-						ret.retExprs = readExpList(in);
+						ret.retExprs = readExpList(in, allowVarArg);
 						readOptToken(in, ";");
 					}
 					break;// no more loop
@@ -210,7 +210,7 @@ namespace sluaParse
 
 			// Not some end / return keyword, must be a statement
 
-			ret.statList.emplace_back(readStatment<isLoop>(in));
+			ret.statList.emplace_back(readStatment<isLoop>(in, allowVarArg));
 		}
 		ret.end = in.getLoc();
 		return ret;
@@ -252,7 +252,7 @@ namespace sluaParse
 		}
 
 		requireToken(in, ")");
-		ret.block = readBlock<false>(in);
+		ret.block = readBlock<false>(in,ret.hasVarArgParam);
 		requireToken(in, "end");
 
 		return ret;
@@ -272,17 +272,17 @@ namespace sluaParse
 	}
 
 	template<bool isLoop>
-	inline Block readDoEndBlock(AnyInput auto& in)
+	inline Block readDoEndBlock(AnyInput auto& in, const bool allowVarArg)
 	{
 		requireToken(in, "do");
-		Block bl = readBlock<isLoop>(in);
+		Block bl = readBlock<isLoop>(in,allowVarArg);
 		requireToken(in, "end");
 
 		return bl;
 	}
 
 	template<bool isLoop>
-	inline Statement readStatment(AnyInput auto& in)
+	inline Statement readStatment(AnyInput auto& in,const bool allowVarArg)
 	{
 		/*
 		 varlist ‘=’ explist |
@@ -322,14 +322,14 @@ namespace sluaParse
 					res.varName = names[0];
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-					res.start = readExpr(in);
+					res.start = readExpr(in,allowVarArg);
 					requireToken(in, ",");
-					res.end = readExpr(in);
+					res.end = readExpr(in,allowVarArg);
 
 					if (checkReadToken(in, ","))
-						res.step = readExpr(in);
+						res.step = readExpr(in,allowVarArg);
 
-					res.bl = readDoEndBlock<true>(in);
+					res.bl = readDoEndBlock<true>(in,allowVarArg);
 
 					ret.data = std::move(res);
 					return ret;
@@ -341,8 +341,8 @@ namespace sluaParse
 				res.varNames = names;
 
 				requireToken(in, "in");
-				res.exprs = readExpList(in);
-				res.bl = readDoEndBlock<true>(in);
+				res.exprs = readExpList(in,allowVarArg);
+				res.bl = readDoEndBlock<true>(in,allowVarArg);
 
 				ret.data = std::move(res);
 				return ret;
@@ -381,7 +381,7 @@ namespace sluaParse
 
 				if (checkReadToken(in, "="))
 				{// [‘=’ explist]
-					res.exprs = readExpList(in);
+					res.exprs = readExpList(in,allowVarArg);
 				}
 				ret.data = std::move(res);
 				return ret;
@@ -390,7 +390,7 @@ namespace sluaParse
 		case 'd'://do?
 			if (checkReadTextToken(in, "do")) // do block end
 			{
-				Block bl = readBlock<isLoop>(in);
+				Block bl = readBlock<isLoop>(in,allowVarArg);
 				requireToken(in, "end");
 				ret.data = StatementType::DO_BLOCK(std::move(bl));
 				return ret;
@@ -419,8 +419,8 @@ namespace sluaParse
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
-				Expression expr = readExpr(in);
-				Block bl = readDoEndBlock<true>(in);
+				Expression expr = readExpr(in,allowVarArg);
+				Block bl = readDoEndBlock<true>(in,allowVarArg);
 				ret.data = StatementType::WHILE_LOOP(std::move(expr), std::move(bl));
 				return ret;
 			}
@@ -428,9 +428,9 @@ namespace sluaParse
 		case 'r'://repeat?
 			if (checkReadTextToken(in, "repeat"))
 			{ // repeat block until exp
-				Block bl = readBlock<true>(in);
+				Block bl = readBlock<true>(in,allowVarArg);
 				requireToken(in, "until");
-				Expression expr = readExpr(in);
+				Expression expr = readExpr(in,allowVarArg);
 
 				ret.data = StatementType::REPEAT_UNTIL({ std::move(expr), std::move(bl) });
 				return ret;
@@ -442,23 +442,23 @@ namespace sluaParse
 
 				StatementType::IF_THEN_ELSE res{};
 
-				res.cond = readExpr(in);
+				res.cond = readExpr(in,allowVarArg);
 
 				requireToken(in, "then");
 
-				res.bl = readBlock<isLoop>(in);
+				res.bl = readBlock<isLoop>(in,allowVarArg);
 
 				while (checkReadTextToken(in, "elseif"))
 				{
-					Expression elExpr = readExpr(in);
+					Expression elExpr = readExpr(in,allowVarArg);
 					requireToken(in, "then");
-					Block elBlock = readBlock<isLoop>(in);
+					Block elBlock = readBlock<isLoop>(in,allowVarArg);
 
 					res.elseIfs.emplace_back( std::move(elExpr),std::move(elBlock));
 				}
 
 				if (checkReadTextToken(in, "else"))
-					res.elseBlock = readBlock<isLoop>(in);
+					res.elseBlock = readBlock<isLoop>(in,allowVarArg);
 
 				requireToken(in, "end");
 
@@ -471,7 +471,7 @@ namespace sluaParse
 			break;
 		}
 
-		ret.data = parsePrefixExprVar<StatementData,false>(in, firstChar);
+		ret.data = parsePrefixExprVar<StatementData,false>(in,allowVarArg, firstChar);
 		return ret;
 	}
 
@@ -488,7 +488,7 @@ namespace sluaParse
 	 */
 	inline ParsedFile parseFile(AnyInput auto& in)
 	{
-		Block bl = readBlock<false>(in);
+		Block bl = readBlock<false>(in,true);
 		skipSpace(in);
 		if (in)
 		{
