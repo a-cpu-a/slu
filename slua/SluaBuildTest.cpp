@@ -27,8 +27,15 @@
 
 void _test()
 {
+
 	sluaParse::Input in;
 	sluaParse::parseFile(in);
+
+	sluaParse::Input in2{ sluaParse::sluaSyn
+		| sluaParse::noIntOverflow
+		| sluaParse::spacedFuncCallStrForm 
+	};
+	sluaParse::parseFile(in2);
 
 	sluaParse::Output out;
 	sluaParse::genFile(out, sluaParse::ParsedFile());
