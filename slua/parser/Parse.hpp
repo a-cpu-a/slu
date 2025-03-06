@@ -481,23 +481,28 @@ namespace sluaParse
 		Block code;
 	};
 	/**
-	 * @throws sluaParse::UnicodeError
-	 * @throws sluaParse::UnexpectedCharacterError
-	 * @throws sluaParse::UnexpectedFileEndError
-	 * @throws sluaParse::ReservedNameError
+	 * @throws sluaParse::ParseFailError
 	 */
 	inline ParsedFile parseFile(AnyInput auto& in)
 	{
-		Block bl = readBlock<false>(in,true);
-		skipSpace(in);
-		if (in)
+		try
 		{
-			throw UnexpectedCharacterError(std::format(
-				"Expected end of stream"
-				", found " LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
-				"{}"
-				, in.peek(), errorLocStr(in)));
+			Block bl = readBlock<false>(in, true);
+			skipSpace(in);
+			if (in)
+			{
+				throw UnexpectedCharacterError(std::format(
+					"Expected end of stream"
+					", found " LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+					"{}"
+					, in.peek(), errorLocStr(in)));
+			}
+			return { std::move(bl) };
 		}
-		return { std::move(bl)};
+		catch (const ParseError& e)
+		{
+			in.handleError(e.m);
+			throw ParseFailError();
+		}
 	}
 }
