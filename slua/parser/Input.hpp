@@ -60,7 +60,7 @@ namespace sluaParse
 		const char* what() const { return m.c_str(); }
 	};
 
-	template<class SettingsT = Setting<void>>
+	template<AnySettings SettingsT = Setting<void>>
 	struct Input
 	{
 		constexpr Input(SettingsT) {}
