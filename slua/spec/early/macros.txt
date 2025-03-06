@@ -6,41 +6,41 @@
 	
 	--These types are only available at comptime
 	
-	ex type Block = @Builtin("base::type/block")void;
-	ex type Stat = @Builtin("base::type/stat")void;
+	ex type Block = @Builtin{"base::type/block"}void;
+	ex type Stat = @Builtin{"base::type/stat"}void;
 	
-	ex type Var = @Builtin("base::type/var")void;
-	ex type Expr = @Builtin("base::type/exp")void;
-	ex type Name = @Builtin("base::type/Name")void;
-	ex type Type = @Builtin("base::type/type")void;
+	ex type Var = @Builtin{"base::type/var"}void;
+	ex type Expr = @Builtin{"base::type/exp"}void;
+	ex type Name = @Builtin{"base::type/Name"}void;
+	ex type Type = @Builtin{"base::type/type"}void;
 	
 	--
 	--wrap around one of the above things, to allow a list of someting
 	--note: only works for: (Name,Type,Expr,Var, normal types)
 	--
-	ex type CommaList = @Builtin("base::type/comma_sep")void;
+	ex type CommaList = @Builtin{"base::type/comma_sep"}void;
 	--SemicolList allows Stat
-	ex type SemicolList = @Builtin("base::type/semicol_sep")void;
+	ex type SemicolList = @Builtin{"base::type/semicol_sep"}void;
 	
 	--These return the tokens raw, without splicing them
 	
-	--Do NOT use @Builtin("base::no_splice") in your own code, as it is only supported here.
+	--Do NOT use @Builtin{"base::no_splice"} in your own code, as it is only supported here.
 	--The $ after the name, makes it so it doesnt conflict with the types.
 	--It also means you cant call these in function-form
-	@Builtin("base::no_splice") ex macro fn Block${macro Block v}->Block return v;end
+	@Builtin{"base::no_splice"} ex macro fn Block${macro Block v}->Block return v;end
 	
 	--You are not allowed to use semicolon statements with this! (no "Stat${;}")
-	@Builtin("base::no_splice") ex macro fn Stat ${macro Stat  v}->Stat  return v;end
+	@Builtin{"base::no_splice"} ex macro fn Stat ${macro Stat  v}->Stat  return v;end
 	
-	@Builtin("base::no_splice") ex macro fn Var  ${macro Var   v}->Var   return v;end
-	@Builtin("base::no_splice") ex macro fn Expr ${macro Expr  v}->Expr  return v;end
-	@Builtin("base::no_splice") ex macro fn Name ${macro Name  v}->Name  return v;end
-	@Builtin("base::no_splice") ex macro fn Type ${macro Type  v}->Type  return v;end
+	@Builtin{"base::no_splice"} ex macro fn Var  ${macro Var   v}->Var   return v;end
+	@Builtin{"base::no_splice"} ex macro fn Expr ${macro Expr  v}->Expr  return v;end
+	@Builtin{"base::no_splice"} ex macro fn Name ${macro Name  v}->Name  return v;end
+	@Builtin{"base::no_splice"} ex macro fn Type ${macro Type  v}->Type  return v;end
 	
-	@Builtin("base::no_splice") ex macro fn CommaList<T> ${macro CommaList<T>  v}->CommaList<T>  return v;end
+	@Builtin{"base::no_splice"} ex macro fn CommaList<T> ${macro CommaList<T>  v}->CommaList<T>  return v;end
 	
 	--SemicolList allows Stat
-	@Builtin("base::no_splice") ex macro fn SemicolList<T>${macro SemicolList<T> v}->SemicolList<T> return v;end
+	@Builtin{"base::no_splice"} ex macro fn SemicolList<T>${macro SemicolList<T> v}->SemicolList<T> return v;end
 	
 	--[[
 	--TODO: move this elsewhere, when its needed
