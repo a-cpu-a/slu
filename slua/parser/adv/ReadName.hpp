@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <unordered_set>
+#include <algorithm>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -18,11 +19,94 @@
 
 namespace sluaParse
 {
+#define _LUA_KWS \
+	"and", "break", "do", "else", "elseif", "end", "false", "for", "function", \
+	"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", \
+	"then", "true", "until", "while"
+
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
-		"and", "break", "do", "else", "elseif", "end", "false", "for", "function",
-		"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return",
-		"then", "true", "until", "while"
+		_LUA_KWS
 	};
+	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA = {
+		_LUA_KWS,
+		//freedom
+		"continue",
+		"reloc",
+		"where",
+		"loop",
+		"raw",
+		"ref",
+
+		//future
+		"box",
+		"abstract",
+		"become",
+		"final",
+		"override",
+		"typeof",
+		"virtual",
+		"unsized",
+		"const",
+		//todos
+		"enum",
+		"struct",
+		"trait",
+		"union",
+		"impl",
+		"copy",
+		"move",
+		"super",
+		"unsafe",
+		"safe",
+		"dyn",
+		"generator",
+
+		"yield",
+		"async",
+		"await",
+		"static",
+		//documented
+		"to",
+		"as",
+		"of",
+		"fn",
+		"ex",
+		"let",
+		"try",
+		"use",
+		"mut",
+		"gen",
+		"drop",
+		"case",
+		"type",
+		"self",
+		"Self",//todo lol
+		"alloc",
+		"macro",
+		"match",
+		"crate",
+		"catch",
+		"throw",
+		"module",
+		"comptime"
+	};
+#undef _LUA_KWS
+
+	inline bool isNameValid(AnyInput auto& in, const std::string& n)
+	{
+		if constexpr (in.settings().sluaSyn())
+		{
+			// Check if the resulting string is a reserved keyword
+			if (RESERVED_KEYWORDS_SLUA.find(n) != RESERVED_KEYWORDS_SLUA.end())
+				return false;
+			return true;
+		}
+
+		// Check if the resulting string is a reserved keyword
+		if (RESERVED_KEYWORDS.find(n) != RESERVED_KEYWORDS.end())
+			return false;
+		return true;
+	}
 
 	inline std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
@@ -70,7 +154,7 @@ namespace sluaParse
 		}
 
 		// Check if the resulting string is a reserved keyword
-		if (RESERVED_KEYWORDS.find(res) != RESERVED_KEYWORDS.end())
+		if (!isNameValid(in, res))
 		{
 			if (allowError)
 				return "";
@@ -111,9 +195,8 @@ namespace sluaParse
 			res += ch;
 			continue;
 		}
-
 		// Check if the resulting string is a reserved keyword
-		if (RESERVED_KEYWORDS.find(res) != RESERVED_KEYWORDS.end())
+		if (!isNameValid(in, res))
 			return SIZE_MAX;
 
 		return i;

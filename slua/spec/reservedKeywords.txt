@@ -8,10 +8,31 @@ New Keywords {
 	
 	--kw		content		symbol		meaning
 	
-	yield  		(53.8k)		(2.3k)		Async / gen weak return
-	async  		(82.9k)		(5.7k)		Mark as async?
-	await  		(16.9k)		(1.2k)		Wait for something from a value.
+	
+	--Maybe...
+
 	continue 	(162k)		(4.1k)		Try looping again.
+	where  		(299k)		(1.8k)		?
+	reloc  		(6.1k)		(470)		Relocate a value
+	loop   		(288k)		(12.8k)		Force loop again
+	raw    		(766k)		(176k)		?
+	ref    		(1.1m)		(82.4k)		?
+	
+
+	--Future proofing
+
+	box    		(451k)		(42.2k)		?
+	abstract	(14k)		(358)		?
+	become 		(52k)		(286)		?
+	final  		(122k)		(7.7k)		?
+	override	(253k)		(14.8k)		?
+	typeof 		(44k)		(616)		?
+	virtual		(82.9k)		(3.2k)		?
+	unsized		(120)		(0)			?
+	const		(317k)		(34.3k)		?
+
+
+	--TODO, planned
 	
 	enum   		(129k)		(8.5k)		Define a enum
 	struct 		(506k)		(62.2k)		Define a struct
@@ -26,27 +47,13 @@ New Keywords {
 	dyn    		(209k)		(5.5k)		Vtable traits
 	generator	(??)		(??)		Generator function?
 	
-	delete 		(360k)		(37.4k)		Delete a pointer/something explicitly
-	reloc  		(6.1k)		(470)		Relocate a value
+	yield  		(53.8k)		(2.3k)		Async / gen weak return
+	async  		(82.9k)		(5.7k)		Mark as async?
+	await  		(16.9k)		(1.2k)		Wait for something from a value.
 	static 		(250k)		(6.5k)		Global
-	ref    		(1.1m)		(82.4k)		Longhand for &
-	raw    		(766k)		(176k)		?
-	where  		(299k)		(1.8k)		?
-	loop   		(288k)		(12.8k)		Force loop again
-	
-	box    		(451k)		(42.2k)		?
-	abstract	(14k)		(358)		?
-	become 		(52k)		(286)		?
-	final  		(122k)		(7.7k)		?
-	override	(253k)		(14.8k)		?
-	typeof 		(44k)		(616)		?
-	virtual		(82.9k)		(3.2k)		?
-	unsized		(120)		(0)			?
-	const		(317k)		(34.3k)		?
 	
 	
 	--keywords from other spec things
-	
 	
 	to			(??)		(??)		range operator / match range
 	as			(4.6m)		(713k)		cast / use...as...
