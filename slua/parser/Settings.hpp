@@ -59,6 +59,7 @@ namespace sluaParse
 #define _Slua_MAKE_SETTING_CVAR(_NAME) \
 	struct _C_ ## _NAME : Setting<_C_ ## _NAME> \
 	{ \
+		using isSetting = std::true_type; \
 		consteval bool _NAME() const {return true;} \
 	}; \
 	inline constexpr auto _NAME = _C_ ## _NAME()
@@ -76,7 +77,7 @@ namespace sluaParse
 	template<class T>
 	struct _AnySetting_impl
 	{
-		using v = std::false_type;
+		using v = typename T::isSetting;
 	};
 	template<class T2, class... T3>
 	struct _AnySetting_impl<Setting<T2, T3...>>
