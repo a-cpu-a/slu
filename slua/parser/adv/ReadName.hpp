@@ -29,6 +29,7 @@ namespace sluaParse
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA = {
 		_LUA_KWS,
+
 		//freedom
 		"continue",
 		"reloc",
@@ -47,6 +48,7 @@ namespace sluaParse
 		"virtual",
 		"unsized",
 		"const",
+
 		//todos
 		"enum",
 		"struct",
@@ -65,6 +67,7 @@ namespace sluaParse
 		"async",
 		"await",
 		"static",
+
 		//documented
 		"to",
 		"as",
