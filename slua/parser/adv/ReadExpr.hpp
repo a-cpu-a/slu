@@ -21,12 +21,12 @@
 
 namespace sluaParse
 {
-	inline void parseVarBase(AnyInput auto& in, const char firstChar, Var& varDataOut, bool& varDataNeedsSubThing)
+	inline void parseVarBase(AnyInput auto& in, const bool allowVarArg, const char firstChar, Var& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			BaseVarType::EXPR res(readExpr(in));
+			BaseVarType::EXPR res(readExpr(in,allowVarArg));
 			requireToken(in, ")");
 			varDataNeedsSubThing = true;
 			varDataOut.base = std::move(res);
@@ -95,7 +95,7 @@ namespace sluaParse
 		return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
 	}
 	template<class T,bool FOR_EXPR>
-	inline T parsePrefixExprVar(AnyInput auto& in, const char firstChar)
+	inline T parsePrefixExprVar(AnyInput auto& in, const bool allowVarArg, const char firstChar)
 	{
 		/*
 			var ::= baseVar {subvar}
@@ -111,7 +111,7 @@ namespace sluaParse
 		bool varDataNeedsSubThing = false;
 
 		varData.emplace_back();
-		parseVarBase(in, firstChar, varData.back(), varDataNeedsSubThing);
+		parseVarBase(in,allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
 
 		char opType;
 
@@ -139,7 +139,7 @@ namespace sluaParse
 					in.skip();//skip comma
 					skipSpace(in);
 					varData.emplace_back();
-					parseVarBase(in, in.peek(), varData.back(), varDataNeedsSubThing);
+					parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
 			default:
@@ -158,7 +158,7 @@ namespace sluaParse
 					in.skip();//skip eq
 					StatementType::ASSIGN res{};
 					res.vars = std::move(varData);
-					res.exprs = readExpList(in);
+					res.exprs = readExpList(in,allowVarArg);
 					return res;
 				}
 			}
@@ -177,7 +177,7 @@ namespace sluaParse
 						throwSpaceMissingBeforeString(in);
 				}
 
-				funcCallData.emplace_back(name, readArgs(in));
+				funcCallData.emplace_back(name, readArgs(in,allowVarArg));
 				break;
 			}
 			case '"':
@@ -190,7 +190,7 @@ namespace sluaParse
 				[[fallthrough]];
 			case '{':
 			case '('://Funccall
-				funcCallData.emplace_back("", readArgs(in));
+				funcCallData.emplace_back("", readArgs(in,allowVarArg));
 				break;
 			case '.':// Index
 			{
@@ -222,13 +222,13 @@ namespace sluaParse
 						if (!skipped)
 							throwSpaceMissingBeforeString(in);
 					}
-					funcCallData.emplace_back("", readArgs(in));
+					funcCallData.emplace_back("", readArgs(in,allowVarArg));
 					break;
 				}
 				SubVarType::EXPR res{};
 
 				in.skip();//skip first char
-				res.idx = readExpr(in);
+				res.idx = readExpr(in,allowVarArg);
 				requireToken(in, "]");
 
 				varDataNeedsSubThing = false;
@@ -245,7 +245,7 @@ namespace sluaParse
 		return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing, opType);
 	}
 
-	inline Expression readExpr(AnyInput auto& in, const bool readBiOp = true)
+	inline Expression readExpr(AnyInput auto& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
@@ -288,10 +288,10 @@ namespace sluaParse
 		case '.':
 			if (checkReadToken(in, "..."))
 			{
+				//TODO
 				basicRes.data = ExprType::VARARGS();
 				break;
 			}
-			//break;
 			[[fallthrough]];//handle as numeral instead (.0123, etc)
 		case '0':
 		case '1':
@@ -311,7 +311,7 @@ namespace sluaParse
 			basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
 			break;
 		case '{':
-			basicRes.data = ExprType::TABLE_CONSTRUCTOR(readTableConstructor(in));
+			basicRes.data = ExprType::TABLE_CONSTRUCTOR(readTableConstructor(in,allowVarArg));
 			break;
 		}
 
@@ -320,7 +320,7 @@ namespace sluaParse
 			)
 		{//Prefix expr! or func-call
 
-			basicRes.data = parsePrefixExprVar<ExprData,true>(in, firstChar);
+			basicRes.data = parsePrefixExprVar<ExprData,true>(in,allowVarArg, firstChar);
 		}
 		//check bin op
 
@@ -339,7 +339,7 @@ namespace sluaParse
 		ExprType::MULTI_OPERATION resData{};
 
 		resData.first = std::make_unique<Expression>(std::move(basicRes));
-		resData.extra.emplace_back(firstBinOp, readExpr(in,false));
+		resData.extra.emplace_back(firstBinOp, readExpr(in,allowVarArg,false));
 
 		while (true)
 		{
@@ -353,7 +353,7 @@ namespace sluaParse
 			if (binOp == BinOpType::NONE)
 				break;
 
-			resData.extra.emplace_back(binOp, readExpr(in,false));
+			resData.extra.emplace_back(binOp, readExpr(in,allowVarArg,false));
 		}
 		Expression ret;
 		ret.place = startPos;
@@ -362,17 +362,17 @@ namespace sluaParse
 		return ret;
 	}
 
-	inline ExpList readExpList(AnyInput auto& in)
+	inline ExpList readExpList(AnyInput auto& in, const bool allowVarArg)
 	{
 		/*
 			explist ::= exp {‘,’ exp}
 		*/
 		ExpList ret{};
-		ret.emplace_back(readExpr(in));
+		ret.emplace_back(readExpr(in,allowVarArg));
 
 		while (checkReadToken(in, ","))
 		{
-			ret.emplace_back(readExpr(in));
+			ret.emplace_back(readExpr(in,allowVarArg));
 		}
 		return ret;
 	}
