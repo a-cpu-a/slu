@@ -131,7 +131,8 @@ Official Types {
 		Creating invalid content isnt ub in itself, but some libraries or functions will not handle that correctly.
 	}
 	Table {
-		A lua table, can have fields and indices
+		A lua like table, can have fields and indices
+		Valid keys: any lua type, except nil or NaN. Yes, this also includes floats and negative numbers.
 	}
 	Func {
 		Any function C, lua, etc
