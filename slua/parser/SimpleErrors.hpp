@@ -18,29 +18,22 @@
 
 namespace sluaParse
 {
+	struct ParseError : std::exception
+	{
+		std::string m;
+		ParseError(const std::string& m) :m(m) {}
+		const char* what() const { return m.c_str(); }
+	};
 
-	struct UnicodeError : std::exception
-	{
-		std::string m;
-		UnicodeError(const std::string& m) :m(m) {}
-		const char* what() const { return m.c_str(); }
-	};
-	struct UnexpectedCharacterError : std::exception
-	{
-		std::string m;
-		UnexpectedCharacterError(const std::string& m) :m(m) {}
-		const char* what() const { return m.c_str(); }
-	};
-	struct UnexpectedFileEndError : std::exception
-	{
-		std::string m;
-		UnexpectedFileEndError(const std::string& m) :m(m) {}
-		const char* what() const { return m.c_str(); }
-	};
-	struct ReservedNameError : std::exception
-	{
-		std::string m;
-		ReservedNameError(const std::string& m) :m(m) {}
-		const char* what() const { return m.c_str(); }
-	};
+#define _Slua_MAKE_ERROR(_NAME) struct _NAME : ParseError \
+	{ \
+		using ParseError::ParseError;\
+	}
+
+	_Slua_MAKE_ERROR(UnicodeError);
+	_Slua_MAKE_ERROR(UnexpectedCharacterError);
+	_Slua_MAKE_ERROR(UnexpectedFileEndError);
+	_Slua_MAKE_ERROR(ReservedNameError);
+
+#undef _Slua_MAKE_ERROR
 }
