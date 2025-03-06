@@ -47,6 +47,8 @@ namespace sluaParse
 		{ t.newLine() } -> std::same_as<void>;
 
 		{ t.settings() } -> AnySettings;
+
+		{t.handleError("") } -> std::same_as<void>;
 	};
 
 	inline std::string errorLocStr(const AnyInput auto& in) {
@@ -70,6 +72,8 @@ namespace sluaParse
 		{
 			return SettingsT();
 		}
+
+		std::vector<std::string> handledErrors;
 
 		std::string fName;
 		size_t curLine = 1;
@@ -169,6 +173,12 @@ namespace sluaParse
 		void newLine() {
 			curLine++;
 			curLinePos = 0;
+		}
+
+
+		void handleError(const std::string e)
+		{
+			handledErrors.push_back(e);
 		}
 
 	};

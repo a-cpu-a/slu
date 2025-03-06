@@ -25,6 +25,11 @@ namespace sluaParse
 		const char* what() const { return m.c_str(); }
 	};
 
+	struct ParseFailError : std::exception
+	{
+		const char* what() const { return "Failed to parse some (s)lua code."; }
+	};
+
 #define _Slua_MAKE_ERROR(_NAME) struct _NAME : ParseError \
 	{ \
 		using ParseError::ParseError;\
