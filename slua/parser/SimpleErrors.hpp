@@ -39,6 +39,7 @@ namespace sluaParse
 	_Slua_MAKE_ERROR(UnexpectedCharacterError);
 	_Slua_MAKE_ERROR(UnexpectedFileEndError);
 	_Slua_MAKE_ERROR(ReservedNameError);
+	_Slua_MAKE_ERROR(ErrorWhileContext);
 
 #undef _Slua_MAKE_ERROR
 }

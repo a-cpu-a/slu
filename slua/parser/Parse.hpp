@@ -223,7 +223,6 @@ namespace sluaParse
 			parlist ::= namelist [‘,’ ‘...’] | ‘...’
 		*/
 		Function ret{};
-		ret.place = in.getLoc();
 
 		requireToken(in, "(");
 
@@ -351,8 +350,21 @@ namespace sluaParse
 			{ // function funcname funcbody
 				StatementType::FUNCTION_DEF res{};
 
+				res.place = in.getLoc();
+
 				res.name = readFuncName(in);
-				res.func = readFuncBody(in);
+				try
+				{
+					res.func = readFuncBody(in);
+				}
+				catch (const ParseError& e)
+				{
+					in.handleError(e.m);
+					throw ErrorWhileContext(std::format(
+						"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+						res.name,errorLocStr(in,res.place)
+					));
+				}
 
 				ret.data = std::move(res);
 				return ret;
@@ -368,8 +380,22 @@ namespace sluaParse
 				if (checkReadTextToken(in, "function"))
 				{ // local function Name funcbody
 					StatementType::LOCAL_FUNCTION_DEF res;
-					res.name = readName(in);
-					res.func = readFuncBody(in);
+
+					res.place = in.getLoc();
+
+					res.name = readFuncName(in);
+					try
+					{
+						res.func = readFuncBody(in);
+					}
+					catch (const ParseError& e)
+					{
+						in.handleError(e.m);
+						throw ErrorWhileContext(std::format(
+							"In local " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+							res.name, errorLocStr(in, res.place)
+						));
+					}
 
 					ret.data = std::move(res);
 					return ret;

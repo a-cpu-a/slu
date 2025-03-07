@@ -280,7 +280,23 @@ namespace sluaParse
 		case 'f':
 
 			if (checkReadTextToken(in, "false")) { basicRes.data = ExprType::FALSE(); break; }
-			if (checkReadTextToken(in, "function")) { basicRes.data = ExprType::FUNCTION_DEF(readFuncBody(in)); break; }
+			if (checkReadTextToken(in, "function")) 
+			{
+				const Position place = in.getLoc();
+				try
+				{
+					basicRes.data = ExprType::FUNCTION_DEF(readFuncBody(in));
+				}
+				catch (const ParseError& e)
+				{
+					in.handleError(e.m);
+					throw ErrorWhileContext(std::format(
+						"In lambda " LC_function " at {}",
+						errorLocStr(in, place)
+					));
+				}
+				break; 
+			}
 			break;
 		case 't':
 			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
