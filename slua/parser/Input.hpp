@@ -184,6 +184,10 @@ namespace sluaParse
 		{
 			handledErrors.push_back(e);
 		}
+		bool hasError() const
+		{
+			return !handledErrors.empty();
+		}
 
 	};
 }
