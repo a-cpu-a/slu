@@ -20,6 +20,7 @@
 #include "adv/ReadExpr.hpp"
 #include "adv/ReadStringLiteral.hpp"
 #include "adv/ReadTable.hpp"
+#include "adv/RecoverFromError.hpp"
 
 
 
@@ -261,14 +262,10 @@ namespace sluaParse
 		catch (const ParseError& e)
 		{
 			in.handleError(e.m);
-			while (in)//TODO: handle comments, strings
-			{
-				if (checkTextToken(in, "end"))
-				{// Found it, recovered!
-					return { std::move(ret),true};
-				}
-				in.skip();//Not found, try at next char
-			}
+
+			if(recoverErrorTextToken(in,"end"))
+				return { std::move(ret),true };// Found it, recovered!
+
 			//End of stream, and no found end's, maybe the error is a missing "end"?
 			throw FailedRecoveryError(std::format(
 				"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
