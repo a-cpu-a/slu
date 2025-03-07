@@ -53,7 +53,7 @@ namespace sluaParse
 	};
 
 	inline std::string errorLocStr(const AnyInput auto& in,const Position pos) {
-		return " " + in.fileName() + " (" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
+		return " " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
 	}
 	inline std::string errorLocStr(const AnyInput auto& in) {
 		return errorLocStr(in,in.getLoc());

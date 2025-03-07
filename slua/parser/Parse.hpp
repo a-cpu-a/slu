@@ -216,7 +216,8 @@ namespace sluaParse
 		return ret;
 	}
 
-	inline Function readFuncBody(AnyInput auto& in)
+	//Pair{fn, hadErr}
+	inline std::pair<Function,bool> readFuncBody(AnyInput auto& in)
 	{
 		/*
 			funcbody ::= ‘(’ [parlist] ‘)’ block end
@@ -263,8 +264,8 @@ namespace sluaParse
 			while (in)
 			{
 				if (checkTextToken(in, "end"))
-				{
-					goto over;//Found it, recovered!
+				{// Found it, recovered!
+					return { std::move(ret),true};
 				}
 				in.skip();//Not found, try at next char
 			}
@@ -275,8 +276,8 @@ namespace sluaParse
 			));
 		}
 		requireToken(in, "end");
-	over:
-		return ret;
+
+		return { std::move(ret),false };
 	}
 
 	inline std::string readLabel(AnyInput auto& in)
@@ -375,16 +376,25 @@ namespace sluaParse
 				res.place = in.getLoc();
 
 				res.name = readFuncName(in);
+
 				try
 				{
-					res.func = readFuncBody(in);
+					auto [fun, err] = readFuncBody(in);
+					res.func = std::move(fun);
+					if(err)
+					{
+						in.handleError(std::format(
+							"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+							res.name, errorLocStr(in, res.place)
+						));
+					}
 				}
 				catch (const ParseError& e)
 				{
 					in.handleError(e.m);
 					throw ErrorWhileContext(std::format(
 						"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-						res.name,errorLocStr(in,res.place)
+						res.name, errorLocStr(in, res.place)
 					));
 				}
 
@@ -406,15 +416,25 @@ namespace sluaParse
 					res.place = in.getLoc();
 
 					res.name = readFuncName(in);
+
 					try
 					{
-						res.func = readFuncBody(in);
+						auto [fun, err] = readFuncBody(in);
+						res.func = std::move(fun);
+						if (err)
+						{
+
+							in.handleError(std::format(
+								"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+								res.name, errorLocStr(in, res.place)
+							));
+						}
 					}
 					catch (const ParseError& e)
 					{
 						in.handleError(e.m);
 						throw ErrorWhileContext(std::format(
-							"In local " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+							"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
 							res.name, errorLocStr(in, res.place)
 						));
 					}
