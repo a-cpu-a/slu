@@ -261,7 +261,7 @@ namespace sluaParse
 		catch (const ParseError& e)
 		{
 			in.handleError(e.m);
-			while (in)
+			while (in)//TODO: handle comments, strings
 			{
 				if (checkTextToken(in, "end"))
 				{// Found it, recovered!
@@ -270,7 +270,7 @@ namespace sluaParse
 				in.skip();//Not found, try at next char
 			}
 			//End of stream, and no found end's, maybe the error is a missing "end"?
-			throw ErrorWhileContext(std::format(
+			throw FailedRecoveryError(std::format(
 				"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
 				errorLocStr(in, place)
 			));
@@ -573,7 +573,7 @@ namespace sluaParse
 			}
 			return { std::move(bl) };
 		}
-		catch (const ParseError& e)
+		catch (const BasicParseError& e)
 		{
 			in.handleError(e.m);
 			throw ParseFailError();
