@@ -73,4 +73,19 @@ New Annotations {
 	
 	debugPrint("This will only exist if isDebug is true!");
 	```
+
+	@EntrypointInit{}
+	Mark a variable, for runtime initialization inside a entrypoint.
+	Only applicable to global variables.
+
+	```
+	@EntrypointInit
+	let Mutex<String> state = Mutex{"Hello"};
+
+	-- State is immutable, but the string inside of it isnt.
+	-- This is safe, as the mutex stops any concurent accesses, and it is only initialized once, before any code runs.
+	-- However, it should still be avoided, as it makes testing harder.
+	-- "state" might be initialized inside main(), or some dll's main()
+	-- The variable exists per dll / executable, so referencing it from other code that is dynamically linked is an compiler-error.
+	```
 }
