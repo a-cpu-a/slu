@@ -1,0 +1,17 @@
+function x()
+	function y()
+		function z()
+			x = 8;
+			
+			y = ...; --cause error
+			
+			z = "Hello world end"
+			
+			w = 'end end'
+			
+			--[[ Multiline comment, end ]]
+		
+		--end --shouldnt be used.
+		end
+	end
+end
