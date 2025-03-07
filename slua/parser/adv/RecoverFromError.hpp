@@ -18,8 +18,17 @@
 
 namespace sluaParse
 {
+	inline void trySkipMultilineString(AnyInput auto& in)
+	{
+		const char ch1 = in.peekAt(1);
+		if (ch1 == '=' || ch1 == '[')
+		{
+			readStringLiteral(in, '[');
+		}
+	}
+
 	template<size_t TOK_SIZE>
-	bool recoverErrorTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
+	inline bool recoverErrorTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
 	{
 		while (in)
 		{
@@ -32,21 +41,31 @@ namespace sluaParse
 			case '\t':
 			case '\f':
 			case '\v':
-				skipSpace(in);
-				break;
-			case '"':
-			case '\'':
-				readStringLiteral(in, ch);
-
-			case '[':
 			{
-				const char ch1 = in.peekAt(1);
-				if (ch1 == '=' || ch1 == '[')
+				skipSpace(in);
+
+				const char chl = in.peek();
+				switch (chl)
 				{
-					readStringLiteral(in, ch);
+				case '"':
+				case '\'':
+					readStringLiteral(in, chl);
+					break;
+				case '[':
+					trySkipMultilineString(in);
+					break;
+				default:
+					break;
 				}
 				break;
 			}
+			case '"':
+			case '\'':
+				readStringLiteral(in, ch);
+				break;
+			case '[':
+				trySkipMultilineString(in);
+				break;
 			default:
 				break;
 			}
