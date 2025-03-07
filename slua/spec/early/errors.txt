@@ -31,20 +31,23 @@ Errors {
 	Those types are the only types allowed for the "?" unary operator.
 	When returning errors by value, it is a tuple containing the Error, and the Value.
 	When returning errors by exception, it is optimized into just the Value (or nothing at all).
-	It is an error to assign a possibly errored value to a variable (other than _, which will ignore the error), this is because allowing that would complicate unwinding a lot.
+	It is an error to assign a possibly errored value to a variable, this is because allowing that would complicate unwinding a lot.
 	
 	The error types also have some special functions, defined by the compiler {
 		get(self)->Value 						--Panics, if it is a error, otherwise returns the value.
 		getOr(self,Value default)->Value		--Returns value, or the default value
 		wrapError(self,ErrWrapFunc<E,Err> op)->Value?E	--Changes the error, (only if it is an error)
+		
+		ok(self)->Option<Value>					--Returns Some(x), if there is no error, else nil.
+		err(self)->Option<Err>					--Returns Some(x), if there is a error, else nil.
 	}
 	
 	Postfix "?" unary operator passes the error upwards.
 	If an error is silently ignored, a soft-error is logged at compile-time, and the operator is inserted.
 	Using the "?" operator on types that arent specified with '?', is a soft-error. (operator is ignored)
 	
-	To ignore a error assign to the "_" variable.
-	(_ = myErroringFunc();)
+	To explicitly ignore a error use drop.
+	(drop myErroringFunc();)
 	
 	The throw statment is used to return a error.
 	It is converted to stack unwinding or a return, depending on what the "try" chooses.
