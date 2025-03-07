@@ -18,6 +18,9 @@ Let Statement {
 	Creates a new global or local variable(s) with names 'namelist', that cant be modified (not even its contents), unless mut is added.
 	
 	Types are assigned automatically.
+
+
+	Global variables are automatically marked with comptime, unless marked with @EntrypointInit, using comptime on globals is an soft-error.
 	
 	
 	Implementation {
