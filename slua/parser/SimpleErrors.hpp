@@ -18,16 +18,26 @@
 
 namespace sluaParse
 {
-	struct ParseError : std::exception
+	struct BasicParseError : std::exception
 	{
 		std::string m;
-		ParseError(const std::string& m) :m(m) {}
+		BasicParseError(const std::string& m) :m(m) {}
 		const char* what() const { return m.c_str(); }
 	};
 
 	struct ParseFailError : std::exception
 	{
 		const char* what() const { return "Failed to parse some (s)lua code."; }
+	};
+
+	struct FailedRecoveryError : BasicParseError
+	{
+		using BasicParseError::BasicParseError;
+	};
+
+	struct ParseError : BasicParseError
+	{
+		using BasicParseError::BasicParseError;
 	};
 
 #define _Slua_MAKE_ERROR(_NAME) struct _NAME : ParseError \
