@@ -283,9 +283,19 @@ namespace sluaParse
 			if (checkReadTextToken(in, "function")) 
 			{
 				const Position place = in.getLoc();
+
 				try
 				{
-					basicRes.data = ExprType::FUNCTION_DEF(readFuncBody(in));
+					auto [fun, err] = readFuncBody(in);
+					basicRes.data = ExprType::FUNCTION_DEF(std::move(fun));
+					if (err)
+					{
+
+						in.handleError(std::format(
+							"In lambda " LC_function " at {}",
+							errorLocStr(in, place)
+						));
+					}
 				}
 				catch (const ParseError& e)
 				{
