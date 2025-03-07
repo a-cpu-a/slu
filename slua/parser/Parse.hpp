@@ -224,6 +224,8 @@ namespace sluaParse
 		*/
 		Function ret{};
 
+		Position place = in.getLoc();
+
 		requireToken(in, "(");
 
 		skipSpace(in);
@@ -251,9 +253,29 @@ namespace sluaParse
 		}
 
 		requireToken(in, ")");
-		ret.block = readBlock<false>(in,ret.hasVarArgParam);
+		try
+		{
+			ret.block = readBlock<false>(in, ret.hasVarArgParam);
+		}
+		catch (const ParseError& e)
+		{
+			in.handleError(e.m);
+			while (in)
+			{
+				if (checkTextToken(in, "end"))
+				{
+					goto over;//Found it, recovered!
+				}
+				in.skip();//Not found, try at next char
+			}
+			//End of stream, and no found end's, maybe the error is a missing "end"?
+			throw ErrorWhileContext(std::format(
+				"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
+				errorLocStr(in, place)
+			));
+		}
 		requireToken(in, "end");
-
+	over:
 		return ret;
 	}
 
