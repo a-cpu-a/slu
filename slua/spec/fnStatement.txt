@@ -19,11 +19,10 @@ Fn Statement {
 	
 	Param types, and return type are assigned automatically, if missing.
 	
-	Params are const by default.
-	The default type for params is Any, as there is no information to infer anything.
+	Params are immutable / constant by default.
+	The default type for params is dyn Any, as there is no information to infer anything.
 	
 	Partially equivalent to "local function x() end", except, it can be exported.
-	
 	
 	Implementation {
 		In lua, this can be a local function, or a global function.
