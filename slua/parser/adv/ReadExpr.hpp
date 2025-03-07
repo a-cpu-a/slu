@@ -304,7 +304,14 @@ namespace sluaParse
 		case '.':
 			if (checkReadToken(in, "..."))
 			{
-				//TODO
+				if (!allowVarArg)
+				{
+					throw UnexpectedCharacterError(std::format(
+						"Found varargs (" LUACC_SINGLE_STRING("...") ") "
+						"outside of a vararg " LC_function " or the root " LC_function
+						"{}"
+						, errorLocStr(in)));
+				}
 				basicRes.data = ExprType::VARARGS();
 				break;
 			}
