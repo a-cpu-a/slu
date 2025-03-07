@@ -48,11 +48,14 @@ namespace sluaParse
 
 		{ t.settings() } -> AnySettings;
 
-		{t.handleError("") } -> std::same_as<void>;
+		{t.handleError(std::string()) } -> std::same_as<void>;
 	};
 
+	inline std::string errorLocStr(const AnyInput auto& in,const Position pos) {
+		return " " + in.fileName() + " (" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
+	}
 	inline std::string errorLocStr(const AnyInput auto& in) {
-		return " " + in.fileName() + " (" LUACC_NUMBER + std::to_string(in.getLoc().line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(in.getLoc().index);
+		return errorLocStr(in,in.getLoc());
 	}
 
 	struct EndOfStreamError : std::exception
