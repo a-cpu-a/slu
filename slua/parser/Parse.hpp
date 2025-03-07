@@ -514,6 +514,12 @@ namespace sluaParse
 		try
 		{
 			Block bl = readBlock<false>(in, true);
+
+			if (in.hasError())
+			{// Skip eof, as one of the errors might have caused that.
+				throw ParseFailError();
+			}
+
 			skipSpace(in);
 			if (in)
 			{
