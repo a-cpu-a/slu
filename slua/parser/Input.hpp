@@ -49,6 +49,7 @@ namespace sluaParse
 		{ t.settings() } -> AnySettings;
 
 		{t.handleError(std::string()) } -> std::same_as<void>;
+		{t.hasError() } -> std::same_as<bool>;
 	};
 
 	inline std::string errorLocStr(const AnyInput auto& in,const Position pos) {
