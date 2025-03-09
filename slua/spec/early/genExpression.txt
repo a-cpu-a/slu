@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	exp @::= | ["comptime"] "gen" ["->" type] block "return" explist [";"] "end"
+	exp @::= | ["comptime"] "gen" ["->" type] stat
 }
 
 New Keywords {

@@ -40,11 +40,10 @@ New Syntax {
 	pat ::= sPat | dPat
 	
 	matchItem ::= "case" pat ["if" exp] "=>" explist
-	matchElseItem ::= "else" "=>" explist
-	matchElseifItem ::= "elseif" exp "=>" explist
-	matchStat ::= matchItem | matchElseItem | matchElseifItem | ";"
+	matchElseItem ::= "else" ["if" exp] "=>" explist
+	matchStat ::= matchItem | matchElseItem | ";"
 	
-	matchExp ::= "match" exp ["->" type] {matchStat} "end"
+	matchExp ::= "match" "(" exp ")" ["->" type] "{" {matchStat} "}"
 	
 	exp @::= | matchExp
 	stat @::= | matchExp
