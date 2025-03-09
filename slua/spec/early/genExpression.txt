@@ -4,7 +4,9 @@
 
 New Syntax {
 	
-	exp @::= | ["comptime"] "gen" ["->" type] stat
+	blockOrRet ::= retstatSemi | ( "{" block "}" )
+
+	exp @::= | ["comptime"] "gen" ["->" type] blockOrRet
 }
 
 New Keywords {

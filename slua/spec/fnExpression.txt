@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	exp @::= | PreFn "fn" "(" TypedParamList ")" ["->" type] stat
+	exp @::= | PreFn "fn" "(" TypedParamList ")" ["->" type] statOrRet
 }
 
 New Keywords {

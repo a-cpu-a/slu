@@ -6,7 +6,7 @@ New Syntax {
 
 	chunk ::= block
 
-	block ::= {stat}
+	block ::= {stat} [retstat [‘;’]]
 
 	stat ::=  ‘;’ | 
 		 varlist ‘=’ explist | 
@@ -15,19 +15,23 @@ New Syntax {
 		 ‘break’ | 
 		 ‘goto’ Name | 
 		 ‘{’ block ‘}’ | 
-		 ‘while’ ‘(’ exp ‘)’ stat | 
-		 ‘repeat’ stat ‘until’ exp | 
-		 ‘if’ ‘(’ exp ‘)’ stat [‘else’ stat] | 
-		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ stat | 
-		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ stat| 
+		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
+		 ‘repeat’ statOrRet ‘until’ exp | 
+		 ‘if’ ‘(’ exp ‘)’ statOrRet [‘else’ statOrRet] | 
+		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
+		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
 		 ‘function’ funcname funcbody | 
 		 ‘local’ ‘function’ Name funcbody | 
-		 ‘local’ attnamelist [‘=’ explist] |
-		 ‘return’ [explist]
+		 ‘local’ attnamelist [‘=’ explist]
 
 	attnamelist ::=  Name attrib {‘,’ Name attrib}
 
 	attrib ::= [‘<’ Name ‘>’]
+
+	retstat ::= return [explist]
+
+	retstatSemi ::= retstat ‘;’
+	statOrRet ::= retstatSemi | stat
 
 	label ::= ‘::’ Name ‘::’
 
