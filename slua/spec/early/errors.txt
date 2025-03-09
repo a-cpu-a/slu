@@ -7,9 +7,9 @@ New Syntax {
 	postunop @::= | ‘?’
 	
 	tryItem ::= "catch" pat ["if" exp] "=>" explist
-	tryStat ::= tryItem | matchElseItem | matchElseifItem | ";"
+	tryStat ::= tryItem | matchElseItem | ";"
 	
-	tryExp ::= "try" exp ["->" type] {tryStat} "end"
+	tryExp ::= "try" "(" exp ")" ["->" type] "{" {tryStat} "}"
 	
 	exp @::= | tryExp
 	stat @::= | tryExp
@@ -72,20 +72,20 @@ Errors {
 	
 	```slua
 	
-	fn myErrFunc() -> u8?Err
+	fn myErrFunc() -> u8?Err {
 		-- ...
 		throw Err::OOM{};-- Error!
 		-- ...
-	end
+	}
 
 	let u8 passTheError = myErrFunc()?;				-- Get the value or propagate the error
 	let u8 panicOnError = myErrFunc():get();		-- Get the value or panic
 	let u8 neverError = myErrFunc():getOr(100);	-- Get the value or return ...
 	
 	let u8 differentError = myErrFunc()
-		:wrapError(fn(e) return "Oh no: "..e end); -- Changes the error type, and prefixes the error message.
+		:wrapError(fn(e){ return "Oh no: "..e }); -- Changes the error type, and prefixes the error message.
 	
-	let u8 qq = try myErrFunc() 
+	let u8 qq = try(myErrFunc()){
 	
 		-- The return type is optional. 
 		-- -> u8?(some variant), the ? and the stuff after it, would be needed since we arent matching every error.
@@ -93,16 +93,16 @@ Errors {
 		Err::PMsg x => panic$("Error " .. x.1);-- PMsg is a tuple, we are indexing into the first element
 		
 		Err::OOM => panic$("Out of memory!");
-		Err::Msg{v} => gen
+		Err::Msg{v} => gen {
 			print(v);
 			
 			return 0;
-		end
+		}
 		
 		-- If this is was added, "?" suffix wouldnt be needed, cuz Err::Unknown would be caught.
 		--else => panic$("Unknown error"); 
 		
-	end?;-- Try is suffixed with a ?, since "Err::Unknown" isnt handled.
+	}?;-- Try is suffixed with a ?, since "Err::Unknown" isnt handled.
 	```
 	
 	Implementation {

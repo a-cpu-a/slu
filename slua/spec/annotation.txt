@@ -35,10 +35,10 @@ New Annotations {
 	Example:
 	```slua
 	@Annotation
-	struct FuncMarker end
+	struct FuncMarker {}
 	
 	@FuncMarker
-	function myFn() end
+	function myFn() {}
 	```
 	
 	
@@ -62,14 +62,14 @@ New Annotations {
 	comptime let isDebug = true;
 	
 	@Cfg{onlyIf=isDebug}
-	function debugPrint(msg)
+	function debugPrint(msg) {
 		print("[DEBUG] " .. msg);
-	end
+	}
 	
 	@Cfg{not isDebug}
-	function debugPrint(msg)
+	function debugPrint(msg) {
 		-- Debugging disabled, function is omitted at compile time
-	end
+	}
 	
 	debugPrint("This will only exist if isDebug is true!");
 	```
