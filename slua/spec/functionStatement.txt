@@ -4,8 +4,8 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "function" Name "(" TypedParamList ")" ["->" type] block "end"
-	stat @::= | "local" "function" Name "(" TypedParamList ")" ["->" type] block "end"
+	stat @::= | OptExportPrefix "function" Name "(" TypedParamList ")" ["->" type] "{" block "}"
+	stat @::= | "local" "function" Name "(" TypedParamList ")" ["->" type] "{" block "}"
 }
 
 Function Statement {

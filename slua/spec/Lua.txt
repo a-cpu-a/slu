@@ -6,7 +6,7 @@ New Syntax {
 
 	chunk ::= block
 
-	block ::= {stat} [retstat]
+	block ::= {stat}
 
 	stat ::=  ‘;’ | 
 		 varlist ‘=’ explist | 
@@ -14,21 +14,20 @@ New Syntax {
 		 label | 
 		 ‘break’ | 
 		 ‘goto’ Name | 
-		 ‘do’ block ‘end’ | 
-		 ‘while’ exp ‘do’ block ‘end’ | 
-		 ‘repeat’ block ‘until’ exp | 
-		 ‘if’ exp ‘then’ block {‘elseif’ exp ‘then’ block} [‘else’ block] ‘end’ | 
-		 ‘for’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘do’ block ‘end’ | 
-		 ‘for’ namelist ‘in’ explist ‘do’ block ‘end’ | 
+		 ‘{’ block ‘}’ | 
+		 ‘while’ ‘(’ exp ‘)’ stat | 
+		 ‘repeat’ stat ‘until’ exp | 
+		 ‘if’ ‘(’ exp ‘)’ stat [‘else’ stat] | 
+		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ stat | 
+		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ stat| 
 		 ‘function’ funcname funcbody | 
 		 ‘local’ ‘function’ Name funcbody | 
-		 ‘local’ attnamelist [‘=’ explist] 
+		 ‘local’ attnamelist [‘=’ explist] |
+		 ‘return’ [explist]
 
 	attnamelist ::=  Name attrib {‘,’ Name attrib}
 
 	attrib ::= [‘<’ Name ‘>’]
-
-	retstat ::= ‘return’ [explist] [‘;’]
 
 	label ::= ‘::’ Name ‘::’
 
@@ -53,7 +52,7 @@ New Syntax {
 
 	functiondef ::= ‘function’ funcbody
 
-	funcbody ::= ‘(’ [parlist] ‘)’ block ‘end’
+	funcbody ::= ‘(’ [parlist] ‘)’ ‘{’ block ‘}’
 
 	parlist ::= namelist [‘,’ ‘...’] | ‘...’
 
@@ -61,7 +60,7 @@ New Syntax {
 
 	fieldlist ::= field {fieldsep field} [fieldsep]
 
-	field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+	field ::= ‘[’ exp ‘]’ ‘:’ exp | Name ‘:’ exp | exp
 
 	fieldsep ::= ‘,’ | ‘;’
 
@@ -78,8 +77,6 @@ New Keywords {
 	break
 	do
 	else
-	elseif
-	end
 	false
 	for
 	function
@@ -92,7 +89,6 @@ New Keywords {
 	or
 	repeat
 	return
-	then
 	true
 	until
 	while
