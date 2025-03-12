@@ -37,7 +37,8 @@ namespace slua
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slua::TableKey& key), /*const*/ -> optionally const
 		// Call it as if this was a method inside MetaTableGetters (var.SLua_newGetter("fn", abc);)
-#define Slua_getter(_NAME,_CPP_FUNC) {_NAME, Slua_wrapRaw(_NAME, _CPP_FUNC),true}
+#define Slua_getter(_NAME,_CPP_FUNC) \
+	{_NAME, Slua_wrapRaw(_NAME, _CPP_FUNC),true}
 
 
 
@@ -49,7 +50,10 @@ namespace slua
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
 	{
 		if (lua_gettop(L) != 2)
-			return slua::lua_error(L, "Getters must have " LUACC_NUMBER "2 " LC_arguments " (thisObject, key)");
+			return slua::lua_error(L, 
+				"Getters must have " 
+				LUACC_NUMBER "2 " LC_arguments 
+				" (thisObject, key)");
 
 		if (!slua::TableKey::check(L, 2))
 			return slua::lua_error(L, LC_invalid " getter key");
@@ -77,9 +81,13 @@ namespace slua
 			}
 		}
 
-		throw slua::Error("Unknown key in getter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
+		throw slua::Error(
+			"Unknown key in getter " 
+			LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'"
+		);
 	}
-#define Slua_setupGetHandler(_GETTERS) {"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
+#define Slua_setupGetHandler(_GETTERS) \
+	{"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
 
 
 
@@ -113,7 +121,10 @@ namespace slua
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
 		if (lua_gettop(L) != 3)
-			return slua::lua_error(L, "Setters must have " LUACC_NUMBER "3 " LC_arguments " (thisObject, key, newVal)");
+			return slua::lua_error(L, 
+				"Setters must have " 
+				LUACC_NUMBER "3 " LC_arguments
+				" (thisObject, key, newVal)");
 
 		if (!slua::TableKey::check(L, 2))
 			return slua::lua_error(L, LC_invalid " setter key");
@@ -135,9 +146,13 @@ namespace slua
 			}
 		}
 
-		throw slua::Error("Unknown key in setter " LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'");
+		throw slua::Error(
+			"Unknown key in setter " 
+			LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'"
+		);
 	}
-#define Slua_setupSetHandler(_SETTERS) {"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
+#define Slua_setupSetHandler(_SETTERS) \
+	{"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
 
 }
 
