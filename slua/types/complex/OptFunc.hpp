@@ -19,7 +19,7 @@ namespace slua
 		int idx = 0;
 
 		constexpr OptFunction() = default;
-		OptFunction(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
+		constexpr OptFunction(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
 
 
 		static OptFunction read(lua_State* L, const int idx) {

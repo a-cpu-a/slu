@@ -18,12 +18,12 @@ namespace slua
 	{
 		std::vector<T> val;
 
-		Vector() {}
+		constexpr Vector() = default;
 		template<size_t _S>
-		Vector(const Vector<T, _S>& o)
+		constexpr Vector(const Vector<T, _S>& o)
 			:val(o.val)
 		{}
-		Vector(const std::vector<T>& _v)
+		constexpr Vector(const std::vector<T>& _v)
 			:val(_v)
 		{}
 

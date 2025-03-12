@@ -15,8 +15,8 @@ namespace slua
 	{
 		bool val;
 
-		Bool() {}
-		Bool(const bool value) :val(value) {}
+		constexpr Bool() = default;
+		constexpr Bool(const bool value) :val(value) {}
 
 		static int push(lua_State* L, const Bool& data)
 		{

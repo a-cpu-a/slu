@@ -17,7 +17,7 @@ namespace slua
 		int idx = 0;
 
 		constexpr IntRef() = default;
-		IntRef(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
+		constexpr IntRef(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
 
 
 		int64_t get()
