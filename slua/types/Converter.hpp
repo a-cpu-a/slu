@@ -39,14 +39,14 @@ namespace slua
 //To let you use commas inside SLua_MAP_TYPE types
 #define Slua_co ,
 
-// MUSN'T be inside a namespace !!!
+// MUST NOT be inside a namespace !!!
 // 
-// the ... means template args
+// the ... is for template arguments
 //
 #define Slua_mapType(_NORMAL_TYPE,_WRAPPER,...) namespace slua { template<__VA_ARGS__>struct _ToLua<_NORMAL_TYPE> {using Type = _WRAPPER;}; }
 
-// MUSN'T be inside a namespace !!!
+// MUST NOT be inside a namespace !!!
 // 
-// like SLua_MAP_TYPE, except wrapper can contain commas
+// like SLua_MAP_TYPE, except the wrapper can contain commas
 //
 #define Slua_mapType1(_NORMAL_TYPE,...) namespace slua { template<>struct _ToLua<_NORMAL_TYPE> {using Type = __VA_ARGS__;}; }
