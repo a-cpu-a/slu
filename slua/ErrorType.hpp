@@ -22,7 +22,7 @@ namespace slua
 #define Slua_panic(...) __builtin_trap()
 #elif defined(_MSC_VER)
 #if defined(_M_X64) || defined(_M_I86) || defined(_M_IX86)
-#define Slua_panic(...)__debugbreak() // Smaller
+#define Slua_panic(...) __debugbreak() // Smaller
 #else
 #define Slua_panic(...) __fastfail(0)
 #endif
