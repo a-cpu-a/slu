@@ -5,6 +5,9 @@
 
 #include <string>
 #include <array>
+#include <type_traits>
+
+#include <slua/Utils.hpp>
 
 namespace slua
 {
@@ -107,4 +110,34 @@ inline T& slua_newuserdata(lua_State* L,ARGS_T... constructorArgs)
 	slua::setTypeId(id);
 
 	return *id;
+}
+
+template<class T>
+inline int _slua_handleUserDataGC(lua_State* L)
+{
+	if (lua_gettop(L) != 1)
+		return slua::lua_error(L, "__gc needs the original object!");
+	if (!slua::checkAndClearTypeId<T>(L, 1))
+		return slua::lua_error(L, "__gc needs a different type ... Mem Leak?");
+
+	T* con = (T*)lua_touserdata(L, 1);
+
+	con->~T();
+
+	return 0;
+}
+
+template<class T>
+inline bool slua_newMetatable(lua_State* L, const char* typeName)
+{
+	if (luaL_newmetatable(L, typeName))
+	{
+		if constexpr (!std::is_trivially_destructible_v<T>)
+		{
+			lua_pushcfunction(L, _slua_handleUserDataGC<T>);
+			lua_setfield(L, -2, "__gc");
+		}
+		return true;
+	}
+	return false;
 }
