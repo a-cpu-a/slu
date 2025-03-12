@@ -12,10 +12,10 @@ Function Statement {
 	
 	Creates a new global or local function with a name 'Name', that cant be modified.
 	
-	The default return type is "dyn Any"
+	The default return type is "dyn AutoAny"
 	
 	Params are mutable by default.
-	The default type for params is dyn Any, as there is no information to infer anything.
+	The default type for params is dyn AutoAny, as there is no information to infer anything.
 	
 	
 	Implementation {
