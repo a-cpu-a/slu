@@ -13,10 +13,10 @@ namespace slua
 {
 	struct IntRef
 	{
-		lua_State* L;
-		const int idx = 0;
+		lua_State* L=nullptr;
+		int idx = 0;
 
-		IntRef() {}
+		constexpr IntRef() = default;
 		IntRef(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
 
 
