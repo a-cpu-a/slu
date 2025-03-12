@@ -141,3 +141,22 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 	}
 	return false;
 }
+
+// MUST NOT be inside a namespace !!!
+// 
+// 
+//
+#define Slua_mapType2Userdata(_TY_NAME) \
+	struct _slua_wrapper ## _TY_NAME { \
+	_TY_NAME val; \
+	static int push(lua_State* L, const _TY_NAME& data) \
+	{ \
+		slua_newuserdata(L,std::move(data)); \
+		/*TODO: make metatable in a way that can be customized -> func-call?*/\
+		lua_setmetatable(L, -2); \
+		return 1); \
+	} \
+	static _TY_NAME read(lua_State* L, const int idx) \
+/*TODO, TODO: check too*/\
+	}; \
+	Slua_mapType(_TY_NAME,_slua_wrapper ## _TY_NAME)
