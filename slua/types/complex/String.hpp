@@ -16,8 +16,8 @@ namespace slua
 	{
 		std::string val;
 
-		String() {}
-		String(const std::string& value) :val(value) {}
+		constexpr String() = default;
+		constexpr String(const std::string& value) :val(value) {}
 
 		static int push(lua_State* L, const String& data)
 		{

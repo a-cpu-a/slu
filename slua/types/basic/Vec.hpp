@@ -18,8 +18,8 @@ namespace slua
 	{
 		T val;
 
-		Vec() {}
-		Vec(const T& value) :val(value) {}
+		constexpr Vec() = default;
+		constexpr Vec(const T& value) :val(value) {}
 
 		static int push(lua_State* L, const Vec<T, INT, SIGNED, BITS>& data)
 		{
