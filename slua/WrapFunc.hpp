@@ -87,7 +87,8 @@ namespace slua
 			return slua::push(L, std::apply(func, args));
 	}
 
-	inline int runCppFuncWrapped(lua_State* L, const std::string& funcName, auto func)
+
+	inline int runCppFuncWrapped(lua_State* L, const std::string& funcName, const auto& func)
 	{
 		try
 		{
