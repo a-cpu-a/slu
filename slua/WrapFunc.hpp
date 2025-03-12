@@ -13,6 +13,7 @@
 #include <slua/types/basic/Float.hpp>
 #include <slua/types/basic/Integer.hpp>
 #include <slua/types/basic/TableRef.hpp>
+#include <slua/types/basic/Optional.hpp>
 
 #include <slua/types/complex/ByteArray.hpp>
 #include <slua/types/complex/Function.hpp>
@@ -35,7 +36,7 @@ namespace slua
 	inline int runCppFunc(lua_State* L, const std::string& funcName, AnyCppFunc<RET_T,ARGS...> func)
 	{
 		constexpr bool hasCtx = std::disjunction_v<std::is_same<slua::Context&,ARGS>...>;
-		constexpr usize argCount = sizeof...(ARGS) - (hasCtx ? 1 : 0);
+		constexpr size_t argCount = sizeof...(ARGS) - (hasCtx ? 1 : 0);
 
 		if (argCount != lua_gettop(L))
 		{
