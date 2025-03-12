@@ -87,8 +87,15 @@ namespace slua
 		);
 	}
 #define Slua_setupGetHandler(_GETTERS) \
-	{"__index", [](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } }
+	{ "__index", \
+		[](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } \
+	}
 
+	// Combine with ```lua_setfield(L, -2, "__index");```, to add to a metatable.
+#define Slua_pushGetHandler(L,_GETTERS) \
+	lua_pushcfunction(L, \
+		[](lua_State* L){ return slua::handleMetatableGet(L,_GETTERS); } \
+	)
 
 
 
@@ -152,7 +159,15 @@ namespace slua
 		);
 	}
 #define Slua_setupSetHandler(_SETTERS) \
-	{"__newindex", [](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } }
+	{ "__newindex", \
+		[](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } \
+	}
+
+	// Combine with ```lua_setfield(L, -2, "__newindex");```, to add to a metatable.
+#define Slua_pushSetHandler(L,_SETTERS) \
+	lua_pushcfunction(L, \
+		[](lua_State* L){ return slua::handleMetatableSet(L,_SETTERS); } \
+	)
 
 }
 
