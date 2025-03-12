@@ -17,7 +17,7 @@ New Syntax {
 		 ‘{’ block ‘}’ | 
 		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
 		 ‘repeat’ statOrRet ‘until’ exp | 
-		 ‘if’ ‘(’ exp ‘)’ statOrRet [‘else’ statOrRet] | 
+		 ‘if’ ‘(’ exp ‘)’ statOrRet {‘else’ ‘if’ statOrRet} [‘else’ statOrRet] | 
 		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
 		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
 		 ‘function’ funcname funcbody | 
@@ -30,8 +30,8 @@ New Syntax {
 
 	retstat ::= return [explist]
 
-	retstatSemi ::= retstat ‘;’
-	statOrRet ::= retstatSemi | stat
+	statSemicol ::= (retstatSemi | stat) ‘;’
+	statOrRet ::= statSemicol | ‘{’ block ‘}’
 
 	label ::= ‘::’ Name ‘::’
 
