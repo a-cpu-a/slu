@@ -15,10 +15,10 @@ namespace slua
 	//may, or may not be nil
 	struct OptFunction
 	{
-		lua_State* L;
-		const int idx = 0;
+		lua_State* L=nullptr;
+		int idx = 0;
 
-		OptFunction() {}
+		constexpr OptFunction() = default;
 		OptFunction(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
 
 

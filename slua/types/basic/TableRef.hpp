@@ -13,10 +13,10 @@ namespace slua
 {
 	struct TableRef
 	{
-		lua_State* L;
-		const int idx = 0;
+		lua_State* L=nullptr;
+		int idx = 0;
 
-		TableRef() {}
+		constexpr TableRef() = default;
 		TableRef(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
 
 		//TODO: use [] operator instead
