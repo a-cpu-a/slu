@@ -15,8 +15,8 @@ namespace slua
 	{
 		double val;
 
-		Float() {}
-		Float(const double value) :val(value) {}
+		constexpr Float() = default;
+		constexpr Float(const double value) :val(value) {}
 
 		static int push(lua_State* L, const Float& data)
 		{

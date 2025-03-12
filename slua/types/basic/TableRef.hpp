@@ -17,7 +17,7 @@ namespace slua
 		int idx = 0;
 
 		constexpr TableRef() = default;
-		TableRef(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
+		constexpr TableRef(lua_State* _L, const int _idx) :L(_L), idx(_idx) {}
 
 		//TODO: use [] operator instead
 		void setU8(const int64_t i, const uint8_t value)
