@@ -168,7 +168,7 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 	} \
 	static constexpr const char* getName() { return _NAMESPACED_TYPE_ACCESS::getName(); } \
 	}; \
-	Slua_mapType(_NAMESPACED_TYPE_ACCESS,_slua_wrapper ## _TY_NAME)
+	Slua_mapType(_NAMESPACED_TYPE_ACCESS,_sluaWrapperFor__ ## _TY_NAME)
 
 
 
