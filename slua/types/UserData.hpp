@@ -8,13 +8,14 @@
 #include <type_traits>
 
 #include <slua/Utils.hpp>
+#include <slua/types/ReadWrite.hpp>
 
 namespace slua
 {
 	inline constexpr size_t TYPE_ID_SIZE = 2;
 
-// After all typeids are initialized, this will contain a value that will always be more than any existing type id
-	inline uint16_t _nextTypeId=1;
+	// After all typeids are initialized, this will contain a value that will always be more than any existing type id
+	inline uint16_t _nextTypeId = 1;
 
 	template<typename TYPE>
 	inline const uint16_t _typeId = _nextTypeId++;
@@ -25,28 +26,28 @@ namespace slua
 	}
 	// Changes the last 2 bytes into the types id
 	// Uses sizeof(PTR_T) to find where to change stuff
-	template<typename TYPE,typename PTR_T>
+	template<typename TYPE, typename PTR_T>
 	inline void setTypeIdSeperate(PTR_T* ptr)
 	{
 		uint8_t* dataPtr = reinterpret_cast<uint8_t*>(ptr);
 
 		const uint16_t typeId = getTypeId<TYPE>();
 
-		dataPtr[sizeof(PTR_T)+0] = typeId & 0xFF;
-		dataPtr[sizeof(PTR_T)+1] = typeId >> 8;
+		dataPtr[sizeof(PTR_T) + 0] = typeId & 0xFF;
+		dataPtr[sizeof(PTR_T) + 1] = typeId >> 8;
 	}
 	// Changes the last 2 bytes into the types id
 	// Uses sizeof(TYPE) to find where to change stuff
 	template<typename TYPE>
 	inline void setTypeId(TYPE* ptr) {
-		setTypeIdSeperate<TYPE,TYPE>(ptr);
+		setTypeIdSeperate<TYPE, TYPE>(ptr);
 	}
 
 	// First checks if it is a userdata, then
 	// checks the last 2 bytes, returns true if all is good
 	// Does NOT check lua_gettop
 	template<typename TYPE>
-	inline bool checkTypeId(lua_State* L, const int idx) 
+	inline bool checkTypeId(lua_State* L, const int idx)
 	{
 		if (!lua_isuserdata(L, idx))
 			return false;
@@ -59,9 +60,9 @@ namespace slua
 
 		const uint16_t typeId = getTypeId<TYPE>();
 		return (
-			dataPtr[len-2] == (typeId & 0xFF))
+			dataPtr[len - 2] == (typeId & 0xFF))
 			&& (
-				dataPtr[len- 1] == (typeId >> 8));
+				dataPtr[len - 1] == (typeId >> 8));
 	}
 
 
@@ -71,7 +72,7 @@ namespace slua
 	// checks the last 2 bytes, returns true if all is good
 	// Does NOT check lua_gettop
 	template<typename TYPE>
-	inline bool checkAndClearTypeId(lua_State* L,const int idx) {
+	inline bool checkAndClearTypeId(lua_State* L, const int idx) {
 		if (!lua_isuserdata(L, idx))
 			return false;
 
@@ -80,13 +81,13 @@ namespace slua
 			return false;//empty type, or too small for typeid
 
 
-		uint8_t* dataPtr = reinterpret_cast<uint8_t*>(lua_touserdata(L,idx));
+		uint8_t* dataPtr = reinterpret_cast<uint8_t*>(lua_touserdata(L, idx));
 
 		const uint16_t typeId = getTypeId<TYPE>();
 
 		if (
 			dataPtr[len - 2] != (typeId & 0xFF)
-			|| dataPtr[len - 1] != (typeId >>8)
+			|| dataPtr[len - 1] != (typeId >> 8)
 			)
 			return false;
 
@@ -96,12 +97,43 @@ namespace slua
 
 		return true;
 	}
+
+	template<class T>
+	struct Userdata
+	{
+		lua_State* _L=nullptr;
+		int _idx=0;//Position of the userdata on the stack
+
+		static int push(lua_State* L, const Userdata<T>& data)
+		{
+			lua_pushvalue(data._L, data._idx);//make copy
+			return 1;
+		}
+		static Userdata<T> read(lua_State* L, const int idx) {
+			return Userdata<T>(L, idx);
+		}
+		static bool check(lua_State* L, const int idx) {
+			return slua::checkThrowing<T>(L,idx);
+		}
+		static constexpr const char* getName() { return slua::getName<T>(); }
+
+		T& get() const {
+			return *((T*)lua_touserdata(_L, _idx));
+		}
+
+		T& operator*() const {
+			return get();
+		}
+		T* operator->() const {
+			return &get();
+		}
+	};
 }
 
 //Pushes userdata
 //Note: it will have 0 uservalues
-template<class T,class... ARGS_T>
-inline T& slua_newuserdata(lua_State* L,ARGS_T&&... constructorArgs)
+template<class T, class... ARGS_T>
+inline T& slua_newUserdata(lua_State* L, ARGS_T&&... constructorArgs)
 {
 	//Should size be aligned to 2 bytes?
 	void* place = lua_newuserdatauv(L, sizeof(T) + slua::TYPE_ID_SIZE, 0);
@@ -154,7 +186,7 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 	struct _sluaWrapperFor__ ## _TY_NAME { \
 	static int push(lua_State* L, auto&& data) \
 	{ \
-		slua_newuserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<_NAMESPACED_TYPE_ACCESS>(data)); \
+		slua_newUserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<_NAMESPACED_TYPE_ACCESS>(data)); \
 		if(slua_newMetatable<_NAMESPACED_TYPE_ACCESS>(L,#_TY_NAME  ":"  _Slua_STRINGIZE2(__LINE__))) \
 			_METATABLE_CUSTOMIZATION;\
 		lua_setmetatable(L, -2); \
