@@ -11,11 +11,11 @@ namespace slua
 {
 	/* Push something to the lua stack */
 	template <typename T>
-	inline int push(lua_State* L, const T& data) {
+	inline int push(lua_State* L, T&& data) {
 
 		using LuaType = slua::ToLua<T>;
 
-		return LuaType::push(L, LuaType(data));
+		return LuaType::push(L, std::forward<T>(data));
 	}
 
 
@@ -82,11 +82,11 @@ namespace slua
 	}
 
 	template<typename T>
-	inline constexpr const char* getName() {
+	constexpr const char* getName() {
 		return ToLua<T>::getName();
 	}
 	template<typename T>
-	inline constexpr const char* getName(T) {
+	constexpr const char* getName(T) {
 		return ToLua<T>::getName();
 	}
 }
