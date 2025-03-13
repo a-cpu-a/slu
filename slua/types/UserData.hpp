@@ -186,7 +186,7 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 	struct _sluaWrapperFor__ ## _TY_NAME { \
 	static int push(lua_State* L, auto&& data) \
 	{ \
-		slua_newUserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<_NAMESPACED_TYPE_ACCESS>(data)); \
+		slua_newUserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<decltype(data)>(data)); \
 		if(slua_newMetatable<_NAMESPACED_TYPE_ACCESS>(L,#_TY_NAME  ":"  _Slua_STRINGIZE2(__LINE__))) \
 			_METATABLE_CUSTOMIZATION;\
 		lua_setmetatable(L, -2); \
