@@ -151,7 +151,7 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 // 
 //
 #define _Slua_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_CUSTOMIZATION) \
-	struct _slua_wrapper ## _TY_NAME { \
+	struct _sluaWrapperFor__ ## _TY_NAME { \
 	static int push(lua_State* L, auto&& data) \
 	{ \
 		slua_newuserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<_NAMESPACED_TYPE_ACCESS>(data)); \
