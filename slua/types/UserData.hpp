@@ -11,7 +11,7 @@
 
 namespace slua
 {
-	inline const size_t TYPE_ID_SIZE = 2;
+	inline constexpr size_t TYPE_ID_SIZE = 2;
 
 // After all typeids are initialized, this will contain a value that will always be more than any existing type id
 	inline uint16_t _nextTypeId=1;
@@ -52,7 +52,7 @@ namespace slua
 			return false;
 
 		const size_t len = lua_rawlen(L, idx);
-		if (len <= 2)
+		if (len < TYPE_ID_SIZE)
 			return false;//empty type, or too small for typeid
 
 		const uint8_t* dataPtr = (const uint8_t*)lua_touserdata(L, idx);
@@ -76,7 +76,7 @@ namespace slua
 			return false;
 
 		const size_t len = lua_rawlen(L, idx);
-		if (len <= 2)
+		if (len < TYPE_ID_SIZE)
 			return false;//empty type, or too small for typeid
 
 
@@ -101,12 +101,13 @@ namespace slua
 //Pushes userdata
 //Note: it will have 0 uservalues
 template<class T,class... ARGS_T>
-inline T& slua_newuserdata(lua_State* L,ARGS_T... constructorArgs)
+inline T& slua_newuserdata(lua_State* L,ARGS_T&&... constructorArgs)
 {
+	//Should size be aligned to 2 bytes?
 	void* place = lua_newuserdatauv(L, sizeof(T) + slua::TYPE_ID_SIZE, 0);
 
 	// https://isocpp.org/wiki/faq/dtors#placement-new
-	auto id = new(place) T(constructorArgs...);
+	auto id = new(place) T(std::forward<ARGS_T>(constructorArgs)...);
 	slua::setTypeId(id);
 
 	return *id;
@@ -142,21 +143,46 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 	return false;
 }
 
+#define _Slua_STRINGIZE(x) #x
+#define _Slua_STRINGIZE2(x) _Slua_STRINGIZE(x)
+
 // MUST NOT be inside a namespace !!!
 // 
 // 
 //
-#define Slua_mapType2Userdata(_TY_NAME) \
+#define _Slua_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_CUSTOMIZATION) \
 	struct _slua_wrapper ## _TY_NAME { \
-	_TY_NAME val; \
-	static int push(lua_State* L, const _TY_NAME& data) \
+	_NAMESPACED_TYPE_ACCESS val; \
+	static int push(lua_State* L, auto&& data) \
 	{ \
-		slua_newuserdata(L,std::move(data)); \
-		/*TODO: make metatable in a way that can be customized -> func-call?*/\
+		slua_newuserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<_NAMESPACED_TYPE_ACCESS>(data)); \
+		if(slua_newMetatable<_NAMESPACED_TYPE_ACCESS>(L,#_TY_NAME  ":"  _Slua_STRINGIZE2(__LINE__))) \
+			_METATABLE_CUSTOMIZATION;\
 		lua_setmetatable(L, -2); \
-		return 1); \
+		return 1; \
 	} \
-	static _TY_NAME read(lua_State* L, const int idx) \
-/*TODO, TODO: check too*/\
+	static _NAMESPACED_TYPE_ACCESS& read(lua_State* L, const int idx) { \
+		return *((_NAMESPACED_TYPE_ACCESS*)lua_touserdata(L,idx)); \
+	} \
+	static bool check(lua_State* L, const int idx) { \
+		return slua::checkTypeId<_NAMESPACED_TYPE_ACCESS>(L, idx); \
+	} \
+	static constexpr const char* getName() { return _NAMESPACED_TYPE_ACCESS::getName(); } \
 	}; \
-	Slua_mapType(_TY_NAME,_slua_wrapper ## _TY_NAME)
+	Slua_mapType(_NAMESPACED_TYPE_ACCESS,_slua_wrapper ## _TY_NAME)
+
+
+
+// MUST NOT be inside a namespace !!!
+// 
+// _METATABLE_SETUP_FUNC -> a function taking 1 lua_State*, manipulating the table on the head of the stack.
+//
+#define Slua_mapType2Userdata(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_SETUP_FUNC) \
+	_Slua_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_SETUP_FUNC(L))
+
+// MUST NOT be inside a namespace !!!
+// 
+// 
+//
+#define Slua_mapType2UserdataNoMetatable(_TY_NAME,_NAMESPACED_TYPE_ACCESS) \
+	_Slua_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,)
