@@ -21,7 +21,10 @@ namespace slua
 
 	template<slua::NonLuaType T>
 	inline T read(lua_State* L, const int idx, T) {
-		return (T)slua::ToLua<T>::read(L, idx).val;
+		if constexpr (requires{slua::ToLua<T>::read(nullptr, 0).val; })
+			return (T)slua::ToLua<T>::read(L, idx).val;
+		else
+			return slua::ToLua<T>::read(L, idx);
 	}
 	template<slua::LuaType T>
 	inline T read(lua_State* L, const int idx, T) {
@@ -30,7 +33,10 @@ namespace slua
 
 	template<slua::NonLuaType T>
 	inline T read(lua_State* L, const int idx) {
-		return (T)slua::ToLua<T>::read(L, idx).val;
+		if constexpr (requires{slua::ToLua<T>::read(nullptr, 0).val; })
+			return (T)slua::ToLua<T>::read(L, idx).val;
+		else
+			return slua::ToLua<T>::read(L, idx);
 	}
 	template<slua::LuaType T>
 	inline T read(lua_State* L, const int idx) {
