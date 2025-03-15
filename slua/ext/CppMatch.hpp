@@ -23,6 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#ifndef _CPP_MATCH_HPP
+#define _CPP_MATCH_HPP
+
 #include <variant>
 
 //credits to: https://thatonegamedev.com/cpp/rust-enums-in-modern-cpp-match-pattern/
@@ -35,12 +38,14 @@ _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
 // Macro Definitions
 #define ezmatch(_VALUE) [&](auto... ez_cases) \
-		{ return std::visit(_EzMatchOverloader{ez_cases...}, _VALUE); }
+		{ return ::std::visit(::_EzMatchOverloader{ez_cases...}, _VALUE); }
 
 //Note: you need to add const and &/&& yourself
 
 #define ezcase(_VAR,_TYPE) [&](_TYPE _VAR)
 #define varcase(_TYPE) [&](_TYPE var)
+
+#endif //Header guard
 
 /*
 
