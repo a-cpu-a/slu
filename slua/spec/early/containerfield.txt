@@ -1,0 +1,20 @@
+#
+# Dependencies: Lua, annotation, exportPrefix
+#
+
+New Syntax {
+	
+	containerfield ::= annotations OptExportPrefix type [Name]
+	
+	containerfieldList ::= containerfield {fieldsep containerfield} [fieldsep]
+	
+}
+
+New Keywords {
+	let
+}
+
+Container Field {
+	
+	Adds a new field to some type.
+}
