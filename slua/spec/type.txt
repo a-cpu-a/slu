@@ -1,16 +1,20 @@
 #
-# Dependencies: Lua
+# Dependencies: Lua, comptime
 #
 
 New Syntax {
-
+	
+	traitcombo ::= ComptimeVarType {"+" ComptimeVarType}
+	
 	type ::= typeItem ["?" typeItem] { "|" typeItem }
 	TypeList ::= type {"," type}
 
 	typeItem ::= typePrefix specType
 	specType ::= typeObj | "(" type ")"
 	
-	typeObj ::= Name | dynamicArrayType | tupleType
+	typeObj ::= ComptimeVarType | dynamicArrayType | tupleType | traitComboType
+	
+	traitComboType ::= ("dyn" | "impl") traitcombo
 	
 	tupleType ::= tableTupleType | optimalArrayType
 	
