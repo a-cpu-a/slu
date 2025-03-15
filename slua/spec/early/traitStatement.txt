@@ -1,0 +1,23 @@
+#
+# Dependencies: Lua, annotation, containerfield
+#
+
+New Syntax {
+	
+	stat @::= | OptExportPrefix "trait" Name "{" {stat} "}"
+}
+
+New Keywords {
+	trait
+	Self
+	self
+}
+
+Trait Statement {
+	
+	Defines a new trait.
+	
+	Inside traits, any code can use "Self" to refer to the type the trait is for, however there isnt much you can do inside default code, as you only know that the trait is implemented, but not anything else.
+	
+	Traits allow you to define functions for other types (and trait combinations), in a less repetetive way.
+}

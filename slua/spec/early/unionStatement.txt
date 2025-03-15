@@ -1,0 +1,25 @@
+#
+# Dependencies: Lua, annotation, containerfield
+#
+
+New Syntax {
+	
+	stat @::= | OptExportPrefix "union" Name "{" [containerfieldList] "}"
+}
+
+New Keywords {
+	union
+}
+
+Union Statement {
+	
+	Defines a new union type.
+	
+	Unions can only contain one of the fields that are inside the field-list.
+	
+	Using unions is unsafe, as they dont store which option is used, but sometimes necessary for memory usage.
+	
+	The layout is defined by annotations.
+	The default layout is optimized for size & speed, and can change depending on where it is used.
+	Ofcourse it can be fixed to a standard format, by using (TODO: ???), however this will prevent some optimizations.
+}
