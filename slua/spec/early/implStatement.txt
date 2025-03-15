@@ -1,0 +1,22 @@
+#
+# Dependencies: Lua, annotation, traitStatement, comptime, type 
+#
+
+New Syntax {
+	
+	
+	stat @::= | OptExportPrefix "impl" [traitcombo] "for" (traitcombo | comptimeVarType) "{" {stat} "}"
+}
+
+New Keywords {
+	enum
+}
+
+Impl Statement {
+	
+	Implements a trait for something.
+	
+	Inside impls, any code can use "Self" to refer to the type/trait-combo the impl is for.
+	
+	Impls allow you to define functions for other types (and trait combinations), in a less repetetive way.
+}

@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, annotation, containerfield
+# Dependencies: Lua, annotation, containerfield, type 
 #
 
 New Syntax {
