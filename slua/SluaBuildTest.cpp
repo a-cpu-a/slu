@@ -20,6 +20,7 @@
 #include <slua/types/complex/Function.hpp>
 #include <slua/types/basic/StackItem.hpp>
 #include <slua/types/basic/Optional.hpp>
+#include <slua/types/basic/RegistryRef.hpp>
 
 #include <slua/parser/Parse.hpp>
 #include <slua/generator/Gen.hpp>
