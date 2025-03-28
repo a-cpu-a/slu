@@ -30,12 +30,10 @@ namespace sluaParse
             {
                 if (result & LAST_DIGIT_HEX)//does it have anything?
                 {// Yes, exit now!
-                    throw UnexpectedCharacterError(
+                    throw UnexpectedCharacterError(std::format(
                         LC_Integer " is too big, "
-                        LUACC_START_SINGLE_STRING
-                        + str +
-                        LUACC_END_SINGLE_STRING
-                        + errorLocStr(in));
+                        LUACC_SINGLE_STRING("{}")
+                        "{}", str, errorLocStr(in)));
                 }
             }
 
