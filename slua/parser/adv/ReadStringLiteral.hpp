@@ -270,7 +270,7 @@ namespace sluaParse
 							{
 								throw UnexpectedCharacterError(std::format(
 									"Expected a hex digit or " LUACC_SINGLE_STRING_INCOL(LUACC_BRACKET,"}}") " for unicode character, but found "
-									LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+									LUACC_SINGLE_STRING("{}")
 									"{}"
 								, escapeChar, errorLocStr(in)));
 							}
@@ -336,7 +336,7 @@ namespace sluaParse
 					default: 
 						throw UnexpectedCharacterError(std::format(
 							"Expected a escape sequence, but found "
-							LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+							LUACC_SINGLE_STRING("{}")
 							"{}"
 						, next, errorLocStr(in)));
 					}

@@ -34,11 +34,11 @@ namespace sluaParse
 				{
 					throw UnexpectedCharacterError(std::format(
 						"Expected "
-						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+						LUACC_SINGLE_STRING("{}")
 						", character "
-						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+						LUACC_SINGLE_STRING("{}")
 						", but found "
-						LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+						LUACC_SINGLE_STRING("{}")
 						"{}"
 					, tok, tok[i], ch, errorLocStr(in)));
 				}
@@ -46,10 +46,10 @@ namespace sluaParse
 		}
 		catch (EndOfStreamError&)
 		{
-			throw UnexpectedFileEndError(
+			throw UnexpectedFileEndError(std::format(
 				"Expected "
-				LUACC_START_SINGLE_STRING + std::string(tok) + LUACC_END_SINGLE_STRING
-				", but file ended");
+				LUACC_SINGLE_STRING("{}")
+				", but file ended",tok));
 		}
 	}
 	template<size_t TOK_SIZE>
