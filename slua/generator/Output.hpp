@@ -11,6 +11,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+#include <slua/Settings.hpp>
 
 namespace sluaParse
 {
@@ -45,6 +46,8 @@ namespace sluaParse
 		{ t.unTabTemp() } -> std::same_as<T&>;
 
 		{ t.wasSemicolon } -> std::same_as<bool&>;
+
+		{ t.settings() } -> AnySettings;
 	};
 
 	inline void updateLinePos(size_t& curLinePos, std::span<const uint8_t> sp)
@@ -60,6 +63,8 @@ namespace sluaParse
 
 	struct Output
 	{
+		constexpr static Setting<void> settings() { return {}; }
+
 		std::vector<uint8_t> text;
 		uint64_t tabs=0;
 		size_t curLinePos = 0;
