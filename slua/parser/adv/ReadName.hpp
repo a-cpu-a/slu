@@ -98,7 +98,7 @@ namespace sluaParse
 
 	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
-		if constexpr (in.settings().sluaSyn())
+		if constexpr (in.settings() & sluaSyn)
 		{
 			// Check if the resulting string is a reserved keyword
 			if (RESERVED_KEYWORDS_SLUA.find(n) != RESERVED_KEYWORDS_SLUA.end())

@@ -171,7 +171,7 @@ namespace sluaParse
 
 				const bool skippedAfterName = skipSpace(in);
 
-				if constexpr (in.settings().spacedFuncCallStrForm())
+				if constexpr (in.settings() & spacedFuncCallStrForm)
 				{
 					if (!skippedAfterName)
 						throwSpaceMissingBeforeString(in);
@@ -182,7 +182,7 @@ namespace sluaParse
 			}
 			case '"':
 			case '\'':
-				if constexpr (in.settings().spacedFuncCallStrForm())
+				if constexpr (in.settings() & spacedFuncCallStrForm)
 				{
 					if (!skipped)
 						throwSpaceMissingBeforeString(in);
@@ -217,7 +217,7 @@ namespace sluaParse
 
 				if (secondCh == '[' || secondCh == '=')//is multi-line string?
 				{
-					if constexpr (in.settings().spacedFuncCallStrForm())
+					if constexpr (in.settings() & spacedFuncCallStrForm)
 					{
 						if (!skipped)
 							throwSpaceMissingBeforeString(in);
@@ -247,7 +247,7 @@ namespace sluaParse
 
 
 	inline Expression readExpr(AnyInput auto& in, const bool allowVarArg, const bool readBiOp = true) {
-		if constexpr (in.settings().sluaSyn())
+		if constexpr (in.settings() & sluaSyn)
 			return {};
 		else
 			return readLuaExpr(in, allowVarArg, readBiOp);

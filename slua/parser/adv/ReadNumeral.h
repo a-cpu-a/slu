@@ -26,7 +26,7 @@ namespace sluaParse
 
         for (const char c : str)
         {
-            if constexpr (in.settings().noIntOverflow())
+            if constexpr (in.settings() & noIntOverflow)
             {
                 if (result & LAST_DIGIT_HEX)//does it have anything?
                 {// Yes, exit now!

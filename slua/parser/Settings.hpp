@@ -7,21 +7,10 @@
 
 namespace sluaParse
 {
-#define _Slua_MAKE_SETTING_FUNC(_NAME) \
-	consteval bool _NAME() const \
-	{ \
-		bool r = false; \
-		((r |= SettingTs::_NAME()),...); \
-		return r; \
-	}
 
 	template<class THIS, class... SettingTs>
 	struct Setting : SettingTs...
 	{
-		_Slua_MAKE_SETTING_FUNC(spacedFuncCallStrForm);
-		_Slua_MAKE_SETTING_FUNC(noIntOverflow);
-		_Slua_MAKE_SETTING_FUNC(sluaSyn);
-
 		template<class... OSettingTs>
 		consteval auto operator|(const Setting<OSettingTs...>& o) const
 		{
@@ -52,27 +41,13 @@ namespace sluaParse
 				return result;
 			}
 		}
+		template<class T>
+		consteval bool operator&(const T& o) const
+		{
+			return o.isOn(*this);
+		}
 	};
 #undef _Slua_MAKE_SETTING_FUNC
-
-
-#define _Slua_MAKE_SETTING_CVAR(_NAME) \
-	struct _C_ ## _NAME : Setting<_C_ ## _NAME> \
-	{ \
-		using isSetting = std::true_type; \
-		consteval bool _NAME() const {return true;} \
-	}; \
-	inline constexpr auto _NAME = _C_ ## _NAME()
-
-
-	_Slua_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
-	_Slua_MAKE_SETTING_CVAR(noIntOverflow);
-	_Slua_MAKE_SETTING_CVAR(sluaSyn);
-
-
-#undef _Slua_MAKE_SETTING_CVAR
-
-
 
 	template<class T>
 	struct _AnySetting_impl
@@ -87,4 +62,27 @@ namespace sluaParse
 
 	template<class T>
 	concept AnySettings = _AnySetting_impl<std::remove_cvref_t<T>>::v::value;
+
+#define _Slua_MAKE_SETTING_CVAR(_NAME) \
+	struct _C_ ## _NAME : Setting<_C_ ## _NAME> \
+	{ \
+		using isSetting = std::true_type; \
+		template<class THIS, class... SettingTs> \
+		consteval bool isOn(Setting<THIS,SettingTs...> settings) const \
+		{ \
+			bool r = false; \
+			((r |= std::is_same_v<SettingTs,_C_ ## _NAME>),...); \
+			return r; \
+		} \
+	}; \
+	inline constexpr auto _NAME = _C_ ## _NAME()
+
+
+	_Slua_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
+	_Slua_MAKE_SETTING_CVAR(noIntOverflow);
+	_Slua_MAKE_SETTING_CVAR(sluaSyn);
+
+
+#undef _Slua_MAKE_SETTING_CVAR
+
 }
