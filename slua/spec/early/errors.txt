@@ -27,6 +27,8 @@ New Keywords {
 
 Errors {
 	
+	The type specifier '??' is just like '?', except the error type is inferred.
+	
 	The type specifier '?' is used to mark a function as possibly returning an error.
 	Those types are the only types allowed for the "?" unary operator.
 	When returning errors by value, it is a tuple containing the Error, and the Value.
