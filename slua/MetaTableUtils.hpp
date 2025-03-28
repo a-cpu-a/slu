@@ -50,7 +50,7 @@ namespace slua
 	inline int handleMetatableGet(lua_State* L, const MetaTableGetters& getters)
 	{
 		if (lua_gettop(L) != 2)
-			return slua::lua_error(L, 
+			return slua::lua_error(L,
 				"Getters must have " 
 				LUACC_NUMBER "2 " LC_arguments 
 				" (thisObject, key)");
@@ -128,7 +128,7 @@ namespace slua
 	inline int handleMetatableSet(lua_State* L, const MetaTableSetters& setters)
 	{
 		if (lua_gettop(L) != 3)
-			return slua::lua_error(L, 
+			return slua::lua_error(L,
 				"Setters must have " 
 				LUACC_NUMBER "3 " LC_arguments
 				" (thisObject, key, newVal)");
