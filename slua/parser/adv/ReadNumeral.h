@@ -164,13 +164,10 @@ namespace sluaParse
         }
         catch (const std::exception&)
         {
-            throw UnexpectedCharacterError(
+            throw UnexpectedCharacterError(std::format(
                 LUACC_INVALID "Malformed " LC_number
-                " "
-                LUACC_START_SINGLE_STRING
-                +number+
-                LUACC_END_SINGLE_STRING
-                + errorLocStr(in));
+                " " LUACC_SINGLE_STRING("{}")
+                "{}", number, errorLocStr(in)));
         }
 	}
 

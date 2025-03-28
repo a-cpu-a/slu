@@ -36,12 +36,6 @@ namespace slua
 	[[noreturn]] inline int lua_error(lua_State* L, const slua::Error& e) {
 		lua_error(L, e.msg);
 	}
-	[[noreturn]] inline int lua_error(lua_State* L, const std::string& prefix, const slua::Error& e) {
-		lua_error(L, prefix+e.msg);
-	}
-	[[noreturn]] inline int lua_error(lua_State* L, const std::string& prefix, const char* e) {
-		lua_error(L, prefix + e);
-	}
 	[[noreturn]] inline int lua_error(lua_State* L, const char* str) {
 		luaL_error(L, str);
 	}

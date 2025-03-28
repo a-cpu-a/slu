@@ -43,12 +43,12 @@ namespace slua
 			if constexpr (argCount == 1)
 			{
 				return slua::lua_error(L, LUACC_FUNCTION "Function "
-					LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-					" needs " LUACC_NUMBER "1 " LC_argument ".");
+					LUACC_SINGLE_STRING("{}")
+					" needs " LUACC_NUMBER "1 " LC_argument ".", funcName);
 			}
 			return slua::lua_error(L, LUACC_FUNCTION "Function "
-				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-				" needs " LUACC_NUMBER + TS(sizeof...(ARGS)) + " " LC_arguments ".");
+				LUACC_SINGLE_STRING("{}")
+				" needs " LUACC_NUMBER "{} " LC_arguments ".", funcName, sizeof...(ARGS));
 		}
 
 		//TODO: replace the following with a template/constexpr for loop... or just reflection maybe
@@ -66,14 +66,15 @@ namespace slua
 						if (slua::checkThrowing(L, i, arg))
 							arg = slua::read(L, i, arg);
 						else
-							throw slua::Error(
+							throw slua::Error(std::format(
 								LUACC_ARGUMENT "Argument " 
-								LUACC_NUMBER +std::to_string(i) + LUACC_DEFAULT 
+								LUACC_NUM_COL("{}")
 								//" of " LUACC_FUNCTION "function " 
 								//LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING 
 								", is " LC_not " a "
-								LUACC_END_SINGLE_STRING + slua::getName(arg) + LUACC_STRING_SINGLE "'"
-							);
+								LUACC_SINGLE_STRING("{}")
+								,i, slua::getName(arg)
+							));
 					}
 				}(argss)
 					, ...); }
@@ -98,16 +99,16 @@ namespace slua
 		catch (const std::exception& e)
 		{
 			return slua::lua_error(L, LC_Function " "
-				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-				" had a " LC_error ": "
-				, e.what());
+				LUACC_SINGLE_STRING("{}")
+				" had a " LC_error ": {}"
+				, funcName, e.what());
 		}
 		catch (const slua::Error& e)
 		{
 			return slua::lua_error(L, LC_Function " "
-				LUACC_START_SINGLE_STRING + funcName + LUACC_END_SINGLE_STRING
-				" had a " LC_error ": "
-				, e);
+				LUACC_SINGLE_STRING("{}")
+				" had a " LC_error ": {}"
+				, funcName, e.msg);
 		}
 	}
 
