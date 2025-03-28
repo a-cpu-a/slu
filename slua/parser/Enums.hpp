@@ -48,4 +48,11 @@ namespace sluaParse
 		LENGTH,        // "#"
 		BITWISE_NOT    // "~"
 	};
+
+	enum class PostUnOpType : uint8_t
+	{
+		NONE,
+
+		PROPOGATE_ERR, // "?"
+	};
 }
