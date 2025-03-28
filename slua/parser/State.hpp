@@ -26,29 +26,10 @@ namespace sluaParse
 {
 	template<AnyInput In, class T, class SlT>
 	using SelectT = std::conditional_t<In::settings() & sluaSyn, SlT, T>;
+	template<bool isSlua, class T, class SlT>
+	using SelectBoolT = std::conditional_t<isSlua, SlT, T>;
 
-	//template<AnyInput In>
-	//using ExpListX = SelectT<In, std::vector<struct Expression>, int>;
 
-	struct Scope
-	{
-		std::vector<struct Variable> variables;
-		std::vector<struct Function> functions;
-
-		//Scope* owner;//nullptr -> this is the global scope
-
-		Position start;
-		Position end;
-	};
-
-	struct Variable
-	{
-		std::string name;
-		//Scope* owner;//nullptr -> error
-
-		Position place;
-		//size_t typeId;
-	};
 
 	namespace FieldType { struct NONE {}; struct EXPR2EXPR; struct NAME2EXPR; struct EXPR; }
 
@@ -87,15 +68,18 @@ namespace sluaParse
 	};
 
 
-	struct Parameter
+	struct LuaParameter
 	{
 		std::string name;
 		//size_t typeId;
 	};
 
+	template<AnyInput In>
+	using Parameter = SelectT<In, LuaParameter, LuaParameter>;
+
 	struct Function
 	{
-		std::vector<Parameter> params;
+		std::vector<LuaParameter> params;
 		Block block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
