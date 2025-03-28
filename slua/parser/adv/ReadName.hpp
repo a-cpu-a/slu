@@ -39,6 +39,7 @@ namespace sluaParse
 		"ref",
 
 		//future
+		"only",
 		"box",
 		"abstract",
 		"become",
@@ -83,7 +84,7 @@ namespace sluaParse
 		"case",
 		"type",
 		"self",
-		"Self",//todo lol
+		"Self",
 		"alloc",
 		"macro",
 		"match",
