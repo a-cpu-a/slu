@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdint>
+#include <type_traits>
 
 namespace sluaParse
 {
@@ -77,7 +78,7 @@ namespace sluaParse
 	}; \
 	inline constexpr auto _NAME = _C_ ## _NAME()
 
-
+	//Parser only:
 	_Slua_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
 	_Slua_MAKE_SETTING_CVAR(noIntOverflow);
 	_Slua_MAKE_SETTING_CVAR(sluaSyn);
