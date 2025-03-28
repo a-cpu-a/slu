@@ -66,7 +66,7 @@ namespace slua
 						if (slua::checkThrowing(L, i, arg))
 							arg = slua::read(L, i, arg);
 						else
-							throw slua::Error(std::format(
+							throw slua::Error(
 								LUACC_ARGUMENT "Argument " 
 								LUACC_NUM_COL("{}")
 								//" of " LUACC_FUNCTION "function " 
@@ -74,7 +74,7 @@ namespace slua
 								", is " LC_not " a "
 								LUACC_SINGLE_STRING("{}")
 								,i, slua::getName(arg)
-							));
+							);
 					}
 				}(argss)
 					, ...); }
