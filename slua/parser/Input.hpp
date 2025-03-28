@@ -72,7 +72,7 @@ namespace sluaParse
 		constexpr Input(SettingsT) {}
 		constexpr Input() = default;
 
-		consteval static SettingsT settings()
+		constexpr static SettingsT settings()
 		{
 			return SettingsT();
 		}
