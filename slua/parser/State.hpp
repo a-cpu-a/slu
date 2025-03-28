@@ -24,8 +24,8 @@
 
 namespace sluaParse
 {
-	template<AnyInput In, class T, class SlT>
-	using SelectT = std::conditional_t<In::settings() & sluaSyn, SlT, T>;
+	template<AnyCfgable CfgT, class T, class SlT>
+	using SelectT = std::conditional_t<CfgT::settings() & sluaSyn, SlT, T>;
 	template<bool isSlua, class T, class SlT>
 	using SelectBoolT = std::conditional_t<isSlua, SlT, T>;
 
@@ -74,8 +74,8 @@ namespace sluaParse
 		//size_t typeId;
 	};
 
-	template<AnyInput In>
-	using Parameter = SelectT<In, LuaParameter, LuaParameter>;
+	template<AnyCfgable CfgT>
+	using Parameter = SelectT<CfgT, LuaParameter, LuaParameter>;
 
 	struct Function
 	{

@@ -86,4 +86,8 @@ namespace sluaParse
 
 #undef _Slua_MAKE_SETTING_CVAR
 
+	template<class T>
+	concept AnyCfgable = requires(T t) {
+		{ t.settings() } -> AnySettings;
+	};
 }
