@@ -8,6 +8,7 @@
 #include <vector>
 #include <utility>
 #include <bit>
+#include <format>
 
 #include <slua/Include.hpp>
 #include <slua/ErrorType.hpp>
@@ -16,20 +17,33 @@ namespace slua
 {
 	//if a function is prefixed with lua_, its kinda unsafe
 
-	inline int lua_error(lua_State* L, const std::string& str) {
-		return luaL_error(L, str.c_str());
+	using lua_Exception = struct lua_longjmp*;//Dont catch it, you ?might? break something.
+
+	template<class... Args>
+	[[noreturn]] inline int lua_error(lua_State* L, const std::format_string<Args...> fmt, Args&&... fmtArgs)
+	{
+		const std::string str = std::vformat(fmt.get(), std::make_format_args(fmtArgs...));
+
+		lua_pushlstring(L, str.data(), str.size());
+
+		lua_error(L);
 	}
-	inline int lua_error(lua_State* L, const slua::Error& e) {
-		return luaL_error(L, e.msg.c_str());
+
+	[[noreturn]] inline int lua_error(lua_State* L, const std::string& str) {
+		lua_pushlstring(L, str.data(), str.size());
+		lua_error(L);
 	}
-	inline int lua_error(lua_State* L, const std::string& prefix, const slua::Error& e) {
-		return luaL_error(L, (prefix + e.msg).c_str());
+	[[noreturn]] inline int lua_error(lua_State* L, const slua::Error& e) {
+		lua_error(L, e.msg);
 	}
-	inline int lua_error(lua_State* L, const std::string& prefix, const char* e) {
-		return luaL_error(L, (prefix + e).c_str());
+	[[noreturn]] inline int lua_error(lua_State* L, const std::string& prefix, const slua::Error& e) {
+		lua_error(L, prefix+e.msg);
 	}
-	inline int lua_error(lua_State* L, const char* str) {
-		return luaL_error(L, str);
+	[[noreturn]] inline int lua_error(lua_State* L, const std::string& prefix, const char* e) {
+		lua_error(L, prefix + e);
+	}
+	[[noreturn]] inline int lua_error(lua_State* L, const char* str) {
+		luaL_error(L, str);
 	}
 
 	inline std::string readString(lua_State* L, const int idx) {
