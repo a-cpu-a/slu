@@ -16,6 +16,7 @@
 
 #include "Enums.hpp"
 #include "UnOpList.hpp"
+#include "Input.hpp"
 
 //for enums...
 #undef FALSE
@@ -23,11 +24,11 @@
 
 namespace sluaParse
 {
-	struct Position
-	{
-		size_t line;
-		size_t index;
-	};
+	template<AnyInput In, class T, class SlT>
+	using SelectT = std::conditional<In::settings() & sluaSyn, SlT, T>::type;
+
+	//template<AnyInput In>
+	//using ExpListX = SelectT<In, std::vector<struct Expression>, int>;
 
 	struct Scope
 	{
