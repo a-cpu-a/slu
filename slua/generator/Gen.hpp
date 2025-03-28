@@ -318,7 +318,7 @@ namespace sluaParse
 			.add(name)
 			.add('(');
 
-		for (const Parameter& par : var.params)
+		for (const LuaParameter& par : var.params)
 		{
 			out.add(par.name);
 			if (&par != &var.params.back() || var.hasVarArgParam)
