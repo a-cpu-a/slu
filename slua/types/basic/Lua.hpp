@@ -24,13 +24,13 @@ namespace slua
 		Ret(const T& val)
 			:val(val)
 		{}
-		Ret(Nil)
+		constexpr Ret(Nil)
 			:isNil(true)
 		{}
-		Ret(const Error& message)
+		constexpr Ret(const Error& message)
 			:errored(true), errorMsg(message)
 		{}
-		Ret() {}
+		constexpr Ret() = default;
 
 		//Returns how many items were pushed to the stack, or negative in case of error
 		static int push(lua_State* L, const Ret& data)

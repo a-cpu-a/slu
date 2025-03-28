@@ -15,7 +15,7 @@ namespace slua
 	struct AnyRef
 	{
 		lua_State* L;
-		const int idx = 0;
+		int idx = 0;
 
 		static int push(lua_State* L, const AnyRef& data)
 		{

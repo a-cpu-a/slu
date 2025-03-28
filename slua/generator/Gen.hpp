@@ -375,8 +375,6 @@ namespace sluaParse
 	{
 		ezmatch(obj.data)(
 
-		varcase(const StatementType::NONE) { _ASSERT(false); },
-
 		varcase(const StatementType::SEMICOLON) {
 			if(!out.wasSemicolon)
 				out.add(';');

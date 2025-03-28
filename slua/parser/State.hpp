@@ -245,9 +245,6 @@ namespace sluaParse
 
 	namespace StatementType
 	{
-		struct NONE {};// Here, so variant has a default value (DO NOT USE)
-
-
 		struct SEMICOLON {};									// ";"
 		struct ASSIGN { std::vector<Var> vars; ExpList exprs; };// "varlist = explist" //e.size must be > 0
 		using FUNC_CALL = FuncCall;								// "functioncall"
@@ -293,8 +290,6 @@ namespace sluaParse
 	};
 
 	using StatementData = std::variant <
-		StatementType::NONE,
-
 		StatementType::SEMICOLON,		// ";"
 
 		StatementType::ASSIGN,			// "varlist = explist"

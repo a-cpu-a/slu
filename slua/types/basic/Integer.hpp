@@ -15,8 +15,8 @@ namespace slua
 	{
 		int64_t val; // Special variable, used to unconvert automaticaly in SLua_MAP_TYPE
 
-		Int() {}
-		Int(const int64_t value) :val(value) {}
+		constexpr Int() = default;
+		constexpr Int(const int64_t value) :val(value) {}
 
 		// Returns how many items were pushed to the stack, or negative in case of a error
 		static int push(lua_State* L, const Int& data)

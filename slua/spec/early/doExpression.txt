@@ -4,23 +4,27 @@
 
 New Syntax {
 	
-	exp @::= | ["comptime"] "gen" ["->" type] block "return" explist [";"] "end"
+	blockOrRet ::= retstatSemi | ( "{" block "}" )
+
+	exp @::= | ["comptime"] "do" ["->" type] blockOrRet
+	
+	retstat @::= | "do" retstat
 }
 
 New Keywords {
-	gen
+	do
 }
 
-Gen Expression {
+Do Expression {
 	
 	Lets you compute a value inside in a expression, while being able to use statments, and more complex code.
 	
 	Using comptime, forces it to run at compile-time.
 	
-	Using return inside gen blocks completes them, and returns the result, to be used for the expression outside.
+	Using "do return" inside do blocks completes them, and returns the result, to be used for the expression outside.
 	Returning multiple expressions at once automatically produces a tuple, just like let, const, etc...
 	
-	Generate expressions must end with a return, since all paths must return a value.
+	Generate expressions must end with a return or "do return", since all paths must return a value.
 	
 	The return type is inferred, when missing.
 	
@@ -28,7 +32,7 @@ Gen Expression {
 	
 	Also useful for macros.
 	
-	Inside coroutines, gen blocks cant directly yield, and must return out the value first.
+	Inside coroutines, do blocks can directly yield.
 	
 	Implementation {
 		May be implemented by lambdas that capture values.

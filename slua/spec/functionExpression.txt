@@ -3,19 +3,15 @@
 #
 
 New Syntax {
-
-	exp @::= | PreFn "fn" "(" TypedParamList ")" ["->" type] statOrRet
+	
+	exp @::= | "function" "(" TypedParamList ")" ["->" type] statOrRet
 }
 
-New Keywords {
-	fn
-}
-
-Fn Expression {
+Function Expression {
 	
 	Creates a lambda function.
 	
-	Same rules for typing as normal fn statements.
+	Same rules for typing as normal function statements.
 	
 	
 	Implementation {

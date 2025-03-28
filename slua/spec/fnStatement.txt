@@ -6,7 +6,7 @@ New Syntax {
 
 	PreFn ::=
 	
-	stat @::= | OptExportPrefix PreFn "fn" Name "(" TypedParamList ")" ["->" type] block "end"
+	stat @::= | OptExportPrefix PreFn "fn" Name "(" TypedParamList ")" ["->" type] "{" block "}"
 }
 
 New Keywords {
@@ -25,7 +25,7 @@ Fn Statement {
 	Partially equivalent to "local function x() end", except, it can be exported.
 	
 	Implementation {
-		In lua, this can be a local function, or a global function.
+		In lua, this can be a local function, or a global function, could also be a table with a special metatable.
 		The function might be frozen at runtime (metatable, or internal stuff)
 		If something somehow modifies the function variable, the changes might be ignored.
 	}
