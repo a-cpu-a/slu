@@ -13,6 +13,16 @@
 #include <slua/Include.hpp>
 #include <slua/ErrorType.hpp>
 
+#if !defined(_MSC_VER) || defined(__clang__)
+#define _Slua_NO_RETURN(...)
+#else
+#define _Slua_NO_RETURN(...) \
+	do {__pragma(warning(push))__pragma(warning(suppress: 4645)) \
+		return __VA_ARGS__; \
+		__pragma(warning(pop)) \
+	}while(0)
+#endif
+
 namespace slua
 {
 	//if a function is prefixed with lua_, its kinda unsafe
@@ -27,17 +37,22 @@ namespace slua
 		lua_pushlstring(L, str.data(), str.size());
 
 		lua_error(L);
+
+		_Slua_NO_RETURN(0);
 	}
 
 	[[noreturn]] inline int lua_error(lua_State* L, const std::string& str) {
 		lua_pushlstring(L, str.data(), str.size());
 		lua_error(L);
+		_Slua_NO_RETURN(0);
 	}
 	[[noreturn]] inline int lua_error(lua_State* L, const slua::Error& e) {
 		lua_error(L, e.msg);
+		_Slua_NO_RETURN(0);
 	}
 	[[noreturn]] inline int lua_error(lua_State* L, const char* str) {
 		luaL_error(L, str);
+		_Slua_NO_RETURN(0);
 	}
 
 	inline std::string readString(lua_State* L, const int idx) {
