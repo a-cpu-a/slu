@@ -19,7 +19,7 @@ namespace sluaParse
 
 	//Here, so streamed inputs can be made
 	template<class T>
-	concept AnyInput = requires(T t) {
+	concept AnyInput = AnyCfgable<T> && requires(T t) {
 		{ t.skip() } -> std::same_as<void>;
 		{ t.skip((size_t)100) } -> std::same_as<void>;
 
@@ -45,8 +45,6 @@ namespace sluaParse
 
 		//Management
 		{ t.newLine() } -> std::same_as<void>;
-
-		{ t.settings() } -> AnySettings;
 
 		{t.handleError(std::string()) } -> std::same_as<void>;
 		{t.hasError() } -> std::same_as<bool>;
