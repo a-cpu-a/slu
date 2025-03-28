@@ -39,6 +39,18 @@ namespace sluaParse
 		}
 		return UnOpType::NONE;
 	}
+	inline PostUnOpType readOptPostUnOp(AnyInput auto& in)
+	{
+		skipSpace(in);
+
+		switch (in.peek())
+		{
+		case '?':
+			in.skip();
+			return PostUnOpType::PROPOGATE_ERR;
+		}
+		return PostUnOpType::NONE;
+	}
 
 	inline BinOpType readOptBinOp(AnyInput auto& in)
 	{
