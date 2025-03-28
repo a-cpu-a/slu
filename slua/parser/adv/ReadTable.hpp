@@ -14,7 +14,7 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
-#include <slua/parser/adv/ReadExpr.hpp>
+#include <slua/parser/adv/ReadLuaExpr.hpp>
 
 namespace sluaParse
 {
@@ -31,12 +31,12 @@ namespace sluaParse
 		{
 			FieldType::EXPR2EXPR res{};
 
-			res.idx = readExpr(in,allowVarArg);
+			res.idx = readLuaExpr(in,allowVarArg);
 
 			requireToken(in, "]");
 			requireToken(in, "=");
 
-			res.v = readExpr(in,allowVarArg);
+			res.v = readLuaExpr(in,allowVarArg);
 
 			return res;
 		}
@@ -55,11 +55,11 @@ namespace sluaParse
 				skipSpace(in);
 				in.skip();// '='
 
-				return FieldType::NAME2EXPR(name, readExpr(in,allowVarArg));
+				return FieldType::NAME2EXPR(name, readLuaExpr(in,allowVarArg));
 			}
 		}
 
-		return FieldType::EXPR(readExpr(in,allowVarArg));
+		return FieldType::EXPR(readLuaExpr(in,allowVarArg));
 	}
 
 	//Will NOT check the first char '{' !!!

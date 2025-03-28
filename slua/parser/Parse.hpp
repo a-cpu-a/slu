@@ -17,7 +17,7 @@
 #include "adv/ReadName.hpp"
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
-#include "adv/ReadExpr.hpp"
+#include "adv/ReadLuaExpr.hpp"
 #include "adv/ReadStringLiteral.hpp"
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"
@@ -121,7 +121,7 @@ namespace sluaParse
 				in.skip();
 				return res;
 			}
-			res.v = readExpList(in,allowVarArg);
+			res.v = readLuaExpList(in,allowVarArg);
 			requireToken(in, ")");
 			return res;
 		}
@@ -200,7 +200,7 @@ namespace sluaParse
 						in.skip();//thats it
 					else if (!isBasicBlockEnding(in, ch1))
 					{
-						ret.retExprs = readExpList(in, allowVarArg);
+						ret.retExprs = readLuaExpList(in, allowVarArg);
 						readOptToken(in, ";");
 					}
 					break;// no more loop
@@ -341,12 +341,12 @@ namespace sluaParse
 					res.varName = names[0];
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-					res.start = readExpr(in,allowVarArg);
+					res.start = readLuaExpr(in,allowVarArg);
 					requireToken(in, ",");
-					res.end = readExpr(in,allowVarArg);
+					res.end = readLuaExpr(in,allowVarArg);
 
 					if (checkReadToken(in, ","))
-						res.step = readExpr(in,allowVarArg);
+						res.step = readLuaExpr(in,allowVarArg);
 
 					res.bl = readDoEndBlock<true>(in,allowVarArg);
 
@@ -360,7 +360,7 @@ namespace sluaParse
 				res.varNames = names;
 
 				requireToken(in, "in");
-				res.exprs = readExpList(in,allowVarArg);
+				res.exprs = readLuaExpList(in,allowVarArg);
 				res.bl = readDoEndBlock<true>(in,allowVarArg);
 
 				ret.data = std::move(res);
@@ -446,7 +446,7 @@ namespace sluaParse
 
 				if (checkReadToken(in, "="))
 				{// [‘=’ explist]
-					res.exprs = readExpList(in,allowVarArg);
+					res.exprs = readLuaExpList(in,allowVarArg);
 				}
 				ret.data = std::move(res);
 				return ret;
@@ -484,7 +484,7 @@ namespace sluaParse
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
-				Expression expr = readExpr(in,allowVarArg);
+				Expression expr = readLuaExpr(in,allowVarArg);
 				Block bl = readDoEndBlock<true>(in,allowVarArg);
 				ret.data = StatementType::WHILE_LOOP(std::move(expr), std::move(bl));
 				return ret;
@@ -495,7 +495,7 @@ namespace sluaParse
 			{ // repeat block until exp
 				Block bl = readBlock<true>(in,allowVarArg);
 				requireToken(in, "until");
-				Expression expr = readExpr(in,allowVarArg);
+				Expression expr = readLuaExpr(in,allowVarArg);
 
 				ret.data = StatementType::REPEAT_UNTIL({ std::move(expr), std::move(bl) });
 				return ret;
@@ -507,7 +507,7 @@ namespace sluaParse
 
 				StatementType::IF_THEN_ELSE res{};
 
-				res.cond = readExpr(in,allowVarArg);
+				res.cond = readLuaExpr(in,allowVarArg);
 
 				requireToken(in, "then");
 
@@ -515,7 +515,7 @@ namespace sluaParse
 
 				while (checkReadTextToken(in, "elseif"))
 				{
-					Expression elExpr = readExpr(in,allowVarArg);
+					Expression elExpr = readLuaExpr(in,allowVarArg);
 					requireToken(in, "then");
 					Block elBlock = readBlock<isLoop>(in,allowVarArg);
 
