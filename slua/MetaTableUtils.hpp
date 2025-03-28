@@ -83,7 +83,8 @@ namespace slua
 
 		throw slua::Error(
 			"Unknown key in getter " 
-			LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'"
+			LUACC_START_SINGLE_STRING "{}" LUACC_STRING_SINGLE "'",
+			strKey
 		);
 	}
 #define Slua_setupGetHandler(_GETTERS) \
@@ -155,7 +156,8 @@ namespace slua
 
 		throw slua::Error(
 			"Unknown key in setter " 
-			LUACC_START_SINGLE_STRING + strKey + LUACC_STRING_SINGLE "'"
+			LUACC_START_SINGLE_STRING "{}" LUACC_STRING_SINGLE "'",
+			strKey
 		);
 	}
 #define Slua_setupSetHandler(_SETTERS) \
