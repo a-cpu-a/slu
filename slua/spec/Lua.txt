@@ -8,12 +8,14 @@ New Syntax {
 
 	block ::= {stat} [retstat [‘;’]]
 
-	stat ::=  ‘;’ | 
+	basicstat ::= ‘;’ | 
 		 varlist ‘=’ explist | 
 		 functioncall | 
-		 label | 
 		 ‘break’ | 
 		 ‘goto’ Name | 
+
+	stat ::=  basicstat | 
+		 label | 
 		 ‘{’ block ‘}’ | 
 		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
 		 ‘repeat’ statOrRet ‘until’ exp | 
@@ -30,7 +32,7 @@ New Syntax {
 
 	retstat ::= return [explist]
 
-	statSemicol ::= (retstatSemi | stat) ‘;’
+	statSemicol ::= (retstatSemi | basicstat) ‘;’
 	statOrRet ::= statSemicol | ‘{’ block ‘}’
 
 	label ::= ‘::’ Name ‘::’
