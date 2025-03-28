@@ -43,7 +43,8 @@ namespace slua
 			case slua::TableKeyType::STRING:
 				return strVal;
 			}
-			return "memory corrupted";
+			Slua_panic("Memory corrupted");
+			std::abort();
 		}
 
 		static int push(lua_State* L, const TableKey& data)
@@ -91,16 +92,16 @@ namespace slua
 		}
 		static constexpr const char* getName() { return "table-key"; }
 
-		bool operator==(const double& other) const {
+		constexpr bool operator==(const double& other) const {
 			return type == TableKeyType::FLOAT && floatVal == other;
 		}
-		bool operator==(const int64_t& other) const {
+		constexpr bool operator==(const int64_t& other) const {
 			return type == TableKeyType::INT && intVal == other;
 		}
-		bool operator==(const std::string_view& other) const {
+		constexpr bool operator==(const std::string_view& other) const {
 			return type == TableKeyType::STRING && strVal == other;
 		}
-		bool operator==(const char other[]) const {
+		constexpr bool operator==(const char other[]) const {
 			return type == TableKeyType::STRING && strVal == other;
 		}
 	};

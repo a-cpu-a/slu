@@ -6,7 +6,7 @@ New Syntax {
 
 	chunk ::= block
 
-	block ::= {stat} [retstat]
+	block ::= {stat} [retstat [‘;’]]
 
 	stat ::=  ‘;’ | 
 		 varlist ‘=’ explist | 
@@ -14,21 +14,24 @@ New Syntax {
 		 label | 
 		 ‘break’ | 
 		 ‘goto’ Name | 
-		 ‘do’ block ‘end’ | 
-		 ‘while’ exp ‘do’ block ‘end’ | 
-		 ‘repeat’ block ‘until’ exp | 
-		 ‘if’ exp ‘then’ block {‘elseif’ exp ‘then’ block} [‘else’ block] ‘end’ | 
-		 ‘for’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘do’ block ‘end’ | 
-		 ‘for’ namelist ‘in’ explist ‘do’ block ‘end’ | 
+		 ‘{’ block ‘}’ | 
+		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
+		 ‘repeat’ statOrRet ‘until’ exp | 
+		 ‘if’ ‘(’ exp ‘)’ statOrRet {‘else’ ‘if’ statOrRet} [‘else’ statOrRet] | 
+		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
+		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
 		 ‘function’ funcname funcbody | 
 		 ‘local’ ‘function’ Name funcbody | 
-		 ‘local’ attnamelist [‘=’ explist] 
+		 ‘local’ attnamelist [‘=’ explist]
 
 	attnamelist ::=  Name attrib {‘,’ Name attrib}
 
 	attrib ::= [‘<’ Name ‘>’]
 
-	retstat ::= ‘return’ [explist] [‘;’]
+	retstat ::= return [explist]
+
+	statSemicol ::= (retstatSemi | stat) ‘;’
+	statOrRet ::= statSemicol | ‘{’ block ‘}’
 
 	label ::= ‘::’ Name ‘::’
 
@@ -53,7 +56,7 @@ New Syntax {
 
 	functiondef ::= ‘function’ funcbody
 
-	funcbody ::= ‘(’ [parlist] ‘)’ block ‘end’
+	funcbody ::= ‘(’ [parlist] ‘)’ ‘{’ block ‘}’
 
 	parlist ::= namelist [‘,’ ‘...’] | ‘...’
 
@@ -78,8 +81,6 @@ New Keywords {
 	break
 	do
 	else
-	elseif
-	end
 	false
 	for
 	function
@@ -92,7 +93,6 @@ New Keywords {
 	or
 	repeat
 	return
-	then
 	true
 	until
 	while

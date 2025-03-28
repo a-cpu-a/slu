@@ -11,17 +11,20 @@ namespace slua
 {
 	/* Push something to the lua stack */
 	template <typename T>
-	inline int push(lua_State* L, const T& data) {
+	inline int push(lua_State* L, T&& data) {
 
 		using LuaType = slua::ToLua<T>;
 
-		return LuaType::push(L, LuaType(data));
+		return LuaType::push(L, std::forward<T>(data));
 	}
 
 
 	template<slua::NonLuaType T>
 	inline T read(lua_State* L, const int idx, T) {
-		return (T)slua::ToLua<T>::read(L, idx).val;
+		if constexpr (requires{slua::ToLua<T>::read(nullptr, 0).val; })
+			return (T)slua::ToLua<T>::read(L, idx).val;
+		else
+			return slua::ToLua<T>::read(L, idx);
 	}
 	template<slua::LuaType T>
 	inline T read(lua_State* L, const int idx, T) {
@@ -30,7 +33,10 @@ namespace slua
 
 	template<slua::NonLuaType T>
 	inline T read(lua_State* L, const int idx) {
-		return (T)slua::ToLua<T>::read(L, idx).val;
+		if constexpr (requires{slua::ToLua<T>::read(nullptr, 0).val; })
+			return (T)slua::ToLua<T>::read(L, idx).val;
+		else
+			return slua::ToLua<T>::read(L, idx);
 	}
 	template<slua::LuaType T>
 	inline T read(lua_State* L, const int idx) {
@@ -76,11 +82,11 @@ namespace slua
 	}
 
 	template<typename T>
-	inline constexpr const char* getName() {
+	constexpr const char* getName() {
 		return ToLua<T>::getName();
 	}
 	template<typename T>
-	inline constexpr const char* getName(T) {
+	constexpr const char* getName(T) {
 		return ToLua<T>::getName();
 	}
 }

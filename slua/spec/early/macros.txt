@@ -27,28 +27,28 @@
 	--Do NOT use @Builtin{"base::no_splice"} in your own code, as it is only supported here.
 	--The $ after the name, makes it so it doesnt conflict with the types.
 	--It also means you cant call these in function-form
-	@Builtin{"base::no_splice"} ex macro fn Block${macro Block v}->Block return v;end
+	@Builtin{"base::no_splice"} ex macro fn Block${macro Block v}->Block {return v;}
 	
 	--You are not allowed to use semicolon statements with this! (no "Stat${;}")
-	@Builtin{"base::no_splice"} ex macro fn Stat ${macro Stat  v}->Stat  return v;end
+	@Builtin{"base::no_splice"} ex macro fn Stat ${macro Stat  v}->Stat {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn Var  ${macro Var   v}->Var   return v;end
-	@Builtin{"base::no_splice"} ex macro fn Expr ${macro Expr  v}->Expr  return v;end
-	@Builtin{"base::no_splice"} ex macro fn Name ${macro Name  v}->Name  return v;end
-	@Builtin{"base::no_splice"} ex macro fn Type ${macro Type  v}->Type  return v;end
+	@Builtin{"base::no_splice"} ex macro fn Var  ${macro Var   v}->Var  {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Expr ${macro Expr  v}->Expr {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Name ${macro Name  v}->Name {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Type ${macro Type  v}->Type {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn CommaList<T> ${macro CommaList<T>  v}->CommaList<T>  return v;end
+	@Builtin{"base::no_splice"} ex macro fn CommaList<T> ${macro CommaList<T>  v}->CommaList<T> {return v;}
 	
 	--SemicolList allows Stat
-	@Builtin{"base::no_splice"} ex macro fn SemicolList<T>${macro SemicolList<T> v}->SemicolList<T> return v;end
+	@Builtin{"base::no_splice"} ex macro fn SemicolList<T>${macro SemicolList<T> v}->SemicolList<T> {return v;}
 	
 	--[[
 	--TODO: move this elsewhere, when its needed
-		fn prefixUpperify(str prefix,mut str s) -> str
-			if #s == 0 then return s end
+		fn prefixUpperify(str prefix,mut str s) -> str {
+			if (#s == 0) return s;
 			s[1] = s[1].upper()
 			return prefix..s;
-		end
+		}
 	]]
 	
 	--[[
@@ -64,23 +64,23 @@
 	-- assert(addType(Type${u8}) == Type${u8}, "These are equal");
 	--
 	
-	macro fn implAdd(macro CommaList<Name> ns) -> Vec<Stat>
+	macro fn implAdd(macro CommaList<Name> ns) -> Vec<Stat> {
 		
 		let Vec<Stat> r;
 		
-		for k,v in ns do
+		for (k,v in ns) {
 			let name = ("add"..(v as str)) as Name;
 			r:push(
 				Stat${
-					ex macro fn $name {macro @(v as Type) val }
+					ex macro fn $name {macro @(v as Type) val } {
 						return val
-					end
+					}
 				}
 			);
-		end
+		}
 		
 		return r;
-	end
+	}
 	
 	implAdd$(
 		Block,
@@ -131,7 +131,7 @@ New Syntax {
 	
 	PreMacro ::=
 	
-	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["$"] macroParamsBlock ["->" type] block "end"
+	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["$"] macroParamsBlock ["->" type] "{" block "}"
 	
 }
 

@@ -18,8 +18,8 @@ namespace slua
 	{
 		std::array<uint8_t, SIZE> val;
 
-		ByteArray() {}
-		ByteArray(const std::array<uint8_t, SIZE>& value) :val(value) {}
+		constexpr ByteArray() = default;
+		constexpr ByteArray(const std::array<uint8_t, SIZE>& value) :val(value) {}
 
 		static int push(lua_State* L, const ByteArray& data)
 		{
