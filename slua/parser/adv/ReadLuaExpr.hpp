@@ -149,7 +149,7 @@ namespace sluaParse
 		ExprType::MULTI_OPERATION resData{};
 
 		resData.first = std::make_unique<Expression>(std::move(basicRes));
-		resData.extra.emplace_back(firstBinOp, readLuaExpr(in,allowVarArg,false));
+		resData.extra.emplace_back(firstBinOp, readExpr(in,allowVarArg,false));
 
 		while (true)
 		{
@@ -172,17 +172,17 @@ namespace sluaParse
 		return ret;
 	}
 
-	inline ExpList readLuaExpList(AnyInput auto& in, const bool allowVarArg)
+	inline ExpList readExpList(AnyInput auto& in, const bool allowVarArg)
 	{
 		/*
 			explist ::= exp {‘,’ exp}
 		*/
 		ExpList ret{};
-		ret.emplace_back(readLuaExpr(in,allowVarArg));
+		ret.emplace_back(readExpr(in,allowVarArg));
 
 		while (checkReadToken(in, ","))
 		{
-			ret.emplace_back(readLuaExpr(in,allowVarArg));
+			ret.emplace_back(readExpr(in,allowVarArg));
 		}
 		return ret;
 	}

@@ -31,12 +31,12 @@ namespace sluaParse
 		{
 			FieldType::EXPR2EXPR res{};
 
-			res.idx = readLuaExpr(in,allowVarArg);
+			res.idx = readExpr(in,allowVarArg);
 
 			requireToken(in, "]");
 			requireToken(in, "=");
 
-			res.v = readLuaExpr(in,allowVarArg);
+			res.v = readExpr(in,allowVarArg);
 
 			return res;
 		}
@@ -55,11 +55,11 @@ namespace sluaParse
 				skipSpace(in);
 				in.skip();// '='
 
-				return FieldType::NAME2EXPR(name, readLuaExpr(in,allowVarArg));
+				return FieldType::NAME2EXPR(name, readExpr(in,allowVarArg));
 			}
 		}
 
-		return FieldType::EXPR(readLuaExpr(in,allowVarArg));
+		return FieldType::EXPR(readExpr(in,allowVarArg));
 	}
 
 	//Will NOT check the first char '{' !!!
