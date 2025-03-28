@@ -57,7 +57,7 @@ namespace sluaParse
 
 			throw UnexpectedCharacterError(std::format(
 				"Expected multi-assignment, since there is a list of variables, but found "
-				LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+				LUACC_SINGLE_STRING("{}")
 				"{}"
 				, opType, errorLocStr(in)));
 		}
@@ -80,7 +80,7 @@ namespace sluaParse
 
 				throw UnexpectedCharacterError(std::format(
 					"Expected assignment or " LC_function " call, found "
-					LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+					LUACC_SINGLE_STRING("{}")
 					"{}"
 					, opType, errorLocStr(in)));
 			}

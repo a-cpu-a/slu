@@ -102,7 +102,7 @@ namespace sluaParse
 					LUACC_SINGLE_STRING(",")
 					" or "
 					LUACC_SINGLE_STRING(";")
-					"), found " LUACC_START_SINGLE_STRING "{}" LUACC_END_SINGLE_STRING
+					"), found " LUACC_SINGLE_STRING("{}")
 					"{}"
 				, ch, errorLocStr(in)));
 			}
