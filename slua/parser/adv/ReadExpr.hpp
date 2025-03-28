@@ -26,7 +26,7 @@ namespace sluaParse
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			BaseVarType::EXPR res(readLuaExpr(in,allowVarArg));
+			BaseVarType::EXPR res(readExpr(in,allowVarArg));
 			requireToken(in, ")");
 			varDataNeedsSubThing = true;
 			varDataOut.base = std::move(res);
@@ -158,7 +158,7 @@ namespace sluaParse
 					in.skip();//skip eq
 					StatementType::ASSIGN res{};
 					res.vars = std::move(varData);
-					res.exprs = readLuaExpList(in,allowVarArg);
+					res.exprs = readExpList(in,allowVarArg);
 					return res;
 				}
 			}
@@ -228,7 +228,7 @@ namespace sluaParse
 				SubVarType::EXPR res{};
 
 				in.skip();//skip first char
-				res.idx = readLuaExpr(in,allowVarArg);
+				res.idx = readExpr(in,allowVarArg);
 				requireToken(in, "]");
 
 				varDataNeedsSubThing = false;
@@ -243,5 +243,13 @@ namespace sluaParse
 	exit:
 
 		return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing, opType);
+	}
+
+
+	inline Expression readExpr(AnyInput auto& in, const bool allowVarArg, const bool readBiOp = true) {
+		if constexpr (in.settings().sluaSyn())
+			return {};
+		else
+			return readLuaExpr(in, allowVarArg, readBiOp);
 	}
 }
