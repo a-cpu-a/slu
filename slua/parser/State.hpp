@@ -25,7 +25,7 @@
 namespace sluaParse
 {
 	template<AnyInput In, class T, class SlT>
-	using SelectT = std::conditional<In::settings() & sluaSyn, SlT, T>::type;
+	using SelectT = std::conditional_t<In::settings() & sluaSyn, SlT, T>;
 
 	//template<AnyInput In>
 	//using ExpListX = SelectT<In, std::vector<struct Expression>, int>;
