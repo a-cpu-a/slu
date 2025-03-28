@@ -6,7 +6,7 @@ New Syntax {
 	
 	traitcombo ::= ComptimeVarType {"+" ComptimeVarType}
 	
-	type ::= typeItem ["?" typeItem] { "|" typeItem }
+	type ::= (([[typeItem] "?"] typeItem) | ([typeItem] "??" )) { "|" typeItem }
 	TypeList ::= type {"," type}
 
 	typeItem ::= typePrefix specType
@@ -221,8 +221,10 @@ Type Specifiers {
 	}
 	Result {
 		Format: [X] "?" X
+		Format: [X] "??"
 		
-		Allows both a error, and a value, or just a error.
+		Allows both a error, and a value, or just an error, and the value type is inferred.
+		The type specifier '??' is just like '?', except the error type is inferred.
 		
 		Allows use of the "?" operator, and other error handling tools.
 	}
