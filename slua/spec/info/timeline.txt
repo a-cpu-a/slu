@@ -1,0 +1,63 @@
+
+
+V1 - compile 1 file, 1 function (fn main)
+	(only types: integer, number, str, Table, bool)
+	(if, for, let, let mut, fn)
+
+V2 - multiple functions
+	(and void type)
+
+V3 - multiple files (no modules)
+
+V4 - modules (no toml stuff yet)
+
+V5 - custom types (struct)
+
+V6 - untyped style functions, vars. dynamic type
+
+V7 - f_, i_ and u_
+
+V8 - custom types (union)
+
+V9 - custom types (enum)
+
+V10 - match expr / stat
+
+V11 - type checking
+
+V12 - export, public checking
+
+
+
+V14 - traits & impls
+
+
+
+V20 - trait type args / vars
+
+
+
+V29 - raii, drop stat
+
+
+
+V34 - error types
+
+
+
+V39 - safety kw's
+
+V40 - borrow checking
+
+
+
+V60 - comptime
+
+V80 - macro
+
+
+V100 - js output
+
+V199 - llvm output
+
+V299 - java output
