@@ -39,22 +39,31 @@ namespace sluaParse
 	template<AnyCfgable CfgT> using Statement = SelV<CfgT, StatementV>;
 
 	template<bool isSlua> struct ExpressionV;
-	template<AnyCfgable CfgT>
-	using Expression = SelV<CfgT, ExpressionV>;
+	template<AnyCfgable CfgT> using Expression = SelV<CfgT, ExpressionV>;
+
+	namespace FieldType {
+		template<bool isSlua> struct EXPR2EXPRv;
+		template<AnyCfgable CfgT> using EXPR2EXPR = SelV<CfgT, EXPR2EXPRv>;
+
+		template<bool isSlua> struct NAME2EXPRv;
+		template<AnyCfgable CfgT> using NAME2EXPR = SelV<CfgT, NAME2EXPRv>;
+
+		template<bool isSlua> struct EXPRv;
+		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+	}
 
 
 
 
-
-	namespace FieldType { struct NONE {}; struct EXPR2EXPR; struct NAME2EXPR; struct EXPR; }
+	namespace FieldType { struct NONE {}; }
 
 	template<bool isSlua>
 	using FieldV = std::variant<
 		FieldType::NONE,// Here, so variant has a default value (DO NOT USE)
 
-		FieldType::EXPR2EXPR, // "'[' exp ']' = exp"
-		FieldType::NAME2EXPR, // "Name = exp"
-		FieldType::EXPR       // "exp"
+		FieldType::EXPR2EXPRv<isSlua>, // "'[' exp ']' = exp"
+		FieldType::NAME2EXPRv<isSlua>, // "Name = exp"
+		FieldType::EXPRv<isSlua>       // "exp"
 	>;
 
 	template<AnyCfgable CfgT>
@@ -288,9 +297,14 @@ namespace sluaParse
 
 	namespace FieldType
 	{
-		struct EXPR2EXPR { ExpressionV<false> idx; ExpressionV<false> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		struct NAME2EXPR { std::string idx; ExpressionV<false> v; };	// "Name ‘=’ exp"
-		struct EXPR { ExpressionV<false> v; };							// "exp"
+		template<bool isSlua>
+		struct EXPR2EXPRv { ExpressionV<isSlua> idx; ExpressionV<isSlua> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+
+		template<bool isSlua>
+		struct NAME2EXPRv { std::string idx; ExpressionV<isSlua> v; };	// "Name ‘=’ exp"
+
+		template<bool isSlua>
+		struct EXPRv { ExpressionV<isSlua> v; };							// "exp"
 	}
 	namespace LimPrefixExprType
 	{
