@@ -298,7 +298,8 @@ namespace sluaParse
 		);
 	}
 
-	inline void genVar(AnyOutput auto& out, const Var& obj)
+	template<AnyOutput Out>
+	inline void genVar(Out& out, const Var<Out>& obj)
 	{
 		ezmatch(obj.base)(
 		varcase(const BaseVarType::NAME&) {
@@ -344,9 +345,10 @@ namespace sluaParse
 		out.newLine();//Extra spacing
 	}
 
-	inline void genVarList(AnyOutput auto& out, const std::vector<Var>& obj)
+	template<AnyOutput Out>
+	inline void genVarList(Out& out, const std::vector<Var<Out>>& obj)
 	{
-		for (const Var& v : obj)
+		for (const Var<Out>& v : obj)
 		{
 			genVar(out, v);
 			if (&v != &obj.back())
