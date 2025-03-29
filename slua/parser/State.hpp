@@ -25,7 +25,7 @@
 namespace sluaParse
 {
 	template<AnyCfgable CfgT, template<bool> class T>
-	using SelV = T<false>;//CfgT::settings()& sluaSyn
+	using SelV = T<CfgT::settings()& sluaSyn>;
 
 
 
