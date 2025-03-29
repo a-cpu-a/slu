@@ -50,7 +50,7 @@ namespace sluaParse
 
 
 
-	using LuaExpList = std::vector<struct Expression>;
+	using LuaExpList = std::vector<struct LuaExpression>;
 
 	template<AnyCfgable CfgT>
 	using ExpList = SelectT<CfgT, LuaExpList, LuaExpList>;
@@ -162,11 +162,11 @@ namespace sluaParse
 		//unOps is always empty for this type
 		struct MULTI_OPERATION
 		{
-			std::unique_ptr<struct Expression> first;
-			std::vector<std::pair<BinOpType, struct Expression>> extra;//size>=1
+			std::unique_ptr<struct LuaExpression> first;
+			std::vector<std::pair<BinOpType, struct LuaExpression>> extra;//size>=1
 		};      // "exp binop exp"
 
-		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<struct Expression>};     // "unop exp"	//Inlined as opt prefix
+		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<struct LuaExpression>};     // "unop exp"	//Inlined as opt prefix
 
 
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
@@ -191,22 +191,25 @@ namespace sluaParse
 		//ExprType::UNARY_OPERATION,	// "unop exp"
 	>;
 
-	struct Expression
+	struct LuaExpression
 	{
 		ExprData data;
 		Position place;
 		UnOpList unOps;
 
-		Expression() = default;
-		Expression(const Expression&) = delete;
-		Expression(Expression&&) = default;
-		Expression& operator=(Expression&&) = default;
+		LuaExpression() = default;
+		LuaExpression(const LuaExpression&) = delete;
+		LuaExpression(LuaExpression&&) = default;
+		LuaExpression& operator=(LuaExpression&&) = default;
 	};
+
+	template<AnyCfgable CfgT>
+	using Expression = SelectT<CfgT, LuaExpression, LuaExpression>;
 
 	namespace SubVarType
 	{
 		struct NAME { std::string idx; };	// {funcArgs} ‘.’ Name
-		struct EXPR { Expression idx; };	// {funcArgs} ‘[’ exp ‘]’
+		struct EXPR { LuaExpression idx; };	// {funcArgs} ‘[’ exp ‘]’
 	}
 
 	struct LuaSubVar
@@ -225,7 +228,7 @@ namespace sluaParse
 	namespace BaseVarType
 	{
 		using NAME = std::string;
-		struct EXPR { Expression start; LuaSubVar sub; };
+		struct EXPR { LuaExpression start; LuaSubVar sub; };
 	}
 	using LuaBaseVar = std::variant<
 		BaseVarType::NAME,
@@ -253,14 +256,14 @@ namespace sluaParse
 
 	namespace FieldType
 	{
-		struct EXPR2EXPR { Expression idx; Expression v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		struct NAME2EXPR { std::string idx; Expression v; };	// "Name ‘=’ exp"
-		struct EXPR { Expression v; };							// "exp"
+		struct EXPR2EXPR { LuaExpression idx; LuaExpression v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		struct NAME2EXPR { std::string idx; LuaExpression v; };	// "Name ‘=’ exp"
+		struct EXPR { LuaExpression v; };							// "exp"
 	}
 	namespace LimPrefixExprType
 	{
 		struct VAR { LuaVar v; };			// "var"
-		struct EXPR { Expression v; };	// "'(' exp ')'"
+		struct EXPR { LuaExpression v; };	// "'(' exp ')'"
 	}
 
 	using AttribNameList = std::vector<AttribName>;
@@ -275,24 +278,24 @@ namespace sluaParse
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
 		struct DO_BLOCK { LuaBlock bl; };							// "do block end"
-		struct WHILE_LOOP { Expression cond; LuaBlock bl; };		// "while exp do block end"
+		struct WHILE_LOOP { LuaExpression cond; LuaBlock bl; };		// "while exp do block end"
 		struct REPEAT_UNTIL :WHILE_LOOP {};						// "repeat block until exp"
 
 		// "if exp then block {elseif exp then block} [else block] end"
 		struct IF_THEN_ELSE
 		{
-			Expression cond;
+			LuaExpression cond;
 			LuaBlock bl;
-			std::vector<std::pair<Expression, LuaBlock>> elseIfs;
+			std::vector<std::pair<LuaExpression, LuaBlock>> elseIfs;
 			std::optional<LuaBlock> elseBlock;
 		};
 		// "for Name = exp , exp [, exp] do block end"
 		struct FOR_LOOP_NUMERIC
 		{
 			std::string varName;
-			Expression start;
-			Expression end;//inclusive
-			std::optional<Expression> step;
+			LuaExpression start;
+			LuaExpression end;//inclusive
+			std::optional<LuaExpression> step;
 			LuaBlock bl;
 		};
 		// "for namelist in explist do block end"

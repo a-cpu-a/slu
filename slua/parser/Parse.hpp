@@ -486,7 +486,7 @@ namespace sluaParse
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
-				Expression expr = readExpr(in,allowVarArg);
+				Expression<In> expr = readExpr(in,allowVarArg);
 				Block<In> bl = readDoEndBlock<true>(in,allowVarArg);
 				ret.data = StatementType::WHILE_LOOP(std::move(expr), std::move(bl));
 				return ret;
@@ -497,7 +497,7 @@ namespace sluaParse
 			{ // repeat block until exp
 				Block<In> bl = readBlock<true>(in,allowVarArg);
 				requireToken(in, "until");
-				Expression expr = readExpr(in,allowVarArg);
+				Expression<In> expr = readExpr(in,allowVarArg);
 
 				ret.data = StatementType::REPEAT_UNTIL({ std::move(expr), std::move(bl) });
 				return ret;
@@ -517,7 +517,7 @@ namespace sluaParse
 
 				while (checkReadTextToken(in, "elseif"))
 				{
-					Expression elExpr = readExpr(in,allowVarArg);
+					Expression<In> elExpr = readExpr(in,allowVarArg);
 					requireToken(in, "then");
 					Block<In> elBlock = readBlock<isLoop>(in,allowVarArg);
 

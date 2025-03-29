@@ -22,7 +22,8 @@
 
 namespace sluaParse
 {
-	inline Expression readLuaExpr(AnyInput auto& in, const bool allowVarArg, const bool readBiOp = true)
+	template<AnyInput In>
+	inline Expression<In> readLuaExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
@@ -32,7 +33,7 @@ namespace sluaParse
 		const Position startPos = in.getLoc();
 
 		bool isNilIntentional = false;
-		Expression basicRes;
+		Expression<In> basicRes;
 		basicRes.place = startPos;
 		while (true)
 		{
@@ -148,7 +149,7 @@ namespace sluaParse
 
 		ExprType::MULTI_OPERATION resData{};
 
-		resData.first = std::make_unique<Expression>(std::move(basicRes));
+		resData.first = std::make_unique<Expression<In>>(std::move(basicRes));
 		resData.extra.emplace_back(firstBinOp, readExpr(in,allowVarArg,false));
 
 		while (true)
@@ -165,7 +166,7 @@ namespace sluaParse
 
 			resData.extra.emplace_back(binOp, readLuaExpr(in,allowVarArg,false));
 		}
-		Expression ret;
+		Expression<In> ret;
 		ret.place = startPos;
 		ret.data = std::move(resData);
 

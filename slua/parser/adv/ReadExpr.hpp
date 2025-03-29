@@ -247,7 +247,8 @@ namespace sluaParse
 	}
 
 
-	inline Expression readExpr(AnyInput auto& in, const bool allowVarArg, const bool readBiOp = true) {
+	template<AnyInput In>
+	inline Expression<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
 		if constexpr (in.settings() & sluaSyn)
 			return {};
 		else
