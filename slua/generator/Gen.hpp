@@ -524,7 +524,8 @@ namespace sluaParse
 		);
 	}
 
-	inline void genBlock(AnyOutput auto& out, const Block& obj)
+	template<AnyOutput Out>
+	inline void genBlock(Out& out, const Block<Out>& obj)
 	{
 		for (const Statement& s : obj.statList)
 		{

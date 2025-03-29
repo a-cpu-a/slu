@@ -48,7 +48,7 @@ namespace sluaParse
 
 	using ExpList = std::vector<struct Expression>;
 
-	struct Block
+	struct LuaBlock
 	{
 		std::vector<struct Statement> statList;
 		ExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
@@ -61,11 +61,14 @@ namespace sluaParse
 		bool hadReturn = false;
 
 
-		Block() = default;
-		Block(const Block&) = delete;
-		Block(Block&&) = default;
-		Block& operator=(Block&&) = default;
+		LuaBlock() = default;
+		LuaBlock(const LuaBlock&) = delete;
+		LuaBlock(LuaBlock&&) = default;
+		LuaBlock& operator=(LuaBlock&&) = default;
 	};
+
+	template<AnyCfgable CfgT>
+	using Block = SelectT<CfgT, LuaBlock, LuaBlock>;
 
 
 	struct LuaParameter
@@ -80,7 +83,7 @@ namespace sluaParse
 	struct LuaFunction
 	{
 		std::vector<LuaParameter> params;
-		Block block;
+		LuaBlock block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
 
@@ -239,17 +242,17 @@ namespace sluaParse
 		struct LABEL { std::string v; };						// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
-		struct DO_BLOCK { Block bl; };							// "do block end"
-		struct WHILE_LOOP { Expression cond; Block bl; };		// "while exp do block end"
+		struct DO_BLOCK { LuaBlock bl; };							// "do block end"
+		struct WHILE_LOOP { Expression cond; LuaBlock bl; };		// "while exp do block end"
 		struct REPEAT_UNTIL :WHILE_LOOP {};						// "repeat block until exp"
 
 		// "if exp then block {elseif exp then block} [else block] end"
 		struct IF_THEN_ELSE
 		{
 			Expression cond;
-			Block bl;
-			std::vector<std::pair<Expression, Block>> elseIfs;
-			std::optional<Block> elseBlock;
+			LuaBlock bl;
+			std::vector<std::pair<Expression, LuaBlock>> elseIfs;
+			std::optional<LuaBlock> elseBlock;
 		};
 		// "for Name = exp , exp [, exp] do block end"
 		struct FOR_LOOP_NUMERIC
@@ -258,14 +261,14 @@ namespace sluaParse
 			Expression start;
 			Expression end;//inclusive
 			std::optional<Expression> step;
-			Block bl;
+			LuaBlock bl;
 		};
 		// "for namelist in explist do block end"
 		struct FOR_LOOP_GENERIC
 		{
 			NameList varNames;
 			ExpList exprs;//size must be > 0
-			Block bl;
+			LuaBlock bl;
 		};
 		struct FUNCTION_DEF 
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
