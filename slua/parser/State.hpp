@@ -102,12 +102,16 @@ namespace sluaParse
 		ArgsType::LITERAL
 	>;
 
-	struct ArgFuncCall
+	struct LuaArgFuncCall
 	{// funcArgs ::=  [‘:’ Name] args
 
 		std::string funcName;//If empty, then no colon needed. Only used for ":xxx"
 		Args args;
 	};
+
+	template<AnyCfgable CfgT>
+	using ArgFuncCall = SelectT<CfgT, LuaArgFuncCall, LuaArgFuncCall>;
+
 
 	namespace LimPrefixExprType
 	{
@@ -122,7 +126,7 @@ namespace sluaParse
 	struct LuaFuncCall
 	{
 		std::unique_ptr<LimPrefixExpr> val;
-		std::vector<ArgFuncCall> argChain;
+		std::vector<LuaArgFuncCall> argChain;
 	};
 
 	template<AnyCfgable CfgT>
@@ -194,7 +198,7 @@ namespace sluaParse
 
 	struct SubVar
 	{
-		std::vector<ArgFuncCall> funcCalls;
+		std::vector<LuaArgFuncCall> funcCalls;
 
 		std::variant<
 			SubVarType::NAME,
