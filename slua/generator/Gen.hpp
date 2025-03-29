@@ -196,19 +196,19 @@ namespace sluaParse
 		varcase(const ExprType::LITERAL_STRING&) {
 			genLiteral(out,var.v);
 		},
-		varcase(const ExprType::FUNCTION_DEF&) {
+		varcase(const ExprType::FUNCTION_DEF<Out>&) {
 			genFuncDef(out, var.v,""sv);
 		},
-		varcase(const ExprType::FUNC_CALL&) {
+		varcase(const ExprType::FUNC_CALL<Out>&) {
 			genFuncCall(out, var);
 		},
-		varcase(const ExprType::LIM_PREFIX_EXP&) {
+		varcase(const ExprType::LIM_PREFIX_EXP<Out>&) {
 			genLimPrefixExpr(out, *var);
 		},
-		varcase(const ExprType::TABLE_CONSTRUCTOR&) {
+		varcase(const ExprType::TABLE_CONSTRUCTOR<Out>&) {
 			genTableConstructor(out, var.v);
 		},
-		varcase(const ExprType::MULTI_OPERATION&) {
+		varcase(const ExprType::MULTI_OPERATION<Out>&) {
 			genExpr(out, *var.first);
 			for (const auto& [op,ex] : var.extra)
 			{

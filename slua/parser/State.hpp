@@ -196,17 +196,31 @@ namespace sluaParse
 		struct NUMERAL { double v; };							// "Numeral"
 		struct LITERAL_STRING { std::string v; };				// "LiteralString"
 		struct VARARGS {};										// "..."
-		struct FUNCTION_DEF { FunctionV<false> v; };				// "functiondef"
-		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExprV<false>>;	// "prefixexp"
-		using FUNC_CALL = FuncCallV<false>;								// "functioncall"
-		struct TABLE_CONSTRUCTOR { TableConstructorV<false> v; };	// "tableconstructor"
+
+		template<bool isSlua>
+		struct FUNCTION_DEFv { FunctionV<isSlua> v; };				// "functiondef"
+		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
+
+		template<bool isSlua>
+		using LIM_PREFIX_EXPv = std::unique_ptr<LimPrefixExprV<isSlua>>;	// "prefixexp"
+		template<AnyCfgable CfgT> using LIM_PREFIX_EXP = SelV<CfgT, LIM_PREFIX_EXPv>;
+
+		template<bool isSlua>
+		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
+		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
+
+		template<bool isSlua>
+		struct TABLE_CONSTRUCTORv { TableConstructorV<isSlua> v; };	// "tableconstructor"
+		template<AnyCfgable CfgT> using TABLE_CONSTRUCTOR = SelV<CfgT, TABLE_CONSTRUCTORv>;
 
 		//unOps is always empty for this type
-		struct MULTI_OPERATION
+		template<bool isSlua>
+		struct MULTI_OPERATIONv
 		{
-			std::unique_ptr<ExpressionV<false>> first;
-			std::vector<std::pair<BinOpType, ExpressionV<false>>> extra;//size>=1
+			std::unique_ptr<ExpressionV<isSlua>> first;
+			std::vector<std::pair<BinOpType, ExpressionV<isSlua>>> extra;//size>=1
 		};      // "exp binop exp"
+		template<AnyCfgable CfgT> using MULTI_OPERATION = SelV<CfgT, MULTI_OPERATIONv>;
 
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<false>>};     // "unop exp"	//Inlined as opt prefix
 
@@ -224,12 +238,12 @@ namespace sluaParse
 		//ExprType::NUMERAL_U64,		// "Numeral"
 		ExprType::LITERAL_STRING,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
-		ExprType::FUNCTION_DEF,			// "functiondef"
-		ExprType::LIM_PREFIX_EXP,		// "prefixexp"
-		ExprType::FUNC_CALL,			// "prefixexp argsThing {argsThing}"
-		ExprType::TABLE_CONSTRUCTOR,	// "tableconstructor"
+		ExprType::FUNCTION_DEFv<isSlua>,			// "functiondef"
+		ExprType::LIM_PREFIX_EXPv<isSlua>,		// "prefixexp"
+		ExprType::FUNC_CALLv<isSlua>,			// "prefixexp argsThing {argsThing}"
+		ExprType::TABLE_CONSTRUCTORv<isSlua>,	// "tableconstructor"
 
-		ExprType::MULTI_OPERATION		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
+		ExprType::MULTI_OPERATIONv<isSlua>		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
 		//ExprType::UNARY_OPERATION,	// "unop exp"
 	>;
