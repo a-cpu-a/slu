@@ -157,7 +157,7 @@ namespace sluaParse
 						throwExprAssignment(in);
 
 					in.skip();//skip eq
-					StatementType::ASSIGN res{};
+					StatementType::ASSIGN<In> res{};
 					res.vars = std::move(varData);
 					res.exprs = readExpList(in,allowVarArg);
 					return res;
