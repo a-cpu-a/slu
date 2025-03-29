@@ -172,7 +172,7 @@ namespace sluaParse
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
 	}
 
-	using ExprData = std::variant<
+	using LuaExprData = std::variant<
 		ExprType::NIL,                  // "nil"
 		ExprType::FALSE,                // "false"
 		ExprType::TRUE,                 // "true"
@@ -191,9 +191,12 @@ namespace sluaParse
 		//ExprType::UNARY_OPERATION,	// "unop exp"
 	>;
 
+	template<AnyCfgable CfgT>
+	using ExprData = SelectT<CfgT, LuaExprData, LuaExprData>;
+
 	struct LuaExpression
 	{
-		ExprData data;
+		LuaExprData data;
 		Position place;
 		UnOpList unOps;
 
