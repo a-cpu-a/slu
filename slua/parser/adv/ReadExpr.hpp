@@ -21,7 +21,8 @@
 
 namespace sluaParse
 {
-	inline void parseVarBase(AnyInput auto& in, const bool allowVarArg, const char firstChar, Var& varDataOut, bool& varDataNeedsSubThing)
+	template<AnyInput In>
+	inline void parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
@@ -38,7 +39,7 @@ namespace sluaParse
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
-	inline T returnPrefixExprVar(In& in, std::vector<Var>& varData, std::vector<ArgFuncCall<In>>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
+	inline T returnPrefixExprVar(In& in, std::vector<Var<In>>& varData, std::vector<ArgFuncCall<In>>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
 	{
 		char opType[4] = "EOS";
 
@@ -106,7 +107,7 @@ namespace sluaParse
 			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
 		*/
 
-		std::vector<Var> varData;
+		std::vector<Var<In>> varData;
 		std::vector<ArgFuncCall<In>> funcCallData;// Current func call chain, empty->no chain
 		bool varDataNeedsSubThing = false;
 
