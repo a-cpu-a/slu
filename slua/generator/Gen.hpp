@@ -139,7 +139,8 @@ namespace sluaParse
 		);
 	}
 
-	inline void genFuncCall(AnyOutput auto& out,const FuncCall& obj)
+	template<AnyOutput Out>
+	inline void genFuncCall(Out& out,const FuncCall<Out>& obj)
 	{
 		genLimPrefixExpr(out, *obj.val);
 		for (const ArgFuncCall& arg : obj.argChain)

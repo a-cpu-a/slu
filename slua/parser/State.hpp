@@ -119,11 +119,16 @@ namespace sluaParse
 		LimPrefixExprType::EXPR
 	>;
 
-	struct FuncCall
+	struct LuaFuncCall
 	{
 		std::unique_ptr<LimPrefixExpr> val;
 		std::vector<ArgFuncCall> argChain;
 	};
+
+	template<AnyCfgable CfgT>
+	using FuncCall = SelectT<CfgT, LuaFuncCall, LuaFuncCall>;
+
+
 	namespace ExprType
 	{
 		struct NIL {};											// "nil"
@@ -134,7 +139,7 @@ namespace sluaParse
 		struct VARARGS {};										// "..."
 		struct FUNCTION_DEF { LuaFunction v; };					// "functiondef"
 		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExpr>;	// "prefixexp"
-		using FUNC_CALL = FuncCall;								// "functioncall"
+		using FUNC_CALL = LuaFuncCall;								// "functioncall"
 		struct TABLE_CONSTRUCTOR { TableConstructor v; };		// "tableconstructor"
 
 		//unOps is always empty for this type
@@ -238,7 +243,7 @@ namespace sluaParse
 	{
 		struct SEMICOLON {};									// ";"
 		struct ASSIGN { std::vector<Var> vars; ExpList exprs; };// "varlist = explist" //e.size must be > 0
-		using FUNC_CALL = FuncCall;								// "functioncall"
+		using FUNC_CALL = LuaFuncCall;								// "functioncall"
 		struct LABEL { std::string v; };						// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
