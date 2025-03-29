@@ -57,7 +57,7 @@ namespace sluaParse
 
 	struct LuaBlock
 	{
-		std::vector<struct Statement> statList;
+		std::vector<struct LuaStatement> statList;
 		LuaExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
 
 		//Scope scope;
@@ -339,14 +339,18 @@ namespace sluaParse
 	> ;
 
 
-	struct Statement
+	struct LuaStatement
 	{
 		StatementData data;
 		Position place;
 
-		Statement() = default;
-		Statement(const Statement&) = delete;
-		Statement(Statement&&) = default;
-		Statement& operator=(Statement&&) = default;
+		LuaStatement() = default;
+		LuaStatement(const LuaStatement&) = delete;
+		LuaStatement(LuaStatement&&) = default;
+		LuaStatement& operator=(LuaStatement&&) = default;
 	};
+
+
+	template<AnyCfgable CfgT>
+	using Statement = SelectT<CfgT, LuaStatement, LuaStatement>;
 }

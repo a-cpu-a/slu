@@ -303,7 +303,7 @@ namespace sluaParse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline Statement readStatment(In& in,const bool allowVarArg)
+	inline Statement<In> readStatment(In& in,const bool allowVarArg)
 	{
 		/*
 		 varlist ‘=’ explist |
@@ -312,7 +312,7 @@ namespace sluaParse
 
 		skipSpace(in);
 
-		Statement ret;
+		Statement<In> ret;
 		ret.place = in.getLoc();
 
 		const char firstChar = in.peek();
