@@ -90,7 +90,8 @@ namespace sluaParse
 		}
 	}
 
-	inline void genTableConstructor(AnyOutput auto& out, const TableConstructor& obj)
+	template<AnyOutput Out>
+	inline void genTableConstructor(Out& out, const TableConstructor<Out>& obj)
 	{
 		out.add('{')
 			.template tabUpNewl<false>();
