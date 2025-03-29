@@ -96,17 +96,20 @@ namespace sluaParse
 		struct TABLE { TableConstructor v; };	// "tableconstructor"
 		struct LITERAL { std::string v; };		// "LiteralString"
 	};
-	using Args = std::variant<
+	using LuaArgs = std::variant<
 		ArgsType::EXPLIST,
 		ArgsType::TABLE,
 		ArgsType::LITERAL
 	>;
 
+	template<AnyCfgable CfgT>
+	using Args = SelectT<CfgT, LuaArgs, LuaArgs>;
+
 	struct LuaArgFuncCall
 	{// funcArgs ::=  [‘:’ Name] args
 
 		std::string funcName;//If empty, then no colon needed. Only used for ":xxx"
-		Args args;
+		LuaArgs args;
 	};
 
 	template<AnyCfgable CfgT>
