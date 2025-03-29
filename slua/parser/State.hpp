@@ -33,7 +33,7 @@ namespace sluaParse
 
 	namespace FieldType { struct NONE {}; struct EXPR2EXPR; struct NAME2EXPR; struct EXPR; }
 
-	using Field = std::variant<
+	using LuaField = std::variant<
 		FieldType::NONE,// Here, so variant has a default value (DO NOT USE)
 
 		FieldType::EXPR2EXPR, // "'[' exp ']' = exp"
@@ -41,9 +41,11 @@ namespace sluaParse
 		FieldType::EXPR       // "exp"
 	>;
 
+	template<AnyCfgable CfgT>
+	using Field = SelectT<CfgT, LuaField, LuaField>;
 
 	// ‘{’ [fieldlist] ‘}’
-	using LuaTableConstructor = std::vector<Field>;
+	using LuaTableConstructor = std::vector<LuaField>;
 
 	template<AnyCfgable CfgT>
 	using TableConstructor = SelectT<CfgT, LuaTableConstructor, LuaTableConstructor>;

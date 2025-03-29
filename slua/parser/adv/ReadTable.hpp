@@ -22,7 +22,8 @@ namespace sluaParse
 	{
 		return ch == ',' || ch == ';';
 	}
-	inline Field readField(AnyInput auto& in, const bool allowVarArg)
+	template<AnyInput In>
+	inline Field<In> readField(In& in, const bool allowVarArg)
 	{
 		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
 		skipSpace(in);
