@@ -4,7 +4,8 @@
 
 New Syntax {
 	
-	traitcombo ::= ComptimeVarType {"+" ComptimeVarType}
+	trait ::= comptimeVar
+	traitcombo ::= trait {"+" trait}
 	
 	type ::= (([[typeItem] "?"] typeItem) | ([typeItem] "??" )) { "|" typeItem }
 	TypeList ::= type {"," type}
