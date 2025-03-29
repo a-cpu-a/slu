@@ -26,6 +26,8 @@ namespace sluaParse
 {
 	template<AnyCfgable CfgT, class T, class SlT>
 	using SelectT = std::conditional_t<CfgT::settings() & sluaSyn, SlT, T>;
+	template<AnyCfgable CfgT, template<bool> class T>
+	using SelectTB = T<false>;//CfgT::settings() & sluaSyn
 	template<bool isSlua, class T, class SlT>
 	using SelectBoolT = std::conditional_t<isSlua, SlT, T>;
 
@@ -57,7 +59,8 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using ExpList = SelectT<CfgT, LuaExpList, LuaExpList>;
 
-	struct LuaBlock
+	template<bool isSlua>
+	struct BlockV
 	{
 		std::vector<struct LuaStatement> statList;
 		LuaExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
@@ -70,14 +73,14 @@ namespace sluaParse
 		bool hadReturn = false;
 
 
-		LuaBlock() = default;
-		LuaBlock(const LuaBlock&) = delete;
-		LuaBlock(LuaBlock&&) = default;
-		LuaBlock& operator=(LuaBlock&&) = default;
+		BlockV() = default;
+		BlockV(const BlockV&) = delete;
+		BlockV(BlockV&&) = default;
+		BlockV& operator=(BlockV&&) = default;
 	};
 
 	template<AnyCfgable CfgT>
-	using Block = SelectT<CfgT, LuaBlock, LuaBlock>;
+	using Block = SelectTB<CfgT, BlockV>;
 
 
 	struct LuaParameter
@@ -92,7 +95,7 @@ namespace sluaParse
 	struct LuaFunction
 	{
 		std::vector<LuaParameter> params;
-		LuaBlock block;
+		BlockV<false> block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
 
@@ -282,17 +285,17 @@ namespace sluaParse
 		struct LABEL { std::string v; };						// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
-		struct DO_BLOCK { LuaBlock bl; };							// "do block end"
-		struct WHILE_LOOP { LuaExpression cond; LuaBlock bl; };		// "while exp do block end"
+		struct DO_BLOCK { BlockV<false> bl; };							// "do block end"
+		struct WHILE_LOOP { LuaExpression cond; BlockV<false> bl; };		// "while exp do block end"
 		struct REPEAT_UNTIL :WHILE_LOOP {};						// "repeat block until exp"
 
 		// "if exp then block {elseif exp then block} [else block] end"
 		struct IF_THEN_ELSE
 		{
 			LuaExpression cond;
-			LuaBlock bl;
-			std::vector<std::pair<LuaExpression, LuaBlock>> elseIfs;
-			std::optional<LuaBlock> elseBlock;
+			BlockV<false> bl;
+			std::vector<std::pair<LuaExpression, BlockV<false>>> elseIfs;
+			std::optional<BlockV<false>> elseBlock;
 		};
 		// "for Name = exp , exp [, exp] do block end"
 		struct FOR_LOOP_NUMERIC
@@ -301,14 +304,14 @@ namespace sluaParse
 			LuaExpression start;
 			LuaExpression end;//inclusive
 			std::optional<LuaExpression> step;
-			LuaBlock bl;
+			BlockV<false> bl;
 		};
 		// "for namelist in explist do block end"
 		struct FOR_LOOP_GENERIC
 		{
 			NameList varNames;
 			LuaExpList exprs;//size must be > 0
-			LuaBlock bl;
+			BlockV<false> bl;
 		};
 		struct FUNCTION_DEF 
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
