@@ -160,18 +160,19 @@ namespace sluaParse
 		struct VAR;		// "var"
 		struct EXPR;	// "'(' exp ')'"
 	}
-	using LuaLimPrefixExpr = std::variant<
+	template<bool isSlua>
+	using LimPrefixExprV = std::variant<
 		LimPrefixExprType::VAR,
 		LimPrefixExprType::EXPR
 	>;
 
 	template<AnyCfgable CfgT>
-	using LimPrefixExpr = SelectT<CfgT, LuaLimPrefixExpr, LuaLimPrefixExpr>;
+	using LimPrefixExpr = SelV<CfgT, LimPrefixExprV>;
 
 	template<bool isSlua>
 	struct FuncCallV
 	{
-		std::unique_ptr<LuaLimPrefixExpr> val;
+		std::unique_ptr<LimPrefixExprV<isSlua>> val;
 		std::vector<LuaArgFuncCall> argChain;
 	};
 
@@ -188,7 +189,7 @@ namespace sluaParse
 		struct LITERAL_STRING { std::string v; };				// "LiteralString"
 		struct VARARGS {};										// "..."
 		struct FUNCTION_DEF { FunctionV<false> v; };				// "functiondef"
-		using LIM_PREFIX_EXP = std::unique_ptr<LuaLimPrefixExpr>;	// "prefixexp"
+		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExprV<false>>;	// "prefixexp"
 		using FUNC_CALL = FuncCallV<false>;								// "functioncall"
 		struct TABLE_CONSTRUCTOR { TableConstructorV<false> v; };	// "tableconstructor"
 
