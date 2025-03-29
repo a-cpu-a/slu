@@ -249,18 +249,19 @@ namespace sluaParse
 		using NAME = std::string;
 		struct EXPR { LuaExpression start; LuaSubVar sub; };
 	}
-	using LuaBaseVar = std::variant<
+	template<bool isSlua>
+	using BaseVarV = std::variant<
 		BaseVarType::NAME,
 		BaseVarType::EXPR
 	>;
 
 	template<AnyCfgable CfgT>
-	using BaseVar = SelectT<CfgT, LuaBaseVar, LuaBaseVar>;
+	using BaseVar = SelV<CfgT, BaseVarV>;
 
 	template<bool isSlua>
 	struct VarV
 	{
-		LuaBaseVar base;
+		BaseVarV<isSlua> base;
 		std::vector<LuaSubVar> sub;
 	};
 
