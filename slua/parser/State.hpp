@@ -47,6 +47,16 @@ namespace sluaParse
 		template<bool isSlua> struct EXPRv;
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
+	namespace LimPrefixExprType
+	{
+		template<bool isSlua>
+		struct VARv;			// "var"
+		template<AnyCfgable CfgT> using VAR = SelV<CfgT, VARv>;
+
+		template<bool isSlua>
+		struct EXPRv;	// "'(' exp ')'"
+		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+	}
 
 
 
@@ -159,15 +169,10 @@ namespace sluaParse
 	using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
 
 
-	namespace LimPrefixExprType
-	{
-		struct VAR;		// "var"
-		struct EXPR;	// "'(' exp ')'"
-	}
 	template<bool isSlua>
 	using LimPrefixExprV = std::variant<
-		LimPrefixExprType::VAR,
-		LimPrefixExprType::EXPR
+		LimPrefixExprType::VARv<isSlua>,
+		LimPrefixExprType::EXPRv<isSlua>
 	>;
 
 	template<AnyCfgable CfgT>
@@ -331,8 +336,11 @@ namespace sluaParse
 	}
 	namespace LimPrefixExprType
 	{
-		struct VAR { VarV<false> v; };			// "var"
-		struct EXPR { ExpressionV<false> v; };	// "'(' exp ')'"
+		template<bool isSlua>
+		struct VARv { VarV<isSlua> v; };			// "var"
+
+		template<bool isSlua>
+		struct EXPRv { ExpressionV<isSlua> v; };	// "'(' exp ')'"
 	}
 
 	using AttribNameList = std::vector<AttribName>;

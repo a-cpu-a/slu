@@ -129,10 +129,10 @@ namespace sluaParse
 	inline void genLimPrefixExpr(Out& out, const LimPrefixExpr<Out>& obj)
 	{
 		ezmatch(obj)(
-		varcase(const LimPrefixExprType::VAR&) {
+		varcase(const LimPrefixExprType::VAR<Out>&) {
 			genVar(out, var.v);
 		},
-		varcase(const LimPrefixExprType::EXPR&) {
+		varcase(const LimPrefixExprType::EXPR<Out>&) {
 			out.add('(');
 			genExpr(out, var.v);
 			out.add(')');
