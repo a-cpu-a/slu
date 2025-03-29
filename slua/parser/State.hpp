@@ -27,9 +27,20 @@ namespace sluaParse
 	template<AnyCfgable CfgT, class T, class SlT>
 	using SelectT = std::conditional_t<CfgT::settings() & sluaSyn, SlT, T>;
 	template<AnyCfgable CfgT, template<bool> class T>
-	using SelectTB = T<false>;//CfgT::settings() & sluaSyn
+	using SelV = T<false>;//CfgT::settings() & sluaSyn
 	template<bool isSlua, class T, class SlT>
 	using SelectBoolT = std::conditional_t<isSlua, SlT, T>;
+
+
+
+
+
+	template<bool isSlua> struct StatementV;
+	template<AnyCfgable CfgT> using Statement = SelV<CfgT, StatementV>;
+
+
+
+
 
 
 
@@ -62,7 +73,7 @@ namespace sluaParse
 	template<bool isSlua>
 	struct BlockV
 	{
-		std::vector<struct LuaStatement> statList;
+		std::vector<StatementV<isSlua>> statList;
 		LuaExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
 
 		//Scope scope;
@@ -80,7 +91,7 @@ namespace sluaParse
 	};
 
 	template<AnyCfgable CfgT>
-	using Block = SelectTB<CfgT, BlockV>;
+	using Block = SelV<CfgT, BlockV>;
 
 
 	struct LuaParameter
@@ -349,18 +360,15 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using StatementData = SelectT<CfgT, LuaStatementData, LuaStatementData>;
 
-	struct LuaStatement
+	template<bool isSlua>
+	struct StatementV
 	{
 		LuaStatementData data;
 		Position place;
 
-		LuaStatement() = default;
-		LuaStatement(const LuaStatement&) = delete;
-		LuaStatement(LuaStatement&&) = default;
-		LuaStatement& operator=(LuaStatement&&) = default;
+		StatementV() = default;
+		StatementV(const StatementV&) = delete;
+		StatementV(StatementV&&) = default;
+		StatementV& operator=(StatementV&&) = default;
 	};
-
-
-	template<AnyCfgable CfgT>
-	using Statement = SelectT<CfgT, LuaStatement, LuaStatement>;
 }
