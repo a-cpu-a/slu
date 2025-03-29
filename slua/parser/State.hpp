@@ -77,12 +77,15 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using Parameter = SelectT<CfgT, LuaParameter, LuaParameter>;
 
-	struct Function
+	struct LuaFunction
 	{
 		std::vector<LuaParameter> params;
 		Block block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
+
+	template<AnyCfgable CfgT>
+	using Function = SelectT<CfgT, LuaFunction, LuaFunction>;
 
 	namespace ArgsType
 	{
@@ -126,7 +129,7 @@ namespace sluaParse
 		struct NUMERAL { double v; };							// "Numeral"
 		struct LITERAL_STRING { std::string v; };				// "LiteralString"
 		struct VARARGS {};										// "..."
-		struct FUNCTION_DEF { Function v; };					// "functiondef"
+		struct FUNCTION_DEF { LuaFunction v; };					// "functiondef"
 		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExpr>;	// "prefixexp"
 		using FUNC_CALL = FuncCall;								// "functioncall"
 		struct TABLE_CONSTRUCTOR { TableConstructor v; };		// "tableconstructor"
@@ -268,7 +271,7 @@ namespace sluaParse
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
 			Position place; 
 			std::string name; 
-			Function func; 
+			LuaFunction func;
 		};
 		struct LOCAL_FUNCTION_DEF :FUNCTION_DEF {};						// "local function Name funcbody" //n may not ^^^
 		struct LOCAL_ASSIGN { AttribNameList names; ExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"

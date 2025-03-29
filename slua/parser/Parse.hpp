@@ -218,13 +218,14 @@ namespace sluaParse
 	}
 
 	//Pair{fn, hadErr}
-	inline std::pair<Function,bool> readFuncBody(AnyInput auto& in)
+	template<AnyInput In>
+	inline std::pair<Function<In>,bool> readFuncBody(In& in)
 	{
 		/*
 			funcbody ::= ‘(’ [parlist] ‘)’ block end
 			parlist ::= namelist [‘,’ ‘...’] | ‘...’
 		*/
-		Function ret{};
+		Function<In> ret{};
 
 		Position place = in.getLoc();
 

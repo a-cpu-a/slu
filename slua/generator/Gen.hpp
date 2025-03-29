@@ -312,13 +312,14 @@ namespace sluaParse
 			genSubVar(out, sub);
 		}
 	}
-	inline void genFuncDef(AnyOutput auto& out, const Function& var,const std::string_view name)
+	template<AnyOutput Out>
+	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
 	{
 		out.add("function ")
 			.add(name)
 			.add('(');
 
-		for (const LuaParameter& par : var.params)
+		for (const Parameter<Out>& par : var.params)
 		{
 			out.add(par.name);
 			if (&par != &var.params.back() || var.hasVarArgParam)
