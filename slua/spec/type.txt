@@ -28,7 +28,7 @@ New Syntax {
 
 	typePrefix ::= ["#"] ["&" ["mut"] {borrowAnnotation}]
 	
-	optTypeOrRefMut ::= (["&"] ["mut"]) | type
+	optMutSpec ::= ["mut"] ["&" ["mut"] {borrowAnnotation}]
 	
 	borrowAnnotation ::= "/" var
 	
