@@ -33,7 +33,7 @@ namespace sluaParse
 
 
 
-
+	//Forward declare
 
 	template<bool isSlua> struct StatementV;
 	template<AnyCfgable CfgT> using Statement = SelV<CfgT, StatementV>;
