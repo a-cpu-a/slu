@@ -96,7 +96,7 @@ namespace sluaParse
 		out.add('{')
 			.template tabUpNewl<false>();
 
-		for (const Field& f : obj)
+		for (const Field<Out>& f : obj)
 		{
 			ezmatch(f)(
 			varcase(const FieldType::NONE) { _ASSERT(false); },
