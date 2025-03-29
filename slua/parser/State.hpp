@@ -24,12 +24,8 @@
 
 namespace sluaParse
 {
-	template<AnyCfgable CfgT, class T, class SlT>
-	using SelectT = std::conditional_t<CfgT::settings() & sluaSyn, SlT, T>;
 	template<AnyCfgable CfgT, template<bool> class T>
-	using SelV = T<false>;//CfgT::settings() & sluaSyn
-	template<bool isSlua, class T, class SlT>
-	using SelectBoolT = std::conditional_t<isSlua, SlT, T>;
+	using SelV = T<false>;//CfgT::settings()& sluaSyn
 
 
 
@@ -222,7 +218,7 @@ namespace sluaParse
 		};      // "exp binop exp"
 		template<AnyCfgable CfgT> using MULTI_OPERATION = SelV<CfgT, MULTI_OPERATIONv>;
 
-		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<false>>};     // "unop exp"	//Inlined as opt prefix
+		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlua>>};     // "unop exp"	//Inlined as opt prefix
 
 
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
