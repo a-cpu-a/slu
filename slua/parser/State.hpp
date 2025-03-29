@@ -214,7 +214,8 @@ namespace sluaParse
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
 	}
 
-	using LuaExprData = std::variant<
+	template<bool isSlua>
+	using ExprDataV = std::variant<
 		ExprType::NIL,                  // "nil"
 		ExprType::FALSE,                // "false"
 		ExprType::TRUE,                 // "true"
@@ -234,12 +235,12 @@ namespace sluaParse
 	>;
 
 	template<AnyCfgable CfgT>
-	using ExprData = SelectT<CfgT, LuaExprData, LuaExprData>;
+	using ExprData = SelV<CfgT, ExprDataV>;
 
 	template<bool isSlua>
 	struct ExpressionV
 	{
-		LuaExprData data;
+		ExprDataV<isSlua> data;
 		Position place;
 		UnOpList unOps;
 
