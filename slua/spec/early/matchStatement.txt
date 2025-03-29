@@ -10,34 +10,55 @@ New Syntax {
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
 	ndPatField ::= ndPatFieldUncond ["=" ndPat]
-	ndPatFieldUncond ::= ["mut"] ["&" ["mut"]] Name
+	ndPatFieldUncond ::= optMutSpec Name |
+		["mut"] Name "is" type
 	
 	destrField ::= "[" tupleableName "]" destrTupField
-	destrTupField ::= "(" pat ")" | ndPatField
+	destrTupField ::= "(" pat ")" | patNoNpfList | ndPatField
 	
 	destrFieldUncond ::= "[" tupleableName "]" destrTupFieldUncond
-	destrTupFieldUncond ::= "(" dPat ")" | ndPatFieldUncond
+	destrTupFieldUncond ::= "(" uncondDestrPat ")" | uncondDestrPatNoNpfuList | ndPatFieldUncond
 	
 	extraFieldSignifier ::= "," "..."
 	
-	dPat ::= [comptimeVarType] "{" destrField {"," destrField} [extraFieldSignifier] "}" |
-		[comptimeVarType] "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
-		comptimeVarType "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
-		"[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" "of" type |
-		"_" |
-		["mut"] ["&" ["mut"]] comptimeVarType Name ["=" ndPat] |
-		Name
+	NpfList ::= ndPatField {"," ndPatField} [extraFieldSignifier]
 	
-	uncondDestrPat ::= [comptimeVarType] "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
-		[comptimeVarType] "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
-		comptimeVarType "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
-		"[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" "of" type |
-		"_" |
-		["mut"] ["&" ["mut"]] comptimeVarType Name |
-		Name
+	dPatNoNpfList ::= optMutSpec comptimeVarType "{" destrField {"," destrField} [extraFieldSignifier] "}" |
+		optMutSpec comptimeVarType "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
+		optMutSpec comptimeVarType "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
+		optMutSpec comptimeVarType destrTupField {"," destrTupField} [extraFieldSignifier] |
+		
+		optMutSpec "{" destrField {"," destrField} [extraFieldSignifier] "}" |
+		optMutSpec "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
+		
+		["mut"] "{" destrField {"," destrField} [extraFieldSignifier] "}" "is" type |
+		["mut"] "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" "is" type |
+		["mut"] "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" "is" type |
+		optMutSpec "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" "of" type |
+		"_"
+	
+	NpfuList ::= ndPatFieldUncond {"," ndPatFieldUncond} [extraFieldSignifier]
+	
+	uncondDestrPatNoNpfuList ::= optMutSpec comptimeVarType "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
+		optMutSpec comptimeVarType "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
+		optMutSpec comptimeVarType "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
+		optMutSpec comptimeVarType destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] |
+		
+		optMutSpec "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
+		optMutSpec "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
+		
+		["mut"] "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" "is" type |
+		["mut"] "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" "is" type |
+		["mut"] "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" "is" type |
+		optMutSpec "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" "of" type |
+		"_"
+	
+	dPat ::= dPatNoNpfList | NpfList
+	uncondDestrPat ::= uncondDestrPatNoNpfuList | NpfuList
 	
 	ndPat ::= sPat
 	pat ::= sPat | dPat
+	patNoNpfList ::= sPat | dPatNoNpfList
 	
 	matchItem ::= "case" pat ["if" exp] "=>" explist
 	matchElseItem ::= "else" ["if" exp] "=>" explist
@@ -51,6 +72,7 @@ New Syntax {
 
 New Keywords {
 	match
+	is
 	of
 	case
 	to
