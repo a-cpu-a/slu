@@ -65,7 +65,7 @@ namespace sluaParse
 				try
 				{
 					auto [fun, err] = readFuncBody(in);
-					basicRes.data = ExprType::FUNCTION_DEF(std::move(fun));
+					basicRes.data = ExprType::FUNCTION_DEF<In>(std::move(fun));
 					if (err)
 					{
 
@@ -122,7 +122,7 @@ namespace sluaParse
 			basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
 			break;
 		case '{':
-			basicRes.data = ExprType::TABLE_CONSTRUCTOR(readTableConstructor(in,allowVarArg));
+			basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
 			break;
 		}
 
@@ -147,7 +147,7 @@ namespace sluaParse
 		if (firstBinOp == BinOpType::NONE)
 			return basicRes;
 
-		ExprType::MULTI_OPERATION resData{};
+		ExprType::MULTI_OPERATION<In> resData{};
 
 		resData.first = std::make_unique<Expression<In>>(std::move(basicRes));
 		resData.extra.emplace_back(firstBinOp, readExpr(in,allowVarArg,false));
