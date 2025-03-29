@@ -209,7 +209,7 @@ namespace sluaParse
 		struct EXPR { Expression idx; };	// {funcArgs} ‘[’ exp ‘]’
 	}
 
-	struct SubVar
+	struct LuaSubVar
 	{
 		std::vector<LuaArgFuncCall> funcCalls;
 
@@ -219,20 +219,26 @@ namespace sluaParse
 		> idx;
 	};
 
+	template<AnyCfgable CfgT>
+	using SubVar = SelectT<CfgT, LuaSubVar, LuaSubVar>;
+
 	namespace BaseVarType
 	{
 		using NAME = std::string;
-		struct EXPR { Expression start; SubVar sub; };
+		struct EXPR { Expression start; LuaSubVar sub; };
 	}
-	using BaseVar = std::variant<
+	using LuaBaseVar = std::variant<
 		BaseVarType::NAME,
 		BaseVarType::EXPR
 	>;
 
+	template<AnyCfgable CfgT>
+	using BaseVar = SelectT<CfgT, LuaBaseVar, LuaBaseVar>;
+
 	struct LuaVar
 	{
-		BaseVar base;
-		std::vector<SubVar> sub;
+		LuaBaseVar base;
+		std::vector<LuaSubVar> sub;
 	};
 
 
