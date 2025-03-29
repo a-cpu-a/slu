@@ -150,7 +150,8 @@ namespace sluaParse
 		}
 	}
 
-	inline void genExpr(AnyOutput auto& out, const Expression& obj)
+	template<AnyOutput Out>
+	inline void genExpr(Out& out, const Expression<Out>& obj)
 	{
 		for (const UnOpType t : obj.unOps)
 		{
@@ -222,7 +223,7 @@ namespace sluaParse
 	template<AnyOutput Out>
 	inline void genExpList(Out& out, const ExpList<Out>& obj)
 	{
-		for (const Expression& e : obj)
+		for (const Expression<Out>& e : obj)
 		{
 			genExpr(out, e);
 			if (&e != &obj.back())
