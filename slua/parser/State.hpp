@@ -46,12 +46,15 @@ namespace sluaParse
 
 
 
-	using ExpList = std::vector<struct Expression>;
+	using LuaExpList = std::vector<struct Expression>;
+
+	template<AnyCfgable CfgT>
+	using ExpList = SelectT<CfgT, LuaExpList, LuaExpList>;
 
 	struct LuaBlock
 	{
 		std::vector<struct Statement> statList;
-		ExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
+		LuaExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
 
 		//Scope scope;
 
@@ -92,7 +95,7 @@ namespace sluaParse
 
 	namespace ArgsType
 	{
-		struct EXPLIST { ExpList v; };			// "'(' [explist] ')'"
+		struct EXPLIST { LuaExpList v; };			// "'(' [explist] ')'"
 		struct TABLE { TableConstructor v; };	// "tableconstructor"
 		struct LITERAL { std::string v; };		// "LiteralString"
 	};
@@ -252,7 +255,7 @@ namespace sluaParse
 	namespace StatementType
 	{
 		struct SEMICOLON {};									// ";"
-		struct ASSIGN { std::vector<Var> vars; ExpList exprs; };// "varlist = explist" //e.size must be > 0
+		struct ASSIGN { std::vector<Var> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
 		using FUNC_CALL = LuaFuncCall;								// "functioncall"
 		struct LABEL { std::string v; };						// "label"
 		struct BREAK { std::string v; };						// "break"
@@ -282,7 +285,7 @@ namespace sluaParse
 		struct FOR_LOOP_GENERIC
 		{
 			NameList varNames;
-			ExpList exprs;//size must be > 0
+			LuaExpList exprs;//size must be > 0
 			LuaBlock bl;
 		};
 		struct FUNCTION_DEF 
@@ -292,7 +295,7 @@ namespace sluaParse
 			LuaFunction func;
 		};
 		struct LOCAL_FUNCTION_DEF :FUNCTION_DEF {};						// "local function Name funcbody" //n may not ^^^
-		struct LOCAL_ASSIGN { AttribNameList names; ExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+		struct LOCAL_ASSIGN { AttribNameList names; LuaExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 	};
 
 	using StatementData = std::variant <

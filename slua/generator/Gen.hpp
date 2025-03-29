@@ -218,8 +218,8 @@ namespace sluaParse
 		}
 		);
 	}
-
-	inline void genExpList(AnyOutput auto& out, const ExpList& obj)
+	template<AnyOutput Out>
+	inline void genExpList(Out& out, const ExpList<Out>& obj)
 	{
 		for (const Expression& e : obj)
 		{
