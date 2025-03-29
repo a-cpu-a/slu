@@ -70,7 +70,8 @@ namespace sluaParse
 		HexDigit	::= Digit | a | b | c | d | e | f | A | B | C | D | E | F
 	*/
 
-	inline ExprData readNumeralExtra(AnyInput auto& in, const bool hex, const bool decPart, const char firstChar)
+    template<AnyInput In>
+	inline ExprData<In> readNumeralExtra(In& in, const bool hex, const bool decPart, const char firstChar)
 	{
         std::string number;
         number += firstChar;
@@ -171,7 +172,8 @@ namespace sluaParse
         }
 	}
 
-	inline ExprData readNumeral(AnyInput auto& in, const char firstChar)
+    template<AnyInput In>
+	inline ExprData<In> readNumeral(In& in, const char firstChar)
 	{
 		in.skip();
 
