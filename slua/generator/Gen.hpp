@@ -278,7 +278,7 @@ namespace sluaParse
 	}
 
 	template<AnyOutput Out>
-	inline void genSubVar(Out& out, const SubVar& obj)
+	inline void genSubVar(Out& out, const SubVar<Out>& obj)
 	{
 		for (const ArgFuncCall<Out>& arg : obj.funcCalls)
 		{
@@ -312,7 +312,7 @@ namespace sluaParse
 			genSubVar(out, var.sub);
 		}
 		);
-		for (const SubVar& sub :  obj.sub)
+		for (const SubVar<Out>& sub :  obj.sub)
 		{
 			genSubVar(out, sub);
 		}
