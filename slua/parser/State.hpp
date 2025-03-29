@@ -168,14 +168,15 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using LimPrefixExpr = SelectT<CfgT, LuaLimPrefixExpr, LuaLimPrefixExpr>;
 
-	struct LuaFuncCall
+	template<bool isSlua>
+	struct FuncCallV
 	{
 		std::unique_ptr<LuaLimPrefixExpr> val;
 		std::vector<LuaArgFuncCall> argChain;
 	};
 
 	template<AnyCfgable CfgT>
-	using FuncCall = SelectT<CfgT, LuaFuncCall, LuaFuncCall>;
+	using FuncCall = SelV<CfgT, FuncCallV>;
 
 
 	namespace ExprType
@@ -188,7 +189,7 @@ namespace sluaParse
 		struct VARARGS {};										// "..."
 		struct FUNCTION_DEF { FunctionV<false> v; };				// "functiondef"
 		using LIM_PREFIX_EXP = std::unique_ptr<LuaLimPrefixExpr>;	// "prefixexp"
-		using FUNC_CALL = LuaFuncCall;								// "functioncall"
+		using FUNC_CALL = FuncCallV<false>;								// "functioncall"
 		struct TABLE_CONSTRUCTOR { TableConstructorV<false> v; };	// "tableconstructor"
 
 		//unOps is always empty for this type
@@ -326,7 +327,7 @@ namespace sluaParse
 		template<AnyCfgable CfgT> using ASSIGN = SelV<CfgT, ASSIGNv>;
 
 		template<bool isSlua>
-		using FUNC_CALLv = LuaFuncCall;								// "functioncall"
+		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
 		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
 		struct LABEL { std::string v; };						// "label"
