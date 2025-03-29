@@ -41,6 +41,7 @@ namespace sluaParse
 		FieldType::EXPR       // "exp"
 	>;
 
+
 	// ‘{’ [fieldlist] ‘}’
 	using LuaTableConstructor = std::vector<Field>;
 
@@ -228,11 +229,15 @@ namespace sluaParse
 		BaseVarType::EXPR
 	>;
 
-	struct Var
+	struct LuaVar
 	{
 		BaseVar base;
 		std::vector<SubVar> sub;
 	};
+
+
+	template<AnyCfgable CfgT>
+	using Var = SelectT<CfgT, LuaVar, LuaVar>;
 
 	struct AttribName
 	{
@@ -248,7 +253,7 @@ namespace sluaParse
 	}
 	namespace LimPrefixExprType
 	{
-		struct VAR { Var v; };			// "var"
+		struct VAR { LuaVar v; };			// "var"
 		struct EXPR { Expression v; };	// "'(' exp ')'"
 	}
 
@@ -258,7 +263,7 @@ namespace sluaParse
 	namespace StatementType
 	{
 		struct SEMICOLON {};									// ";"
-		struct ASSIGN { std::vector<Var> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
+		struct ASSIGN { std::vector<LuaVar> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
 		using FUNC_CALL = LuaFuncCall;								// "functioncall"
 		struct LABEL { std::string v; };						// "label"
 		struct BREAK { std::string v; };						// "break"
