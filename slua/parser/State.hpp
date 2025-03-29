@@ -118,15 +118,16 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using Parameter = SelV<CfgT, ParameterV>;
 
-	struct LuaFunction
+	template<bool isSlua>
+	struct FunctionV
 	{
-		std::vector<ParameterV<false>> params;
-		BlockV<false> block;
+		std::vector<ParameterV<isSlua>> params;
+		BlockV<isSlua> block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
 
 	template<AnyCfgable CfgT>
-	using Function = SelectT<CfgT, LuaFunction, LuaFunction>;
+	using Function = SelV<CfgT, FunctionV>;
 
 	namespace ArgsType
 	{
@@ -185,10 +186,10 @@ namespace sluaParse
 		struct NUMERAL { double v; };							// "Numeral"
 		struct LITERAL_STRING { std::string v; };				// "LiteralString"
 		struct VARARGS {};										// "..."
-		struct FUNCTION_DEF { LuaFunction v; };					// "functiondef"
+		struct FUNCTION_DEF { FunctionV<false> v; };				// "functiondef"
 		using LIM_PREFIX_EXP = std::unique_ptr<LuaLimPrefixExpr>;	// "prefixexp"
 		using FUNC_CALL = LuaFuncCall;								// "functioncall"
-		struct TABLE_CONSTRUCTOR { TableConstructorV<false> v; };		// "tableconstructor"
+		struct TABLE_CONSTRUCTOR { TableConstructorV<false> v; };	// "tableconstructor"
 
 		//unOps is always empty for this type
 		struct MULTI_OPERATION
@@ -382,7 +383,7 @@ namespace sluaParse
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
 			Position place; 
 			std::string name; 
-			LuaFunction func;
+			FunctionV<isSlua> func;
 		};
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
 
