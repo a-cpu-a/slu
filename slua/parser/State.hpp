@@ -118,14 +118,17 @@ namespace sluaParse
 		struct VAR;		// "var"
 		struct EXPR;	// "'(' exp ')'"
 	}
-	using LimPrefixExpr = std::variant<
+	using LuaLimPrefixExpr = std::variant<
 		LimPrefixExprType::VAR,
 		LimPrefixExprType::EXPR
 	>;
 
+	template<AnyCfgable CfgT>
+	using LimPrefixExpr = SelectT<CfgT, LuaLimPrefixExpr, LuaLimPrefixExpr>;
+
 	struct LuaFuncCall
 	{
-		std::unique_ptr<LimPrefixExpr> val;
+		std::unique_ptr<LuaLimPrefixExpr> val;
 		std::vector<LuaArgFuncCall> argChain;
 	};
 
@@ -142,9 +145,9 @@ namespace sluaParse
 		struct LITERAL_STRING { std::string v; };				// "LiteralString"
 		struct VARARGS {};										// "..."
 		struct FUNCTION_DEF { LuaFunction v; };					// "functiondef"
-		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExpr>;	// "prefixexp"
+		using LIM_PREFIX_EXP = std::unique_ptr<LuaLimPrefixExpr>;	// "prefixexp"
 		using FUNC_CALL = LuaFuncCall;								// "functioncall"
-		struct TABLE_CONSTRUCTOR { TableConstructor v; };		// "tableconstructor"
+		struct TABLE_CONSTRUCTOR { TableConstructor v; };			// "tableconstructor"
 
 		//unOps is always empty for this type
 		struct MULTI_OPERATION
