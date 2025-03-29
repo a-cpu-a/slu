@@ -164,8 +164,8 @@ namespace sluaParse
 		return false;
 	}
 
-	template<bool isLoop>
-	inline Block readBlock(AnyInput auto& in,const bool allowVarArg)
+	template<bool isLoop,AnyInput In>
+	inline Block<In> readBlock(In& in,const bool allowVarArg)
 	{
 		/*
 			block ::= {stat} [retstat]
@@ -174,7 +174,7 @@ namespace sluaParse
 
 		skipSpace(in);
 
-		Block ret{};
+		Block<In> ret{};
 		ret.start = in.getLoc();
 
 		while (true)
@@ -291,18 +291,18 @@ namespace sluaParse
 		return res;
 	}
 
-	template<bool isLoop>
-	inline Block readDoEndBlock(AnyInput auto& in, const bool allowVarArg)
+	template<bool isLoop, AnyInput In>
+	inline Block<In> readDoEndBlock(In& in, const bool allowVarArg)
 	{
 		requireToken(in, "do");
-		Block bl = readBlock<isLoop>(in,allowVarArg);
+		Block<In> bl = readBlock<isLoop>(in,allowVarArg);
 		requireToken(in, "end");
 
 		return bl;
 	}
 
-	template<bool isLoop>
-	inline Statement readStatment(AnyInput auto& in,const bool allowVarArg)
+	template<bool isLoop, AnyInput In>
+	inline Statement readStatment(In& in,const bool allowVarArg)
 	{
 		/*
 		 varlist ‘=’ explist |
@@ -456,7 +456,7 @@ namespace sluaParse
 		case 'd'://do?
 			if (checkReadTextToken(in, "do")) // do block end
 			{
-				Block bl = readBlock<isLoop>(in,allowVarArg);
+				Block<In> bl = readBlock<isLoop>(in,allowVarArg);
 				requireToken(in, "end");
 				ret.data = StatementType::DO_BLOCK(std::move(bl));
 				return ret;
@@ -486,7 +486,7 @@ namespace sluaParse
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
 				Expression expr = readExpr(in,allowVarArg);
-				Block bl = readDoEndBlock<true>(in,allowVarArg);
+				Block<In> bl = readDoEndBlock<true>(in,allowVarArg);
 				ret.data = StatementType::WHILE_LOOP(std::move(expr), std::move(bl));
 				return ret;
 			}
@@ -494,7 +494,7 @@ namespace sluaParse
 		case 'r'://repeat?
 			if (checkReadTextToken(in, "repeat"))
 			{ // repeat block until exp
-				Block bl = readBlock<true>(in,allowVarArg);
+				Block<In> bl = readBlock<true>(in,allowVarArg);
 				requireToken(in, "until");
 				Expression expr = readExpr(in,allowVarArg);
 
@@ -518,7 +518,7 @@ namespace sluaParse
 				{
 					Expression elExpr = readExpr(in,allowVarArg);
 					requireToken(in, "then");
-					Block elBlock = readBlock<isLoop>(in,allowVarArg);
+					Block<In> elBlock = readBlock<isLoop>(in,allowVarArg);
 
 					res.elseIfs.emplace_back( std::move(elExpr),std::move(elBlock));
 				}
@@ -544,16 +544,17 @@ namespace sluaParse
 	struct ParsedFile
 	{
 		//TypeList types
-		Block code;
+		LuaBlock code;
 	};
 	/**
 	 * @throws sluaParse::ParseFailError
 	 */
-	inline ParsedFile parseFile(AnyInput auto& in)
+	template<AnyInput In>
+	inline ParsedFile parseFile(In& in)
 	{
 		try
 		{
-			Block bl = readBlock<false>(in, true);
+			Block<In> bl = readBlock<false>(in, true);
 
 			if (in.hasError())
 			{// Skip eof, as one of the errors might have caused that.
