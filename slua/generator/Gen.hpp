@@ -264,12 +264,12 @@ namespace sluaParse
 				.add(arg.funcName);
 		}
 		ezmatch(arg.args)(
-		varcase(const ArgsType::EXPLIST&) {
+		varcase(const ArgsType::EXPLIST<Out>&) {
 			out.add('(');
 			genExpList(out, var.v);
 			out.add(')');
 		},
-		varcase(const ArgsType::TABLE&) {
+		varcase(const ArgsType::TABLE<Out>&) {
 			genTableConstructor(out, var.v);
 		},
 		varcase(const ArgsType::LITERAL&) {

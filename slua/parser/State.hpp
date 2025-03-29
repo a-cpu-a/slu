@@ -131,25 +131,32 @@ namespace sluaParse
 
 	namespace ArgsType
 	{
-		struct EXPLIST { ExpListV<false> v; };			// "'(' [explist] ')'"
-		struct TABLE { TableConstructorV<false> v; };	// "tableconstructor"
+		template<bool isSlua>
+		struct EXPLISTv { ExpListV<isSlua> v; };			// "'(' [explist] ')'"
+		template<AnyCfgable CfgT> using EXPLIST = SelV<CfgT, EXPLISTv>;
+
+		template<bool isSlua>
+		struct TABLEv { TableConstructorV<isSlua> v; };	// "tableconstructor"
+		template<AnyCfgable CfgT> using TABLE = SelV<CfgT, TABLEv>;
+
 		struct LITERAL { std::string v; };		// "LiteralString"
 	};
-	using LuaArgs = std::variant<
-		ArgsType::EXPLIST,
-		ArgsType::TABLE,
+	template<bool isSlua>
+	using ArgsV = std::variant<
+		ArgsType::EXPLISTv<isSlua>,
+		ArgsType::TABLEv<isSlua>,
 		ArgsType::LITERAL
 	>;
 
 	template<AnyCfgable CfgT>
-	using Args = SelectT<CfgT, LuaArgs, LuaArgs>;
+	using Args = SelV<CfgT, ArgsV>;
 
 	template<bool isSlua>
 	struct ArgFuncCallV
 	{// funcArgs ::=  [‘:’ Name] args
 
 		std::string funcName;//If empty, then no colon needed. Only used for ":xxx"
-		LuaArgs args;
+		ArgsV<isSlua> args;
 	};
 
 	template<AnyCfgable CfgT>
