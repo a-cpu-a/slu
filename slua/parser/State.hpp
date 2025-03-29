@@ -315,7 +315,7 @@ namespace sluaParse
 		struct LOCAL_ASSIGN { AttribNameList names; LuaExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 	};
 
-	using StatementData = std::variant <
+	using LuaStatementData = std::variant <
 		StatementType::SEMICOLON,		// ";"
 
 		StatementType::ASSIGN,			// "varlist = explist"
@@ -338,10 +338,12 @@ namespace sluaParse
 		StatementType::LOCAL_FUNCTION_DEF// "local function Name funcbody"
 	> ;
 
+	template<AnyCfgable CfgT>
+	using StatementData = SelectT<CfgT, LuaStatementData, LuaStatementData>;
 
 	struct LuaStatement
 	{
-		StatementData data;
+		LuaStatementData data;
 		Position place;
 
 		LuaStatement() = default;
