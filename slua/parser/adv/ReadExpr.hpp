@@ -27,7 +27,7 @@ namespace sluaParse
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			BaseVarType::EXPR res(readExpr(in,allowVarArg));
+			BaseVarType::EXPR<In> res(readExpr(in,allowVarArg));
 			requireToken(in, ")");
 			varDataNeedsSubThing = true;
 			varDataOut.base = std::move(res);
@@ -69,7 +69,7 @@ namespace sluaParse
 				if (varDataNeedsSubThing)
 				{
 					LimPrefixExprType::EXPR res;
-					res.v = std::move(std::get<BaseVarType::EXPR>(varData.back().base).start);
+					res.v = std::move(std::get<BaseVarType::EXPR<In>>(varData.back().base).start);
 					return std::make_unique<LimPrefixExpr<In>>(std::move(res));
 				}
 				return std::make_unique<LimPrefixExpr<In>>(LimPrefixExprType::VAR(std::move(varData.back())));
@@ -88,7 +88,7 @@ namespace sluaParse
 		}
 		if (varDataNeedsSubThing)
 		{
-			BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
+			BaseVarType::EXPR<In>& bVarExpr = std::get<BaseVarType::EXPR<In>>(varData.back().base);
 			auto limP = LimPrefixExprType::EXPR(std::move(bVarExpr.start));
 			return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
 		}

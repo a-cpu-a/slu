@@ -306,7 +306,7 @@ namespace sluaParse
 		varcase(const BaseVarType::NAME&) {
 			out.add(var);
 		},
-		varcase(const BaseVarType::EXPR&) {
+		varcase(const BaseVarType::EXPR<Out>&) {
 			out.add('(');
 			genExpr(out, var.start);
 			out.add(')');

@@ -231,7 +231,8 @@ namespace sluaParse
 		struct EXPR { LuaExpression idx; };	// {funcArgs} ‘[’ exp ‘]’
 	}
 
-	struct LuaSubVar
+	template<bool isSlua>
+	struct SubVarV
 	{
 		std::vector<LuaArgFuncCall> funcCalls;
 
@@ -242,17 +243,21 @@ namespace sluaParse
 	};
 
 	template<AnyCfgable CfgT>
-	using SubVar = SelectT<CfgT, LuaSubVar, LuaSubVar>;
+	using SubVar = SelV<CfgT, SubVarV>;
 
 	namespace BaseVarType
 	{
 		using NAME = std::string;
-		struct EXPR { LuaExpression start; LuaSubVar sub; };
+
+		template<bool isSlua>
+		struct EXPRv { LuaExpression start; SubVarV<isSlua> sub; };
+
+		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
 	template<bool isSlua>
 	using BaseVarV = std::variant<
 		BaseVarType::NAME,
-		BaseVarType::EXPR
+		BaseVarType::EXPRv<isSlua>
 	>;
 
 	template<AnyCfgable CfgT>
@@ -262,7 +267,7 @@ namespace sluaParse
 	struct VarV
 	{
 		BaseVarV<isSlua> base;
-		std::vector<LuaSubVar> sub;
+		std::vector<SubVarV<isSlua>> sub;
 	};
 
 
