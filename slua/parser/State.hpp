@@ -334,7 +334,8 @@ namespace sluaParse
 		struct LOCAL_ASSIGN { AttribNameList names; LuaExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 	};
 
-	using LuaStatementData = std::variant <
+	template<bool isSlua>
+	using StatementDataV = std::variant<
 		StatementType::SEMICOLON,		// ";"
 
 		StatementType::ASSIGN,			// "varlist = explist"
@@ -358,12 +359,12 @@ namespace sluaParse
 	> ;
 
 	template<AnyCfgable CfgT>
-	using StatementData = SelectT<CfgT, LuaStatementData, LuaStatementData>;
+	using StatementData = SelV<CfgT, StatementDataV>;
 
 	template<bool isSlua>
 	struct StatementV
 	{
-		LuaStatementData data;
+		StatementDataV<isSlua> data;
 		Position place;
 
 		StatementV() = default;
