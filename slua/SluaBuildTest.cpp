@@ -2,7 +2,8 @@
 
 //This file is used to test compilation
 
-
+//Test macro, dont use, doesnt improve performace. (actually hurts it lol)
+//#define Slua_NoConcepts
 #include <slua/Include.hpp>
 #include <slua/ErrorType.hpp>
 #include <slua/Context.hpp>

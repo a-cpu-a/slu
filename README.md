@@ -101,5 +101,6 @@ prefixed with m_ for private things.
 prefixed with _ for implementation only stuff.  
 
 Slua_nameNameName for macros.  
+Slua_NameNameName for setting macros.  
 
 _Slua_NAME_NAME_NAME for implementation macros.  

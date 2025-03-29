@@ -16,10 +16,15 @@
 
 namespace sluaParse
 {
-
+	
 	//Here, so streamed inputs can be made
 	template<class T>
-	concept AnyInput = AnyCfgable<T> && requires(T t) {
+	concept AnyInput =
+#ifdef Slua_NoConcepts
+		true
+#else
+
+		AnyCfgable<T> && requires(T t) {
 		{ t.skip() } -> std::same_as<void>;
 		{ t.skip((size_t)100) } -> std::same_as<void>;
 
@@ -48,7 +53,9 @@ namespace sluaParse
 
 		{t.handleError(std::string()) } -> std::same_as<void>;
 		{t.hasError() } -> std::same_as<bool>;
-	};
+	}
+#endif // Slua_NoConcepts
+	;
 
 	inline std::string errorLocStr(const AnyInput auto& in,const Position pos) {
 		return " " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
