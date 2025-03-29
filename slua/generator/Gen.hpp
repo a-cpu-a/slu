@@ -553,7 +553,8 @@ namespace sluaParse
 		}
 	}
 
-	inline void genFile(AnyOutput auto& out,const ParsedFile& obj)
+	template<AnyOutput Out>
+	inline void genFile(Out& out,const ParsedFile<Out>& obj)
 	{
 		genBlock(out, obj.code);
 	}

@@ -542,16 +542,22 @@ namespace sluaParse
 		return ret;
 	}
 
-	struct ParsedFile
+	template<bool isSlua>
+	struct ParsedFileV
 	{
 		//TypeList types
-		LuaBlock code;
+		BlockV<isSlua> code;
 	};
+
+
+	template<AnyCfgable CfgT>
+	using ParsedFile = SelectTB<CfgT, ParsedFileV>;
+
 	/**
 	 * @throws sluaParse::ParseFailError
 	 */
 	template<AnyInput In>
-	inline ParsedFile parseFile(In& in)
+	inline ParsedFile<In> parseFile(In& in)
 	{
 		try
 		{
