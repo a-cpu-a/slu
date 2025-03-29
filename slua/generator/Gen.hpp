@@ -286,7 +286,7 @@ namespace sluaParse
 			genArgFuncCall(out, arg);
 		}
 		ezmatch(obj.idx)(
-		varcase(const SubVarType::EXPR&) {
+		varcase(const SubVarType::EXPR<Out>&) {
 			out.add('[');
 			genExpr(out, var.idx);
 			out.add(']');

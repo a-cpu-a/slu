@@ -226,7 +226,7 @@ namespace sluaParse
 					funcCallData.emplace_back("", readArgs(in,allowVarArg));
 					break;
 				}
-				SubVarType::EXPR res{};
+				SubVarType::EXPR<In> res{};
 
 				in.skip();//skip first char
 				res.idx = readExpr(in,allowVarArg);

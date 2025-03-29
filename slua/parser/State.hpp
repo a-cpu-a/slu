@@ -228,7 +228,10 @@ namespace sluaParse
 	namespace SubVarType
 	{
 		struct NAME { std::string idx; };	// {funcArgs} ‘.’ Name
-		struct EXPR { LuaExpression idx; };	// {funcArgs} ‘[’ exp ‘]’
+
+		template<bool isSlua>
+		struct EXPRv { LuaExpression idx; };	// {funcArgs} ‘[’ exp ‘]’
+		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
 
 	template<bool isSlua>
@@ -238,7 +241,7 @@ namespace sluaParse
 
 		std::variant<
 			SubVarType::NAME,
-			SubVarType::EXPR
+			SubVarType::EXPRv<isSlua>
 		> idx;
 	};
 
