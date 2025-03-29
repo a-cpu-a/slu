@@ -5,7 +5,7 @@
 New Syntax {
 	
 	
-	stat @::= | OptExportPrefix "impl" [traitcombo] "for" (traitcombo | comptimeVarType) "{" {stat} "}"
+	stat @::= | OptExportPrefix "impl" [traitcombo] "for" (traitcombo | type) "{" {stat} "}"
 }
 
 New Keywords {
