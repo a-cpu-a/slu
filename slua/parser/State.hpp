@@ -108,18 +108,19 @@ namespace sluaParse
 	using Block = SelV<CfgT, BlockV>;
 
 
-	struct LuaParameter
+	template<bool isSlua>
+	struct ParameterV
 	{
 		std::string name;
 		//size_t typeId;
 	};
 
 	template<AnyCfgable CfgT>
-	using Parameter = SelectT<CfgT, LuaParameter, LuaParameter>;
+	using Parameter = SelV<CfgT, ParameterV>;
 
 	struct LuaFunction
 	{
-		std::vector<LuaParameter> params;
+		std::vector<ParameterV<false>> params;
 		BlockV<false> block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
