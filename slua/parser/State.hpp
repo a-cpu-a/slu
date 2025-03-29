@@ -67,16 +67,17 @@ namespace sluaParse
 
 
 
-	using LuaExpList = std::vector<ExpressionV<false>>;
+	template<bool isSlua>
+	using ExpListV = std::vector<ExpressionV<isSlua>>;
 
 	template<AnyCfgable CfgT>
-	using ExpList = SelectT<CfgT, LuaExpList, LuaExpList>;
+	using ExpList = SelV<CfgT, ExpListV>;
 
 	template<bool isSlua>
 	struct BlockV
 	{
 		std::vector<StatementV<isSlua>> statList;
-		LuaExpList retExprs;//Special, may contain 0 elements (even with hadReturn)
+		ExpListV<isSlua> retExprs;//Special, may contain 0 elements (even with hadReturn)
 
 		//Scope scope;
 
@@ -117,7 +118,7 @@ namespace sluaParse
 
 	namespace ArgsType
 	{
-		struct EXPLIST { LuaExpList v; };			// "'(' [explist] ')'"
+		struct EXPLIST { ExpListV<false> v; };			// "'(' [explist] ')'"
 		struct TABLE { LuaTableConstructor v; };	// "tableconstructor"
 		struct LITERAL { std::string v; };		// "LiteralString"
 	};
@@ -303,7 +304,7 @@ namespace sluaParse
 		struct SEMICOLON {};									// ";"
 
 		template<bool isSlua>
-		struct ASSIGNv { std::vector<VarV<isSlua>> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
+		struct ASSIGNv { std::vector<VarV<isSlua>> vars; ExpListV<isSlua> exprs; };// "varlist = explist" //e.size must be > 0
 		template<AnyCfgable CfgT> using ASSIGN = SelV<CfgT, ASSIGNv>;
 
 		template<bool isSlua>
@@ -354,7 +355,7 @@ namespace sluaParse
 		struct FOR_LOOP_GENERICv
 		{
 			NameList varNames;
-			LuaExpList exprs;//size must be > 0
+			ExpListV<isSlua> exprs;//size must be > 0
 			BlockV<isSlua> bl;
 		};
 		template<AnyCfgable CfgT> using FOR_LOOP_GENERIC = SelV<CfgT, FOR_LOOP_GENERICv>;
@@ -373,7 +374,7 @@ namespace sluaParse
 		template<AnyCfgable CfgT> using LOCAL_FUNCTION_DEF = SelV<CfgT, LOCAL_FUNCTION_DEFv>;
 
 		template<bool isSlua>				// "local function Name funcbody" //n may not ^^^
-		struct LOCAL_ASSIGNv { AttribNameList names; LuaExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+		struct LOCAL_ASSIGNv { AttribNameList names; ExpListV<isSlua> exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
 	};
 
