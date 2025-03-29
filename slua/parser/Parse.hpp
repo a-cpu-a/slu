@@ -339,7 +339,7 @@ namespace sluaParse
 
 				if (names.size() == 1 && checkReadToken(in, "="))//1 name, then MAYBE equal
 				{
-					StatementType::FOR_LOOP_NUMERIC res{};
+					StatementType::FOR_LOOP_NUMERIC<In> res{};
 					res.varName = names[0];
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
@@ -358,7 +358,7 @@ namespace sluaParse
 				// Generic Loop
 				// for namelist in explist do block end | 
 
-				StatementType::FOR_LOOP_GENERIC res{};
+				StatementType::FOR_LOOP_GENERIC<In> res{};
 				res.varNames = names;
 
 				requireToken(in, "in");
@@ -370,7 +370,7 @@ namespace sluaParse
 			}
 			if (checkReadTextToken(in, "function"))
 			{ // function funcname funcbody
-				StatementType::FUNCTION_DEF res{};
+				StatementType::FUNCTION_DEF<In> res{};
 
 				res.place = in.getLoc();
 
@@ -410,7 +410,7 @@ namespace sluaParse
 				*/
 				if (checkReadTextToken(in, "function"))
 				{ // local function Name funcbody
-					StatementType::LOCAL_FUNCTION_DEF res;
+					StatementType::LOCAL_FUNCTION_DEF<In> res;
 
 					res.place = in.getLoc();
 
@@ -443,7 +443,7 @@ namespace sluaParse
 				}
 				// Local Variable
 
-				StatementType::LOCAL_ASSIGN res;
+				StatementType::LOCAL_ASSIGN<In> res;
 				res.names = readAttNameList(in);
 
 				if (checkReadToken(in, "="))
@@ -459,7 +459,7 @@ namespace sluaParse
 			{
 				Block<In> bl = readBlock<isLoop>(in,allowVarArg);
 				requireToken(in, "end");
-				ret.data = StatementType::DO_BLOCK(std::move(bl));
+				ret.data = StatementType::DO_BLOCK<In>(std::move(bl));
 				return ret;
 			}
 			break;
@@ -488,7 +488,7 @@ namespace sluaParse
 			{ // while exp do block end
 				Expression<In> expr = readExpr(in,allowVarArg);
 				Block<In> bl = readDoEndBlock<true>(in,allowVarArg);
-				ret.data = StatementType::WHILE_LOOP(std::move(expr), std::move(bl));
+				ret.data = StatementType::WHILE_LOOP<In>(std::move(expr), std::move(bl));
 				return ret;
 			}
 			break;
@@ -499,7 +499,7 @@ namespace sluaParse
 				requireToken(in, "until");
 				Expression<In> expr = readExpr(in,allowVarArg);
 
-				ret.data = StatementType::REPEAT_UNTIL({ std::move(expr), std::move(bl) });
+				ret.data = StatementType::REPEAT_UNTIL<In>({ std::move(expr), std::move(bl) });
 				return ret;
 			}
 			break;
@@ -507,7 +507,7 @@ namespace sluaParse
 			if (checkReadTextToken(in, "if"))
 			{ // if exp then block {elseif exp then block} [else block] end
 
-				StatementType::IF_THEN_ELSE res{};
+				StatementType::IF_THEN_ELSE<In> res{};
 
 				res.cond = readExpr(in,allowVarArg);
 

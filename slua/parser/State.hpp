@@ -291,71 +291,104 @@ namespace sluaParse
 	namespace StatementType
 	{
 		struct SEMICOLON {};									// ";"
-		struct ASSIGN { std::vector<LuaVar> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
-		using FUNC_CALL = LuaFuncCall;								// "functioncall"
+
+		template<bool isSlua>
+		struct ASSIGNv { std::vector<LuaVar> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
+		template<AnyCfgable CfgT> using ASSIGN = SelV<CfgT, ASSIGNv>;
+
+		template<bool isSlua>
+		using FUNC_CALLv = LuaFuncCall;								// "functioncall"
+		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
+
 		struct LABEL { std::string v; };						// "label"
 		struct BREAK { std::string v; };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
-		struct DO_BLOCK { BlockV<false> bl; };							// "do block end"
-		struct WHILE_LOOP { LuaExpression cond; BlockV<false> bl; };		// "while exp do block end"
-		struct REPEAT_UNTIL :WHILE_LOOP {};						// "repeat block until exp"
+
+		template<bool isSlua>
+		struct DO_BLOCKv { BlockV<isSlua> bl; };							// "do block end"
+		template<AnyCfgable CfgT> using DO_BLOCK = SelV<CfgT, DO_BLOCKv>;
+
+		template<bool isSlua>
+		struct WHILE_LOOPv { LuaExpression cond; BlockV<isSlua> bl; };		// "while exp do block end"
+		template<AnyCfgable CfgT> using WHILE_LOOP = SelV<CfgT, WHILE_LOOPv>;
+
+		template<bool isSlua>
+		struct REPEAT_UNTILv :WHILE_LOOPv<isSlua> {};						// "repeat block until exp"
+		template<AnyCfgable CfgT> using REPEAT_UNTIL = SelV<CfgT, REPEAT_UNTILv>;
 
 		// "if exp then block {elseif exp then block} [else block] end"
-		struct IF_THEN_ELSE
+		template<bool isSlua>
+		struct IF_THEN_ELSEv
 		{
 			LuaExpression cond;
-			BlockV<false> bl;
-			std::vector<std::pair<LuaExpression, BlockV<false>>> elseIfs;
-			std::optional<BlockV<false>> elseBlock;
+			BlockV<isSlua> bl;
+			std::vector<std::pair<LuaExpression, BlockV<isSlua>>> elseIfs;
+			std::optional<BlockV<isSlua>> elseBlock;
 		};
+		template<AnyCfgable CfgT> using IF_THEN_ELSE = SelV<CfgT, IF_THEN_ELSEv>;
+
 		// "for Name = exp , exp [, exp] do block end"
-		struct FOR_LOOP_NUMERIC
+		template<bool isSlua>
+		struct FOR_LOOP_NUMERICv
 		{
 			std::string varName;
 			LuaExpression start;
 			LuaExpression end;//inclusive
 			std::optional<LuaExpression> step;
-			BlockV<false> bl;
+			BlockV<isSlua> bl;
 		};
+		template<AnyCfgable CfgT> using FOR_LOOP_NUMERIC = SelV<CfgT, FOR_LOOP_NUMERICv>;
+
 		// "for namelist in explist do block end"
-		struct FOR_LOOP_GENERIC
+		template<bool isSlua>
+		struct FOR_LOOP_GENERICv
 		{
 			NameList varNames;
 			LuaExpList exprs;//size must be > 0
-			BlockV<false> bl;
+			BlockV<isSlua> bl;
 		};
-		struct FUNCTION_DEF 
+		template<AnyCfgable CfgT> using FOR_LOOP_GENERIC = SelV<CfgT, FOR_LOOP_GENERICv>;
+
+		template<bool isSlua>
+		struct FUNCTION_DEFv
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
 			Position place; 
 			std::string name; 
 			LuaFunction func;
 		};
-		struct LOCAL_FUNCTION_DEF :FUNCTION_DEF {};						// "local function Name funcbody" //n may not ^^^
-		struct LOCAL_ASSIGN { AttribNameList names; LuaExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
+
+		template<bool isSlua>
+		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlua> {};
+		template<AnyCfgable CfgT> using LOCAL_FUNCTION_DEF = SelV<CfgT, LOCAL_FUNCTION_DEFv>;
+
+		template<bool isSlua>				// "local function Name funcbody" //n may not ^^^
+		struct LOCAL_ASSIGNv { AttribNameList names; LuaExpList exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
 	};
 
 	template<bool isSlua>
 	using StatementDataV = std::variant<
 		StatementType::SEMICOLON,		// ";"
 
-		StatementType::ASSIGN,			// "varlist = explist"
-		StatementType::LOCAL_ASSIGN,	// "local attnamelist [= explist]"
+		StatementType::ASSIGNv<isSlua>,			// "varlist = explist"
+		StatementType::LOCAL_ASSIGNv<isSlua>,	// "local attnamelist [= explist]"
 
-		StatementType::FUNC_CALL,		// "functioncall"
+		StatementType::FUNC_CALLv<isSlua>,		// "functioncall"
 		StatementType::LABEL,			// "label"
 		StatementType::BREAK,			// "break"
 		StatementType::GOTO,			// "goto Name"
-		StatementType::DO_BLOCK,		// "do block end"
-		StatementType::WHILE_LOOP,		// "while exp do block end"
-		StatementType::REPEAT_UNTIL,	// "repeat block until exp"
+		StatementType::DO_BLOCKv<isSlua>,		// "do block end"
+		StatementType::WHILE_LOOPv<isSlua>,		// "while exp do block end"
+		StatementType::REPEAT_UNTILv<isSlua>,	// "repeat block until exp"
 
-		StatementType::IF_THEN_ELSE,	// "if exp then block {elseif exp then block} [else block] end"
+		StatementType::IF_THEN_ELSEv<isSlua>,	// "if exp then block {elseif exp then block} [else block] end"
 
-		StatementType::FOR_LOOP_NUMERIC,// "for Name = exp , exp [, exp] do block end"
-		StatementType::FOR_LOOP_GENERIC,// "for namelist in explist do block end"
+		StatementType::FOR_LOOP_NUMERICv<isSlua>,// "for Name = exp , exp [, exp] do block end"
+		StatementType::FOR_LOOP_GENERICv<isSlua>,// "for namelist in explist do block end"
 
-		StatementType::FUNCTION_DEF,	// "function funcname funcbody"
-		StatementType::LOCAL_FUNCTION_DEF// "local function Name funcbody"
+		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
+		StatementType::LOCAL_FUNCTION_DEFv<isSlua>	// "local function Name funcbody"
 	> ;
 
 	template<AnyCfgable CfgT>
