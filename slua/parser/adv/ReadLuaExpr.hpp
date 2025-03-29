@@ -131,7 +131,7 @@ namespace sluaParse
 			)
 		{//Prefix expr! or func-call
 
-			basicRes.data = parsePrefixExprVar<ExprData,true>(in,allowVarArg, firstChar);
+			basicRes.data = parsePrefixExprVar<ExprData<In>,true>(in,allowVarArg, firstChar);
 		}
 		//check bin op
 
