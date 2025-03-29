@@ -37,8 +37,8 @@ namespace sluaParse
 		}
 	}
 
-	template<class T,bool FOR_EXPR>
-	inline T returnPrefixExprVar(AnyInput auto& in, std::vector<Var>& varData, std::vector<ArgFuncCall>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
+	template<class T,bool FOR_EXPR, AnyInput In>
+	inline T returnPrefixExprVar(In& in, std::vector<Var>& varData, std::vector<ArgFuncCall>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
 	{
 		char opType[4] = "EOS";
 
@@ -89,10 +89,10 @@ namespace sluaParse
 		{
 			BaseVarType::EXPR& bVarExpr = std::get<BaseVarType::EXPR>(varData.back().base);
 			auto limP = LimPrefixExprType::EXPR(std::move(bVarExpr.start));
-			return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
+			return FuncCall<In>(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
 		}
 		auto limP = LimPrefixExprType::VAR(std::move(varData.back()));
-		return FuncCall(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
+		return FuncCall<In>(std::make_unique<LimPrefixExpr>(std::move(limP)), std::move(funcCallData));
 	}
 	template<class T,bool FOR_EXPR>
 	inline T parsePrefixExprVar(AnyInput auto& in, const bool allowVarArg, const char firstChar)
