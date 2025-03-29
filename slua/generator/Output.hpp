@@ -17,7 +17,11 @@ namespace sluaParse
 {
 	//Here, so streamed outputs can be made
 	template<class T>
-	concept AnyOutput = AnyCfgable<T> && requires(T t) {
+	concept AnyOutput =
+#ifdef Slua_NoConcepts
+		true
+#else
+		AnyCfgable<T> && requires(T t) {
 		{ t.add(char(1)) } -> std::same_as<T&>;
 		{ t.add(std::string_view()) } -> std::same_as<T&>;
 		{ t.add(std::span<const uint8_t>()) } -> std::same_as<T&>;
@@ -46,7 +50,9 @@ namespace sluaParse
 		{ t.unTabTemp() } -> std::same_as<T&>;
 
 		{ t.wasSemicolon } -> std::same_as<bool&>;
-	};
+	}
+#endif // Slua_NoConcepts
+	;
 
 	inline void updateLinePos(size_t& curLinePos, std::span<const uint8_t> sp)
 	{
