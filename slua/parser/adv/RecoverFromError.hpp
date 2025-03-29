@@ -18,13 +18,21 @@
 
 namespace sluaParse
 {
-	inline void trySkipMultilineString(AnyInput auto& in)
+	inline bool isStrStarter(AnyInput auto& in)
+	{
+		const char ch1 = in.peek();
+		return ch1 == '=' || ch1 == '[' || ch1 == '\'' || ch1 == '"';
+	}
+
+	inline bool trySkipMultilineString(AnyInput auto& in)
 	{
 		const char ch1 = in.peekAt(1);
 		if (ch1 == '=' || ch1 == '[')
 		{
 			readStringLiteral(in, '[');
+			return true;
 		}
+		return false;
 	}
 
 	template<size_t TOK_SIZE>
@@ -41,22 +49,28 @@ namespace sluaParse
 			case '\t':
 			case '\f':
 			case '\v':
+			case '-':
 			{
 				skipSpace(in);
 
-				const char chl = in.peek();
-				switch (chl)
+				do
 				{
-				case '"':
-				case '\'':
-					readStringLiteral(in, chl);
-					break;
-				case '[':
-					trySkipMultilineString(in);
-					break;
-				default:
-					break;
-				}
+					const char chl = in.peek();
+					switch (chl)
+					{
+					case '"':
+					case '\'':
+						readStringLiteral(in, chl);
+						break;
+					case '[':
+						if (!trySkipMultilineString(in))
+							goto break_loop;
+						break;
+					default:
+						goto break_loop;
+					}
+				} while (skipSpace(in) || isStrStarter(in));
+			break_loop:
 				break;
 			}
 			case '"':
