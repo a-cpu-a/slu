@@ -42,7 +42,10 @@ namespace sluaParse
 	>;
 
 	// ‘{’ [fieldlist] ‘}’
-	using TableConstructor = std::vector<Field>;
+	using LuaTableConstructor = std::vector<Field>;
+
+	template<AnyCfgable CfgT>
+	using TableConstructor = SelectT<CfgT, LuaTableConstructor, LuaTableConstructor>;
 
 
 
@@ -96,7 +99,7 @@ namespace sluaParse
 	namespace ArgsType
 	{
 		struct EXPLIST { LuaExpList v; };			// "'(' [explist] ')'"
-		struct TABLE { TableConstructor v; };	// "tableconstructor"
+		struct TABLE { LuaTableConstructor v; };	// "tableconstructor"
 		struct LITERAL { std::string v; };		// "LiteralString"
 	};
 	using LuaArgs = std::variant<
@@ -153,7 +156,7 @@ namespace sluaParse
 		struct FUNCTION_DEF { LuaFunction v; };					// "functiondef"
 		using LIM_PREFIX_EXP = std::unique_ptr<LuaLimPrefixExpr>;	// "prefixexp"
 		using FUNC_CALL = LuaFuncCall;								// "functioncall"
-		struct TABLE_CONSTRUCTOR { TableConstructor v; };			// "tableconstructor"
+		struct TABLE_CONSTRUCTOR { LuaTableConstructor v; };		// "tableconstructor"
 
 		//unOps is always empty for this type
 		struct MULTI_OPERATION
