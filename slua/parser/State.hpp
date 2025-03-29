@@ -38,7 +38,9 @@ namespace sluaParse
 	template<bool isSlua> struct StatementV;
 	template<AnyCfgable CfgT> using Statement = SelV<CfgT, StatementV>;
 
-
+	template<bool isSlua> struct ExpressionV;
+	template<AnyCfgable CfgT>
+	using Expression = SelV<CfgT, ExpressionV>;
 
 
 
@@ -65,7 +67,7 @@ namespace sluaParse
 
 
 
-	using LuaExpList = std::vector<struct LuaExpression>;
+	using LuaExpList = std::vector<ExpressionV<false>>;
 
 	template<AnyCfgable CfgT>
 	using ExpList = SelectT<CfgT, LuaExpList, LuaExpList>;
@@ -178,11 +180,11 @@ namespace sluaParse
 		//unOps is always empty for this type
 		struct MULTI_OPERATION
 		{
-			std::unique_ptr<struct LuaExpression> first;
-			std::vector<std::pair<BinOpType, struct LuaExpression>> extra;//size>=1
+			std::unique_ptr<ExpressionV<false>> first;
+			std::vector<std::pair<BinOpType, ExpressionV<false>>> extra;//size>=1
 		};      // "exp binop exp"
 
-		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<struct LuaExpression>};     // "unop exp"	//Inlined as opt prefix
+		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<false>>};     // "unop exp"	//Inlined as opt prefix
 
 
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
@@ -210,27 +212,25 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using ExprData = SelectT<CfgT, LuaExprData, LuaExprData>;
 
-	struct LuaExpression
+	template<bool isSlua>
+	struct ExpressionV
 	{
 		LuaExprData data;
 		Position place;
 		UnOpList unOps;
 
-		LuaExpression() = default;
-		LuaExpression(const LuaExpression&) = delete;
-		LuaExpression(LuaExpression&&) = default;
-		LuaExpression& operator=(LuaExpression&&) = default;
+		ExpressionV() = default;
+		ExpressionV(const ExpressionV&) = delete;
+		ExpressionV(ExpressionV&&) = default;
+		ExpressionV& operator=(ExpressionV&&) = default;
 	};
-
-	template<AnyCfgable CfgT>
-	using Expression = SelectT<CfgT, LuaExpression, LuaExpression>;
 
 	namespace SubVarType
 	{
 		struct NAME { std::string idx; };	// {funcArgs} ‘.’ Name
 
 		template<bool isSlua>
-		struct EXPRv { LuaExpression idx; };	// {funcArgs} ‘[’ exp ‘]’
+		struct EXPRv { ExpressionV<isSlua> idx; };	// {funcArgs} ‘[’ exp ‘]’
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
 
@@ -253,7 +253,7 @@ namespace sluaParse
 		using NAME = std::string;
 
 		template<bool isSlua>
-		struct EXPRv { LuaExpression start; SubVarV<isSlua> sub; };
+		struct EXPRv { ExpressionV<isSlua> start; SubVarV<isSlua> sub; };
 
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
@@ -285,14 +285,14 @@ namespace sluaParse
 
 	namespace FieldType
 	{
-		struct EXPR2EXPR { LuaExpression idx; LuaExpression v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		struct NAME2EXPR { std::string idx; LuaExpression v; };	// "Name ‘=’ exp"
-		struct EXPR { LuaExpression v; };							// "exp"
+		struct EXPR2EXPR { ExpressionV<false> idx; ExpressionV<false> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		struct NAME2EXPR { std::string idx; ExpressionV<false> v; };	// "Name ‘=’ exp"
+		struct EXPR { ExpressionV<false> v; };							// "exp"
 	}
 	namespace LimPrefixExprType
 	{
 		struct VAR { VarV<false> v; };			// "var"
-		struct EXPR { LuaExpression v; };	// "'(' exp ')'"
+		struct EXPR { ExpressionV<false> v; };	// "'(' exp ')'"
 	}
 
 	using AttribNameList = std::vector<AttribName>;
@@ -319,7 +319,7 @@ namespace sluaParse
 		template<AnyCfgable CfgT> using DO_BLOCK = SelV<CfgT, DO_BLOCKv>;
 
 		template<bool isSlua>
-		struct WHILE_LOOPv { LuaExpression cond; BlockV<isSlua> bl; };		// "while exp do block end"
+		struct WHILE_LOOPv { ExpressionV<isSlua> cond; BlockV<isSlua> bl; };		// "while exp do block end"
 		template<AnyCfgable CfgT> using WHILE_LOOP = SelV<CfgT, WHILE_LOOPv>;
 
 		template<bool isSlua>
@@ -330,9 +330,9 @@ namespace sluaParse
 		template<bool isSlua>
 		struct IF_THEN_ELSEv
 		{
-			LuaExpression cond;
+			ExpressionV<isSlua> cond;
 			BlockV<isSlua> bl;
-			std::vector<std::pair<LuaExpression, BlockV<isSlua>>> elseIfs;
+			std::vector<std::pair<ExpressionV<isSlua>, BlockV<isSlua>>> elseIfs;
 			std::optional<BlockV<isSlua>> elseBlock;
 		};
 		template<AnyCfgable CfgT> using IF_THEN_ELSE = SelV<CfgT, IF_THEN_ELSEv>;
@@ -342,9 +342,9 @@ namespace sluaParse
 		struct FOR_LOOP_NUMERICv
 		{
 			std::string varName;
-			LuaExpression start;
-			LuaExpression end;//inclusive
-			std::optional<LuaExpression> step;
+			ExpressionV<isSlua> start;
+			ExpressionV<isSlua> end;//inclusive
+			std::optional<ExpressionV<isSlua>> step;
 			BlockV<isSlua> bl;
 		};
 		template<AnyCfgable CfgT> using FOR_LOOP_NUMERIC = SelV<CfgT, FOR_LOOP_NUMERICv>;
