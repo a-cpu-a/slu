@@ -551,7 +551,7 @@ namespace sluaParse
 
 
 	template<AnyCfgable CfgT>
-	using ParsedFile = SelectTB<CfgT, ParsedFileV>;
+	using ParsedFile = SelV<CfgT, ParsedFileV>;
 
 	/**
 	 * @throws sluaParse::ParseFailError
