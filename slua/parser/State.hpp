@@ -257,7 +257,8 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using BaseVar = SelectT<CfgT, LuaBaseVar, LuaBaseVar>;
 
-	struct LuaVar
+	template<bool isSlua>
+	struct VarV
 	{
 		LuaBaseVar base;
 		std::vector<LuaSubVar> sub;
@@ -265,7 +266,7 @@ namespace sluaParse
 
 
 	template<AnyCfgable CfgT>
-	using Var = SelectT<CfgT, LuaVar, LuaVar>;
+	using Var = SelV<CfgT, VarV>;
 
 	struct AttribName
 	{
@@ -281,7 +282,7 @@ namespace sluaParse
 	}
 	namespace LimPrefixExprType
 	{
-		struct VAR { LuaVar v; };			// "var"
+		struct VAR { VarV<false> v; };			// "var"
 		struct EXPR { LuaExpression v; };	// "'(' exp ')'"
 	}
 
@@ -293,7 +294,7 @@ namespace sluaParse
 		struct SEMICOLON {};									// ";"
 
 		template<bool isSlua>
-		struct ASSIGNv { std::vector<LuaVar> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
+		struct ASSIGNv { std::vector<VarV<isSlua>> vars; LuaExpList exprs; };// "varlist = explist" //e.size must be > 0
 		template<AnyCfgable CfgT> using ASSIGN = SelV<CfgT, ASSIGNv>;
 
 		template<bool isSlua>
