@@ -68,11 +68,11 @@ namespace sluaParse
 			{
 				if (varDataNeedsSubThing)
 				{
-					LimPrefixExprType::EXPR res;
+					LimPrefixExprType::EXPR<In> res;
 					res.v = std::move(std::get<BaseVarType::EXPR<In>>(varData.back().base).start);
 					return std::make_unique<LimPrefixExpr<In>>(std::move(res));
 				}
-				return std::make_unique<LimPrefixExpr<In>>(LimPrefixExprType::VAR(std::move(varData.back())));
+				return std::make_unique<LimPrefixExpr<In>>(LimPrefixExprType::VAR<In>(std::move(varData.back())));
 			}
 			else
 			{
@@ -89,10 +89,10 @@ namespace sluaParse
 		if (varDataNeedsSubThing)
 		{
 			BaseVarType::EXPR<In>& bVarExpr = std::get<BaseVarType::EXPR<In>>(varData.back().base);
-			auto limP = LimPrefixExprType::EXPR(std::move(bVarExpr.start));
+			auto limP = LimPrefixExprType::EXPR<In>(std::move(bVarExpr.start));
 			return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
 		}
-		auto limP = LimPrefixExprType::VAR(std::move(varData.back()));
+		auto limP = LimPrefixExprType::VAR<In>(std::move(varData.back()));
 		return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
 	}
 	template<class T,bool FOR_EXPR, AnyInput In>
