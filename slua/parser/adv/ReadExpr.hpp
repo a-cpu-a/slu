@@ -253,12 +253,13 @@ namespace sluaParse
 			return readLuaExpr(in, allowVarArg, readBiOp);
 	}
 
-	inline ExpList readExpList(AnyInput auto& in, const bool allowVarArg)
+	template<AnyInput In>
+	inline ExpList<In> readExpList(In& in, const bool allowVarArg)
 	{
 		/*
 			explist ::= exp {‘,’ exp}
 		*/
-		ExpList ret{};
+		ExpList<In> ret{};
 		ret.emplace_back(readExpr(in, allowVarArg));
 
 		while (checkReadToken(in, ","))
