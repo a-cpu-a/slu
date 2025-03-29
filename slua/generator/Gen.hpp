@@ -379,7 +379,8 @@ namespace sluaParse
 		}
 	}
 
-	inline void genStat(AnyOutput auto& out, const Statement& obj)
+	template<AnyOutput Out>
+	inline void genStat(Out& out, const Statement<Out>& obj)
 	{
 		ezmatch(obj.data)(
 
@@ -534,7 +535,7 @@ namespace sluaParse
 	template<AnyOutput Out>
 	inline void genBlock(Out& out, const Block<Out>& obj)
 	{
-		for (const Statement& s : obj.statList)
+		for (const Statement<Out>& s : obj.statList)
 		{
 			genStat(out, s);
 		}
