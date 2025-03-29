@@ -101,20 +101,20 @@ namespace sluaParse
 			ezmatch(f)(
 			varcase(const FieldType::NONE) { _ASSERT(false); },
 
-			varcase(const FieldType::EXPR2EXPR&) {
+			varcase(const FieldType::EXPR2EXPR<Out>&) {
 				out.addIndent();
 				out.add('[');
 				genExpr(out, var.idx);
 				out.add("] = ");
 				genExpr(out, var.v);
 			},
-			varcase(const FieldType::NAME2EXPR&) {
+			varcase(const FieldType::NAME2EXPR<Out>&) {
 				out.addIndent();
 				out.add(var.idx)
 					.add(" = ");
 				genExpr(out, var.v);
 			},
-			varcase(const FieldType::EXPR&) {
+			varcase(const FieldType::EXPR<Out>&) {
 				out.addIndent();
 				genExpr(out, var.v);
 			}
