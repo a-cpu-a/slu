@@ -40,5 +40,5 @@ void _test()
 	sluaParse::parseFile(in2);
 
 	sluaParse::Output out;
-	sluaParse::genFile(out, sluaParse::ParsedFile());
+	sluaParse::genFile(out, {});
 }
