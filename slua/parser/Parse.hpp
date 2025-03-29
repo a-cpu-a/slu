@@ -538,7 +538,7 @@ namespace sluaParse
 			break;
 		}
 
-		ret.data = parsePrefixExprVar<StatementData,false>(in,allowVarArg, firstChar);
+		ret.data = parsePrefixExprVar<StatementData<In>,false>(in,allowVarArg, firstChar);
 		return ret;
 	}
 
