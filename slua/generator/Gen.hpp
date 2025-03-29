@@ -143,7 +143,7 @@ namespace sluaParse
 	inline void genFuncCall(Out& out,const FuncCall<Out>& obj)
 	{
 		genLimPrefixExpr(out, *obj.val);
-		for (const ArgFuncCall& arg : obj.argChain)
+		for (const ArgFuncCall<Out>& arg : obj.argChain)
 		{
 			genArgFuncCall(out, arg);
 		}
@@ -253,7 +253,8 @@ namespace sluaParse
 		out.add('"');
 	}
 
-	inline void genArgFuncCall(AnyOutput auto& out, const ArgFuncCall& arg)
+	template<AnyOutput Out>
+	inline void genArgFuncCall(Out& out, const ArgFuncCall<Out>& arg)
 	{
 		if (!arg.funcName.empty())
 		{
@@ -275,9 +276,10 @@ namespace sluaParse
 		);
 	}
 
-	inline void genSubVar(AnyOutput auto& out, const SubVar& obj)
+	template<AnyOutput Out>
+	inline void genSubVar(Out& out, const SubVar& obj)
 	{
-		for (const ArgFuncCall& arg : obj.funcCalls)
+		for (const ArgFuncCall<Out>& arg : obj.funcCalls)
 		{
 			genArgFuncCall(out, arg);
 		}
