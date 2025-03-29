@@ -116,7 +116,7 @@ namespace sluaParse
 		{
 			in.skip();//skip start
 			skipSpace(in);
-			ArgsType::EXPLIST res{};
+			ArgsType::EXPLIST<In> res{};
 			if (in.peek() == ')')// Check if 0 args
 			{
 				in.skip();
@@ -128,7 +128,7 @@ namespace sluaParse
 		}
 		else if (ch == '{')
 		{
-			return ArgsType::TABLE(readTableConstructor(in,allowVarArg));
+			return ArgsType::TABLE<In>(readTableConstructor(in,allowVarArg));
 		}
 		throw UnexpectedCharacterError(std::format(
 			"Expected function arguments ("
