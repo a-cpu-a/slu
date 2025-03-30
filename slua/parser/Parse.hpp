@@ -465,6 +465,15 @@ namespace sluaParse
 				return ret;
 			}
 			break;
+		case '{'://block
+			if constexpr (in.settings() & sluaSyn)
+			{
+				Block<In> bl = readBlock<isLoop>(in, allowVarArg);
+				requireToken(in, "}");
+				ret.data = StatementType::BLOCK<In>(std::move(bl));
+				return ret;
+			}
+			break;
 		case 'd'://do?
 			if constexpr (!(in.settings() & sluaSyn))
 			{
