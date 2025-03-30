@@ -143,6 +143,11 @@ namespace sluaParse
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
 	{
+		if constexpr (in.settings() & sluaSyn)
+		{
+			return startCh == '}';
+		}
+
 		if (startCh == 'u')
 		{
 			if (checkTextToken(in, "until"))
@@ -161,6 +166,38 @@ namespace sluaParse
 				if (checkTextToken(in, "else") || checkTextToken(in, "elseif"))
 					return true;
 			}
+		}
+		return false;
+	}
+
+	template<bool needsSemicol, AnyInput In>
+	inline bool readReturn(In& in, const bool allowVarArg, Block<In>& ret)
+	{
+		if (checkReadTextToken(in, "return"))
+		{
+			ret.hadReturn = true;
+
+			skipSpace(in);
+
+			const char ch1 = in.peek();
+
+			if (ch1 == ';')
+				in.skip();//thats it
+			else if (isBasicBlockEnding(in, ch1))
+			{
+				if constexpr (needsSemicol)
+					requireToken(in, ";");//Lazy way to throw error, maybe fix later?
+			}
+			else
+			{
+				ret.retExprs = readExpList(in, allowVarArg);
+
+				if constexpr (needsSemicol)
+					requireToken(in, ";");
+				else
+					readOptToken(in, ";");
+			}
+			return true;
 		}
 		return false;
 	}
@@ -189,23 +226,8 @@ namespace sluaParse
 
 			if (ch == 'r')
 			{
-				if (checkReadTextToken(in, "return"))
-				{
-					ret.hadReturn = true;
-
-					skipSpace(in);
-
-					const char ch1 = in.peek();
-
-					if (ch1 == ';')
-						in.skip();//thats it
-					else if (!isBasicBlockEnding(in, ch1))
-					{
-						ret.retExprs = readExpList(in, allowVarArg);
-						readOptToken(in, ";");
-					}
+				if (readReturn<false>(in, allowVarArg, ret))
 					break;// no more loop
-				}
 			}
 			else if (isBasicBlockEnding(in, ch))
 				break;// no more loop
@@ -301,21 +323,47 @@ namespace sluaParse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline Block<In> readDoEndBlock(In& in, const bool allowVarArg)
+	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
 	{
+		Block<In> bl = readBlock<isLoop>(in, allowVarArg);
+		requireToken(in, sel<In>("end","}"));
+
+		return (bl);
+	}
+
+	template<bool isLoop, AnyInput In>
+	inline Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
+	{
+		if constexpr(in.settings() & sluaSyn)
+		{
+			skipSpace(in);
+			if (in.peek() == '{')
+			{
+				in.skip();
+				return readBlockNoStartCheck<isLoop>(in,allowVarArg);
+			}
+			Block<In> bl{};
+			bl.start = in.getLoc();
+
+			if (readReturn<true>(in, allowVarArg, bl))
+			{
+				bl.end = in.getLoc();
+				return bl;
+			}
+			//Basic Statement + ';'
+
+			bl.statList.push_back(readStatment<isLoop>(in, allowVarArg));
+
+			bl.end = in.getLoc();
+
+			requireToken(in, ";");
+			return bl;
+		}
 		requireToken(in, "do");
 		Block<In> bl = readBlock<isLoop>(in,allowVarArg);
 		requireToken(in, "end");
 
 		return bl;
-	}
-	template<bool isLoop, AnyInput In>
-	inline StatementType::BLOCK<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
-	{
-		Block<In> bl = readBlock<isLoop>(in, allowVarArg);
-		requireToken(in, sel<In>("end","}"));
-
-		return StatementType::BLOCK<In>(std::move(bl));
 	}
 
 	template<bool isLoop, AnyInput In>
@@ -366,7 +414,7 @@ namespace sluaParse
 					if (checkReadToken(in, ","))
 						res.step = readExpr(in,allowVarArg);
 
-					res.bl = readDoEndBlock<true>(in,allowVarArg);
+					res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
 
 					ret.data = std::move(res);
 					return ret;
@@ -379,7 +427,7 @@ namespace sluaParse
 
 				requireToken(in, "in");
 				res.exprs = readExpList(in,allowVarArg);
-				res.bl = readDoEndBlock<true>(in,allowVarArg);
+				res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
 
 				ret.data = std::move(res);
 				return ret;
@@ -477,7 +525,7 @@ namespace sluaParse
 			if constexpr (in.settings() & sluaSyn)
 			{
 				in.skip();//Skip ‘}’
-				ret.data = readBlockNoStartCheck<isLoop>(in, allowVarArg);
+				ret.data = StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg));
 				return ret;
 			}
 			break;
@@ -486,7 +534,7 @@ namespace sluaParse
 			{
 				if (checkReadTextToken(in, "do")) // ‘do’ block ‘end’
 				{
-					ret.data = readBlockNoStartCheck<isLoop>(in, allowVarArg);
+					ret.data = StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg));
 					return ret;
 				}
 			}
@@ -514,8 +562,14 @@ namespace sluaParse
 		case 'w'://while?
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
+
+				if constexpr (in.settings() & sluaSyn) requireToken(in, "(");
+
 				Expression<In> expr = readExpr(in,allowVarArg);
-				Block<In> bl = readDoEndBlock<true>(in,allowVarArg);
+
+				if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
+
+				Block<In> bl = readDoOrStatOrRet<true>(in,allowVarArg);
 				ret.data = StatementType::WHILE_LOOP<In>(std::move(expr), std::move(bl));
 				return ret;
 			}
