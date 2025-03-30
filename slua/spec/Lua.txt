@@ -22,8 +22,6 @@ New Syntax {
 		 ‘if’ ‘(’ exp ‘)’ statOrRet {‘else’ ‘if’ statOrRet} [‘else’ statOrRet] | 
 		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
 		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
-		 ‘function’ funcname funcbody | 
-		 ‘local’ ‘function’ Name funcbody | 
 		 ‘local’ attnamelist [‘=’ explist]
 
 	attnamelist ::=  Name attrib {‘,’ Name attrib}
@@ -47,7 +45,7 @@ New Syntax {
 
 	explist ::= exp {‘,’ exp}
 
-	exp ::=  ‘nil’ | ‘false’ | ‘true’ | Numeral | LiteralString | ‘...’ | functiondef | 
+	exp ::=  ‘nil’ | ‘false’ | ‘true’ | Numeral | LiteralString | ‘...’ | 
 		 prefixexp | tableconstructor | exp binop exp | unop exp 
 
 	prefixexp ::= var | functioncall | ‘(’ exp ‘)’
@@ -55,10 +53,6 @@ New Syntax {
 	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
 
 	args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString 
-
-	functiondef ::= ‘function’ funcbody
-
-	funcbody ::= ‘(’ [parlist] ‘)’ ‘{’ block ‘}’
 
 	parlist ::= namelist [‘,’ ‘...’] | ‘...’
 
