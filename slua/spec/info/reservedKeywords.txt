@@ -71,10 +71,10 @@ New Keywords {
 	type		(1.9m)		(78.3k)		type alias
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
+	crate		(73k)		(1.1k)		this crate
 	alloc		(??)		(??)		Allocate something for gc
 	macro		(52.5k)		(5.8k)		macro def
 	match		(545k)		(27.4k)		match expr
-	crate		(73k)		(1.1k)		this crate
 	catch		(44k)		(3.3k)		catch stat
 	throw		(92.2k)		(7k)		return a error
 	trait  		(63.2k)		(4k)		Define a trait
