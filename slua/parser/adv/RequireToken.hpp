@@ -19,6 +19,15 @@
 
 namespace sluaParse
 {
+	template<AnyInput In,size_t TOK_SIZE, size_t TOK_SIZE2>
+	consteval auto& selV(const char(&tok)[TOK_SIZE], const char(&sluaTok)[TOK_SIZE2])
+	{
+		if constexpr (In::settings() & sluaSyn)
+			return sluaTok;
+		else
+			return tok;
+	}
+
 	template<bool SKIP_SPACE=true,size_t TOK_SIZE>
 	inline void requireToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
 	{
