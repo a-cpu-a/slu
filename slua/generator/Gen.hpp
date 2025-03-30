@@ -149,6 +149,16 @@ namespace sluaParse
 			genArgFuncCall(out, arg);
 		}
 	}
+	inline void writeU64Hex(AnyOutput auto& out, const uint64_t v) {
+		for (size_t i = 0; i < 16; i++)
+		{
+			const uint8_t c = (uint64_t(v) >> (60 - 4 * i)) & 0xF;
+			if (c <= 9)
+				out.add('0' + c);
+			else
+				out.add('A' + (c - 10));
+		}
+	}
 
 	template<AnyOutput Out>
 	inline void genExpr(Out& out, const Expression<Out>& obj)
@@ -177,22 +187,31 @@ namespace sluaParse
 			else
 				out.add(std::to_string(var.v));
 		},
+
 		varcase(const ExprType::NUMERAL_I64) {
 			if (var.v < 0)
 			{
 				out.add("0x");
-				for (size_t i = 0; i < 16; i++)
-				{
-					const uint8_t c = (uint64_t(var.v) >> (60 - 4 * i)) & 0xF;
-					if(c<=9)
-						out.add('0' + c);
-					else
-						out.add('A' + (c - 10));
-				}
+				writeU64Hex(out,var.v);
 			}
 			else
 				out.add(std::to_string(var.v));
 		},
+		varcase(const ExprType::NUMERAL_U64) {
+			out.add(std::to_string(var.v));
+		},
+		varcase(const ExprType::NUMERAL_I128) {
+			out.add("0x");
+			writeU64Hex(out, var.hi);
+			writeU64Hex(out, var.lo);
+		},
+
+		varcase(const ExprType::NUMERAL_U128) {
+			out.add("0x");
+			writeU64Hex(out, var.hi);
+			writeU64Hex(out, var.lo);
+		},
+
 		varcase(const ExprType::LITERAL_STRING&) {
 			genLiteral(out,var.v);
 		},

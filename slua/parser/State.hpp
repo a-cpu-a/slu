@@ -14,6 +14,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+#include <slua/ext/ExtendVariant.hpp>
 #include "Enums.hpp"
 #include "SmallEnumList.hpp"
 #include "Input.hpp"
@@ -225,8 +226,12 @@ namespace sluaParse
 
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlua>>};     // "unop exp"	//Inlined as opt prefix
 
-
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
+
+		//u64,i128,u128, for slua only
+		struct NUMERAL_U64 { uint64_t v; };					// "Numeral"
+		struct NUMERAL_U128 { uint64_t lo=0; uint64_t hi = 0;};   // "Numeral"
+		struct NUMERAL_I128 :NUMERAL_U128 {};   // "Numeral"
 	}
 
 	template<bool isSlua>
@@ -236,7 +241,11 @@ namespace sluaParse
 		ExprType::TRUE,                 // "true"
 		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
 		ExprType::NUMERAL_I64,			// "Numeral"
-		//ExprType::NUMERAL_U64,		// "Numeral"
+
+		ExprType::NUMERAL_U64,			// "Numeral"
+		ExprType::NUMERAL_I128,			// "Numeral"
+		ExprType::NUMERAL_U128,			// "Numeral"
+
 		ExprType::LITERAL_STRING,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
 		ExprType::FUNCTION_DEFv<isSlua>,			// "functiondef"
