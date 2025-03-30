@@ -473,8 +473,11 @@ namespace sluaParse
 			if constexpr (out.settings() & sluaSyn)out.add('(');
 			genExpr(out, var.cond);
 
-			out.add(sel<Out>(" do",") {"))
-				.tabUpNewl();
+			out.add(sel<Out>(" do", ")"));
+
+			if constexpr (out.settings() & sluaSyn) out.newLine().add('{');
+			out.tabUpNewl();
+
 			genBlock(out, var.bl);
 			out.unTabNewl()
 				.addNewl(sel<Out>("end","}"));
