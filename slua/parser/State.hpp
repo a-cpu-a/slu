@@ -15,7 +15,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include "Enums.hpp"
-#include "UnOpList.hpp"
+#include "SmallEnumList.hpp"
 #include "Input.hpp"
 
 //for enums...
@@ -257,7 +257,7 @@ namespace sluaParse
 	{
 		ExprDataV<isSlua> data;
 		Position place;
-		UnOpList unOps;
+		SmallEnumList<UnOpType> unOps;
 
 		ExpressionV() = default;
 		ExpressionV(const ExpressionV&) = delete;
