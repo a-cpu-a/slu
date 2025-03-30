@@ -208,7 +208,7 @@ namespace sluaParse
 		}
 		else
 		{
-			if (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluaSyn)
 			{
 				ExprType::NUMERAL_U128 n128 = hex
 					? parseHexU128(in, number)
@@ -234,7 +234,7 @@ namespace sluaParse
 			}
 			catch (...)
 			{
-				if (in.settings() & noIntOverflow)
+				if constexpr (in.settings() & noIntOverflow)
 					throwIntTooBig(in, number);
 
 				return ExprType::NUMERAL(std::stod(number));
