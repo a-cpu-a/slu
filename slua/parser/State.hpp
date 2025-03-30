@@ -252,17 +252,28 @@ namespace sluaParse
 	template<AnyCfgable CfgT>
 	using ExprData = SelV<CfgT, ExprDataV>;
 
+
 	template<bool isSlua>
-	struct ExpressionV
+	struct BaseExpression
 	{
 		ExprDataV<isSlua> data;
 		Position place;
 		SmallEnumList<UnOpType> unOps;
 
-		ExpressionV() = default;
-		ExpressionV(const ExpressionV&) = delete;
-		ExpressionV(ExpressionV&&) = default;
-		ExpressionV& operator=(ExpressionV&&) = default;
+		BaseExpression() = default;
+		BaseExpression(const BaseExpression&) = delete;
+		BaseExpression(BaseExpression&&) = default;
+		BaseExpression& operator=(BaseExpression&&) = default;
+	};
+
+	template<bool isSlua>
+	struct ExpressionV : BaseExpression<isSlua>
+	{
+	};
+	template<>
+	struct ExpressionV<true> : BaseExpression<true>
+	{
+		SmallEnumList<UnOpType> postUnOps;
 	};
 
 	namespace SubVarType
