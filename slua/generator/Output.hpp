@@ -23,6 +23,7 @@ namespace sluaParse
 #else
 		AnyCfgable<T> && requires(T t) {
 		{ t.add(char(1)) } -> std::same_as<T&>;
+		{ t.add("aa") } -> std::same_as<T&>;
 		{ t.add(std::string_view()) } -> std::same_as<T&>;
 		{ t.add(std::span<const uint8_t>()) } -> std::same_as<T&>;
 
@@ -91,7 +92,7 @@ namespace sluaParse
 		}
 		template<size_t N>
 		Output& add(const char(&sa)[N]) {
-			text.insert(text.end(), sa, &(sa[N - 2]));//skip null too
+			text.insert(text.end(), sa, &(sa[N - 1]));//skip null
 			curLinePos += N-1;//skip null
 			wasSemicolon = false;
 			return *this;
