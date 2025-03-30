@@ -470,7 +470,7 @@ namespace sluaParse
 			{
 				Block<In> bl = readBlock<isLoop>(in,allowVarArg);
 				requireToken(in, "end");
-				ret.data = StatementType::DO_BLOCK<In>(std::move(bl));
+				ret.data = StatementType::BLOCK<In>(std::move(bl));
 				return ret;
 			}
 			break;
