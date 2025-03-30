@@ -452,11 +452,11 @@ namespace sluaParse
 		},
 		varcase(const StatementType::BLOCK<Out>&) {
 			out.newLine();//Extra spacing
-			out.add("do")
+			out.add(sel<Out>("do","{"))
 				.tabUpNewl();
 			genBlock(out, var.bl);
 			out.unTabNewl()
-				.addNewl("end");
+				.addNewl(sel<Out>("end", "}"));
 		},
 		varcase(const StatementType::WHILE_LOOP<Out>&) {
 			out.newLine();//Extra spacing
