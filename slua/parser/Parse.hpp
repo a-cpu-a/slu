@@ -285,15 +285,17 @@ namespace sluaParse
 		return { std::move(ret),false };
 	}
 
-	inline std::string readLabel(AnyInput auto& in)
+	template<AnyInput In>
+	inline std::string readLabel(In& in)
 	{
 		//label ::= ‘::’ Name ‘::’
+		//SL label ::= ‘:::’ Name ‘:’
 
-		requireToken(in, "::");
+		requireToken(in, selV<In>("::", ":::"));
 
 		const std::string res = readName(in);
 
-		requireToken(in, "::");
+		requireToken(in, selV<In>("::", ":"));
 
 		return res;
 	}
