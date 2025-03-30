@@ -349,13 +349,22 @@ namespace sluaParse
 		using NAME = std::string;
 
 		template<bool isSlua>
-		struct EXPRv { ExpressionV<isSlua> start; SubVarV<isSlua> sub; };
-
+		struct EXPRv
+		{
+			ExpressionV<isSlua> start; 
+			SubVarV<isSlua> sub;
+		};
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+
+		// Slua only:
+		
+		//len is atleast 1
+		using MOD_PATH = std::vector<std::string>;
 	}
 	template<bool isSlua>
 	using BaseVarV = std::variant<
 		BaseVarType::NAME,
+		BaseVarType::MOD_PATH,
 		BaseVarType::EXPRv<isSlua>
 	>;
 
