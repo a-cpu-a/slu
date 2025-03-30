@@ -155,6 +155,11 @@ namespace sluaParse
 	struct FunctionV : BaseFunctionV<isSlua>
 	{
 	};
+	template<>
+	struct FunctionV<true> : BaseFunctionV<true>
+	{
+		TypeId retType;
+	};
 
 	template<AnyCfgable CfgT>
 	using Function = SelV<CfgT, FunctionV>;
