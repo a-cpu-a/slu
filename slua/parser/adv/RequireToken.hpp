@@ -19,10 +19,10 @@
 
 namespace sluaParse
 {
-	template<AnyInput In,size_t TOK_SIZE, size_t TOK_SIZE2>
+	template<AnyCfgable Cfg,size_t TOK_SIZE, size_t TOK_SIZE2>
 	consteval auto& sel(const char(&tok)[TOK_SIZE], const char(&sluaTok)[TOK_SIZE2])
 	{
-		if constexpr (In::settings() & sluaSyn)
+		if constexpr (Cfg::settings() & sluaSyn)
 			return sluaTok;
 		else
 			return tok;
