@@ -291,11 +291,11 @@ namespace sluaParse
 		//label ::= ‘::’ Name ‘::’
 		//SL label ::= ‘:::’ Name ‘:’
 
-		requireToken(in, selV<In>("::", ":::"));
+		requireToken(in, sel<In>("::", ":::"));
 
 		const std::string res = readName(in);
 
-		requireToken(in, selV<In>("::", ":"));
+		requireToken(in, sel<In>("::", ":"));
 
 		return res;
 	}
