@@ -452,7 +452,10 @@ namespace sluaParse
 				// Local Variable
 
 				StatementType::LOCAL_ASSIGN<In> res;
-				res.names = readAttNameList(in);
+				if constexpr(in.settings() & sluaSyn)
+					res.names = readNameList(in);
+				else
+					res.names = readAttNameList(in);
 
 				if (checkReadToken(in, "="))
 				{// [‘=’ explist]
