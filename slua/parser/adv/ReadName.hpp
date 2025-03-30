@@ -54,22 +54,26 @@ namespace sluaParse
 	};
 #undef _LUA_KWS
 
+	template<bool forMpStart>
 	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
+		const std::unordered_set<std::string>* checkSet = &RESERVED_KEYWORDS;
+
 		if constexpr (in.settings() & sluaSyn)
 		{
-			// Check if the resulting string is a reserved keyword
-			if (RESERVED_KEYWORDS_SLUA.find(n) != RESERVED_KEYWORDS_SLUA.end())
-				return true;
-			return false;
+			if constexpr (forMpStart)
+				checkSet = &RESERVED_KEYWORDS_SLUA_MP_START;
+			else
+				checkSet = &RESERVED_KEYWORDS_SLUA;
 		}
 
 		// Check if the resulting string is a reserved keyword
-		if (RESERVED_KEYWORDS.find(n) != RESERVED_KEYWORDS.end())
+		if (checkSet->find(n) != checkSet->end())
 			return true;
 		return false;
 	}
 
+	template<bool forMpStart=false>
 	inline std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
@@ -116,7 +120,7 @@ namespace sluaParse
 		}
 
 		// Check if the resulting string is a reserved keyword
-		if (isNameInvalid(in, res))
+		if (isNameInvalid<forMpStart>(in, res))
 		{
 			if (allowError)
 				return "";
@@ -158,7 +162,7 @@ namespace sluaParse
 			continue;
 		}
 		// Check if the resulting string is a reserved keyword
-		if (isNameInvalid(in, res))
+		if (isNameInvalid<false>(in, res))
 			return SIZE_MAX;
 
 		return i;

@@ -33,8 +33,25 @@ namespace sluaParse
 			varDataOut.base = std::move(res);
 		}
 		else
-		{// Must be Name
-			varDataOut.base = BaseVarType::NAME(readName(in));
+		{// Must be Name, ... or mod path
+
+			//Lua doesnt reserve mp_start names, so doesnt matter
+			std::string start = readName<true>(in);
+
+			if constexpr (in.settings() & sluaSyn)
+			{
+				BaseVarType::MOD_PATH mp = {start};
+				skipSpace(in);
+				while (checkToken(in, "::") && in.peekAt(2) != ':')
+				{
+					in.skip(2);//skip '::'
+					skipSpace(in);
+					mp.push_back(readName(in));
+				}
+				if (start.size() != 1)
+					varDataOut.base = mp;
+			}
+			varDataOut.base = BaseVarType::NAME(start);
 		}
 	}
 
