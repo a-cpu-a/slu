@@ -12,7 +12,7 @@ New Syntax {
 		 varlist ‘=’ explist | 
 		 functioncall | 
 		 ‘break’ | 
-		 ‘goto’ Name | 
+		 ‘goto’ Name
 
 	stat ::=  basicstat | 
 		 label | 
