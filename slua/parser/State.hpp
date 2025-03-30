@@ -28,6 +28,9 @@ namespace sluaParse
 	template<AnyCfgable CfgT, template<bool> class T>
 	using SelV = T<CfgT::settings()& sluaSyn>;
 
+	template<bool isSlua, class T,class SlT>
+	using Sel = std::conditional_t<isSlua,SlT,T>;
+
 
 
 	//Forward declare
