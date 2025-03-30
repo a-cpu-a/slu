@@ -32,7 +32,7 @@ namespace sluaParse
 	using Sel = std::conditional_t<isSlua,SlT,T>;
 
 	template<AnyCfgable Cfg, size_t TOK_SIZE, size_t TOK_SIZE2>
-	consteval auto& sel(const char(&tok)[TOK_SIZE], const char(&sluaTok)[TOK_SIZE2])
+	consteval const auto& sel(const char(&tok)[TOK_SIZE], const char(&sluaTok)[TOK_SIZE2])
 	{
 		if constexpr (Cfg::settings() & sluaSyn)
 			return sluaTok;
