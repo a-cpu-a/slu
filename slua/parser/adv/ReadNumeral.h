@@ -30,10 +30,7 @@ namespace sluaParse
 			{
 				if (result & LAST_DIGIT_HEX)//does it have anything?
 				{// Yes, exit now!
-					throw UnexpectedCharacterError(std::format(
-						LC_Integer " is too big, "
-						LUACC_SINGLE_STRING("{}")
-						"{}", str, errorLocStr(in)));
+					throwIntTooBig(in, str);
 				}
 			}
 
@@ -54,10 +51,7 @@ namespace sluaParse
 			{
 				if (result.hi & LAST_DIGIT_HEX)//does it have anything?
 				{// Yes, exit now!
-					throw UnexpectedCharacterError(std::format(
-						LC_Integer " is too big, "
-						LUACC_SINGLE_STRING("{}")
-						"{}", str, errorLocStr(in)));
+					throwIntTooBig(in, str);
 				}
 			}
 			result.hi <<= 4;
@@ -92,12 +86,7 @@ namespace sluaParse
 						|| (result.lo > (UINT64_MAX - digit))
 					)
 				)
-				{
-					throw UnexpectedCharacterError(std::format(
-						LC_Integer " is too big, "
-						LUACC_SINGLE_STRING("{}")
-						"{}", str, errorLocStr(in)));
-				}
+					throwIntTooBig(in, str);
 			}
 
 			// Get top 4 bits that overflow into hi
@@ -232,18 +221,18 @@ namespace sluaParse
 
 				return ExprType::NUMERAL_I64(n128.lo);
 			}
+
+			if (hex)
+				return ExprType::NUMERAL_I64(parseHexInt(in, number));
 			try
 			{
-				if (hex)
-					return ExprType::NUMERAL_I64(parseHexInt(in,number));
-
 				return ExprType::NUMERAL_I64(std::stoll(number, nullptr, 10));
-			}
-			catch (const UnexpectedCharacterError&) {
-				throw;
 			}
 			catch (...)
 			{
+				if (in.settings() & noIntOverflow)
+					throwIntTooBig(in, number);
+
 				return ExprType::NUMERAL(std::stod(number));
 			}
 		}
