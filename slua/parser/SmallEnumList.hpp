@@ -10,9 +10,11 @@
 
 namespace sluaParse
 {
-	static_assert(sizeof(UnOpType) == 1);
-	struct UnOpList
+	template<class T>
+	struct SmallEnumList
 	{
+		static_assert(sizeof(T) == 1);
+
 		//TODO: switch to realloc[] once that exists
 
 	private:
@@ -23,15 +25,15 @@ namespace sluaParse
 		{
 			struct
 			{
-				UnOpType first14[SMALL_SIZE] = {
-					UnOpType::NONE
+				T first14[SMALL_SIZE] = {
+					T::NONE
 				};
 				uint8_t size = 0;
 				uint8_t isBig = 0;
 			} small{};
 			struct
 			{
-				UnOpType* ptr;
+				T* ptr;
 				size_t size : ((sizeof(size_t) - 1) * 8);
 
 				size_t reserve : 8; // 0 means not big, 1 means no reserved ops, 2 means one op reserved
@@ -41,7 +43,7 @@ namespace sluaParse
 			return small.isBig == 0;
 		}
 	public:
-		constexpr UnOpList() = default;
+		constexpr SmallEnumList() = default;
 
 		constexpr size_t size() const {
 			return m_isSmall() ? small.size : large.size;
@@ -49,7 +51,7 @@ namespace sluaParse
 		constexpr static size_t max_size() {
 			return MAX_LARGE_SIZE;
 		}
-		const UnOpType& at(const size_t idx) const
+		const T& at(const size_t idx) const
 		{
 			if (m_isSmall())
 			{
@@ -59,14 +61,14 @@ namespace sluaParse
 			Slua_require(idx < large.size);
 			return large.ptr[idx];
 		}
-		void push_back(const UnOpType t)
+		void push_back(const T t)
 		{
 			if (m_isSmall())
 			{
 				if (small.size >= SMALL_SIZE)
 				{
 					constexpr uint8_t SZ = SMALL_SIZE + 1;
-					UnOpType* ptr = (UnOpType*)std::malloc(SZ * 2);
+					T* ptr = (T*)std::malloc(SZ * 2);
 
 					if (ptr == nullptr)
 						throw std::bad_alloc();
@@ -95,7 +97,7 @@ namespace sluaParse
 
 				Slua_require((reserv + large.size) <= MAX_LARGE_SIZE);
 
-				UnOpType* ptr = (UnOpType*)std::realloc(large.ptr, large.size + reserv - 1);// -1, cuz large.reserve is stored in +1
+				T* ptr = (T*)std::realloc(large.ptr, large.size + reserv - 1);// -1, cuz large.reserve is stored in +1
 
 				if (ptr == nullptr)
 					throw std::bad_alloc();
@@ -110,15 +112,15 @@ namespace sluaParse
 			large.size++;
 		}
 
-		struct UnOpListIterator
+		struct SmallEnumListIterator
 		{
 			using iterator_category = std::forward_iterator_tag;
-			using value_type = UnOpType;
+			using value_type = T;
 			using difference_type = std::ptrdiff_t;
-			using pointer = const UnOpType*;
-			using reference = const UnOpType&;
+			using pointer = const T*;
+			using reference = const T&;
 
-			UnOpListIterator(const UnOpList* list, size_t index) : m_list(list), m_index(index) {}
+			SmallEnumListIterator(const SmallEnumList* list, size_t index) : m_list(list), m_index(index) {}
 
 			reference operator*() const {
 				return m_list->at(m_index);
@@ -128,29 +130,29 @@ namespace sluaParse
 				return &m_list->at(m_index);
 			}
 
-			UnOpListIterator& operator++() {
+			SmallEnumListIterator& operator++() {
 				++m_index;
 				Slua_require(m_index<= m_list->size());//allow == size, as that is end()
 				return *this;
 			}
 
-			UnOpListIterator operator++(int) {
-				UnOpListIterator tmp = *this;
+			SmallEnumListIterator operator++(int) {
+				SmallEnumListIterator tmp = *this;
 				++(*this);
 				return tmp;
 			}
 
-			bool operator==(const UnOpListIterator& other) const {
+			bool operator==(const SmallEnumListIterator& other) const {
 				return m_list == other.m_list && m_index == other.m_index;
 			}
 
 		private:
-			const UnOpList* m_list;
+			const SmallEnumList* m_list;
 			size_t m_index;
 		};
 
-		using iterator = UnOpListIterator;
-		using const_iterator = UnOpListIterator;
+		using iterator = SmallEnumListIterator;
+		using const_iterator = SmallEnumListIterator;
 
 		iterator begin() const {
 			return iterator(this, 0);
@@ -160,17 +162,17 @@ namespace sluaParse
 			return iterator(this, size());
 		}
 
-		~UnOpList()
+		~SmallEnumList()
 		{
 			if (!m_isSmall())
 				std::free(large.ptr);
 		}
-		UnOpList(UnOpList&& o) noexcept {
+		SmallEnumList(SmallEnumList&& o) noexcept {
 			//No need to check if small
 			this->operator=<true>(std::move(o));
 		}
 		template<bool NO_SMALL_CHECK=false>
-		UnOpList& operator=(UnOpList&& o) noexcept {
+		SmallEnumList& operator=(SmallEnumList&& o) noexcept {
 			if constexpr (!NO_SMALL_CHECK)
 			{
 				if (!m_isSmall())
@@ -194,5 +196,5 @@ namespace sluaParse
 			return *this;
 		}
 	};
-	static_assert(sizeof(UnOpList) == 16);
+	static_assert(sizeof(SmallEnumList<UnOpType>) == 16);
 }
