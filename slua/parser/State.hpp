@@ -144,11 +144,16 @@ namespace sluaParse
 	using Parameter = SelV<CfgT, ParameterV>;
 
 	template<bool isSlua>
-	struct FunctionV
+	struct BaseFunctionV
 	{
 		std::vector<ParameterV<isSlua>> params;
 		BlockV<isSlua> block;
 		bool hasVarArgParam = false;// do params end with '...'
+	};
+
+	template<bool isSlua>
+	struct FunctionV : BaseFunctionV<isSlua>
+	{
 	};
 
 	template<AnyCfgable CfgT>
@@ -281,24 +286,24 @@ namespace sluaParse
 
 
 	template<bool isSlua>
-	struct BaseExpression
+	struct BaseExpressionV
 	{
 		ExprDataV<isSlua> data;
 		Position place;
 		SmallEnumList<UnOpType> unOps;
 
-		BaseExpression() = default;
-		BaseExpression(const BaseExpression&) = delete;
-		BaseExpression(BaseExpression&&) = default;
-		BaseExpression& operator=(BaseExpression&&) = default;
+		BaseExpressionV() = default;
+		BaseExpressionV(const BaseExpressionV&) = delete;
+		BaseExpressionV(BaseExpressionV&&) = default;
+		BaseExpressionV& operator=(BaseExpressionV&&) = default;
 	};
 
 	template<bool isSlua>
-	struct ExpressionV : BaseExpression<isSlua>
+	struct ExpressionV : BaseExpressionV<isSlua>
 	{
 	};
 	template<>
-	struct ExpressionV<true> : BaseExpression<true>
+	struct ExpressionV<true> : BaseExpressionV<true>
 	{
 		SmallEnumList<UnOpType> postUnOps;
 	};
