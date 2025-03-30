@@ -11,7 +11,7 @@ New Syntax {
 	
 	ndPatField ::= ndPatFieldUncond ["=" ndPat]
 	ndPatFieldUncond ::= optMutSpec Name |
-		"a" ["mut"] type Name 
+		"as" ["mut"] type Name 
 	
 	destrField ::= "[" tupleableName "]" destrTupField
 	destrTupField ::= "(" pat ")" | patNoNpfList | ndPatField
@@ -31,9 +31,9 @@ New Syntax {
 		optMutSpec "{" destrField {"," destrField} [extraFieldSignifier] "}" |
 		optMutSpec "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
 		
-		"a" ["mut"] type "{" destrField {"," destrField} [extraFieldSignifier] "}" |
-		"a" ["mut"] type "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
-		"a" ["mut"] type "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
+		"as" ["mut"] type "{" destrField {"," destrField} [extraFieldSignifier] "}" |
+		"as" ["mut"] type "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
+		"as" ["mut"] type "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
 		"of" ["mut"] type "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
 		"_"
 	
@@ -47,9 +47,9 @@ New Syntax {
 		optMutSpec "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
 		optMutSpec "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
 		
-		"a" ["mut"] type "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
-		"a" ["mut"] type "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
-		"a" ["mut"] type "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
+		"as" ["mut"] type "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
+		"as" ["mut"] type "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
+		"as" ["mut"] type "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
 		"of" ["mut"] type "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
 		"_"
 	
@@ -72,7 +72,7 @@ New Syntax {
 
 New Keywords {
 	match
-	a
+	as
 	of
 	case
 	to
