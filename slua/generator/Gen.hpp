@@ -470,7 +470,7 @@ namespace sluaParse
 			out.newLine();//Extra spacing
 			out.add("while ");
 
-			if constexpr (out.settings() & sluaSyn)out.add('(');
+			if constexpr (out.settings() & sluaSyn) out.add('(');
 			genExpr(out, var.cond);
 
 			out.add(sel<Out>(" do", ")"));
