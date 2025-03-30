@@ -22,11 +22,9 @@ New Syntax {
 		 ‘if’ ‘(’ exp ‘)’ statOrRet {‘else’ ‘if’ statOrRet} [‘else’ statOrRet] | 
 		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
 		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
-		 ‘local’ attnamelist [‘=’ explist]
+		 ‘local’ namelist [‘=’ explist]
 
-	attnamelist ::=  Name attrib {‘,’ Name attrib}
 
-	attrib ::= [‘<’ Name ‘>’]
 
 	retstat ::= return [explist]
 
