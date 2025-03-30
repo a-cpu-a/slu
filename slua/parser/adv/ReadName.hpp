@@ -39,6 +39,7 @@ namespace sluaParse
 		"ref",
 
 		//future
+		"share",
 		"only",
 		"box",
 		"abstract",
@@ -63,6 +64,7 @@ namespace sluaParse
 		"safe",
 		"dyn",
 		"generator",
+		"gen",
 
 		"yield",
 		"async",
@@ -70,6 +72,7 @@ namespace sluaParse
 		"static",
 
 		//documented
+		"is",
 		"to",
 		"as",
 		"of",
@@ -79,7 +82,6 @@ namespace sluaParse
 		"try",
 		"use",
 		"mut",
-		"gen",
 		"drop",
 		"case",
 		"type",
