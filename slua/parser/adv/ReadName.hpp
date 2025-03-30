@@ -19,82 +19,38 @@
 
 namespace sluaParse
 {
-#define _LUA_KWS \
+#define _Slua_LUA_KWS \
 	"and", "break", "do", "else", "elseif", "end", "false", "for", "function", \
 	"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", \
 	"then", "true", "until", "while"
+#define _Slua_KWS \
+	/* freedom */\
+	"continue", "reloc", "where", "loop", "raw", "ref", \
+	/* future */\
+	"share", "only", "box", "abstract", "become", "final", \
+	"override", "typeof", "virtual", "unsized", "const", \
+	/* todos */\
+	"copy", "move", "super", "unsafe", "safe", "dyn", \
+	"generator", "gen",	"yield", "async", "await", "static", \
+	/* documented */\
+	"is", "to", "as", "of", "fn", "ex", "let", "try", "use", "mut", \
+	"case", "drop", "enum", "impl", "type", "trait", \
+	"alloc", "macro", "match", "catch", "throw", "union", \
+	"struct", "module", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
-		_LUA_KWS
+		_Slua_LUA_KWS
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA = {
-		_LUA_KWS,
+		_Slua_LUA_KWS,
+		_Slua_KWS,
 
-		//freedom
-		"continue",
-		"reloc",
-		"where",
-		"loop",
-		"raw",
-		"ref",
-
-		//future
-		"share",
-		"only",
-		"box",
-		"abstract",
-		"become",
-		"final",
-		"override",
-		"typeof",
-		"virtual",
-		"unsized",
-		"const",
-
-		//todos
-		"enum",
-		"struct",
-		"trait",
-		"union",
-		"impl",
-		"copy",
-		"move",
-		"super",
-		"unsafe",
-		"safe",
-		"dyn",
-		"generator",
-		"gen",
-
-		"yield",
-		"async",
-		"await",
-		"static",
-
-		//documented
-		"is",
-		"to",
-		"as",
-		"of",
-		"fn",
-		"ex",
-		"let",
-		"try",
-		"use",
-		"mut",
-		"drop",
-		"case",
-		"type",
-		"self",
-		"Self",
-		"alloc",
-		"macro",
-		"match",
-		"crate",
-		"catch",
-		"throw",
-		"module",
-		"comptime"
+		//Conditional
+		"self", "Self", "crate",
+	};
+	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA_MP_START = {
+		_Slua_LUA_KWS,
+		_Slua_KWS
 	};
 #undef _LUA_KWS
 
