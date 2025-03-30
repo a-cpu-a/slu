@@ -473,10 +473,10 @@ namespace sluaParse
 				return ret;
 			}
 			break;
-		case '{'://block
+		case '{':// ‘{’ block ‘}’
 			if constexpr (in.settings() & sluaSyn)
 			{
-				in.skip();//Skip '{'
+				in.skip();//Skip ‘}’
 				ret.data = readBlockNoStartCheck<isLoop>(in, allowVarArg);
 				return ret;
 			}
@@ -484,7 +484,7 @@ namespace sluaParse
 		case 'd'://do?
 			if constexpr (!(in.settings() & sluaSyn))
 			{
-				if (checkReadTextToken(in, "do")) // do block end
+				if (checkReadTextToken(in, "do")) // ‘do’ block ‘end’
 				{
 					ret.data = readBlockNoStartCheck<isLoop>(in, allowVarArg);
 					return ret;
