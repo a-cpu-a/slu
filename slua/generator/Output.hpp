@@ -89,6 +89,13 @@ namespace sluaParse
 			wasSemicolon = false;
 			return *this;
 		}
+		template<size_t N>
+		Output& add(const char(&sa)[N]) {
+			text.insert(text.end(), sa, &(sa[N - 2]));//skip null too
+			curLinePos += N-1;//skip null
+			wasSemicolon = false;
+			return *this;
+		}
 		Output& add(std::span<const uint8_t> sp) 
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
@@ -164,6 +171,10 @@ namespace sluaParse
 		}
 		Output& addNewl(const std::string_view sv) {
 			return add(sv).newLine();
+		}
+		template<size_t N>
+		Output& addNewl(const char (&sa)[N]) {
+			return add(sa).newLine();
 		}
 		Output& addNewl(std::span<const uint8_t> sp) {
 			return add(sp).newLine();
