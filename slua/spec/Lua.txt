@@ -28,7 +28,7 @@ New Syntax {
 
 	retstat ::= return [explist]
 
-	statSemicol ::= (retstatSemi | basicstat) ‘;’
+	statSemicol ::= (retstat | basicstat) ‘;’
 	statOrRet ::= statSemicol | ‘{’ block ‘}’
 
 	label ::= ‘:::’ Name ‘:’
