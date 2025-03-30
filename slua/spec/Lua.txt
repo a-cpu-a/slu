@@ -31,7 +31,7 @@ New Syntax {
 	statSemicol ::= (retstatSemi | basicstat) ‘;’
 	statOrRet ::= statSemicol | ‘{’ block ‘}’
 
-	label ::= ‘::’ Name ‘::’
+	label ::= ‘:::’ Name ‘:’
 
 	funcname ::= Name {‘.’ Name} [‘:’ Name]
 
