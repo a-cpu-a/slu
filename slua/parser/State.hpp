@@ -457,9 +457,14 @@ namespace sluaParse
 		template<bool isSlua>
 		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlua> {};
 		template<AnyCfgable CfgT> using LOCAL_FUNCTION_DEF = SelV<CfgT, LOCAL_FUNCTION_DEFv>;
+				// "local function Name funcbody" //n may not ^^^
 
-		template<bool isSlua>				// "local function Name funcbody" //n may not ^^^
-		struct LOCAL_ASSIGNv { AttribNameList names; ExpListV<isSlua> exprs; };	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+		template<bool isSlua>
+		struct LOCAL_ASSIGNv
+		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+			Sel<isSlua, AttribNameList, NameList> names;
+			ExpListV<isSlua> exprs;
+		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
 	};
 
