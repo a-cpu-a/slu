@@ -469,12 +469,15 @@ namespace sluaParse
 		varcase(const StatementType::WHILE_LOOP<Out>&) {
 			out.newLine();//Extra spacing
 			out.add("while ");
+
+			if constexpr (out.settings() & sluaSyn)out.add('(');
 			genExpr(out, var.cond);
-			out.add(" do")
+
+			out.add(sel<Out>(" do",") {"))
 				.tabUpNewl();
 			genBlock(out, var.bl);
 			out.unTabNewl()
-				.addNewl("end");
+				.addNewl(sel<Out>("end","}"));
 		},
 		varcase(const StatementType::REPEAT_UNTIL<Out>&) {
 			out.add("repeat")
