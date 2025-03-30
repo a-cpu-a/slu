@@ -62,6 +62,16 @@ namespace sluaParse
 
 
 
+
+	struct TypeId
+	{
+		// ???
+		// 32 bytes+
+		// OR, 8/4 bytes for index into big array.
+	};
+
+
+
 	namespace FieldType { struct NONE {}; }
 
 	template<bool isSlua>
@@ -119,7 +129,12 @@ namespace sluaParse
 	struct ParameterV
 	{
 		std::string name;
-		//size_t typeId;
+	};
+
+	template<>
+	struct ParameterV<true> : ParameterV<false>
+	{
+		TypeId ty;
 	};
 
 	template<AnyCfgable CfgT>

@@ -243,7 +243,10 @@ namespace sluaParse
 		}
 		else if (ch != ')')
 		{//must have non-empty namelist
-			ret.params.emplace_back(readName(in));
+			Parameter<In> p;
+			p.name = readName(in);
+
+			ret.params.push_back(p);
 
 			while (checkReadToken(in, ","))
 			{
@@ -252,7 +255,10 @@ namespace sluaParse
 					ret.hasVarArgParam = true;
 					break;//cant have anything after the ... arg
 				}
-				ret.params.emplace_back(readName(in));
+				Parameter<In> p;
+				p.name = readName(in);
+
+				ret.params.push_back(p);
 			}
 		}
 
