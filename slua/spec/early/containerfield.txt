@@ -4,14 +4,10 @@
 
 New Syntax {
 	
-	containerfield ::= annotations OptExportPrefix type [Name]
+	containerfield ::= annotations OptExportPrefix ["mut"] type [Name]
 	
 	containerfieldList ::= containerfield {fieldsep containerfield} [fieldsep]
 	
-}
-
-New Keywords {
-	let
 }
 
 Container Field {

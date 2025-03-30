@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	enumfield ::= annotations OptExportPrefix Name ["(" type { "," type } ")"]
+	enumfield ::= annotations OptExportPrefix Name ["(" ["mut"] type { "," ["mut"] type } ")"]
 	enumfieldList ::= enumfield {fieldsep enumfield} [fieldsep]
 	
 	stat @::= | OptExportPrefix "enum" Name "{" [enumfieldList] "}"
