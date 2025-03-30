@@ -11,7 +11,7 @@ New Syntax {
 	
 	ndPatField ::= ndPatFieldUncond ["=" ndPat]
 	ndPatFieldUncond ::= optMutSpec Name |
-		["mut"] Name "is" type
+		"a" ["mut"] type Name 
 	
 	destrField ::= "[" tupleableName "]" destrTupField
 	destrTupField ::= "(" pat ")" | patNoNpfList | ndPatField
@@ -31,10 +31,10 @@ New Syntax {
 		optMutSpec "{" destrField {"," destrField} [extraFieldSignifier] "}" |
 		optMutSpec "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
 		
-		["mut"] "{" destrField {"," destrField} [extraFieldSignifier] "}" "is" type |
-		["mut"] "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" "is" type |
-		["mut"] "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" "is" type |
-		optMutSpec "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" "of" type |
+		"a" ["mut"] type "{" destrField {"," destrField} [extraFieldSignifier] "}" |
+		"a" ["mut"] type "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
+		"a" ["mut"] type "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
+		"of" ["mut"] type "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
 		"_"
 	
 	NpfuList ::= ndPatFieldUncond {"," ndPatFieldUncond} [extraFieldSignifier]
@@ -47,10 +47,10 @@ New Syntax {
 		optMutSpec "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
 		optMutSpec "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
 		
-		["mut"] "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" "is" type |
-		["mut"] "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" "is" type |
-		["mut"] "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" "is" type |
-		optMutSpec "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" "of" type |
+		"a" ["mut"] type "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
+		"a" ["mut"] type "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
+		"a" ["mut"] type "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
+		"of" ["mut"] type "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
 		"_"
 	
 	dPat ::= dPatNoNpfList | NpfList
@@ -72,7 +72,7 @@ New Syntax {
 
 New Keywords {
 	match
-	is
+	a
 	of
 	case
 	to
