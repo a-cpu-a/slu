@@ -184,7 +184,11 @@ namespace sluaParse
 
 		if (requireExpCh && !in)
 		{
-			throw 333;
+			throw UnexpectedCharacterError(
+				"Expected a digit or "
+				LUACC_SINGLE_STRING("+") "/" LUACC_SINGLE_STRING("-")
+				" for exponent of " LC_number ", but file ended"
+				+ errorLocStr(in));
 		}
 
 		if (in && isValidNameStartChar(in.peek()))
