@@ -411,8 +411,8 @@ namespace sluaParse
 		struct GOTO { std::string v; };							// "goto Name"
 
 		template<bool isSlua>
-		struct DO_BLOCKv { BlockV<isSlua> bl; };							// "do block end"
-		template<AnyCfgable CfgT> using DO_BLOCK = SelV<CfgT, DO_BLOCKv>;
+		struct BLOCKv { BlockV<isSlua> bl; };							// "do block end"
+		template<AnyCfgable CfgT> using BLOCK = SelV<CfgT, BLOCKv>;
 
 		template<bool isSlua>
 		struct WHILE_LOOPv { ExpressionV<isSlua> cond; BlockV<isSlua> bl; };		// "while exp do block end"
@@ -489,7 +489,7 @@ namespace sluaParse
 		StatementType::LABEL,			// "label"
 		StatementType::BREAK,			// "break"
 		StatementType::GOTO,			// "goto Name"
-		StatementType::DO_BLOCKv<isSlua>,		// "do block end"
+		StatementType::BLOCKv<isSlua>,		// "do block end"
 		StatementType::WHILE_LOOPv<isSlua>,		// "while exp do block end"
 		StatementType::REPEAT_UNTILv<isSlua>,	// "repeat block until exp"
 

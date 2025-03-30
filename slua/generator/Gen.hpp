@@ -450,7 +450,7 @@ namespace sluaParse
 				.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::DO_BLOCK<Out>&) {
+		varcase(const StatementType::BLOCK<Out>&) {
 			out.newLine();//Extra spacing
 			out.add("do")
 				.tabUpNewl();
