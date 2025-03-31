@@ -370,13 +370,16 @@ namespace sluaParse
 		if (var.hasVarArgParam)
 			out.add("...");
 
-		out.add(')')
-			.tabUpNewl();
+		out.add(')');
+
+		if constexpr (out.settings() & sluaSyn)
+			out.newLine().add('{');
+		out.tabUpNewl();
 
 		genBlock(out, var.block);
 
 		out.unTabNewl()
-			.addNewl("end");
+			.addNewl(sel<Out>("end","}"));
 
 		out.newLine();//Extra spacing
 	}

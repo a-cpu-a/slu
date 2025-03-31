@@ -301,6 +301,8 @@ namespace sluaParse
 		}
 
 		requireToken(in, ")");
+		if constexpr(in.settings()&sluaSyn)
+			requireToken(in, "{");
 		try
 		{
 			ret.block = readBlock<false>(in, ret.hasVarArgParam);
@@ -318,7 +320,7 @@ namespace sluaParse
 				errorLocStr(in, place)
 			));
 		}
-		requireToken(in, "end");
+		requireToken(in, sel<In>("end","}"));
 
 		return { std::move(ret),false };
 	}
