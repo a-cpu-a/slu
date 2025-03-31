@@ -318,7 +318,7 @@ namespace sluaParse
 	template<>
 	struct ExpressionV<true> : BaseExpressionV<true>
 	{
-		SmallEnumList<UnOpType> postUnOps;
+		SmallEnumList<PostUnOpType> postUnOps;
 	};
 
 	namespace SubVarType
