@@ -478,12 +478,13 @@ namespace sluaParse
 			out.newLine();//Extra spacing
 			out.add("while ");
 
-			if constexpr (out.settings() & sluaSyn) out.add('(');
-			genExpr(out, var.cond);
+			genExprParens(out, var.cond);
 
-			out.add(sel<Out>(" do", ")"));
+			if constexpr (out.settings() & sluaSyn) 
+				out.newLine().add('{');
+			else
+				out.add(" do");
 
-			if constexpr (out.settings() & sluaSyn) out.newLine().add('{');
 			out.tabUpNewl();
 
 			genBlock(out, var.bl);
@@ -512,7 +513,7 @@ namespace sluaParse
 
 		varcase(const StatementType::IF_THEN_ELSE<Out>&) {
 			out.add("if ");
-			genExpr(out, var.cond);
+			genExprParens(out, var.cond);
 			out.add(" then")
 				.tabUpNewl();
 			genBlock(out, var.bl);
@@ -523,7 +524,7 @@ namespace sluaParse
 				{
 					out.unTabNewl()
 						.add("elseif ");
-					genExpr(out, expr);
+					genExprParens(out, expr);
 					out.add(" then")
 						.tabUpNewl();
 					genBlock(out, bl);
