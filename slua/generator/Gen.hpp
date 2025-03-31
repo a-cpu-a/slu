@@ -525,7 +525,7 @@ namespace sluaParse
 		},
 
 		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
-			out.add("for ")
+			out.add(sel<Out>("for ", "for ("))
 				.add(var.varName)
 				.add(" = ");
 			genExpr(out, var.start);
@@ -536,22 +536,27 @@ namespace sluaParse
 				out.add(", ");
 				genExpr(out, *var.step);
 			}
-			out.add(" do")
-				.tabUpNewl();
+			out.add(sel<Out>(" do", ")"));
+			if constexpr (out.settings() & sluaSyn) out.newLine().add('{');
+			out.tabUpNewl();
+
 			genBlock(out, var.bl);
 			out.unTabNewl()
-				.addNewl("end");
+				.addNewl(sel<Out>("end", "}"));
 		},
 		varcase(const StatementType::FOR_LOOP_GENERIC<Out>&) {
-			out.add("for ");
+			out.add(sel<Out>("for ", "for ("));
 			genNames(out, var.varNames);
 			out.add(" in ");
 			genExpList(out, var.exprs);
-			out.add(" do")
-				.tabUpNewl();
+
+			out.add(sel<Out>(" do", ")"));
+			if constexpr (out.settings() & sluaSyn) out.newLine().add('{');
+			out.tabUpNewl();
+
 			genBlock(out, var.bl);
 			out.unTabNewl()
-				.addNewl("end");
+				.addNewl(sel<Out>("end","}"));
 		},
 
 		varcase(const StatementType::FUNCTION_DEF<Out>&) {
