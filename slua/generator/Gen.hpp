@@ -161,6 +161,14 @@ namespace sluaParse
 	}
 
 	template<AnyOutput Out>
+	inline void genExprParens(Out& out, const Expression<Out>& obj)
+	{
+		if constexpr (out.settings() & sluaSyn) out.add('(');
+		genExpr(out, obj);
+		if constexpr (out.settings() & sluaSyn) out.add(')');
+	}
+
+	template<AnyOutput Out>
 	inline void genExpr(Out& out, const Expression<Out>& obj)
 	{
 		for (const UnOpType t : obj.unOps)
@@ -483,13 +491,21 @@ namespace sluaParse
 				.addNewl(sel<Out>("end","}"));
 		},
 		varcase(const StatementType::REPEAT_UNTIL<Out>&) {
-			out.add("repeat")
-				.tabUpNewl();
+			out.add("repeat");
+
+			if constexpr (out.settings() & sluaSyn)
+				out.newLine().add('{');
+			out.tabUpNewl();
+
 			genBlock(out, var.bl);
-			out.unTabNewl()
-				.add("until ");
+			out.unTabNewl();
+
+			if constexpr (out.settings() & sluaSyn)
+				out.add('}');
+			out.add("until ");
 			genExpr(out, var.cond);
 			out.addNewl(';');
+
 			out.newLine();//Extra spacing
 			out.wasSemicolon = true;
 		},
