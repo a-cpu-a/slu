@@ -339,7 +339,7 @@ namespace sluaParse
 		return (bl);
 	}
 
-	template<bool isLoop,SemicolMode semicolMode = SemicolMode::NONE, AnyInput In>
+	template<bool isLoop,SemicolMode semicolMode = SemicolMode::REQUIRE, AnyInput In>
 	inline Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
 	{
 		if constexpr(in.settings() & sluaSyn)
@@ -586,7 +586,7 @@ namespace sluaParse
 			{ // repeat block until exp
 				Block<In> bl;
 				if constexpr (in.settings() & sluaSyn)
-					bl = readDoOrStatOrRet<true,SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
+					bl = readDoOrStatOrRet<true, SemicolMode::NONE>(in, allowVarArg);
 				else
 					bl = readBlock<true>(in, allowVarArg);
 				requireToken(in, "until");
