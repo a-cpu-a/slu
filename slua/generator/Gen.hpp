@@ -514,31 +514,56 @@ namespace sluaParse
 		varcase(const StatementType::IF_THEN_ELSE<Out>&) {
 			out.add("if ");
 			genExprParens(out, var.cond);
-			out.add(" then")
-				.tabUpNewl();
+
+			if constexpr (out.settings() & sluaSyn)
+				out.newLine().add('{');
+			else
+				out.add(" then");
+			out.tabUpNewl();
+
 			genBlock(out, var.bl);
+
+			if constexpr (out.settings() & sluaSyn)
+				out.unTabNewl().add('}').tabUpNewl();
 
 			if (!var.elseIfs.empty())
 			{
 				for (const auto& [expr, bl] : var.elseIfs)
 				{
 					out.unTabNewl()
-						.add("elseif ");
+						.add(sel<Out>("elseif ", "else if "));
 					genExprParens(out, expr);
-					out.add(" then")
-						.tabUpNewl();
+
+					if constexpr (out.settings() & sluaSyn)
+						out.newLine().add('{');
+					else
+						out.add(" then");
+					out.tabUpNewl();
+
 					genBlock(out, bl);
+
+					if constexpr (out.settings() & sluaSyn)
+						out.unTabNewl().add('}').tabUpNewl();
 				}
 			}
 			if (var.elseBlock)
 			{
 				out.unTabNewl()
-					.add("else")
-					.tabUpNewl();
+					.add("else");
+
+				if constexpr (out.settings() & sluaSyn)
+					out.newLine().add('{');
+				out.tabUpNewl();
+
 				genBlock(out, *var.elseBlock);
+
+				if constexpr (out.settings() & sluaSyn)
+					out.unTabNewl().add('}').tabUpNewl();
 			}
-			out.unTabNewl()
-				.addNewl("end");
+			out.unTabNewl();
+
+			if constexpr (!(out.settings() & sluaSyn))
+				out.addNewl("end");
 		},
 
 		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
