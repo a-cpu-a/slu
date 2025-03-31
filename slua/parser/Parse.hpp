@@ -145,7 +145,11 @@ namespace sluaParse
 	{
 		if constexpr (in.settings() & sluaSyn)
 		{
-			return startCh == '}';
+			if (startCh == '}') return true;
+			if (startCh == 'u' && checkTextToken(in, "until"))
+				return true;
+
+			return false;
 		}
 
 		if (startCh == 'u')
@@ -331,7 +335,7 @@ namespace sluaParse
 		return (bl);
 	}
 
-	template<bool isLoop, AnyInput In>
+	template<bool isLoop,bool semicolOpt=false, AnyInput In>
 	inline Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
 	{
 		if constexpr(in.settings() & sluaSyn)
@@ -345,7 +349,7 @@ namespace sluaParse
 			Block<In> bl{};
 			bl.start = in.getLoc();
 
-			if (readReturn<true>(in, allowVarArg, bl))
+			if (readReturn<!semicolOpt>(in, allowVarArg, bl))
 			{
 				bl.end = in.getLoc();
 				return bl;
@@ -356,7 +360,10 @@ namespace sluaParse
 
 			bl.end = in.getLoc();
 
-			requireToken(in, ";");
+			if constexpr(semicolOpt)
+				readOptToken(in, ";");
+			else
+				requireToken(in, ";");
 			return bl;
 		}
 		requireToken(in, "do");
@@ -577,7 +584,11 @@ namespace sluaParse
 		case 'r'://repeat?
 			if (checkReadTextToken(in, "repeat"))
 			{ // repeat block until exp
-				Block<In> bl = readBlock<true>(in,allowVarArg);
+				Block<In> bl;
+				if constexpr (in.settings() & sluaSyn)
+					bl = readDoOrStatOrRet<true,true>(in, allowVarArg);
+				else
+					bl = readBlock<true>(in, allowVarArg);
 				requireToken(in, "until");
 				Expression<In> expr = readExpr(in,allowVarArg);
 
