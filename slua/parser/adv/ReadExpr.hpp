@@ -271,6 +271,18 @@ namespace sluaParse
 		else
 			return readLuaExpr(in, allowVarArg, readBiOp);
 	}
+	template<AnyInput In>
+	inline Expression<In> readExprParens(In& in, const bool allowVarArg, const bool readBiOp = true) {
+		if constexpr (in.settings() & sluaSyn)
+		{
+			requireToken(in, "(");
+			Expression<In> ex = readExpr(in, allowVarArg, readBiOp);
+			requireToken(in, ")");
+			return ex;
+		}
+		else
+			return readExpr(in, allowVarArg, readBiOp);
+	}
 
 	template<AnyInput In>
 	inline ExpList<In> readExpList(In& in, const bool allowVarArg)
