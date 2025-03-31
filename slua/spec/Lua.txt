@@ -18,20 +18,20 @@ New Syntax {
 		 label | 
 		 ‘{’ block ‘}’ | 
 		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
-		 ‘repeat’ statOrRetOptSemicol ‘until’ exp | 
-		 ‘if’ ‘(’ exp ‘)’ statOrRet {‘else’ ‘if’ statOrRet} [‘else’ statOrRet] | 
+		 ‘repeat’ statOrRetOsc ‘until’ exp | 
+		 ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet | 
 		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
 		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
 		 ‘local’ namelist [‘=’ explist]
 
 
-
 	retstat ::= return [explist]
 
-	statSemicol ::= (retstat | basicstat) ‘;’
-	statOptSemicol ::= (retstat | basicstat) [‘;’]
-	statOrRet ::= statSemicol | ‘{’ block ‘}’
-	statOrRetOptSemicol ::= statOptSemicol | ‘{’ block ‘}’
+	ifcond ::= ‘if’ ‘(’ exp ‘)’
+
+	basicstatOrRet ::= retstat | basicstat
+	statOrRet ::= (basicstatOrRet ‘;’) | ‘{’ block ‘}’
+	statOrRetOsc ::= (basicstatOrRet [‘;’]) | ‘{’ block ‘}’
 
 	label ::= ‘:::’ Name ‘:’
 
