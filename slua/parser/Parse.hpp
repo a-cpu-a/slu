@@ -423,7 +423,7 @@ namespace sluaParse
 			ret.data = StatementType::LABEL(readLabel(in));
 			return ret;
 
-		case 'f'://for?,func?
+		case 'f'://for?, function?, fn?
 			if (checkReadTextToken(in, "for"))
 			{
 				/*
