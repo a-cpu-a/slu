@@ -18,7 +18,7 @@ New Syntax {
 		 label | 
 		 ‘{’ block ‘}’ | 
 		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
-		 ‘repeat’ statOrRet ‘until’ exp | 
+		 ‘repeat’ statOrRetOptSemicol ‘until’ exp | 
 		 ‘if’ ‘(’ exp ‘)’ statOrRet {‘else’ ‘if’ statOrRet} [‘else’ statOrRet] | 
 		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
 		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
@@ -29,7 +29,9 @@ New Syntax {
 	retstat ::= return [explist]
 
 	statSemicol ::= (retstat | basicstat) ‘;’
+	statOptSemicol ::= (retstat | basicstat) [‘;’]
 	statOrRet ::= statSemicol | ‘{’ block ‘}’
+	statOrRetOptSemicol ::= statOptSemicol | ‘{’ block ‘}’
 
 	label ::= ‘:::’ Name ‘:’
 
