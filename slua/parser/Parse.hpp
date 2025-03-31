@@ -570,11 +570,7 @@ namespace sluaParse
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
 
-				if constexpr (in.settings() & sluaSyn) requireToken(in, "(");
-
-				Expression<In> expr = readExpr(in,allowVarArg);
-
-				if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
+				Expression<In> expr = readExprParens(in,allowVarArg);
 
 				Block<In> bl = readDoOrStatOrRet<true>(in,allowVarArg);
 				ret.data = StatementType::WHILE_LOOP<In>(std::move(expr), std::move(bl));
@@ -602,15 +598,16 @@ namespace sluaParse
 
 				StatementType::IF_THEN_ELSE<In> res{};
 
-				res.cond = readExpr(in,allowVarArg);
+				res.cond = readExprParens(in,allowVarArg);
 
-				requireToken(in, "then");
+				if constexpr (!(in.settings() & sluaSyn))
+					requireToken(in, "then");
 
 				res.bl = readBlock<isLoop>(in,allowVarArg);
 
 				while (checkReadTextToken(in, "elseif"))
 				{
-					Expression<In> elExpr = readExpr(in,allowVarArg);
+					Expression<In> elExpr = readExprParens(in,allowVarArg);
 					requireToken(in, "then");
 					Block<In> elBlock = readBlock<isLoop>(in,allowVarArg);
 
