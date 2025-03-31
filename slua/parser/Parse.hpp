@@ -604,24 +604,29 @@ namespace sluaParse
 
 				res.cond = readExprParens(in,allowVarArg);
 
-				if constexpr (!(in.settings() & sluaSyn))
-					requireToken(in, "then");
-
-				res.bl = readBlock<isLoop>(in,allowVarArg);
-
-				while (checkReadTextToken(in, "elseif"))
+				if constexpr (in.settings() & sluaSyn)
 				{
-					Expression<In> elExpr = readExprParens(in,allowVarArg);
+					//TODO check for semicol, or else, after reading dbros...
+				}
+				else
+				{
 					requireToken(in, "then");
-					Block<In> elBlock = readBlock<isLoop>(in,allowVarArg);
+					res.bl = readBlock<isLoop>(in, allowVarArg);
+					while (checkReadTextToken(in, "elseif"))
+					{
+						Expression<In> elExpr = readExprParens(in, allowVarArg);
+						requireToken(in, "then");
+						Block<In> elBlock = readBlock<isLoop>(in, allowVarArg);
 
-					res.elseIfs.emplace_back( std::move(elExpr),std::move(elBlock));
+						res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
+					}
+
+					if (checkReadTextToken(in, "else"))
+						res.elseBlock = readBlock<isLoop>(in, allowVarArg);
+
+					requireToken(in, "end");
 				}
 
-				if (checkReadTextToken(in, "else"))
-					res.elseBlock = readBlock<isLoop>(in,allowVarArg);
-
-				requireToken(in, "end");
 
 				ret.data = std::move(res);
 				return ret;
