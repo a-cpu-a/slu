@@ -173,8 +173,12 @@ namespace sluaParse
 		}
 		return false;
 	}
+	enum class SemicolMode
+	{
+		NONE,REQUIRE,REQUIRE_OR_KW
+	};
 
-	template<bool needsSemicol, AnyInput In>
+	template<SemicolMode semicolReq, AnyInput In>
 	inline bool readReturn(In& in, const bool allowVarArg, Block<In>& ret)
 	{
 		if (checkReadTextToken(in, "return"))
@@ -189,14 +193,14 @@ namespace sluaParse
 				in.skip();//thats it
 			else if (isBasicBlockEnding(in, ch1))
 			{
-				if constexpr (needsSemicol)
+				if constexpr (semicolReq==SemicolMode::REQUIRE)
 					requireToken(in, ";");//Lazy way to throw error, maybe fix later?
 			}
 			else
 			{
 				ret.retExprs = readExpList(in, allowVarArg);
 
-				if constexpr (needsSemicol)
+				if constexpr (semicolReq!=SemicolMode::NONE)
 					requireToken(in, ";");
 				else
 					readOptToken(in, ";");
@@ -230,7 +234,7 @@ namespace sluaParse
 
 			if (ch == 'r')
 			{
-				if (readReturn<false>(in, allowVarArg, ret))
+				if (readReturn<SemicolMode::NONE>(in, allowVarArg, ret))
 					break;// no more loop
 			}
 			else if (isBasicBlockEnding(in, ch))
@@ -335,7 +339,7 @@ namespace sluaParse
 		return (bl);
 	}
 
-	template<bool isLoop,bool semicolOpt=false, AnyInput In>
+	template<bool isLoop,SemicolMode semicolMode = SemicolMode::NONE, AnyInput In>
 	inline Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
 	{
 		if constexpr(in.settings() & sluaSyn)
@@ -349,7 +353,7 @@ namespace sluaParse
 			Block<In> bl{};
 			bl.start = in.getLoc();
 
-			if (readReturn<!semicolOpt>(in, allowVarArg, bl))
+			if (readReturn<semicolMode>(in, allowVarArg, bl))
 			{
 				bl.end = in.getLoc();
 				return bl;
@@ -360,7 +364,7 @@ namespace sluaParse
 
 			bl.end = in.getLoc();
 
-			if constexpr(semicolOpt)
+			if constexpr(semicolMode!=SemicolMode::REQUIRE)
 				readOptToken(in, ";");
 			else
 				requireToken(in, ";");
@@ -582,7 +586,7 @@ namespace sluaParse
 			{ // repeat block until exp
 				Block<In> bl;
 				if constexpr (in.settings() & sluaSyn)
-					bl = readDoOrStatOrRet<true,true>(in, allowVarArg);
+					bl = readDoOrStatOrRet<true,SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
 				else
 					bl = readBlock<true>(in, allowVarArg);
 				requireToken(in, "until");
