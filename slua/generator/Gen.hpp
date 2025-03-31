@@ -451,9 +451,9 @@ namespace sluaParse
 		},
 		varcase(const StatementType::LABEL&) {
 			out.unTabTemp()
-				.add("::")
+				.add(sel<Out>("::", ":::"))
 				.add(var.v)
-				.addNewl("::")
+				.addNewl(sel<Out>("::", ":"))
 				.tabUpTemp();
 		},
 		varcase(const StatementType::BREAK) {
