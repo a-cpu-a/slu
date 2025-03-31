@@ -54,8 +54,6 @@ New Syntax {
 
 	args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString 
 
-	parlist ::= namelist [‘,’ ‘...’] | ‘...’
-
 	tableconstructor ::= ‘{’ [fieldlist] ‘}’
 
 	fieldlist ::= field {fieldsep field} [fieldsep]
