@@ -133,8 +133,13 @@ namespace sluaParse
 
 			basicRes.data = parsePrefixExprVar<ExprData<In>,true>(in,allowVarArg, firstChar);
 		}
-		//check bin op
+		if constexpr(in.settings() & sluaSyn)
+		{//Postfix op
+			while(checkReadToken(in,"?"))
+				basicRes.postUnOps.push_back(PostUnOpType::PROPOGATE_ERR);
+		}
 
+		//check bin op
 		if (!readBiOp)return basicRes;
 
 		skipSpace(in);
