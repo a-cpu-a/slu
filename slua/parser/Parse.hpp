@@ -146,9 +146,17 @@ namespace sluaParse
 		if constexpr (in.settings() & sluaSyn)
 		{
 			if (startCh == '}') return true;
-			if (startCh == 'u' && checkTextToken(in, "until"))
-				return true;
+			if (startCh == 'u')
+			{
+				if (checkTextToken(in, "until"))
+					return true;
+			}
+			else if (startCh == 'e')
+			{
+				if (checkTextToken(in, "else"))
+					return true;
 
+			}
 			return false;
 		}
 
@@ -364,10 +372,23 @@ namespace sluaParse
 
 			bl.end = in.getLoc();
 
-			if constexpr(semicolMode!=SemicolMode::REQUIRE)
+
+			if constexpr (semicolMode == SemicolMode::REQUIRE_OR_KW)
+			{
+				skipSpace(in);
+
+				const char ch1 = in.peek();
+
+				if (ch1 == ';')
+					in.skip();//thats it
+				else if (!isBasicBlockEnding(in, ch1))
+					throwSemicolMissingAfterStat(in);
+			}
+			else if constexpr(semicolMode==SemicolMode::NONE)
 				readOptToken(in, ";");
 			else
 				requireToken(in, ";");
+
 			return bl;
 		}
 		requireToken(in, "do");
@@ -606,7 +627,22 @@ namespace sluaParse
 
 				if constexpr (in.settings() & sluaSyn)
 				{
-					//TODO check for semicol, or else, after reading dbros...
+					res.bl = readDoOrStatOrRet<isLoop, SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
+
+					while (checkReadTextToken(in, "else"))
+					{
+						if (checkReadTextToken(in, "if"))
+						{
+							Expression<In> elExpr = readExprParens(in, allowVarArg);
+							Block<In> elBlock = readDoOrStatOrRet<isLoop, SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
+
+							res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
+							continue;
+						}
+
+						res.elseBlock = readDoOrStatOrRet<isLoop>(in, allowVarArg);
+						break;
+					}
 				}
 				else
 				{
@@ -614,7 +650,7 @@ namespace sluaParse
 					res.bl = readBlock<isLoop>(in, allowVarArg);
 					while (checkReadTextToken(in, "elseif"))
 					{
-						Expression<In> elExpr = readExprParens(in, allowVarArg);
+						Expression<In> elExpr = readExpr(in, allowVarArg);
 						requireToken(in, "then");
 						Block<In> elBlock = readBlock<isLoop>(in, allowVarArg);
 
