@@ -11,14 +11,23 @@ namespace sluaParse
 	inline void throwSpaceMissingBeforeString(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
-			"Expected space before " LC_string " argument, at "
+			"Expected space before " LC_string " argument, at"
+			"{}"
+			, errorLocStr(in)));
+	}
+	inline void throwSemicolMissingAfterStat(AnyInput auto& in)
+	{
+		throw UnexpectedCharacterError(std::format(
+			"Expected semicolon (" 
+			LUACC_SINGLE_STRING(";")
+			") after statment, at"
 			"{}"
 			, errorLocStr(in)));
 	}
 	inline void throwVarlistInExpr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
-			"Found list of variables inside expression "
+			"Found list of variables inside expression"
 			"{}"
 			, errorLocStr(in)));
 	}
