@@ -431,6 +431,8 @@ namespace sluaParse
 				 for namelist in explist do block end |
 				*/
 
+				if constexpr (in.settings() & sluaSyn) requireToken(in, "(");
+
 				NameList names = readNameList(in);
 
 				if (names.size() == 1 && checkReadToken(in, "="))//1 name, then MAYBE equal
@@ -446,6 +448,8 @@ namespace sluaParse
 					if (checkReadToken(in, ","))
 						res.step = readExpr(in,allowVarArg);
 
+					if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
+
 					res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
 
 					ret.data = std::move(res);
@@ -459,6 +463,9 @@ namespace sluaParse
 
 				requireToken(in, "in");
 				res.exprs = readExpList(in,allowVarArg);
+
+				if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
+
 				res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
 
 				ret.data = std::move(res);
