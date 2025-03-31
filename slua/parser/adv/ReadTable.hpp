@@ -14,7 +14,7 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
-#include <slua/parser/adv/ReadLuaExpr.hpp>
+#include <slua/parser/adv/ReadExpr.hpp>
 
 namespace sluaParse
 {

@@ -13,6 +13,7 @@
 #include <slua/parser/State.hpp>
 #include <slua/parser/Input.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
+#include <slua/parser/adv/ReadExprBase.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/adv/ReadStringLiteral.hpp>
 #include <slua/parser/adv/ReadNumeral.h>
@@ -22,281 +23,153 @@
 namespace sluaParse
 {
 	template<AnyInput In>
-	inline void parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
-	{
-		if (firstChar == '(')
-		{// Must be '(' exp ')'
-			in.skip();
-			BaseVarType::EXPR<In> res(readExpr(in,allowVarArg));
-			requireToken(in, ")");
-			varDataNeedsSubThing = true;
-			varDataOut.base = std::move(res);
-		}
-		else
-		{// Must be Name, ... or mod path
-
-			//Lua doesnt reserve mp_start names, so doesnt matter
-			std::string start = readName<true>(in);
-
-			if constexpr (in.settings() & sluaSyn)
-			{
-				BaseVarType::MOD_PATH mp = {start};
-				skipSpace(in);
-				while (checkToken(in, "::") && in.peekAt(2) != ':')
-				{
-					in.skip(2);//skip '::'
-					skipSpace(in);
-					mp.push_back(readName(in));
-				}
-				if (start.size() != 1)
-					varDataOut.base = mp;
-			}
-			varDataOut.base = BaseVarType::NAME(start);
-		}
-	}
-
-	template<class T,bool FOR_EXPR, AnyInput In>
-	inline T returnPrefixExprVar(In& in, std::vector<Var<In>>& varData, std::vector<ArgFuncCall<In>>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
-	{
-		char opType[4] = "EOS";
-
-		//Turn opType into "EOS", or opTypeCh
-		if (opTypeCh != 0)
-		{
-			opType[0] = opTypeCh;
-			opType[1] = 0;
-		}
-
-		_ASSERT(!varData.empty());
-		if (varData.size() != 1)
-		{
-			if constexpr (FOR_EXPR)
-				throwVarlistInExpr(in);
-
-			throw UnexpectedCharacterError(std::format(
-				"Expected multi-assignment, since there is a list of variables, but found "
-				LUACC_SINGLE_STRING("{}")
-				"{}"
-				, opType, errorLocStr(in)));
-		}
-		if (funcCallData.empty())
-		{
-			if constexpr (FOR_EXPR)
-			{
-				if (varDataNeedsSubThing)
-				{
-					LimPrefixExprType::EXPR<In> res;
-					res.v = std::move(std::get<BaseVarType::EXPR<In>>(varData.back().base).start);
-					return std::make_unique<LimPrefixExpr<In>>(std::move(res));
-				}
-				return std::make_unique<LimPrefixExpr<In>>(LimPrefixExprType::VAR<In>(std::move(varData.back())));
-			}
-			else
-			{
-				if (varDataNeedsSubThing)
-					throwRawExpr(in);
-
-				throw UnexpectedCharacterError(std::format(
-					"Expected assignment or " LC_function " call, found "
-					LUACC_SINGLE_STRING("{}")
-					"{}"
-					, opType, errorLocStr(in)));
-			}
-		}
-		if (varDataNeedsSubThing)
-		{
-			BaseVarType::EXPR<In>& bVarExpr = std::get<BaseVarType::EXPR<In>>(varData.back().base);
-			auto limP = LimPrefixExprType::EXPR<In>(std::move(bVarExpr.start));
-			return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
-		}
-		auto limP = LimPrefixExprType::VAR<In>(std::move(varData.back()));
-		return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
-	}
-	template<class T,bool FOR_EXPR, AnyInput In>
-	inline T parsePrefixExprVar(In& in, const bool allowVarArg, const char firstChar)
+	inline Expression<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
-			var ::= baseVar {subvar}
-
-			baseVar ::= Name | ‘(’ exp ‘)’ subvar
-
-			funcArgs ::=  [‘:’ Name] args
-			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
+			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
+			| prefixexp | tableconstructor | exp binop exp | unop exp
 		*/
 
-		std::vector<Var<In>> varData;
-		std::vector<ArgFuncCall<In>> funcCallData;// Current func call chain, empty->no chain
-		bool varDataNeedsSubThing = false;
+		const Position startPos = in.getLoc();
 
-		varData.emplace_back();
-		parseVarBase(in,allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
-
-		char opType;
-
-		//This requires manual parsing, and stuff (at every step, complex code)
+		bool isNilIntentional = false;
+		Expression<In> basicRes;
+		basicRes.place = startPos;
 		while (true)
 		{
-			const bool skipped = skipSpace(in);
+			const UnOpType uOp = readOptUnOp(in);
+			if (uOp == UnOpType::NONE)break;
+			basicRes.unOps.push_back(uOp);
+		}
+
+		skipSpace(in);
+
+		const char firstChar = in.peek();
+		switch (firstChar)
+		{
+		case 'n':
+			if (checkReadTextToken(in, "nil"))
+			{
+				basicRes.data = ExprType::NIL();
+				isNilIntentional = true;
+				break;
+			}
+			break;
+		case 'f':
+
+			if (checkReadTextToken(in, "false")) { basicRes.data = ExprType::FALSE(); break; }
+			if (checkReadTextToken(in, "function")) 
+			{
+				const Position place = in.getLoc();
+
+				try
+				{
+					auto [fun, err] = readFuncBody(in);
+					basicRes.data = ExprType::FUNCTION_DEF<In>(std::move(fun));
+					if (err)
+					{
+
+						in.handleError(std::format(
+							"In lambda " LC_function " at {}",
+							errorLocStr(in, place)
+						));
+					}
+				}
+				catch (const ParseError& e)
+				{
+					in.handleError(e.m);
+					throw ErrorWhileContext(std::format(
+						"In lambda " LC_function " at {}",
+						errorLocStr(in, place)
+					));
+				}
+				break; 
+			}
+			break;
+		case 't':
+			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
+			break;
+		case '.':
+			if (checkReadToken(in, "..."))
+			{
+				if (!allowVarArg)
+				{
+					throw UnexpectedCharacterError(std::format(
+						"Found varargs (" LUACC_SINGLE_STRING("...") ") "
+						"outside of a vararg " LC_function " or the root " LC_function
+						"{}"
+						, errorLocStr(in)));
+				}
+				basicRes.data = ExprType::VARARGS();
+				break;
+			}
+			[[fallthrough]];//handle as numeral instead (.0123, etc)
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			basicRes.data = readNumeral(in,firstChar);
+			break;
+		case '"':
+		case '\'':
+		case '[':
+			basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
+			break;
+		case '{':
+			basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
+			break;
+		}
+
+		if (!isNilIntentional && std::holds_alternative<ExprType::NIL>(basicRes.data)
+			&&(firstChar=='(' || isValidNameStartChar(firstChar))
+			)
+		{//Prefix expr! or func-call
+
+			basicRes.data = parsePrefixExprVar<ExprData<In>,true>(in,allowVarArg, firstChar);
+		}
+		//check bin op
+
+		if (!readBiOp)return basicRes;
+
+		skipSpace(in);
+
+		if(!in)
+			return basicRes;//File ended
+
+		const BinOpType firstBinOp = readOptBinOp(in);
+
+		if (firstBinOp == BinOpType::NONE)
+			return basicRes;
+
+		ExprType::MULTI_OPERATION<In> resData{};
+
+		resData.first = std::make_unique<Expression<In>>(std::move(basicRes));
+		resData.extra.emplace_back(firstBinOp, readExpr(in,allowVarArg,false));
+
+		while (true)
+		{
+			skipSpace(in);
 
 			if (!in)
-				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, funcCallData, varDataNeedsSubThing,0);
+				break;//File ended
 
-			opType = in.peek();
-			switch (opType)
-			{
-			case ',':// Varlist
-				if constexpr (FOR_EXPR)
-					goto exit;
-				else
-				{
-					if (!funcCallData.empty())
-						throwFuncCallInVarList(in);
-					if (varDataNeedsSubThing)
-						throwExprInVarList(in);
+			const BinOpType binOp = readOptBinOp(in);
 
-					in.skip();//skip comma
-					skipSpace(in);
-					varData.emplace_back();
-					parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
-					break;
-				}
-			default:
-				goto exit;
-			case '=':// Assign
-			{
-				if constexpr (FOR_EXPR)
-					goto exit;
-				else
-				{
-					if (!funcCallData.empty())
-						throwFuncCallAssignment(in);
-					if (varDataNeedsSubThing)
-						throwExprAssignment(in);
-
-					in.skip();//skip eq
-					StatementType::ASSIGN<In> res{};
-					res.vars = std::move(varData);
-					res.exprs = readExpList(in,allowVarArg);
-					return res;
-				}
-			}
-			case ':'://Self funccall
-			{
-				if (in.peekAt(1) == ':') //is label / '::'
-					goto exit;
-				in.skip();//skip colon
-				std::string name = readName(in);
-
-				const bool skippedAfterName = skipSpace(in);
-
-				if constexpr (in.settings() & spacedFuncCallStrForm)
-				{
-					if (!skippedAfterName)
-						throwSpaceMissingBeforeString(in);
-				}
-
-				funcCallData.emplace_back(name, readArgs(in,allowVarArg));
+			if (binOp == BinOpType::NONE)
 				break;
-			}
-			case '"':
-			case '\'':
-				if constexpr (in.settings() & spacedFuncCallStrForm)
-				{
-					if (!skipped)
-						throwSpaceMissingBeforeString(in);
-				}
-				[[fallthrough]];
-			case '{':
-			case '('://Funccall
-				funcCallData.emplace_back("", readArgs(in,allowVarArg));
-				break;
-			case '.':// Index
-			{
-				if constexpr (FOR_EXPR)
-				{
-					if (in.peekAt(1) == '.') //is concat (..)
-						goto exit;
-				}
 
-				in.skip();//skip dot
-
-				SubVarType::NAME res{};
-				res.idx = readName(in);
-
-				varDataNeedsSubThing = false;
-				// Move auto-clears funcCallData
-				varData.back().sub.emplace_back(std::move(funcCallData),std::move(res));
-				funcCallData.clear();
-				break;
-			}
-			case '[':// Arr-index
-			{
-				const char secondCh = in.peekAt(1);
-
-				if (secondCh == '[' || secondCh == '=')//is multi-line string?
-				{
-					if constexpr (in.settings() & spacedFuncCallStrForm)
-					{
-						if (!skipped)
-							throwSpaceMissingBeforeString(in);
-					}
-					funcCallData.emplace_back("", readArgs(in,allowVarArg));
-					break;
-				}
-				SubVarType::EXPR<In> res{};
-
-				in.skip();//skip first char
-				res.idx = readExpr(in,allowVarArg);
-				requireToken(in, "]");
-
-				varDataNeedsSubThing = false;
-				// Move auto-clears funcCallData
-				varData.back().sub.emplace_back(std::move(funcCallData),std::move(res));
-				funcCallData.clear();
-				break;
-			}
-			}
+			resData.extra.emplace_back(binOp, readExpr(in,allowVarArg,false));
 		}
+		Expression<In> ret;
+		ret.place = startPos;
+		ret.data = std::move(resData);
 
-	exit:
-
-		return returnPrefixExprVar<T, FOR_EXPR>(in, varData, funcCallData, varDataNeedsSubThing, opType);
-	}
-
-
-	template<AnyInput In>
-	inline Expression<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
-		if constexpr (in.settings() & sluaSyn)
-			return {};
-		else
-			return readLuaExpr(in, allowVarArg, readBiOp);
-	}
-	template<AnyInput In>
-	inline Expression<In> readExprParens(In& in, const bool allowVarArg, const bool readBiOp = true) {
-		if constexpr (in.settings() & sluaSyn)
-		{
-			requireToken(in, "(");
-			Expression<In> ex = readExpr(in, allowVarArg, readBiOp);
-			requireToken(in, ")");
-			return ex;
-		}
-		else
-			return readExpr(in, allowVarArg, readBiOp);
-	}
-
-	template<AnyInput In>
-	inline ExpList<In> readExpList(In& in, const bool allowVarArg)
-	{
-		/*
-			explist ::= exp {‘,’ exp}
-		*/
-		ExpList<In> ret{};
-		ret.emplace_back(readExpr(in, allowVarArg));
-
-		while (checkReadToken(in, ","))
-		{
-			ret.emplace_back(readExpr(in, allowVarArg));
-		}
 		return ret;
 	}
 }

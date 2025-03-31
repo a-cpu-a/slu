@@ -17,7 +17,7 @@
 #include "adv/ReadName.hpp"
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
-#include "adv/ReadLuaExpr.hpp"
+#include "adv/ReadExpr.hpp"
 #include "adv/ReadStringLiteral.hpp"
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"
