@@ -81,6 +81,15 @@ namespace sluaParse
 		// OR, 8/4 bytes for index into big array.
 	};
 
+	struct TypeSpecifiers
+	{
+		bool gc=false;
+	};
+
+	struct Type
+	{
+	};
+
 
 
 	namespace FieldType { struct NONE {}; }
