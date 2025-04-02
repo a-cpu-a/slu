@@ -26,7 +26,6 @@ New Syntax {
 	
 	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
 	destrTupFieldList ::= destrTupField {"," destrTupField} [extraFieldSignifier]
-	destrBasicFieldList ::= namelist [extraFieldSignifier]
 	
 	NpfList ::= ndPatField {"," ndPatField} [extraFieldSignifier]
 	
