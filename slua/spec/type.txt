@@ -16,11 +16,11 @@ New Syntax {
 	typeItem ::= typePrefix specType
 	specType ::= typeObj | "(" type ")"
 	
-	typeObj ::= ComptimeVarType | dynamicArrayType | tupleType | traitComboType
+	typeObj ::= comptimeVarType | dynamicArrayType | optimalArrayType | tableTupleType | traitComboType
+	
+	basicTypeItm ::= typePrefix (comptimeVarType | traitComboType)
 	
 	traitComboType ::= ("dyn" | "impl") traitcombo
-	
-	tupleType ::= tableTupleType | optimalArrayType
 	
 	tableTupleType ::= "{" TypeList "}"
 	dynamicArrayType ::= "[" type "]"
@@ -30,8 +30,6 @@ New Syntax {
 	arraySizer ::= ";" comptimeExp
 
 	typePrefix ::= ["#"] {["&" ["mut"] {borrowAnnotation}]}
-	
-	optMutSpec ::= ["mut"] typePrefix
 	
 	borrowAnnotation ::= "/" var
 	

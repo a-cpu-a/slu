@@ -10,7 +10,7 @@ New Syntax {
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
 	ndPatField ::= ndPatFieldUncond ["=" ndPat]
-	ndPatFieldUncond ::= optMutSpec Name |
+	ndPatFieldUncond ::= ["mut"] typePrefix Name |
 		"as" ["mut"] type Name 
 	
 	destrField ::= "[" tupleableName "]" destrTupField
@@ -22,7 +22,7 @@ New Syntax {
 	extraFieldSignifier ::= "," "..."
 	
 	
-	destrSpec ::= (optMutSpec [comptimeVarType]) | ("as" ["mut"] type)
+	destrSpec ::= (["mut"] [basicTypeObj]) | ("as" ["mut"] type)
 	
 	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
 	destrTupFieldList ::= destrTupField {"," destrTupField} [extraFieldSignifier]
