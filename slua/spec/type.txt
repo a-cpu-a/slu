@@ -7,7 +7,7 @@ New Syntax {
 	trait ::= modpath
 	traitcombo ::= trait {"+" trait}
 	
-	errType ::= (([[type] "?"] type) | ([type] "??" ))
+	errType ::= ([type] "?" type) | ([type] "??" ) | type
 	
 	type ::= typeItemlist
 	TypeList ::= type {"," type}
