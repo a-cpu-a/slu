@@ -9,9 +9,10 @@ New Syntax {
 	
 	errType ::= (([[type] "?"] type) | ([type] "??" ))
 	
-	type ::= typeItem { "|" typeItem }
+	type ::= typeItemlist
 	TypeList ::= type {"," type}
 
+	typeItemlist ::= typeItem { "|" typeItem }
 	typeItem ::= typePrefix specType
 	specType ::= typeObj | "(" type ")"
 	
@@ -23,7 +24,7 @@ New Syntax {
 	
 	tableTupleType ::= "{" TypeList "}"
 	dynamicArrayType ::= "[" type "]"
-	optimalArrayType ::= "[" type arraySizer {arraySizer} "]"
+	optimalArrayType ::= "[" type arraySizer "]"
 	
 	
 	arraySizer ::= ";" comptimeExp
@@ -190,7 +191,7 @@ Official Types {
 Type Specifiers {
 	
 	Array {
-		Format: "[" X arraySizer {arraySizer} "]"
+		Format: "[" X arraySizer "]"  --TODO: should this exist: {arraySizer}
 		Sizes must be positive integers, or be zero
 		
 		Multiple array sizers can be used, to create multi-dimensional arrays
