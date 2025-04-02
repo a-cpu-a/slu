@@ -49,6 +49,9 @@ namespace sluaParse
 	template<bool isSlua> struct ExpressionV;
 	template<AnyCfgable CfgT> using Expression = SelV<CfgT, ExpressionV>;
 
+	template<bool isSlua> struct VarV;
+	template<AnyCfgable CfgT> using Var = SelV<CfgT, VarV>;
+
 	namespace FieldType {
 		template<bool isSlua> struct EXPR2EXPRv;
 		template<AnyCfgable CfgT> using EXPR2EXPR = SelV<CfgT, EXPR2EXPRv>;
@@ -72,6 +75,10 @@ namespace sluaParse
 
 
 
+	// Slua
+
+
+	using ModPath = std::vector<std::string>;
 
 
 	struct TypeId
@@ -81,15 +88,71 @@ namespace sluaParse
 		// OR, 8/4 bytes for index into big array.
 	};
 
+	struct BorrowLevel
+	{
+		std::vector<std::string> lifetimes;
+		bool hasMut=false;//eventualy share too
+	};
 	struct TypeSpecifiers
 	{
+		std::vector<BorrowLevel> borrows;
 		bool gc=false;
 	};
 
-	struct Type
+	using Type = std::vector<struct TypeItem>;
+
+	namespace TypeObjType
 	{
+		using COMPTIME_VAR_TYPE = ModPath;
+		struct SLICE_OR_ARRAY
+		{
+			Type ty;
+			std::vector<ExpressionV<true>> size;//empty -> slice, else array
+		};
+		using TUPLE = std::vector<Type>;
+		struct TRAIT_COMBO
+		{
+			std::vector<ModPath> traits;
+			bool isDyn = false;
+		};
+		using TYPE = Type;				//"(" type ")"
+	}
+	using TypeObj = std::variant<
+		TypeObjType::COMPTIME_VAR_TYPE,
+		TypeObjType::SLICE_OR_ARRAY,
+		TypeObjType::TUPLE,
+		TypeObjType::TRAIT_COMBO,
+		TypeObjType::TYPE>;
+	struct TypeItem
+	{
+		TypeSpecifiers prefix;
+		TypeObj obj;
 	};
 
+
+	namespace BasicTypeObjType
+	{
+		using COMPTIME_VAR_TYPE = TypeObjType::COMPTIME_VAR_TYPE;
+		using TRAIT_COMBO = TypeObjType::TRAIT_COMBO;
+	}
+	using BasicTypeObj = std::variant<
+		BasicTypeObjType::COMPTIME_VAR_TYPE,
+		BasicTypeObjType::TRAIT_COMBO>;
+	struct BasicTypeItem
+	{
+		TypeSpecifiers prefix;
+		BasicTypeObj obj;
+	};
+
+
+	struct ErrType
+	{
+		std::optional<Type> val;
+		std::optional<Type> err;//If missing then ??, else ?
+	};
+
+
+	// Common
 
 
 	namespace FieldType { struct NONE {}; }
@@ -368,7 +431,7 @@ namespace sluaParse
 		// Slua only:
 		
 		//len is atleast 1
-		using MOD_PATH = std::vector<std::string>;
+		using MOD_PATH = ModPath;
 	}
 	template<bool isSlua>
 	using BaseVarV = std::variant<
@@ -386,10 +449,6 @@ namespace sluaParse
 		BaseVarV<isSlua> base;
 		std::vector<SubVarV<isSlua>> sub;
 	};
-
-
-	template<AnyCfgable CfgT>
-	using Var = SelV<CfgT, VarV>;
 
 	struct AttribName
 	{
