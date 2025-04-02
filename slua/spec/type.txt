@@ -29,9 +29,9 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= ["#"] {["&" ["mut"] {borrowAnnotation}]}
+	typePrefix ::= ["#"] {["&" ["mut"] {borrowLifetime}]}
 	
-	borrowAnnotation ::= "/" var
+	borrowLifetime ::= "/" var
 	
 	typedParam ::= ["mut"] [type] Name
 	TypedParamList ::= typedParam {"," typedParam}
@@ -244,7 +244,7 @@ Type Specifiers {
 		Use the "alloc" unary operator, to create these.
 	}
 	Borrow {
-		Format "&" ["mut"] X {borrowAnnotation}
+		Format "&" {borrowLifetime} ["mut"] X
 		
 		Makes the type borrowing, this means that it is a borrowed value.
 		
