@@ -13,10 +13,9 @@ New Syntax {
 	TypeList ::= type {"," type}
 
 	typeItemlist ::= typeItem { "|" typeItem }
-	typeItem ::= typePrefix specType
-	specType ::= typeObj | "(" type ")"
+	typeItem ::= typePrefix typeObj
 	
-	typeObj ::= comptimeVarType | dynamicArrayType | optimalArrayType | tableTupleType | traitComboType
+	typeObj ::= comptimeVarType | dynamicArrayType | optimalArrayType | tableTupleType | traitComboType | "(" type ")"
 	
 	basicTypeItm ::= typePrefix (comptimeVarType | traitComboType)
 	
