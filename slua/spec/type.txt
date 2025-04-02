@@ -1,10 +1,10 @@
 #
-# Dependencies: Lua, comptime
+# Dependencies: Lua, comptime, modules
 #
 
 New Syntax {
 	
-	trait ::= comptimeVar
+	trait ::= modpath
 	traitcombo ::= trait {"+" trait}
 	
 	errType ::= (([[type] "?"] type) | ([type] "??" ))
