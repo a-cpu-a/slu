@@ -149,6 +149,7 @@ namespace sluaParse
 	{
 		std::optional<Type> val;
 		std::optional<Type> err;//If missing then ??, else ?
+		bool isErr = false;
 	};
 
 
