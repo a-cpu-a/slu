@@ -121,6 +121,7 @@ New Syntax {
 	var @::= | macroInvSpl
 	Name @::= | macroInvSpl
 	type @::= | macroInvSpl
+	errType @::= | macroInvSpl
 	OptExportPrefix @::= | macroInvSpl
 	comptimeVar @::= | macroInvSpl
 	
@@ -131,7 +132,7 @@ New Syntax {
 	
 	PreMacro ::=
 	
-	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["$"] macroParamsBlock ["->" type] "{" block "}"
+	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["$"] macroParamsBlock ["->" errType] "{" block "}"
 	
 }
 

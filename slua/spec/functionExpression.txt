@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	exp @::= | "function" "(" TypedParamList ")" ["->" type] statOrRet
+	exp @::= | "function" "(" TypedParamList ")" ["->" errType] statOrRet
 }
 
 Function Expression {

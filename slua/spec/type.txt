@@ -7,7 +7,9 @@ New Syntax {
 	trait ::= comptimeVar
 	traitcombo ::= trait {"+" trait}
 	
-	type ::= (([[typeItem] "?"] typeItem) | ([typeItem] "??" )) { "|" typeItem }
+	errType ::= (([[type] "?"] type) | ([type] "??" ))
+	
+	type ::= typeItem { "|" typeItem }
 	TypeList ::= type {"," type}
 
 	typeItem ::= typePrefix specType

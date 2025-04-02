@@ -60,7 +60,7 @@ New Syntax {
 	matchElseItem ::= "else" ["if" exp] "=>" explist
 	matchStat ::= matchItem | matchElseItem | ";"
 	
-	matchExp ::= "match" "(" exp ")" ["->" type] "{" {matchStat} "}"
+	matchExp ::= "match" "(" exp ")" ["->" errType] "{" {matchStat} "}"
 	
 	exp @::= | matchExp
 	stat @::= | matchExp
