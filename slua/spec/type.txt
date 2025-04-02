@@ -26,9 +26,9 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= ["#"] ["&" ["mut"] {borrowAnnotation}]
+	typePrefix ::= ["#"] {["&" ["mut"] {borrowAnnotation}]}
 	
-	optMutSpec ::= ["mut"] ["&" ["mut"] {borrowAnnotation}]
+	optMutSpec ::= ["mut"] typePrefix
 	
 	borrowAnnotation ::= "/" var
 	
