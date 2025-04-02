@@ -6,7 +6,7 @@ New Syntax {
 	
 	blockOrRet ::= retstatSemi | ( "{" block "}" )
 
-	exp @::= | ["comptime"] "do" ["->" type] statOrRet
+	exp @::= | ["comptime"] "do" ["->" errType] statOrRet
 	
 	retstat @::= | "do" retstat
 }
