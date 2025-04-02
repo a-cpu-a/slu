@@ -15,14 +15,14 @@ New Syntax {
 	typeItemlist ::= typeItem { "|" typeItem }
 	typeItem ::= typePrefix typeObj
 	
-	typeObj ::= comptimeVarType | dynamicArrayType | optimalArrayType | tableTupleType | traitComboType | "(" type ")"
+	typeObj ::= comptimeVarType | arraySliceType | optimalArrayType | tableTupleType | traitComboType | "(" type ")"
 	
 	basicTypeItm ::= typePrefix (comptimeVarType | traitComboType)
 	
 	traitComboType ::= ("dyn" | "impl") traitcombo
 	
 	tableTupleType ::= "{" TypeList "}"
-	dynamicArrayType ::= "[" type "]"
+	arraySliceType ::= "[" type "]"
 	optimalArrayType ::= "[" type arraySizer "]"
 	
 	
