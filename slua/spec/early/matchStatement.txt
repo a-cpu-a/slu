@@ -21,36 +21,33 @@ New Syntax {
 	
 	extraFieldSignifier ::= "," "..."
 	
+	
+	destrSpec ::= (optMutSpec [comptimeVarType]) | ("as" ["mut"] type)
+	
+	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
+	destrTupFieldList ::= destrTupField {"," destrTupField} [extraFieldSignifier]
+	destrBasicFieldList ::= namelist [extraFieldSignifier]
+	
 	NpfList ::= ndPatField {"," ndPatField} [extraFieldSignifier]
 	
-	dPatNoNpfList ::= optMutSpec comptimeVarType "{" destrField {"," destrField} [extraFieldSignifier] "}" |
-		optMutSpec comptimeVarType "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
-		optMutSpec comptimeVarType "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
-		optMutSpec comptimeVarType destrTupField {"," destrTupField} [extraFieldSignifier] |
+	dPatNoNpfList ::= destrSpec "{" destrFieldList "}" |
+		destrSpec "{" destrTupFieldList "}" |
+		destrSpec "[" destrTupFieldList "]" |
 		
-		optMutSpec "{" destrField {"," destrField} [extraFieldSignifier] "}" |
-		optMutSpec "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
-		
-		"as" ["mut"] type "{" destrField {"," destrField} [extraFieldSignifier] "}" |
-		"as" ["mut"] type "{" destrTupField {"," destrTupField} [extraFieldSignifier] "}" |
-		"as" ["mut"] type "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
-		"of" ["mut"] type "[" destrTupField {"," destrTupField} [extraFieldSignifier] "]" |
+		"of" ["mut"] type "[" destrTupFieldList "]" |
 		"_"
+		
+		
+	uncondDestrFieldList ::= destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier]
+	uncondDestrTupFieldList ::= destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier]
 	
 	NpfuList ::= ndPatFieldUncond {"," ndPatFieldUncond} [extraFieldSignifier]
 	
-	uncondDestrPatNoNpfuList ::= optMutSpec comptimeVarType "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
-		optMutSpec comptimeVarType "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
-		optMutSpec comptimeVarType "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
-		optMutSpec comptimeVarType destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] |
+	uncondDestrPatNoNpfuList ::= destrSpec "{" uncondDestrFieldList "}" |
+		destrSpec "{" uncondDestrTupFieldList "}" |
+		destrSpec "[" uncondDestrTupFieldList "]" |
 		
-		optMutSpec "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
-		optMutSpec "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
-		
-		"as" ["mut"] type "{" destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier] "}" |
-		"as" ["mut"] type "{" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "}" |
-		"as" ["mut"] type "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
-		"of" ["mut"] type "[" destrTupFieldUncond {"," destrTupFieldUncond} [extraFieldSignifier] "]" |
+		"of" ["mut"] type "[" uncondDestrTupFieldList "]" |
 		"_"
 	
 	dPat ::= dPatNoNpfList | NpfList
