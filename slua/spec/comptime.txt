@@ -11,7 +11,7 @@ New Syntax {
 	
 	comptimeExp ::= exp
 	comptimeVar ::= modpath {"." tupleableName}
-	comptimeVarType ::= comptimeVar
+	comptimeVarType ::= modpath
 	comptimeFunccall ::= comptimeVar [":" tupleableName] args
 	
 	exp @::= | comptime(exp)
