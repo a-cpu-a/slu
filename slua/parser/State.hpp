@@ -116,13 +116,15 @@ namespace sluaParse
 			bool isDyn = false;
 		};
 		using TYPE = Type;				//"(" type ")"
+		using DEDUCE = std::monostate;
 	}
 	using TypeObj = std::variant<
 		TypeObjType::COMPTIME_VAR_TYPE,
 		TypeObjType::SLICE_OR_ARRAY,
 		TypeObjType::TUPLE,
 		TypeObjType::TRAIT_COMBO,
-		TypeObjType::TYPE>;
+		TypeObjType::TYPE,
+		TypeObjType::DEDUCE>;
 	struct TypeItem
 	{
 		TypeSpecifiers prefix;
@@ -134,7 +136,7 @@ namespace sluaParse
 	{
 		using COMPTIME_VAR_TYPE = TypeObjType::COMPTIME_VAR_TYPE;
 		using TRAIT_COMBO = TypeObjType::TRAIT_COMBO;
-		using DEDUCE = std::monostate;
+		using DEDUCE = TypeObjType::DEDUCE;
 	}
 	using BasicTypeObj = std::variant<
 		BasicTypeObjType::COMPTIME_VAR_TYPE,

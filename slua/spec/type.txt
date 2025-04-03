@@ -13,7 +13,7 @@ New Syntax {
 	TypeList ::= type {"," type}
 
 	typeItemlist ::= typeItem { "|" typeItem }
-	typeItem ::= typePrefix typeObj
+	typeItem ::= typePrefix [typeObj]
 	
 	typeObj ::= comptimeVarType | arraySliceType | optimalArrayType | tableTupleType | traitComboType | "(" type ")"
 	
