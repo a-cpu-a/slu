@@ -24,7 +24,7 @@ namespace sluaParse
 		TraitCombo res;
 		while (in)
 		{
-			res.push_back(parseModPath(in, readName<true>(in)));
+			res.push_back(readModPath(in, readName<true>(in)));
 			if (!checkReadToken(in, "+"))
 				break;
 		}
@@ -59,7 +59,76 @@ namespace sluaParse
 	template<AnyInput In>
 	inline TypeItem readTypeItem(In& in)
 	{
+		TypeItem ret;
+		ret.prefix = readTypeSpecifiers(in);
+		
+		skipSpace(in);
+		switch (in.peek())
+		{
+		case '['://Slice or array
+		{
+			in.skip();
 
+			TypeObjType::SLICE_OR_ARRAY res{};
+			res.ty = readType(in);
+
+			while (checkReadToken(in, ";"))
+			{
+				res.size.push_back(readExpr(in, false));
+			}
+
+			requireToken(in, "]");
+
+			ret.obj = std::move(res);
+			return ret;
+		}
+		case '{':
+		{
+			in.skip();
+
+			TypeObjType::TUPLE res{};
+
+			if (in.peek() != '}')//Is not empty
+			{
+				res.push_back(readType(in));
+
+				while (checkReadToken(in, ","))
+				{
+					res.push_back(readType(in));
+				}
+			}
+
+			ret.obj = std::move(res);
+			return ret;
+		}
+		case '(':
+			in.skip();
+
+			ret.obj = TypeObjType::TYPE(readType(in));
+
+			requireToken(in, ")");
+			return ret;
+		case 'd':
+			if (checkReadTextToken(in, "dyn"))
+			{
+				ret.obj = TypeObjType::TRAIT_COMBO(readTraitCombo(in), true);
+				return ret;
+			}
+			break;
+		case 'i':
+			if (checkReadTextToken(in, "impl"))
+			{
+				ret.obj = TypeObjType::TRAIT_COMBO(readTraitCombo(in), false);
+				return ret;
+			}
+			break;
+		default:
+			break;
+		}
+		//comptime var thing
+
+		ret.obj = TypeObjType::COMPTIME_VAR_TYPE(readModPath(in, readName(in)));
+		return ret;
 	}
 	template<AnyInput In>
 	inline Type readType(In& in)
