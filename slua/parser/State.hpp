@@ -134,10 +134,12 @@ namespace sluaParse
 	{
 		using COMPTIME_VAR_TYPE = TypeObjType::COMPTIME_VAR_TYPE;
 		using TRAIT_COMBO = TypeObjType::TRAIT_COMBO;
+		using DEDUCE = std::monostate;
 	}
 	using BasicTypeObj = std::variant<
 		BasicTypeObjType::COMPTIME_VAR_TYPE,
-		BasicTypeObjType::TRAIT_COMBO>;
+		BasicTypeObjType::TRAIT_COMBO,
+		BasicTypeObjType::DEDUCE>;
 	struct BasicTypeItem
 	{
 		TypeSpecifiers prefix;
