@@ -30,7 +30,7 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= ["#"] {["&" {borrowLifetime} ["mut"]]}
+	typePrefix ::= ["#"] {["&" {borrowLifetime} ["mut"]]} {"*" ["mut"]}
 	
 	borrowLifetime ::= "/" var
 	
@@ -107,7 +107,7 @@ Official Types {
 		Slua types can be cast into this, any overflows are still handled.
 	}
 	ptrdata {
-		Lightdata passed from C
+		Basic data / pointer passed from compiler (light-data)
 	}
 	
 	Any {
@@ -138,10 +138,10 @@ Official Types {
 		Valid keys: any lua type, except nil or NaN. Yes, this also includes floats and negative numbers.
 	}
 	Func {
-		Any function C, lua, etc
+		Any function: C, lua, etc
 	}
 	Userdata {
-		Things passed from C
+		Special data passed from the compiler
 	}
 	Thread {
 		The coroutines
@@ -255,7 +255,29 @@ Type Specifiers {
 		
 		drop myRef2;-- Required, because not adding this, will produce a soft-error.
 		
-		let &/firstArg/secondArg u8 = &firstArg;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		let &/firstArg/secondArg u8 z = &firstArg;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		
+		```
+	}
+	Borrow {
+		Format "*" ["mut"] X
+		
+		Makes the type a pointer.
+		
+		```slua
+		let firstArg = --...
+		let secondArg = --...
+		
+		
+		--Its safe to make pointers, but not to use them.
+		
+		let *u8 myPtr = *firstArg;
+		
+		let *mut u8 myPtr2 = *mut secondArg;
+		
+		drop myPtr2;--Drops the pointer, not really meaningfull
+		
+		let *u8 z = *firstArg;
 		
 		```
 	}
