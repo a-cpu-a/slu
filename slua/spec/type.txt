@@ -17,7 +17,7 @@ New Syntax {
 	
 	typeObj ::= comptimeVarType | arraySliceType | optimalArrayType | tableTupleType | traitComboType | "(" type ")"
 	
-	basicTypeItm ::= typePrefix (comptimeVarType | traitComboType)
+	basicTypeItm ::= typePrefix [comptimeVarType | traitComboType]
 	
 	traitComboType ::= ("dyn" | "impl") traitcombo
 	
