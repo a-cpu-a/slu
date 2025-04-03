@@ -28,15 +28,15 @@ namespace sluaParse
 	"continue", "reloc", "where", "loop", "raw", "ref", \
 	/* future */\
 	"share", "only", "box", "abstract", "become", "final", \
-	"override", "typeof", "virtual", "unsized", "const", \
+	"override", "typeof", "virtual", "unsized", \
 	/* todos */\
 	"copy", "move", "super", "unsafe", "safe", "dyn", \
 	"generator", "gen",	"yield", "async", "await", "static", \
 	/* documented */\
 	"is", "to", "as", "of", "fn", "ex", "let", "try", "use", "mut", \
 	"case", "drop", "enum", "impl", "type", "trait", \
-	"alloc", "macro", "match", "catch", "throw", "union", \
-	"struct", "module", "comptime"
+	"alloc", "macro", "match", "const", "catch", "throw", "union", \
+	"struct", "module", "extern", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
 		_Slua_LUA_KWS
