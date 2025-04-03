@@ -84,6 +84,15 @@ namespace sluaParse
 			return " #"sv;
 		case UnOpType::BITWISE_NOT:
 			return " ~"sv;
+
+		case UnOpType::TO_REF:
+			return " &"sv;
+		case UnOpType::TO_REF_MUT:
+			return " &mut "sv;
+		case UnOpType::TO_PTR:
+			return " *"sv;
+		case UnOpType::TO_PTR_MUT:
+			return " *mut "sv;
 		default:
 			_ASSERT(false);
 			return "<ERROR>"sv;
