@@ -1,0 +1,60 @@
+#
+# Dependencies: Lua, safety
+#
+
+New Syntax {
+
+	stat @::= | safety "extern" LiteralString "{" block "}"
+}
+
+New Keywords {
+	extern
+}
+
+Extern Block Statement {
+	
+	Imports functions from the host environment.
+	
+	Can be used to call things like C functions, or lua functions.
+	
+	
+	
+	
+	C pointers -> usize, or cc::IntPtr<T>
+	C const pointers -> usize, or cc::IntPtr<T>
+	
+	C arrays -> [T; ...] (? can they be passed by value like this ?)
+	
+	cpp const refs -> *const T
+	cpp refs -> *mut T
+	
+	cpp && refs -> likely just: *mut T
+	
+	lua any-type -> Any
+	lua integers -> integer
+	lua numbers -> number
+	lua strings -> lua::LuaStr
+	lua tables -> lua::LuaTable<...>
+	lua functions -> lua::LuaFn<...>
+	lua threads -> lua::LuaThread
+	lua user-data -> lua::LuaUserData<...>
+	lua light-user-data -> lua::LuaLightData
+	lua nil -> lua::LuaNil
+	
+	js any-type -> Any
+	js integers -> integer
+	js numbers -> number
+	js string -> js::JsStr
+	js object -> js::JsObject<...>
+	js array -> js::JsArray<...>
+	js functions -> js::JsFn<...>
+	js symbol -> js::JsSymbol
+	js null -> js::JsNull
+	js undefined -> js::JsUndefined
+	
+	
+	Implementation {
+		
+		
+	}
+}
