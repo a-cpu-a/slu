@@ -32,7 +32,6 @@ New Keywords {
 	typeof 		(44k)		(616)		?
 	virtual		(82.9k)		(3.2k)		?
 	unsized		(120)		(0)			?
-	const		(317k)		(34.3k)		?
 	global		(578k)		(16.1k)		Easier to undestand than static?
 
 
@@ -71,6 +70,7 @@ New Keywords {
 	type		(1.9m)		(78.3k)		type alias
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
+	const		(317k)		(34.3k)		Immutable pointers
 	crate		(73k)		(1.1k)		this crate
 	alloc		(??)		(??)		Allocate something for gc
 	macro		(52.5k)		(5.8k)		macro def
@@ -81,6 +81,7 @@ New Keywords {
 	union  		(25k)		(2k)		Define a union
 	struct 		(506k)		(62.2k)		Define a struct
 	module		(651k)		(40.2k)		module def
+	extern		(..)		(..)		extern blocks, extern spec
 	comptime	(256)		(4)			comptime marker / expr
 	
 	
