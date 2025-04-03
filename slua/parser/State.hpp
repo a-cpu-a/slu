@@ -99,6 +99,7 @@ namespace sluaParse
 		bool gc=false;
 	};
 
+	using TraitCombo = std::vector<ModPath>;
 	using Type = std::vector<struct TypeItem>;
 
 	namespace TypeObjType
@@ -112,7 +113,7 @@ namespace sluaParse
 		using TUPLE = std::vector<Type>;
 		struct TRAIT_COMBO
 		{
-			std::vector<ModPath> traits;
+			TraitCombo traits;
 			bool isDyn = false;
 		};
 		using TYPE = Type;				//"(" type ")"
