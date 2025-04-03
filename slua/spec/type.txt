@@ -30,7 +30,7 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= ["#"] {["&" {borrowLifetime} ["mut"]]} {"*" ["mut"]}
+	typePrefix ::= ["#"] {["&" {borrowLifetime} ["mut"]]} {"*" ("mut" | "const")}
 	
 	borrowLifetime ::= "/" var
 	
@@ -43,9 +43,13 @@ New Syntax {
 	macroParamList ::= macroParam {macroParamSep macroParam}
 	
 	tupleableName ::= Name | Integral
+	
+	unop @::= | "*" | "&" ["mut"] | "*" ("mut" | "const")
 }
 
 New Keywords {
+	const
+	
 	void
 	bool
 	integer
@@ -259,8 +263,8 @@ Type Specifiers {
 		
 		```
 	}
-	Borrow {
-		Format "*" ["mut"] X
+	Pointer {
+		Format "*" ("mut" | "const") X
 		
 		Makes the type a pointer.
 		
@@ -269,15 +273,20 @@ Type Specifiers {
 		let secondArg = --...
 		
 		
-		--Its safe to make pointers, but not to use them.
+		--Its (mostly) safe to make pointers, but not to use them.
+		--Some hosts dont support pointers. (Most do, like js,java,lua,cpp, ...)
 		
-		let *u8 myPtr = *firstArg;
+		let *const u8 myPtr = *const firstArg;
 		
 		let *mut u8 myPtr2 = *mut secondArg;
 		
 		drop myPtr2;--Drops the pointer, not really meaningfull
 		
-		let *u8 z = *firstArg;
+		let *const u8 z = *const firstArg;
+		
+	:::unsafe:
+		
+		z = 4;
 		
 		```
 	}
