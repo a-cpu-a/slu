@@ -22,7 +22,7 @@
 namespace sluaParse
 {
 	template<AnyInput In>
-	inline ModPath parseModPath(In& in,const std::string& start)
+	inline ModPath readModPath(In& in,const std::string& start)
 	{
 		ModPath mp = { start };
 		skipSpace(in);
@@ -54,7 +54,7 @@ namespace sluaParse
 
 			if constexpr (in.settings() & sluaSyn)
 			{
-				BaseVarType::MOD_PATH mp = parseModPath(in, start);
+				BaseVarType::MOD_PATH mp = readModPath(in, start);
 
 				if (mp.size() != 1)
 					varDataOut.base = mp;
