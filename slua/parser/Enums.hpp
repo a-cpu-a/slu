@@ -49,9 +49,11 @@ namespace sluaParse
 		BITWISE_NOT,   // "~"
 
 		//Slua
+		DEREF,			// "*"
+
 		TO_REF,			// "&"
 		TO_REF_MUT,		// "&mut"
-		TO_PTR,			// "*"
+		TO_PTR_CONST,	// "*const"
 		TO_PTR_MUT		// "*mut"
 	};
 
