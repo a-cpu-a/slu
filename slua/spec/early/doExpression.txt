@@ -1,12 +1,12 @@
 #
-# Dependencies: Lua, type, comptime
+# Dependencies: Lua, type, comptime, safety
 #
 
 New Syntax {
 	
 	blockOrRet ::= retstatSemi | ( "{" block "}" )
 
-	exp @::= | ["comptime"] "do" ["->" errType] statOrRet
+	exp @::= | ["comptime"] "do" safety ["->" errType] statOrRet
 	
 	retstat @::= | "do" retstat
 }
