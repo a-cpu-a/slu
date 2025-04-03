@@ -19,6 +19,18 @@
 namespace sluaParse
 {
 	template<AnyInput In>
+	inline TraitCombo readTraitCombo(In& in)
+	{
+		TraitCombo res;
+		while (in)
+		{
+			res.push_back(parseModPath(in, readName<true>(in)));
+			if (!checkReadToken(in, "+"))
+				break;
+		}
+		return res;
+	}
+	template<AnyInput In>
 	inline TypeSpecifiers readTypeSpecifiers(In& in)
 	{
 		TypeSpecifiers res{};
