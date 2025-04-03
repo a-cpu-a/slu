@@ -36,7 +36,7 @@ namespace sluaParse
 		EQUAL,          // "=="
 		NOT_EQUAL,      // "~="
 		LOGICAL_AND,    // "and"
-		LOGICAL_OR      // "or"
+		LOGICAL_OR,     // "or"
 	};
 
 	enum class UnOpType : uint8_t
@@ -46,7 +46,13 @@ namespace sluaParse
 		NEGATE,        // "-"
 		LOGICAL_NOT,   // "not"
 		LENGTH,        // "#"
-		BITWISE_NOT    // "~"
+		BITWISE_NOT,   // "~"
+
+		//Slua
+		TO_REF,			// "&"
+		TO_REF_MUT,		// "&mut"
+		TO_PTR,			// "*"
+		TO_PTR_MUT		// "*mut"
 	};
 
 	enum class PostUnOpType : uint8_t

@@ -33,9 +33,25 @@ namespace sluaParse
 		case '#':
 			in.skip();
 			return UnOpType::LENGTH;
+		case '&':
+			if (!(in.settings() & sluaSyn))break;
+
+			in.skip();
+			if (checkReadTextToken(in, "mut"))
+				return UnOpType::TO_REF_MUT;
+			return UnOpType::TO_REF;
+		case '*':
+			if (!(in.settings() & sluaSyn))break;
+
+			in.skip();
+			if (checkReadTextToken(in, "mut"))
+				return UnOpType::TO_PTR_MUT;
+			return UnOpType::TO_PTR;
 		case '~':
 			in.skip();
 			return UnOpType::BITWISE_NOT;
+		default:
+			break;
 		}
 		return UnOpType::NONE;
 	}
