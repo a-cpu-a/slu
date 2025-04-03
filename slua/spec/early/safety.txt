@@ -1,0 +1,36 @@
+#
+# Dependencies: Lua
+#
+
+New Syntax {
+	
+	safety ::= "safe" | "unsafe"
+	
+	
+	stat @::= | "unsafe" statOrRet
+	stat @::= | ":::" safety ":"
+	
+}
+
+New Keywords {
+	safe
+	unsafe
+}
+
+Unsafe Block {
+	Inside the block, there is no new scope, so variables are shared with the above block.
+	
+	Inside of it any unsafe code can be used.
+	
+	Implementation {
+		May be parsed as 2 statments inside of 1, (PUSH_ALLOW_UNSAFE ... POP_ALLOW_UNSAFE)
+	}
+}
+Safety Label {
+	After the label, the current safety mode switches.
+	Cant be used inside of a unsafe block.
+}
+
+Safety {
+	
+}
