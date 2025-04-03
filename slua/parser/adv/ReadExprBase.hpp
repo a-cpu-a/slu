@@ -22,6 +22,20 @@
 namespace sluaParse
 {
 	template<AnyInput In>
+	inline ModPath parseModPath(In& in,const std::string& start)
+	{
+		ModPath mp = { start };
+		skipSpace(in);
+		while (checkToken(in, "::") && in.peekAt(2) != ':')
+		{
+			in.skip(2);//skip '::'
+			skipSpace(in);
+			mp.push_back(readName(in));
+		}
+		return mp;
+	}
+
+	template<AnyInput In>
 	inline void parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
@@ -40,16 +54,11 @@ namespace sluaParse
 
 			if constexpr (in.settings() & sluaSyn)
 			{
-				BaseVarType::MOD_PATH mp = {start};
-				skipSpace(in);
-				while (checkToken(in, "::") && in.peekAt(2) != ':')
-				{
-					in.skip(2);//skip '::'
-					skipSpace(in);
-					mp.push_back(readName(in));
-				}
-				if (start.size() != 1)
+				BaseVarType::MOD_PATH mp = parseModPath(in, start);
+
+				if (mp.size() != 1)
 					varDataOut.base = mp;
+				return;
 			}
 			varDataOut.base = BaseVarType::NAME(start);
 		}
