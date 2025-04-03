@@ -14,9 +14,36 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
+#include <slua/parser/adv/ReadName.hpp>
 
 namespace sluaParse
 {
+	template<AnyInput In>
+	inline TypeSpecifiers readTypeSpecifiers(In& in)
+	{
+		TypeSpecifiers res{};
+		skipSpace(in);
+		if (checkReadToken(in, "#"))
+			res.gc = true;
+
+		while (in)
+		{
+			if (!checkReadToken(in, "&"))
+				break;
+			BorrowLevel& b = res.borrows.emplace_back();
+			while (in)
+			{
+				if (!checkReadToken(in, "/"))
+					break;
+				b.lifetimes.push_back(readName(in));
+			}
+
+			b.hasMut = checkReadTextToken(in, "mut");
+		}
+
+		return res;
+	}
+
 	template<AnyInput In>
 	inline Type readType(In& in)
 	{
