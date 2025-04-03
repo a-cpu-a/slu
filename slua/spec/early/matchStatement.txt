@@ -9,20 +9,18 @@ New Syntax {
 	matchPatBinOp ::= "to" | "or"
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
-	ndPatField ::= ndPatFieldUncond ["=" ndPat]
-	ndPatFieldUncond ::= ["mut"] basicTypeItm Name |
-		"as" ["mut"] type Name 
+	destrSpec ::= (["mut"] basicTypeOrTypePrefix) | ("as" ["mut"] type)
+	
 	
 	destrField ::= "[" tupleableName "]" destrTupField
-	destrTupField ::= "(" pat ")" | patNoNpfList | ndPatField
+	destrTupField ::= "(" pat ")" | patNoNpfList
 	
 	destrFieldUncond ::= "[" tupleableName "]" destrTupFieldUncond
-	destrTupFieldUncond ::= "(" uncondDestrPat ")" | uncondDestrPatNoNpfuList | ndPatFieldUncond
+	destrTupFieldUncond ::= "(" uncondDestrPat ")" | uncondDestrPatNoNpfuList
 	
 	extraFieldSignifier ::= "," "..."
 	
 	
-	destrSpec ::= (["mut"] basicTypeItm) | ("as" ["mut"] type)
 	
 	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
 	destrTupFieldList ::= destrTupField {"," destrTupField} [extraFieldSignifier]
@@ -34,6 +32,8 @@ New Syntax {
 		destrSpec "[" destrTupFieldList "]" |
 		
 		"of" ["mut"] type "[" destrTupFieldList "]" |
+		
+		destrSpec Name ["=" ndPat] |
 		"_"
 		
 		
@@ -47,6 +47,8 @@ New Syntax {
 		destrSpec "[" uncondDestrTupFieldList "]" |
 		
 		"of" ["mut"] type "[" uncondDestrTupFieldList "]" |
+		
+		destrSpec Name |
 		"_"
 	
 	dPat ::= dPatNoNpfList | NpfList
