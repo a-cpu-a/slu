@@ -9,7 +9,7 @@ New Syntax {
 	matchPatBinOp ::= "to" | "or"
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
-	destrSpec ::= ["mut"] basicTypeOrTypePrefix
+	destrSpec ::= (["mut"] basicTypeOrTypePrefix) | ("as" ["mut"] type)
 	
 	
 	destrField ::= "[" tupleableName "]" pat
