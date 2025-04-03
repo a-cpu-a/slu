@@ -35,10 +35,6 @@ New Syntax {
 	typedParam ::= destrTupFieldUncond
 	TypedParamList ::= typedParam {"," typedParam}
 	
-	typedVarArg ::= ["mut"] [type] "..."
-	typedParamsVarArg ::= TypedParamList ["," typedVarArg]
-	TypedParamListVarArg ::= [typedParamsVarArg | typedVarArg]
-	
 	macroParam ::= ["macro"] typedParam
 	
 	macroParamSep ::= "," | ";"
