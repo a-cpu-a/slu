@@ -32,7 +32,7 @@ New Syntax {
 	
 	borrowLifetime ::= "/" var
 	
-	typedParam ::= ["mut"] [type] Name
+	typedParam ::= destrTupFieldUncond
 	TypedParamList ::= typedParam {"," typedParam}
 	
 	typedVarArg ::= ["mut"] [type] "..."
