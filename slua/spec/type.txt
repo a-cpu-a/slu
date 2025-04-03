@@ -30,7 +30,7 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= ["#"] {["&" ["mut"] {borrowLifetime}]}
+	typePrefix ::= ["#"] {["&" {borrowLifetime} ["mut"]]}
 	
 	borrowLifetime ::= "/" var
 	
@@ -249,13 +249,13 @@ Type Specifiers {
 		let firstArg = --...
 		let secondArg = --...
 		
-		let &u8/firstArg myRef = &firstArg;
+		let &/firstArg u8 myRef = &firstArg;
 		
 		let &mut u8 myRef2 = &mut secondArg;-- The annotation is inferred here.
 		
 		drop myRef2;-- Required, because not adding this, will produce a soft-error.
 		
-		let &u8/firstArg/secondArg = &firstArg;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		let &/firstArg/secondArg u8 = &firstArg;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
 		
 		```
 	}
