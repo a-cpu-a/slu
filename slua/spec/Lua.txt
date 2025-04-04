@@ -9,7 +9,7 @@ New Syntax {
 	block ::= {stat} [retstat [‘;’]]
 
 	basicstat ::= ‘;’ | 
-		 assignvarlist ‘=’ explist | 
+		 varlist ‘=’ explist | 
 		 functioncall | 
 		 ‘break’ | 
 		 ‘goto’ Name
@@ -37,10 +37,9 @@ New Syntax {
 
 	funcname ::= Name {‘.’ Name} [‘:’ Name]
 
-	assignvarStart ::= 
-	assignvarlist ::= assignvarStart var {‘,’ assignvarStart var}
+	varlist ::= var {‘,’ var}
 
-	varbase ::= Name | ‘(’ exp ‘)’
+	varbase ::= [‘*’] Name | [‘*’] ‘(’ exp ‘)’ subvar | ‘*’ ‘(’ exp ‘)’
 	subvar ::= {args} (‘[’ exp ‘]’ | ‘.’ Name)
 	var ::= varbase {subvar}
 
