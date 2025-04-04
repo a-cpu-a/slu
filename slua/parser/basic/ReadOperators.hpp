@@ -53,6 +53,12 @@ namespace sluaParse
 				return UnOpType::TO_PTR_CONST;
 
 			return UnOpType::DEREF;
+		case 'a':
+			if (!(in.settings() & sluaSyn))break;
+
+			if (checkReadTextToken(in, "alloc"))
+				return UnOpType::ALLOCATE;
+			break;
 		default:
 			break;
 		}
