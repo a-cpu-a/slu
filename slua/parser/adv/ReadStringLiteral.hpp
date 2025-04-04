@@ -363,6 +363,20 @@ namespace sluaParse
 				level++;
 				in.skip();
 			}
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (level == 0)
+					throw UnexpectedCharacterError(
+						"Expected " LC_string 
+						", to have atleast "
+						LUACC_NUM_COL("1")
+						" " LUACC_SINGLE_STRING("=") 
+						" character between the "
+						LUACC_SINGLE_STRING("[")
+						" characters"
+						+ errorLocStr(in)
+					);
+			}
 			requireToken<false>(in, "[");
 
 			bool skipNl = true;
