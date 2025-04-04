@@ -73,6 +73,14 @@ namespace sluaParse
 				size_t level = 0;
 				while (in.peekAt(idx + 1 + level) == '=') level++;
 
+
+				if constexpr (in.settings() & sluaSyn)
+				{
+					if (level == 0)
+						throwMultilineCommentMissingEqual(in);
+				}
+
+
 				if (in.peekAt(idx + 1 + level) == '[') // Confirm multiline comment
 				{
 					idx += 2 + level; // Skip opening '[=['
@@ -181,6 +189,7 @@ namespace sluaParse
 					while (in.peekAt(1 + level) == '=') // Count '=' signs
 						level++;
 
+
 					if (in.peekAt(1 + level) == ']' && level == multilineCommentLevel)
 					{
 						insideMultilineComment = false;
@@ -221,6 +230,12 @@ namespace sluaParse
 						size_t level = 0;
 						while (in.peekAt(3 + level) == '=') // Count '=' signs
 							level++;
+
+						if constexpr (in.settings() & sluaSyn)
+						{
+							if (level == 0)
+								throwMultilineCommentMissingEqual(in);
+						}
 
 						if (in.peekAt(3 + level) == '[') // Confirm multiline comment start
 						{

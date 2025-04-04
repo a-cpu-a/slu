@@ -1,0 +1,11 @@
+#
+# Dependencies: Lua
+#
+
+Changed Syntax {
+	
+	Multiline strings/comments now require atleast 1 "=" between the "[" characters.
+	
+	This is to simplify array usage ( let x = [[1] ; 4]; ) -> the "[[" would have been parsed as a string, that never ends.
+	
+}

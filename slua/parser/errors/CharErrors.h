@@ -8,6 +8,18 @@
 
 namespace sluaParse
 {
+	inline void throwMultilineCommentMissingEqual(AnyInput auto& in)
+	{
+		throw UnexpectedCharacterError(
+			"Expected multiline comment, to have atleast "
+			LUACC_NUM_COL("1")
+			" " LUACC_SINGLE_STRING("=")
+			" character between the "
+			LUACC_SINGLE_STRING("[")
+			" characters"
+			+ errorLocStr(in)
+		);
+	}
 	inline void throwSpaceMissingBeforeString(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
