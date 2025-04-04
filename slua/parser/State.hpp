@@ -77,16 +77,13 @@ namespace sluaParse
 
 	// Slua
 
+	//Possible future optimization:
+	/*
+	enum class TypeId : size_t {}; //Strong alias
+	*/
+
 
 	using ModPath = std::vector<std::string>;
-
-
-	struct TypeId
-	{
-		// ???
-		// 32 bytes+
-		// OR, 8/4 bytes for index into big array.
-	};
 
 	struct BorrowLevel
 	{
@@ -224,7 +221,7 @@ namespace sluaParse
 	template<>
 	struct ParameterV<true> : ParameterV<false>
 	{
-		TypeId ty;
+		Type ty;
 	};
 
 	template<AnyCfgable CfgT>
@@ -245,7 +242,7 @@ namespace sluaParse
 	template<>
 	struct FunctionV<true> : BaseFunctionV<true>
 	{
-		TypeId retType;
+		ErrType retType;
 	};
 
 	template<AnyCfgable CfgT>
