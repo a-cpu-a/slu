@@ -10,6 +10,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+#include <slua/ext/CppMatch.hpp>
 #include <slua/parser/State.hpp>
 #include <slua/parser/Input.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
@@ -35,33 +36,46 @@ namespace sluaParse
 		return mp;
 	}
 
-	template<AnyInput In>
+	template<bool hasDeref,AnyInput In>
 	inline void parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			BaseVarType::EXPR<In> res(readExpr(in,allowVarArg));
+			Expression<In> res = readExpr(in,allowVarArg);
 			requireToken(in, ")");
-			varDataNeedsSubThing = true;
-			varDataOut.base = std::move(res);
-		}
-		else
-		{// Must be Name, ... or mod path
 
-			//Lua doesnt reserve mp_start names, so doesnt matter
-			std::string start = readName<true>(in);
-
-			if constexpr (in.settings() & sluaSyn)
+			if (hasDeref)
 			{
-				BaseVarType::MOD_PATH mp = readModPath(in, start);
+				varDataOut.base = BaseVarType::EXPR_DEREF_NO_SUB<In>(std::move(res));
+			}
+			else
+			{
+				varDataOut.base = BaseVarType::EXPR<In>(std::move(res));
+				varDataNeedsSubThing = true;
+			}
+			return;
+		}
+		// Must be Name, ... or mod path
 
-				if (mp.size() != 1)
-					varDataOut.base = mp;
+		//Lua doesnt reserve mp_start names, so doesnt matter
+		std::string start = readName<true>(in);
+
+		if constexpr (in.settings() & sluaSyn)
+		{
+			BaseVarType::MOD_PATH mp = { readModPath(in, start) };
+
+			if (mp.mp.size() != 1)
+			{
+				varDataOut.base = mp;
+				mp.hasDeref = hasDeref;
 				return;
 			}
-			varDataOut.base = BaseVarType::NAME(start);
 		}
+		if constexpr (hasDeref)
+			varDataOut.base = BaseVarType::NAME<In>( start,true);
+		else
+			varDataOut.base = BaseVarType::NAME<In>( start );
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
@@ -122,7 +136,7 @@ namespace sluaParse
 		return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
 	}
 	template<class T,bool FOR_EXPR, AnyInput In>
-	inline T parsePrefixExprVar(In& in, const bool allowVarArg, const char firstChar)
+	inline T parsePrefixExprVar(In& in, const bool allowVarArg, char firstChar)
 	{
 		/*
 			var ::= baseVar {subvar}
@@ -136,9 +150,25 @@ namespace sluaParse
 		std::vector<Var<In>> varData;
 		std::vector<ArgFuncCall<In>> funcCallData;// Current func call chain, empty->no chain
 		bool varDataNeedsSubThing = false;
-
+		
 		varData.emplace_back();
-		parseVarBase(in,allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
+
+		if constexpr (!FOR_EXPR && (in.settings() & sluaSyn))
+		{
+			if (firstChar == '*')
+			{
+				in.skip();
+				skipSpace(in);
+				firstChar = in.peek();
+				parseVarBase<true>(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
+			}
+			else
+				parseVarBase<false>(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
+		}
+		else
+		{
+			parseVarBase<false>(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
+		}
 
 		char opType;
 
@@ -164,9 +194,22 @@ namespace sluaParse
 						throwExprInVarList(in);
 
 					in.skip();//skip comma
-					skipSpace(in);
+
 					varData.emplace_back();
-					parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
+
+					if constexpr (in.settings() & sluaSyn)
+					{
+						const bool hasDeref = checkReadToken(in,"*");
+
+						if (hasDeref)
+						{
+							skipSpace(in);
+							parseVarBase<true>(in, allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
+							break;
+						}
+					}
+					skipSpace(in);
+					parseVarBase<false>(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
 			default:
@@ -292,11 +335,11 @@ namespace sluaParse
 			explist ::= exp {‘,’ exp}
 		*/
 		ExpList<In> ret{};
-		ret.emplace_back(readExpr(in, allowVarArg));
+		ret.push_back(std::move(readExpr(in, allowVarArg)));
 
 		while (checkReadToken(in, ","))
 		{
-			ret.emplace_back(readExpr(in, allowVarArg));
+			ret.push_back(std::move(readExpr(in, allowVarArg)));
 		}
 		return ret;
 	}
