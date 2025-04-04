@@ -85,12 +85,17 @@ namespace sluaParse
 		case UnOpType::BITWISE_NOT:
 			return " ~"sv;
 
+		case UnOpType::DEREF:
+			return " *"sv;
+		case UnOpType::ALLOCATE:
+			return " alloc "sv;
+
 		case UnOpType::TO_REF:
 			return " &"sv;
 		case UnOpType::TO_REF_MUT:
 			return " &mut "sv;
-		case UnOpType::TO_PTR:
-			return " *"sv;
+		case UnOpType::TO_PTR_CONST:
+			return " *const "sv;
 		case UnOpType::TO_PTR_MUT:
 			return " *mut "sv;
 		default:
