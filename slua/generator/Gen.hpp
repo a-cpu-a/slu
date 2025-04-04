@@ -344,15 +344,17 @@ namespace sluaParse
 	inline void genVar(Out& out, const Var<Out>& obj)
 	{
 		ezmatch(obj.base)(
-		varcase(const BaseVarType::NAME&) {
-			out.add(var);
+		varcase(const BaseVarType::NAME<Out>&) {
+			//if (var.hasDeref)out.add("*"); //TODO
+			out.add(var.name);
 		},
 		varcase(const BaseVarType::MOD_PATH&) {
-			out.add(var[0]);
-			for (size_t i = 1; i < var.size(); i++)
+			if (var.hasDeref)out.add("*");
+			out.add(var.mp[0]);
+			for (size_t i = 1; i < var.mp.size(); i++)
 			{
 				out.add("::");
-				out.add(var[i]);
+				out.add(var.mp[i]);
 			}
 		},
 		varcase(const BaseVarType::EXPR<Out>&) {
@@ -360,6 +362,11 @@ namespace sluaParse
 			genExpr(out, var.start);
 			out.add(')');
 			genSubVar(out, var.sub);
+		},
+		varcase(const BaseVarType::EXPR_DEREF_NO_SUB<Out>&) {
+			out.add("*(");
+			genExpr(out, var.start);
+			out.add(')');
 		}
 		);
 		for (const SubVar<Out>& sub :  obj.sub)

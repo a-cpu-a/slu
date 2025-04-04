@@ -422,26 +422,52 @@ namespace sluaParse
 
 	namespace BaseVarType
 	{
-		using NAME = std::string;
+		template<bool isSlua>
+		struct NAMEv
+		{
+			std::string name;
+		};
+		template<>
+		struct NAMEv<true>
+		{
+			std::string name;
+			bool hasDeref=false;
+		};
+
+		template<AnyCfgable CfgT>
+		using NAME = SelV<CfgT, NAMEv>;
 
 		template<bool isSlua>
 		struct EXPRv
 		{
-			ExpressionV<isSlua> start; 
+			ExpressionV<isSlua> start;
 			SubVarV<isSlua> sub;
 		};
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 
 		// Slua only:
 		
+
+		template<bool isSlua>
+		struct EXPR_DEREF_NO_SUBv
+		{
+			ExpressionV<isSlua> start;
+		};
+		template<AnyCfgable CfgT> using EXPR_DEREF_NO_SUB = SelV<CfgT, EXPR_DEREF_NO_SUBv>;
+
 		//len is atleast 1
-		using MOD_PATH = ModPath;
+		struct MOD_PATH
+		{
+			ModPath mp;
+			bool hasDeref = false;
+		};
 	}
 	template<bool isSlua>
 	using BaseVarV = std::variant<
-		BaseVarType::NAME,
+		BaseVarType::NAMEv<isSlua>,
 		BaseVarType::MOD_PATH,
-		BaseVarType::EXPRv<isSlua>
+		BaseVarType::EXPRv<isSlua>,
+		BaseVarType::EXPR_DEREF_NO_SUBv<isSlua>
 	>;
 
 	template<AnyCfgable CfgT>
