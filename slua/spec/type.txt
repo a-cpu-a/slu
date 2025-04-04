@@ -45,6 +45,8 @@ New Syntax {
 	tupleableName ::= Name | Integral
 	
 	unop @::= | "*" | "&" ["mut"] | "*" ("mut" | "const") | "alloc"
+	
+	assignvarStart @::= | "*"
 }
 
 New Keywords {
