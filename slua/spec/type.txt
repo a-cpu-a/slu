@@ -232,15 +232,15 @@ Type Specifiers {
 		Allows use of the "?" operator, and other error handling tools.
 	}
 	GC {
-		Format: "#" X
+		Format: "#" ["mut"] X
 		
 		Turns the type into a gc-value, this means that it can be passed into other
 		functions, and they can then modify that variable.
 		It is also garbage collected, unless lifetime is simple enough to be inlined into some value type + borrows
 		
-		Passing this to other threads is not allowed, this means you cant store gc-values in global variables.
+		Passing this to other threads is not allowed if it is mutable, this means you cant store mutable gc-values in global variables.
 		
-		Borrowing these is also not allowed.
+		Borrowing these is allowed.
 		
 		Use the "alloc" unary operator, to create these.
 	}
