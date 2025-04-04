@@ -38,7 +38,6 @@ New Syntax {
 	funcname ::= Name {‘.’ Name} [‘:’ Name]
 
 	assignvarStart ::= 
-
 	assignvarlist ::= assignvarStart var {‘,’ assignvarStart var}
 
 	varbase ::= Name | ‘(’ exp ‘)’
