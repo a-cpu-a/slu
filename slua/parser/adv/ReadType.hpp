@@ -34,9 +34,6 @@ namespace sluaParse
 	inline TypeSpecifiers readTypeSpecifiers(In& in)
 	{
 		TypeSpecifiers res{};
-		skipSpace(in);
-		if (checkReadToken(in, "#"))
-			res.gc = true;
 
 		while (in)
 		{
@@ -52,7 +49,27 @@ namespace sluaParse
 
 			b.hasMut = checkReadTextToken(in, "mut");
 		}
+		while (in)
+		{
+			skipSpace(in);
 
+			GcPtrLevel& lvl = res.gcPtrLevels.emplace_back();
+
+			switch (in.peek())
+			{
+			case '#':
+				lvl.isPtr = false;
+				break;
+			case '*':
+				lvl.isPtr = true;
+				break;
+			default:
+				goto exit;
+			}
+			in.skip();
+			lvl.hasMut = checkReadTextToken(in, "mut");
+		}
+	exit:
 		return res;
 	}
 
