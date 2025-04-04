@@ -30,7 +30,7 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= ["#"] {["&" {borrowLifetime} ["mut"]]} {"*" ("mut" | "const")}
+	typePrefix ::= {["&" {borrowLifetime} ["mut"]]} {("*" ("mut" | "const")) | ("#" ["mut"])}
 	
 	borrowLifetime ::= "/" var
 	
