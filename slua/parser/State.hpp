@@ -93,10 +93,15 @@ namespace sluaParse
 		std::vector<std::string> lifetimes;
 		bool hasMut=false;//eventualy share too
 	};
+	struct GcPtrLevel
+	{
+		bool isPtr : 1 = true;// false -> gc
+		bool hasMut : 1 = false;
+	};
 	struct TypeSpecifiers
 	{
 		std::vector<BorrowLevel> borrows;
-		bool gc=false;
+		std::vector<GcPtrLevel> gcPtrLevels;
 	};
 
 	using TraitCombo = std::vector<ModPath>;
