@@ -49,6 +49,7 @@ namespace sluaParse
 		BITWISE_NOT,   // "~"
 
 		//Slua
+		ALLOCATE,		// "alloc"
 		DEREF,			// "*"
 
 		TO_REF,			// "&"
