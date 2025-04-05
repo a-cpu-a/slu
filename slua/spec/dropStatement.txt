@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	stat @::= | "drop" Var
+	stat @::= | "drop" Name
 }
 
 New Keywords {
