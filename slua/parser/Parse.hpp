@@ -343,6 +343,24 @@ namespace sluaParse
 		return res;
 	}
 
+	template<AnyInput In>
+	inline bool readExportableStat(In& in,StatementData<In>& outData,bool exported)
+	{
+		if (checkReadTextToken(in, "type"))
+		{
+			StatementType::TYPE res{};
+			res.exported = exported;
+
+			res.name = readName(in);
+			requireToken(in, "=");
+			res.ty = readType(in);
+
+			outData = std::move(res);
+			return true;
+		}
+		return false;
+	}
+
 	template<bool isLoop, AnyInput In>
 	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
 	{
@@ -682,23 +700,23 @@ namespace sluaParse
 			break;
 
 			//Slua
-		case 't'://type?
+		case 'e'://ex ...?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (checkReadTextToken(in, "type"))
+				if (checkReadTextToken(in, "ex"))
 				{
-					StatementType::TYPE res{};
-
-					res.name = readName(in);
-					requireToken(in, "=");
-					res.ty = readType(in);
-
-					ret.data = std::move(res);
-					return ret;
+					if (readExportableStat(in,ret.data,true))
+						return ret;
 				}
 			}
 			break;
-
+		case 't'://type?
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (readExportableStat(in, ret.data, false))
+					return ret;
+			}
+			break;
 		default://none of the above...
 			break;
 		}
