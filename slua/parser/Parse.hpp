@@ -22,6 +22,7 @@
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"
 #include "adv/ReadType.hpp"
+#include "errors/KwErrors.h"
 
 
 
@@ -352,7 +353,7 @@ namespace sluaParse
 	}
 
 	template<AnyInput In>
-	inline bool readExportableStat(In& in,StatementData<In>& outData, const ExportData exported)
+	inline bool readTypeStat(In& in,StatementData<In>& outData, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "type"))
 		{
@@ -721,15 +722,24 @@ namespace sluaParse
 			{
 				if (checkReadTextToken(in, "ex"))
 				{
-					if (readExportableStat(in,ret.data,true))
-						return ret;
+					skipSpace(in);
+					switch (in.peek())
+					{
+					case 't':
+						if (readTypeStat(in, ret.data, true))
+							return ret;
+						break;
+					default:
+						break;
+					}
+					throwExpectedExportable(in);
 				}
 			}
 			break;
 		case 't'://type?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (readExportableStat(in, ret.data, false))
+				if (readTypeStat(in, ret.data, false))
 					return ret;
 			}
 			break;
