@@ -314,7 +314,7 @@ namespace sluaParse
 
 	namespace ExprType
 	{
-		struct NIL {};											// "nil"
+		using NIL = std::monostate;								// "nil"
 		struct FALSE {};										// "false"
 		struct TRUE {};											// "true"
 		struct NUMERAL { double v; };							// "Numeral"
@@ -535,7 +535,7 @@ namespace sluaParse
 
 	namespace StatementType
 	{
-		using SEMICOLON = std::monostate;							// ";"
+		using SEMICOLON = std::monostate;	// ";"
 
 		template<bool isSlua>
 		struct ASSIGNv { std::vector<VarV<isSlua>> vars; ExpListV<isSlua> exprs; };// "varlist = explist" //e.size must be > 0
