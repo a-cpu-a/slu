@@ -339,6 +339,48 @@ namespace sluaParse
 	}
 
 	template<AnyInput In>
+	inline bool readModStat(In& in, StatementData<In>& outData, const ExportData exported)
+	{
+		if (checkReadTextToken(in, "mod"))
+		{
+			std::string modName = 
+				exported 
+					? readName(in) 
+					: readName<true>(in);
+
+			if (modName == "self")
+			{
+				outData = StatementType::MOD_SELF{};
+				return true;
+			}
+			if (modName == "crate")
+			{
+				outData = StatementType::MOD_CRATE{};
+				return true;
+			}
+
+			if (checkReadTextToken(in, "as"))
+			{
+				StatementType::MOD_DEF_INLINE<In> res{};
+				res.exported = exported;
+				res.name = std::move(modName);
+
+				requireToken(in, "{");
+				res.bl = readBlock<false>(in,false);
+				requireToken(in, "}");
+
+				outData = std::move(res);
+			}
+			else
+			{
+				outData = StatementType::MOD_DEF{modName,exported};
+			}
+
+			return true;
+		}
+		return false;
+	}
+	template<AnyInput In>
 	inline bool readUseStat(In& in,StatementData<In>& outData, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "use"))
@@ -754,6 +796,8 @@ namespace sluaParse
 							return ret;
 						break;
 					case 'm'://mod?
+						if (readModStat(in, ret.data, true))
+							return ret;
 						break;
 					default:
 						break;
@@ -770,6 +814,11 @@ namespace sluaParse
 			}
 			break;
 		case 'm'://mod?
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (readModStat(in, ret.data, false))
+					return ret;
+			}
 			break;
 		case 't'://type?
 			if constexpr (in.settings() & sluaSyn)

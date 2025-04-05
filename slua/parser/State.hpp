@@ -634,20 +634,36 @@ namespace sluaParse
 		{
 			std::string var;
 		};
+		struct MOD_DEF
+		{
+			std::string name;
+			ExportData exported = false;
+		};
+		template<bool isSlua>
+		struct MOD_DEF_INLINEv
+		{ 
+			std::string name;
+			BlockV<isSlua> bl;
+			ExportData exported = false;
+		};
+		template<AnyCfgable CfgT> using MOD_DEF_INLINE = SelV<CfgT, MOD_DEF_INLINEv>;
+
+		struct MOD_SELF {};
+		struct MOD_CRATE {};
 	};
 
 	template<bool isSlua>
 	using StatementDataV = std::variant<
-		StatementType::SEMICOLON,		// ";"
+		StatementType::SEMICOLON,				// ";"
 
 		StatementType::ASSIGNv<isSlua>,			// "varlist = explist"
 		StatementType::LOCAL_ASSIGNv<isSlua>,	// "local attnamelist [= explist]"
 
 		StatementType::FUNC_CALLv<isSlua>,		// "functioncall"
-		StatementType::LABEL,			// "label"
-		StatementType::BREAK,			// "break"
-		StatementType::GOTO,			// "goto Name"
-		StatementType::BLOCKv<isSlua>,		// "do block end"
+		StatementType::LABEL,					// "label"
+		StatementType::BREAK,					// "break"
+		StatementType::GOTO,					// "goto Name"
+		StatementType::BLOCKv<isSlua>,			// "do block end"
 		StatementType::WHILE_LOOPv<isSlua>,		// "while exp do block end"
 		StatementType::REPEAT_UNTILv<isSlua>,	// "repeat block until exp"
 
@@ -659,9 +675,13 @@ namespace sluaParse
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
 
-		StatementType::TYPE,// OptExportPrefix "type" Name "=" type
-		StatementType::DROP,// "drop" Name
-		StatementType::USE  // "use" ...
+		StatementType::TYPE,	// OptExportPrefix "type" Name "=" type
+		StatementType::DROP,	// "drop" Name
+		StatementType::USE,		// "use" ...
+		StatementType::MOD_SELF,				// "mod" "self"
+		StatementType::MOD_CRATE,				// "mod" "crate"
+		StatementType::MOD_DEF,					// "mod" Name
+		StatementType::MOD_DEF_INLINEv<isSlua>	// "mod" Name "as" "{" block "}"
 	> ;
 
 	template<AnyCfgable CfgT>
