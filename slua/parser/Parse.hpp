@@ -344,7 +344,7 @@ namespace sluaParse
 	}
 
 	template<AnyInput In>
-	inline bool readExportableStat(In& in,StatementData<In>& outData,bool exported)
+	inline bool readExportableStat(In& in,StatementData<In>& outData, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "type"))
 		{

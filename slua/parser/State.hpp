@@ -87,6 +87,9 @@ namespace sluaParse
 	*/
 
 
+	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
+	using ExportData = bool;
+
 	using ModPath = std::vector<std::string>;
 
 	struct BorrowLevel
@@ -604,7 +607,7 @@ namespace sluaParse
 		{
 			std::string name;
 			Type ty;
-			bool exported=false;
+			ExportData exported=false;
 		};
 	};
 
