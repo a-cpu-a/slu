@@ -35,6 +35,56 @@ namespace sluaParse
 	{
 		TypeSpecifiers res{};
 
+
+		while (in)
+		{
+			skipSpace(in);
+			if (!in)goto exit;
+
+			if (in.peek() != '*')
+				break;
+			in.skip();
+
+			skipSpace(in);
+			if (!in)goto exit;
+
+			const char fChar = in.peek();
+			switch (fChar)
+			{
+			case '*'://its another ptr, or deref
+				res.derefCount++;
+				break;//Exit switch, continue
+
+			case 'm':
+				if (checkReadTextToken(in, "mut"))
+				{
+					res.gcPtrLevels.push_back(GcPtrLevel(true, true));
+					goto ptrs;
+				}
+				res.derefCount++;
+				goto exit;
+			case 'c':
+				if (checkReadTextToken(in, "const"))
+				{
+					res.gcPtrLevels.push_back(GcPtrLevel(true,false));
+					goto ptrs;
+				}
+				res.derefCount++;
+				goto exit;
+			default:
+				res.derefCount++;
+				goto exit;//Unknown, but not one of the next steps
+
+			case '#'://its gc
+				res.derefCount++;
+				goto ptrs;
+			case '&'://its a ref
+				res.derefCount++;
+				goto exitDerefs;
+
+			}
+		}
+	exitDerefs:
 		while (in)
 		{
 			if (!checkReadToken(in, "&"))
@@ -49,6 +99,7 @@ namespace sluaParse
 
 			b.hasMut = checkReadTextToken(in, "mut");
 		}
+	ptrs:
 		while (in)
 		{
 			skipSpace(in);
