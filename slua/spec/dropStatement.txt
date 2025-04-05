@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	stat @::= | "drop" Name
+	stat @::= | "drop" Var
 }
 
 New Keywords {
@@ -13,7 +13,7 @@ New Keywords {
 
 Drop Statement {
 	
-	Drop a variable explicitly
+	Drop a local variable explicitly
 	
 	This is useful, for deleting variables before they have gone out of scope.
 	
