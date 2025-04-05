@@ -17,7 +17,7 @@ New Syntax {
 	stat @::= | "mod" "self"
 	stat @::= | OptExportPrefix "use" modpath useVariant
 	
-	useVariant ::= ["as" Name | "::" "*" | "::" "{" modpathStartList "}"]
+	useVariant ::= ["as" Name | "::*" | "::{" modpathStartList "}"]
 	
 	
 }
