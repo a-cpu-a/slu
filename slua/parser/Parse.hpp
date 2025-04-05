@@ -304,8 +304,13 @@ namespace sluaParse
 		}
 
 		requireToken(in, ")");
-		if constexpr(in.settings()&sluaSyn)
+		if constexpr (in.settings() & sluaSyn)
+		{
+			if (checkReadToken("->"))
+				ret.retType = readErrType(in);
+
 			requireToken(in, "{");
+		}
 		try
 		{
 			ret.block = readBlock<false>(in, ret.hasVarArgParam);
