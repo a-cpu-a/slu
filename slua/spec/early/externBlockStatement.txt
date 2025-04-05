@@ -11,12 +11,46 @@ New Keywords {
 	extern
 }
 
+New Abis {
+	
+	"C" {
+		Compatible with c code
+	}
+	"C++" {
+		Compatible with c++ code
+	}
+	"Slua" {
+		By default Slua is equivelant to None.
+		However, if dynamic linking is used, and this is exported out of the crate, then will be equivelant to SluaLock.
+	}
+	"SluaLock" {
+		A abi will be generated & optimized for the thing(func,var,...) & put into some lock file.
+	}
+	"Lua" {
+		Compatible with lua code
+	}
+	"Js" {
+		Compatible with js code
+	}
+	"Java" {
+		Compatible with java code
+	}
+	"None" {
+		No defined abi, useful in dynamicly linked libraries, where you need a exported thing, with no defined abi.
+		The abi may change at any moment. (even while the program is running... maybe (smc))
+		
+		If a function pointer is taken, a wrapper function may be created sometimes, to allow all functions to have the same abi.
+		
+		Since the abi is undefined, this could just be equivelant to "C" with some arg manipulation.
+	}
+	
+}
+
 Extern Block Statement {
 	
 	Imports functions from the host environment.
 	
 	Can be used to call things like C functions, or lua functions.
-	
 	
 	
 	
