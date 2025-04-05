@@ -309,26 +309,29 @@ namespace sluaParse
 			if (checkReadToken("->"))
 				ret.retType = readErrType(in);
 
-			requireToken(in, "{");
+			ret.block = readDoOrStatOrRet<false>(in, ret.hasVarArgParam);
 		}
-		try
+		else
 		{
-			ret.block = readBlock<false>(in, ret.hasVarArgParam);
-		}
-		catch (const ParseError& e)
-		{
-			in.handleError(e.m);
+			try
+			{
+				ret.block = readBlock<false>(in, ret.hasVarArgParam);
+			}
+			catch (const ParseError& e)
+			{
+				in.handleError(e.m);
 
-			if(recoverErrorTextToken(in,"end"))
-				return { std::move(ret),true };// Found it, recovered!
+				if (recoverErrorTextToken(in, "end"))
+					return { std::move(ret),true };// Found it, recovered!
 
-			//End of stream, and no found end's, maybe the error is a missing "end"?
-			throw FailedRecoveryError(std::format(
-				"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
-				errorLocStr(in, place)
-			));
+				//End of stream, and no found end's, maybe the error is a missing "end"?
+				throw FailedRecoveryError(std::format(
+					"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
+					errorLocStr(in, place)
+				));
+			}
+			requireToken(in, "end");
 		}
-		requireToken(in, sel<In>("end","}"));
 
 		return { std::move(ret),false };
 	}
