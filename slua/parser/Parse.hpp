@@ -439,7 +439,7 @@ namespace sluaParse
 		Block<In> bl = readBlock<isLoop>(in, allowVarArg);
 		requireToken(in, sel<In>("end","}"));
 
-		return (bl);
+		return bl;
 	}
 
 	template<bool isLoop,SemicolMode semicolMode = SemicolMode::REQUIRE, AnyInput In>
