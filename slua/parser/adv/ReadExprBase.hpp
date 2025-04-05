@@ -37,18 +37,13 @@ namespace sluaParse
 		return mp;
 	}
 	template<AnyInput In>
-	inline SubModPath readSubModPath(In& in)
-	{
-		SubModPath mp = { readName(in)};
-		skipSpace(in);
-		while (checkToken(in, "::") && in.peekAt(2) != ':')
-		{
-			in.skip(2);//skip '::'
-			skipSpace(in);
-			mp.push_back(readName(in));
-			skipSpace(in);
-		}
-		return mp;
+	inline ModPath readModPath(In& in) {
+		return readModPath(in, readName<true>(in));
+	}
+	//Unlike readModPath, doesnt have the ability to do things like `self::xyz`
+	template<AnyInput In>
+	inline SubModPath readSubModPath(In& in) {
+		return readModPath(in,readName(in));
 	}
 
 	template<bool hasDeref,AnyInput In>

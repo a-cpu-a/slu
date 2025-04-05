@@ -24,7 +24,7 @@ namespace sluaParse
 		TraitCombo res;
 		while (in)
 		{
-			res.push_back(readModPath(in, readName<true>(in)));
+			res.push_back(readModPath(in));
 			if (!checkReadToken(in, "+"))
 				break;
 		}
@@ -195,7 +195,7 @@ namespace sluaParse
 		}
 		//comptime var thing
 
-		ret.obj = TypeObjType::COMPTIME_VAR_TYPE(readModPath(in, readName(in)));
+		ret.obj = TypeObjType::COMPTIME_VAR_TYPE(readModPath(in));
 		return ret;
 	}
 	template<AnyInput In>
