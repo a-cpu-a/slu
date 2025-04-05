@@ -740,6 +740,9 @@ namespace sluaParse
 			out.add(var.name).add(" = ");
 			genType(out,var.ty);
 			out.addNewl(";");
+		},
+		varcase(const StatementType::DROP&) {
+			out.add("drop ").add(var.var).addNewl(";");
 		}
 
 		);
