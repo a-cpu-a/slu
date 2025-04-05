@@ -159,7 +159,6 @@ namespace sluaParse
 	using BasicType = std::vector<BasicTypeItem>;
 	using BasicTypeOrPrefix = std::variant<BasicType,TypeSpecifiers>;
 
-
 	struct ErrType
 	{
 		std::optional<Type> val;
@@ -598,6 +597,15 @@ namespace sluaParse
 			ExpListV<isSlua> exprs;
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
+
+
+		// Slua
+		struct TYPE
+		{
+			std::string name;
+			Type ty;
+			bool exported=false;
+		};
 	};
 
 	template<bool isSlua>
@@ -621,7 +629,9 @@ namespace sluaParse
 		StatementType::FOR_LOOP_GENERICv<isSlua>,// "for namelist in explist do block end"
 
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
-		StatementType::LOCAL_FUNCTION_DEFv<isSlua>	// "local function Name funcbody"
+		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
+
+		StatementType::TYPE //OptExportPrefix "type" Name "=" type
 	> ;
 
 	template<AnyCfgable CfgT>
