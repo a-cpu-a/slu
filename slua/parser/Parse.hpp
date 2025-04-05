@@ -347,16 +347,18 @@ namespace sluaParse
 				exported 
 					? readName(in) 
 					: readName<true>(in);
-
-			if (modName == "self")
+			if(!exported)
 			{
-				outData = StatementType::MOD_SELF{};
-				return true;
-			}
-			if (modName == "crate")
-			{
-				outData = StatementType::MOD_CRATE{};
-				return true;
+				if (modName == "self")
+				{
+					outData = StatementType::MOD_SELF{};
+					return true;
+				}
+				if (modName == "crate")
+				{
+					outData = StatementType::MOD_CRATE{};
+					return true;
+				}
 			}
 
 			if (checkReadTextToken(in, "as"))
