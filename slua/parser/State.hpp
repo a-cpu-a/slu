@@ -74,6 +74,9 @@ namespace sluaParse
 	}
 
 
+	template<bool isSlua>
+	using ExpListV = std::vector<ExpressionV<isSlua>>;
+
 
 	// Slua
 
@@ -110,7 +113,7 @@ namespace sluaParse
 		struct SLICE_OR_ARRAY
 		{
 			Type ty;
-			std::vector<ExpressionV<true>> size;//empty -> slice, else array
+			ExpListV<true> size;//empty -> slice, else array
 		};
 		using TUPLE = std::vector<Type>;
 		struct TRAIT_COMBO
@@ -181,9 +184,6 @@ namespace sluaParse
 	using TableConstructor = SelV<CfgT, TableConstructorV>;
 
 
-
-	template<bool isSlua>
-	using ExpListV = std::vector<ExpressionV<isSlua>>;
 
 	template<AnyCfgable CfgT>
 	using ExpList = SelV<CfgT, ExpListV>;
