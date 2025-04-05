@@ -201,7 +201,8 @@ namespace sluaParse
 	template<AnyInput In>
 	inline Type readType(In& in)
 	{
-		Type res{readTypeItem(in)};
+		Type res;
+		res.emplace_back(readTypeItem(in));
 		while (in)
 		{
 			if (!checkReadToken(in, "|"))
