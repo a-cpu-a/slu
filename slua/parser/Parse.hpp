@@ -16,6 +16,7 @@
 #include "basic/ReadMiscNames.hpp"
 #include "basic/ReadBasicStats.hpp"
 #include "basic/ReadModStat.hpp"
+#include "basic/ReadUseStat.hpp"
 #include "adv/ReadName.hpp"
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
@@ -339,57 +340,6 @@ namespace sluaParse
 		return { std::move(ret),false };
 	}
 
-	template<AnyInput In>
-	inline bool readUseStat(In& in,StatementData<In>& outData, const ExportData exported)
-	{
-		if (checkReadTextToken(in, "use"))
-		{
-			StatementType::USE res{};
-			res.exported = exported;
-
-			res.base = readModPath(in);
-
-			if (in.peek() == ':')
-			{
-				if (in.peekAt(1)==':' && in.peekAt(2) == '*')
-				{
-					in.skip(3);
-					res.useVariant = UseVariantType::EVERYTHING_INSIDE{};
-				}
-				else if (in.peekAt(1) == ':' && in.peekAt(2) == '{')
-				{
-					in.skip(3);
-					UseVariantType::LIST_OF_STUFF list;
-					list.push_back(readName<true>(in));
-					while (checkReadToken(in, ","))
-					{
-						list.push_back(readName<true>(in));
-					}
-					requireToken(in, "}");
-					res.useVariant = std::move(list);
-				}
-				else
-				{// Neither, prob just no semicol
-					res.useVariant = UseVariantType::IMPORT{};
-				}
-			}
-			else
-			{
-				if (checkReadTextToken(in, "as"))
-				{
-					res.useVariant = UseVariantType::AS_NAME{ readName(in) };
-				}
-				else
-				{// Prob just no semicol
-					res.useVariant = UseVariantType::IMPORT{};
-				}
-			}
-
-			outData = std::move(res);
-			return true;
-		}
-		return false;
-	}
 
 	template<bool isLoop, AnyInput In>
 	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
