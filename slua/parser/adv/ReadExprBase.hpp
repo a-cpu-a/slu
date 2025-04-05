@@ -32,6 +32,21 @@ namespace sluaParse
 			in.skip(2);//skip '::'
 			skipSpace(in);
 			mp.push_back(readName(in));
+			skipSpace(in);
+		}
+		return mp;
+	}
+	template<AnyInput In>
+	inline SubModPath readSubModPath(In& in)
+	{
+		SubModPath mp = { readName(in)};
+		skipSpace(in);
+		while (checkToken(in, "::") && in.peekAt(2) != ':')
+		{
+			in.skip(2);//skip '::'
+			skipSpace(in);
+			mp.push_back(readName(in));
+			skipSpace(in);
 		}
 		return mp;
 	}
