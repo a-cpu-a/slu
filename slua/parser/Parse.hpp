@@ -14,7 +14,7 @@
 #include <slua/parser/State.hpp>
 
 #include "basic/ReadMiscNames.hpp"
-#include "basic/ReadBasicStats.h"
+#include "basic/ReadBasicStats.hpp"
 #include "adv/ReadName.hpp"
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
