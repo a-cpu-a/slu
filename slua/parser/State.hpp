@@ -101,6 +101,7 @@ namespace sluaParse
 	};
 	struct TypeSpecifiers
 	{
+		size_t derefCount = 0;
 		std::vector<BorrowLevel> borrows;
 		std::vector<GcPtrLevel> gcPtrLevels;
 	};

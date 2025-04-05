@@ -30,7 +30,7 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= {["&" {borrowLifetime} ["mut"]]} {("*" ("mut" | "const")) | ("#" ["mut"])}
+	typePrefix ::= {"*"} {"&" {borrowLifetime} ["mut"]} {("*" ("mut" | "const")) | ("#" ["mut"])}
 	
 	borrowLifetime ::= "/" var
 	
@@ -260,6 +260,36 @@ Type Specifiers {
 		drop myRef2;-- Required, because not adding this, will produce a soft-error.
 		
 		let &/firstArg/secondArg u8 z = &firstArg;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		
+		```
+	}
+	Deref {
+		Format "*" X
+		
+		Represents a dereferenced borrow / ptr.
+		
+		```slua
+		
+		let x = 4;
+		
+		let *&mut u8 xAlias = x;
+		xAlias = 3;
+		
+		assertEq$(x,3);
+		
+		let **mut u8 xAliasUnsafe = x;
+		
+		unsafe {
+			xAliasUnsafe = 2;
+		}
+		assertEq$(x,2);
+		
+		
+		let y = &x;
+		
+		let *&/x u8 z = *y; --The type represents, a derefed reference for some u8 with lifetime "x".
+		let w = *y; --The type is just u8, as a copy was possible.
+		
 		
 		```
 	}
