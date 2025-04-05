@@ -369,6 +369,57 @@ namespace sluaParse
 		}
 		return false;
 	}
+	template<AnyInput In>
+	inline bool readUseStat(In& in,StatementData<In>& outData, const ExportData exported)
+	{
+		if (checkReadTextToken(in, "use"))
+		{
+			StatementType::USE res{};
+			res.exported = exported;
+
+			res.base = readModPath(in);
+
+			if (in.peek() == ':')
+			{
+				if (in.peekAt(1)==':' && in.peekAt(2) == '*')
+				{
+					in.skip(3);
+					res.useVariant = UseVariantType::EVERYTHING_INSIDE{};
+				}
+				else if (in.peekAt(1) == ':' && in.peekAt(2) == '{')
+				{
+					in.skip(3);
+					UseVariantType::LIST_OF_STUFF list;
+					list.push_back(readName<true>(in));
+					while (checkReadToken(in, ","))
+					{
+						list.push_back(readName<true>(in));
+					}
+					requireToken(in, "}");
+					res.useVariant = std::move(list);
+				}
+				else
+				{// Neither, prob just no semicol
+					res.useVariant = UseVariantType::IMPORT{};
+				}
+			}
+			else
+			{
+				if (checkReadTextToken(in, "as"))
+				{
+					res.useVariant = UseVariantType::AS_NAME{ readName(in) };
+				}
+				else
+				{// Prob just no semicol
+					res.useVariant = UseVariantType::IMPORT{};
+				}
+			}
+
+			outData = std::move(res);
+			return true;
+		}
+		return false;
+	}
 
 	template<bool isLoop, AnyInput In>
 	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
@@ -725,9 +776,15 @@ namespace sluaParse
 					skipSpace(in);
 					switch (in.peek())
 					{
-					case 't':
+					case 't'://type?
 						if (readTypeStat(in, ret.data, true))
 							return ret;
+						break;
+					case 'u'://use?
+						if (readUseStat(in, ret.data, true))
+							return ret;
+						break;
+					case 'm'://mod?
 						break;
 					default:
 						break;
@@ -735,6 +792,15 @@ namespace sluaParse
 					throwExpectedExportable(in);
 				}
 			}
+			break;
+		case 'u'://use?
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (readUseStat(in, ret.data, false))
+					return ret;
+			}
+			break;
+		case 'm'://mod?
 			break;
 		case 't'://type?
 			if constexpr (in.settings() & sluaSyn)
