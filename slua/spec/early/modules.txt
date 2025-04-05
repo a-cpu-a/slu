@@ -5,28 +5,31 @@
 New Syntax {
 	
 	modpathStart ::= Name | "self" | "crate"
+	modpathStartList ::= modpathStart {"," modpathStart}
 	
 	modpath ::= modpathStart {"::" Name}
 	submodpath ::= Name {"::" Name}
 
 	varbase ::= | [‘*’] modpath
 	
-	stat @::= | OptExportPrefix "module" submodpath "as" "{" block "}"
-	stat @::= | OptExportPrefix "module" submodpath
-	stat @::= | OptExportPrefix "use" modpath ["as" Name | "::" "*" | "::" "{" namelist "}"]
+	stat @::= | OptExportPrefix "mod" submodpath "as" "{" block "}"
+	stat @::= | OptExportPrefix "mod" submodpath
+	stat @::= | "mod" "self"
+	stat @::= | OptExportPrefix "use" modpath ["as" Name | "::" "*" | "::" "{" modpathStartList "}"]
 }
 
 New Keywords {
 	crate
 	self
 	module
+	mod
 	use
 	as
 }
 
 Modules {
 	
-	The module keyword declares a new module.
+	The mod keyword declares a new module.
 	It tells the compiler that the subsequent block (or file) defines a new namespace which may contain functions, variables, types, macros, or even nested modules.
 	The "as" form creates a module inline.
 	The simple form defers the module to another file (module X; is for file "/X.slua").
