@@ -12,8 +12,8 @@ New Syntax {
 
 	varbase ::= | [‘*’] modpath
 	
-	stat @::= | OptExportPrefix "mod" submodpath "as" "{" block "}"
-	stat @::= | OptExportPrefix "mod" submodpath
+	stat @::= | OptExportPrefix "mod" Name "as" "{" block "}"
+	stat @::= | OptExportPrefix "mod" Name
 	stat @::= | "mod" "self"
 	stat @::= | OptExportPrefix "use" modpath useVariant
 	
