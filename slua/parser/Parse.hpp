@@ -109,7 +109,6 @@
 
 namespace sluaParse
 {
-
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
 	{
@@ -151,11 +150,11 @@ namespace sluaParse
 		}
 		return false;
 	}
+
 	enum class SemicolMode
 	{
 		NONE,REQUIRE,REQUIRE_OR_KW
 	};
-
 	template<SemicolMode semicolReq, AnyInput In>
 	inline bool readReturn(In& in, const bool allowVarArg, Block<In>& ret)
 	{
@@ -225,6 +224,16 @@ namespace sluaParse
 		ret.end = in.getLoc();
 		return ret;
 	}
+
+	template<bool isLoop, AnyInput In>
+	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
+	{
+		Block<In> bl = readBlock<isLoop>(in, allowVarArg);
+		requireToken(in, sel<In>("end", "}"));
+
+		return bl;
+	}
+
 
 	//Pair{fn, hadErr}
 	template<AnyInput In>
@@ -303,16 +312,6 @@ namespace sluaParse
 		}
 
 		return { std::move(ret),false };
-	}
-
-
-	template<bool isLoop, AnyInput In>
-	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
-	{
-		Block<In> bl = readBlock<isLoop>(in, allowVarArg);
-		requireToken(in, sel<In>("end","}"));
-
-		return bl;
 	}
 
 	template<bool isLoop,SemicolMode semicolMode = SemicolMode::REQUIRE, AnyInput In>
