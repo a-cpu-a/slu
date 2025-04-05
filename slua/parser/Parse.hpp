@@ -21,6 +21,7 @@
 #include "adv/ReadStringLiteral.hpp"
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"
+#include "adv/ReadType.hpp"
 
 
 
@@ -677,6 +678,24 @@ namespace sluaParse
 
 				ret.data = std::move(res);
 				return ret;
+			}
+			break;
+
+			//Slua
+		case 't'://type?
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "type"))
+				{
+					StatementType::TYPE res{};
+
+					res.name = readName(in);
+					requireToken(in, "=");
+					res.ty = readType(in);
+
+					ret.data = std::move(res);
+					return ret;
+				}
 			}
 			break;
 
