@@ -368,8 +368,7 @@ namespace sluaParse
 				res.name = std::move(modName);
 
 				requireToken(in, "{");
-				res.bl = readBlock<false>(in,false);
-				requireToken(in, "}");
+				res.bl = readBlockNoStartCheck<false>(in,false);
 
 				outData = std::move(res);
 			}
