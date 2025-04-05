@@ -592,7 +592,15 @@ namespace sluaParse
 			}
 			break;
 		case 'd'://do?
-			if constexpr (!(in.settings() & sluaSyn))
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "drop"))
+				{
+					ret.data = StatementType::DROP(readName(in));
+					return ret;
+				}
+			}
+			else
 			{
 				if (checkReadTextToken(in, "do")) // ‘do’ block ‘end’
 				{

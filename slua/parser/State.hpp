@@ -609,6 +609,10 @@ namespace sluaParse
 			Type ty;
 			ExportData exported=false;
 		};
+		struct DROP
+		{
+			std::string var;
+		};
 	};
 
 	template<bool isSlua>
@@ -634,7 +638,8 @@ namespace sluaParse
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
 
-		StatementType::TYPE //OptExportPrefix "type" Name "=" type
+		StatementType::TYPE,// OptExportPrefix "type" Name "=" type
+		StatementType::DROP	// "drop" Name
 	> ;
 
 	template<AnyCfgable CfgT>
