@@ -14,6 +14,7 @@
 #include <slua/parser/State.hpp>
 
 #include "basic/ReadMiscNames.hpp"
+#include "basic/ReadBasicStats.h"
 #include "adv/ReadName.hpp"
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
@@ -337,38 +338,6 @@ namespace sluaParse
 		return { std::move(ret),false };
 	}
 
-	template<AnyInput In>
-	inline std::string readLabel(In& in)
-	{
-		//label ::= ‘::’ Name ‘::’
-		//SL label ::= ‘:::’ Name ‘:’
-
-		requireToken(in, sel<In>("::", ":::"));
-
-		const std::string res = readName(in);
-
-		requireToken(in, sel<In>("::", ":"));
-
-		return res;
-	}
-
-	template<AnyInput In>
-	inline bool readTypeStat(In& in,StatementData<In>& outData, const ExportData exported)
-	{
-		if (checkReadTextToken(in, "type"))
-		{
-			StatementType::TYPE res{};
-			res.exported = exported;
-
-			res.name = readName(in);
-			requireToken(in, "=");
-			res.ty = readType(in);
-
-			outData = std::move(res);
-			return true;
-		}
-		return false;
-	}
 	template<AnyInput In>
 	inline bool readUseStat(In& in,StatementData<In>& outData, const ExportData exported)
 	{
