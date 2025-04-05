@@ -341,6 +341,16 @@ namespace sluaParse
 	}
 
 	template<AnyOutput Out>
+	inline void genModPath(Out& out, const ModPath& obj)
+	{
+		out.add(obj[0]);
+		for (size_t i = 1; i < obj.size(); i++)
+		{
+			out.add("::");
+			out.add(obj[i]);
+		}
+	}
+	template<AnyOutput Out>
 	inline void genVar(Out& out, const Var<Out>& obj)
 	{
 		ezmatch(obj.base)(
@@ -350,12 +360,7 @@ namespace sluaParse
 		},
 		varcase(const BaseVarType::MOD_PATH&) {
 			if (var.hasDeref)out.add("*");
-			out.add(var.mp[0]);
-			for (size_t i = 1; i < var.mp.size(); i++)
-			{
-				out.add("::");
-				out.add(var.mp[i]);
-			}
+			genModPath(out, var.mp);
 		},
 		varcase(const BaseVarType::EXPR<Out>&) {
 			out.add('(');
@@ -403,6 +408,100 @@ namespace sluaParse
 			.addNewl(sel<Out>("end","}"));
 
 		out.newLine();//Extra spacing
+	}
+	template<AnyOutput Out>
+	inline void genTypePrefix(Out& out, const TypeSpecifiers& ty)
+	{
+		for (size_t i = 0; i < ty.derefCount; i++)
+			out.add('*');
+		for (const BorrowLevel& bl : ty.borrows)
+		{
+			out.add('&');
+			for (const std::string& lf : bl.lifetimes)
+			{
+				out.add('/').add(lf);
+			}
+			if (bl.hasMut)
+			{
+				if(!bl.lifetimes.empty())out.add(' ');
+
+				out.add("mut ");
+			}
+		}
+		for (const GcPtrLevel& gp : ty.gcPtrLevels)
+		{
+			out.add(gp.isPtr ? '*' : '#');
+			if(gp.hasMut)
+				out.add("mut ");
+		}
+	}
+	template<AnyOutput Out>
+	inline void genTypeObj(Out& out, const TypeObj& obj)
+	{
+		ezmatch(obj)(
+		varcase(const TypeObjType::COMPTIME_VAR_TYPE&) {
+			genModPath(out, var);
+		},
+		varcase(const TypeObjType::SLICE_OR_ARRAY&)
+		{
+			out.add('[');
+			genType(out, var.ty);
+			for (const Expression<Out>& sz : var.size)
+			{
+				out.add("; ");
+				genExpr(out, sz);
+			}
+			out.add(']');
+		},
+		varcase(const TypeObjType::TUPLE&)
+		{
+			out.add('{');
+			genType(out, var[0]);
+			for (size_t i = 1; i < var.size(); i++)
+			{
+				out.add(", ");
+				genType(out, var[i]);
+			}
+			out.add('}');
+		},
+		varcase(const TypeObjType::TRAIT_COMBO&)
+		{
+			if (var.isDyn)
+				out.add("dyn ");
+			else
+				out.add("impl ");
+			genModPath(out, var.traits[0]);
+			for (size_t i = 1; i < var.traits.size(); i++)
+			{
+				out.add(" + ");
+				genModPath(out, var.traits[i]);
+			}
+		},
+		varcase(const TypeObjType::TYPE&){
+			out.add('(');
+			genType(out, var);
+			out.add(')');
+		}
+		);
+	}
+	template<AnyOutput Out>
+	inline void genTypeItem(Out& out, const TypeItem& ty)
+	{
+		genTypePrefix(out,ty.prefix);
+		genTypeObj(out, ty.obj);
+	}
+	template<AnyOutput Out>
+	inline void genType(Out& out, const Type& ty)
+	{
+		if constexpr (out.settings() & sluaSyn)
+		{
+			genTypeItem(out, ty[0]);
+			for (size_t i = 1; i < ty.size(); i++)
+			{
+				out.add('|');
+				genTypeItem(out, ty[i]);
+			}
+		}
 	}
 
 	template<AnyOutput Out>
@@ -631,6 +730,16 @@ namespace sluaParse
 		varcase(const StatementType::LOCAL_FUNCTION_DEF<Out>&) {
 			out.add("local ");
 			genFuncDef(out, var.func, var.name);
+		},
+
+		//Slua!
+
+		varcase(const StatementType::TYPE&) {
+			if (var.exported)out.add("ex ");
+			out.add("type ");
+			out.add(var.name).add(" = ");
+			genType(out,var.ty);
+			out.addNewl(";");
 		}
 
 		);
