@@ -52,6 +52,7 @@ namespace sluaParse
 				", but file ended",tok));
 		}
 	}
+	//Will NOT skip space!!!
 	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false)
 	{

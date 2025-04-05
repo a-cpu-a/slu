@@ -91,6 +91,7 @@ namespace sluaParse
 	using ExportData = bool;
 
 	using ModPath = std::vector<std::string>;
+	using SubModPath = std::vector<std::string>;
 
 	struct BorrowLevel
 	{
