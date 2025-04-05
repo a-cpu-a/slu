@@ -535,7 +535,7 @@ namespace sluaParse
 
 	namespace StatementType
 	{
-		struct SEMICOLON {};									// ";"
+		using SEMICOLON = std::monostate;							// ";"
 
 		template<bool isSlua>
 		struct ASSIGNv { std::vector<VarV<isSlua>> vars; ExpListV<isSlua> exprs; };// "varlist = explist" //e.size must be > 0
