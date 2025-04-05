@@ -231,7 +231,7 @@ namespace sluaParse
 
 			// Its (? type) or (type ? type)
 			in.skip();
-			res.err = readType();
+			res.err = readType(in);
 			return true;
 		}
 		return false;
