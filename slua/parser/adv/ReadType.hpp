@@ -246,7 +246,7 @@ namespace sluaParse
 			return res;
 
 		// Its (type) or (type ??) or (type ? type)
-		res.val = readType();
+		res.val = readType(in);
 
 		checkReadErrTypeQMark(in, res);
 		return res;
