@@ -156,6 +156,8 @@ namespace sluaParse
 		TypeSpecifiers prefix;
 		BasicTypeObj obj;
 	};
+	using BasicType = std::vector<BasicTypeItem>;
+	using BasicTypeOrPrefix = std::variant<BasicType,TypeSpecifiers>;
 
 
 	struct ErrType
