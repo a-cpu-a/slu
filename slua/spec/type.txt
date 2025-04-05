@@ -19,7 +19,8 @@ New Syntax {
 	
 	basicTypeObj ::= comptimeVarType | traitComboType
 	basicTypeItm ::= typePrefix basicTypeObj
-	basicTypeOrTypePrefix ::= typePrefix | basicTypeItm
+	basicType ::= basicTypeItm {"|" basicTypeItm}
+	basicTypeOrTypePrefix ::= typePrefix | basicType
 	
 	traitComboType ::= ("dyn" | "impl") traitcombo
 	
