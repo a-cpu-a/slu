@@ -771,6 +771,24 @@ namespace sluaParse
 			genModPath(out, var.base);
 			genUseVariant(out, var.useVariant);
 			out.addNewl(";");
+		},
+		varcase(const StatementType::MOD_CRATE&) {
+			out.addNewl("mod crate;");
+		},
+		varcase(const StatementType::MOD_SELF&) {
+			out.addNewl("mod self;");
+		},
+		varcase(const StatementType::MOD_DEF&) {
+			if (var.exported)out.add("ex ");
+			out.add("mod ").add(var.name).addNewl(";");
+		},
+		varcase(const StatementType::MOD_DEF_INLINE<Out>&) {
+			if (var.exported)out.add("ex ");
+			out.add("mod ").add(var.name).add(" as {");
+			out.tabUpNewl().newLine();
+
+			genBlock(out,var.bl);
+			out.unTabNewl().add("}");
 		}
 
 		);
