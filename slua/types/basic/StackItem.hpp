@@ -44,9 +44,9 @@ namespace slua
 		//normal
 		const StackItem& set(const slua::Pushable auto& newVal, const std::string& key)const
 		{
-			lua_pushlstring(L, key.data(), key.size());
+			slua::push(key);
 			slua::push(newVal);
-			lua_settable(L, idx, key);
+			lua_settable(L, idx);
 			return *this;
 		}
 
@@ -157,7 +157,7 @@ namespace slua
 			);
 
 			if (parentIdx == -3)
-				lua_pop();//remove the global table
+				lua_pop(L,1);//remove the global table
 
 			return *this;
 		}
@@ -185,7 +185,7 @@ namespace slua
 
 
 			if (parentIdx == -3)
-				lua_pop();//remove the global table
+				lua_pop(L,1);//remove the global table
 
 			return *this;
 		}
