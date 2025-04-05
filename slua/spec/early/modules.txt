@@ -15,7 +15,11 @@ New Syntax {
 	stat @::= | OptExportPrefix "mod" submodpath "as" "{" block "}"
 	stat @::= | OptExportPrefix "mod" submodpath
 	stat @::= | "mod" "self"
-	stat @::= | OptExportPrefix "use" modpath ["as" Name | "::" "*" | "::" "{" modpathStartList "}"]
+	stat @::= | OptExportPrefix "use" modpath useVariant
+	
+	useVariant ::= ["as" Name | "::" "*" | "::" "{" modpathStartList "}"]
+	
+	
 }
 
 New Keywords {
