@@ -27,8 +27,12 @@ namespace sluaParse
 	{
 		ModPath mp = { start };
 		skipSpace(in);
-		while (checkToken(in, "::") && in.peekAt(2) != ':')
+		while (checkToken(in, "::"))
 		{
+			const char afterCcChr = in.peekAt(2);
+			if (afterCcChr == ':' || afterCcChr == '*' || afterCcChr == '{')
+				break;
+
 			in.skip(2);//skip '::'
 			skipSpace(in);
 			mp.push_back(readName(in));
