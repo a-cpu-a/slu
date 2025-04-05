@@ -519,6 +519,20 @@ namespace sluaParse
 	using AttribNameList = std::vector<AttribName>;
 	using NameList = std::vector<std::string>;
 
+	namespace UseVariantType
+	{
+		using EVERYTHING_INSIDE = std::monostate;//use x::*;
+		struct IMPORT {};// use x::y;
+		using AS_NAME = std::string;//use x as y;
+		using LIST_OF_STUFF = std::vector<std::string>;//use x::{self, ...}
+	}
+	using UseVariant = std::variant<
+		UseVariantType::EVERYTHING_INSIDE,
+		UseVariantType::AS_NAME,
+		UseVariantType::IMPORT,
+		UseVariantType::LIST_OF_STUFF
+	>;
+
 	namespace StatementType
 	{
 		struct SEMICOLON {};									// ";"
@@ -604,6 +618,12 @@ namespace sluaParse
 
 
 		// Slua
+		struct USE
+		{
+			ModPath base;//the aliased/imported thing, or modpath base
+			UseVariant useVariant;
+			ExportData exported=false;
+		};
 		struct TYPE
 		{
 			std::string name;
@@ -640,7 +660,8 @@ namespace sluaParse
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
 
 		StatementType::TYPE,// OptExportPrefix "type" Name "=" type
-		StatementType::DROP	// "drop" Name
+		StatementType::DROP,// "drop" Name
+		StatementType::USE  // "use" ...
 	> ;
 
 	template<AnyCfgable CfgT>

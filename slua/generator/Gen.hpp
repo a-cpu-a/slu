@@ -536,6 +536,27 @@ namespace sluaParse
 				out.add(", ");
 		}
 	}
+	inline void genUseVariant(AnyOutput auto& out, const UseVariant& obj)
+	{
+		ezmatch(obj)(
+		varcase(const UseVariantType::EVERYTHING_INSIDE&){
+			out.add("::*");
+		},
+		varcase(const UseVariantType::AS_NAME&){
+			out.add(" as ").add(var);
+		},
+		varcase(const UseVariantType::IMPORT&){},
+		varcase(const UseVariantType::LIST_OF_STUFF&)
+		{
+			out.add("::{").add(var[0]);
+			for (size_t i = 1; i < var.size(); i++)
+			{
+				out.add(", ").add(var[i]);
+			}
+			out.add("}");
+		}
+		);
+	}
 
 	template<AnyOutput Out>
 	inline void genStat(Out& out, const Statement<Out>& obj)
@@ -743,6 +764,13 @@ namespace sluaParse
 		},
 		varcase(const StatementType::DROP&) {
 			out.add("drop ").add(var.var).addNewl(";");
+		},
+		varcase(const StatementType::USE&) {
+			if (var.exported)out.add("ex ");
+			out.add("use ");
+			genModPath(out, var.base);
+			genUseVariant(out, var.useVariant);
+			out.addNewl(";");
 		}
 
 		);
