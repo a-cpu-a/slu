@@ -63,6 +63,7 @@ New Keywords {
 	try			(672k)		(73k)		try expr/stat
 	use			(2.4m)		(140k)		use expr
 	mut			(85k)		(8.2k)		mutable
+	mod			(..)		(..)		module
 	case		(352k)		(8.2k)		match case
 	drop   		(377k)		(40.3k)		Drop a value explicitly
 	enum   		(129k)		(8.5k)		Define a enum
