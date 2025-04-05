@@ -16,7 +16,7 @@
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/adv/ReadStringLiteral.hpp>
-#include <slua/parser/adv/ReadNumeral.h>
+#include <slua/parser/adv/ReadNumeral.hpp>
 #include <slua/parser/basic/ReadOperators.hpp>
 #include <slua/parser/errors/CharErrors.h>
 
