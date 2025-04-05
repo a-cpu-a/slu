@@ -335,11 +335,11 @@ namespace sluaParse
 			explist ::= exp {‘,’ exp}
 		*/
 		ExpList<In> ret{};
-		ret.push_back(std::move(readExpr(in, allowVarArg)));
+		ret.emplace_back(readExpr(in, allowVarArg));
 
 		while (checkReadToken(in, ","))
 		{
-			ret.push_back(std::move(readExpr(in, allowVarArg)));
+			ret.emplace_back(readExpr(in, allowVarArg));
 		}
 		return ret;
 	}

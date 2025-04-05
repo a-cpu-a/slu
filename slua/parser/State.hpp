@@ -76,6 +76,7 @@ namespace sluaParse
 
 	template<bool isSlua>
 	using ExpListV = std::vector<ExpressionV<isSlua>>;
+	template<AnyCfgable CfgT> using ExpList = SelV<CfgT, ExpListV>;
 
 
 	// Slua
@@ -133,6 +134,11 @@ namespace sluaParse
 	{
 		TypeSpecifiers prefix;
 		TypeObj obj;
+
+		TypeItem() = default;
+		TypeItem(const TypeItem&) = delete;
+		TypeItem(TypeItem&&) = default;
+		TypeItem& operator=(TypeItem&&) = default;
 	};
 
 
@@ -185,8 +191,6 @@ namespace sluaParse
 
 
 
-	template<AnyCfgable CfgT>
-	using ExpList = SelV<CfgT, ExpListV>;
 
 	template<bool isSlua>
 	struct BlockV

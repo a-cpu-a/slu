@@ -281,10 +281,12 @@ namespace sluaParse
 		}
 		else if (ch != ')')
 		{//must have non-empty namelist
-			Parameter<In> p;
-			p.name = readName(in);
+			{
+				Parameter<In> p;
+				p.name = readName(in);
 
-			ret.params.push_back(p);
+				ret.params.emplace_back(std::move(p));
+			}
 
 			while (checkReadToken(in, ","))
 			{
@@ -296,7 +298,7 @@ namespace sluaParse
 				Parameter<In> p;
 				p.name = readName(in);
 
-				ret.params.push_back(p);
+				ret.params.emplace_back(std::move(p));
 			}
 		}
 
