@@ -91,7 +91,7 @@ namespace sluaParse
 
 			while (checkReadToken(in, ";"))
 			{
-				res.size.push_back(readExpr(in, false));
+				res.size.emplace_back(readExpr(in, false));
 			}
 
 			requireToken(in, "]");
@@ -107,11 +107,11 @@ namespace sluaParse
 
 			if (in.peek() != '}')//Is not empty
 			{
-				res.push_back(readType(in));
+				res.emplace_back(readType(in));
 
 				while (checkReadToken(in, ","))
 				{
-					res.push_back(readType(in));
+					res.emplace_back(readType(in));
 				}
 			}
 
@@ -155,7 +155,7 @@ namespace sluaParse
 		{
 			if (!checkReadToken(in, "|"))
 				break;
-			res.push_back(readTypeItem(in));
+			res.emplace_back(readTypeItem(in));
 		}
 		return res;
 	}
