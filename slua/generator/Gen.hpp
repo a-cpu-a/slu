@@ -241,20 +241,6 @@ namespace sluaParse
 			else
 				out.add(std::to_string(var.v));
 		},
-		varcase(const ExprType::NUMERAL_U64) {
-			out.add(std::to_string(var.v));
-		},
-		varcase(const ExprType::NUMERAL_I128) {
-			out.add("0x");
-			writeU64Hex(out, var.hi);
-			writeU64Hex(out, var.lo);
-		},
-
-		varcase(const ExprType::NUMERAL_U128) {
-			out.add("0x");
-			writeU64Hex(out, var.hi);
-			writeU64Hex(out, var.lo);
-		},
 
 		varcase(const ExprType::LITERAL_STRING&) {
 			genLiteral(out,var.v);
@@ -280,6 +266,36 @@ namespace sluaParse
 					.add(' ');
 				genExpr(out, ex);
 			}
+		},
+		varcase(const ExprType::NUMERAL_U64) {
+			out.add(std::to_string(var.v));
+		},
+		varcase(const ExprType::NUMERAL_I128) {
+			out.add("0x");
+			writeU64Hex(out, var.hi);
+			writeU64Hex(out, var.lo);
+		},
+		varcase(const ExprType::NUMERAL_U128) {
+			out.add("0x");
+			writeU64Hex(out, var.hi);
+			writeU64Hex(out, var.lo);
+		},
+		varcase(const ExprType::ARRAY_CONSTRUCTOR<Out>&) {
+			out.add("[");
+			genExpr(out,*var.val);
+			out.add("; ");
+			genExpr(out, *var.size);
+			out.add("]");
+		},
+		varcase(const ExprType::ARRAY_CONSTRUCTOR_LIST<Out>&) {
+			out.add("[");
+			genExpr(out, var.values[0]);
+			for (size_t i = 1; i < var.values.size(); i++)
+			{
+				out.add(", ");
+				genExpr(out, var.values[i]);
+			}
+			out.add("]");
 		}
 		);
 		if constexpr(out.settings()&sluaSyn)

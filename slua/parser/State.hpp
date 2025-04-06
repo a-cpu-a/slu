@@ -354,6 +354,23 @@ namespace sluaParse
 		struct NUMERAL_U64 { uint64_t v; };					// "Numeral"
 		struct NUMERAL_U128 { uint64_t lo=0; uint64_t hi = 0;};   // "Numeral"
 		struct NUMERAL_I128 :NUMERAL_U128 {};   // "Numeral"
+
+
+		template<bool isSlua>
+		struct ARRAY_CONSTRUCTOR_LISTv {
+			ExpListV<isSlua> values;
+		};
+		template<AnyCfgable CfgT> 
+		using ARRAY_CONSTRUCTOR_LIST = SelV<CfgT, ARRAY_CONSTRUCTOR_LISTv>;
+
+		template<bool isSlua>
+		struct ARRAY_CONSTRUCTORv
+		{
+			std::unique_ptr<ExpressionV<isSlua>> val;
+			std::unique_ptr<ExpressionV<isSlua>> size;
+		};
+		template<AnyCfgable CfgT> 
+		using ARRAY_CONSTRUCTOR = SelV<CfgT, ARRAY_CONSTRUCTORv>;
 	}
 
 	template<bool isSlua>
@@ -364,10 +381,6 @@ namespace sluaParse
 		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
 		ExprType::NUMERAL_I64,			// "Numeral"
 
-		ExprType::NUMERAL_U64,			// "Numeral"
-		ExprType::NUMERAL_I128,			// "Numeral"
-		ExprType::NUMERAL_U128,			// "Numeral"
-
 		ExprType::LITERAL_STRING,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
 		ExprType::FUNCTION_DEFv<isSlua>,			// "functiondef"
@@ -375,9 +388,16 @@ namespace sluaParse
 		ExprType::FUNC_CALLv<isSlua>,			// "prefixexp argsThing {argsThing}"
 		ExprType::TABLE_CONSTRUCTORv<isSlua>,	// "tableconstructor"
 
-		ExprType::MULTI_OPERATIONv<isSlua>		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
+		ExprType::MULTI_OPERATIONv<isSlua>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
-		//ExprType::UNARY_OPERATION,	// "unop exp"
+		// Slua
+
+		ExprType::NUMERAL_U64,			// "Numeral"
+		ExprType::NUMERAL_I128,			// "Numeral"
+		ExprType::NUMERAL_U128,			// "Numeral"
+
+		ExprType::ARRAY_CONSTRUCTOR_LISTv<isSlua>,
+		ExprType::ARRAY_CONSTRUCTORv<isSlua>
 	>;
 
 	template<AnyCfgable CfgT>
