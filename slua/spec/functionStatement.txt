@@ -1,11 +1,11 @@
 #
-# Dependencies: Lua, type, exportPrefix
+# Dependencies: Lua, type, exportPrefix, safety
 #
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "function" Name "(" TypedParamList ")" ["->" errType] statOrRet
-	stat @::= | "local" "function" Name "(" TypedParamList ")" ["->" errType] statOrRet
+	stat @::= | OptExportPrefix [safety] PreFn "function" Name "(" TypedParamList ")" ["->" errType] statOrRet
+	stat @::= | "local" [safety] PreFn "function" Name "(" TypedParamList ")" ["->" errType] statOrRet
 }
 
 Function Statement {

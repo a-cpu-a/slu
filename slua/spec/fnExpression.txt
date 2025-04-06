@@ -1,10 +1,10 @@
 #
-# Dependencies: Lua, type, exportPrefix
+# Dependencies: Lua, type, exportPrefix, safety
 #
 
 New Syntax {
 
-	exp @::= | PreFn "fn" "(" TypedParamList ")" ["->" errType] statOrRet
+	exp @::= | [safety] PreFn "fn" "(" TypedParamList ")" ["->" errType] statOrRet
 }
 
 New Keywords {

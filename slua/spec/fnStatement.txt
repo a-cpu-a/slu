@@ -1,12 +1,12 @@
 #
-# Dependencies: Lua, type, exportPrefix
+# Dependencies: Lua, type, exportPrefix, safety
 #
 
 New Syntax {
 
 	PreFn ::=
 	
-	stat @::= | OptExportPrefix PreFn "fn" Name "(" TypedParamList ")" ["->" errType] statOrRet
+	stat @::= | OptExportPrefix [safety] PreFn "fn" Name "(" TypedParamList ")" ["->" errType] statOrRet
 }
 
 New Keywords {
