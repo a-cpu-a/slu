@@ -90,18 +90,21 @@ namespace sluaParse
 			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
 		case '.':
-			if (checkReadToken(in, "..."))
+			if constexpr(!(in.settings() & sluaSyn))
 			{
-				if (!allowVarArg)
+				if (checkReadToken(in, "..."))
 				{
-					throw UnexpectedCharacterError(std::format(
-						"Found varargs (" LUACC_SINGLE_STRING("...") ") "
-						"outside of a vararg " LC_function " or the root " LC_function
-						"{}"
-						, errorLocStr(in)));
+					if (!allowVarArg)
+					{
+						throw UnexpectedCharacterError(std::format(
+							"Found varargs (" LUACC_SINGLE_STRING("...") ") "
+							"outside of a vararg " LC_function " or the root " LC_function
+							"{}"
+							, errorLocStr(in)));
+					}
+					basicRes.data = ExprType::VARARGS();
+					break;
 				}
-				basicRes.data = ExprType::VARARGS();
-				break;
 			}
 			[[fallthrough]];//handle as numeral instead (.0123, etc)
 		case '0':
