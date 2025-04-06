@@ -10,9 +10,18 @@ namespace sluaParse
 {
 	inline void throwExpectedExportable(AnyInput auto& in)
 	{
-		throw UnexpectedCharacterError(std::format(
+		throw UnexpectedKeywordError(std::format(
 			"Expected exportable statment after " 
 			LUACC_SINGLE_STRING("ex")
+			", at"
+			"{}"
+			, errorLocStr(in)));
+	}
+	inline void throwExpectedSafeable(AnyInput auto& in)
+	{
+		throw UnexpectedKeywordError(std::format(
+			"Expected markable statment after " 
+			LUACC_SINGLE_STRING("safe")
 			", at"
 			"{}"
 			, errorLocStr(in)));
