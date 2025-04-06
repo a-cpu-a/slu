@@ -1,0 +1,22 @@
+#
+# Dependencies: Lua, type
+#
+
+New Syntax {
+	
+	exp @::= | "[" exp ";" comptimeExp "]"
+	exp @::= | "[" exp {"," exp} "]"
+}
+
+Array Constructor {
+	
+	Construct an array of multiple items of the same type, or one item X many times
+	
+	[x;y] -> x the element, y how many of it.
+	x must be copy-able.
+	y must be a non-negative integer.
+	if y is 0, then x will not be evaluated.
+	
+	[x, ....] -> x,... the elements of the array.
+	
+}
