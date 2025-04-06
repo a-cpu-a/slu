@@ -44,7 +44,7 @@
 	
 	--[[
 	--TODO: move this elsewhere, when its needed
-		fn prefixUpperify(str prefix,mut str s) -> str {
+		fn prefixUpperify(str prefix,mut String s) -> String {
 			if (#s == 0) return s;
 			s[1] = s[1].upper()
 			return prefix..s;
