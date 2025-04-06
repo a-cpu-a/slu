@@ -387,38 +387,41 @@ namespace sluaParse
 					local function Name funcbody |
 					local attnamelist [‘=’ explist]
 				*/
-				if (checkReadTextToken(in, "function"))
-				{ // local function Name funcbody
-					StatementType::LOCAL_FUNCTION_DEF<In> res;
+				if constexpr(!(in.settings() & sluaSyn))
+				{
+					if (checkReadTextToken(in, "function"))
+					{ // local function Name funcbody
+						StatementType::LOCAL_FUNCTION_DEF<In> res;
 
-					res.place = in.getLoc();
+						res.place = in.getLoc();
 
-					res.name = readFuncName(in);
+						res.name = readFuncName(in);
 
-					try
-					{
-						auto [fun, err] = readFuncBody(in);
-						res.func = std::move(fun);
-						if (err)
+						try
 						{
+							auto [fun, err] = readFuncBody(in);
+							res.func = std::move(fun);
+							if (err)
+							{
 
-							in.handleError(std::format(
+								in.handleError(std::format(
+									"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+									res.name, errorLocStr(in, res.place)
+								));
+							}
+						}
+						catch (const ParseError& e)
+						{
+							in.handleError(e.m);
+							throw ErrorWhileContext(std::format(
 								"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
 								res.name, errorLocStr(in, res.place)
 							));
 						}
-					}
-					catch (const ParseError& e)
-					{
-						in.handleError(e.m);
-						throw ErrorWhileContext(std::format(
-							"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-							res.name, errorLocStr(in, res.place)
-						));
-					}
 
-					ret.data = std::move(res);
-					return ret;
+						ret.data = std::move(res);
+						return ret;
+					}
 				}
 				// Local Variable
 
@@ -569,6 +572,8 @@ namespace sluaParse
 					skipSpace(in);
 					switch (in.peek())
 					{
+					case 'f'://fn? function?
+						break;
 					case 't'://type?
 						if (readTypeStat(in, ret.data, true))
 							return ret;
