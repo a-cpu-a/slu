@@ -182,8 +182,9 @@ namespace sluaParse
 				const char nextChr = in.peekAt(nextCh);
 				if (nextChr == '.')
 				{
-					if(in.peekAt(nextCh+1)=='.')
-					{//Is '..' or '...', etc
+					const char dotChr = in.peekAt(nextCh + 1);
+					if(dotChr<'0' && dotChr>'9')
+					{//Is not number (.xxxx)
 						in.skip(nextCh);
 						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
 					}
