@@ -11,6 +11,12 @@
 
 namespace sluaParse
 {
+	enum class OptSafety : uint8_t
+	{
+		DEFAULT,
+		SAFE,
+		UNSAFE
+	};
 
 	enum class BinOpType : uint8_t
 	{
