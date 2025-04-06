@@ -66,6 +66,9 @@ namespace sluaParse
 			return "and"sv;
 		case BinOpType::LOGICAL_OR:
 			return "or"sv;
+			// Slua
+		case BinOpType::RANGE_BETWEEN:
+			return "..."sv;
 		default:
 			_ASSERT(false);
 			return "<ERROR>"sv;
@@ -84,6 +87,9 @@ namespace sluaParse
 			return " #"sv;
 		case UnOpType::BITWISE_NOT:
 			return " ~"sv;
+			// Slua
+		case UnOpType::RANGE_BEFORE:
+			return " ..."sv;
 
 		case UnOpType::DEREF:
 			return " *"sv;
@@ -98,6 +104,22 @@ namespace sluaParse
 			return " *const "sv;
 		case UnOpType::TO_PTR_MUT:
 			return " *mut "sv;
+		default:
+			_ASSERT(false);
+			return "<ERROR>"sv;
+		}
+	}
+	inline std::string_view getPostUnOpAsStr(const PostUnOpType t)
+	{
+		using namespace std::literals;
+		switch (t)
+		{
+			// Slua
+		case PostUnOpType::RANGE_AFTER:
+			return "... "sv;
+
+		case PostUnOpType::PROPOGATE_ERR:
+			return "?"sv;
 		default:
 			_ASSERT(false);
 			return "<ERROR>"sv;
@@ -260,6 +282,13 @@ namespace sluaParse
 			}
 		}
 		);
+		if constexpr(out.settings()&sluaSyn)
+		{
+			for (const PostUnOpType t : obj.postUnOps)
+			{
+				out.add(getPostUnOpAsStr(t));
+			}
+		}
 	}
 	template<AnyOutput Out>
 	inline void genExpList(Out& out, const ExpList<Out>& obj)
