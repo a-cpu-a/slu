@@ -19,18 +19,32 @@
 namespace sluaParse
 {
 	template<AnyInput In>
-	inline std::string readLabel(In& in)
+	inline void readLabel(In& in, StatementData<In>& outData)
 	{
 		//label ::= ‘::’ Name ‘::’
 		//SL label ::= ‘:::’ Name ‘:’
 
 		requireToken(in, sel<In>("::", ":::"));
 
-		const std::string res = readName(in);
+		if constexpr (in.settings() & sluaSyn)
+		{
+			if (checkReadTextToken(in, "unsafe"))
+			{
+				outData = StatementType::UNSAFE_LABEL();
+				return;
+			}
+			else if (checkReadTextToken(in, "safe"))
+			{
+				outData = StatementType::SAFE_LABEL();
+				return;
+			}
+		}
+
+		std::string res = readName(in);
 
 		requireToken(in, sel<In>("::", ":"));
 
-		return res;
+		outData = StatementType::LABEL(res);
 	}
 
 	template<AnyInput In>
