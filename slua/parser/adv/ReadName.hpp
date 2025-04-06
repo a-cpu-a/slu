@@ -132,13 +132,14 @@ namespace sluaParse
 	//No space skip!
 	//Returns SIZE_MAX, on non name inputs
 	//Otherwise, returns last peek() idx that returns a part of the name
-	inline size_t peekName(AnyInput auto& in)
+	template<bool forMpStart = false>
+	inline size_t peekName(AnyInput auto& in,const size_t at = 0)
 	{
 		if (!in)
 			return SIZE_MAX;
 
 
-		const uint8_t firstChar = in.peek();
+		const uint8_t firstChar = in.peekAt(at);
 
 		// Ensure the first character is valid (a letter or underscore)
 		if (!isValidNameStartChar(firstChar))
@@ -149,7 +150,7 @@ namespace sluaParse
 		res += firstChar; // Consume the first valid character
 
 		// Consume subsequent characters (letters, digits, or underscores)
-		size_t i = 1;
+		size_t i = 1+ at;
 		while (in)
 		{
 			const uint8_t ch = in.peekAt(i);// Starts at 1
@@ -162,7 +163,7 @@ namespace sluaParse
 			continue;
 		}
 		// Check if the resulting string is a reserved keyword
-		if (isNameInvalid<false>(in, res))
+		if (isNameInvalid<forMpStart>(in, res))
 			return SIZE_MAX;
 
 		return i;
