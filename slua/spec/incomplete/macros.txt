@@ -42,16 +42,16 @@
 	--SemicolList allows Stat
 	@Builtin{"base::no_splice"} ex macro fn SemicolList<T>${macro SemicolList<T> v}->SemicolList<T> {return v;}
 	
-	--[[
+	--[=[
 	--TODO: move this elsewhere, when its needed
 		fn prefixUpperify(str prefix,mut String s) -> String {
 			if (#s == 0) return s;
 			s[1] = s[1].upper()
 			return prefix..s;
 		}
-	]]
+	]=]
 	
-	--[[
+	--[=[
 	
 	--
 	-- This is a example, for how to create a macro that instantly splices what you pass to it
@@ -98,7 +98,7 @@
 		--you cant splice some of these into code.
 		--SemicolList<T>,
 	);
-	]]
+	]=]
 	
 	Implementation {
 		The types may be implemented as "Userdata" or "ptrdata", with extra data
