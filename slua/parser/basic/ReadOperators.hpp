@@ -59,6 +59,11 @@ namespace sluaParse
 			if (checkReadTextToken(in, "alloc"))
 				return UnOpType::ALLOCATE;
 			break;
+		case '.':
+			if (!(in.settings() & sluaSyn))break;
+			if (checkReadToken(in, "..."))
+				return UnOpType::RANGE_BEFORE;
+			break;
 		default:
 			break;
 		}
@@ -73,6 +78,10 @@ namespace sluaParse
 		case '?':
 			in.skip();
 			return PostUnOpType::PROPOGATE_ERR;
+		case '.':
+			if (checkReadToken(in, "..."))
+				return PostUnOpType::RANGE_AFTER;
+			break;
 		}
 		return PostUnOpType::NONE;
 	}
@@ -130,10 +139,6 @@ namespace sluaParse
 			if (checkReadToken(in, "=="))
 				return BinOpType::EQUAL;
 			break;
-		case '.':
-			if (checkReadToken(in, ".."))
-				return BinOpType::CONCATENATE;
-			break;
 		case 'a':
 			if (checkReadTextToken(in, "and"))
 				return BinOpType::LOGICAL_AND;
@@ -142,6 +147,20 @@ namespace sluaParse
 			if (checkReadTextToken(in, "or"))
 				return BinOpType::LOGICAL_OR;
 			break;
+		case '.':
+
+			if constexpr(in.settings() & sluaSyn)
+			{
+				if (checkReadToken(in, "..."))
+					return BinOpType::RANGE_BETWEEN;
+			}
+
+			if (checkReadToken(in, ".."))
+				return BinOpType::CONCATENATE;
+			break;
+
+			// Slua
+
 		}
 		return BinOpType::NONE;
 	}

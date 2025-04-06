@@ -140,6 +140,30 @@ namespace sluaParse
 		{//Postfix op
 			while(checkReadToken(in,"?"))
 				basicRes.postUnOps.push_back(PostUnOpType::PROPOGATE_ERR);
+			skipSpace(in);
+
+			if (checkToken(in, "..."))
+			{
+				//binop or postunop?
+				const size_t nextCh = weakSkipSpace(in, 3);
+				const char nextChr = in.peekAt(nextCh);
+				if (nextChr == '.' || nextChr == '}'
+					|| nextChr == ')' || nextChr == '>'
+					|| nextChr == '<' || nextChr == '='
+					|| nextChr == '~' || nextChr == '?'
+					|| nextChr == '#' || nextChr == '@'
+					|| nextChr == '!' || nextChr == '%'
+					|| nextChr == '^' || nextChr == '&'
+					|| nextChr == '*' || nextChr == '-'
+					|| nextChr == '+' || nextChr == ':'
+					|| nextChr == ',' || nextChr == '/'
+					|| nextChr == ';' || nextChr == '|'
+					|| nextChr == '\\')
+				{
+					in.skip(nextCh);
+					basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
+				}
+			}
 		}
 
 		//check bin op
