@@ -37,6 +37,10 @@ namespace sluaParse
 		NOT_EQUAL,      // "~="
 		LOGICAL_AND,    // "and"
 		LOGICAL_OR,     // "or"
+
+		// Slua
+
+		RANGE_BETWEEN,	// "..."
 	};
 
 	enum class UnOpType : uint8_t
@@ -49,6 +53,9 @@ namespace sluaParse
 		BITWISE_NOT,   // "~"
 
 		//Slua
+
+		RANGE_BEFORE,	// "..."
+
 		ALLOCATE,		// "alloc"
 		DEREF,			// "*"
 
@@ -62,6 +69,8 @@ namespace sluaParse
 	{
 		NONE,
 
-		PROPOGATE_ERR, // "?"
+		RANGE_AFTER,	// "..."
+
+		PROPOGATE_ERR,	// "?"
 	};
 }
