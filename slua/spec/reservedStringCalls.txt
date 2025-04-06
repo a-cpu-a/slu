@@ -8,19 +8,19 @@ Reserved Syntax {
 	This applies to short & long form of string.
 	Only applies for Name, calling expressions, indexes is still ok.
 	
-	(print[[Hello World!]]) -> error
+	(print[=[Hello World!]=]) -> error
 	(print"Hello World!") -> error
 	(print'Hello World!') -> error
 	
-	((print)[[Hello World!]]) -> all good
+	((print)[=[Hello World!]=]) -> all good
 	((print)"Hello World!") -> all good
 	((print)'Hello World!') -> all good
 	
-	(_G["print"][[Hello World!]]) -> all good
+	(_G["print"][=[Hello World!]=]) -> all good
 	(_G["print"]"Hello World!") -> all good
 	(_G["print"]'Hello World!') -> all good
 	
-	(print [[Hello World!]]) -> all good
+	(print [=[Hello World!]=]) -> all good
 	(print "Hello World!") -> all good
 	(print 'Hello World!') -> all good
 }
