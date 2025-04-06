@@ -240,6 +240,40 @@ namespace sluaParse
 		return bl;
 	}
 
+
+	template<AnyInput In>
+	inline bool readUchStat(In& in, StatementData<In>& outData, const ExportData exported)
+	{
+		const char ch2 = in.peekAt(1);
+		switch (ch2)
+		{
+		case 's':
+			if (readUseStat(in, outData, exported))
+				return true;
+			break;
+		case 'n':
+			if (checkReadTextToken(in, "unsafe"))
+			{
+				throwExpectedUnsafeable(in);
+			}
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
+
+
+	template<AnyInput In>
+	inline bool readSchStat(In& in, StatementData<In>& outData, const ExportData exported)
+	{
+		if (checkReadTextToken(in, "safe"))
+		{
+			throwExpectedSafeable(in);
+		}
+		return false;
+	}
+
 	template<bool isLoop, AnyInput In>
 	inline Statement<In> readStatment(In& in,const bool allowVarArg)
 	{
@@ -539,8 +573,12 @@ namespace sluaParse
 						if (readTypeStat(in, ret.data, true))
 							return ret;
 						break;
-					case 'u'://use?
-						if (readUseStat(in, ret.data, true))
+					case 'u'://use? unsafe?
+						if (readUchStat(in, ret.data, true))
+							return ret;
+						break;
+					case 's'://safe?
+						if (readSchStat(in, ret.data, true))
 							return ret;
 						break;
 					case 'm'://mod?
@@ -557,31 +595,15 @@ namespace sluaParse
 		case 's'://safe?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (checkReadTextToken(in, "safe"))
-				{
-					throwExpectedSafeable(in);
-				}
+				if(readSchStat(in,ret.data,false))
+					return ret;
 			}
 			break;
 		case 'u'://use? unsafe?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				const char ch2 = in.peekAt(1);
-				switch (ch2)
-				{
-				case 's':
-					if (readUseStat(in, ret.data, false))
-						return ret;
-					break;
-				case 'n':
-					if (checkReadTextToken(in, "unsafe"))
-					{
-						throwExpectedUnsafeable(in);
-					}
-					break;
-				default:
-					break;
-				}
+				if (readUchStat(in, ret.data, false))
+					return ret;
 			}
 			break;
 		case 'm'://mod?
