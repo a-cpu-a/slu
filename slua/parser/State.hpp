@@ -253,6 +253,7 @@ namespace sluaParse
 	struct FunctionV<true> : BaseFunctionV<true>
 	{
 		ErrType retType;
+		OptSafety safety = OptSafety::DEFAULT;
 	};
 
 	template<AnyCfgable CfgT>
