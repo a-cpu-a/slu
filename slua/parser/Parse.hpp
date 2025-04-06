@@ -262,7 +262,7 @@ namespace sluaParse
 			return ret;
 
 		case ':'://must be label
-			readLabel(in, res.data);
+			readLabel(in, ret.data);
 			return ret;
 
 		case 'f'://for?, function?, fn?
@@ -554,11 +554,34 @@ namespace sluaParse
 				}
 			}
 			break;
-		case 'u'://use?
+		case 's'://safe?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (readUseStat(in, ret.data, false))
-					return ret;
+				if (checkReadTextToken(in, "safe"))
+				{
+					throwExpectedSafeable(in);
+				}
+			}
+			break;
+		case 'u'://use? unsafe?
+			if constexpr (in.settings() & sluaSyn)
+			{
+				const char ch2 = in.peekAt(1);
+				switch (ch2)
+				{
+				case 's':
+					if (readUseStat(in, ret.data, false))
+						return ret;
+					break;
+				case 'n':
+					if (checkReadTextToken(in, "unsafe"))
+					{
+						throwExpectedUnsafeable(in);
+					}
+					break;
+				default:
+					break;
+				}
 			}
 			break;
 		case 'm'://mod?
