@@ -47,7 +47,7 @@ New Syntax {
 
 	explist ::= exp {‘,’ exp}
 
-	exp ::=  ‘nil’ | ‘false’ | ‘true’ | Numeral | LiteralString | ‘...’ | 
+	exp ::=  ‘nil’ | ‘false’ | ‘true’ | Numeral | LiteralString | 
 		 prefixexp | tableconstructor | exp binop exp | unop exp 
 
 	prefixexp ::= var | functioncall | ‘(’ exp ‘)’
