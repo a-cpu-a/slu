@@ -167,6 +167,12 @@ Z_test = None;
 
 mod self;
 
+--range op spec
+
+	let range = 1...4;
+	let rangeAbove = 1...;
+	let rangeBelow = ...5;
+	
 --todo spec
 
 
