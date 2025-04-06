@@ -800,6 +800,17 @@ namespace sluaParse
 
 		//Slua!
 
+		varcase(const StatementType::UNSAFE_LABEL) {
+			out.unTabTemp()
+				.add(":::unsafe:")
+				.tabUpTemp();
+		},
+		varcase(const StatementType::SAFE_LABEL) {
+			out.unTabTemp()
+				.add(":::safe:")
+				.tabUpTemp();
+		},
+
 		varcase(const StatementType::TYPE&) {
 			if (var.exported)out.add("ex ");
 			out.add("type ");

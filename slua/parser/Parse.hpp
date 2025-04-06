@@ -262,7 +262,7 @@ namespace sluaParse
 			return ret;
 
 		case ':'://must be label
-			ret.data = StatementType::LABEL(readLabel(in));
+			readLabel(in, res.data);
 			return ret;
 
 		case 'f'://for?, function?, fn?

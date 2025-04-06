@@ -638,6 +638,10 @@ namespace sluaParse
 
 
 		// Slua
+
+		struct UNSAFE_LABEL {};
+		struct SAFE_LABEL {};
+
 		struct USE
 		{
 			ModPath base;//the aliased/imported thing, or modpath base
@@ -694,6 +698,9 @@ namespace sluaParse
 
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
+
+		StatementType::UNSAFE_LABEL,	// ::: unsafe :
+		StatementType::SAFE_LABEL,		// ::: safe :
 
 		StatementType::TYPE,	// OptExportPrefix "type" Name "=" type
 		StatementType::DROP,	// "drop" Name
