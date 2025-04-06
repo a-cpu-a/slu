@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <unordered_set>
+#include <memory>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -122,7 +123,39 @@ namespace sluaParse
 		case '"':
 		case '\'':
 		case '[':
-			basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
+			if constexpr(in.settings()&sluaSyn)
+			{
+				if (in.peekAt(1) == '=')// [=....
+					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
+				else
+				{// must be a array constructor
+					in.skip();
+					Expression<In> firstItem = readExpr(in, allowVarArg);
+					if (in.peek() == ';')
+					{//[x;y]
+						in.skip();
+						ExprType::ARRAY_CONSTRUCTOR<In> res;
+						res.val = std::make_unique<Expression<In>>(std::move(firstItem));
+						res.size = std::make_unique<Expression<In>>(readExpr(in, allowVarArg));
+						requireToken(in, "]");
+						basicRes.data = std::move(res);
+					}
+					else
+					{//[x {, ...} ]
+						ExprType::ARRAY_CONSTRUCTOR_LIST<In> res;
+						res.values.emplace_back(std::move(firstItem));
+						while (in.peek() == ',')
+						{
+							res.values.emplace_back(readExpr(in, allowVarArg));
+						}
+						requireToken(in, "]");
+						basicRes.data = std::move(res);
+					}
+				}
+			}
+			else
+				basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
+
 			break;
 		case '{':
 			basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
