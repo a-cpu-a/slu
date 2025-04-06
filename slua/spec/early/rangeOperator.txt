@@ -1,0 +1,44 @@
+#
+# Dependencies: Lua, type
+#
+
+New Syntax {
+	
+	binop @::= | "..."
+	unop @::= | "..."
+	postunop @::= | "..."
+}
+
+Range Operator {
+	
+	Constructs a inclusive range from 1, or 2 expressions
+	
+	X... -> _>=X
+	...X -> _<=X
+	X...Y -> _>=X and _<=Y
+	
+	```slua
+	
+	let range = 1...4;
+	let rangeAbove = 1...;
+	let rangeBelow = ...5;
+	
+	let x = "Hello";
+	
+	assertEq$(x[1...],"Hello");
+	assertEq$(x[2...],"ello");
+	assertEq$(x[3...],"llo");
+	
+	assertEq$(x[3...3],"l");
+	assertEq$(x[2...3],"el");
+	assertEq$(x[1...3],"Hel");
+	assertEq$(x[1...2],"He");
+	assertEq$(x[1...1],"H");
+	
+	assertEq$(x[...1],"H");
+	assertEq$(x[...2],"He");
+	assertEq$(x[...3],"Hel");
+	
+	```
+	
+}
