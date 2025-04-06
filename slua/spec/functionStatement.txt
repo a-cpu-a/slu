@@ -5,17 +5,16 @@
 New Syntax {
 	
 	stat @::= | OptExportPrefix [safety] PreFn "function" Name "(" TypedParamList ")" ["->" errType] statOrRet
-	stat @::= | "local" [safety] PreFn "function" Name "(" TypedParamList ")" ["->" errType] statOrRet
 }
 
 Function Statement {
 	
 	Creates a new global or local function with a name 'Name', that cant be modified.
 	
-	The default return type is "dyn AutoAny"
+	The default return type is "DynAny"
 	
 	Params are mutable by default.
-	The default type for params is dyn AutoAny, as there is no information to infer anything.
+	The default type for params is DynAny, as there is no information to infer anything.
 	
 	
 	Implementation {
