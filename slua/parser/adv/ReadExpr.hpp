@@ -147,18 +147,34 @@ namespace sluaParse
 				//binop or postunop?
 				const size_t nextCh = weakSkipSpace(in, 3);
 				const char nextChr = in.peekAt(nextCh);
-				if (nextChr == '.' || nextChr == '}'
-					|| nextChr == ')' || nextChr == '>'
-					|| nextChr == '<' || nextChr == '='
-					|| nextChr == '~' || nextChr == '?'
-					|| nextChr == '#' || nextChr == '@'
-					|| nextChr == '!' || nextChr == '%'
-					|| nextChr == '^' || nextChr == '&'
-					|| nextChr == '*' || nextChr == '-'
-					|| nextChr == '+' || nextChr == ':'
-					|| nextChr == ',' || nextChr == '/'
-					|| nextChr == ';' || nextChr == '|'
-					|| nextChr == '\\')
+				if (nextChr == '.')
+				{
+					if(in.peekAt(nextCh+1)=='.')
+					{//Is '..' or '...', etc
+						in.skip(nextCh);
+						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
+					}
+				}
+				else if (
+					(nextChr >= 'a' && nextChr <= 'z')
+					&& (nextChr >= 'A' && nextChr <= 'Z'))
+				{
+					if (peekName<true>(in, nextCh) == SIZE_MAX)
+					{//Its reserved
+						in.skip(nextCh);
+						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
+					}
+				}
+				else if (// Not 0-9,_,",',$,[,{,(
+					(nextChr < '0' && nextChr > '9')
+					&& nextChr!='_'
+					&& nextChr!='"'
+					&& nextChr!='\''
+					&& nextChr!='$'
+					&& nextChr!='['
+					&& nextChr!='{'
+					&& nextChr!='('
+				)
 				{
 					in.skip(nextCh);
 					basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
