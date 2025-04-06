@@ -251,16 +251,16 @@ Type Specifiers {
 		Makes the type borrowing, this means that it is a borrowed value.
 		
 		```slua
-		let firstArg = --...
-		let secondArg = --...
+		let item1 = 4
+		let item2 = 5
 		
-		let &/firstArg u8 myRef = &firstArg;
+		let &/item1 u8 myRef = &item1;
 		
-		let &mut u8 myRef2 = &mut secondArg;-- The annotation is inferred here.
+		let &mut u8 myRef2 = &mut item2;-- The annotation is inferred here.
 		
 		drop myRef2;-- Required, because not adding this, will produce a soft-error.
 		
-		let &/firstArg/secondArg u8 z = &firstArg;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		let &/item1/item2 u8 z = &item1;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
 		
 		```
 	}
@@ -271,26 +271,26 @@ Type Specifiers {
 		
 		```slua
 		
-		let x = 4;
+		let intX = 4;
 		
-		let *&mut u8 xAlias = x;
+		let *&mut u8 xAlias = intX;
 		xAlias = 3;
+		drop xAlias; --Allow use of intX, once again
 		
-		assertEq$(x,3);
+		assertEq$(intX,3);
 		
-		let **mut u8 xAliasUnsafe = x;
+		let **mut u8 xAliasUnsafe = *mut intX;
 		
 		unsafe {
 			xAliasUnsafe = 2;
 		}
-		assertEq$(x,2);
+		assertEq$(intX,2);
 		
 		
-		let y = &x;
+		let intXBorrow = &intX;
 		
-		let *&/x u8 z = *y; --The type represents, a derefed reference for some u8 with lifetime "x".
-		let w = *y; --The type is just u8, as a copy was possible.
-		
+		let *&/intX u8 intXAlias = *intXBorrow; --The type represents, a derefed reference for some u8 with lifetime "intX".
+		let intXCopy = *intXBorrow; --The type is just u8, as a trivial copy was possible.
 		
 		```
 	}
@@ -300,8 +300,8 @@ Type Specifiers {
 		Makes the type a pointer.
 		
 		```slua
-		let firstArg = --...
-		let secondArg = --...
+		let firstArg = 1;
+		let secondArg = 2;
 		
 		
 		--Its (mostly) safe to make pointers, but not to use them.
@@ -313,11 +313,11 @@ Type Specifiers {
 		
 		drop myPtr2;--Drops the pointer, not really meaningfull
 		
-		let *const u8 z = *const firstArg;
+		let *mut u8 firstArgPtr = *mut firstArg;
 		
 	:::unsafe:
 		
-		z = 4;
+		firstArgPtr = 4;
 		
 		```
 	}
