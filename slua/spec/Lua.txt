@@ -70,6 +70,8 @@ New Syntax {
 		 ‘and’ | ‘or’
 
 	unop ::= ‘-’ | ‘not’ | ‘#’ | ‘~’
+	
+	postunop ::=
 }
 
 New Keywords {
