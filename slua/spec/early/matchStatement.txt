@@ -6,8 +6,12 @@ New Syntax {
 	
 	matchPatItem ::= ["#" | "not" | "-" | "~"] "(" comptimeExp ")" | ["-" | "~"] Numeral | ["#"] StringLiteral | ["not"] false | ["not"] true | ["not"] nil | type
 	
-	matchPatBinOp ::= "to" | "or"
-	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
+	
+	matchPatItemRanged ::= "..." matchPatItem | matchPatItem "..." matchPatItem | matchPatItem | matchPatItem "..."
+	
+	
+	matchPatBinOp ::= "or"
+	sPat ::= matchPatItemRanged {matchPatBinOp matchPatItemRanged}
 	
 	destrSpec ::= (["mut"] basicTypeOrTypePrefix) | ("as" ["mut"] type)
 	
