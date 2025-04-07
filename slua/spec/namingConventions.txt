@@ -1,0 +1,28 @@
+#
+# Dependencies: Lua
+#
+
+Naming Conventions {
+	
+	acronyms are treated as one word 
+	N.A.S.A. -> Nasa
+	J.S.O.N. -> Json
+	S.I.M.D. -> Simd
+	L.O.L. -> Lol
+	
+	
+	Use "__" for implementation details, or a module called "details" 
+	
+	
+	myVariable
+	MY_CONSTANT_VARIABLE
+	myJsonFunction
+	myMacroFunction
+	
+	my_simd_module
+	my_crate
+	
+	MyJsonType
+	MyTraitLol
+	primitive00
+}
