@@ -4,14 +4,16 @@
 
 Naming Conventions {
 	
-	acronyms are treated as one word 
+	Acronyms are treated as one word 
 	N.A.S.A. -> Nasa
 	J.S.O.N. -> Json
 	S.I.M.D. -> Simd
 	L.O.L. -> Lol
 	
+	One letter acronyms steal the uppercasing of the next letter.
+	J. U.T.F8 -> Jutf8
 	
-	Use "__" for implementation details, or a module called "details" 
+	Use a module called "details" for implementation details that need to be exported.
 	
 	
 	myVariable
