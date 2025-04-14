@@ -25,18 +25,18 @@ namespace sluaParse
 	"then", "true", "until", "while"
 #define _Slua_KWS \
 	/* freedom */\
-	"continue", "reloc", "where", "loop", "raw", "ref", \
+	"continue", "where", "reloc", "loop", "raw", "ref", \
 	/* future */\
 	"share", "only", "box", "abstract", "become", "final", \
-	"override", "typeof", "virtual", "unsized", \
+	"override", "typeof", "virtual", "unsized","global", \
 	/* todos */\
-	"copy", "move", "super", "unsafe", "safe", "dyn", \
+	"copy", "move", "super",   \
 	"generator", "gen",	"yield", "async", "await", "static", \
 	/* documented */\
-	"is", "to", "as", "of", "fn", "ex", "let", "try", "use", "mut", \
-	"case", "drop", "enum", "impl", "type", "trait", \
-	"alloc", "macro", "match", "const", "catch", "throw", "union", \
-	"struct", "module", "extern", "comptime"
+	"it", "to", "as", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
+	"also","case", "drop", "enum", "impl", "type","safe", "const", \
+	"alloc", "macro", "match", "catch", "throw","trait", "union", \
+	"axiom","unsafe","struct", "module", "extern", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
 		_Slua_LUA_KWS
