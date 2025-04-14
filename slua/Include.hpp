@@ -3,6 +3,11 @@
 */
 #pragma once
 
+//hg
+#ifndef _SLUA__INCLUDE_HPP
+#define _SLUA__INCLUDE_HPP
+
+
 #include <iostream>
 #include <exception>
 
@@ -120,3 +125,5 @@ extern "C"
 * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
+
+#endif // _SLUA__INCLUDE_HPP
