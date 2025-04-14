@@ -5,6 +5,8 @@
 New Syntax {
 	
 	stat @::= | OptExportPrefix "trait" Name "{" {stat} "}"
+	
+	stat @::= | OptExportPrefix "trait" Name = traitcombo
 }
 
 New Keywords {
@@ -15,9 +17,17 @@ New Keywords {
 
 Trait Statement {
 	
+	-- trait Name {...}
 	Defines a new trait.
 	
 	Inside traits, any code can use "Self" to refer to the type the trait is for, however there isnt much you can do inside default code, as you only know that the trait is implemented, but not anything else.
 	
 	Traits allow you to define functions for other types (and trait combinations), in a less repetetive way.
+	
+	-- trait Name = traitcombo
+	Makes a alias for a combination of traits
+	
+	```slua
+	trait BasicMathOps = Add + Sub + Mul + Div + ...
+	```
 }
