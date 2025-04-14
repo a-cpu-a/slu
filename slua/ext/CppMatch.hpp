@@ -36,9 +36,19 @@ struct _EzMatchOverloader : Ts... { using Ts::operator()...; };
 template<class... Ts>
 _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
+template<class Vt,class T>
+constexpr decltype(auto) _ezMatchVisitHack(Vt&& visitor, T&& variant) {
+	if constexpr(requires(T t, Vt v) {
+		{ t.visit(v) };
+	})
+		return variant.visit(std::forward<Vt>(visitor));
+	else
+		return std::visit(std::forward<Vt>(visitor),std::forward<T>(variant));
+}
+
 // Macro Definitions
 #define ezmatch(_VALUE) [&](auto... ez_cases) \
-		{ return ::std::visit(::_EzMatchOverloader{ez_cases...}, _VALUE); }
+		{ return ::_ezMatchVisitHack(::_EzMatchOverloader{ez_cases...}, _VALUE); }
 
 //Note: you need to add const and &/&& yourself
 
