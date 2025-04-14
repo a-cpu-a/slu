@@ -1,20 +1,44 @@
 #
-# Dependencies: Lua, safety
+# Dependencies: Lua, safety, exportPrefix, modules
 #
 
 New Syntax {
 	
+	axiomStat ::= ";"
+		| "safe" modpath [modpathindex]
+		| "unsafe" modpath [modpathindex]
+		| "use" "axiom" modpath
+	
+	stat @::= | OptExportPrefix "axiom" Name ["as" "{" {axiomStat} "}"]
+	stat @::= | OptExportPrefix "use" "axiom" modpath
+	stat @::= | "drop" "axiom" modpath
+	
+	stat @::= | OptExportPrefix "impl" "axiom" modpath "{" {axiomStat} "}"
 }
 
 New Keywords {
+	axiom
+	use
+	drop
+	as
 }
 
 Axioms {
 	
+	--TODO: how to apply rules, when an axiom is not used.
+	--	And then, how to select annotations, only if they have a specific data & are in a specific crate.
+	
 	Axioms would let you choose the things you trust.
 	
-	Stable -> everything marked unstable, becomes safe. (maybe a way to choose what exactly is stable too)
+	They can also be extended using "impl axiom"
 	
+	
+	Stable -> everything marked unstable, is safe (unless it is marked unsafe).
+	
+	std::AllStable -> all of std::* is marked as stable, so you dont need to wrap unstable code use in unsafe blocks.
+	
+	Js -> js only things become safe.
+	Lua -> lua only things become safe.
 	Ptr -> ptrs are safe.
 	SingleThreaded -> assume compilation for single thread, so no need to worry about concurrent accesses.
 	All -> everything is safe, no need to add unsafe blocks.
