@@ -40,9 +40,6 @@ New Keywords {
 	copy   		(461k)		(41.7k)		Copy a value explicitly
 	move   		(1.7m)		(341k)		Borrow a value explicitly
 	super  		(207k)		(6.3k)		Super-type
-	unsafe 		(6.4k)		(372)		Mark as unsafe
-	safe   		(141k)		(17.2k)		Mark as safe
-	dyn    		(209k)		(5.5k)		Vtable traits
 	generator	(64.8k)		(5.6k)		Generator function?
 	gen    		(909k)		(89.6k)		Generator?
 	
@@ -60,6 +57,7 @@ New Keywords {
 	of			(2.5m)		(87k)		match [...] of ...
 	fn			(563k)		(48.1k)		function def
 	ex			(3.7m)		(573k)		export
+	dyn    		(209k)		(5.5k)		Vtable traits
 	let			(1.6m)		(199k)		var def
 	try			(672k)		(73k)		try expr/stat
 	use			(2.4m)		(140k)		use expr
@@ -71,6 +69,7 @@ New Keywords {
 	enum   		(129k)		(8.5k)		Define a enum
 	impl   		(594k)		(23.8k)		Implement a trait
 	type		(1.9m)		(78.3k)		type alias
+	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
 	const		(317k)		(34.3k)		Immutable pointers
@@ -83,6 +82,7 @@ New Keywords {
 	trait  		(63.2k)		(4k)		Define a trait
 	union  		(25k)		(2k)		Define a union
 	axiom		(..)		(..)		Axiom stuff
+	unsafe 		(6.4k)		(372)		Mark as unsafe
 	struct 		(506k)		(62.2k)		Define a struct
 	module		(651k)		(40.2k)		module def
 	extern		(..)		(..)		extern blocks, extern spec
