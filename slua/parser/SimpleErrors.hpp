@@ -16,7 +16,7 @@
 #include <slua/parser/State.hpp>
 #include <slua/parser/Input.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	struct ParseFailError : std::exception
 	{

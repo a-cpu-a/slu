@@ -16,7 +16,7 @@
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/basic/CharInfo.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	inline constexpr uint64_t LAST_DIGIT_HEX = 0xFULL << (64 - 8);
 

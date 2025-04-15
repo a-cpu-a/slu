@@ -20,7 +20,7 @@
 #include <slua/parser/basic/ReadOperators.hpp>
 #include <slua/parser/errors/CharErrors.h>
 
-namespace sluaParse
+namespace slua::parse
 {
 	template<AnyInput In>
 	inline ModPath readModPath(In& in,const std::string& start)

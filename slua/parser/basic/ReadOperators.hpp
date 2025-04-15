@@ -15,7 +15,7 @@
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	inline UnOpType readOptUnOp(AnyInput auto& in)
 	{
