@@ -15,85 +15,164 @@ namespace slua::mlvl
 	using slua::lang::ModPath;
 	using slua::lang::ExportData;
 
+	/*
+	
+	Mid level plans:
+
+	-----------------
+	safety checker
+	referenced name checker
+	?stability checker?
+	-----------------
+	type inference?
+	-----------------
+	type checker?
+	-----------------
+	borrow checker?
+	purity checker & inference?
+	-----------------
+	*/
+
+	struct ModPathId
+	{
+		size_t val;
+	};
+	struct MpItemIdPair
+	{
+		ModPathId mp;
+		size_t valId;
+	};
+	struct ModId
+	{
+		size_t valId;
+	};
+	struct TypeId : MpItemIdPair
+	{};
+	struct ObjId : MpItemIdPair
+	{};
+	struct LocalObjId
+	{
+		size_t valId;
+	};
+
+
+
+	struct BasicData
+	{
+		sluaParse::Position defPos;
+		ExportData exData;
+	};
+
+
 
 
 	namespace ObjType
 	{
-		struct Func;
-		struct Var;
-		struct Type;
-		struct Trait;
-		struct Impl;
-		struct Use;
-		struct Macro;
-		struct Module;
+		struct FuncId :MpItemIdPair {};
+		struct VarId :MpItemIdPair {};
+		struct TypeId :MpItemIdPair {};
+		struct TraitId :MpItemIdPair {};
+		struct ImplId :MpItemIdPair {};
+		struct UseId :MpItemIdPair {};
+		struct MacroId :MpItemIdPair {};
 	}
 	using Obj = std::variant<
-		ObjType::Func,
-		ObjType::Var,
-		ObjType::Type,
-		ObjType::Trait,
-		ObjType::Impl,
-		ObjType::Use,
-		ObjType::Macro,
-		ObjType::Module
+		ObjType::FuncId,
+		ObjType::VarId,
+		ObjType::TypeId,
+		ObjType::TraitId,
+		ObjType::ImplId,
+		ObjType::UseId,
+		ObjType::MacroId
 	>;
-	namespace ObjType
-	{
-		struct Base
-		{
-			sluaParse::Position defPos;
-			ExportData exData;
-		};
-		struct Func : Base
-		{
-			std::string name;
-			sluaParse::FunctionV<true> data;//todo: new struct for: flattened non-block syntax blocks, ref by "ptr"
-		};
-		struct Var : Base
-		{
-			// TODO: destructuring
-			sluaParse::ExpListV<true> vals;//TODO: same as func
-		};
-		struct Type : Base
-		{
-			std::string name;
-			sluaParse::ErrType val;
-		};
-		struct Trait : Base
-		{
-			//TODO
-		};
-		struct Impl : Base
-		{
-			//TODO
-		};
-		struct Use : Base
-		{
-			//TODO: make a local copy of use variant, with a better data format, with support for id ptrs
-			ModPath base;
-			sluaParse::UseVariant value;
-		};
-		struct Macro : Base
-		{
-			std::string name;
-			//TODO
-		};
-		struct Module : Base
-		{
-			std::string name;
-			std::vector<Obj> objs;
-			bool isInline:1 = true;
-		};
-	}
 
+	namespace LocalObjType
+	{
+		struct FuncId :LocalObjId {};
+		struct VarId :LocalObjId {};
+		struct TypeId :LocalObjId {};
+		struct TraitId :LocalObjId {};
+		struct ImplId :LocalObjId {};
+		struct UseId :LocalObjId {};
+		struct MacroId :LocalObjId {};
+	}
+	using LocalObj = std::variant<
+		LocalObjType::FuncId,
+		LocalObjType::VarId,
+		LocalObjType::TypeId,
+		LocalObjType::TraitId,
+		LocalObjType::ImplId,
+		LocalObjType::UseId,
+		LocalObjType::MacroId
+	>;
+
+	struct Func : BasicData
+	{
+		std::string name;
+		sluaParse::FunctionV<true> data;//todo: new struct for: flattened non-block syntax blocks, ref by "ptr"
+	};
+	struct Var : BasicData
+	{
+		// TODO: destructuring
+		sluaParse::ExpListV<true> vals;//TODO: same as func
+	};
+	struct Type : BasicData
+	{
+		std::string name;
+		sluaParse::ErrType val;
+	};
+	struct Trait : BasicData
+	{
+		std::string name;
+		//TODO
+	};
+	struct Impl : BasicData
+	{
+		//TODO
+	};
+	struct Use : BasicData
+	{
+		//TODO: make a local copy of use variant, with a better data format, with support for id ptrs
+		ModPathId base;
+		sluaParse::UseVariant value;
+	};
+	struct Macro : BasicData
+	{
+		std::string name;
+		//TODO
+	};
+
+	struct MpData
+	{
+		ModPath path;
+
+		std::vector<Func> funcs;
+		std::vector<Var> vars;
+		std::vector<Type> types;
+		std::vector<Trait> traits;
+		std::vector<Impl> impl;
+		std::vector<Use> uses;
+		std::vector<Macro> macros;
+
+		std::vector<LocalObj> objs;//MpData::_[...]
+	};
+	struct Module : BasicData
+	{
+		std::string name;
+		ModPathId mpId;
+		std::vector<LocalObjId> objs;// modPaths[mpId].objs[...]
+		std::vector<ModId> subModules;
+		bool isInline : 1 = true;
+	};
 	struct CrateData
 	{
 		std::string name;
-		std::vector<ObjType::Module> modules;
+		std::vector<ModId> modules;
 	};
 	struct MidState
 	{
+		std::vector<MpData> modPaths;
+		std::vector<Module> modules;
 		std::vector<CrateData> crates;
 	};
 }
