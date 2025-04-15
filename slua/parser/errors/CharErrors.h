@@ -81,9 +81,9 @@ namespace sluaParse
 			LUACC_SINGLE_STRING("=")
 			+ errorLocStr(in));
 	}
-	inline void throwIntTooBig(AnyInput auto& in,const std::string_view str)
+	inline void reportIntTooBig(AnyInput auto& in,const std::string_view str)
 	{
-		throw UnexpectedCharacterError(std::format(
+		in.handleError(std::format(
 			LC_Integer " is too big, "
 			LUACC_SINGLE_STRING("{}")
 			"{}", str, errorLocStr(in)));
