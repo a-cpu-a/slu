@@ -15,6 +15,8 @@ namespace slua::mlvl
 	using slua::lang::ModPath;
 	using slua::lang::ExportData;
 
+	//TODO: index by id "ptr", not strings
+
 	namespace ObjType
 	{
 		struct Func;
@@ -46,12 +48,12 @@ namespace slua::mlvl
 		struct Func : Base
 		{
 			std::string name;
-			sluaParse::FunctionV<true> data;
+			sluaParse::FunctionV<true> data;//todo: new struct for: flattened non-block syntax blocks, ref by "ptr"
 		};
 		struct Var : Base
 		{
 			// TODO: destructuring
-			sluaParse::ExpListV<true> vals;
+			sluaParse::ExpListV<true> vals;//TODO: same as func
 		};
 		struct Type : Base
 		{
