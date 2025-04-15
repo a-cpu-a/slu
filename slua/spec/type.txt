@@ -2,6 +2,11 @@
 # Dependencies: Lua, comptime, modules
 #
 
+--TODO: templates <>, -> ???
+-- should <> be function based types?
+-- should <> be extra tags on types?
+-- ????
+
 New Syntax {
 	
 	trait ::= modpath
