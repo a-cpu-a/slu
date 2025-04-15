@@ -470,7 +470,7 @@ namespace sluaParse
 			{
 				if constexpr (!isLoop)
 				{
-					throw ReservedNameError(std::format(
+					in.handleError(std::format(
 						"Break used outside of loop{}"
 						, errorLocStr(in)));
 				}
