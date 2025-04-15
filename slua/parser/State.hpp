@@ -15,6 +15,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slua/ext/ExtendVariant.hpp>
+#include <slua/lang/BasicState.hpp>
 #include "Enums.hpp"
 #include "SmallEnumList.hpp"
 #include "Input.hpp"
@@ -87,10 +88,8 @@ namespace sluaParse
 	*/
 
 
-	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
-	using ExportData = bool;
-
-	using ModPath = std::vector<std::string>;
+	using slua::lang::ModPath;
+	using slua::lang::ExportData;
 	using SubModPath = std::vector<std::string>;
 
 	struct BorrowLevel
