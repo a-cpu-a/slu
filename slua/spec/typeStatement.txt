@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	stat @::= | OptExportPrefix "type" Name "=" type
+	stat @::= | OptExportPrefix "type" Name "=" errType
 }
 
 New Keywords {
