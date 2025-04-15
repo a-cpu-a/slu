@@ -15,7 +15,7 @@ namespace slua::mlvl
 	using slua::lang::ModPath;
 	using slua::lang::ExportData;
 
-	//TODO: index by id "ptr", not strings
+
 
 	namespace ObjType
 	{
@@ -70,26 +70,30 @@ namespace slua::mlvl
 		};
 		struct Use : Base
 		{
-			ModPath base;//the aliased/imported thing, or modpath base
+			//TODO: make a local copy of use variant, with a better data format, with support for id ptrs
+			ModPath base;
 			sluaParse::UseVariant value;
 		};
 		struct Macro : Base
 		{
+			std::string name;
 			//TODO
 		};
 		struct Module : Base
 		{
-			std::unordered_map<std::string, Obj> objs;
+			std::string name;
+			std::vector<Obj> objs;
 			bool isInline:1 = true;
 		};
 	}
 
 	struct CrateData
 	{
-		std::unordered_map<std::string, ObjType::Module> modules;
+		std::string name;
+		std::vector<ObjType::Module> modules;
 	};
 	struct MidState
 	{
-		std::unordered_map<std::string, CrateData> crates;
+		std::vector<CrateData> crates;
 	};
 }
