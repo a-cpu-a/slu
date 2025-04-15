@@ -30,7 +30,8 @@ namespace sluaParse
 			{
 				if (result & LAST_DIGIT_HEX)//does it have anything?
 				{// Yes, exit now!
-					throwIntTooBig(in, str);
+					reportIntTooBig(in, str);
+					return result;
 				}
 			}
 
@@ -51,7 +52,8 @@ namespace sluaParse
 			{
 				if (result.hi & LAST_DIGIT_HEX)//does it have anything?
 				{// Yes, exit now!
-					throwIntTooBig(in, str);
+					reportIntTooBig(in, str);
+					return result;
 				}
 			}
 			result.hi <<= 4;
@@ -86,7 +88,10 @@ namespace sluaParse
 						|| (result.lo > (UINT64_MAX - digit))
 					)
 				)
-					throwIntTooBig(in, str);
+				{
+					reportIntTooBig(in, str);
+					return result;
+				}
 			}
 
 			// Get top 4 bits that overflow into hi
@@ -235,7 +240,7 @@ namespace sluaParse
 			catch (...)
 			{
 				if constexpr (in.settings() & noIntOverflow)
-					throwIntTooBig(in, number);
+					reportIntTooBig(in, number);
 
 				return ExprType::NUMERAL(std::stod(number));
 			}
