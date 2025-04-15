@@ -21,7 +21,7 @@
 #include <slua/parser/basic/ReadOperators.hpp>
 #include <slua/parser/errors/CharErrors.h>
 
-namespace sluaParse
+namespace slua::parse
 {
 	template<AnyInput In>
 	inline Expression<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)

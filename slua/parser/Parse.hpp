@@ -108,7 +108,7 @@
 */
 
 
-namespace sluaParse
+namespace slua::parse
 {
 	//Pair{fn, hadErr}
 	template<AnyInput In>
@@ -645,7 +645,7 @@ namespace sluaParse
 	using ParsedFile = SelV<CfgT, ParsedFileV>;
 
 	/**
-	 * @throws sluaParse::ParseFailError
+	 * @throws slua::parse::ParseFailError
 	 */
 	template<AnyInput In>
 	inline ParsedFile<In> parseFile(In& in)

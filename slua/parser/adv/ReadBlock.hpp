@@ -15,7 +15,7 @@
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/basic/CharInfo.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)

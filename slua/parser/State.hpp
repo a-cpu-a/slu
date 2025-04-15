@@ -24,7 +24,7 @@
 #undef FALSE
 #undef TRUE
 
-namespace sluaParse
+namespace slua::parse
 {
 	template<AnyCfgable CfgT, template<bool> class T>
 	using SelV = T<CfgT::settings()& sluaSyn>;
