@@ -14,7 +14,7 @@
 #include <slua/Settings.hpp>
 #include "Position.hpp"
 
-namespace sluaParse
+namespace slua::parse
 {
 	
 	//Here, so streamed inputs can be made

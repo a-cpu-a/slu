@@ -11,7 +11,7 @@
 
 #include <slua/parser/Input.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	constexpr bool isSpaceChar(const char ch)
 	{
@@ -28,20 +28,20 @@ namespace sluaParse
 	{
 		switch (nlState)
 		{
-		case sluaParse::ParseNewlineState::NONE:
+		case slua::parse::ParseNewlineState::NONE:
 			if (ch == '\n')
 			{
 				in.newLine();
 				return true;
 			}
 			else if (ch == '\r')
-				nlState = sluaParse::ParseNewlineState::CARI;
+				nlState = slua::parse::ParseNewlineState::CARI;
 			break;
-		case sluaParse::ParseNewlineState::CARI:
+		case slua::parse::ParseNewlineState::CARI:
 			if (ch != '\r')
 			{//  \r\n, or \r(normal char)
 				in.newLine();
-				nlState = sluaParse::ParseNewlineState::NONE;
+				nlState = slua::parse::ParseNewlineState::NONE;
 				return true;
 			}
 			else// \r\r

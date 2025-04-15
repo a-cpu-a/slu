@@ -4,9 +4,8 @@
 #pragma once
 
 
-namespace sluaParse
+namespace slua::parse
 {
-
 	struct Position
 	{
 		size_t line;

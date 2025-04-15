@@ -31,15 +31,15 @@
 void _test()
 {
 
-	sluaParse::Input in;
-	sluaParse::parseFile(in);
+	slua::parse::Input in;
+	slua::parse::parseFile(in);
 
-	sluaParse::Input in2{ sluaParse::sluaSyn
-		| sluaParse::noIntOverflow
-		| sluaParse::spacedFuncCallStrForm 
+	slua::parse::Input in2{ slua::parse::sluaSyn
+		| slua::parse::noIntOverflow
+		| slua::parse::spacedFuncCallStrForm 
 	};
-	sluaParse::parseFile(in2);
+	slua::parse::parseFile(in2);
 
-	sluaParse::Output out;
-	sluaParse::genFile(out, {});
+	slua::parse::Output out;
+	slua::parse::genFile(out, {});
 }

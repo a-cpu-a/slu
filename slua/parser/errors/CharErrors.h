@@ -6,7 +6,7 @@
 #include <slua/parser/SimpleErrors.hpp>
 #include <slua/parser/Input.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	inline void throwMultilineCommentMissingEqual(AnyInput auto& in)
 	{

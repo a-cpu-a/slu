@@ -17,7 +17,7 @@
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/basic/CharInfo.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 #define _Slua_LUA_KWS \
 	"and", "break", "do", "else", "elseif", "end", "false", "for", "function", \

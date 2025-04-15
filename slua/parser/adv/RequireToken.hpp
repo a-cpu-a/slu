@@ -17,7 +17,7 @@
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/basic/CharInfo.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	template<bool SKIP_SPACE=true,size_t TOK_SIZE>
 	inline void requireToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])

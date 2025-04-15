@@ -11,7 +11,7 @@
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/adv/ReadName.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	template<AnyInput In>
 	inline bool readUseStat(In& in, StatementData<In>& outData, const ExportData exported)

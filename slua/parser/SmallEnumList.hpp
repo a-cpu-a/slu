@@ -8,7 +8,7 @@
 #include "Enums.hpp"
 #include <slua/ErrorType.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	template<class T>
 	struct SmallEnumList

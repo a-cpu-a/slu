@@ -59,7 +59,7 @@ namespace slua::mlvl
 
 	struct BasicData
 	{
-		sluaParse::Position defPos;
+		parse::Position defPos;
 		ExportData exData;
 	};
 
@@ -109,17 +109,17 @@ namespace slua::mlvl
 	struct Func : BasicData
 	{
 		std::string name;
-		sluaParse::FunctionV<true> data;//todo: new struct for: flattened non-block syntax blocks, ref by "ptr"
+		parse::FunctionV<true> data;//todo: new struct for: flattened non-block syntax blocks, ref by "ptr"
 	};
 	struct Var : BasicData
 	{
 		// TODO: destructuring
-		sluaParse::ExpListV<true> vals;//TODO: same as func
+		parse::ExpListV<true> vals;//TODO: same as func
 	};
 	struct Type : BasicData
 	{
 		std::string name;
-		sluaParse::ErrType val;
+		parse::ErrType val;
 	};
 	struct Trait : BasicData
 	{
@@ -134,7 +134,7 @@ namespace slua::mlvl
 	{
 		//TODO: make a local copy of use variant, with a better data format, with support for id ptrs
 		ModPathId base;
-		sluaParse::UseVariant value;
+		parse::UseVariant value;
 	};
 	struct Macro : BasicData
 	{

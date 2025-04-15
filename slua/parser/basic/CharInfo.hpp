@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-namespace sluaParse
+namespace slua::parse
 {
 	constexpr uint8_t CAPITAL_BIT = 'x' - 'X';
 	static_assert('x' - 'X' == 32);//is simple bit flip?

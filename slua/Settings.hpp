@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <type_traits>
 
-namespace sluaParse
+namespace slua::parse
 {
 
 	template<class THIS, class... SettingTs>

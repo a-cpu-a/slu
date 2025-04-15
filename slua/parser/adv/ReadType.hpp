@@ -16,7 +16,7 @@
 #include <slua/parser/adv/RequireToken.hpp>
 #include <slua/parser/adv/ReadName.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	template<AnyInput In>
 	inline TraitCombo readTraitCombo(In& in)

@@ -17,7 +17,7 @@
 #include <slua/generator/Output.hpp>
 
 
-namespace sluaParse
+namespace slua::parse
 {
 	inline std::string_view getBinOpAsStr(const BinOpType t)
 	{

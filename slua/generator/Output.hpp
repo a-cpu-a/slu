@@ -13,7 +13,7 @@
 
 #include <slua/Settings.hpp>
 
-namespace sluaParse
+namespace slua::parse
 {
 	//Here, so streamed outputs can be made
 	template<class T>
