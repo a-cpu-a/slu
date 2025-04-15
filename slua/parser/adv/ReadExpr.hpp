@@ -97,7 +97,7 @@ namespace sluaParse
 				{
 					if (!allowVarArg)
 					{
-						throw UnexpectedCharacterError(std::format(
+						in.handleError(std::format(
 							"Found varargs (" LUACC_SINGLE_STRING("...") ") "
 							"outside of a vararg " LC_function " or the root " LC_function
 							"{}"
