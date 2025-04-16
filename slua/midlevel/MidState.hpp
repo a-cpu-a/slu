@@ -46,6 +46,10 @@ namespace slua::mlvl
 	{};
 	struct ObjId : MpItmId
 	{};
+	struct LocalTypedObjId
+	{
+		size_t valId;
+	};
 	struct LocalObjId
 	{
 		size_t valId;
@@ -84,13 +88,13 @@ namespace slua::mlvl
 
 	namespace LocalObjType
 	{
-		struct FuncId :LocalObjId {};
-		struct VarId :LocalObjId {};
-		struct TypeId :LocalObjId {};
-		struct TraitId :LocalObjId {};
-		struct ImplId :LocalObjId {};
-		struct UseId :LocalObjId {};
-		struct MacroId :LocalObjId {};
+		struct FuncId :LocalTypedObjId {};
+		struct VarId :LocalTypedObjId {};
+		struct TypeId :LocalTypedObjId {};
+		struct TraitId :LocalTypedObjId {};
+		struct ImplId :LocalTypedObjId {};
+		struct UseId :LocalTypedObjId {};
+		struct MacroId :LocalTypedObjId {};
 	}
 	using LocalObj = std::variant<
 		LocalObjType::FuncId,
