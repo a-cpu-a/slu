@@ -20,14 +20,15 @@ namespace slua::mlvl
 	Mid level plans:
 
 	---------0---------
-	safety checker
 	referenced name checker
-	?stability checker?
 	---------1---------
-	type inference?
-	-----------------
-	type checker?
+	safety checker
+	?stability checker?
 	---------2---------
+	type inference?
+	---------3---------
+	type checker?
+	---------4---------
 	borrow checker?
 	purity checker & inference?
 	-------------------
