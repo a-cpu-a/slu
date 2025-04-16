@@ -37,18 +37,14 @@ namespace slua::mlvl
 	{
 		size_t val;
 	};
-	struct MpItemIdPair
+	struct MpItmId
 	{
 		ModPathId mp;
 		size_t valId;
 	};
-	struct ModId
-	{
-		size_t valId;
-	};
-	struct TypeId : MpItemIdPair
+	struct TypeId : MpItmId
 	{};
-	struct ObjId : MpItemIdPair
+	struct ObjId : MpItmId
 	{};
 	struct LocalObjId
 	{
@@ -68,13 +64,13 @@ namespace slua::mlvl
 
 	namespace ObjType
 	{
-		struct FuncId :MpItemIdPair {};
-		struct VarId :MpItemIdPair {};
-		struct TypeId :MpItemIdPair {};
-		struct TraitId :MpItemIdPair {};
-		struct ImplId :MpItemIdPair {};
-		struct UseId :MpItemIdPair {};
-		struct MacroId :MpItemIdPair {};
+		struct FuncId :MpItmId {};
+		struct VarId :MpItmId {};
+		struct TypeId :MpItmId {};
+		struct TraitId :MpItmId {};
+		struct ImplId :MpItmId {};
+		struct UseId :MpItmId {};
+		struct MacroId :MpItmId {};
 	}
 	using Obj = std::variant<
 		ObjType::FuncId,
@@ -142,7 +138,7 @@ namespace slua::mlvl
 		//TODO
 	};
 
-	struct MpData
+	struct MpData : BasicData
 	{
 		ModPath path;
 
@@ -155,24 +151,18 @@ namespace slua::mlvl
 		std::vector<Macro> macros;
 
 		std::vector<LocalObj> objs;//MpData::_[...]
-	};
-	struct Module : BasicData
-	{
-		std::string name;
-		ModPathId mpId;
-		std::vector<LocalObjId> objs;// modPaths[mpId].objs[...]
-		std::vector<ModId> subModules;
+
+		std::vector<ModPathId> subModules;
 		bool isInline : 1 = true;
 	};
 	struct CrateData
 	{
 		std::string name;
-		std::vector<ModId> modules;
+		ModPathId root;
 	};
 	struct MidState
 	{
 		std::vector<MpData> modPaths;
-		std::vector<Module> modules;
 		std::vector<CrateData> crates;
 	};
 }
