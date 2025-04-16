@@ -19,18 +19,18 @@ namespace slua::mlvl
 	
 	Mid level plans:
 
-	-----------------
+	---------0---------
 	safety checker
 	referenced name checker
 	?stability checker?
-	-----------------
+	---------1---------
 	type inference?
 	-----------------
 	type checker?
-	-----------------
+	---------2---------
 	borrow checker?
 	purity checker & inference?
-	-----------------
+	-------------------
 	*/
 
 	struct ModPathId
