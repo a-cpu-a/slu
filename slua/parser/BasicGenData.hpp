@@ -14,17 +14,26 @@
 
 namespace slua::parse
 {
+	struct GenSafety
+	{
+		bool isSafe : 1 = false;
+		bool forPop : 1 = false;
+	};
 	template<bool isSlua>
 	struct BasicGenScopeV
 	{
 		std::string name;//empty -> anon
 
 		std::vector<std::string> objs;
+
+		std::vector<GenSafety> safetyList;
+
+		BlockV<isSlua> res;
 	};
 	template<bool isSlua>
 	struct BasicGenDataV
 	{
-		ParsedFileV<isSlua> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
+		//ParsedFileV<isSlua> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
 		//TODO: basic name DB, to allow similar code for complex & basic
 
 		std::vector<BasicGenScopeV<isSlua>> scopes;
@@ -44,16 +53,32 @@ namespace slua::parse
 		How to handle 2 `use ::*`'s?
 
 		If there are 2 star uses, is it required to union both of them, into 1 symbol id?
-		Are we forced to make a new symbol after every combination of star uses?
+		Are we forced to make a new symbol after every combination of star uses? No (VVV)
 		Is it better to just use unknown_modpath?
+		^ Yes, doing so, will simplify the ability to add or remove the default used files
 
 		*/
 
-		void pushUnsafe() {}
-		void popUnsafe() {}
+		void pushUnsafe() {
+			scopes.back().safetyList.emplace_back(false, true);
+		}
+		void popSafety() 
+		{
+			//TODO: loop in reverse & stop when forPop==true
+		}
 
-		void setUnsafe() {}
-		void setSafe() {}
+		void setUnsafe() 
+		{
+			GenSafety& gs = scopes.back().safetyList.back();
+			if(gs.forPop || gs.isSafe)
+				scopes.back().safetyList.emplace_back(false);
+		}
+		void setSafe()
+		{
+			GenSafety& gs = scopes.back().safetyList.back();
+			if (gs.forPop || !gs.isSafe)
+				scopes.back().safetyList.emplace_back(true);
+		}
 
 		//For impl, lambda, scope, doExpr
 		void pushAnonScope(){
@@ -63,11 +88,14 @@ namespace slua::parse
 		void pushScope(const std::string& name) {
 			scopes.push_back({ name });
 		}
-		void popScope() {
+		BlockV<isSlua> popScope() {
+			BlockV<isSlua> res = std::move(scopes.back().res);
 			scopes.pop_back();
+			return res;
 		}
-		//TODO: this doesnt make sense rn, how do i do this????
-		void pushStat(StatementV<isSlua>&& stat){}
+		void pushStat(StatementV<isSlua>&& stat){
+			scopes.back().res.emplace_back(stat);
+		}
 		void addLocalObj(const std::string& name){
 			scopes.back().objs.push_back(name);
 		}
