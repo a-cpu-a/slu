@@ -62,7 +62,7 @@ namespace slua::parse
 		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
 		std::vector<BasicModPathData> mps;
 
-		ModPathId get(ModPathView path)
+		ModPathId get(lang::AnyModPathView auto path)
 		{
 			if (!mp2Id.contains(path))
 			{
@@ -213,8 +213,10 @@ namespace slua::parse
 		}
 		MpItmId<isSlua> resolveUnknownName(const ModPath& name)
 		{
-			//TODO: mystery mod-path inside unknown_modpath
-			ModPathId mp = mpDb.get(ModPathView(name).subspan(0, name.size() - 1));//All but last elem
+			ModPathId mp = mpDb.get(lang::UnknownModPathView{
+				ModPathView(name).subspan(0, name.size() - 1) 
+			});//All but last elem
+
 			LocalObjId id = mpDb.mps[0].get(name.back());
 			return MpItmId<true>{mp, id};
 		}
