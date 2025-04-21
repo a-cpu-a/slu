@@ -109,6 +109,7 @@ namespace slua::parse
 
 
 	using slua::lang::ModPath;
+	using slua::lang::ModPathView;
 	using slua::lang::ExportData;
 	using SubModPath = std::vector<std::string>;
 

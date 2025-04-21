@@ -13,6 +13,7 @@
 namespace slua::mlvl
 {
 	using slua::lang::ModPath;
+	using slua::lang::ModPathView;
 	using slua::lang::ExportData;
 
 	/*
