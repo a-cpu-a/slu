@@ -156,7 +156,7 @@ namespace slua::parse
 				scopes.back().safetyList.emplace_back(true);
 		}
 
-		//For impl, lambda, scope, doExpr
+		//For impl, lambda, scope, doExpr, things named '_'
 		void pushAnonScope(){
 			const size_t id = anonScopeCounts.back()++;
 			const std::string name = getAnonName(id);
@@ -188,21 +188,75 @@ namespace slua::parse
 			scopes.back().objs.push_back(name);
 		}
 
+		std::optional<size_t> resolveLocalOpt(const std::string& name)
+		{
+			size_t scopeRevId = 0;
+			for (const BasicGenScopeV<isSlua>& scope : std::views::reverse(scopes))
+			{
+				scopeRevId++;
+
+				for (const std::string& var : scope.objs)
+				{
+					if (var == name)
+						return scopeRevId;
+				}
+			}
+			return {};
+		}
 		MpItmId<isSlua> resolveName(const std::string& name)
 		{// Check if its local
 			//either known local being indexed ORR unknown(potentially from a `use ::*`)
+			const std::optional<MpItmId<isSlua>> v = resolveLocalOpt(name);
+			if (v.has_value())
+			{
+				ModPathId mp = mpDb.get(
+					ModPathView(totalMp).subspan(0, totalMp.size() - *v)
+				);
 
-			//TODO
+				LocalObjId id = mpDb.mps[mp.id].get(name);
+				return MpItmId<true>{mp, id};
+			}
 
 			return resolveUnknownName(name);
 		}
 		MpItmId<isSlua> resolveName(const ModPath& name)
 		{
 			if (name.size() == 1)
-				return resolveName(name[0]);
+				return resolveName(name[0]);//handles self implicitly!!!
+
 			//either known local being indexed, super, crate, self ORR unknown(potentially from a `use ::*`)
 
-			//TODO
+			//TODO: somehow update v, depending on these:
+			if (name[0] == "self")
+			{
+				//TODO
+			}
+			else if (name[0] == "super")
+			{
+				//TODO
+			}
+			else if (name[0] == "crate")
+			{
+				//TODO
+			}
+
+			const std::optional<MpItmId<isSlua>> v = resolveLocalOpt(name[0]);
+			if (v.has_value())
+			{
+				ModPath mpSum;
+				mpSum.reserve((totalMp.size() - *v) + (name.size() - 1));
+
+				for (size_t i = 0; i < totalMp.size() - *v; i++)
+					mpSum.push_back(totalMp[i]);
+				for (size_t i = 0; i < name.size() - 1; i++)
+					mpSum.push_back(name[i]);
+
+				ModPathId mp = mpDb.get(ModPathView(mpSum));
+
+				LocalObjId id = mpDb.mps[mp.id].get(name.back());
+				return MpItmId<true>{mp, id};
+			}
+
 			return resolveUnknownName(name);
 		}
 		// .XXX, XXX, :XXX
@@ -214,10 +268,10 @@ namespace slua::parse
 		MpItmId<isSlua> resolveUnknownName(const ModPath& name)
 		{
 			ModPathId mp = mpDb.get(lang::UnknownModPathView{
-				ModPathView(name).subspan(0, name.size() - 1) 
-			});//All but last elem
+				ModPathView(name).subspan(0, name.size() - 1) // All but last elem
+			});
 
-			LocalObjId id = mpDb.mps[0].get(name.back());
+			LocalObjId id = mpDb.mps[mp.id].get(name.back());
 			return MpItmId<true>{mp, id};
 		}
 	};
