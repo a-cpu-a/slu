@@ -61,15 +61,25 @@ namespace slua::parse
 	template<bool isSlua>
 	struct BasicGenScopeV
 	{
-		std::string name;//empty -> anon
-		size_t anonId;//only has a value if name.empty()
+		size_t anonId;//size_max -> not anon
 
 		std::vector<std::string> objs;
 
 		std::vector<GenSafety> safetyList;
 
 		BlockV<isSlua> res;
+
 	};
+	std::string getAnonName(const size_t anonId)
+	{
+		_ASSERT(anonId != SIZE_MAX);
+		std::string name(1 + sizeof(size_t), '$');
+		name[1] = (anonId & 0xFF000000) >> 24;
+		name[2] = (anonId & 0xFF0000) >> 16;
+		name[3] = (anonId & 0xFF00) >> 8;
+		name[4] = (anonId & 0xFF) >> 0;
+		return name;
+	}
 	template<bool isSlua>
 	struct BasicGenDataV
 	{
@@ -77,9 +87,10 @@ namespace slua::parse
 		//TODO: basic name DB, to allow similar code for complex & basic
 
 		BasicMpDb mpDb;
-		std::vector<BasicGenScopeV<isSlua>> scopes;
+		std::vector<BasicGenScopeV<isSlua>> scopes = { {SIZE_MAX} };
 		std::vector<size_t> anonScopeCounts = {0};
-		ModPath root;
+		ModPath totalMp;
+		bool mpMayHaveAnon = false;
 
 		/*
 		All local names (no ::'s) are defined in THIS file, or from a `use ::*` (potentialy std::prelude::*)
@@ -134,17 +145,21 @@ namespace slua::parse
 
 		//For impl, lambda, scope, doExpr
 		void pushAnonScope(){
-			scopes.push_back({"",anonScopeCounts.back()++ });
+			mpMayHaveAnon = true;
+			totalMp.push_back("");
+			scopes.push_back({anonScopeCounts.back()++ });
 			anonScopeCounts.push_back(0);
 		}
 		//For func, macro, inline_mod, type?, ???
 		void pushScope(const std::string& name) {
-			scopes.push_back({ name });
+			totalMp.push_back(name);
+			scopes.push_back({ SIZE_MAX });
 			anonScopeCounts.push_back(0);
 		}
 		BlockV<isSlua> popScope() {
 			BlockV<isSlua> res = std::move(scopes.back().res);
 			scopes.pop_back();
+			totalMp.pop_back();
 			anonScopeCounts.pop_back();
 			return res;
 		}
@@ -154,8 +169,29 @@ namespace slua::parse
 		void addLocalObj(const std::string& name){
 			scopes.back().objs.push_back(name);
 		}
+		void resolveAnonNames()
+		{
+			if (!mpMayHaveAnon)
+				return;
+			mpMayHaveAnon = false;
+			size_t i = 0;
+			for (std::string& mpPart : totalMp)
+			{
+				i++;
+				if (!mpPart.empty())
+					continue;
+				//Scope 0 has no name, so -1
+				mpPart = getAnonName(scopes[i+scopes.size() - 1 - totalMp.size()].anonId);
+			}
+		}
 
-		MpItmId resolveName(const std::string& name)const {}
-		MpItmId resolveName(const ModPath& name)const {}
+		MpItmId resolveName(const std::string& name) 
+		{
+			resolveAnonNames();
+		}
+		MpItmId resolveName(const ModPath& name) 
+		{
+			resolveAnonNames();
+		}
 	};
 }
