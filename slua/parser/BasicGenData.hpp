@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <ranges>
+#include <unordered_map>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -17,14 +18,40 @@ namespace slua::parse
 {
 	struct ModPathId
 	{
-		size_t val;
+		size_t id; //Id 0 -> unknownRoot
+	};
+	struct LocalObjId
+	{
+		size_t valId;
 	};
 	struct MpItmId
 	{
 		ModPathId mp;
-		size_t valId;
+		LocalObjId id;
 	};
 
+	/*
+		Names starting with $ are anonymous, and are followed by 8 raw bytes (representing anon name id)
+		(All of those are not to be used by other modules, and are local only)
+
+		When converting anonymous names into text, use this form: $(hex form of bytes, no leading zeros except for just 0)
+
+		If a host asks for one of these names as text, then use one of these forms:
+			Same as for normal text or
+			__SLUAANON__(hex form of bytes, same as for normal text)
+
+		(Hex forms in lowercase)
+	*/
+
+	struct BasicModPathData
+	{
+		std::unordered_map<std::string, LocalObjId> name2Id;
+	};
+	struct BasicMpDb
+	{
+		std::unordered_map<ModPath, ModPathId> mp2Id;
+		std::vector<BasicModPathData> mps;
+	};
 
 	struct GenSafety
 	{
@@ -35,6 +62,7 @@ namespace slua::parse
 	struct BasicGenScopeV
 	{
 		std::string name;//empty -> anon
+		size_t anonId;//only has a value if name.empty()
 
 		std::vector<std::string> objs;
 
@@ -48,7 +76,9 @@ namespace slua::parse
 		//ParsedFileV<isSlua> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
 		//TODO: basic name DB, to allow similar code for complex & basic
 
+		BasicMpDb mpDb;
 		std::vector<BasicGenScopeV<isSlua>> scopes;
+		std::vector<size_t> anonScopeCounts = {0};
 		ModPath root;
 
 		/*
@@ -104,15 +134,18 @@ namespace slua::parse
 
 		//For impl, lambda, scope, doExpr
 		void pushAnonScope(){
-			scopes.push_back({""});
+			scopes.push_back({"",anonScopeCounts.back()++ });
+			anonScopeCounts.push_back(0);
 		}
 		//For func, macro, inline_mod, type?, ???
 		void pushScope(const std::string& name) {
 			scopes.push_back({ name });
+			anonScopeCounts.push_back(0);
 		}
 		BlockV<isSlua> popScope() {
 			BlockV<isSlua> res = std::move(scopes.back().res);
 			scopes.pop_back();
+			anonScopeCounts.pop_back();
 			return res;
 		}
 		void pushStat(StatementV<isSlua>&& stat){

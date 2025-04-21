@@ -41,10 +41,6 @@ namespace slua::mlvl
 	{
 		size_t valId;
 	};
-	struct LocalObjId
-	{
-		size_t valId;
-	};
 
 
 
