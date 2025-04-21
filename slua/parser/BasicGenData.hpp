@@ -42,6 +42,16 @@ namespace slua::parse
 
 		(Hex forms in lowercase)
 	*/
+	std::string getAnonName(const size_t anonId)
+	{
+		_ASSERT(anonId != SIZE_MAX);
+		std::string name(1 + sizeof(size_t), '$');
+		name[1] = (anonId & 0xFF000000) >> 24;
+		name[2] = (anonId & 0xFF0000) >> 16;
+		name[3] = (anonId & 0xFF00) >> 8;
+		name[4] = (anonId & 0xFF) >> 0;
+		return name;
+	}
 
 	struct BasicModPathData
 	{
@@ -70,16 +80,6 @@ namespace slua::parse
 		BlockV<isSlua> res;
 
 	};
-	std::string getAnonName(const size_t anonId)
-	{
-		_ASSERT(anonId != SIZE_MAX);
-		std::string name(1 + sizeof(size_t), '$');
-		name[1] = (anonId & 0xFF000000) >> 24;
-		name[2] = (anonId & 0xFF0000) >> 16;
-		name[3] = (anonId & 0xFF00) >> 8;
-		name[4] = (anonId & 0xFF) >> 0;
-		return name;
-	}
 	template<bool isSlua>
 	struct BasicGenDataV
 	{
