@@ -125,6 +125,24 @@ namespace slua::parse
 	}
 
 	template<AnyInput In>
+	inline TupleItem readTupleItem(In& in)
+	{
+		bool hasMut = false;
+		if (in.peek() == 'm')
+		{
+			hasMut = checkReadTextToken(in, "mut");
+		}
+		Type ty = readType(in);
+		skipSpace(in);
+
+		std::string name = "";
+		if (in.peek() != ',' && in.peek() != '}')
+			name = readName(in);
+
+		return { std::move(ty),std::move(name),hasMut };
+	}
+
+	template<AnyInput In>
 	inline TypeItem readTypeItem(In& in)
 	{
 		TypeItem ret;
@@ -144,7 +162,6 @@ namespace slua::parse
 			{
 				res.size.emplace_back(readExpr(in, false));
 			}
-
 			requireToken(in, "]");
 
 			ret.obj = std::move(res);
@@ -153,18 +170,20 @@ namespace slua::parse
 		case '{':
 		{
 			in.skip();
+			skipSpace(in);
 
 			TypeObjType::TUPLE res{};
 
 			if (in.peek() != '}')//Is not empty
 			{
-				res.emplace_back(readType(in));
+				res.emplace_back(readTupleItem(in));
 
 				while (checkReadToken(in, ","))
 				{
-					res.emplace_back(readType(in));
+					res.emplace_back(readTupleItem(in));
 				}
 			}
+			requireToken(in, "}");
 
 			ret.obj = std::move(res);
 			return ret;
