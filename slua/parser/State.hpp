@@ -732,4 +732,14 @@ namespace slua::parse
 		StatementV(StatementV&&) = default;
 		StatementV& operator=(StatementV&&) = default;
 	};
+
+
+	template<bool isSlua>
+	struct ParsedFileV
+	{
+		//TypeList types
+		BlockV<isSlua> code;
+	};
+	template<AnyCfgable CfgT>
+	using ParsedFile = SelV<CfgT, ParsedFileV>;
 }
