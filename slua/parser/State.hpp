@@ -26,6 +26,26 @@
 
 namespace slua::parse
 {
+	struct ModPathId
+	{
+		size_t id; //Id 0 -> unknownRoot
+	};
+	struct LocalObjId
+	{
+		size_t valId;
+	};
+	template<bool isSlua>
+	struct MpItmId
+	{
+		LocalObjId id;// Practically a string pool lol
+	};
+	template<>
+	struct MpItmId<true>
+	{
+		ModPathId mp;
+		LocalObjId id;
+	};
+
 	template<AnyCfgable CfgT, template<bool> class T>
 	using SelV = T<CfgT::settings()& sluaSyn>;
 

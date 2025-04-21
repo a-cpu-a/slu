@@ -16,20 +16,6 @@
 
 namespace slua::parse
 {
-	struct ModPathId
-	{
-		size_t id; //Id 0 -> unknownRoot
-	};
-	struct LocalObjId
-	{
-		size_t valId;
-	};
-	struct MpItmId
-	{
-		ModPathId mp;
-		LocalObjId id;
-	};
-
 	/*
 		Names starting with $ are anonymous, and are followed by 8 raw bytes (representing anon name id)
 		(All of those are not to be used by other modules, and are local only)
@@ -174,7 +160,7 @@ namespace slua::parse
 			scopes.back().objs.push_back(name);
 		}
 
-		MpItmId resolveName(const ModPath& name)
+		MpItmId<isSlua> resolveName(const ModPath& name)
 		{
 			if (name.size() == 1)
 			{// Check if its local
@@ -182,7 +168,7 @@ namespace slua::parse
 			}
 		}
 		// .XXX 
-		MpItmId resolveUnknownName(const ModPath& name) 
+		MpItmId<isSlua> resolveUnknownName(const ModPath& name) 
 		{
 			//TODO: mystery mod-path inside unknown_modpath
 		}
