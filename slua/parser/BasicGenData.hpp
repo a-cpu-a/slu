@@ -206,7 +206,7 @@ namespace slua::parse
 		MpItmId<isSlua> resolveName(const std::string& name)
 		{// Check if its local
 			//either known local being indexed ORR unknown(potentially from a `use ::*`)
-			const std::optional<MpItmId<isSlua>> v = resolveLocalOpt(name);
+			const std::optional<size_t> v = resolveLocalOpt(name);
 			if (v.has_value())
 			{
 				ModPathId mp = mpDb.get(
@@ -240,7 +240,7 @@ namespace slua::parse
 				//TODO
 			}
 
-			const std::optional<MpItmId<isSlua>> v = resolveLocalOpt(name[0]);
+			const std::optional<size_t> v = resolveLocalOpt(name[0]);
 			if (v.has_value())
 			{
 				ModPath mpSum;
