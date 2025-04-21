@@ -160,15 +160,20 @@ namespace slua::parse
 			scopes.back().objs.push_back(name);
 		}
 
+		MpItmId<isSlua> resolveName(const std::string& name)
+		{// Check if its local
+			//either known local being indexed ORR unknown(potentially from a `use ::*`)
+		}
 		MpItmId<isSlua> resolveName(const ModPath& name)
 		{
 			if (name.size() == 1)
-			{// Check if its local
-				//TODO:
-			}
+				return resolveName(name[0]);
+			//either known local being indexed, super, crate, self ORR unknown(potentially from a `use ::*`)
+
+			//TODO
 		}
 		// .XXX 
-		MpItmId<isSlua> resolveUnknownName(const ModPath& name) 
+		MpItmId<isSlua> resolveUnknownName(const std::string& name)
 		{
 			//TODO: mystery mod-path inside unknown_modpath
 		}
