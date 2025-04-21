@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <span>
 
 namespace slua::lang
 {
@@ -12,4 +13,5 @@ namespace slua::lang
 	using ExportData = bool;
 
 	using ModPath = std::vector<std::string>;
+	using ModPathView = std::span<const std::string>;
 }
