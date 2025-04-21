@@ -90,7 +90,6 @@ namespace slua::parse
 		std::vector<BasicGenScopeV<isSlua>> scopes = { {SIZE_MAX} };
 		std::vector<size_t> anonScopeCounts = {0};
 		ModPath totalMp;
-		bool mpMayHaveAnon = false;
 
 		/*
 		All local names (no ::'s) are defined in THIS file, or from a `use ::*` (potentialy std::prelude::*)
@@ -145,13 +144,18 @@ namespace slua::parse
 
 		//For impl, lambda, scope, doExpr
 		void pushAnonScope(){
-			mpMayHaveAnon = true;
-			totalMp.push_back("");
-			scopes.push_back({anonScopeCounts.back()++ });
+			const size_t id = anonScopeCounts.back()++;
+			const std::string name = getAnonName(id);
+			addLocalObj(name);
+
+			totalMp.push_back(name);
+			scopes.push_back({id});
 			anonScopeCounts.push_back(0);
 		}
 		//For func, macro, inline_mod, type?, ???
 		void pushScope(const std::string& name) {
+			addLocalObj(name);
+
 			totalMp.push_back(name);
 			scopes.push_back({ SIZE_MAX });
 			anonScopeCounts.push_back(0);
@@ -169,29 +173,18 @@ namespace slua::parse
 		void addLocalObj(const std::string& name){
 			scopes.back().objs.push_back(name);
 		}
-		void resolveAnonNames()
+
+		MpItmId resolveName(const ModPath& name)
 		{
-			if (!mpMayHaveAnon)
-				return;
-			mpMayHaveAnon = false;
-			size_t i = 0;
-			for (std::string& mpPart : totalMp)
-			{
-				i++;
-				if (!mpPart.empty())
-					continue;
-				//Scope 0 has no name, so -1
-				mpPart = getAnonName(scopes[i+scopes.size() - 1 - totalMp.size()].anonId);
+			if (name.size() == 1)
+			{// Check if its local
+				//TODO:
 			}
 		}
-
-		MpItmId resolveName(const std::string& name) 
+		// .XXX 
+		MpItmId resolveUnknownName(const ModPath& name) 
 		{
-			resolveAnonNames();
-		}
-		MpItmId resolveName(const ModPath& name) 
-		{
-			resolveAnonNames();
+			//TODO: mystery mod-path inside unknown_modpath
 		}
 	};
 }
