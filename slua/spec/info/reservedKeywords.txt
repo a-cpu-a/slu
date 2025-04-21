@@ -39,7 +39,7 @@ New Keywords {
 	
 	copy   		(461k)		(41.7k)		Copy a value explicitly
 	move   		(1.7m)		(341k)		Borrow a value explicitly
-	super  		(207k)		(6.3k)		Super-type
+	super  		(207k)		(6.3k)		Super-type, super module
 	generator	(64.8k)		(5.6k)		Generator function?
 	gen    		(909k)		(89.6k)		Generator?
 	
