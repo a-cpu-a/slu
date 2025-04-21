@@ -111,6 +111,13 @@ namespace slua::parse
 
 	using TraitCombo = std::vector<ModPath>;
 	using Type = std::vector<struct TypeItem>;
+	
+	struct TupleItem
+	{
+		Type ty;
+		std::string name;// empty -> no name
+		bool hasMut : 1 = false;
+	};
 
 	namespace TypeObjType
 	{
@@ -120,7 +127,7 @@ namespace slua::parse
 			Type ty;
 			ExpListV<true> size;//empty -> slice, else array
 		};
-		using TUPLE = std::vector<Type>;
+		using TUPLE = std::vector<TupleItem>;
 		struct TRAIT_COMBO
 		{
 			TraitCombo traits;
