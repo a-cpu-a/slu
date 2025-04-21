@@ -15,7 +15,7 @@ New Syntax {
 	errType ::= ([type] "?" type) | ([type] "??" ) | type
 	
 	type ::= typeItemlist
-	TypeList ::= type {"," type}
+	mutableNambeableTypeList ::= ["mut"] type [Name] {"," ["mut"] type [Name]}
 
 	typeItemlist ::= typeItem { "|" typeItem }
 	typeItem ::= typePrefix typeObj
@@ -29,7 +29,7 @@ New Syntax {
 	
 	traitComboType ::= ("dyn" | "impl") traitcombo
 	
-	tableTupleType ::= "{" TypeList "}"
+	tableTupleType ::= "{" mutableNambeableTypeList "}"
 	arraySliceType ::= "[" type "]"
 	optimalArrayType ::= "[" type arraySizer "]"
 	
