@@ -633,17 +633,6 @@ namespace slua::parse
 		return ret;
 	}
 
-	template<bool isSlua>
-	struct ParsedFileV
-	{
-		//TypeList types
-		BlockV<isSlua> code;
-	};
-
-
-	template<AnyCfgable CfgT>
-	using ParsedFile = SelV<CfgT, ParsedFileV>;
-
 	/**
 	 * @throws slua::parse::ParseFailError
 	 */
