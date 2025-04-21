@@ -41,12 +41,40 @@ namespace slua::parse
 
 	struct BasicModPathData
 	{
+		ModPath path;
 		std::unordered_map<std::string, LocalObjId> name2Id;
+
+		LocalObjId get(const std::string& name)
+		{
+			if (!name2Id.contains(name))
+			{
+				const size_t res = name2Id.size();
+
+				name2Id[name] = { res };
+
+				return { res };
+			}
+			return name2Id[name];
+		}
 	};
 	struct BasicMpDb
 	{
-		std::unordered_map<ModPath, ModPathId> mp2Id;
+		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
 		std::vector<BasicModPathData> mps;
+
+		ModPathId get(ModPathView path)
+		{
+			if (!mp2Id.contains(path))
+			{
+				const size_t res = mps.size();
+
+				mp2Id.find(path)->second = { res };
+				mps.emplace_back(path);
+
+				return { res };
+			}
+			return mp2Id.find(path)->second;
+		}
 	};
 
 	struct GenSafety
@@ -163,6 +191,10 @@ namespace slua::parse
 		MpItmId<isSlua> resolveName(const std::string& name)
 		{// Check if its local
 			//either known local being indexed ORR unknown(potentially from a `use ::*`)
+
+			//TODO
+
+			return resolveUnknownName(name);
 		}
 		MpItmId<isSlua> resolveName(const ModPath& name)
 		{
@@ -171,11 +203,20 @@ namespace slua::parse
 			//either known local being indexed, super, crate, self ORR unknown(potentially from a `use ::*`)
 
 			//TODO
+			return resolveUnknownName(name);
 		}
-		// .XXX 
+		// .XXX, XXX, :XXX
 		MpItmId<isSlua> resolveUnknownName(const std::string& name)
 		{
+			LocalObjId id = mpDb.mps[0].get(name);
+			return MpItmId<true>{{0}, id};
+		}
+		MpItmId<isSlua> resolveUnknownName(const ModPath& name)
+		{
 			//TODO: mystery mod-path inside unknown_modpath
+			ModPathId mp = mpDb.get(ModPathView(name).subspan(0, name.size() - 1));//All but last elem
+			LocalObjId id = mpDb.mps[0].get(name.back());
+			return MpItmId<true>{mp, id};
 		}
 	};
 }
