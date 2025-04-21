@@ -33,16 +33,6 @@ namespace slua::mlvl
 	purity checker & inference?
 	-------------------
 	*/
-
-	struct ModPathId
-	{
-		size_t val;
-	};
-	struct MpItmId
-	{
-		ModPathId mp;
-		size_t valId;
-	};
 	struct TypeId : MpItmId
 	{};
 	struct ObjId : MpItmId

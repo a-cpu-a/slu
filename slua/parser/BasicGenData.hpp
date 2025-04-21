@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdint>
+#include <ranges>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -14,6 +15,17 @@
 
 namespace slua::parse
 {
+	struct ModPathId
+	{
+		size_t val;
+	};
+	struct MpItmId
+	{
+		ModPathId mp;
+		size_t valId;
+	};
+
+
 	struct GenSafety
 	{
 		bool isSafe : 1 = false;
@@ -37,6 +49,7 @@ namespace slua::parse
 		//TODO: basic name DB, to allow similar code for complex & basic
 
 		std::vector<BasicGenScopeV<isSlua>> scopes;
+		ModPath root;
 
 		/*
 		All local names (no ::'s) are defined in THIS file, or from a `use ::*` (potentialy std::prelude::*)
@@ -64,7 +77,16 @@ namespace slua::parse
 		}
 		void popSafety() 
 		{
-			//TODO: loop in reverse & stop when forPop==true
+			std::vector<GenSafety>& safetyList = scopes.back().safetyList;
+			size_t popCount = 1;
+
+			for (const GenSafety gs : std::views::reverse(safetyList))
+			{
+				if (gs.forPop)
+					break;
+				popCount++;
+			}
+			safetyList.erase(safetyList.end()-popCount, safetyList.end());
 		}
 
 		void setUnsafe() 
@@ -100,6 +122,7 @@ namespace slua::parse
 			scopes.back().objs.push_back(name);
 		}
 
-		int resolveName()const {}
+		MpItmId resolveName(const std::string& name)const {}
+		MpItmId resolveName(const ModPath& name)const {}
 	};
 }
