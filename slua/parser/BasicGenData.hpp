@@ -98,7 +98,6 @@ namespace slua::parse
 	struct BasicGenDataV
 	{
 		//ParsedFileV<isSlua> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
-		//TODO: basic name DB, to allow similar code for complex & basic
 
 		BasicMpDb mpDb;
 		std::vector<BasicGenScopeV<isSlua>> scopes = { {SIZE_MAX} };
