@@ -142,7 +142,6 @@ namespace slua::parse
 			}
 			safetyList.erase(safetyList.end()-popCount, safetyList.end());
 		}
-
 		void setUnsafe() 
 		{
 			GenSafety& gs = scopes.back().safetyList.back();
@@ -212,11 +211,9 @@ namespace slua::parse
 				ModPathId mp = mpDb.get(
 					ModPathView(totalMp).subspan(0, totalMp.size() - *v)
 				);
-
 				LocalObjId id = mpDb.mps[mp.id].get(name);
 				return MpItmId<true>{mp, id};
 			}
-
 			return resolveUnknownName(name);
 		}
 		MpItmId<isSlua> resolveName(const ModPath& name)
@@ -226,21 +223,16 @@ namespace slua::parse
 
 			//either known local being indexed, super, crate, self ORR unknown(potentially from a `use ::*`)
 
-			//TODO: somehow update v, depending on these:
+			std::optional<size_t> v;
 			if (name[0] == "self")
-			{
-				//TODO
-			}
+				v = scopes.size() - 1;//Pop all new ones
 			else if (name[0] == "super")
-			{
-				//TODO
-			}
+				v = scopes.size();//Pop all new ones + self
 			else if (name[0] == "crate")
-			{
-				//TODO
-			}
+				v = totalMp.size() - 1;//All but last
+			else
+				v = resolveLocalOpt(name[0]);
 
-			const std::optional<size_t> v = resolveLocalOpt(name[0]);
 			if (v.has_value())
 			{
 				ModPath mpSum;
@@ -256,7 +248,6 @@ namespace slua::parse
 				LocalObjId id = mpDb.mps[mp.id].get(name.back());
 				return MpItmId<true>{mp, id};
 			}
-
 			return resolveUnknownName(name);
 		}
 		// .XXX, XXX, :XXX
@@ -270,7 +261,6 @@ namespace slua::parse
 			ModPathId mp = mpDb.get(lang::UnknownModPathView{
 				ModPathView(name).subspan(0, name.size() - 1) // All but last elem
 			});
-
 			LocalObjId id = mpDb.mps[mp.id].get(name.back());
 			return MpItmId<true>{mp, id};
 		}
