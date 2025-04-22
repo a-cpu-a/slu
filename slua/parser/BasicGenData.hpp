@@ -60,7 +60,7 @@ namespace slua::parse
 	struct BasicMpDb
 	{
 		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
-		std::vector<BasicModPathData> mps;
+		std::vector<BasicModPathData> mps = { {} };//Add 0, the unknown one
 
 		ModPathId get(lang::AnyModPathView auto path)
 		{
