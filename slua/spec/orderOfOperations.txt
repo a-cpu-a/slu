@@ -6,6 +6,11 @@ Order of Operations {
 	
 	--TODO: add compound operators for real
 	
+	--decide if wrap & sat operators should exist?
+	--sat -> |
+	--wrap -> &
+	--location would be after, aka (+&, +|, <<|, <<&)
+	
 	```
 	(pseudo) ;
 	(pseudo) = ..= |= ~= &= <<= >>= += -= %= *= /= //= ^=
