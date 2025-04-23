@@ -24,6 +24,7 @@
 #include <slua/types/basic/RegistryRef.hpp>
 
 #include <slua/parser/Parse.hpp>
+#include <slua/parser/VecInput.hpp>
 #include <slua/generator/Gen.hpp>
 #include <slua/MetaTableUtils.hpp>
 
@@ -31,10 +32,10 @@
 void _test()
 {
 
-	slua::parse::Input in;
+	slua::parse::VecInput in;
 	slua::parse::parseFile(in);
 
-	slua::parse::Input in2{ slua::parse::sluaSyn
+	slua::parse::VecInput in2{ slua::parse::sluaSyn
 		| slua::parse::noIntOverflow
 		| slua::parse::spacedFuncCallStrForm 
 	};
