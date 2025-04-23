@@ -307,29 +307,51 @@ namespace slua::parse
 				 for namelist in explist do block end |
 				*/
 
-				if constexpr (in.settings() & sluaSyn) requireToken(in, "(");
+				if constexpr (in.settings() & sluaSyn)
+				{
+					if (!checkReadToken(in, "("))
+					{//range loop
+						StatementType::FOR_LOOP_RANGE<In> res{};
+						res.varName = readName(in);
+						requireToken(in, "in");
+						requireToken(in, "(");
+
+						res.range = readExpr(in, allowVarArg);
+						if (checkReadToken(in, ","))
+							res.step = readExpr(in, allowVarArg);
+
+						requireToken(in, ")");
+
+						res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
+
+						ret.data = std::move(res);
+						return ret;
+					}
+				}
 
 				NameList names = readNameList(in);
-
-				if (names.size() == 1 && checkReadToken(in, "="))//1 name, then MAYBE equal
+				if constexpr (!(in.settings() & sluaSyn))
 				{
-					StatementType::FOR_LOOP_NUMERIC<In> res{};
-					res.varName = names[0];
+					if (names.size() == 1 && checkReadToken(in, "="))//1 name, then MAYBE equal
+					{
+						StatementType::FOR_LOOP_NUMERIC<In> res{};
+						res.varName = names[0];
 
-					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-					res.start = readExpr(in,allowVarArg);
-					requireToken(in, ",");
-					res.end = readExpr(in,allowVarArg);
+						// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+						res.start = readExpr(in, allowVarArg);
+						requireToken(in, ",");
+						res.end = readExpr(in, allowVarArg);
 
-					if (checkReadToken(in, ","))
-						res.step = readExpr(in,allowVarArg);
+						if (checkReadToken(in, ","))
+							res.step = readExpr(in, allowVarArg);
 
-					if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
+						//if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
 
-					res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
+						res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
 
-					ret.data = std::move(res);
-					return ret;
+						ret.data = std::move(res);
+						return ret;
+					}
 				}
 				// Generic Loop
 				// for namelist in explist do block end | 
