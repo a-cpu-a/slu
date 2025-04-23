@@ -21,8 +21,8 @@ namespace slua::parse
 	template<AnyInput In>
 	inline void readLabel(In& in, StatementData<In>& outData)
 	{
-		//label ::= ‘::’ Name ‘::’
-		//SL label ::= ‘:::’ Name ‘:’
+		//label ::= â€˜::â€™ Name â€˜::â€™
+		//SL label ::= â€˜:::â€™ Name â€˜:â€™
 
 		requireToken(in, sel<In>("::", ":::"));
 
