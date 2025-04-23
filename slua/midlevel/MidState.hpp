@@ -34,9 +34,9 @@ namespace slua::mlvl
 	purity checker & inference?
 	-------------------
 	*/
-	struct TypeId : MpItmId
+	struct TypeId : MpItmIdV
 	{};
-	struct ObjId : MpItmId
+	struct ObjId : MpItmIdV
 	{};
 	struct LocalTypedObjId
 	{
@@ -56,13 +56,13 @@ namespace slua::mlvl
 
 	namespace ObjType
 	{
-		struct FuncId :MpItmId {};
-		struct VarId :MpItmId {};
-		struct TypeId :MpItmId {};
-		struct TraitId :MpItmId {};
-		struct ImplId :MpItmId {};
-		struct UseId :MpItmId {};
-		struct MacroId :MpItmId {};
+		struct FuncId :MpItmIdV {};
+		struct VarId :MpItmIdV {};
+		struct TypeId :MpItmIdV {};
+		struct TraitId :MpItmIdV {};
+		struct ImplId :MpItmIdV {};
+		struct UseId :MpItmIdV {};
+		struct MacroId :MpItmIdV {};
 	}
 	using Obj = std::variant<
 		ObjType::FuncId,
