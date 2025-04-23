@@ -35,14 +35,14 @@ namespace slua::parse
 	{
 		_ASSERT(anonId != SIZE_MAX);
 		std::string name(1 + sizeof(size_t), '$');
-		name[1] = (anonId & 0xFF00000000000000) >> 56;
-		name[2] = (anonId & 0xFF000000000000) >> 48;
-		name[3] = (anonId & 0xFF0000000000) >> 40;
-		name[4] = (anonId & 0xFF00000000) >> 32;
-		name[5] = (anonId & 0xFF000000) >> 24;
-		name[6] = (anonId & 0xFF0000) >> 16;
-		name[7] = (anonId & 0xFF00) >> 8;
-		name[8] = (anonId & 0xFF) >> 0;
+		name[1] = uint8_t((anonId & 0xFF00000000000000) >> 56);
+		name[2] = uint8_t((anonId & 0xFF000000000000) >> 48);
+		name[3] = uint8_t((anonId & 0xFF0000000000) >> 40);
+		name[4] = uint8_t((anonId & 0xFF00000000) >> 32);
+		name[5] = uint8_t((anonId & 0xFF000000) >> 24);
+		name[6] = uint8_t((anonId & 0xFF0000) >> 16);
+		name[7] = uint8_t((anonId & 0xFF00) >> 8);
+		name[8] = uint8_t((anonId & 0xFF) >> 0);
 		return name;
 	}
 
