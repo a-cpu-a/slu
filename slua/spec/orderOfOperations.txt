@@ -3,6 +3,9 @@
 #
 
 Order of Operations {
+	
+	--TODO: add compound operators for real
+	
 	```
 	(pseudo) ;
 	(pseudo) = ..= |= ~= &= <<= >>= += -= %= *= /= //= ^=
