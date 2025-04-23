@@ -100,7 +100,7 @@ namespace slua::parse
 	{
 		/*
 			block ::= {stat} [retstat]
-			retstat ::= return [explist] [‘;’]
+			retstat ::= return [explist] [â€˜;â€™]
 		*/
 
 		skipSpace(in);
