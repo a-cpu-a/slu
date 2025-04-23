@@ -15,6 +15,7 @@
 #include <slua/Settings.hpp>
 #include "Position.hpp"
 #include "Input.hpp"
+#include "BasicGenData.hpp"
 
 namespace slua::parse
 {
@@ -28,6 +29,8 @@ namespace slua::parse
 		{
 			return SettingsT();
 		}
+
+		BasicGenDataV<SettingsT()& sluaSyn> genData;
 
 		std::vector<std::string> handledErrors;
 
