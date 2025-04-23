@@ -4,8 +4,6 @@
 
 New Syntax {
 	
-	--TODO: revise advanced for loop syntax
-	
 	chunk ::= block
 
 	block ::= {stat} [retstat [‘;’]]
@@ -22,8 +20,8 @@ New Syntax {
 		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
 		 ‘repeat’ statOrRetOsc ‘until’ exp | 
 		 ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet | 
-		 ‘for’ Name ‘in’ ‘(’ exp [‘,’ exp] ‘)’ statOrRet | 
-		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
+		 ‘for’ uncondDestrPat ‘=’ ‘(’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
+		 ‘for’ uncondDestrPat ‘in’ ‘(’ exp ‘)’ statOrRet | 
 		 ‘local’ namelist [‘=’ explist]
 
 
