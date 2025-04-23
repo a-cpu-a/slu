@@ -307,51 +307,35 @@ namespace slua::parse
 				 for namelist in explist do block end |
 				*/
 
-				if constexpr (in.settings() & sluaSyn)
-				{
-					if (!checkReadToken(in, "("))
-					{//range loop
-						StatementType::FOR_LOOP_RANGED<In> res{};
-						res.varName = readName(in);
-						requireToken(in, "in");
-						requireToken(in, "(");
-
-						res.range = readExpr(in, allowVarArg);
-						if (checkReadToken(in, ","))
-							res.step = readExpr(in, allowVarArg);
-
-						requireToken(in, ")");
-
-						res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
-
-						ret.data = std::move(res);
-						return ret;
-					}
-				}
-
 				NameList names = readNameList(in);
-				if constexpr (!(in.settings() & sluaSyn))
+
+				bool isNumeric = false;
+
+				if constexpr (in.settings() & sluaSyn)
+					isNumeric = checkReadToken(in, "=");
+				else//1 name, then MAYBE equal
+					isNumeric = names.size() == 1 && checkReadToken(in, "=");
+				if (isNumeric)
 				{
-					if (names.size() == 1 && checkReadToken(in, "="))//1 name, then MAYBE equal
-					{
-						StatementType::FOR_LOOP_NUMERIC<In> res{};
-						res.varName = names[0];
+					if constexpr (in.settings() & sluaSyn)
+						requireToken(in, "(");
+					StatementType::FOR_LOOP_NUMERIC<In> res{};
+					res.varName = names[0];
 
-						// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-						res.start = readExpr(in, allowVarArg);
-						requireToken(in, ",");
-						res.end = readExpr(in, allowVarArg);
+					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+					res.start = readExpr(in, allowVarArg);
+					requireToken(in, ",");
+					res.end = readExpr(in, allowVarArg);
 
-						if (checkReadToken(in, ","))
-							res.step = readExpr(in, allowVarArg);
+					if (checkReadToken(in, ","))
+						res.step = readExpr(in, allowVarArg);
 
-						//if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
+					if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
 
-						res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
+					res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
 
-						ret.data = std::move(res);
-						return ret;
-					}
+					ret.data = std::move(res);
+					return ret;
 				}
 				// Generic Loop
 				// for namelist in explist do block end | 
@@ -360,9 +344,15 @@ namespace slua::parse
 				res.varNames = names;
 
 				requireToken(in, "in");
-				res.exprs = readExpList(in,allowVarArg);
+				if constexpr (in.settings() & sluaSyn)
+				{
+					requireToken(in, "(");
+					res.exprs.emplace_back(readExpr(in, allowVarArg));
+					requireToken(in, ")");
+				}
+				else
+					res.exprs = readExpList(in, allowVarArg);
 
-				if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
 
 				res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
 

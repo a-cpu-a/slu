@@ -777,24 +777,6 @@ namespace slua::parse
 			out.unTabNewl()
 				.addNewl(sel<Out>("end", "}"));
 		},
-		varcase(const StatementType::FOR_LOOP_RANGED<Out>&) {
-			out.add("for ")
-				.add(var.varName)
-				.add(" in (");
-			genExpr(out, var.range);
-			if (var.step)
-			{
-				out.add(", ");
-				genExpr(out, *var.step);
-			}
-			out.add(")");
-			if constexpr (out.settings() & sluaSyn) out.newLine().add('{');
-			out.tabUpNewl();
-
-			genBlock(out, var.bl);
-			out.unTabNewl()
-				.addNewl(sel<Out>("end", "}"));
-		},
 		varcase(const StatementType::FOR_LOOP_GENERIC<Out>&) {
 			out.add(sel<Out>("for ", "for ("));
 			genNames(out, var.varNames);

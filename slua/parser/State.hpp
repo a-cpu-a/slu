@@ -632,17 +632,6 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using FOR_LOOP_NUMERIC = SelV<CfgT, FOR_LOOP_NUMERICv>;
 
-		// "for Name in (exp [, exp]) do block end"
-		template<bool isSlua>
-		struct FOR_LOOP_RANGEDv
-		{
-			std::string varName;
-			ExpressionV<isSlua> range;
-			std::optional<ExpressionV<isSlua>> step;
-			BlockV<isSlua> bl;
-		};
-		template<AnyCfgable CfgT> using FOR_LOOP_RANGED = SelV<CfgT, FOR_LOOP_RANGEDv>;
-
 		// "for namelist in explist do block end"
 		template<bool isSlua>
 		struct FOR_LOOP_GENERICv
@@ -734,7 +723,6 @@ namespace slua::parse
 
 		StatementType::FOR_LOOP_NUMERICv<isSlua>,	// "for Name = exp , exp [, exp] do block end"
 		StatementType::FOR_LOOP_GENERICv<isSlua>,	// "for namelist in explist do block end"
-		StatementType::FOR_LOOP_RANGEDv<isSlua>,		// "for Name in (exp [, exp]) do block end"
 
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
