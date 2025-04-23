@@ -19,6 +19,7 @@
 
 namespace slua::parse
 {
+	template<AnyCfgable Out>
 	inline std::string_view getBinOpAsStr(const BinOpType t)
 	{
 		using namespace std::literals;
@@ -61,7 +62,7 @@ namespace slua::parse
 		case BinOpType::EQUAL:
 			return "=="sv;
 		case BinOpType::NOT_EQUAL:
-			return "~="sv;
+			return sel<Out>("~=", "!=");
 		case BinOpType::LOGICAL_AND:
 			return "and"sv;
 		case BinOpType::LOGICAL_OR:
@@ -74,6 +75,7 @@ namespace slua::parse
 			return "<ERROR>"sv;
 		}
 	}
+	template<AnyCfgable Out>
 	inline std::string_view getUnOpAsStr(const UnOpType t)
 	{
 		using namespace std::literals;
@@ -82,7 +84,7 @@ namespace slua::parse
 		case UnOpType::NEGATE:
 			return " -"sv;//TODO: elide space, when there is one already
 		case UnOpType::LOGICAL_NOT:
-			return " not "sv;
+			return sel<Out>(" not ", " !");
 		case UnOpType::LENGTH:
 			return " #"sv;
 		case UnOpType::BITWISE_NOT:
@@ -209,7 +211,7 @@ namespace slua::parse
 	{
 		for (const UnOpType t : obj.unOps)
 		{
-			out.add(getUnOpAsStr(t));
+			out.add(getUnOpAsStr<Out>(t));
 		}
 		using namespace std::literals;
 		ezmatch(obj.data)(
@@ -262,7 +264,7 @@ namespace slua::parse
 			for (const auto& [op,ex] : var.extra)
 			{
 				out.add(' ')
-					.add(getBinOpAsStr(op))
+					.add(getBinOpAsStr<Out>(op))
 					.add(' ');
 				genExpr(out, ex);
 			}
