@@ -201,7 +201,7 @@ namespace slua::parse
 			}
 			return {};
 		}
-		MpItmId<isSlua> resolveName(const std::string& name)
+		MpItmIdV<isSlua> resolveName(const std::string& name)
 		{// Check if its local
 			//either known local being indexed ORR unknown(potentially from a `use ::*`)
 			const std::optional<size_t> v = resolveLocalOpt(name);
@@ -211,11 +211,11 @@ namespace slua::parse
 					ModPathView(totalMp).subspan(0, totalMp.size() - *v)
 				);
 				LocalObjId id = mpDb.mps[mp.id].get(name);
-				return MpItmId<true>{mp, id};
+				return MpItmIdV<true>{mp, id};
 			}
 			return resolveUnknownName(name);
 		}
-		MpItmId<isSlua> resolveName(const ModPath& name)
+		MpItmIdV<isSlua> resolveName(const ModPath& name)
 		{
 			if (name.size() == 1)
 				return resolveName(name[0]);//handles self implicitly!!!
@@ -245,23 +245,23 @@ namespace slua::parse
 				ModPathId mp = mpDb.get(ModPathView(mpSum));
 
 				LocalObjId id = mpDb.mps[mp.id].get(name.back());
-				return MpItmId<true>{mp, id};
+				return MpItmIdV<true>{mp, id};
 			}
 			return resolveUnknownName(name);
 		}
 		// .XXX, XXX, :XXX
-		MpItmId<isSlua> resolveUnknownName(const std::string& name)
+		MpItmIdV<isSlua> resolveUnknownName(const std::string& name)
 		{
 			LocalObjId id = mpDb.mps[0].get(name);
-			return MpItmId<true>{{0}, id};
+			return MpItmIdV<true>{{0}, id};
 		}
-		MpItmId<isSlua> resolveUnknownName(const ModPath& name)
+		MpItmIdV<isSlua> resolveUnknownName(const ModPath& name)
 		{
 			ModPathId mp = mpDb.get(lang::UnknownModPathView{
 				ModPathView(name).subspan(0, name.size() - 1) // All but last elem
 			});
 			LocalObjId id = mpDb.mps[mp.id].get(name.back());
-			return MpItmId<true>{mp, id};
+			return MpItmIdV<true>{mp, id};
 		}
 	};
 }
