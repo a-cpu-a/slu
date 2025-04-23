@@ -9,6 +9,35 @@
 
 namespace slua::lang
 {
+	//Mp refs
+
+	struct ModPathId
+	{
+		size_t id; //Id 0 -> unknownRoot
+	};
+	struct LocalObjId
+	{
+		size_t val;
+	};
+	template<bool isSlua>
+	struct MpItmIdV
+	{
+		LocalObjId id;// Practically a string pool lol
+		//SIZE_MAX -> empty
+
+		constexpr bool empty() const {
+			return id.val == SIZE_MAX;
+		}
+		std::string_view asSv(const /*AnyNameDbOrGenDataV<isSlua>*/ auto& v) const {
+			return v.asSv(*this);
+		}
+	};
+	template<>
+	struct MpItmIdV<true> : MpItmIdV<false>
+	{
+		ModPathId mp;
+	};
+
 	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
 	using ExportData = bool;
 

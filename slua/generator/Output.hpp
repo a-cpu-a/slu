@@ -12,6 +12,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slua/Settings.hpp>
+#include <slua/parser/Input.hpp>
 
 namespace slua::parse
 {
@@ -22,6 +23,7 @@ namespace slua::parse
 		true
 #else
 		AnyCfgable<T> && requires(T t) {
+
 		{ t.add(char(1)) } -> std::same_as<T&>;
 		{ t.add("aa") } -> std::same_as<T&>;
 		{ t.add(std::string_view()) } -> std::same_as<T&>;
@@ -66,9 +68,19 @@ namespace slua::parse
 		}
 	}
 
+	template<AnySettings SettingsT = Setting<void>>
 	struct Output
 	{
-		constexpr static Setting<void> settings() { return {}; }
+		constexpr Output(SettingsT) {}
+		constexpr Output() = default;
+
+		constexpr static SettingsT settings()
+		{
+			return SettingsT();
+		}
+
+
+		Sel<SettingsT()&sluaSyn, LuaMpDb, BasicMpDb> db;
 
 		std::vector<uint8_t> text;
 		uint64_t tabs=0;
@@ -160,7 +172,7 @@ namespace slua::parse
 
 		template<bool runIndent = true>
 		Output& tabUpNewl() {
-			return tabUp().newLine<runIndent>();
+			return tabUp().template newLine<runIndent>();
 		}
 		Output& unTabNewl() {
 			return unTab().newLine();
@@ -168,7 +180,7 @@ namespace slua::parse
 
 		template<bool runIndent = true>
 		Output& addNewl(const char ch) {
-			return add(ch).newLine<runIndent>();
+			return add(ch).template newLine<runIndent>();
 		}
 		Output& addNewl(const std::string_view sv) {
 			return add(sv).newLine();

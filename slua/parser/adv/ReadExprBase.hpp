@@ -261,7 +261,7 @@ namespace slua::parse
 						throwSpaceMissingBeforeString(in);
 				}
 
-				funcCallData.emplace_back(name, readArgs(in,allowVarArg));
+				funcCallData.emplace_back(in.genData.resolveUnknown(name), readArgs(in, allowVarArg));
 				break;
 			}
 			case '"':
@@ -274,7 +274,7 @@ namespace slua::parse
 				[[fallthrough]];
 			case '{':
 			case '('://Funccall
-				funcCallData.emplace_back("", readArgs(in,allowVarArg));
+				funcCallData.emplace_back(in.genData.resolveEmpty(), readArgs(in, allowVarArg));
 				break;
 			case '.':// Index
 			{
@@ -306,7 +306,7 @@ namespace slua::parse
 						if (!skipped)
 							throwSpaceMissingBeforeString(in);
 					}
-					funcCallData.emplace_back("", readArgs(in,allowVarArg));
+					funcCallData.emplace_back(in.genData.resolveEmpty(), readArgs(in,allowVarArg));
 					break;
 				}
 				SubVarType::EXPR<In> res{};
