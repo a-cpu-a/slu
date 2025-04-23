@@ -349,7 +349,7 @@ namespace slua::parse
 		if (!arg.funcName.empty())
 		{
 			out.add(':')
-				.add(arg.funcName);
+				.add(out.db.asSv(arg.funcName));
 		}
 		ezmatch(arg.args)(
 		varcase(const ArgsType::EXPLIST<Out>&) {
