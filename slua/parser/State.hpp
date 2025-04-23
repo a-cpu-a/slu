@@ -632,6 +632,17 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using FOR_LOOP_NUMERIC = SelV<CfgT, FOR_LOOP_NUMERICv>;
 
+		// "for Name in exp [, exp] do block end"
+		template<bool isSlua>
+		struct FOR_LOOP_RANGEv
+		{
+			std::string varName;
+			ExpressionV<isSlua> range;
+			std::optional<ExpressionV<isSlua>> step;
+			BlockV<isSlua> bl;
+		};
+		template<AnyCfgable CfgT> using FOR_LOOP_RANGE = SelV<CfgT, FOR_LOOP_RANGEv>;
+
 		// "for namelist in explist do block end"
 		template<bool isSlua>
 		struct FOR_LOOP_GENERICv
