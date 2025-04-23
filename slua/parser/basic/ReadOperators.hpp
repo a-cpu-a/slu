@@ -26,7 +26,13 @@ namespace slua::parse
 		case '-':
 			in.skip();
 			return UnOpType::NEGATE;
+		case '!':
+			if constexpr (!(in.settings() & sluaSyn))break;
+			in.skip();
+			return UnOpType::LOGICAL_NOT;
+			break;
 		case 'n':
+			if constexpr (in.settings() & sluaSyn)break;
 			if (checkReadTextToken(in, "not"))
 				return UnOpType::LOGICAL_NOT;
 			break;
@@ -37,14 +43,14 @@ namespace slua::parse
 			in.skip();
 			return UnOpType::BITWISE_NOT;
 		case '&':
-			if (!(in.settings() & sluaSyn))break;
+			if constexpr (!(in.settings() & sluaSyn))break;
 
 			in.skip();
 			if (checkReadTextToken(in, "mut"))
 				return UnOpType::TO_REF_MUT;
 			return UnOpType::TO_REF;
 		case '*':
-			if (!(in.settings() & sluaSyn))break;
+			if constexpr (!(in.settings() & sluaSyn))break;
 
 			in.skip();
 			if (checkReadTextToken(in, "mut"))
@@ -54,13 +60,13 @@ namespace slua::parse
 
 			return UnOpType::DEREF;
 		case 'a':
-			if (!(in.settings() & sluaSyn))break;
+			if constexpr (!(in.settings() & sluaSyn))break;
 
 			if (checkReadTextToken(in, "alloc"))
 				return UnOpType::ALLOCATE;
 			break;
 		case '.':
-			if (!(in.settings() & sluaSyn))break;
+			if  constexpr (!(in.settings() & sluaSyn))break;
 			if (checkReadToken(in, "..."))
 				return UnOpType::RANGE_BEFORE;
 			break;
@@ -113,10 +119,19 @@ namespace slua::parse
 		case '&':
 			in.skip();
 			return BinOpType::BITWISE_AND;
+		case '!':
+			if constexpr (!(in.settings() & sluaSyn))break;
+			in.skip();
+			requireToken<false>(in, "=");
+			return BinOpType::NOT_EQUAL;
+			break;
 		case '~':
 			in.skip();
-			if (checkReadToken(in, "="))//~=
-				return BinOpType::NOT_EQUAL;
+			if constexpr (!(in.settings() & sluaSyn))
+			{
+				if (checkReadToken(in, "="))//~=
+					return BinOpType::NOT_EQUAL;
+			}
 			return BinOpType::BITWISE_XOR;
 		case '|':
 			in.skip();

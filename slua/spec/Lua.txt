@@ -3,7 +3,7 @@
 #
 
 New Syntax {
-
+	
 	chunk ::= block
 
 	block ::= {stat} [retstat [‘;’]]
@@ -20,8 +20,8 @@ New Syntax {
 		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
 		 ‘repeat’ statOrRetOsc ‘until’ exp | 
 		 ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet | 
-		 ‘for’ ‘(’ Name ‘=’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
-		 ‘for’ ‘(’ namelist ‘in’ explist ‘)’ statOrRet | 
+		 ‘for’ uncondDestrPat ‘=’ ‘(’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
+		 ‘for’ uncondDestrPat ‘in’ ‘(’ exp ‘)’ statOrRet | 
 		 ‘local’ namelist [‘=’ explist]
 
 
@@ -66,10 +66,10 @@ New Syntax {
 
 	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ | 
 		 ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ | 
-		 ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | 
+		 ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘!=’ | 
 		 ‘and’ | ‘or’
 
-	unop ::= ‘-’ | ‘not’ | ‘#’ | ‘~’
+	unop ::= ‘-’ | ‘!’ | ‘#’ | ‘~’
 	
 	postunop ::=
 }

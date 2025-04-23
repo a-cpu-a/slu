@@ -721,8 +721,8 @@ namespace slua::parse
 
 		StatementType::IF_THEN_ELSEv<isSlua>,	// "if exp then block {elseif exp then block} [else block] end"
 
-		StatementType::FOR_LOOP_NUMERICv<isSlua>,// "for Name = exp , exp [, exp] do block end"
-		StatementType::FOR_LOOP_GENERICv<isSlua>,// "for namelist in explist do block end"
+		StatementType::FOR_LOOP_NUMERICv<isSlua>,	// "for Name = exp , exp [, exp] do block end"
+		StatementType::FOR_LOOP_GENERICv<isSlua>,	// "for namelist in explist do block end"
 
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
