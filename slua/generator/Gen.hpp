@@ -777,7 +777,7 @@ namespace slua::parse
 			out.unTabNewl()
 				.addNewl(sel<Out>("end", "}"));
 		},
-		varcase(const StatementType::FOR_LOOP_RANGE<Out>&) {
+		varcase(const StatementType::FOR_LOOP_RANGED<Out>&) {
 			out.add("for ")
 				.add(var.varName)
 				.add(" in (");

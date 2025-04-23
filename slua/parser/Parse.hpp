@@ -311,7 +311,7 @@ namespace slua::parse
 				{
 					if (!checkReadToken(in, "("))
 					{//range loop
-						StatementType::FOR_LOOP_RANGE<In> res{};
+						StatementType::FOR_LOOP_RANGED<In> res{};
 						res.varName = readName(in);
 						requireToken(in, "in");
 						requireToken(in, "(");
