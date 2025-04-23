@@ -100,9 +100,14 @@ namespace slua::parse
 		//ParsedFileV<isSlua> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
 
 		BasicMpDb mpDb;
-		std::vector<BasicGenScopeV<isSlua>> scopes = { {SIZE_MAX} };
+		std::vector<BasicGenScopeV<isSlua>> scopes;
 		std::vector<size_t> anonScopeCounts = {0};
 		ModPath totalMp;
+
+		constexpr BasicGenDataV()
+		{
+			scopes.emplace_back(SIZE_MAX);//anon id
+		}
 
 		/*
 		All local names (no ::'s) are defined in THIS file, or from a `use ::*` (potentialy std::prelude::*)
