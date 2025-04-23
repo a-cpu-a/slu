@@ -52,7 +52,7 @@ namespace slua::parse
 		std::unordered_map<std::string, LocalObjId> name2Id;
 		std::unordered_map<size_t, std::string> id2Name;
 
-		constexpr LocalObjId get(const std::string& name)
+		LocalObjId get(const std::string& name)
 		{
 			if (!name2Id.contains(name))
 			{
