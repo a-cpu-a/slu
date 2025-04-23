@@ -42,5 +42,6 @@ void _test()
 	slua::parse::parseFile(in2);
 
 	slua::parse::Output out;
+	out.db = std::move(in.genData.mpDb);
 	slua::parse::genFile(out, {});
 }
