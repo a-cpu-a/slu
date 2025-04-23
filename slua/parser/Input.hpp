@@ -12,10 +12,37 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slua/Settings.hpp>
+#include <slua/lang/BasicState.hpp>
 #include "Position.hpp"
 
 namespace slua::parse
 {
+	template<class T, bool isSlua>
+	concept AnyGenDataV =
+#ifdef Slua_NoConcepts
+		true
+#else
+		requires(T t,lang::MpItmIdV<isSlua> v) {
+			{ t.asSv(v) } -> std::same_as<std::string_view>;
+			{ t.resolveEmpty() } -> std::same_as<lang::MpItmIdV<isSlua>>;
+
+			{ t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
+			{ t.resolveUnknown(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
+
+			{ t.resolveName(std::string()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
+			{ t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
+	}
+#endif // Slua_NoConcepts
+	;
+	/*
+	template<class T>
+	concept AnyGenData =
+#ifdef Slua_NoConcepts
+		true
+#else
+		AnyGenDataV<T,true> || AnyGenDataV<T, false>
+#endif // Slua_NoConcepts
+	;*/
 	
 	//Here, so streamed inputs can be made
 	template<class T>
@@ -25,6 +52,10 @@ namespace slua::parse
 #else
 
 		AnyCfgable<T> && requires(T t) {
+
+		//{ t.genData } -> AnyGenData;
+		{ t.genData } -> AnyGenDataV<T::settings()&sluaSyn>;
+
 		{ t.skip() } -> std::same_as<void>;
 		{ t.skip((size_t)100) } -> std::same_as<void>;
 

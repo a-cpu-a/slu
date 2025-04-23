@@ -26,6 +26,7 @@
 
 namespace slua::parse
 {
+
 	template<AnyCfgable CfgT, template<bool> class T>
 	using SelV = T<CfgT::settings()& sluaSyn>;
 
@@ -41,28 +42,8 @@ namespace slua::parse
 			return tok;
 	}
 
-	//Mp refs
-
-	struct ModPathId
-	{
-		size_t id; //Id 0 -> unknownRoot
-	};
-	struct LocalObjId
-	{
-		size_t valId;
-	};
-	template<bool isSlua>
-	struct MpItmIdV
-	{
-		LocalObjId id;// Practically a string pool lol
-	};
-	template<>
-	struct MpItmIdV<true>
-	{
-		ModPathId mp;
-		LocalObjId id;
-	};
-	template<AnyCfgable CfgT> using MpItmId = SelV<CfgT, MpItmIdV>;
+	//Mp ref
+	template<AnyCfgable CfgT> using MpItmId = SelV<CfgT, lang::MpItmIdV>;
 
 
 
@@ -112,6 +93,7 @@ namespace slua::parse
 	*/
 
 
+	using slua::lang::MpItmIdV;
 	using slua::lang::ModPath;
 	using slua::lang::ModPathView;
 	using slua::lang::ExportData;
@@ -316,7 +298,7 @@ namespace slua::parse
 	struct ArgFuncCallV
 	{// funcArgs ::=  [‘:’ Name] args
 
-		std::string funcName;//If empty, then no colon needed. Only used for ":xxx"
+		MpItmIdV<isSlua> funcName;//If empty, then no colon needed. Only used for ":xxx"
 		ArgsV<isSlua> args;
 	};
 
