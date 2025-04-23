@@ -12,7 +12,8 @@ Order of Operations {
 	
 	or
 	and
-	<	>	<=	 >=	   ~=	==
+	!=	== (Not the same as lua!)
+	<	>	<=	 >=
 	
 	.. (Not the same pos as lua!)
 	
@@ -24,7 +25,7 @@ Order of Operations {
 	+	-
 	% (Not the same as lua, modulus is bellow / * //)
 	*	/	//
-	unary operators (not	#	-	~	&	&mut	*	*mut	*const)
+	unary operators (!	#	-	~	&	&mut	*	*mut	*const)
 	^
 	?
 	
