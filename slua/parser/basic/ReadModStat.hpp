@@ -14,7 +14,7 @@
 namespace slua::parse
 {
 	template<AnyInput In>
-	inline bool readModStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readModStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
@@ -26,12 +26,12 @@ namespace slua::parse
 			{
 				if (strName == "self")
 				{
-					outData = StatementType::MOD_SELF{};
+					in.genData.addStat(place, StatementType::MOD_SELF{});
 					return true;
 				}
 				if (strName == "crate")
 				{
-					outData = StatementType::MOD_CRATE{};
+					in.genData.addStat(place, StatementType::MOD_CRATE{});
 					return true;
 				}
 			}
@@ -46,11 +46,11 @@ namespace slua::parse
 				requireToken(in, "{");
 				res.bl = readBlockNoStartCheck<false>(in, false);
 
-				outData = std::move(res);
+				in.genData.addStat(place, std::move(res));
 			}
 			else
 			{
-				outData = StatementType::MOD_DEF<In>{ modName,exported };
+				in.genData.addStat(place, StatementType::MOD_DEF<In>{ modName, exported });
 			}
 
 			return true;

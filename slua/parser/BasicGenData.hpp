@@ -241,8 +241,18 @@ namespace slua::parse
 			anonScopeCounts.pop_back();
 			return res;
 		}
-		constexpr void pushStat(StatementV<isSlua>&& stat){
-			scopes.back().res.emplace_back(stat);
+		void scopeReturn() {
+			scopes.back().res.hadReturn = true;
+		}
+		// Make sure to run no args `scopeReturn()` first!
+		void scopeReturn(ExpListV<isSlua>&& expList) {
+			scopes.back().res.retExprs = std::move(expList);
+		}
+
+		constexpr void addStat(const Position place,StatementDataV<isSlua>&& data){
+			StatementV<isSlua> stat = { std::move(data) };
+			stat.place = place;
+			scopes.back().res.statList.emplace_back(std::move(stat));
 		}
 		constexpr void addLocalObj(const std::string& name){
 			scopes.back().objs.push_back(name);
