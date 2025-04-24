@@ -555,8 +555,8 @@ namespace slua::parse
 	{
 		using EVERYTHING_INSIDE = std::monostate;//use x::*;
 		struct IMPORT {};// use x::y;
-		using AS_NAME = std::string;//use x as y;
-		using LIST_OF_STUFF = std::vector<std::string>;//use x::{self, ...}
+		using AS_NAME = MpItmIdV<true>;//use x as y;
+		using LIST_OF_STUFF = std::vector<MpItmIdV<true>>;//use x::{self, ...}
 	}
 	using UseVariant = std::variant<
 		UseVariantType::EVERYTHING_INSIDE,
