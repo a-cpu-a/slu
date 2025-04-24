@@ -308,7 +308,7 @@ namespace slua::parse
 				*/
 
 				NameList<In> names = readNameList(in);
-
+				
 				bool isNumeric = false;
 
 				if constexpr (in.settings() & sluaSyn)
