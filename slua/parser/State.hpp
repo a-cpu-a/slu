@@ -578,7 +578,7 @@ namespace slua::parse
 		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
 		struct LABEL { std::string v; };						// "label"
-		struct BREAK { std::string v; };						// "break"
+		struct BREAK { };						// "break"
 		struct GOTO { std::string v; };							// "goto Name"
 
 		template<bool isSlua>
