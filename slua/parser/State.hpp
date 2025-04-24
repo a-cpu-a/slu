@@ -524,11 +524,13 @@ namespace slua::parse
 		std::vector<SubVarV<isSlua>> sub;
 	};
 
-	struct AttribName
+	template<bool isSlua>
+	struct AttribNameV
 	{
-		std::string name;
+		MpItmIdV<isSlua> name;
 		std::string attrib;//empty -> no attrib
 	};
+	template<AnyCfgable CfgT> using AttribName = SelV<CfgT, AttribNameV>;
 
 	namespace FieldType
 	{
@@ -550,7 +552,9 @@ namespace slua::parse
 		struct EXPRv { ExpressionV<isSlua> v; };	// "'(' exp ')'"
 	}
 
-	using AttribNameList = std::vector<AttribName>;
+	template<bool isSlua>
+	using AttribNameListV = std::vector<AttribNameV<isSlua>>;
+	template<AnyCfgable CfgT> using AttribNameList = SelV<CfgT, AttribNameListV>;
 	using NameList = std::vector<std::string>;
 
 	namespace UseVariantType
@@ -645,7 +649,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct LOCAL_ASSIGNv
 		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			Sel<isSlua, AttribNameList, NameList> names;
+			Sel<isSlua, AttribNameListV<isSlua>, NameList> names;
 			ExpListV<isSlua> exprs;
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
