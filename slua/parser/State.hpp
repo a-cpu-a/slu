@@ -612,7 +612,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct FOR_LOOP_NUMERICv
 		{
-			std::string varName;
+			MpItmIdV<isSlua> varName;
 			ExpressionV<isSlua> start;
 			ExpressionV<isSlua> end;//inclusive
 			std::optional<ExpressionV<isSlua>> step;
@@ -634,7 +634,7 @@ namespace slua::parse
 		struct FUNCTION_DEFv
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
 			Position place; 
-			std::string name; 
+			MpItmIdV<isSlua> name;
 			FunctionV<isSlua> func;
 		};
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
