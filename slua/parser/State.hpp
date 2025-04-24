@@ -101,7 +101,7 @@ namespace slua::parse
 
 	struct BorrowLevel
 	{
-		std::vector<std::string> lifetimes;
+		std::vector<MpItmIdV<true>> lifetimes;
 		bool hasMut=false;//eventualy share too
 	};
 	struct GcPtrLevel
@@ -122,7 +122,7 @@ namespace slua::parse
 	struct TupleItem
 	{
 		Type ty;
-		std::string name;// empty -> no name
+		MpItmIdV<true> name;// empty -> no name
 		bool hasMut : 1 = false;
 	};
 
@@ -238,7 +238,7 @@ namespace slua::parse
 	template<bool isSlua>
 	struct ParameterV
 	{
-		std::string name;
+		MpItmIdV<isSlua> name;
 	};
 
 	template<>

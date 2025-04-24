@@ -137,7 +137,7 @@ namespace slua::parse
 		{//must have non-empty namelist
 			{
 				Parameter<In> p;
-				p.name = readName(in);
+				p.name = in.genData.resolveUnknown(readName(in));
 
 				ret.params.emplace_back(std::move(p));
 			}
@@ -150,7 +150,7 @@ namespace slua::parse
 					break;//cant have anything after the ... arg
 				}
 				Parameter<In> p;
-				p.name = readName(in);
+				p.name = in.genData.resolveUnknown(readName(in));
 
 				ret.params.emplace_back(std::move(p));
 			}
