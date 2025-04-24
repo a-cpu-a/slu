@@ -40,11 +40,11 @@ namespace slua::parse
 			}
 		}
 
-		std::string res = readName(in);
+		const MpItmId<In> res = in.genData.resolveUnknown(readName(in));
 
 		requireToken(in, sel<In>("::", ":"));
 
-		outData = StatementType::LABEL(res);
+		outData = StatementType::LABEL<In>(res);
 	}
 
 	template<AnyInput In>
