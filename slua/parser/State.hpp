@@ -486,7 +486,6 @@ namespace slua::parse
 		struct EXPRv
 		{
 			ExpressionV<isSlua> start;
-			SubVarV<isSlua> sub;
 		};
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 

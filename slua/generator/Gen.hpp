@@ -412,7 +412,6 @@ namespace slua::parse
 			out.add('(');
 			genExpr(out, var.start);
 			out.add(')');
-			genSubVar(out, var.sub);
 		},
 		varcase(const BaseVarType::EXPR_DEREF_NO_SUB<Out>&) {
 			out.add("*(");
