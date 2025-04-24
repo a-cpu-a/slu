@@ -549,7 +549,9 @@ namespace slua::parse
 	template<bool isSlua>
 	using AttribNameListV = std::vector<AttribNameV<isSlua>>;
 	template<AnyCfgable CfgT> using AttribNameList = SelV<CfgT, AttribNameListV>;
-	using NameList = std::vector<std::string>;
+	template<bool isSlua>
+	using NameListV = std::vector<std::string>;
+	template<AnyCfgable CfgT> using NameList = SelV<CfgT, NameListV>;
 
 	namespace UseVariantType
 	{
@@ -624,7 +626,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct FOR_LOOP_GENERICv
 		{
-			NameList varNames;
+			NameListV<isSlua> varNames;
 			ExpListV<isSlua> exprs;//size must be > 0
 			BlockV<isSlua> bl;
 		};
@@ -647,7 +649,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct LOCAL_ASSIGNv
 		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			Sel<isSlua, AttribNameListV<isSlua>, NameList> names;
+			Sel<isSlua, AttribNameListV<isSlua>, NameListV<isSlua>> names;
 			ExpListV<isSlua> exprs;
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;

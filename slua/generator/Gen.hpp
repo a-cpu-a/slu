@@ -584,7 +584,8 @@ namespace slua::parse
 				out.add(", ");
 		}
 	}
-	inline void genNames(AnyOutput auto& out, const NameList& obj)
+	template<AnyOutput Out>
+	inline void genNames(Out& out, const NameList<Out>& obj)
 	{
 		for (const std::string& v : obj)
 		{
