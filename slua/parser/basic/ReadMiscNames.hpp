@@ -18,12 +18,13 @@
 
 namespace slua::parse
 {
-	inline NameList readNameList(AnyInput auto& in)
+	template<AnyInput In>
+	inline NameList<In> readNameList(In& in)
 	{
 		/*
 			namelist ::= Name {‘,’ Name}
 		*/
-		NameList ret{};
+		NameList<In> ret{};
 		ret.push_back(readName(in));
 
 		while (checkReadToken(in, ","))
