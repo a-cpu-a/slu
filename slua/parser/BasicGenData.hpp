@@ -214,25 +214,28 @@ namespace slua::parse
 		}
 
 		//For impl, lambda, scope, doExpr, things named '_'
-		constexpr void pushAnonScope(){
+		constexpr void pushAnonScope(const Position start){
 			const size_t id = anonScopeCounts.back()++;
 			const std::string name = getAnonName(id);
 			addLocalObj(name);
 
 			totalMp.push_back(name);
 			scopes.push_back({id});
+			scopes.back().res.start = start;
 			anonScopeCounts.push_back(0);
 		}
 		//For func, macro, inline_mod, type?, ???
-		constexpr void pushScope(const std::string& name) {
+		constexpr void pushScope(const Position start,const std::string& name) {
 			addLocalObj(name);
 
 			totalMp.push_back(name);
 			scopes.push_back({ SIZE_MAX });
+			scopes.back().res.start = start;
 			anonScopeCounts.push_back(0);
 		}
-		BlockV<isSlua> popScope() {
+		BlockV<isSlua> popScope(const Position end) {
 			BlockV<isSlua> res = std::move(scopes.back().res);
+			res.end = end;
 			scopes.pop_back();
 			totalMp.pop_back();
 			anonScopeCounts.pop_back();
