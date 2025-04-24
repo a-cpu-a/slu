@@ -24,6 +24,8 @@ namespace slua::parse
 #else
 		AnyCfgable<T> && requires(T t) {
 
+		//{ t.db } -> std::same_as<LuaMpDb>;
+
 		{ t.add(char(1)) } -> std::same_as<T&>;
 		{ t.add("aa") } -> std::same_as<T&>;
 		{ t.add(std::string_view()) } -> std::same_as<T&>;
