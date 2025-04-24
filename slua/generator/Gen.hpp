@@ -402,12 +402,10 @@ namespace slua::parse
 	{
 		ezmatch(obj.base)(
 		varcase(const BaseVarType::NAME<Out>&) {
-			//if (var.hasDeref)out.add("*"); //TODO
-			out.add(var.name);
-		},
-		varcase(const BaseVarType::MOD_PATH&) {
-			if (var.hasDeref)out.add("*");
-			genModPath(out, var.mp);
+			if constexpr(out.settings() & sluaSyn) {
+				if (var.hasDeref)out.add('*');
+			}
+			out.add(out.db.asSv(var.v));
 		},
 		varcase(const BaseVarType::EXPR<Out>&) {
 			out.add('(');
