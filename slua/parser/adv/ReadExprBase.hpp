@@ -77,19 +77,20 @@ namespace slua::parse
 
 		if constexpr (in.settings() & sluaSyn)
 		{
-			BaseVarType::MOD_PATH mp = { readModPath(in, start) };
+			ModPath mp = readModPath(in, std::move(start));
 
-			if (mp.mp.size() != 1)
+			if (mp.size() != 1)
 			{
-				varDataOut.base = mp;
-				mp.hasDeref = hasDeref;
+				varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp), hasDeref);
 				return;
 			}
+			start = std::move(mp[0]);
 		}
-		if constexpr (hasDeref)
-			varDataOut.base = BaseVarType::NAME<In>( start,true);
+		//Check, cuz 'excess elements in struct initializer' happens in normal lua
+		if constexpr(hasDeref)
+			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start), true);
 		else
-			varDataOut.base = BaseVarType::NAME<In>( start );
+			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start));
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>

@@ -469,15 +469,14 @@ namespace slua::parse
 		template<bool isSlua>
 		struct NAMEv
 		{
-			std::string name;
+			MpItmIdV<isSlua> v;
 		};
 		template<>
 		struct NAMEv<true>
 		{
-			std::string name;
+			MpItmIdV<true> v;
 			bool hasDeref=false;
 		};
-
 		template<AnyCfgable CfgT>
 		using NAME = SelV<CfgT, NAMEv>;
 
@@ -499,17 +498,10 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using EXPR_DEREF_NO_SUB = SelV<CfgT, EXPR_DEREF_NO_SUBv>;
 
-		//len is atleast 1
-		struct MOD_PATH
-		{
-			ModPath mp;
-			bool hasDeref = false;
-		};
 	}
 	template<bool isSlua>
 	using BaseVarV = std::variant<
 		BaseVarType::NAMEv<isSlua>,
-		BaseVarType::MOD_PATH,
 		BaseVarType::EXPRv<isSlua>,
 		BaseVarType::EXPR_DEREF_NO_SUBv<isSlua>
 	>;

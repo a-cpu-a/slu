@@ -96,14 +96,24 @@ namespace slua::parse
 		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
 		std::vector<BasicModPathData> mps = { {} };//Add 0, the unknown one
 
-		ModPathId get(lang::AnyModPathView auto path)
+		template<bool unknown>
+		ModPathId get(const ModPathView path)
 		{
 			if (!mp2Id.contains(path))
 			{
 				const size_t res = mps.size();
 
 				mp2Id.find(path)->second = { res };
-				mps.emplace_back(path);
+				if constexpr (unknown)
+				{
+					ModPath tmp;
+					tmp.reserve(1 + path.size());
+					tmp.push_back("");
+					tmp.insert(tmp.end(),path.begin(), path.end());
+					mps.emplace_back(std::move(tmp));
+				}
+				else
+					mps.emplace_back(ModPath(path.begin(), path.end()));
 
 				return { res };
 			}
@@ -252,15 +262,18 @@ namespace slua::parse
 		}
 		constexpr MpItmIdV<isSlua> resolveName(const std::string& name)
 		{// Check if its local
-			//either known local being indexed ORR unknown(potentially from a `use ::*`)
-			const std::optional<size_t> v = resolveLocalOpt(name);
-			if (v.has_value())
+			if constexpr (isSlua)
 			{
-				ModPathId mp = mpDb.get(
-					ModPathView(totalMp).subspan(0, totalMp.size() - *v)
-				);
-				LocalObjId id = mpDb.mps[mp.id].get(name);
-				return MpItmIdV<true>{id, mp};
+				//either known local being indexed ORR unknown(potentially from a `use ::*`)
+				const std::optional<size_t> v = resolveLocalOpt(name);
+				if (v.has_value())
+				{
+					ModPathId mp = mpDb.template get<false>(
+						ModPathView(totalMp).subspan(0, totalMp.size() - *v)
+					);
+					LocalObjId id = mpDb.mps[mp.id].get(name);
+					return MpItmIdV<true>{id, mp};
+				}
 			}
 			return resolveUnknown(name);
 		}
@@ -291,7 +304,7 @@ namespace slua::parse
 				for (size_t i = 0; i < name.size() - 1; i++)
 					mpSum.push_back(name[i]);
 
-				ModPathId mp = mpDb.get(ModPathView(mpSum));
+				ModPathId mp = mpDb.template get<false>(ModPathView(mpSum));
 
 				LocalObjId id = mpDb.mps[mp.id].get(name.back());
 				return MpItmIdV<true>{id,mp};
@@ -314,9 +327,9 @@ namespace slua::parse
 		}
 		constexpr MpItmIdV<isSlua> resolveUnknown(const ModPath& name)
 		{
-			ModPathId mp = mpDb.get(lang::UnknownModPathView{
+			ModPathId mp = mpDb.template get<true>(
 				ModPathView(name).subspan(0, name.size() - 1) // All but last elem
-			});
+			);
 			LocalObjId id = mpDb.mps[mp.id].get(name.back());
 			return MpItmIdV<true>{id,mp};
 		}

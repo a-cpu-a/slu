@@ -36,7 +36,7 @@ namespace slua::parse
 	inline AttribName<In> readAttribName(In& in)
 	{
 		AttribName<In> ret;
-		ret.name = in.genData.resolveUnknown(readName(in));
+		ret.name = in.genData.resolveUnknown(readName(in));//Unknown, because this is only used in lua, and it doesnt matter there
 		if (checkReadToken(in, "<"))
 		{// attrib ::= [‘<’ Name ‘>’]
 			ret.attrib = readName(in);
