@@ -21,17 +21,18 @@ namespace slua::mlvl
 	Mid level plans:
 
 	---------0---------
-	referenced name checker
+	type checker?
+	type inference?
+	name resolver
 	---------1---------
+	referenced name checker?
+	---------2---------
 	safety checker
 	?stability checker?
-	---------2---------
-	type inference?
 	---------3---------
-	type checker?
+	purity checker & inference?
 	---------4---------
 	borrow checker?
-	purity checker & inference?
 	-------------------
 	*/
 	struct TypeId : MpItmIdV
