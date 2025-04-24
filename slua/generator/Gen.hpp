@@ -759,7 +759,7 @@ namespace slua::parse
 
 		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
 			out.add(sel<Out>("for ", "for ("))
-				.add(var.varName)
+				.add(out.db.asSv(var.varName))
 				.add(" = ");
 			genExpr(out, var.start);
 			out.add(", ");
@@ -793,11 +793,11 @@ namespace slua::parse
 		},
 
 		varcase(const StatementType::FUNCTION_DEF<Out>&) {
-			genFuncDef(out, var.func,var.name);
+			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 		varcase(const StatementType::LOCAL_FUNCTION_DEF<Out>&) {
 			out.add("local ");
-			genFuncDef(out, var.func, var.name);
+			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 
 		//Slua!

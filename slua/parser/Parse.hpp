@@ -320,7 +320,7 @@ namespace slua::parse
 					if constexpr (in.settings() & sluaSyn)
 						requireToken(in, "(");
 					StatementType::FOR_LOOP_NUMERIC<In> res{};
-					res.varName = names[0];
+					res.varName = in.genData.resolveUnknown(names[0]);
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					res.start = readExpr(in, allowVarArg);
@@ -365,7 +365,7 @@ namespace slua::parse
 
 				res.place = in.getLoc();
 
-				res.name = readFuncName(in);
+				res.name = in.genData.resolveUnknown(readFuncName(in));
 
 				try
 				{
@@ -375,7 +375,7 @@ namespace slua::parse
 					{
 						in.handleError(std::format(
 							"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-							res.name, errorLocStr(in, res.place)
+							in.genData.asSv(res.name), errorLocStr(in, res.place)
 						));
 					}
 				}
@@ -384,7 +384,7 @@ namespace slua::parse
 					in.handleError(e.m);
 					throw ErrorWhileContext(std::format(
 						"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-						res.name, errorLocStr(in, res.place)
+						in.genData.asSv(res.name), errorLocStr(in, res.place)
 					));
 				}
 
@@ -407,7 +407,7 @@ namespace slua::parse
 
 						res.place = in.getLoc();
 
-						res.name = readFuncName(in);
+						res.name = in.genData.resolveUnknown(readFuncName(in));
 
 						try
 						{
@@ -418,7 +418,7 @@ namespace slua::parse
 
 								in.handleError(std::format(
 									"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-									res.name, errorLocStr(in, res.place)
+									in.genData.asSv(res.name), errorLocStr(in, res.place)
 								));
 							}
 						}
@@ -427,7 +427,7 @@ namespace slua::parse
 							in.handleError(e.m);
 							throw ErrorWhileContext(std::format(
 								"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-								res.name, errorLocStr(in, res.place)
+								in.genData.asSv(res.name), errorLocStr(in, res.place)
 							));
 						}
 
