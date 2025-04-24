@@ -664,25 +664,34 @@ namespace slua::parse
 			UseVariant useVariant;
 			ExportData exported=false;
 		};
-		struct TYPE
+		template<bool isSlua>
+		struct TYPEv
 		{
-			std::string name;
+			MpItmIdV<isSlua> name;
 			Type ty;
 			ExportData exported=false;
 		};
-		struct DROP
+		template<AnyCfgable CfgT> using TYPE = SelV<CfgT, TYPEv>;
+
+		template<bool isSlua>
+		struct DROPv
 		{
-			std::string var;
+			MpItmIdV<isSlua> var;
 		};
-		struct MOD_DEF
+		template<AnyCfgable CfgT> using DROP = SelV<CfgT, DROPv>;
+
+		template<bool isSlua>
+		struct MOD_DEFv
 		{
-			std::string name;
+			MpItmIdV<isSlua> name;
 			ExportData exported = false;
 		};
+		template<AnyCfgable CfgT> using MOD_DEF = SelV<CfgT, MOD_DEFv>;
+
 		template<bool isSlua>
 		struct MOD_DEF_INLINEv
 		{ 
-			std::string name;
+			MpItmIdV<isSlua> name;
 			BlockV<isSlua> bl;
 			ExportData exported = false;
 		};
@@ -718,12 +727,12 @@ namespace slua::parse
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
 		StatementType::SAFE_LABEL,		// ::: safe :
 
-		StatementType::TYPE,	// OptExportPrefix "type" Name "=" type
-		StatementType::DROP,	// "drop" Name
-		StatementType::USE,		// "use" ...
+		StatementType::TYPEv<isSlua>,	// OptExportPrefix "type" Name "=" type
+		StatementType::DROPv<isSlua>,	// "drop" Name
+		StatementType::USE,				// "use" ...
 		StatementType::MOD_SELF,				// "mod" "self"
 		StatementType::MOD_CRATE,				// "mod" "crate"
-		StatementType::MOD_DEF,					// "mod" Name
+		StatementType::MOD_DEFv<isSlua>,		// "mod" Name
 		StatementType::MOD_DEF_INLINEv<isSlua>	// "mod" Name "as" "{" block "}"
 	> ;
 

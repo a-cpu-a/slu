@@ -813,15 +813,15 @@ namespace slua::parse
 				.tabUpTemp();
 		},
 
-		varcase(const StatementType::TYPE&) {
+		varcase(const StatementType::TYPE<Out>&) {
 			if (var.exported)out.add("ex ");
 			out.add("type ");
-			out.add(var.name).add(" = ");
+			out.add(out.db.asSv(var.name)).add(" = ");
 			genType(out,var.ty);
 			out.addNewl(";");
 		},
-		varcase(const StatementType::DROP&) {
-			out.add("drop ").add(var.var).addNewl(";");
+		varcase(const StatementType::DROP<Out>&) {
+			out.add("drop ").add(out.db.asSv(var.var)).addNewl(";");
 		},
 		varcase(const StatementType::USE&) {
 			if (var.exported)out.add("ex ");
@@ -836,13 +836,13 @@ namespace slua::parse
 		varcase(const StatementType::MOD_SELF&) {
 			out.addNewl("mod self;");
 		},
-		varcase(const StatementType::MOD_DEF&) {
+		varcase(const StatementType::MOD_DEF<Out>&) {
 			if (var.exported)out.add("ex ");
-			out.add("mod ").add(var.name).addNewl(";");
+			out.add("mod ").add(out.db.asSv(var.name)).addNewl(";");
 		},
 		varcase(const StatementType::MOD_DEF_INLINE<Out>&) {
 			if (var.exported)out.add("ex ");
-			out.add("mod ").add(var.name).add(" as {");
+			out.add("mod ").add(out.db.asSv(var.name)).add(" as {");
 			out.tabUpNewl().newLine();
 
 			genBlock(out,var.bl);
