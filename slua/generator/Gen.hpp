@@ -379,10 +379,11 @@ namespace slua::parse
 			genExpr(out, var.idx);
 			out.add(']');
 		},
-		varcase(const SubVarType::NAME&) {
-			if (var.idx.empty())return;
+		varcase(const SubVarType::NAME<Out>&) {
+			const std::string_view txt = out.db.asSv(var.idx);
+			if (txt.empty())return;
 			out.add('.')
-				.add(var.idx);
+				.add(txt);
 		}
 		);
 	}
