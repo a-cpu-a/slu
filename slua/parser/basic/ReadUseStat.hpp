@@ -14,7 +14,7 @@
 namespace slua::parse
 {
 	template<AnyInput In>
-	inline bool readUseStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readUseStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "use"))
 		{
@@ -58,8 +58,7 @@ namespace slua::parse
 					res.useVariant = UseVariantType::IMPORT{};
 				}
 			}
-
-			outData = std::move(res);
+			in.genData.addStat(place, std::move(res));
 			return true;
 		}
 		return false;

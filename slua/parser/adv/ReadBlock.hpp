@@ -64,11 +64,11 @@ namespace slua::parse
 		NONE, REQUIRE, REQUIRE_OR_KW
 	};
 	template<SemicolMode semicolReq, AnyInput In>
-	inline bool readReturn(In& in, const bool allowVarArg, Block<In>& ret)
+	inline bool readReturn(In& in, const bool allowVarArg)
 	{
 		if (checkReadTextToken(in, "return"))
 		{
-			ret.hadReturn = true;
+			in.genData.scopeReturn();
 
 			skipSpace(in);
 
@@ -83,7 +83,7 @@ namespace slua::parse
 			}
 			else
 			{
-				ret.retExprs = readExpList(in, allowVarArg);
+				in.genData.scopeReturn(readExpList(in, allowVarArg));
 
 				if constexpr (semicolReq != SemicolMode::NONE)
 					requireToken(in, ";");
@@ -105,8 +105,7 @@ namespace slua::parse
 
 		skipSpace(in);
 
-		Block<In> ret{};
-		ret.start = in.getLoc();
+		in.genData.pushAnonScope(in.getLoc());
 
 		while (true)
 		{
@@ -119,7 +118,7 @@ namespace slua::parse
 
 			if (ch == 'r')
 			{
-				if (readReturn<SemicolMode::NONE>(in, allowVarArg, ret))
+				if (readReturn<SemicolMode::NONE>(in, allowVarArg))
 					break;// no more loop
 			}
 			else if (isBasicBlockEnding(in, ch))
@@ -127,10 +126,9 @@ namespace slua::parse
 
 			// Not some end / return keyword, must be a statement
 
-			ret.statList.emplace_back(readStatment<isLoop>(in, allowVarArg));
+			readStatment<isLoop>(in, allowVarArg);
 		}
-		ret.end = in.getLoc();
-		return ret;
+		return in.genData.popScope(in.getLoc());
 	}
 
 	template<bool isLoop, AnyInput In>

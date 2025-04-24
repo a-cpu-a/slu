@@ -19,7 +19,7 @@
 namespace slua::parse
 {
 	template<AnyInput In>
-	inline void readLabel(In& in, StatementData<In>& outData)
+	inline void readLabel(In& in, const Position place)
 	{
 		//label ::= ‘::’ Name ‘::’
 		//SL label ::= ‘:::’ Name ‘:’
@@ -30,13 +30,11 @@ namespace slua::parse
 		{
 			if (checkReadTextToken(in, "unsafe"))
 			{
-				outData = StatementType::UNSAFE_LABEL();
-				return;
+				return in.genData.addStat(place, StatementType::UNSAFE_LABEL{});
 			}
 			else if (checkReadTextToken(in, "safe"))
 			{
-				outData = StatementType::SAFE_LABEL();
-				return;
+				return in.genData.addStat(place, StatementType::SAFE_LABEL{});
 			}
 		}
 
@@ -44,11 +42,11 @@ namespace slua::parse
 
 		requireToken(in, sel<In>("::", ":"));
 
-		outData = StatementType::LABEL<In>(res);
+		return in.genData.addStat(place, StatementType::LABEL<In>{res});
 	}
 
 	template<AnyInput In>
-	inline bool readTypeStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readTypeStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "type"))
 		{
@@ -59,7 +57,7 @@ namespace slua::parse
 			requireToken(in, "=");
 			res.ty = readType(in);
 
-			outData = std::move(res);
+			in.genData.addStat(place, std::move(res));
 			return true;
 		}
 		return false;

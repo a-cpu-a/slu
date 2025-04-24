@@ -747,6 +747,7 @@ namespace slua::parse
 		Position place;
 
 		StatementV() = default;
+		StatementV(StatementDataV<isSlua>&& data) :data(std::move(data)) {}
 		StatementV(const StatementV&) = delete;
 		StatementV(StatementV&&) = default;
 		StatementV& operator=(StatementV&&) = default;
