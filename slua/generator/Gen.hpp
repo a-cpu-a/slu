@@ -434,7 +434,7 @@ namespace slua::parse
 
 		for (const Parameter<Out>& par : var.params)
 		{
-			out.add(par.name);
+			out.add(out.db.asSv(par.name));
 			if (&par != &var.params.back() || var.hasVarArgParam)
 				out.add(", ");
 
@@ -463,9 +463,9 @@ namespace slua::parse
 		for (const BorrowLevel& bl : ty.borrows)
 		{
 			out.add('&');
-			for (const std::string& lf : bl.lifetimes)
+			for (const MpItmId<Out>& lf : bl.lifetimes)
 			{
-				out.add('/').add(lf);
+				out.add('/').add(out.db.asSv(lf));
 			}
 			if (bl.hasMut)
 			{
@@ -480,6 +480,16 @@ namespace slua::parse
 			if(gp.hasMut)
 				out.add("mut ");
 		}
+	}
+	template<AnyOutput Out>
+	inline void genTupleItem(Out& out, const TupleItem& obj)
+	{
+		if (obj.hasMut)
+			out.add("mut ");
+		genType(out,obj.ty);
+		const std::string_view name = out.db.asSv(obj.name);
+		if(!name.empty())
+			out.add(' ').add(name);
 	}
 	template<AnyOutput Out>
 	inline void genTypeObj(Out& out, const TypeObj& obj)
@@ -502,11 +512,11 @@ namespace slua::parse
 		varcase(const TypeObjType::TUPLE&)
 		{
 			out.add('{');
-			genType(out, var[0]);
+			genTupleItem(out, var[0]);
 			for (size_t i = 1; i < var.size(); i++)
 			{
 				out.add(", ");
-				genType(out, var[i]);
+				genTupleItem(out, var[i]);
 			}
 			out.add('}');
 		},
