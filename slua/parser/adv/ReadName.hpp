@@ -170,9 +170,10 @@ namespace slua::parse
 	}
 
 	//uhhh, dont use?
-	inline NameList readNames(AnyInput auto& in, const bool requires1 = true)
+	template<AnyInput In>
+	inline NameList<In> readNames(In& in, const bool requires1 = true)
 	{
-		NameList res;
+		NameList<In> res;
 
 		if (requires1)
 			res.push_back(readName(in));

@@ -307,7 +307,7 @@ namespace slua::parse
 				 for namelist in explist do block end |
 				*/
 
-				NameList names = readNameList(in);
+				NameList<In> names = readNameList(in);
 
 				bool isNumeric = false;
 
