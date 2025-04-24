@@ -34,10 +34,10 @@ namespace slua::parse
 				{
 					in.skip(3);
 					UseVariantType::LIST_OF_STUFF list;
-					list.push_back(readName<true>(in));
+					list.push_back(in.genData.resolveUnknown(readName<true>(in)));
 					while (checkReadToken(in, ","))
 					{
-						list.push_back(readName<true>(in));
+						list.push_back(in.genData.resolveUnknown(readName<true>(in)));
 					}
 					requireToken(in, "}");
 					res.useVariant = std::move(list);
@@ -51,7 +51,7 @@ namespace slua::parse
 			{
 				if (checkReadTextToken(in, "as"))
 				{
-					res.useVariant = UseVariantType::AS_NAME{ readName(in) };
+					res.useVariant = UseVariantType::AS_NAME{ in.genData.resolveUnknown(readName(in))};
 				}
 				else
 				{// Prob just no semicol

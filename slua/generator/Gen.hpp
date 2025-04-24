@@ -590,15 +590,15 @@ namespace slua::parse
 			out.add("::*");
 		},
 		varcase(const UseVariantType::AS_NAME&){
-			out.add(" as ").add(var);
+			out.add(" as ").add(out.db.asSv(var));
 		},
 		varcase(const UseVariantType::IMPORT&){},
 		varcase(const UseVariantType::LIST_OF_STUFF&)
 		{
-			out.add("::{").add(var[0]);
+			out.add("::{").add(out.db.asSv(var[0]));
 			for (size_t i = 1; i < var.size(); i++)
 			{
-				out.add(", ").add(var[i]);
+				out.add(", ").add(out.db.asSv(var[i]));
 			}
 			out.add("}");
 		}
