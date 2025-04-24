@@ -287,8 +287,8 @@ namespace slua::parse
 
 				in.skip();//skip dot
 
-				SubVarType::NAME res{};
-				res.idx = readName(in);
+				SubVarType::NAME<In> res{};
+				res.idx = in.genData.resolveUnknown(readName(in));
 
 				varDataNeedsSubThing = false;
 				// Move auto-clears funcCallData

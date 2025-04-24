@@ -443,7 +443,9 @@ namespace slua::parse
 
 	namespace SubVarType
 	{
-		struct NAME { std::string idx; };	// {funcArgs} ‘.’ Name
+		template<bool isSlua>
+		struct NAMEv { MpItmIdV<isSlua> idx; };	// {funcArgs} ‘.’ Name
+		template<AnyCfgable CfgT> using NAME = SelV<CfgT, NAMEv>;
 
 		template<bool isSlua>
 		struct EXPRv { ExpressionV<isSlua> idx; };	// {funcArgs} ‘[’ exp ‘]’
@@ -456,7 +458,7 @@ namespace slua::parse
 		std::vector<ArgFuncCallV<isSlua>> funcCalls;
 
 		std::variant<
-			SubVarType::NAME,
+			SubVarType::NAMEv<isSlua>,
 			SubVarType::EXPRv<isSlua>
 		> idx;
 	};
