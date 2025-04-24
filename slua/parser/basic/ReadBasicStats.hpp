@@ -52,10 +52,10 @@ namespace slua::parse
 	{
 		if (checkReadTextToken(in, "type"))
 		{
-			StatementType::TYPE res{};
+			StatementType::TYPE<In> res{};
 			res.exported = exported;
 
-			res.name = readName(in);
+			res.name = in.genData.resolveUnknown(readName(in));
 			requireToken(in, "=");
 			res.ty = readType(in);
 
