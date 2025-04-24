@@ -32,10 +32,11 @@ namespace slua::parse
 		}
 		return ret;
 	}
-	inline AttribName readAttribName(AnyInput auto& in)
+	template<AnyInput In>
+	inline AttribName<In> readAttribName(In& in)
 	{
-		AttribName ret;
-		ret.name = readName(in);
+		AttribName<In> ret;
+		ret.name = in.genData.resolveUnknown(readName(in));
 		if (checkReadToken(in, "<"))
 		{// attrib ::= [‘<’ Name ‘>’]
 			ret.attrib = readName(in);
@@ -44,13 +45,14 @@ namespace slua::parse
 
 		return ret;
 	}
-	inline AttribNameList readAttNameList(AnyInput auto& in)
+	template<AnyInput In>
+	inline AttribNameList<In> readAttNameList(In& in)
 	{
 		/*
 			attnamelist ::=  Name attrib {‘,’ Name attrib}
 			attrib ::= [‘<’ Name ‘>’]
 		*/
-		AttribNameList ret = { readAttribName(in) };
+		AttribNameList<In> ret = { readAttribName(in) };
 
 		while (checkReadToken(in, ","))
 		{
