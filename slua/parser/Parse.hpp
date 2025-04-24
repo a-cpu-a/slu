@@ -320,7 +320,7 @@ namespace slua::parse
 					if constexpr (in.settings() & sluaSyn)
 						requireToken(in, "(");
 					StatementType::FOR_LOOP_NUMERIC<In> res{};
-					res.varName = in.genData.resolveUnknown(names[0]);
+					res.varName = names[0];
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					res.start = readExpr(in, allowVarArg);

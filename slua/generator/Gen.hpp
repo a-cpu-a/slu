@@ -587,9 +587,9 @@ namespace slua::parse
 	template<AnyOutput Out>
 	inline void genNames(Out& out, const NameList<Out>& obj)
 	{
-		for (const std::string& v : obj)
+		for (const MpItmId<Out>& v : obj)
 		{
-			out.add(v);
+			out.add(out.db.asSv(v));
 			if (&v != &obj.back())
 				out.add(", ");
 		}
