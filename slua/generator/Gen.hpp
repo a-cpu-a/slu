@@ -640,10 +640,10 @@ namespace slua::parse
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::LABEL&) {
+		varcase(const StatementType::LABEL<Out>&) {
 			out.unTabTemp()
 				.add(sel<Out>("::", ":::"))
-				.add(var.v)
+				.add(out.db.asSv(var.v))
 				.addNewl(sel<Out>("::", ":"))
 				.tabUpTemp();
 		},
@@ -651,9 +651,9 @@ namespace slua::parse
 			out.addNewl("break;");
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::GOTO&) {
+		varcase(const StatementType::GOTO<Out>&) {
 			out.add("goto ")
-				.add(var.v)
+				.add(out.db.asSv(var.v))
 				.addNewl(';');
 			out.wasSemicolon = true;
 		},

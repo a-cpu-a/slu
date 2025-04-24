@@ -493,7 +493,7 @@ namespace slua::parse
 		case 'g'://goto?
 			if (checkReadTextToken(in, "goto"))//goto Name
 			{
-				ret.data = StatementType::GOTO(readName(in));
+				ret.data = StatementType::GOTO<In>(in.genData.resolveName(readName(in)));
 				return ret;
 			}
 			break;
