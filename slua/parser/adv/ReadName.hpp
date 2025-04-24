@@ -176,7 +176,7 @@ namespace slua::parse
 		NameList<In> res;
 
 		if (requires1)
-			res.push_back(readName(in));
+			res.push_back(in.genData.resolveUnknown(readName(in)));
 
 		bool skipComma = !requires1;//comma wont exist if the first one doesnt exist
 		bool allowNameError = !requires1;//if the first one doesnt exist
@@ -190,7 +190,7 @@ namespace slua::parse
 			if (allowNameError && str.empty())
 				return {};//no names
 
-			res.push_back(str);
+			res.push_back(in.genData.resolveUnknown(str));
 
 			allowNameError = false;//not the first one anymore
 		}

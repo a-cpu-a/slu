@@ -550,7 +550,7 @@ namespace slua::parse
 	using AttribNameListV = std::vector<AttribNameV<isSlua>>;
 	template<AnyCfgable CfgT> using AttribNameList = SelV<CfgT, AttribNameListV>;
 	template<bool isSlua>
-	using NameListV = std::vector<std::string>;
+	using NameListV = std::vector<MpItmIdV<isSlua>>;
 	template<AnyCfgable CfgT> using NameList = SelV<CfgT, NameListV>;
 
 	namespace UseVariantType
