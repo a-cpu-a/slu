@@ -577,9 +577,13 @@ namespace slua::parse
 		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
 		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
-		struct LABEL { std::string v; };						// "label"
-		struct BREAK { };						// "break"
-		struct GOTO { std::string v; };							// "goto Name"
+		template<bool isSlua>
+		struct LABELv { MpItmIdV<isSlua> v; };		// "label"
+		template<AnyCfgable CfgT> using LABEL = SelV<CfgT, LABELv>;
+		struct BREAK { };
+		template<bool isSlua>					// "break"
+		struct GOTOv { MpItmIdV<isSlua> v; };			// "goto Name"
+		template<AnyCfgable CfgT> using GOTO = SelV<CfgT, GOTOv>;
 
 		template<bool isSlua>
 		struct BLOCKv { BlockV<isSlua> bl; };							// "do block end"
@@ -696,9 +700,9 @@ namespace slua::parse
 		StatementType::LOCAL_ASSIGNv<isSlua>,	// "local attnamelist [= explist]"
 
 		StatementType::FUNC_CALLv<isSlua>,		// "functioncall"
-		StatementType::LABEL,					// "label"
+		StatementType::LABELv<isSlua>,			// "label"
 		StatementType::BREAK,					// "break"
-		StatementType::GOTO,					// "goto Name"
+		StatementType::GOTOv<isSlua>,			// "goto Name"
 		StatementType::BLOCKv<isSlua>,			// "do block end"
 		StatementType::WHILE_LOOPv<isSlua>,		// "while exp do block end"
 		StatementType::REPEAT_UNTILv<isSlua>,	// "repeat block until exp"
