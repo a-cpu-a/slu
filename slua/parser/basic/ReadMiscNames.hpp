@@ -25,11 +25,11 @@ namespace slua::parse
 			namelist ::= Name {‘,’ Name}
 		*/
 		NameList<In> ret{};
-		ret.push_back(readName(in));
+		ret.push_back(in.genData.resolveUnknown(readName(in)));
 
 		while (checkReadToken(in, ","))
 		{
-			ret.push_back(readName(in));
+			ret.push_back(in.genData.resolveUnknown(readName(in)));
 		}
 		return ret;
 	}
