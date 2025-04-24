@@ -148,7 +148,7 @@ namespace slua::parse
 			},
 			varcase(const FieldType::NAME2EXPR<Out>&) {
 				out.addIndent();
-				out.add(var.idx)
+				out.add(out.db.asSv(var.idx))
 					.add(" = ");
 				genExpr(out, var.v);
 			},

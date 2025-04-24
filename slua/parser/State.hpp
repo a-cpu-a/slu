@@ -532,7 +532,7 @@ namespace slua::parse
 		struct EXPR2EXPRv { ExpressionV<isSlua> idx; ExpressionV<isSlua> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
 
 		template<bool isSlua>
-		struct NAME2EXPRv { std::string idx; ExpressionV<isSlua> v; };	// "Name ‘=’ exp"
+		struct NAME2EXPRv { MpItmIdV<isSlua> idx; ExpressionV<isSlua> v; };	// "Name ‘=’ exp"
 
 		template<bool isSlua>
 		struct EXPRv { ExpressionV<isSlua> v; };							// "exp"

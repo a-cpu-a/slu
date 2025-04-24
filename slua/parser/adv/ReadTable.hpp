@@ -52,7 +52,7 @@ namespace slua::parse
 			//check at the CORRECT position, AND that it ISNT ==
 			if (in.peekAt(spacedOffset)=='=' && in.peekAt(spacedOffset+1)!='=')
 			{
-				std::string name = readName(in);
+				const MpItmId<In> name = in.genData.resolveUnknown(readName(in));
 				skipSpace(in);
 				in.skip();// '='
 
