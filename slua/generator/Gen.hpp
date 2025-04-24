@@ -561,11 +561,12 @@ namespace slua::parse
 				out.add(", ");
 		}
 	}
-	inline void genAtribNameList(AnyOutput auto& out, const AttribNameList& obj)
+	template<AnyOutput Out>
+	inline void genAtribNameList(Out& out, const AttribNameList<Out>& obj)
 	{
-		for (const AttribName& v : obj)
+		for (const AttribName<Out>& v : obj)
 		{
-			out.add(v.name);
+			out.add(out.db.asSv(v.name));
 			if (!v.attrib.empty())
 				out.add(" <")
 				.add(v.attrib)
