@@ -18,29 +18,30 @@ namespace slua::parse
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
-			std::string modName =
+			std::string strName =
 				exported
 				? readName(in)
 				: readName<true>(in);
 			if (!exported)
 			{
-				if (modName == "self")
+				if (strName == "self")
 				{
 					outData = StatementType::MOD_SELF{};
 					return true;
 				}
-				if (modName == "crate")
+				if (strName == "crate")
 				{
 					outData = StatementType::MOD_CRATE{};
 					return true;
 				}
 			}
+			const MpItmId<In> modName = in.genData.resolveUnknown(strName);
 
 			if (checkReadTextToken(in, "as"))
 			{
 				StatementType::MOD_DEF_INLINE<In> res{};
 				res.exported = exported;
-				res.name = std::move(modName);
+				res.name = modName;
 
 				requireToken(in, "{");
 				res.bl = readBlockNoStartCheck<false>(in, false);
@@ -49,7 +50,7 @@ namespace slua::parse
 			}
 			else
 			{
-				outData = StatementType::MOD_DEF{ modName,exported };
+				outData = StatementType::MOD_DEF<In>{ modName,exported };
 			}
 
 			return true;
