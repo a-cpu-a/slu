@@ -6,7 +6,7 @@ New Syntax {
 	
 	PreLet ::=
 	
-	stat @::= | OptExportPrefix PreLet "let" uncondDestrPat ["=" explist]
+	stat @::= | OptExportPrefix PreLet ["type"] "let" uncondDestrPat ["=" explist]
 }
 
 New Keywords {
@@ -22,6 +22,8 @@ Let Statement {
 
 	Global variables are automatically marked with comptime, unless marked with @EntrypointInit, using comptime on globals is an soft-error.
 	
+	
+	If the "type" tag is added, then this variable makes a nominal/strong type.
 	
 	Implementation {
 		May be a local ?<const>? variable
