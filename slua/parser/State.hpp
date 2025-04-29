@@ -372,13 +372,6 @@ namespace slua::parse
 		struct OPEN_RANGE { };					// "..."
 
 		template<bool isSlua>
-		struct ARRAY_CONSTRUCTOR_LISTv {
-			ExpListV<isSlua> values;
-		};
-		template<AnyCfgable CfgT> 
-		using ARRAY_CONSTRUCTOR_LIST = SelV<CfgT, ARRAY_CONSTRUCTOR_LISTv>;
-
-		template<bool isSlua>
 		struct ARRAY_CONSTRUCTORv
 		{
 			std::unique_ptr<ExpressionV<isSlua>> val;
@@ -413,7 +406,6 @@ namespace slua::parse
 		ExprType::NUMERAL_I128,			// "Numeral"
 		ExprType::NUMERAL_U128,			// "Numeral"
 
-		ExprType::ARRAY_CONSTRUCTOR_LISTv<isSlua>,
 		ExprType::ARRAY_CONSTRUCTORv<isSlua>
 	>;
 

@@ -291,16 +291,6 @@ namespace slua::parse
 			out.add("; ");
 			genExpr(out, *var.size);
 			out.add("]");
-		},
-		varcase(const ExprType::ARRAY_CONSTRUCTOR_LIST<Out>&) {
-			out.add("[");
-			genExpr(out, var.values[0]);
-			for (size_t i = 1; i < var.values.size(); i++)
-			{
-				out.add(", ");
-				genExpr(out, var.values[i]);
-			}
-			out.add("]");
 		}
 		);
 		if constexpr(out.settings()&sluaSyn)
