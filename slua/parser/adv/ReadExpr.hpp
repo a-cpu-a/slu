@@ -50,6 +50,15 @@ namespace slua::parse
 		{
 		default:
 			break;
+		case '?':
+			if constexpr (in.settings() & sluaSyn)
+			{
+				in.skip();
+				basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::ERR_INFERR{},basicRes.place });
+				break;
+
+			}
+			[[fallthrough]];
 		case ')':
 		case '}':
 		case ']':
@@ -65,8 +74,6 @@ namespace slua::parse
 		//case '*': //Maybe a deref?
 		case '!':
 		//case '~': // that is a unary op too
-		case '?':
-			//TODO: ? type
 		case '|':
 			if constexpr (in.settings() & sluaSyn)
 			{
@@ -90,11 +97,25 @@ namespace slua::parse
 				break;
 			}
 			break;
+		case 'm':
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "mut"))
+				{
+					//TODO
+					break;
+				}
+			}
+			break;
 		case 'd':
 			if constexpr (in.settings() & sluaSyn)
 			{
 				if (checkReadTextToken(in, "dyn"))
-					;//TODO
+				{
+					//TODO
+					//basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::ERR_INFERR{},basicRes.place });
+					break;
+				}
 			}
 			break;
 		case 'i':
