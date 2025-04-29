@@ -50,7 +50,6 @@ namespace slua::parse
 		{
 		default:
 			break;
-		case '/'://TODO: lifetime expr
 		case ')':
 		case '}':
 		case ']':
@@ -79,6 +78,14 @@ namespace slua::parse
 					basicRes.data = ExprType::OPEN_RANGE();
 					break;
 				}
+			}
+			break;
+		case '/':
+			if constexpr (in.settings() & sluaSyn)
+			{
+				in.skip();
+				basicRes.data = ExprType::LIFETIME(readName(in));
+				break;
 			}
 			break;
 		case 'n':
