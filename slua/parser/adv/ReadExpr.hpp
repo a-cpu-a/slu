@@ -66,7 +66,7 @@ namespace slua::parse
 		case '!':
 		//case '~': // that is a unary op too
 		case '?':
-			//TODO: ?? type
+			//TODO: ? type
 		case '|':
 			if constexpr (in.settings() & sluaSyn)
 			{
