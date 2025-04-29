@@ -578,8 +578,6 @@ namespace slua::parse
 					case 'f'://fn? function?
 						break;
 					case 't'://type?
-						if (readTypeStat(in, place, true))
-							return;
 						break;
 					case 'u'://use? unsafe?
 						if (readUchStat(in, place, true))
@@ -624,8 +622,6 @@ namespace slua::parse
 		case 't'://type?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (readTypeStat(in, place, false))
-					return;
 			}
 			break;
 		default://none of the above...

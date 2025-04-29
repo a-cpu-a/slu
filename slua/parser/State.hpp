@@ -660,14 +660,6 @@ namespace slua::parse
 			UseVariant useVariant;
 			ExportData exported=false;
 		};
-		template<bool isSlua>
-		struct TYPEv
-		{
-			MpItmIdV<isSlua> name;
-			Type ty;
-			ExportData exported=false;
-		};
-		template<AnyCfgable CfgT> using TYPE = SelV<CfgT, TYPEv>;
 
 		template<bool isSlua>
 		struct DROPv
@@ -723,7 +715,6 @@ namespace slua::parse
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
 		StatementType::SAFE_LABEL,		// ::: safe :
 
-		StatementType::TYPEv<isSlua>,	// OptExportPrefix "type" Name "=" type
 		StatementType::DROPv<isSlua>,	// "drop" Name
 		StatementType::USE,				// "use" ...
 		StatementType::MOD_SELF,				// "mod" "self"

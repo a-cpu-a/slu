@@ -44,22 +44,4 @@ namespace slua::parse
 
 		return in.genData.addStat(place, StatementType::LABEL<In>{res});
 	}
-
-	template<AnyInput In>
-	inline bool readTypeStat(In& in, const Position place, const ExportData exported)
-	{
-		if (checkReadTextToken(in, "type"))
-		{
-			StatementType::TYPE<In> res{};
-			res.exported = exported;
-
-			res.name = in.genData.resolveUnknown(readName(in));
-			requireToken(in, "=");
-			res.ty = readType(in);
-
-			in.genData.addStat(place, std::move(res));
-			return true;
-		}
-		return false;
-	}
 }
