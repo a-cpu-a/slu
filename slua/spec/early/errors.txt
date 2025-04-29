@@ -27,9 +27,9 @@ New Keywords {
 
 Errors {
 	
-	The type specifier '??' is just like '?', except the error type is inferred.
+	The type specifier '??' is just like '//', except the error type is inferred.
 	
-	The type specifier '?' is used to mark a function as possibly returning an error.
+	The type specifier '//' is used to mark a function as possibly returning an error.
 	Those types are the only types allowed for the "?" unary operator.
 	When returning errors by value, it is a tuple containing the Error, and the Value.
 	When returning errors by exception, it is optimized into just the Value (or nothing at all).
@@ -46,7 +46,7 @@ Errors {
 	
 	Postfix "?" unary operator passes the error upwards.
 	If an error is silently ignored, a soft-error is logged at compile-time, and the operator is inserted.
-	Using the "?" operator on types that arent specified with '?', is a soft-error. (operator is ignored)
+	Using the "?" operator on types that arent specified with '//' or '??', is a soft-error. (operator is ignored)
 	
 	To explicitly ignore a error use drop.
 	(drop myErroringFunc();)
@@ -74,7 +74,7 @@ Errors {
 	
 	```slua
 	
-	fn myErrFunc() -> u8?Err {
+	fn myErrFunc() -> u8//Err {
 		-- ...
 		throw Err::OOM{};-- Error!
 		-- ...
@@ -116,7 +116,7 @@ Errors {
 		
 		Return by value could be implemented using a register flag.
 		
-		'?' types will either be turned into some tuple, just the value, or void.
+		error types will either be turned into some tuple, just the value, or void.
 		Functions returning errors could be compiled twice, to allow users to use both exceptions and error values.
 		It is recommended for compilers to defer the duplication to as late as possible.
 		(Static linking -> no split)
