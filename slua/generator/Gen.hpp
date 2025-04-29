@@ -816,13 +816,6 @@ namespace slua::parse
 				.tabUpTemp();
 		},
 
-		varcase(const StatementType::TYPE<Out>&) {
-			if (var.exported)out.add("ex ");
-			out.add("type ");
-			out.add(out.db.asSv(var.name)).add(" = ");
-			genType(out,var.ty);
-			out.addNewl(";");
-		},
 		varcase(const StatementType::DROP<Out>&) {
 			out.add("drop ").add(out.db.asSv(var.var)).addNewl(";");
 		},
