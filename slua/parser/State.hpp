@@ -79,6 +79,10 @@ namespace slua::parse
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
 
+	template<bool isSlua>
+	struct ArgFuncCallV;
+	template<AnyCfgable CfgT>
+	using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
 
 	template<bool isSlua>
 	using ExpListV = std::vector<ExpressionV<isSlua>>;
@@ -181,6 +185,24 @@ namespace slua::parse
 		std::optional<Type> val;
 		std::optional<Type> err;//If missing then ??, else ?
 		bool isErr = false;
+	};
+
+	namespace TraitExprItemType
+	{
+		using EXPR = ExpressionV<true>;
+		using FUNC_CALL = FuncCallV<true>;
+		using VAR = VarV<true>;
+	}
+	using TraitExprItem = std::variant<
+		TraitExprItemType::EXPR,
+		TraitExprItemType::FUNC_CALL,
+		TraitExprItemType::VAR
+	>;
+
+	struct TraitExpr
+	{
+		std::vector<TraitExprItem> traitCombo;
+		Position place;
 	};
 
 
@@ -301,9 +323,6 @@ namespace slua::parse
 		MpItmIdV<isSlua> funcName;//If empty, then no colon needed. Only used for ":xxx"
 		ArgsV<isSlua> args;
 	};
-
-	template<AnyCfgable CfgT>
-	using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
 
 
 	template<bool isSlua>

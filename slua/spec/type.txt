@@ -52,14 +52,14 @@ New Syntax {
 	
 	unop @::= | "*" | "&" ["mut"] | "*" ("mut" | "const") | "alloc"
 	
-	traitExp ::= var
+	traitExp ::= ‘(’ exp ‘)’
+		| var
 		| functioncall 
-		| ‘(’ traitExp ‘)’
 		| traitExp "+" traitExp
 	
-	typeExpNoMut ::= var
+	typeExpNoMut ::= ‘(’ exp ‘)’ 
+		| var
 		| functioncall 
-		| ‘(’ typeExp ‘)’
 		| typeExp binop typeExp
 		| unop typeExp
 		| tableconstructor
