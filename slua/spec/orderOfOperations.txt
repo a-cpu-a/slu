@@ -29,7 +29,7 @@ Order of Operations {
 	
 	|	~	&	(Not the same as lua! they are all equal)
 	<<	 >>
-	unary operators(dyn impl)
+	unary operators(dyn impl) --NOTE: "//" is actualy lower, when this operator is used!
 	+	-
 	% (Not the same as lua, modulus is bellow / * //)
 	*	/	//

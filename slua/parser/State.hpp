@@ -70,19 +70,18 @@ namespace slua::parse
 	}
 	namespace LimPrefixExprType
 	{
-		template<bool isSlua>
-		struct VARv;			// "var"
+		template<bool isSlua> struct VARv;			// "var"
 		template<AnyCfgable CfgT> using VAR = SelV<CfgT, VARv>;
 
-		template<bool isSlua>
-		struct EXPRv;	// "'(' exp ')'"
+		template<bool isSlua> struct EXPRv;	// "'(' exp ')'"
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
 
-	template<bool isSlua>
-	struct ArgFuncCallV;
-	template<AnyCfgable CfgT>
-	using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
+	template<bool isSlua> struct ArgFuncCallV;
+	template<AnyCfgable CfgT> using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
+
+	template<bool isSlua> struct FuncCallV;
+	template<AnyCfgable CfgT> using FuncCall = SelV<CfgT, FuncCallV>;
 
 	template<bool isSlua>
 	using ExpListV = std::vector<ExpressionV<isSlua>>;
@@ -187,25 +186,6 @@ namespace slua::parse
 		bool isErr = false;
 	};
 
-	namespace TraitExprItemType
-	{
-		using EXPR = ExpressionV<true>;
-		using FUNC_CALL = FuncCallV<true>;
-		using VAR = VarV<true>;
-	}
-	using TraitExprItem = std::variant<
-		TraitExprItemType::EXPR,
-		TraitExprItemType::FUNC_CALL,
-		TraitExprItemType::VAR
-	>;
-
-	struct TraitExpr
-	{
-		std::vector<TraitExprItem> traitCombo;
-		Position place;
-	};
-
-
 	// Common
 
 
@@ -226,7 +206,6 @@ namespace slua::parse
 	// ‘{’ [fieldlist] ‘}’
 	template<bool isSlua>
 	using TableConstructorV = std::vector<FieldV<isSlua>>;
-
 	template<AnyCfgable CfgT>
 	using TableConstructor = SelV<CfgT, TableConstructorV>;
 
@@ -341,9 +320,75 @@ namespace slua::parse
 		std::vector<ArgFuncCallV<isSlua>> argChain;
 	};
 
-	template<AnyCfgable CfgT>
-	using FuncCall = SelV<CfgT, FuncCallV>;
 
+
+	//Slua
+
+	namespace TraitExprItemType
+	{
+		using EXPR = struct ExpressionV<true>;
+		using FUNC_CALL = struct FuncCallV<true>;
+		using VAR = VarV<true>;
+	}
+	using TraitExprItem = std::variant<
+		TraitExprItemType::EXPR,
+		TraitExprItemType::FUNC_CALL,
+		TraitExprItemType::VAR
+	>;
+	struct TraitExpr
+	{
+		std::vector<TraitExprItem> traitCombo;
+		Position place;
+	};
+
+	namespace TypeExprDataType
+	{
+		using ERR_INFERR = std::monostate;
+
+		using EXPR = std::unique_ptr<struct ExpressionV<true>>;
+		using FUNC_CALL = struct FuncCallV<true>;
+		using VAR = std::unique_ptr<struct VarV<true>>;
+		struct MULTI_OP
+		{
+			std::unique_ptr<struct TypeExpr> first;
+			std::vector<std::pair<BinOpType, struct TypeExpr>> extra;
+		};
+		using TABLE_CONSTRUCTOR = TableConstructorV<true>;
+
+		struct DYN
+		{
+			TraitExpr expr;
+		};
+		struct IMPL
+		{
+			TraitExpr expr;
+		};
+		using SLICER = std::unique_ptr<struct TypeExpr>;
+		struct ERR
+		{
+			std::unique_ptr<struct TypeExpr> err;
+		};
+	}
+	using TypeExprData = std::variant<
+		TypeExprDataType::ERR_INFERR,
+		TypeExprDataType::EXPR,
+		TypeExprDataType::FUNC_CALL,
+		TypeExprDataType::VAR,
+		TypeExprDataType::MULTI_OP,
+		TypeExprDataType::TABLE_CONSTRUCTOR,
+		TypeExprDataType::DYN,
+		TypeExprDataType::IMPL,
+		TypeExprDataType::SLICER,
+		TypeExprDataType::ERR
+	>;
+	struct TypeExpr
+	{
+		TypeExprData data;
+		Position place;
+		SmallEnumList<UnOpType> unOps;
+		bool hasMut : 1 = false;
+	};
+	//Common
 
 	namespace ExprType
 	{
