@@ -28,6 +28,8 @@ namespace slua::parse
 			return UnOpType::NEGATE;
 		case '!':
 			if constexpr (!(in.settings() & sluaSyn))break;
+			//if (in.peekAt(1) == '=')
+			//	break;//Its !=
 			in.skip();
 			return UnOpType::LOGICAL_NOT;
 			break;

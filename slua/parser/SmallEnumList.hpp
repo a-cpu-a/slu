@@ -61,6 +61,19 @@ namespace slua::parse
 			Slua_require(idx < large.size);
 			return large.ptr[idx];
 		}
+		void erase_back()
+		{
+			Slua_require(size()!=0);
+			if (m_isSmall())
+			{
+				small.size--;
+				return;
+			}
+			large.size--;
+
+			if (large.reserve < 0xFF)
+				large.reserve++;
+		}
 		void push_back(const T t)
 		{
 			if (m_isSmall())
