@@ -57,7 +57,7 @@ New Syntax {
 		| ‘(’ traitExp ‘)’
 		| traitExp "+" traitExp
 	
-	typeExp ::= var
+	typeExpNoMut ::= var
 		| functioncall 
 		| ‘(’ typeExp ‘)’
 		| typeExp binop typeExp
@@ -67,6 +67,7 @@ New Syntax {
 		| "impl" traitExp
 		| "[" typeExp "]"
 		| Numeral
+	typeExp ::= "mut" typeExpNoMut
 	
 	exp @::= | typeExp | traitExp | borrowLifetime
 }
