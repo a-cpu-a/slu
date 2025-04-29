@@ -51,6 +51,24 @@ New Syntax {
 	tupleableName ::= Name | Integral
 	
 	unop @::= | "*" | "&" ["mut"] | "*" ("mut" | "const") | "alloc"
+	
+	traitExp ::= var
+		| functioncall 
+		| ‘(’ traitExp ‘)’
+		| traitExp "+" traitExp
+	
+	typeExp ::= var
+		| functioncall 
+		| ‘(’ typeExp ‘)’
+		| typeExp binop typeExp
+		| unop typeExp
+		| tableconstructor
+		| "dyn" traitExp
+		| "impl" traitExp
+		| "[" typeExp "]"
+		| Numeral
+	
+	exp @::= | typeExp | traitExp | borrowLifetime
 }
 
 New Keywords {
