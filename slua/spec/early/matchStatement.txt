@@ -20,7 +20,7 @@ New Syntax {
 	
 	destrFieldUncond ::= "[" tupleableName "]" uncondDestrPat
 	
-	extraFieldSignifier ::= "," "..."
+	extraFieldSignifier ::= "," ".."
 	
 	
 	
