@@ -27,7 +27,7 @@ New Keywords {
 
 Errors {
 	
-	The type specifier '??' is just like '//', except the error type is inferred.
+	The type specifier '?' is just like '//', except the error type is inferred.
 	
 	The type specifier '//' is used to mark a function as possibly returning an error.
 	Those types are the only types allowed for the "?" unary operator.
@@ -46,7 +46,7 @@ Errors {
 	
 	Postfix "?" unary operator passes the error upwards.
 	If an error is silently ignored, a soft-error is logged at compile-time, and the operator is inserted.
-	Using the "?" operator on types that arent specified with '//' or '??', is a soft-error. (operator is ignored)
+	Using the "?" operator on types that arent specified with '//' or '?', is a soft-error. (operator is ignored)
 	
 	To explicitly ignore a error use drop.
 	(drop myErroringFunc();)
