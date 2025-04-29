@@ -66,6 +66,7 @@ namespace slua::parse
 		case '!':
 		//case '~': // that is a unary op too
 		case '?':
+			//TODO: ?? type
 		case '|':
 			if constexpr (in.settings() & sluaSyn)
 			{
@@ -83,17 +84,24 @@ namespace slua::parse
 		case '/':
 			if constexpr (in.settings() & sluaSyn)
 			{
+				//TODO: // -> err type
 				in.skip();
 				basicRes.data = ExprType::LIFETIME(readName(in));
 				break;
 			}
 			break;
-		case 'n':
-			if (checkReadTextToken(in, "nil"))
+		case 'd':
+			if constexpr (in.settings() & sluaSyn)
 			{
-				basicRes.data = ExprType::NIL();
-				isNilIntentional = true;
-				break;
+				if (checkReadTextToken(in, "dyn"))
+					;//TODO
+			}
+			break;
+		case 'i':
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "impl"))
+					;//TODO
 			}
 			break;
 		case 'f':
@@ -125,6 +133,14 @@ namespace slua::parse
 					));
 				}
 				break; 
+			}
+			break;
+		case 'n':
+			if (checkReadTextToken(in, "nil"))
+			{
+				basicRes.data = ExprType::NIL();
+				isNilIntentional = true;
+				break;
 			}
 			break;
 		case 't':

@@ -12,7 +12,7 @@ New Syntax {
 	trait ::= modpath
 	traitcombo ::= trait {"+" trait}
 	
-	errType ::= ([type] "?" type) | ([type] "??" ) | type
+	errType ::= ([type] "//" type) | ([type] "??" ) | type
 	
 	type ::= typeItemlist
 	mutableNambeableTypeList ::= ["mut"] type [Name] {"," ["mut"] type [Name]}
@@ -38,7 +38,7 @@ New Syntax {
 
 	typePrefix ::= {"*"} {"&" {borrowLifetime} ["mut"]} {("*" ("mut" | "const")) | ("#" ["mut"])}
 	
-	borrowLifetime ::= "/" var
+	borrowLifetime ::= "/" Name
 	
 	typedParam ::= destrTupFieldUncond
 	TypedParamList ::= typedParam {"," typedParam}
@@ -67,6 +67,8 @@ New Syntax {
 		| "impl" traitExp
 		| "[" typeExp "]"
 		| Numeral
+		| "??"
+		| "//" typeExp
 	typeExp ::= "mut" typeExpNoMut
 	
 	exp @::= | typeExp | traitExp | borrowLifetime
