@@ -48,6 +48,39 @@ namespace slua::parse
 		const char firstChar = in.peek();
 		switch (firstChar)
 		{
+		default:
+			break;
+		case '/'://TODO: lifetime expr
+		case ')':
+		case '}':
+		case ']':
+		case ';':
+		case ',':
+		case '>':
+		case '<':
+		case '=':
+		case '+':
+		case '%':
+		case '^':
+		case '&':
+		//case '*': //Maybe a deref?
+		case '!':
+		//case '~': // that is a unary op too
+		case '?':
+		case '|':
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (basicRes.unOps.size() == 0)
+					break;
+
+				if(basicRes.unOps.at(basicRes.unOps.size()-1)==UnOpType::RANGE_BEFORE)
+				{
+					basicRes.unOps.erase_back();
+					basicRes.data = ExprType::OPEN_RANGE();
+					break;
+				}
+			}
+			break;
 		case 'n':
 			if (checkReadTextToken(in, "nil"))
 			{

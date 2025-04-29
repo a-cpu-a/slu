@@ -269,6 +269,9 @@ namespace slua::parse
 				genExpr(out, ex);
 			}
 		},
+		varcase(const ExprType::OPEN_RANGE) {
+			out.add("...");
+		},
 		varcase(const ExprType::NUMERAL_U64) {
 			out.add(std::to_string(var.v));
 		},

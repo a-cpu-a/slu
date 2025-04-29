@@ -365,10 +365,11 @@ namespace slua::parse
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
 
 		//u64,i128,u128, for slua only
-		struct NUMERAL_U64 { uint64_t v; };					// "Numeral"
-		struct NUMERAL_U128 { uint64_t lo=0; uint64_t hi = 0;};   // "Numeral"
-		struct NUMERAL_I128 :NUMERAL_U128 {};   // "Numeral"
+		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
+		struct NUMERAL_U128 { uint64_t lo=0; uint64_t hi = 0;}; // "Numeral"
+		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
 
+		struct OPEN_RANGE { };					// "..."
 
 		template<bool isSlua>
 		struct ARRAY_CONSTRUCTOR_LISTv {
@@ -405,6 +406,8 @@ namespace slua::parse
 		ExprType::MULTI_OPERATIONv<isSlua>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
 		// Slua
+
+		ExprType::OPEN_RANGE,			// "..."
 
 		ExprType::NUMERAL_U64,			// "Numeral"
 		ExprType::NUMERAL_I128,			// "Numeral"
