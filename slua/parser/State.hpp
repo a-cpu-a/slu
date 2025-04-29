@@ -436,6 +436,8 @@ namespace slua::parse
 		struct OPEN_RANGE { };					// "..."
 
 		using LIFETIME = std::string;	// " '/' var"
+		using TYPE_EXPR = TypeExpr;
+		using TRAIT_EXPR = TraitExpr;
 
 		template<bool isSlua>
 		struct ARRAY_CONSTRUCTORv
@@ -473,6 +475,8 @@ namespace slua::parse
 		ExprType::NUMERAL_U128,			// "Numeral"
 
 		ExprType::LIFETIME,
+		ExprType::TYPE_EXPR,
+		ExprType::TRAIT_EXPR,
 
 		ExprType::ARRAY_CONSTRUCTORv<isSlua>
 	>;

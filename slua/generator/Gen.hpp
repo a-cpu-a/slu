@@ -275,6 +275,12 @@ namespace slua::parse
 		varcase(const ExprType::LIFETIME&) {
 			out.add("/").add(var);
 		},
+		varcase(const ExprType::TYPE_EXPR&) {
+			//TODO
+		},
+		varcase(const ExprType::TRAIT_EXPR&) {
+			//TODO
+		},
 		varcase(const ExprType::NUMERAL_U64) {
 			out.add(std::to_string(var.v));
 		},
