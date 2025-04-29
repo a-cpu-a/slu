@@ -148,7 +148,7 @@ namespace slua::parse
 			},
 			varcase(const FieldType::NAME2EXPR<Out>&) {
 				out.addIndent();
-				out.add(var.idx)
+				out.add(out.db.asSv(var.idx))
 					.add(" = ");
 				genExpr(out, var.v);
 			},
@@ -349,7 +349,7 @@ namespace slua::parse
 		if (!arg.funcName.empty())
 		{
 			out.add(':')
-				.add(arg.funcName);
+				.add(out.db.asSv(arg.funcName));
 		}
 		ezmatch(arg.args)(
 		varcase(const ArgsType::EXPLIST<Out>&) {
@@ -379,10 +379,11 @@ namespace slua::parse
 			genExpr(out, var.idx);
 			out.add(']');
 		},
-		varcase(const SubVarType::NAME&) {
-			if (var.idx.empty())return;
+		varcase(const SubVarType::NAME<Out>&) {
+			const std::string_view txt = out.db.asSv(var.idx);
+			if (txt.empty())return;
 			out.add('.')
-				.add(var.idx);
+				.add(txt);
 		}
 		);
 	}
@@ -402,18 +403,15 @@ namespace slua::parse
 	{
 		ezmatch(obj.base)(
 		varcase(const BaseVarType::NAME<Out>&) {
-			//if (var.hasDeref)out.add("*"); //TODO
-			out.add(var.name);
-		},
-		varcase(const BaseVarType::MOD_PATH&) {
-			if (var.hasDeref)out.add("*");
-			genModPath(out, var.mp);
+			if constexpr(out.settings() & sluaSyn) {
+				if (var.hasDeref)out.add('*');
+			}
+			out.add(out.db.asSv(var.v));
 		},
 		varcase(const BaseVarType::EXPR<Out>&) {
 			out.add('(');
 			genExpr(out, var.start);
 			out.add(')');
-			genSubVar(out, var.sub);
 		},
 		varcase(const BaseVarType::EXPR_DEREF_NO_SUB<Out>&) {
 			out.add("*(");
@@ -435,7 +433,7 @@ namespace slua::parse
 
 		for (const Parameter<Out>& par : var.params)
 		{
-			out.add(par.name);
+			out.add(out.db.asSv(par.name));
 			if (&par != &var.params.back() || var.hasVarArgParam)
 				out.add(", ");
 
@@ -464,9 +462,9 @@ namespace slua::parse
 		for (const BorrowLevel& bl : ty.borrows)
 		{
 			out.add('&');
-			for (const std::string& lf : bl.lifetimes)
+			for (const MpItmId<Out>& lf : bl.lifetimes)
 			{
-				out.add('/').add(lf);
+				out.add('/').add(out.db.asSv(lf));
 			}
 			if (bl.hasMut)
 			{
@@ -481,6 +479,16 @@ namespace slua::parse
 			if(gp.hasMut)
 				out.add("mut ");
 		}
+	}
+	template<AnyOutput Out>
+	inline void genTupleItem(Out& out, const TupleItem& obj)
+	{
+		if (obj.hasMut)
+			out.add("mut ");
+		genType(out,obj.ty);
+		const std::string_view name = out.db.asSv(obj.name);
+		if(!name.empty())
+			out.add(' ').add(name);
 	}
 	template<AnyOutput Out>
 	inline void genTypeObj(Out& out, const TypeObj& obj)
@@ -503,11 +511,11 @@ namespace slua::parse
 		varcase(const TypeObjType::TUPLE&)
 		{
 			out.add('{');
-			genType(out, var[0]);
+			genTupleItem(out, var[0]);
 			for (size_t i = 1; i < var.size(); i++)
 			{
 				out.add(", ");
-				genType(out, var[i]);
+				genTupleItem(out, var[i]);
 			}
 			out.add('}');
 		},
@@ -561,11 +569,12 @@ namespace slua::parse
 				out.add(", ");
 		}
 	}
-	inline void genAtribNameList(AnyOutput auto& out, const AttribNameList& obj)
+	template<AnyOutput Out>
+	inline void genAtribNameList(Out& out, const AttribNameList<Out>& obj)
 	{
-		for (const AttribName& v : obj)
+		for (const AttribName<Out>& v : obj)
 		{
-			out.add(v.name);
+			out.add(out.db.asSv(v.name));
 			if (!v.attrib.empty())
 				out.add(" <")
 				.add(v.attrib)
@@ -574,11 +583,12 @@ namespace slua::parse
 				out.add(", ");
 		}
 	}
-	inline void genNames(AnyOutput auto& out, const NameList& obj)
+	template<AnyOutput Out>
+	inline void genNames(Out& out, const NameList<Out>& obj)
 	{
-		for (const std::string& v : obj)
+		for (const MpItmId<Out>& v : obj)
 		{
-			out.add(v);
+			out.add(out.db.asSv(v));
 			if (&v != &obj.back())
 				out.add(", ");
 		}
@@ -590,15 +600,15 @@ namespace slua::parse
 			out.add("::*");
 		},
 		varcase(const UseVariantType::AS_NAME&){
-			out.add(" as ").add(var);
+			out.add(" as ").add(out.db.asSv(var));
 		},
 		varcase(const UseVariantType::IMPORT&){},
 		varcase(const UseVariantType::LIST_OF_STUFF&)
 		{
-			out.add("::{").add(var[0]);
+			out.add("::{").add(out.db.asSv(var[0]));
 			for (size_t i = 1; i < var.size(); i++)
 			{
-				out.add(", ").add(var[i]);
+				out.add(", ").add(out.db.asSv(var[i]));
 			}
 			out.add("}");
 		}
@@ -640,10 +650,10 @@ namespace slua::parse
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::LABEL&) {
+		varcase(const StatementType::LABEL<Out>&) {
 			out.unTabTemp()
 				.add(sel<Out>("::", ":::"))
-				.add(var.v)
+				.add(out.db.asSv(var.v))
 				.addNewl(sel<Out>("::", ":"))
 				.tabUpTemp();
 		},
@@ -651,9 +661,9 @@ namespace slua::parse
 			out.addNewl("break;");
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::GOTO&) {
+		varcase(const StatementType::GOTO<Out>&) {
 			out.add("goto ")
-				.add(var.v)
+				.add(out.db.asSv(var.v))
 				.addNewl(';');
 			out.wasSemicolon = true;
 		},
@@ -759,7 +769,7 @@ namespace slua::parse
 
 		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
 			out.add(sel<Out>("for ", "for ("))
-				.add(var.varName)
+				.add(out.db.asSv(var.varName))
 				.add(" = ");
 			genExpr(out, var.start);
 			out.add(", ");
@@ -793,11 +803,11 @@ namespace slua::parse
 		},
 
 		varcase(const StatementType::FUNCTION_DEF<Out>&) {
-			genFuncDef(out, var.func,var.name);
+			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 		varcase(const StatementType::LOCAL_FUNCTION_DEF<Out>&) {
 			out.add("local ");
-			genFuncDef(out, var.func, var.name);
+			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 
 		//Slua!
@@ -813,15 +823,15 @@ namespace slua::parse
 				.tabUpTemp();
 		},
 
-		varcase(const StatementType::TYPE&) {
+		varcase(const StatementType::TYPE<Out>&) {
 			if (var.exported)out.add("ex ");
 			out.add("type ");
-			out.add(var.name).add(" = ");
+			out.add(out.db.asSv(var.name)).add(" = ");
 			genType(out,var.ty);
 			out.addNewl(";");
 		},
-		varcase(const StatementType::DROP&) {
-			out.add("drop ").add(var.var).addNewl(";");
+		varcase(const StatementType::DROP<Out>&) {
+			out.add("drop ").add(out.db.asSv(var.var)).addNewl(";");
 		},
 		varcase(const StatementType::USE&) {
 			if (var.exported)out.add("ex ");
@@ -836,13 +846,13 @@ namespace slua::parse
 		varcase(const StatementType::MOD_SELF&) {
 			out.addNewl("mod self;");
 		},
-		varcase(const StatementType::MOD_DEF&) {
+		varcase(const StatementType::MOD_DEF<Out>&) {
 			if (var.exported)out.add("ex ");
-			out.add("mod ").add(var.name).addNewl(";");
+			out.add("mod ").add(out.db.asSv(var.name)).addNewl(";");
 		},
 		varcase(const StatementType::MOD_DEF_INLINE<Out>&) {
 			if (var.exported)out.add("ex ");
-			out.add("mod ").add(var.name).add(" as {");
+			out.add("mod ").add(out.db.asSv(var.name)).add(" as {");
 			out.tabUpNewl().newLine();
 
 			genBlock(out,var.bl);

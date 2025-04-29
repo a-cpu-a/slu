@@ -21,22 +21,23 @@ namespace slua::mlvl
 	Mid level plans:
 
 	---------0---------
-	referenced name checker
+	type checker?
+	type inference?
+	name resolver
 	---------1---------
+	referenced name checker?
+	---------2---------
 	safety checker
 	?stability checker?
-	---------2---------
-	type inference?
 	---------3---------
-	type checker?
+	purity checker & inference?
 	---------4---------
 	borrow checker?
-	purity checker & inference?
 	-------------------
 	*/
-	struct TypeId : MpItmId
+	struct TypeId : MpItmIdV
 	{};
-	struct ObjId : MpItmId
+	struct ObjId : MpItmIdV
 	{};
 	struct LocalTypedObjId
 	{
@@ -56,13 +57,13 @@ namespace slua::mlvl
 
 	namespace ObjType
 	{
-		struct FuncId :MpItmId {};
-		struct VarId :MpItmId {};
-		struct TypeId :MpItmId {};
-		struct TraitId :MpItmId {};
-		struct ImplId :MpItmId {};
-		struct UseId :MpItmId {};
-		struct MacroId :MpItmId {};
+		struct FuncId :MpItmIdV {};
+		struct VarId :MpItmIdV {};
+		struct TypeId :MpItmIdV {};
+		struct TraitId :MpItmIdV {};
+		struct ImplId :MpItmIdV {};
+		struct UseId :MpItmIdV {};
+		struct MacroId :MpItmIdV {};
 	}
 	using Obj = std::variant<
 		ObjType::FuncId,

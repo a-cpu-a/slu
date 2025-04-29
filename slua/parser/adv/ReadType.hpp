@@ -94,7 +94,7 @@ namespace slua::parse
 			{
 				if (!checkReadToken(in, "/"))
 					break;
-				b.lifetimes.push_back(readName(in));
+				b.lifetimes.push_back(in.genData.resolveName(readName(in)));
 			}
 
 			b.hasMut = checkReadTextToken(in, "mut");
@@ -135,11 +135,11 @@ namespace slua::parse
 		Type ty = readType(in);
 		skipSpace(in);
 
-		std::string name = "";
+		MpItmId<In> name = { SIZE_MAX };
 		if (in.peek() != ',' && in.peek() != '}')
-			name = readName(in);
+			name = in.genData.resolveUnknown(readName(in));
 
-		return { std::move(ty),std::move(name),hasMut };
+		return { std::move(ty),name,hasMut };
 	}
 
 	template<AnyInput In>

@@ -26,25 +26,6 @@
 
 namespace slua::parse
 {
-	struct ModPathId
-	{
-		size_t id; //Id 0 -> unknownRoot
-	};
-	struct LocalObjId
-	{
-		size_t valId;
-	};
-	template<bool isSlua>
-	struct MpItmId
-	{
-		LocalObjId id;// Practically a string pool lol
-	};
-	template<>
-	struct MpItmId<true>
-	{
-		ModPathId mp;
-		LocalObjId id;
-	};
 
 	template<AnyCfgable CfgT, template<bool> class T>
 	using SelV = T<CfgT::settings()& sluaSyn>;
@@ -60,6 +41,10 @@ namespace slua::parse
 		else
 			return tok;
 	}
+
+	//Mp ref
+	template<AnyCfgable CfgT> using MpItmId = SelV<CfgT, lang::MpItmIdV>;
+
 
 
 	//Forward declare
@@ -108,6 +93,7 @@ namespace slua::parse
 	*/
 
 
+	using slua::lang::MpItmIdV;
 	using slua::lang::ModPath;
 	using slua::lang::ModPathView;
 	using slua::lang::ExportData;
@@ -115,7 +101,7 @@ namespace slua::parse
 
 	struct BorrowLevel
 	{
-		std::vector<std::string> lifetimes;
+		std::vector<MpItmIdV<true>> lifetimes;
 		bool hasMut=false;//eventualy share too
 	};
 	struct GcPtrLevel
@@ -136,7 +122,7 @@ namespace slua::parse
 	struct TupleItem
 	{
 		Type ty;
-		std::string name;// empty -> no name
+		MpItmIdV<true> name;// empty -> no name
 		bool hasMut : 1 = false;
 	};
 
@@ -252,7 +238,7 @@ namespace slua::parse
 	template<bool isSlua>
 	struct ParameterV
 	{
-		std::string name;
+		MpItmIdV<isSlua> name;
 	};
 
 	template<>
@@ -312,7 +298,7 @@ namespace slua::parse
 	struct ArgFuncCallV
 	{// funcArgs ::=  [‘:’ Name] args
 
-		std::string funcName;//If empty, then no colon needed. Only used for ":xxx"
+		MpItmIdV<isSlua> funcName;//If empty, then no colon needed. Only used for ":xxx"
 		ArgsV<isSlua> args;
 	};
 
@@ -457,7 +443,9 @@ namespace slua::parse
 
 	namespace SubVarType
 	{
-		struct NAME { std::string idx; };	// {funcArgs} ‘.’ Name
+		template<bool isSlua>
+		struct NAMEv { MpItmIdV<isSlua> idx; };	// {funcArgs} ‘.’ Name
+		template<AnyCfgable CfgT> using NAME = SelV<CfgT, NAMEv>;
 
 		template<bool isSlua>
 		struct EXPRv { ExpressionV<isSlua> idx; };	// {funcArgs} ‘[’ exp ‘]’
@@ -470,7 +458,7 @@ namespace slua::parse
 		std::vector<ArgFuncCallV<isSlua>> funcCalls;
 
 		std::variant<
-			SubVarType::NAME,
+			SubVarType::NAMEv<isSlua>,
 			SubVarType::EXPRv<isSlua>
 		> idx;
 	};
@@ -483,15 +471,14 @@ namespace slua::parse
 		template<bool isSlua>
 		struct NAMEv
 		{
-			std::string name;
+			MpItmIdV<isSlua> v;
 		};
 		template<>
 		struct NAMEv<true>
 		{
-			std::string name;
+			MpItmIdV<true> v;
 			bool hasDeref=false;
 		};
-
 		template<AnyCfgable CfgT>
 		using NAME = SelV<CfgT, NAMEv>;
 
@@ -499,7 +486,6 @@ namespace slua::parse
 		struct EXPRv
 		{
 			ExpressionV<isSlua> start;
-			SubVarV<isSlua> sub;
 		};
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 
@@ -513,17 +499,10 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using EXPR_DEREF_NO_SUB = SelV<CfgT, EXPR_DEREF_NO_SUBv>;
 
-		//len is atleast 1
-		struct MOD_PATH
-		{
-			ModPath mp;
-			bool hasDeref = false;
-		};
 	}
 	template<bool isSlua>
 	using BaseVarV = std::variant<
 		BaseVarType::NAMEv<isSlua>,
-		BaseVarType::MOD_PATH,
 		BaseVarType::EXPRv<isSlua>,
 		BaseVarType::EXPR_DEREF_NO_SUBv<isSlua>
 	>;
@@ -538,11 +517,13 @@ namespace slua::parse
 		std::vector<SubVarV<isSlua>> sub;
 	};
 
-	struct AttribName
+	template<bool isSlua>
+	struct AttribNameV
 	{
-		std::string name;
+		MpItmIdV<isSlua> name;
 		std::string attrib;//empty -> no attrib
 	};
+	template<AnyCfgable CfgT> using AttribName = SelV<CfgT, AttribNameV>;
 
 	namespace FieldType
 	{
@@ -550,7 +531,7 @@ namespace slua::parse
 		struct EXPR2EXPRv { ExpressionV<isSlua> idx; ExpressionV<isSlua> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
 
 		template<bool isSlua>
-		struct NAME2EXPRv { std::string idx; ExpressionV<isSlua> v; };	// "Name ‘=’ exp"
+		struct NAME2EXPRv { MpItmIdV<isSlua> idx; ExpressionV<isSlua> v; };	// "Name ‘=’ exp"
 
 		template<bool isSlua>
 		struct EXPRv { ExpressionV<isSlua> v; };							// "exp"
@@ -564,15 +545,19 @@ namespace slua::parse
 		struct EXPRv { ExpressionV<isSlua> v; };	// "'(' exp ')'"
 	}
 
-	using AttribNameList = std::vector<AttribName>;
-	using NameList = std::vector<std::string>;
+	template<bool isSlua>
+	using AttribNameListV = std::vector<AttribNameV<isSlua>>;
+	template<AnyCfgable CfgT> using AttribNameList = SelV<CfgT, AttribNameListV>;
+	template<bool isSlua>
+	using NameListV = std::vector<MpItmIdV<isSlua>>;
+	template<AnyCfgable CfgT> using NameList = SelV<CfgT, NameListV>;
 
 	namespace UseVariantType
 	{
 		using EVERYTHING_INSIDE = std::monostate;//use x::*;
 		struct IMPORT {};// use x::y;
-		using AS_NAME = std::string;//use x as y;
-		using LIST_OF_STUFF = std::vector<std::string>;//use x::{self, ...}
+		using AS_NAME = MpItmIdV<true>;//use x as y;
+		using LIST_OF_STUFF = std::vector<MpItmIdV<true>>;//use x::{self, ...}
 	}
 	using UseVariant = std::variant<
 		UseVariantType::EVERYTHING_INSIDE,
@@ -593,9 +578,13 @@ namespace slua::parse
 		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
 		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
-		struct LABEL { std::string v; };						// "label"
-		struct BREAK { std::string v; };						// "break"
-		struct GOTO { std::string v; };							// "goto Name"
+		template<bool isSlua>
+		struct LABELv { MpItmIdV<isSlua> v; };		// "label"
+		template<AnyCfgable CfgT> using LABEL = SelV<CfgT, LABELv>;
+		struct BREAK { };
+		template<bool isSlua>					// "break"
+		struct GOTOv { MpItmIdV<isSlua> v; };			// "goto Name"
+		template<AnyCfgable CfgT> using GOTO = SelV<CfgT, GOTOv>;
 
 		template<bool isSlua>
 		struct BLOCKv { BlockV<isSlua> bl; };							// "do block end"
@@ -624,7 +613,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct FOR_LOOP_NUMERICv
 		{
-			std::string varName;
+			MpItmIdV<isSlua> varName;
 			ExpressionV<isSlua> start;
 			ExpressionV<isSlua> end;//inclusive
 			std::optional<ExpressionV<isSlua>> step;
@@ -636,7 +625,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct FOR_LOOP_GENERICv
 		{
-			NameList varNames;
+			NameListV<isSlua> varNames;
 			ExpListV<isSlua> exprs;//size must be > 0
 			BlockV<isSlua> bl;
 		};
@@ -646,7 +635,7 @@ namespace slua::parse
 		struct FUNCTION_DEFv
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
 			Position place; 
-			std::string name; 
+			MpItmIdV<isSlua> name;
 			FunctionV<isSlua> func;
 		};
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
@@ -659,7 +648,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct LOCAL_ASSIGNv
 		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			Sel<isSlua, AttribNameList, NameList> names;
+			Sel<isSlua, AttribNameListV<isSlua>, NameListV<isSlua>> names;
 			ExpListV<isSlua> exprs;
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
@@ -676,25 +665,34 @@ namespace slua::parse
 			UseVariant useVariant;
 			ExportData exported=false;
 		};
-		struct TYPE
+		template<bool isSlua>
+		struct TYPEv
 		{
-			std::string name;
+			MpItmIdV<isSlua> name;
 			Type ty;
 			ExportData exported=false;
 		};
-		struct DROP
+		template<AnyCfgable CfgT> using TYPE = SelV<CfgT, TYPEv>;
+
+		template<bool isSlua>
+		struct DROPv
 		{
-			std::string var;
+			MpItmIdV<isSlua> var;
 		};
-		struct MOD_DEF
+		template<AnyCfgable CfgT> using DROP = SelV<CfgT, DROPv>;
+
+		template<bool isSlua>
+		struct MOD_DEFv
 		{
-			std::string name;
+			MpItmIdV<isSlua> name;
 			ExportData exported = false;
 		};
+		template<AnyCfgable CfgT> using MOD_DEF = SelV<CfgT, MOD_DEFv>;
+
 		template<bool isSlua>
 		struct MOD_DEF_INLINEv
 		{ 
-			std::string name;
+			MpItmIdV<isSlua> name;
 			BlockV<isSlua> bl;
 			ExportData exported = false;
 		};
@@ -712,9 +710,9 @@ namespace slua::parse
 		StatementType::LOCAL_ASSIGNv<isSlua>,	// "local attnamelist [= explist]"
 
 		StatementType::FUNC_CALLv<isSlua>,		// "functioncall"
-		StatementType::LABEL,					// "label"
+		StatementType::LABELv<isSlua>,			// "label"
 		StatementType::BREAK,					// "break"
-		StatementType::GOTO,					// "goto Name"
+		StatementType::GOTOv<isSlua>,			// "goto Name"
 		StatementType::BLOCKv<isSlua>,			// "do block end"
 		StatementType::WHILE_LOOPv<isSlua>,		// "while exp do block end"
 		StatementType::REPEAT_UNTILv<isSlua>,	// "repeat block until exp"
@@ -730,12 +728,12 @@ namespace slua::parse
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
 		StatementType::SAFE_LABEL,		// ::: safe :
 
-		StatementType::TYPE,	// OptExportPrefix "type" Name "=" type
-		StatementType::DROP,	// "drop" Name
-		StatementType::USE,		// "use" ...
+		StatementType::TYPEv<isSlua>,	// OptExportPrefix "type" Name "=" type
+		StatementType::DROPv<isSlua>,	// "drop" Name
+		StatementType::USE,				// "use" ...
 		StatementType::MOD_SELF,				// "mod" "self"
 		StatementType::MOD_CRATE,				// "mod" "crate"
-		StatementType::MOD_DEF,					// "mod" Name
+		StatementType::MOD_DEFv<isSlua>,		// "mod" Name
 		StatementType::MOD_DEF_INLINEv<isSlua>	// "mod" Name "as" "{" block "}"
 	> ;
 
@@ -749,6 +747,7 @@ namespace slua::parse
 		Position place;
 
 		StatementV() = default;
+		StatementV(StatementDataV<isSlua>&& data) :data(std::move(data)) {}
 		StatementV(const StatementV&) = delete;
 		StatementV(StatementV&&) = default;
 		StatementV& operator=(StatementV&&) = default;

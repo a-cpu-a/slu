@@ -77,19 +77,20 @@ namespace slua::parse
 
 		if constexpr (in.settings() & sluaSyn)
 		{
-			BaseVarType::MOD_PATH mp = { readModPath(in, start) };
+			ModPath mp = readModPath(in, std::move(start));
 
-			if (mp.mp.size() != 1)
+			if (mp.size() != 1)
 			{
-				varDataOut.base = mp;
-				mp.hasDeref = hasDeref;
+				varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp), hasDeref);
 				return;
 			}
+			start = std::move(mp[0]);
 		}
-		if constexpr (hasDeref)
-			varDataOut.base = BaseVarType::NAME<In>( start,true);
+		//Check, cuz 'excess elements in struct initializer' happens in normal lua
+		if constexpr(hasDeref)
+			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start), true);
 		else
-			varDataOut.base = BaseVarType::NAME<In>( start );
+			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start));
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
@@ -261,7 +262,7 @@ namespace slua::parse
 						throwSpaceMissingBeforeString(in);
 				}
 
-				funcCallData.emplace_back(name, readArgs(in,allowVarArg));
+				funcCallData.emplace_back(in.genData.resolveUnknown(name), readArgs(in, allowVarArg));
 				break;
 			}
 			case '"':
@@ -274,7 +275,7 @@ namespace slua::parse
 				[[fallthrough]];
 			case '{':
 			case '('://Funccall
-				funcCallData.emplace_back("", readArgs(in,allowVarArg));
+				funcCallData.emplace_back(in.genData.resolveEmpty(), readArgs(in, allowVarArg));
 				break;
 			case '.':// Index
 			{
@@ -286,8 +287,8 @@ namespace slua::parse
 
 				in.skip();//skip dot
 
-				SubVarType::NAME res{};
-				res.idx = readName(in);
+				SubVarType::NAME<In> res{};
+				res.idx = in.genData.resolveUnknown(readName(in));
 
 				varDataNeedsSubThing = false;
 				// Move auto-clears funcCallData
@@ -306,7 +307,7 @@ namespace slua::parse
 						if (!skipped)
 							throwSpaceMissingBeforeString(in);
 					}
-					funcCallData.emplace_back("", readArgs(in,allowVarArg));
+					funcCallData.emplace_back(in.genData.resolveEmpty(), readArgs(in,allowVarArg));
 					break;
 				}
 				SubVarType::EXPR<In> res{};

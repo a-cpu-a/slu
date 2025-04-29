@@ -14,42 +14,43 @@
 namespace slua::parse
 {
 	template<AnyInput In>
-	inline bool readModStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readModStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
-			std::string modName =
+			std::string strName =
 				exported
 				? readName(in)
 				: readName<true>(in);
 			if (!exported)
 			{
-				if (modName == "self")
+				if (strName == "self")
 				{
-					outData = StatementType::MOD_SELF{};
+					in.genData.addStat(place, StatementType::MOD_SELF{});
 					return true;
 				}
-				if (modName == "crate")
+				if (strName == "crate")
 				{
-					outData = StatementType::MOD_CRATE{};
+					in.genData.addStat(place, StatementType::MOD_CRATE{});
 					return true;
 				}
 			}
+			const MpItmId<In> modName = in.genData.resolveUnknown(strName);
 
 			if (checkReadTextToken(in, "as"))
 			{
 				StatementType::MOD_DEF_INLINE<In> res{};
 				res.exported = exported;
-				res.name = std::move(modName);
+				res.name = modName;
 
 				requireToken(in, "{");
 				res.bl = readBlockNoStartCheck<false>(in, false);
 
-				outData = std::move(res);
+				in.genData.addStat(place, std::move(res));
 			}
 			else
 			{
-				outData = StatementType::MOD_DEF{ modName,exported };
+				in.genData.addStat(place, StatementType::MOD_DEF<In>{ modName, exported });
 			}
 
 			return true;

@@ -137,7 +137,7 @@ namespace slua::parse
 		{//must have non-empty namelist
 			{
 				Parameter<In> p;
-				p.name = readName(in);
+				p.name = in.genData.resolveUnknown(readName(in));
 
 				ret.params.emplace_back(std::move(p));
 			}
@@ -150,7 +150,7 @@ namespace slua::parse
 					break;//cant have anything after the ... arg
 				}
 				Parameter<In> p;
-				p.name = readName(in);
+				p.name = in.genData.resolveUnknown(readName(in));
 
 				ret.params.emplace_back(std::move(p));
 			}
@@ -200,20 +200,16 @@ namespace slua::parse
 				in.skip();
 				return readBlockNoStartCheck<isLoop>(in,allowVarArg);
 			}
-			Block<In> bl{};
-			bl.start = in.getLoc();
 
-			if (readReturn<semicolMode>(in, allowVarArg, bl))
-			{
-				bl.end = in.getLoc();
-				return bl;
-			}
+			in.genData.pushAnonScope(in.getLoc());
+
+			if (readReturn<semicolMode>(in, allowVarArg))
+				return in.genData.popScope(in.getLoc());
 			//Basic Statement + ';'
 
-			bl.statList.push_back(readStatment<isLoop>(in, allowVarArg));
+			readStatment<isLoop>(in, allowVarArg);
 
-			bl.end = in.getLoc();
-
+			Block<In> bl = in.genData.popScope(in.getLoc());
 
 			if constexpr (semicolMode == SemicolMode::REQUIRE_OR_KW)
 			{
@@ -242,13 +238,13 @@ namespace slua::parse
 
 
 	template<AnyInput In>
-	inline bool readUchStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readUchStat(In& in, const Position place, const ExportData exported)
 	{
 		const char ch2 = in.peekAt(1);
 		switch (ch2)
 		{
 		case 's':
-			if (readUseStat(in, outData, exported))
+			if (readUseStat(in, place, exported))
 				return true;
 			break;
 		case 'n':
@@ -265,7 +261,7 @@ namespace slua::parse
 
 
 	template<AnyInput In>
-	inline bool readSchStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readSchStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "safe"))
 		{
@@ -275,7 +271,7 @@ namespace slua::parse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline Statement<In> readStatment(In& in,const bool allowVarArg)
+	inline void readStatment(In& in,const bool allowVarArg)
 	{
 		/*
 		 varlist ‘=’ explist |
@@ -284,20 +280,17 @@ namespace slua::parse
 
 		skipSpace(in);
 
+		const Position place = in.getLoc();
 		Statement<In> ret;
-		ret.place = in.getLoc();
 
 		const char firstChar = in.peek();
 		switch (firstChar)
 		{
 		case ';':
 			in.skip();
-			ret.data = StatementType::SEMICOLON();
-			return ret;
-
+			return in.genData.addStat(place, StatementType::SEMICOLON{});
 		case ':'://must be label
-			readLabel(in, ret.data);
-			return ret;
+			return readLabel(in, place);
 
 		case 'f'://for?, function?, fn?
 			if (checkReadTextToken(in, "for"))
@@ -307,8 +300,8 @@ namespace slua::parse
 				 for namelist in explist do block end |
 				*/
 
-				NameList names = readNameList(in);
-
+				NameList<In> names = readNameList(in);
+				
 				bool isNumeric = false;
 
 				if constexpr (in.settings() & sluaSyn)
@@ -334,8 +327,7 @@ namespace slua::parse
 
 					res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
 
-					ret.data = std::move(res);
-					return ret;
+					return in.genData.addStat(place, std::move(res));
 				}
 				// Generic Loop
 				// for namelist in explist do block end | 
@@ -356,8 +348,7 @@ namespace slua::parse
 
 				res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
 
-				ret.data = std::move(res);
-				return ret;
+				return in.genData.addStat(place, std::move(res));
 			}
 			if (checkReadTextToken(in, "function"))
 			{ // function funcname funcbody
@@ -365,7 +356,7 @@ namespace slua::parse
 
 				res.place = in.getLoc();
 
-				res.name = readFuncName(in);
+				res.name = in.genData.resolveUnknown(readFuncName(in));
 
 				try
 				{
@@ -375,7 +366,7 @@ namespace slua::parse
 					{
 						in.handleError(std::format(
 							"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-							res.name, errorLocStr(in, res.place)
+							in.genData.asSv(res.name), errorLocStr(in, res.place)
 						));
 					}
 				}
@@ -384,12 +375,11 @@ namespace slua::parse
 					in.handleError(e.m);
 					throw ErrorWhileContext(std::format(
 						"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-						res.name, errorLocStr(in, res.place)
+						in.genData.asSv(res.name), errorLocStr(in, res.place)
 					));
 				}
 
-				ret.data = std::move(res);
-				return ret;
+				return in.genData.addStat(place, std::move(res));
 			}
 			break;
 		case 'l'://local?
@@ -407,7 +397,7 @@ namespace slua::parse
 
 						res.place = in.getLoc();
 
-						res.name = readFuncName(in);
+						res.name = in.genData.resolveUnknown(readFuncName(in));
 
 						try
 						{
@@ -418,7 +408,7 @@ namespace slua::parse
 
 								in.handleError(std::format(
 									"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-									res.name, errorLocStr(in, res.place)
+									in.genData.asSv(res.name), errorLocStr(in, res.place)
 								));
 							}
 						}
@@ -427,12 +417,11 @@ namespace slua::parse
 							in.handleError(e.m);
 							throw ErrorWhileContext(std::format(
 								"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-								res.name, errorLocStr(in, res.place)
+								in.genData.asSv(res.name), errorLocStr(in, res.place)
 							));
 						}
 
-						ret.data = std::move(res);
-						return ret;
+						return in.genData.addStat(place, std::move(res));
 					}
 				}
 				// Local Variable
@@ -447,16 +436,16 @@ namespace slua::parse
 				{// [‘=’ explist]
 					res.exprs = readExpList(in,allowVarArg);
 				}
-				ret.data = std::move(res);
-				return ret;
+				return in.genData.addStat(place, std::move(res));
 			}
 			break;
 		case '{':// ‘{’ block ‘}’
 			if constexpr (in.settings() & sluaSyn)
 			{
-				in.skip();//Skip ‘}’
-				ret.data = StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg));
-				return ret;
+				in.skip();//Skip ‘{’
+				return in.genData.addStat(place,
+					StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg))
+				);
 			}
 			break;
 		case 'd'://do?
@@ -464,16 +453,18 @@ namespace slua::parse
 			{
 				if (checkReadTextToken(in, "drop"))
 				{
-					ret.data = StatementType::DROP(readName(in));
-					return ret;
+					return in.genData.addStat(place,
+						StatementType::DROP<In>(in.genData.resolveName(readName(in)))
+					);
 				}
 			}
 			else
 			{
 				if (checkReadTextToken(in, "do")) // ‘do’ block ‘end’
 				{
-					ret.data = StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg));
-					return ret;
+					return in.genData.addStat(place,
+						StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg))
+					);
 				}
 			}
 			break;
@@ -486,15 +477,15 @@ namespace slua::parse
 						"Break used outside of loop{}"
 						, errorLocStr(in)));
 				}
-				ret.data = StatementType::BREAK();
-				return ret;
+				return in.genData.addStat(place, StatementType::BREAK{});
 			}
 			break;
 		case 'g'://goto?
 			if (checkReadTextToken(in, "goto"))//goto Name
 			{
-				ret.data = StatementType::GOTO(readName(in));
-				return ret;
+				return in.genData.addStat(place,
+					StatementType::GOTO<In>(in.genData.resolveName(readName(in)))
+				);
 			}
 			break;
 		case 'w'://while?
@@ -504,8 +495,9 @@ namespace slua::parse
 				Expression<In> expr = readExprParens(in,allowVarArg);
 
 				Block<In> bl = readDoOrStatOrRet<true>(in,allowVarArg);
-				ret.data = StatementType::WHILE_LOOP<In>(std::move(expr), std::move(bl));
-				return ret;
+				return in.genData.addStat(place, 
+					StatementType::WHILE_LOOP<In>(std::move(expr), std::move(bl))
+				);
 			}
 			break;
 		case 'r'://repeat?
@@ -519,8 +511,9 @@ namespace slua::parse
 				requireToken(in, "until");
 				Expression<In> expr = readExpr(in,allowVarArg);
 
-				ret.data = StatementType::REPEAT_UNTIL<In>({ std::move(expr), std::move(bl) });
-				return ret;
+				return in.genData.addStat(place, 
+					StatementType::REPEAT_UNTIL<In>({ std::move(expr), std::move(bl) })
+				);
 			}
 			break;
 		case 'i'://if?
@@ -569,9 +562,7 @@ namespace slua::parse
 					requireToken(in, "end");
 				}
 
-
-				ret.data = std::move(res);
-				return ret;
+				return in.genData.addStat(place, std::move(res));
 			}
 			break;
 
@@ -587,19 +578,19 @@ namespace slua::parse
 					case 'f'://fn? function?
 						break;
 					case 't'://type?
-						if (readTypeStat(in, ret.data, true))
-							return ret;
+						if (readTypeStat(in, place, true))
+							return;
 						break;
 					case 'u'://use? unsafe?
-						if (readUchStat(in, ret.data, true))
+						if (readUchStat(in, place, true))
 							return ret;
 						break;
 					case 's'://safe?
-						if (readSchStat(in, ret.data, true))
+						if (readSchStat(in, place, true))
 							return ret;
 						break;
 					case 'm'://mod?
-						if (readModStat(in, ret.data, true))
+						if (readModStat(in, place, true))
 							return ret;
 						break;
 					default:
@@ -612,37 +603,39 @@ namespace slua::parse
 		case 's'://safe?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if(readSchStat(in,ret.data,false))
+				if(readSchStat(in, place,false))
 					return ret;
 			}
 			break;
 		case 'u'://use? unsafe?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (readUchStat(in, ret.data, false))
+				if (readUchStat(in, place, false))
 					return ret;
 			}
 			break;
 		case 'm'://mod?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (readModStat(in, ret.data, false))
+				if (readModStat(in, place, false))
 					return ret;
 			}
 			break;
 		case 't'://type?
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (readTypeStat(in, ret.data, false))
-					return ret;
+				if (readTypeStat(in, place, false))
+					return;
 			}
 			break;
 		default://none of the above...
 			break;
 		}
 
-		ret.data = parsePrefixExprVar<StatementData<In>,false>(in,allowVarArg, firstChar);
-		return ret;
+		in.genData.addStat(place, 
+			parsePrefixExprVar<StatementData<In>,false>(
+				in,allowVarArg, firstChar
+		));
 	}
 
 	/**

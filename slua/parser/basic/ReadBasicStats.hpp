@@ -19,10 +19,10 @@
 namespace slua::parse
 {
 	template<AnyInput In>
-	inline void readLabel(In& in, StatementData<In>& outData)
+	inline void readLabel(In& in, const Position place)
 	{
-		//label ::= ‘::’ Name ‘::’
-		//SL label ::= ‘:::’ Name ‘:’
+		//label ::= â€˜::â€™ Name â€˜::â€™
+		//SL label ::= â€˜:::â€™ Name â€˜:â€™
 
 		requireToken(in, sel<In>("::", ":::"));
 
@@ -30,36 +30,34 @@ namespace slua::parse
 		{
 			if (checkReadTextToken(in, "unsafe"))
 			{
-				outData = StatementType::UNSAFE_LABEL();
-				return;
+				return in.genData.addStat(place, StatementType::UNSAFE_LABEL{});
 			}
 			else if (checkReadTextToken(in, "safe"))
 			{
-				outData = StatementType::SAFE_LABEL();
-				return;
+				return in.genData.addStat(place, StatementType::SAFE_LABEL{});
 			}
 		}
 
-		std::string res = readName(in);
+		const MpItmId<In> res = in.genData.resolveUnknown(readName(in));
 
 		requireToken(in, sel<In>("::", ":"));
 
-		outData = StatementType::LABEL(res);
+		return in.genData.addStat(place, StatementType::LABEL<In>{res});
 	}
 
 	template<AnyInput In>
-	inline bool readTypeStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readTypeStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "type"))
 		{
-			StatementType::TYPE res{};
+			StatementType::TYPE<In> res{};
 			res.exported = exported;
 
-			res.name = readName(in);
+			res.name = in.genData.resolveUnknown(readName(in));
 			requireToken(in, "=");
 			res.ty = readType(in);
 
-			outData = std::move(res);
+			in.genData.addStat(place, std::move(res));
 			return true;
 		}
 		return false;

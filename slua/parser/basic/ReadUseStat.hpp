@@ -14,7 +14,7 @@
 namespace slua::parse
 {
 	template<AnyInput In>
-	inline bool readUseStat(In& in, StatementData<In>& outData, const ExportData exported)
+	inline bool readUseStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "use"))
 		{
@@ -34,10 +34,10 @@ namespace slua::parse
 				{
 					in.skip(3);
 					UseVariantType::LIST_OF_STUFF list;
-					list.push_back(readName<true>(in));
+					list.push_back(in.genData.resolveUnknown(readName<true>(in)));
 					while (checkReadToken(in, ","))
 					{
-						list.push_back(readName<true>(in));
+						list.push_back(in.genData.resolveUnknown(readName<true>(in)));
 					}
 					requireToken(in, "}");
 					res.useVariant = std::move(list);
@@ -51,15 +51,14 @@ namespace slua::parse
 			{
 				if (checkReadTextToken(in, "as"))
 				{
-					res.useVariant = UseVariantType::AS_NAME{ readName(in) };
+					res.useVariant = UseVariantType::AS_NAME{ in.genData.resolveUnknown(readName(in))};
 				}
 				else
 				{// Prob just no semicol
 					res.useVariant = UseVariantType::IMPORT{};
 				}
 			}
-
-			outData = std::move(res);
+			in.genData.addStat(place, std::move(res));
 			return true;
 		}
 		return false;
