@@ -7,23 +7,28 @@ New Syntax {
 	binop @::= | "..."
 	unop @::= | "..."
 	postunop @::= | "..."
+	exp @::= | "..."
 }
 
 Range Operator {
 	
-	Constructs a inclusive range from 1, or 2 expressions
+	Constructs a inclusive range from 0, 1, or 2 expressions
 	
+	... -> true
 	X... -> _>=X
 	...X -> _<=X
 	X...Y -> _>=X and _<=Y
 	
 	```slua
 	
+	let anyRange = ...;
 	let range = 1...4;
 	let rangeAbove = 1...;
 	let rangeBelow = ...5;
 	
 	let x = "Hello";
+	
+	assertEq$(x[...],"Hello");
 	
 	assertEq$(x[1...],"Hello");
 	assertEq$(x[2...],"ello");
