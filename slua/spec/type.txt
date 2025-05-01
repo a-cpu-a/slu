@@ -43,7 +43,9 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	unop @::= | "*" | "&" ["mut"] | "*" ("mut" | "const") | "alloc"
+	typeunop ::= "*" | "&" ["mut"] | "*" ("mut" | "const")
+	
+	unop @::= | typeunop | "alloc"
 	
 	--Note: 'var' inside traitExp,typeExpNoMut doesnt allow "" and {} style args
 	
@@ -56,7 +58,7 @@ New Syntax {
 		| var
 		| functioncallBasicArgs
 		| typeExpNoMut binop typeExp
-		| unop typeExpNoMut
+		| typeunop typeExpNoMut
 		| tableconstructor
 		| "dyn" traitExp
 		| "impl" traitExp

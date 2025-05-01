@@ -17,17 +17,19 @@
 
 namespace slua::parse
 {
-	inline UnOpType readOptUnOp(AnyInput auto& in)
+	inline UnOpType readOptUnOp(AnyInput auto& in,const bool typeOnly=false)
 	{
 		skipSpace(in);
 
 		switch (in.peek())
 		{
 		case '-':
+			if (typeOnly)break;
 			in.skip();
 			return UnOpType::NEGATE;
 		case '!':
 			if constexpr (!(in.settings() & sluaSyn))break;
+			if (typeOnly)break;
 			//if (in.peekAt(1) == '=')
 			//	break;//Its !=
 			in.skip();
@@ -39,9 +41,11 @@ namespace slua::parse
 				return UnOpType::LOGICAL_NOT;
 			break;
 		case '#':
+			if (typeOnly)break;
 			in.skip();
 			return UnOpType::LENGTH;
 		case '~':
+			if (typeOnly)break;
 			in.skip();
 			return UnOpType::BITWISE_NOT;
 		case '&':
@@ -63,12 +67,14 @@ namespace slua::parse
 			return UnOpType::DEREF;
 		case 'a':
 			if constexpr (!(in.settings() & sluaSyn))break;
+			if (typeOnly)break;
 
 			if (checkReadTextToken(in, "alloc"))
 				return UnOpType::ALLOCATE;
 			break;
 		case '.':
 			if  constexpr (!(in.settings() & sluaSyn))break;
+			if (typeOnly)break;
 			if (checkReadToken(in, "..."))
 				return UnOpType::RANGE_BEFORE;
 			break;
