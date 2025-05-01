@@ -114,7 +114,7 @@ namespace slua::parse
 		if (firstBinOp == BinOpType::NONE)
 			return ret;
 
-		ExprType::MULTI_OPERATION<In> resData{};
+		TypeExprDataType::MULTI_OP resData{};
 
 		resData.first = std::make_unique<TypeExpr>(std::move(ret));
 		resData.extra.emplace_back(firstBinOp, readTypeExpr(in, allowMut, false));
