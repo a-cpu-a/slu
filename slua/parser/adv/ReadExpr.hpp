@@ -211,7 +211,7 @@ namespace slua::parse
 		case '7':
 		case '8':
 		case '9':
-			basicRes.data = readNumeral(in,firstChar);
+			basicRes.data = readNumeral<ExprData<In>>(in,firstChar);
 			break;
 		case '"':
 		case '\'':

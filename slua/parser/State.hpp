@@ -319,6 +319,16 @@ namespace slua::parse
 	};
 
 
+	namespace ExprType
+	{
+		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
+
+		//u64,i128,u128, for slua only
+		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
+		struct NUMERAL_U128 { uint64_t lo = 0; uint64_t hi = 0; }; // "Numeral"
+		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
+	}
+
 
 	//Slua
 
@@ -421,12 +431,6 @@ namespace slua::parse
 
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlua>>};     // "unop exp"	//Inlined as opt prefix
 
-		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
-
-		//u64,i128,u128, for slua only
-		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
-		struct NUMERAL_U128 { uint64_t lo=0; uint64_t hi = 0;}; // "Numeral"
-		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
 
 		struct OPEN_RANGE { };					// "..."
 
