@@ -68,6 +68,7 @@ New Keywords {
 	drop   		(377k)		(40.3k)		Drop a value explicitly
 	enum   		(129k)		(8.5k)		Define a enum
 	impl   		(594k)		(23.8k)		Implement a trait
+	with		(..)		(..)		Impl with args
 	type		(1.9m)		(78.3k)		type alias
 	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module

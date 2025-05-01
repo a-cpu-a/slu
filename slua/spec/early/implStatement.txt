@@ -4,12 +4,15 @@
 
 New Syntax {
 	
+	implArg ::= typeExp Name
 	
-	stat @::= | OptExportPrefix "impl" [traitcombo] "for" (traitcombo | type) "{" {stat} "}"
+	stat @::= | OptExportPrefix "impl" ["with" "(" TypedParamList ")"] [traitExp "for"] (typeExp | traitExp) "{" {stat} "}"
 }
 
 New Keywords {
-	enum
+	impl
+	with
+	for
 }
 
 Impl Statement {
@@ -19,4 +22,10 @@ Impl Statement {
 	Inside impls, any code can use "Self" to refer to the type/trait-combo the impl is for.
 	
 	Impls allow you to define functions for other types (and trait combinations), in a less repetetive way.
+	
+	The arguments in the 'with' are inferred from the impl usage sites, and the uses of the args within the impl.
+	
+	The expressions inside the impl definition must be simple aliases, including variables,
+	and strong type functions, however, arbitrary functions are not allowed.
+	This is to make matching types to impl's easy and simple.
 }
