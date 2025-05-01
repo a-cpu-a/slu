@@ -110,89 +110,6 @@ namespace slua::parse
 	using slua::lang::ExportData;
 	using SubModPath = std::vector<std::string>;
 
-	struct BorrowLevel
-	{
-		std::vector<MpItmIdV<true>> lifetimes;
-		bool hasMut=false;//eventualy share too
-	};
-	struct GcPtrLevel
-	{
-		bool isPtr : 1 = true;// false -> gc
-		bool hasMut : 1 = false;
-	};
-	struct TypeSpecifiers
-	{
-		size_t derefCount = 0;
-		std::vector<BorrowLevel> borrows;
-		std::vector<GcPtrLevel> gcPtrLevels;
-	};
-
-	using TraitCombo = std::vector<ModPath>;
-	using Type = std::vector<struct TypeItem>;
-	
-	struct TupleItem
-	{
-		Type ty;
-		MpItmIdV<true> name;// empty -> no name
-		bool hasMut : 1 = false;
-	};
-
-	namespace TypeObjType
-	{
-		using COMPTIME_VAR_TYPE = ModPath;
-		struct SLICE_OR_ARRAY
-		{
-			Type ty;
-			ExpListV<true> size;//empty -> slice, else array
-		};
-		using TUPLE = std::vector<TupleItem>;
-		struct TRAIT_COMBO
-		{
-			TraitCombo traits;
-			bool isDyn = false;
-		};
-		using TYPE = Type;				//"(" type ")"
-	}
-	using TypeObj = std::variant<
-		TypeObjType::COMPTIME_VAR_TYPE,
-		TypeObjType::SLICE_OR_ARRAY,
-		TypeObjType::TUPLE,
-		TypeObjType::TRAIT_COMBO,
-		TypeObjType::TYPE>;
-	struct TypeItem
-	{
-		TypeSpecifiers prefix;
-		TypeObj obj;
-
-		TypeItem() = default;
-		TypeItem(const TypeItem&) = delete;
-		TypeItem(TypeItem&&) = default;
-		TypeItem& operator=(TypeItem&&) = default;
-	};
-
-
-	namespace BasicTypeObjType
-	{
-		using COMPTIME_VAR_TYPE = TypeObjType::COMPTIME_VAR_TYPE;
-		using TRAIT_COMBO = TypeObjType::TRAIT_COMBO;
-	}
-	using BasicTypeObj = std::variant<
-		BasicTypeObjType::COMPTIME_VAR_TYPE,
-		BasicTypeObjType::TRAIT_COMBO>;
-	struct BasicTypeItem
-	{
-		TypeSpecifiers prefix;
-		BasicTypeObj obj;
-	};
-	using BasicType = std::vector<BasicTypeItem>;
-	using BasicTypeOrPrefix = std::variant<BasicType,TypeSpecifiers>;
-
-	struct ErrType
-	{
-		std::optional<Type> val;
-		std::optional<Type> err;//If missing then ??, else ?
-		bool isErr = false;
-	};
 
 	// Common
 
@@ -244,42 +161,6 @@ namespace slua::parse
 	using Block = SelV<CfgT, BlockV>;
 
 
-	template<bool isSlua>
-	struct ParameterV
-	{
-		MpItmIdV<isSlua> name;
-	};
-
-	template<>
-	struct ParameterV<true> : ParameterV<false>
-	{
-		Type ty;
-	};
-
-	template<AnyCfgable CfgT>
-	using Parameter = SelV<CfgT, ParameterV>;
-
-	template<bool isSlua>
-	struct BaseFunctionV
-	{
-		std::vector<ParameterV<isSlua>> params;
-		BlockV<isSlua> block;
-		bool hasVarArgParam = false;// do params end with '...'
-	};
-
-	template<bool isSlua>
-	struct FunctionV : BaseFunctionV<isSlua>
-	{
-	};
-	template<>
-	struct FunctionV<true> : BaseFunctionV<true>
-	{
-		ErrType retType;
-		OptSafety safety = OptSafety::DEFAULT;
-	};
-
-	template<AnyCfgable CfgT>
-	using Function = SelV<CfgT, FunctionV>;
 
 	namespace ArgsType
 	{
@@ -399,6 +280,40 @@ namespace slua::parse
 		bool hasMut : 1 = false;
 	};
 	//Common
+
+	template<bool isSlua>
+	struct ParameterV
+	{
+		MpItmIdV<isSlua> name;
+	};
+	template<>
+	struct ParameterV<true> : ParameterV<false>
+	{
+		TypeExpr ty;
+	};
+	template<AnyCfgable CfgT>
+	using Parameter = SelV<CfgT, ParameterV>;
+
+	template<bool isSlua>
+	struct BaseFunctionV
+	{
+		std::vector<ParameterV<isSlua>> params;
+		BlockV<isSlua> block;
+		bool hasVarArgParam = false;// do params end with '...'
+	};
+
+	template<bool isSlua>
+	struct FunctionV : BaseFunctionV<isSlua>
+	{};
+	template<>
+	struct FunctionV<true> : BaseFunctionV<true>
+	{
+		TypeExpr retType;
+		OptSafety safety = OptSafety::DEFAULT;
+	};
+
+	template<AnyCfgable CfgT>
+	using Function = SelV<CfgT, FunctionV>;
 
 	namespace ExprType
 	{
