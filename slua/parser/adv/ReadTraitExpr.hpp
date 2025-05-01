@@ -31,7 +31,7 @@ namespace slua::parse
 		const char firstChar = in.peek();
 		
 		if (firstChar != '(' && !isValidNameStartChar(firstChar))
-			throw throwExpectedTraitExpr(in);
+			throwExpectedTraitExpr(in);
 
 		ret.traitCombo.emplace_back(parsePrefixExprVar<TraitExprItem, true,true>(in, false, firstChar));
 

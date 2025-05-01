@@ -76,6 +76,13 @@ namespace slua::parse
 		template<bool isSlua> struct EXPRv;	// "'(' exp ')'"
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
+	template<bool isSlua>
+	using LimPrefixExprV = std::variant<
+		LimPrefixExprType::VARv<isSlua>,
+		LimPrefixExprType::EXPRv<isSlua>
+	>;
+	template<AnyCfgable CfgT>
+	using LimPrefixExpr = SelV<CfgT, LimPrefixExprV>;
 
 	template<bool isSlua> struct ArgFuncCallV;
 	template<AnyCfgable CfgT> using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
@@ -304,16 +311,6 @@ namespace slua::parse
 		ArgsV<isSlua> args;
 	};
 
-
-	template<bool isSlua>
-	using LimPrefixExprV = std::variant<
-		LimPrefixExprType::VARv<isSlua>,
-		LimPrefixExprType::EXPRv<isSlua>
-	>;
-
-	template<AnyCfgable CfgT>
-	using LimPrefixExpr = SelV<CfgT, LimPrefixExprV>;
-
 	template<bool isSlua>
 	struct FuncCallV
 	{
@@ -327,7 +324,7 @@ namespace slua::parse
 
 	namespace TraitExprItemType
 	{
-		using LIM_PREFIX_EXP = LimPrefixExprV<true>;
+		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExprV<true>>;
 		using FUNC_CALL = FuncCallV<true>;
 	}
 	using TraitExprItem = std::variant<
@@ -344,7 +341,7 @@ namespace slua::parse
 	{
 		using ERR_INFERR = std::monostate;
 
-		using LIM_PREFIX_EXP = LimPrefixExprV<true>;
+		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExprV<true>>;
 		using FUNC_CALL = FuncCallV<true>;
 
 		struct MULTI_OP

@@ -20,6 +20,7 @@
 #include <slua/parser/adv/ReadNumeral.hpp>
 #include <slua/parser/basic/ReadOperators.hpp>
 #include <slua/parser/errors/CharErrors.h>
+#include <slua/parser/adv/ReadTraitExpr.hpp>
 
 namespace slua::parse
 {
@@ -120,8 +121,7 @@ namespace slua::parse
 			{
 				if (checkReadTextToken(in, "dyn"))
 				{
-					//TODO
-					//basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::ERR_INFERR{},basicRes.place });
+					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::DYN{readTraitExpr(in)} });
 					break;
 				}
 			}
@@ -130,7 +130,10 @@ namespace slua::parse
 			if constexpr (in.settings() & sluaSyn)
 			{
 				if (checkReadTextToken(in, "impl"))
-					;//TODO
+				{
+					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::IMPL{readTraitExpr(in)} });
+					break;
+				}
 			}
 			break;
 		case 'f':
