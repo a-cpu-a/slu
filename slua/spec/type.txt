@@ -59,7 +59,7 @@ New Syntax {
 		| functioncallBasicArgs
 		| traitExp "+" traitExp
 	
-	typeExpNoMut ::= ‘(’ exp ‘)’ 
+	typeExp ::= ‘(’ exp ‘)’ 
 		| var
 		| functioncallBasicArgs
 		| typeExpNoMut binop typeExp
@@ -71,9 +71,9 @@ New Syntax {
 		| Numeral
 		| "?"
 		| "//" typeExp
-	typeExp ::= "mut" typeExpNoMut
+	typeExpMut ::= ["mut"] typeExp
 	
-	exp @::= | typeExp | traitExp | borrowLifetime
+	exp @::= | typeExpMut | traitExp | borrowLifetime
 }
 
 New Keywords {
