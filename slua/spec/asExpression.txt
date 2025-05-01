@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	exp @::= | exp "as" type
+	exp @::= | exp "as" typeExp
 }
 
 New Keywords {
@@ -13,7 +13,7 @@ New Keywords {
 
 As Expression {
 	
-	No-op, lets you convert a type into another type.
+	Cheap, lets you convert a type into another type.
 	
 	(111 as u16)
 	
