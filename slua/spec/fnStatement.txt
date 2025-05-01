@@ -6,7 +6,7 @@ New Syntax {
 
 	PreFn ::=
 	
-	stat @::= | OptExportPrefix [safety] PreFn ["type"] "fn" Name "(" TypedParamList ")" ["->" errType] statOrRet
+	stat @::= | OptExportPrefix [safety] PreFn ["type"] "fn" Name "(" [TypedParamList] ")" ["->" errType] statOrRet
 }
 
 New Keywords {

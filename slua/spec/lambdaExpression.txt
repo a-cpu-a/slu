@@ -1,0 +1,48 @@
+#
+# Dependencies: Lua, type, exportPrefix, safety
+#
+
+New Syntax {
+	
+	exp @::= | [safety] PreFn "|" [TypedParamList] "|" ["->" errType "=>"] exp
+	exp @::= | [safety] PreFn "|" [TypedParamList] "|" "->" errType "do" statOrRet
+}
+
+Function Expression {
+	
+	Creates a lambda function.
+	
+	Same rules for typing as normal fn statements.
+	
+	Examples:
+	```slua
+	let f = unsafe comptime || -> u8 => 42
+	let add = |i32 x, i32 y| -> i32 => x + y
+	let fact = |i32 n| -> i32 do {
+		if (n <= 1) {
+			return 1
+		}
+		return n * fact(n - 1)
+	}
+	let square = |x| x * x
+	
+	let divide = unsafe |i32 x, i32 y| -> i32 => x / y
+	
+	let genl = || -> i32 => (1...100).len() + 1
+	let typeDoLambda = || -> u8 do {
+		return (1...100).len()+1;
+	}
+	
+	let doLambda = || do {
+		return "Hello world";
+	}
+	
+	```
+	
+	Implementation {
+		Could be a function pointer,
+		or a pointer plus some captured data.
+		
+		In lua, this can be the equivelant function, or could also be a table with a special metatable.
+	}
+}
