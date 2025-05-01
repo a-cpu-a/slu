@@ -89,7 +89,7 @@ namespace slua::parse
 		case '7':
 		case '8':
 		case '9':
-			ret.data = readNumeral<TypeExpr,false>(in, firstChar);
+			ret.data = readNumeral<TypeExprData,false>(in, firstChar);
 			break;
 		default:
 			break;
@@ -100,7 +100,7 @@ namespace slua::parse
 			if (firstChar != '(' && !isValidNameStartChar(firstChar))
 				throwExpectedTypeExpr(in);
 
-			ret.data = parsePrefixExprVar<TypeExpr, true,true>(in, false, firstChar);
+			ret.data = parsePrefixExprVar<TypeExprData, true,true>(in, false, firstChar);
 		}
 
 		if (!readBiOp)return ret;
