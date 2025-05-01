@@ -35,21 +35,18 @@ namespace slua::parse
 
 		ret.traitCombo.emplace_back(parsePrefixExprVar<TraitExprItem, true,true>(in, false, firstChar));
 
-		while (true)
+		skipSpace(in);
+
+		while (in)
 		{
-			skipSpace(in);
-
-			if (!in)
-				break;//File ended
-
 			if (in.peek() != '+')
 				break;
 			in.skip();
 
 			ret.traitCombo.emplace_back(parsePrefixExprVar<TraitExprItem, true, true>(in, false, firstChar));
 
+			skipSpace(in);
 		}
-
 		return ret;
 	}
 }
