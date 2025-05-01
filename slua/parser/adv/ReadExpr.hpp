@@ -21,6 +21,7 @@
 #include <slua/parser/basic/ReadOperators.hpp>
 #include <slua/parser/errors/CharErrors.h>
 #include <slua/parser/adv/ReadTraitExpr.hpp>
+#include <slua/parser/adv/ReadTypeExpr.hpp>
 
 namespace slua::parse
 {
@@ -109,9 +110,9 @@ namespace slua::parse
 		case 'm':
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (checkReadTextToken(in, "mut"))
+				if (checkTextToken(in, "mut"))
 				{
-					//TODO
+					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
 					break;
 				}
 			}
