@@ -52,6 +52,8 @@ New Syntax {
 	
 	unop @::= | "*" | "&" ["mut"] | "*" ("mut" | "const") | "alloc"
 	
+	--Note: 'var' inside traitExp,typeExpNoMut doesnt allow "" and {} style args
+	
 	traitExp ::= ‘(’ exp ‘)’
 		| var
 		| functioncallBasicArgs
