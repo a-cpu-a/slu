@@ -12,7 +12,7 @@ New Syntax {
 		| basicTypeExp
 	
 	
-	matchPatItemRanged ::= "..." matchPatItem | matchPatItem "..." matchPatItem | matchPatItem | matchPatItem "..." | "..."
+	matchPatItemRanged ::= matchPatItem "..." matchPatItem | matchPatItem | matchPatItem "..." | "..."
 	
 	
 	matchPatBinOp ::= "or"
