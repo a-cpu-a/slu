@@ -49,9 +49,9 @@ New Syntax {
 	explist ::= exp {‘,’ exp}
 
 	exp ::=  ‘nil’ | ‘false’ | ‘true’ | Numeral | LiteralString | 
-		 prefixexp | tableconstructor | exp binop exp | unop exp 
+		 prefixexp | functioncall | tableconstructor | exp binop exp | unop exp 
 
-	prefixexp ::= var | functioncall | ‘(’ exp ‘)’
+	prefixexp ::= var | ‘(’ exp ‘)’
 	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
 	
 	prefixexpBfuncArgs ::= var | functioncallBasicArgs | ‘(’ exp ‘)’
