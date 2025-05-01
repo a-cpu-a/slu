@@ -19,10 +19,10 @@
 
 namespace slua::parse
 {
-#define _Slua_LUA_KWS \
-	"and", "break", "do", "else", "elseif", "end", "false", "for", "function", \
-	"goto", "if", "in", "local", "nil", "not", "or", "repeat", "return", \
-	"then", "true", "until", "while"
+#define _Slua_COMMON_KWS \
+	"and", "break", "do", "else", "elseif", "end", "for", "function", \
+	"goto", "if", "in", "local", "not", "or", "repeat", "return", \
+	"then", "until", "while"
 #define _Slua_KWS \
 	/* freedom */\
 	"continue", "where", "reloc", "loop", "raw", "ref", \
@@ -39,20 +39,21 @@ namespace slua::parse
 	"axiom","unsafe","struct", "module", "extern", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
-		_Slua_LUA_KWS
+		"false", "nil", _Slua_COMMON_KWS, "true"
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA = {
-		_Slua_LUA_KWS,
+		_Slua_COMMON_KWS,
 		_Slua_KWS,
 
 		//Conditional
 		"self", "Self", "crate",
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA_MP_START = {
-		_Slua_LUA_KWS,
+		_Slua_COMMON_KWS,
 		_Slua_KWS
 	};
 #undef _LUA_KWS
+#undef _Slua_COMMON_KWS
 
 	template<bool forMpStart>
 	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)

@@ -137,8 +137,9 @@ namespace slua::parse
 			}
 			break;
 		case 'f':
+			if constexpr (!(in.settings() & sluaSyn))
+				if (checkReadTextToken(in, "false")) { basicRes.data = ExprType::FALSE(); break; }
 
-			if (checkReadTextToken(in, "false")) { basicRes.data = ExprType::FALSE(); break; }
 			if (checkReadTextToken(in, "function")) 
 			{
 				const Position place = in.getLoc();
@@ -168,6 +169,8 @@ namespace slua::parse
 			}
 			break;
 		case 'n':
+			if constexpr (in.settings() & sluaSyn)break;
+
 			if (checkReadTextToken(in, "nil"))
 			{
 				basicRes.data = ExprType::NIL();
@@ -176,6 +179,8 @@ namespace slua::parse
 			}
 			break;
 		case 't':
+			if constexpr (in.settings() & sluaSyn)break;
+
 			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
 		case '.':
