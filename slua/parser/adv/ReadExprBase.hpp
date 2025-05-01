@@ -150,7 +150,7 @@ namespace slua::parse
 		auto limP = LimPrefixExprType::VAR<In>(std::move(varData.back()));
 		return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
 	}
-	template<class T,bool FOR_EXPR, AnyInput In>
+	template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
 	inline T parsePrefixExprVar(In& in, const bool allowVarArg, char firstChar)
 	{
 		/*
@@ -168,7 +168,7 @@ namespace slua::parse
 		
 		varData.emplace_back();
 
-		if constexpr (!FOR_EXPR && (in.settings() & sluaSyn))
+		if constexpr ((!FOR_EXPR || BASIC_ARGS) && (in.settings() & sluaSyn))
 		{
 			if (firstChar == '*')
 			{
@@ -274,6 +274,9 @@ namespace slua::parse
 				}
 				[[fallthrough]];
 			case '{':
+				if constexpr (BASIC_ARGS)
+					goto exit;
+				[[fallthrough]];
 			case '('://Funccall
 				funcCallData.emplace_back(in.genData.resolveEmpty(), readArgs(in, allowVarArg));
 				break;
