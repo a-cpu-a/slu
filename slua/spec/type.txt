@@ -19,13 +19,6 @@ New Syntax {
 	
 	traitComboType ::= ("dyn" | "impl") traitcombo
 	
-	tableTupleType ::= "{" mutableNambeableTypeList "}"
-	arraySliceType ::= "[" type "]"
-	optimalArrayType ::= "[" type arraySizer "]"
-	
-	
-	arraySizer ::= ";" comptimeExp
-
 	typePrefix ::= {"*"} {"&" [borrowLifetime] ["mut"]} {("*" ("mut" | "const")) | ("#" ["mut"])}
 	
 	borrowLifetime ::= "/" Name {"/" Name}
