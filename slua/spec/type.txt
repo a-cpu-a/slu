@@ -7,8 +7,6 @@ New Syntax {
 	trait ::= modpath
 	traitcombo ::= trait {"+" trait}
 	
-	errType ::= ([type] "//" type) | ([type] "?" ) | type
-	
 	type ::= typeItemlist
 	mutableNambeableTypeList ::= ["mut"] type [Name] {"," ["mut"] type [Name]}
 

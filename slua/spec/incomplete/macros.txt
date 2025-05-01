@@ -132,7 +132,7 @@ New Syntax {
 	
 	PreMacro ::=
 	
-	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["$"] macroParamsBlock ["->" errType] "{" block "}"
+	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["$"] macroParamsBlock ["->" typeExp] "{" block "}"
 	
 }
 
