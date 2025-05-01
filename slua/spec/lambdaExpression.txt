@@ -4,8 +4,8 @@
 
 New Syntax {
 	
-	exp @::= | [safety] PreFn "|" [TypedParamList] "|" ["->" errType "=>"] exp
-	exp @::= | [safety] PreFn "|" [TypedParamList] "|" "->" errType statOrRetNsc
+	exp @::= | [safety] PreFn "|" [TypedParamList] "|" ["->" typeExp "=>"] exp
+	exp @::= | [safety] PreFn "|" [TypedParamList] "|" "->" typeExp statOrRetNsc
 }
 
 Function Expression {
@@ -14,7 +14,7 @@ Function Expression {
 	
 	Same rules for typing as normal fn statements.
 	
-	Some statement types dont work with `-> errType` syntax. (expr func call `(100).xx()`, deref assign `*x = 4`)
+	Some statement types dont work with `-> typeExp` syntax. (expr func call `(100).xx()`, deref assign `*x = 4`)
 	
 	Examples:
 	```slua
@@ -35,7 +35,7 @@ Function Expression {
 		return (1...100).len()+1;
 	}
 	
-	let doLambda = || do {
+	let statLambda = || do {
 		return "Hello world";
 	}
 	

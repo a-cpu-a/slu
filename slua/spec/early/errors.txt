@@ -9,7 +9,7 @@ New Syntax {
 	tryItem ::= "catch" pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | matchElseItem | ";"
 	
-	tryExp ::= "try" "(" exp ")" ["->" errType] "{" {tryStat} "}"
+	tryExp ::= "try" "(" exp ")" ["->" typeExp] "{" {tryStat} "}"
 	
 	exp @::= | tryExp
 	stat @::= | tryExp
@@ -38,10 +38,10 @@ Errors {
 	The error types also have some special functions, defined by the compiler {
 		get(self)->Value 						--Panics, if it is a error, otherwise returns the value.
 		getOr(self,Value default)->Value		--Returns value, or the default value
-		wrapError(self,ErrWrapFunc<E,Err> op)->Value?E	--Changes the error, (only if it is an error)
+		wrapError(self,ErrWrapFunc(E,Err) op)->Value?E	--Changes the error, (only if it is an error)
 		
-		ok(self)->Option<Value>					--Returns Some(x), if there is no error, else nil.
-		err(self)->Option<Err>					--Returns Some(x), if there is a error, else nil.
+		ok(self)->Option(Value)					--Returns Some(x), if there is no error, else nil.
+		err(self)->Option(Err)					--Returns Some(x), if there is a error, else nil.
 	}
 	
 	Postfix "?" unary operator passes the error upwards.
