@@ -4,16 +4,16 @@
 
 New Syntax {
 	
-	matchPatItem ::= ["#" | "not" | "-" | "~"] "(" comptimeExp ")" | ["-" | "~"] Numeral | ["#"] StringLiteral | ["not"] false | ["not"] true | ["not"] nil | type
+	matchPatItem ::= ["#" | "not" | "-" | "~"] "(" comptimeExp ")" | ["-" | "~"] Numeral | ["#"] StringLiteral | basicTypeExp
 	
 	
-	matchPatItemRanged ::= "..." matchPatItem | matchPatItem "..." matchPatItem | matchPatItem | matchPatItem "..."
+	matchPatItemRanged ::= "..." matchPatItem | matchPatItem "..." matchPatItem | matchPatItem | matchPatItem "..." | "..."
 	
 	
 	matchPatBinOp ::= "or"
 	sPat ::= matchPatItemRanged {matchPatBinOp matchPatItemRanged}
 	
-	destrSpec ::= (["mut"] basicTypeOrTypePrefix) | ("as" ["mut"] type)
+	destrSpec ::= (["mut"] basicTypeOrTypePrefix) | ("as" typeExpMut)
 	
 	
 	destrField ::= "[" tupleableName "]" pat
@@ -29,9 +29,8 @@ New Syntax {
 	
 	dPat ::= destrSpec "{" destrFieldList "}" |
 		destrSpec "{" destrTupFieldList "}" |
-		destrSpec "[" destrTupFieldList "]" |
 		
-		"of" ["mut"] type "[" destrTupFieldList "]" |
+		"of" typeExpMut "[" destrTupFieldList "]" |
 		
 		destrSpec Name ["=" ndPat] |
 		"_"
@@ -42,9 +41,8 @@ New Syntax {
 	
 	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}" |
 		destrSpec "{" uncondDestrTupFieldList "}" |
-		destrSpec "[" uncondDestrTupFieldList "]" |
 		
-		"of" ["mut"] type "[" uncondDestrTupFieldList "]" |
+		"of" typeExpMut "[" uncondDestrTupFieldList "]" |
 		
 		destrSpec Name |
 		"_"

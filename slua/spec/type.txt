@@ -12,11 +12,6 @@ New Syntax {
 	type ::= typeItemlist
 	mutableNambeableTypeList ::= ["mut"] type [Name] {"," ["mut"] type [Name]}
 
-	typeItemlist ::= typeItem { "|" typeItem }
-	typeItem ::= typePrefix typeObj
-	
-	typeObj ::= comptimeVarType | arraySliceType | optimalArrayType | tableTupleType | traitComboType | "(" type ")"
-	
 	basicTypeObj ::= comptimeVarType | traitComboType
 	basicTypeItm ::= typePrefix basicTypeObj
 	basicType ::= basicTypeItm {"|" basicTypeItm}
@@ -45,29 +40,34 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	typeunop ::= "*" | "&" ["mut"] | "*" ("mut" | "const")
+	--TODO: parse borrow lifetimes here:
+	typeunop ::= "*" | "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
 	
 	unop @::= | typeunop | "alloc"
 	
-	--Note: 'var' inside traitExp,typeExpNoMut doesnt allow "" and {} style args
+	--Note: 'var' inside traitExp,typeExp doesnt allow "" and {} style args
 	
 	traitExp ::= ‘(’ exp ‘)’
 		| var
 		| functioncallBasicArgs
 		| traitExp "+" traitExp
 	
-	typeExp ::= ‘(’ exp ‘)’ 
-		| var
+	basicTypeExp ::= var
 		| functioncallBasicArgs
-		| typeExpNoMut binop typeExpNoMut
-		| typeunop typeExpNoMut
-		| tableconstructor
+		| typeExp "//" typeExp
+		| typeExp "|" typeExp
 		| "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
-		| Numeral
 		| "?"
 		| "//" typeExp
+	
+	typeExp ::= ‘(’ exp ‘)’ 
+		| basicTypeExp
+		| typeExp binop typeExp
+		| {typeunop} typeExp
+		| tableconstructor
+		| ["-"] Numeral
 	typeExpMutBase ::= ["mut"] typeExp
 	typeExpMut ::= typeExpMutBase
 		| "//" typeExpMutBase
