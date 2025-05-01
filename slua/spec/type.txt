@@ -57,7 +57,7 @@ New Syntax {
 	typeExp ::= ‘(’ exp ‘)’ 
 		| var
 		| functioncallBasicArgs
-		| typeExpNoMut binop typeExp
+		| typeExpNoMut binop typeExpNoMut
 		| typeunop typeExpNoMut
 		| tableconstructor
 		| "dyn" traitExp
@@ -66,7 +66,10 @@ New Syntax {
 		| Numeral
 		| "?"
 		| "//" typeExp
-	typeExpMut ::= ["mut"] typeExp
+	typeExpMutBase ::= ["mut"] typeExp
+	typeExpMut ::= typeExpMutBase
+		| "//" typeExpMutBase
+		| typeExpMut binop typeExpMut
 	
 	exp @::= | typeExpMut | traitExp | borrowLifetime
 }
