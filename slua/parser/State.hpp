@@ -87,6 +87,7 @@ namespace slua::parse
 	using ExpListV = std::vector<ExpressionV<isSlua>>;
 	template<AnyCfgable CfgT> using ExpList = SelV<CfgT, ExpListV>;
 
+	struct TypeExpr;
 
 	// Slua
 
@@ -350,8 +351,8 @@ namespace slua::parse
 		using VAR = std::unique_ptr<struct VarV<true>>;
 		struct MULTI_OP
 		{
-			std::unique_ptr<struct TypeExpr> first;
-			std::vector<std::pair<BinOpType, struct TypeExpr>> extra;
+			std::unique_ptr<TypeExpr> first;
+			std::vector<std::pair<BinOpType, TypeExpr>> extra;
 		};
 		using TABLE_CONSTRUCTOR = TableConstructorV<true>;
 
@@ -363,10 +364,10 @@ namespace slua::parse
 		{
 			TraitExpr expr;
 		};
-		using SLICER = std::unique_ptr<struct TypeExpr>;
+		using SLICER = std::unique_ptr<TypeExpr>;
 		struct ERR
 		{
-			std::unique_ptr<struct TypeExpr> err;
+			std::unique_ptr<TypeExpr> err;
 		};
 	}
 	using TypeExprData = std::variant<
@@ -435,7 +436,7 @@ namespace slua::parse
 
 		struct OPEN_RANGE { };					// "..."
 
-		using LIFETIME = std::string;	// " '/' var"
+		using LIFETIME = std::vector<MpItmIdV<true>>;	// " '/' var" {'/' var"}
 		using TYPE_EXPR = TypeExpr;
 		using TRAIT_EXPR = TraitExpr;
 

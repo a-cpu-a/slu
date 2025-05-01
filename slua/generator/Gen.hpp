@@ -273,7 +273,13 @@ namespace slua::parse
 			out.add("...");
 		},
 		varcase(const ExprType::LIFETIME&) {
-			out.add("/").add(var);
+			if constexpr (out.settings() & sluaSyn)
+			{
+				for (MpItmIdV<true> i : var)
+				{
+					out.add("/").add(out.db.asSv(i));
+				}
+			}
 		},
 		varcase(const ExprType::TYPE_EXPR&) {
 			//TODO
