@@ -327,14 +327,12 @@ namespace slua::parse
 
 	namespace TraitExprItemType
 	{
-		using EXPR = struct ExpressionV<true>;
-		using FUNC_CALL = struct FuncCallV<true>;
-		using VAR = VarV<true>;
+		using LIM_PREFIX_EXP = LimPrefixExprV<true>;
+		using FUNC_CALL = FuncCallV<true>;
 	}
 	using TraitExprItem = std::variant<
-		TraitExprItemType::EXPR,
-		TraitExprItemType::FUNC_CALL,
-		TraitExprItemType::VAR
+		TraitExprItemType::LIM_PREFIX_EXP,
+		TraitExprItemType::FUNC_CALL
 	>;
 	struct TraitExpr
 	{
@@ -346,9 +344,9 @@ namespace slua::parse
 	{
 		using ERR_INFERR = std::monostate;
 
-		using EXPR = std::unique_ptr<struct ExpressionV<true>>;
-		using FUNC_CALL = struct FuncCallV<true>;
-		using VAR = std::unique_ptr<struct VarV<true>>;
+		using LIM_PREFIX_EXP = LimPrefixExprV<true>;
+		using FUNC_CALL = FuncCallV<true>;
+
 		struct MULTI_OP
 		{
 			std::unique_ptr<TypeExpr> first;
@@ -372,9 +370,8 @@ namespace slua::parse
 	}
 	using TypeExprData = std::variant<
 		TypeExprDataType::ERR_INFERR,
-		TypeExprDataType::EXPR,
+		TypeExprDataType::LIM_PREFIX_EXP,
 		TypeExprDataType::FUNC_CALL,
-		TypeExprDataType::VAR,
 		TypeExprDataType::MULTI_OP,
 		TypeExprDataType::TABLE_CONSTRUCTOR,
 		TypeExprDataType::DYN,
