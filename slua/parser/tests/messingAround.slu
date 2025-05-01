@@ -158,11 +158,11 @@ v_test.add(v_test[0]); --Error, self and arg are of the same object/lifetime thi
 
 let Z_test = Some{3}; --Option<integer>
 
---Z_test is Option<integer>::Some;
+--Z_test is Option(integer)::Some;
 
 Z_test = None;
 
---Z_test is Option<integer>::None;
+--Z_test is Option(integer)::None;
 
 
 mod self;
