@@ -359,7 +359,7 @@ namespace slua::parse
 		{
 			TraitExpr expr;
 		};
-		using SLICER = std::unique_ptr<TypeExpr>;
+		using SLICER = std::unique_ptr<ExpressionV<true>>;
 		struct ERR
 		{
 			std::unique_ptr<TypeExpr> err;

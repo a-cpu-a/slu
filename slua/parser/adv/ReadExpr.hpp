@@ -230,14 +230,11 @@ namespace slua::parse
 					}
 					else
 					{//[x]
-						/*ExprType::ARRAY_CONSTRUCTOR_LIST<In> res;
-						res.values.emplace_back(std::move(firstItem));
-						while (in.peek() == ',')
-						{
-							res.values.emplace_back(readExpr(in, allowVarArg));
-						}
+
+						basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::SLICER{
+							std::make_unique<Expression<In>>(std::move(firstItem)
+						)}});
 						requireToken(in, "]");
-						basicRes.data = std::move(res);*/
 					}
 				}
 			}

@@ -60,7 +60,7 @@ New Syntax {
 		| tableconstructor
 		| "dyn" traitExp
 		| "impl" traitExp
-		| "[" typeExp "]"
+		| "[" exp "]"
 		| Numeral
 		| "?"
 		| "//" typeExp
