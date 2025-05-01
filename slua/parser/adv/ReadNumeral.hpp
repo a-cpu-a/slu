@@ -134,8 +134,8 @@ namespace slua::parse
 		HexDigit	::= Digit | a | b | c | d | e | f | A | B | C | D | E | F
 	*/
 
-	template<AnyInput In>
-	inline ExprData<In> readNumeralExtra(In& in, const bool hex, const bool decPart, const char firstChar)
+	template<class DataT,AnyInput In>
+	inline DataT readNumeralExtra(In& in, const bool hex, const bool decPart, const char firstChar)
 	{
 		std::string number;
 		number += firstChar;
@@ -259,15 +259,15 @@ namespace slua::parse
 		}
 	}
 
-	template<AnyInput In>
-	inline ExprData<In> readNumeral(In& in, const char firstChar)
+	template<class DataT, AnyInput In>
+	inline DataT readNumeral(In& in, const char firstChar)
 	{
 		in.skip();
 
 		if (firstChar == '.')
 		{
 			//must be non-hex, float(or must it..?)
-			return readNumeralExtra(in, false, true, firstChar);
+			return readNumeralExtra<DataT>(in, false, true, firstChar);
 		}
 		if (!in)
 		{//The end of the stream!
@@ -280,6 +280,6 @@ namespace slua::parse
 			hex = true;
 			in.skip();//skip 'x'
 		}
-		return readNumeralExtra(in,hex,false,firstChar);
+		return readNumeralExtra<DataT>(in,hex,false,firstChar);
 	}
 }
