@@ -95,21 +95,28 @@ namespace slua::parse
 	{
 		throw UnexpectedCharacterError(
 			"Cant assign to " LC_function " call, found "
-			LUACC_SINGLE_STRING("=")
+			LUACC_SINGLE_STRING("=") " at"
 			+ errorLocStr(in));
 	}
 	inline void throwExprAssignment(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(
 			"Cant assign to expression, found "
-			LUACC_SINGLE_STRING("=")
+			LUACC_SINGLE_STRING("=") " at"
 			+ errorLocStr(in));
 	}
 	inline void reportIntTooBig(AnyInput auto& in,const std::string_view str)
 	{
 		in.handleError(std::format(
 			LC_Integer " is too big, "
-			LUACC_SINGLE_STRING("{}")
+			LUACC_SINGLE_STRING("{}") " at"
+			"{}", str, errorLocStr(in)));
+	}
+	inline void throwUnexpectedFloat(AnyInput auto& in,const std::string_view str)
+	{
+		in.handleError(std::format(
+			"Expected " LC_integer ", found "
+			LUACC_SINGLE_STRING("{}") " at"
 			"{}", str, errorLocStr(in)));
 	}
 }

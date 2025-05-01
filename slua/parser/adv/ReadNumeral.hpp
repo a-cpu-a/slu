@@ -134,7 +134,7 @@ namespace slua::parse
 		HexDigit	::= Digit | a | b | c | d | e | f | A | B | C | D | E | F
 	*/
 
-	template<class DataT,AnyInput In>
+	template<class DataT, bool ALLOW_FLOAT,AnyInput In>
 	inline DataT readNumeralExtra(In& in, const bool hex, const bool decPart, const char firstChar)
 	{
 		std::string number;
@@ -205,11 +205,15 @@ namespace slua::parse
 		try {
 		if (isFloat)
 		{
-			if (hex)
+			if constexpr (ALLOW_FLOAT)
 			{
-				number = "0x" + number;
+				if (hex)
+				{
+					number = "0x" + number;
+				}
+				return ExprType::NUMERAL(std::stod(number));
 			}
-			return ExprType::NUMERAL(std::stod(number));
+			throwUnexpectedFloat(in, number);
 		}
 		else
 		{
@@ -241,14 +245,17 @@ namespace slua::parse
 			{
 				if constexpr (in.settings() & noIntOverflow)
 					reportIntTooBig(in, number);
-
-				return ExprType::NUMERAL(std::stod(number));
+				if constexpr(ALLOW_FLOAT)
+					return ExprType::NUMERAL(std::stod(number));
+				throwUnexpectedFloat(in, number);
 			}
 		}
 		}
 		catch (const std::out_of_range&)
 		{
-			return ExprType::NUMERAL(INFINITY);//Always positive, since negative is handled by un-ops, in expressions
+			if constexpr (ALLOW_FLOAT)
+				return ExprType::NUMERAL(INFINITY);//Always positive, since negative is handled by un-ops, in expressions
+			throwUnexpectedFloat(in, number);
 		}
 		catch (const std::exception&)
 		{
@@ -259,7 +266,7 @@ namespace slua::parse
 		}
 	}
 
-	template<class DataT, AnyInput In>
+	template<class DataT,bool ALLOW_FLOAT = true, AnyInput In>
 	inline DataT readNumeral(In& in, const char firstChar)
 	{
 		in.skip();
@@ -267,7 +274,7 @@ namespace slua::parse
 		if (firstChar == '.')
 		{
 			//must be non-hex, float(or must it..?)
-			return readNumeralExtra<DataT>(in, false, true, firstChar);
+			return readNumeralExtra<DataT, ALLOW_FLOAT>(in, false, true, firstChar);
 		}
 		if (!in)
 		{//The end of the stream!
@@ -280,6 +287,6 @@ namespace slua::parse
 			hex = true;
 			in.skip();//skip 'x'
 		}
-		return readNumeralExtra<DataT>(in,hex,false,firstChar);
+		return readNumeralExtra<DataT, ALLOW_FLOAT>(in,hex,false,firstChar);
 	}
 }

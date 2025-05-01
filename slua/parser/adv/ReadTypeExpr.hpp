@@ -89,7 +89,7 @@ namespace slua::parse
 		case '7':
 		case '8':
 		case '9':
-			ret.data = readNumeral<TypeExpr>(in, firstChar);
+			ret.data = readNumeral<TypeExpr,false>(in, firstChar);
 			break;
 		default:
 			break;
