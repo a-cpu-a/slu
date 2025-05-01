@@ -252,10 +252,12 @@ namespace slua::parse
 			break;
 		}
 
-		if (!isNilIntentional && std::holds_alternative<ExprType::NIL>(basicRes.data)
-			&&(firstChar=='(' || isValidNameStartChar(firstChar))
-			)
+		if (!isNilIntentional
+			&& std::holds_alternative<ExprType::NIL>(basicRes.data))
 		{//Prefix expr! or func-call
+
+			if (firstChar != '(' && !isValidNameStartChar(firstChar))
+				throwExpectedExpr(in);
 
 			basicRes.data = parsePrefixExprVar<ExprData<In>,true>(in,allowVarArg, firstChar);
 		}
