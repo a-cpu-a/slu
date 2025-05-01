@@ -93,7 +93,12 @@ namespace slua::parse
 		case '/':
 			if constexpr (in.settings() & sluaSyn)
 			{
-				//TODO: // -> err type
+				if (in.peekAt(1) == '/') // '//'
+				{
+					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
+					break;
+				}
+
 				ExprType::LIFETIME res;
 
 				do
