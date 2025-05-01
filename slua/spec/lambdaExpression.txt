@@ -5,7 +5,7 @@
 New Syntax {
 	
 	exp @::= | [safety] PreFn "|" [TypedParamList] "|" ["->" errType "=>"] exp
-	exp @::= | [safety] PreFn "|" [TypedParamList] "|" "->" errType "do" statOrRet
+	exp @::= | [safety] PreFn "|" [TypedParamList] "|" "->" errType statOrRetNsc
 }
 
 Function Expression {
@@ -14,11 +14,13 @@ Function Expression {
 	
 	Same rules for typing as normal fn statements.
 	
+	Some statement types dont work with `-> errType` syntax. (expr func call `(100).xx()`, deref assign `*x = 4`)
+	
 	Examples:
 	```slua
 	let f = unsafe comptime || -> u8 => 42
 	let add = |i32 x, i32 y| -> i32 => x + y
-	let fact = |i32 n| -> i32 do {
+	let fact = |i32 n| -> i32 {
 		if (n <= 1) {
 			return 1
 		}
@@ -29,7 +31,7 @@ Function Expression {
 	let divide = unsafe |i32 x, i32 y| -> i32 => x / y
 	
 	let genl = || -> i32 => (1...100).len() + 1
-	let typeDoLambda = || -> u8 do {
+	let typeDoLambda = || -> u8 {
 		return (1...100).len()+1;
 	}
 	
