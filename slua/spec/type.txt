@@ -7,6 +7,8 @@ New Syntax {
 	trait ::= modpath
 	traitcombo ::= trait {"+" trait}
 	
+	--TODO: container field
+	--TODO: destr/match pat
 	type ::= typeItemlist
 	mutableNambeableTypeList ::= ["mut"] type [Name] {"," ["mut"] type [Name]}
 
@@ -76,6 +78,7 @@ New Syntax {
 
 New Keywords {
 	const
+	mut
 	
 	void
 	bool
