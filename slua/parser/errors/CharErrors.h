@@ -20,6 +20,14 @@ namespace slua::parse
 			+ errorLocStr(in)
 		);
 	}
+	inline void throwExpectedTraitExpr(AnyInput auto& in)
+	{
+		throw UnexpectedCharacterError(std::format(
+			"Expected trait expression at"
+			"{}"
+			, errorLocStr(in)
+		));
+	}
 	inline void throwSpaceMissingBeforeString(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
