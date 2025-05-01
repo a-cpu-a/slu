@@ -54,12 +54,12 @@ New Syntax {
 	
 	traitExp ::= ‘(’ exp ‘)’
 		| var
-		| functioncall 
+		| functioncallBasicArgs
 		| traitExp "+" traitExp
 	
 	typeExpNoMut ::= ‘(’ exp ‘)’ 
 		| var
-		| functioncall 
+		| functioncallBasicArgs
 		| typeExpNoMut binop typeExp
 		| unop typeExpNoMut
 		| tableconstructor

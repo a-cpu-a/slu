@@ -31,7 +31,8 @@ New Syntax {
 
 	basicstatOrRet ::= retstat | basicstat
 	statOrRet ::= (basicstatOrRet ‘;’) | ‘{’ block ‘}’
-	statOrRetOsc ::= (basicstatOrRet [‘;’]) | ‘{’ block ‘}’
+	statOrRetNsc ::= basicstatOrRet | ‘{’ block ‘}’
+	statOrRetOsc ::= statOrRet | statOrRetNsc
 
 	label ::= ‘:::’ Name ‘:’
 
@@ -51,10 +52,13 @@ New Syntax {
 		 prefixexp | tableconstructor | exp binop exp | unop exp 
 
 	prefixexp ::= var | functioncall | ‘(’ exp ‘)’
-
 	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
+	
+	prefixexpBfuncArgs ::= var | functioncallBasicArgs | ‘(’ exp ‘)’
+	functioncallBasicArgs ::=  prefixexpBfuncArgs basicargs | prefixexpBfuncArgs ‘:’ Name basicargs 
 
-	args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString 
+	basicargs ::=  ‘(’ [explist] ‘)’
+	args ::=  basicargs | tableconstructor | LiteralString 
 
 	tableconstructor ::= ‘{’ [fieldlist] ‘}’
 
