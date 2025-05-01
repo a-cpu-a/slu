@@ -26,7 +26,6 @@
 #include "adv/ReadStringLiteral.hpp"
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"
-#include "adv/ReadType.hpp"
 #include "errors/KwErrors.h"
 
 
@@ -160,7 +159,7 @@ namespace slua::parse
 		if constexpr (in.settings() & sluaSyn)
 		{
 			if (checkReadToken(in,"->"))
-				ret.retType = readErrType(in);
+				ret.retType = readTypeExpr(in,false);
 
 			ret.block = readDoOrStatOrRet<false>(in, ret.hasVarArgParam);
 		}
