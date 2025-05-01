@@ -33,7 +33,7 @@ Order of Operations {
 	+	-
 	% (Not the same as lua, modulus is bellow / * //)
 	*	/	//
-	unary operators (!	#	-	~	&	&mut	*	*mut	*const)
+	unary operators (!	#	-	~	&	&mut	*	*mut	*const	 mut)
 	^
 	?
 	
