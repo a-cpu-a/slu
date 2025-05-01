@@ -3,8 +3,13 @@
 #
 
 New Syntax {
-	
-	matchPatItem ::= ["#" | "not" | "-" | "~"] "(" comptimeExp ")" | ["-" | "~"] Numeral | ["#"] StringLiteral | basicTypeExp
+	--Note that this 'var' only supports basic args
+	matchPatItem ::= {unop} "(" comptimeExp ")" 
+		| {unop} Numeral 
+		| {unop} StringLiteral 
+		| {unop} var
+		| {unop} functioncallBasicArgs
+		| basicTypeExp
 	
 	
 	matchPatItemRanged ::= "..." matchPatItem | matchPatItem "..." matchPatItem | matchPatItem | matchPatItem "..." | "..."
