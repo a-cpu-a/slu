@@ -92,8 +92,16 @@ namespace slua::parse
 			if constexpr (in.settings() & sluaSyn)
 			{
 				//TODO: // -> err type
-				in.skip();
-				basicRes.data = ExprType::LIFETIME(readName(in));
+				ExprType::LIFETIME res;
+
+				do
+				{
+					in.skip();
+					res.push_back(in.genData.resolveName(readName(in)));
+					skipSpace(in);
+				} while (in.peek() == '/');
+
+				basicRes.data = std::move(res);
 				break;
 			}
 			break;

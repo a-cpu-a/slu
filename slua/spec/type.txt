@@ -36,9 +36,9 @@ New Syntax {
 	
 	arraySizer ::= ";" comptimeExp
 
-	typePrefix ::= {"*"} {"&" {borrowLifetime} ["mut"]} {("*" ("mut" | "const")) | ("#" ["mut"])}
+	typePrefix ::= {"*"} {"&" [borrowLifetime] ["mut"]} {("*" ("mut" | "const")) | ("#" ["mut"])}
 	
-	borrowLifetime ::= "/" Name
+	borrowLifetime ::= "/" Name {"/" Name}
 	
 	typedParam ::= destrTupFieldUncond
 	TypedParamList ::= typedParam {"," typedParam}
@@ -60,8 +60,8 @@ New Syntax {
 	typeExpNoMut ::= ‘(’ exp ‘)’ 
 		| var
 		| functioncall 
-		| typeExp binop typeExp
-		| unop typeExp
+		| typeExpNoMut binop typeExp
+		| unop typeExpNoMut
 		| tableconstructor
 		| "dyn" traitExp
 		| "impl" traitExp
