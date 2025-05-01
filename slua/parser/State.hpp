@@ -384,7 +384,12 @@ namespace slua::parse
 		TypeExprDataType::DYN,
 		TypeExprDataType::IMPL,
 		TypeExprDataType::SLICER,
-		TypeExprDataType::ERR
+		TypeExprDataType::ERR,
+
+		ExprType::NUMERAL_U64,
+		ExprType::NUMERAL_I64,
+		ExprType::NUMERAL_U128,
+		ExprType::NUMERAL_I128
 	>;
 	struct TypeExpr
 	{
