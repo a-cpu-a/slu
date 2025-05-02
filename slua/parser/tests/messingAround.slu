@@ -245,3 +245,27 @@ for u8 i in (getRange(),getStep()) {}
 for {i,v} in (getVec()) {}
 for {k,_} in (myVec(),1...100) {}
 for KvPair{k,v} in (getIter(),getArg()) {}
+
+
+struct Qu {
+	mut u32 x;
+	mut u32 y;
+	mut u32 z;
+};
+struct Qu2 {
+	mut u32,
+	mut u32,
+	mut u32;
+	x = mut u32;
+	y = mut u32;
+	z = mut u32;
+};
+
+
+newtype const Qu3 = {
+	x = mut u32;
+	y = mut u32;
+	z = mut u32;
+}
+
+const trait BasicMathOps = Add + Sub + Mul + Div;
