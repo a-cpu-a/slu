@@ -228,7 +228,22 @@ namespace slua::parse
 			}
 			break;
 		case 't':
-			if constexpr (in.settings() & sluaSyn)break;
+			if constexpr (in.settings() & sluaSyn)
+			{
+				const char ch2 = in.peekAt(1);
+				if (ch2 == 'r')
+				{
+					if(checkReadTextToken(in,"trait"))
+						basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::TRAIT_TY{},basicRes.place });
+
+				}
+				else if (ch2 == 'y')
+				{
+					if (checkReadTextToken(in, "type"))
+						basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::TYPE_TY{},basicRes.place });
+				}
+				break;
+			}
 
 			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
