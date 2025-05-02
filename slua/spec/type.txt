@@ -4,14 +4,6 @@
 
 New Syntax {
 	
-	--TODO: trait stat
-	trait ::= modpath
-	traitcombo ::= trait {"+" trait}
-	
-	--TODO: container field
-	type ::= typeItemlist
-
-
 	typePrefix ::= ["mut"] {typeunop}
 	basicTypeOrTypePrefixMut ::= typePrefix | basicTypeExpMut
 	
