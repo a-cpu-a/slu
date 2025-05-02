@@ -4,7 +4,9 @@
 
 New Syntax {
 	
-	exp @::= | "[" exp ";" comptimeExp "]"
+	arrayMultiplyConstruct ::= "[" exp ";" comptimeExp "]"
+	
+	exp @::= | arrayMultiplyConstruct
 }
 
 Array Constructor {
