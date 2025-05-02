@@ -1,6 +1,5 @@
-# Star Lua
+# <img alt="Slua logo - hollow star with a cresent going through the middle" src="/slua/spec/info/Logo_white.png" width="120"> <img alt="Star Lua" src="/slua/spec/info/LogoText.svg" width="150"> 
 Type wrapping, function wrapping, simple lua parsing.
-
 Intended for C++ 20, might work for older versions.
 
 # Function Wrapping
