@@ -10,6 +10,8 @@
 
 namespace slua::parse
 {
+	//TODO: reuse this code more... later
+
 	template<class T>
 	struct SmallEnumList
 	{
@@ -50,6 +52,12 @@ namespace slua::parse
 		}
 		constexpr static size_t max_size() {
 			return MAX_LARGE_SIZE;
+		}
+		const bool isBack(const T cmp) const
+		{
+			if (size() == 1)return false;
+
+			return at(size() - 1)==cmp;
 		}
 		const T& at(const size_t idx) const
 		{

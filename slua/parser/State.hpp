@@ -209,7 +209,12 @@ namespace slua::parse
 		struct NUMERAL_U128 { uint64_t lo = 0; uint64_t hi = 0; }; // "Numeral"
 		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
 	}
-
+	using Lifetime = std::vector<MpItmIdV<true>>;
+	struct UnOpItem
+	{
+		Lifetime life;
+		UnOpType type;
+	};
 
 	//Slua
 
@@ -284,7 +289,7 @@ namespace slua::parse
 	{
 		TypeExprData data;
 		Position place;
-		SmallEnumList<UnOpType> unOps;
+		std::vector<UnOpItem> unOps;
 		bool hasMut : 1 = false;
 	};
 	//Common
@@ -362,7 +367,7 @@ namespace slua::parse
 
 		struct OPEN_RANGE { };					// "..."
 
-		using LIFETIME = std::vector<MpItmIdV<true>>;	// " '/' var" {'/' var"}
+		using LIFETIME = Lifetime;	// " '/' var" {'/' var"}
 		using TYPE_EXPR = TypeExpr;
 		using TRAIT_EXPR = TraitExpr;
 
@@ -417,7 +422,7 @@ namespace slua::parse
 	{
 		ExprDataV<isSlua> data;
 		Position place;
-		SmallEnumList<UnOpType> unOps;
+		std::vector<UnOpItem> unOps;
 
 		BaseExpressionV() = default;
 		BaseExpressionV(const BaseExpressionV&) = delete;

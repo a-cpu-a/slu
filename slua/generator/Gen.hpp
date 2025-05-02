@@ -101,7 +101,7 @@ namespace slua::parse
 		case UnOpType::TO_REF:
 			return " &"sv;
 		case UnOpType::TO_REF_MUT:
-			return " &mut "sv;
+			return " &"sv;//mut missing, as lifetimes need to be added
 		case UnOpType::TO_PTR_CONST:
 			return " *const "sv;
 		case UnOpType::TO_PTR_MUT:
@@ -207,11 +207,27 @@ namespace slua::parse
 	}
 
 	template<AnyOutput Out>
+	inline void genLifetime(Out& out, const Lifetime& obj)
+	{
+		for (MpItmId<Out> i : obj)
+		{
+			out.add("/").add(out.db.asSv(i));
+		}
+	}
+	template<AnyOutput Out>
 	inline void genExpr(Out& out, const Expression<Out>& obj)
 	{
-		for (const UnOpType t : obj.unOps)
+		for (const UnOpItem t : obj.unOps)
 		{
-			out.add(getUnOpAsStr<Out>(t));
+			out.add(getUnOpAsStr<Out>(t.type));
+			if constexpr (out.settings() & sluaSyn)
+			{
+				if (t.type == UnOpType::TO_REF_MUT)
+				{
+					genLifetime(out, t.life);
+					out.add(" mut ");
+				}
+			}
 		}
 		using namespace std::literals;
 		ezmatch(obj.data)(
@@ -274,12 +290,7 @@ namespace slua::parse
 		},
 		varcase(const ExprType::LIFETIME&) {
 			if constexpr (out.settings() & sluaSyn)
-			{
-				for (MpItmIdV<true> i : var)
-				{
-					out.add("/").add(out.db.asSv(i));
-				}
-			}
+				genLifetime(out, var);
 		},
 		varcase(const ExprType::TYPE_EXPR&) {
 			//TODO

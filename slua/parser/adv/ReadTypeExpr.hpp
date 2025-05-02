@@ -60,10 +60,10 @@ namespace slua::parse
 			if (uOp == UnOpType::NONE)break;
 			if (uOp == UnOpType::TO_REF)
 			{
-				//TODO: lifetime parsing
-				//TODO: check for 'mut'
+				ret.unOps.push_back(readToRefLifetimes(in, uOp));
+				continue;
 			}
-			ret.unOps.push_back(uOp);
+			ret.unOps.push_back({ .type = uOp });
 		}
 
 		const char firstChar = in.peek();

@@ -26,6 +26,31 @@
 namespace slua::parse
 {
 	template<AnyInput In>
+	inline Lifetime readLifetime(In& in)
+	{
+		Lifetime res;
+		do {
+			in.skip();
+			res.emplace_back(in.genData.resolveName(readName(in)));
+			skipSpace(in);
+		} while (in.peek() == '/');
+
+		return res;
+	}
+	template<AnyInput In>
+	inline UnOpItem readToRefLifetimes(In& in, const UnOpType uOp)
+	{
+		skipSpace(in);
+		if (in.peek() == '/')
+		{// lifetime parsing, check for 'mut'
+
+			Lifetime res = readLifetime(in);
+			return { std::move(res),checkReadTextToken(in,"mut") ? UnOpType::TO_REF_MUT : uOp };
+		}
+		return { .type = uOp };
+	}
+
+	template<AnyInput In>
 	inline Expression<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
@@ -43,10 +68,10 @@ namespace slua::parse
 			if (uOp == UnOpType::NONE)break;
 			if (uOp == UnOpType::TO_REF)
 			{
-				//TODO: lifetime parsing
-				//TODO: check for 'mut'
+				basicRes.unOps.push_back(readToRefLifetimes(in,uOp));
+				continue;
 			}
-			basicRes.unOps.push_back(uOp);
+			basicRes.unOps.push_back({.type= uOp });
 		}
 		skipSpace(in);
 
@@ -81,12 +106,9 @@ namespace slua::parse
 		case '|':
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if (basicRes.unOps.size() == 0)
-					break;
-
-				if(basicRes.unOps.at(basicRes.unOps.size()-1)==UnOpType::RANGE_BEFORE)
+				if(basicRes.unOps.back().type== UnOpType::RANGE_BEFORE)
 				{
-					basicRes.unOps.erase_back();
+					basicRes.unOps.erase(basicRes.unOps.end());
 					basicRes.data = ExprType::OPEN_RANGE();
 					break;
 				}
@@ -100,16 +122,7 @@ namespace slua::parse
 					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
 					break;
 				}
-				ExprType::LIFETIME res;
-
-				do
-				{
-					in.skip();
-					res.push_back(in.genData.resolveName(readName(in)));
-					skipSpace(in);
-				} while (in.peek() == '/');
-
-				basicRes.data = std::move(res);
+				basicRes.data = readLifetime(in);
 				break;
 			}
 			break;
