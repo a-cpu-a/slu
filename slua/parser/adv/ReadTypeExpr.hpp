@@ -75,10 +75,13 @@ namespace slua::parse
 			ret.data = TypeExprDataType::ERR{std::make_unique<TypeExpr>(readTypeExpr(in,allowMut))};
 			break;
 		case '[':// [exp]
+		{
 			in.skip();
-			ret.data = TypeExprDataType::SLICER(std::make_unique<Expression<In>>(readExpr(in,false)));
+			TypeExprDataType::SLICER res = std::make_unique<Expression<In>>(readExpr(in, false));
+			ret.data = std::move(res);
 			requireToken(in, "]");
 			break;
+		}
 		case '{': // table constructor
 			ret.data = TypeExprDataType::TABLE_CONSTRUCTOR(readTableConstructor(in,false));
 			break;
