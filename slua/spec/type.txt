@@ -4,22 +4,17 @@
 
 New Syntax {
 	
+	--TODO: trait stat
 	trait ::= modpath
 	traitcombo ::= trait {"+" trait}
 	
 	--TODO: container field
-	--TODO: destr/match pat
 	type ::= typeItemlist
-	mutableNambeableTypeList ::= ["mut"] type [Name] {"," ["mut"] type [Name]}
 
-	basicTypeObj ::= comptimeVarType | traitComboType
-	basicTypeItm ::= typePrefix basicTypeObj
-	basicType ::= basicTypeItm {"|" basicTypeItm}
-	basicTypeOrTypePrefix ::= typePrefix | basicType
+
+	typePrefix ::= ["mut"] {typeunop}
+	basicTypeOrTypePrefixMut ::= typePrefix | basicTypeExpMut
 	
-	traitComboType ::= ("dyn" | "impl") traitcombo
-
-	typePrefix ::= {"*"} {"&" [borrowLifetime] ["mut"]} {("*" ("mut" | "const")) | ("#" ["mut"])}
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
@@ -45,27 +40,32 @@ New Syntax {
 		| functioncallBasicArgs
 		| traitExp "+" traitExp
 	
-	basicTypeExp ::= var
+	basicTypeExp ::= ‘(’ exp ‘)’ 
+		| var
 		| functioncallBasicArgs
-		| typeExp "//" typeExp
-		| typeExp "|" typeExp
 		| "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
 		| arrayMultiplyConstruct
 		| "?"
 		| "//" typeExp
-		| {typeunop} basicTypeExp
-	
-	typeExp ::= ‘(’ exp ‘)’ 
-		| basicTypeExp
-		| typeExp binop typeExp
-		| {typeunop} typeExp
-		| tableconstructor
+		| typeunop {typeunop} typeExp
+		| basicTypeExp binop typeExp
 		| ["-"] Numeral
+	
 	typeExpMutBase ::= ["mut"] typeExp
-	typeExpMut ::= typeExpMutBase
+	basicTypeExpMutBase ::= "mut" typeExp | basicTypeExp
+	
+	basicTypeExpMut ::= basicTypeExpMutBase
 		| "//" typeExpMutBase
+		| basicTypeExpMutBase binop typeExpMutBase
+	
+	typeExp ::= basicTypeExp
+		| typeExp binop typeExp
+		| tableconstructor
+		
+	typeExpMut ::= typeExpMutBase
+		| basicTypeExpMut
 		| typeExpMut binop typeExpMut
 	
 	exp @::= | typeExpMut | traitExp | borrowLifetime
