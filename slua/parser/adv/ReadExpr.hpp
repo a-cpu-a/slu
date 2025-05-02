@@ -32,7 +32,6 @@ namespace slua::parse
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
 			| prefixexp | tableconstructor | exp binop exp | unop exp
 		*/
-
 		const Position startPos = in.getLoc();
 
 		bool isNilIntentional = false;
@@ -44,7 +43,6 @@ namespace slua::parse
 			if (uOp == UnOpType::NONE)break;
 			basicRes.unOps.push_back(uOp);
 		}
-
 		skipSpace(in);
 
 		const char firstChar = in.peek();
@@ -58,7 +56,6 @@ namespace slua::parse
 				in.skip();
 				basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::ERR_INFERR{},basicRes.place });
 				break;
-
 			}
 			[[fallthrough]];
 		case ')':
@@ -98,7 +95,6 @@ namespace slua::parse
 					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
 					break;
 				}
-
 				ExprType::LIFETIME res;
 
 				do
@@ -175,7 +171,6 @@ namespace slua::parse
 					break;
 				}
 			}
-
 			if (checkReadTextToken(in, "function")) 
 			{
 				const Position place = in.getLoc();
@@ -271,7 +266,6 @@ namespace slua::parse
 					}
 					else
 					{//[x]
-
 						basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::SLICER{
 							std::make_unique<Expression<In>>(std::move(firstItem)
 						)}});
@@ -343,7 +337,6 @@ namespace slua::parse
 				}
 			}
 		}
-
 		//check bin op
 		if (!readBiOp)return basicRes;
 
