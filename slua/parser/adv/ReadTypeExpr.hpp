@@ -58,6 +58,11 @@ namespace slua::parse
 		{
 			const UnOpType uOp = readOptUnOp(in,true);
 			if (uOp == UnOpType::NONE)break;
+			if (uOp == UnOpType::TO_REF)
+			{
+				//TODO: lifetime parsing
+				//TODO: check for 'mut'
+			}
 			ret.unOps.push_back(uOp);
 		}
 
