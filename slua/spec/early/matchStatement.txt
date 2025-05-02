@@ -19,7 +19,7 @@ New Syntax {
 	matchPatBinOp ::= "or"
 	sPat ::= matchPatItemRanged {matchPatBinOp matchPatItemRanged}
 	
-	destrSpec ::= (["mut"] basicTypeOrTypePrefix) | ("as" typeExpMut)
+	destrSpec ::= basicTypeOrTypePrefixMut | ("as" typeExpMut)
 	
 	
 	destrField ::= "|" tupleableName "|" pat
