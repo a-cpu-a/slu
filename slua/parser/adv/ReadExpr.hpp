@@ -142,13 +142,39 @@ namespace slua::parse
 				}
 			}
 			break;
-		case 's':
+		case 's'://safe fn
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (!checkReadTextToken(in, "safe"))
+					break;
+				requireToken(in, "fn");
+				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::SAFE) });
+			}
 			break;
-		case 'u':
+		case 'u'://unsafe fn
+			if constexpr (in.settings() & sluaSyn)
+			{
+				if (!checkReadTextToken(in, "unsafe"))
+					break;
+				requireToken(in, "fn");
+				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::UNSAFE) });
+			}
 			break;
 		case 'f':
-			if constexpr (!(in.settings() & sluaSyn))
-				if (checkReadTextToken(in, "false")) { basicRes.data = ExprType::FALSE(); break; }
+			if constexpr(in.settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "fn"))
+				{
+					basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::DEFAULT) });
+					break;
+				}
+			} else {
+				if (checkReadTextToken(in, "false")) 
+				{
+					basicRes.data = ExprType::FALSE(); 
+					break;
+				}
+			}
 
 			if (checkReadTextToken(in, "function")) 
 			{
