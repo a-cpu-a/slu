@@ -1,10 +1,10 @@
 #
-# Dependencies: Lua, annotation, containerfield
+# Dependencies: Lua, annotation
 #
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "union" Name "{" [containerfieldList] "}"
+	stat @::= | OptExportPrefix "union" Name tableconstructor
 }
 
 New Keywords {
