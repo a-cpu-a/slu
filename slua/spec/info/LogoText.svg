@@ -1,10 +1,10 @@
-<svg viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 130 100" xmlns="http://www.w3.org/2000/svg">
   <style>
     .t {
-      font: 32px serif;
+      font-size: 32px;
       fill: white;
     }
   </style>
 
-  <text x="0" y="50" class="t">Star Lua</text>
+  <text x="0" y="25" class="t">Star Lua</text>
 </svg>
