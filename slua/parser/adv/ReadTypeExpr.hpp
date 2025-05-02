@@ -25,6 +25,20 @@
 namespace slua::parse
 {
 	//No space skip!
+	//YOU parse the 'fn'
+	template<AnyInput In>
+	inline TypeExprData readFnType(In& in, const OptSafety safety)
+	{// [safety] "fn" typeExp "->" typeExp
+		TypeExprDataType::FN res{};
+		res.safety = safety;
+
+		res.argType = std::make_unique<TypeExpr>(readTypeExpr(in, false));
+		requireToken(in, "->");
+		res.retType = std::make_unique<TypeExpr>(readTypeExpr(in, false));
+
+		return res;
+	}
+	//No space skip!
 	template<AnyInput In>
 	inline TypeExpr readTypeExpr(In& in,const bool allowMut,const bool readBiOp=true)
 	{
@@ -47,24 +61,7 @@ namespace slua::parse
 			ret.unOps.push_back(uOp);
 		}
 
-		char firstChar = in.peek();
-		OptSafety safety = OptSafety::DEFAULT;
-		if (firstChar == 's')
-		{
-			if (checkReadTextToken(in,"safe"))
-			{
-				skipSpace(in);
-				firstChar = in.peek();
-			}
-		}
-		else if (firstChar == 'u')
-		{
-			if(checkReadTextToken(in, "unsafe"))
-			{
-				skipSpace(in);
-				firstChar = in.peek();
-			}
-		}
+		const char firstChar = in.peek();
 
 		switch (firstChar)
 		{
@@ -85,19 +82,21 @@ namespace slua::parse
 		case '{': // table constructor
 			ret.data = TypeExprDataType::TABLE_CONSTRUCTOR(readTableConstructor(in,false));
 			break;
+		case 's'://safe fn
+			if (!checkReadTextToken(in, "safe"))
+				break;
+			requireToken(in,"fn");
+			ret.data = readFnType(in, OptSafety::SAFE);
+			break;
+		case 'u'://unsafe fn
+			if (!checkReadTextToken(in, "unsafe"))
+				break;
+			requireToken(in,"fn");
+			ret.data = readFnType(in, OptSafety::UNSAFE);
+			break;
 		case 'f'://fn
 			if (checkReadTextToken(in, "fn"))
-			{// [safety] "fn" typeExp "->" typeExp
-				TypeExprDataType::FN res{};
-				res.safety = safety;
-				safety = OptSafety::DEFAULT;
-
-				res.argType = std::make_unique<TypeExpr>(readTypeExpr(in, false));
-				requireToken(in, "->");
-				res.retType = std::make_unique<TypeExpr>(readTypeExpr(in, false));
-				
-				ret.data = std::move(res);
-			}
+				ret.data = readFnType(in, OptSafety::DEFAULT);
 			break;
 		case 'd':
 			if (checkReadTextToken(in, "dyn"))
@@ -127,8 +126,6 @@ namespace slua::parse
 			break;
 		}
 
-		if(safety != OptSafety::DEFAULT)
-			throwUnexpectedSafety(in,ret.place);
 
 		if (!intentionalyErrInferr 
 			&& std::holds_alternative<TypeExprDataType::ERR_INFERR>(ret.data))

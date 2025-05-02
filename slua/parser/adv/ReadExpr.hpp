@@ -142,6 +142,10 @@ namespace slua::parse
 				}
 			}
 			break;
+		case 's':
+			break;
+		case 'u':
+			break;
 		case 'f':
 			if constexpr (!(in.settings() & sluaSyn))
 				if (checkReadTextToken(in, "false")) { basicRes.data = ExprType::FALSE(); break; }
