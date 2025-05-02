@@ -23,7 +23,7 @@ Impl Statement {
 	
 	Impls allow you to define functions for other types (and trait combinations), in a less repetetive way.
 	
-	The arguments in the 'with' are inferred from the impl usage sites, and the uses of the args within the impl.
+	The values, for the items inside of the 'with' are inferred from the impl usage sites, and the uses of the args within the impl.
 	
 	The expressions inside the impl definition must be simple aliases, including variables,
 	and strong type functions, however, arbitrary functions are not allowed.
