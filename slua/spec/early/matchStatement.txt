@@ -36,8 +36,6 @@ New Syntax {
 	dPat ::= destrSpec "{" destrFieldList "}" |
 		destrSpec "{" destrTupFieldList "}" |
 		
-		"of" typeExpMut "[" destrTupFieldList "]" |
-		
 		destrSpec Name ["=" ndPat] |
 		"_"
 		
@@ -47,8 +45,6 @@ New Syntax {
 	
 	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}" |
 		destrSpec "{" uncondDestrTupFieldList "}" |
-		
-		"of" typeExpMut "[" uncondDestrTupFieldList "]" |
 		
 		destrSpec Name |
 		"_"
@@ -70,9 +66,7 @@ New Syntax {
 New Keywords {
 	match
 	as
-	of
 	case
-	to
 }
 
 Match Statement {
