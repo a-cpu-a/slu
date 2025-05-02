@@ -4,15 +4,16 @@
 
 New Syntax {
 	--Note that this 'var' only supports basic args
-	matchPatItem ::= {unop} "(" comptimeExp ")" 
-		| {unop} Numeral 
-		| {unop} StringLiteral 
-		| {unop} var
-		| {unop} functioncallBasicArgs
+	matchPatItem ::= {unop} "(" comptimeExp ")" {postunop}
+		| {unop} Numeral {postunop}
+		| {unop} StringLiteral {postunop}
+		| {unop} var {postunop}
+		| {unop} functioncallBasicArgs {postunop}
+		| arrayMultiplyConstruct
 		| basicTypeExp
+		| "..."
 	
-	
-	matchPatItemRanged ::= matchPatItem "..." matchPatItem | matchPatItem | matchPatItem "..." | "..."
+	matchPatItemRanged ::= matchPatItem "..." matchPatItem | matchPatItem
 	
 	
 	matchPatBinOp ::= "or"
@@ -21,9 +22,9 @@ New Syntax {
 	destrSpec ::= (["mut"] basicTypeOrTypePrefix) | ("as" typeExpMut)
 	
 	
-	destrField ::= "[" tupleableName "]" pat
+	destrField ::= "|" tupleableName "|" pat
 	
-	destrFieldUncond ::= "[" tupleableName "]" uncondDestrPat
+	destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
 	
 	extraFieldSignifier ::= "," ".."
 	
