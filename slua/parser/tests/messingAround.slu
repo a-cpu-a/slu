@@ -1,17 +1,17 @@
 
 let _ = 3;
-let as [u8;4] __b__ = [1;4];
-let as [u8;44] _c = [1;44];
-let of u8 [__a,__,_c_] = [1,2,3]
-let of u8 [_a,_,c_,..] = [1,2,3]
+let [u8;4] __b__ = [1;4];
+let [u8;44] _c = [1;44];
+let [u8] [__a,__,_c_] = {1,2,3}
+let [u8] [_a,_,c_,..] = {1,2,3}
 
-let U8arr1 bbb = [1];
+let U8arr1 bbb = {1};
 let u8 bb = 1;
 let &&mut u8 x3 = &&mut bb;
 
-let as {integer,{number}} xp = -0xFFFFFFFFFFFFFFFF,{0xFFFFFFFFFFFFFFFF};
-let as {integer,number} xd = -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
-let of u8 [x7,y7,z8] = [0,0xF,0xFFFFFFFF];
+let as{integer,{number}} xp = -0xFFFFFFFFFFFFFFFF,{0xFFFFFFFFFFFFFFFF};
+let as{integer,number} xd = -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+let [u8] {x7,y7,z8} = {0,0xF,0xFFFFFFFF};
 
 let integer x = 4;
 
@@ -29,29 +29,29 @@ goto xax2
 
 	:::xax3:
 
-let Vec3{[3]xv3,[2]yv2,[1]zv1} = Vec3{11,-0x7FFFFFFFFFFFFFFF,0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF};
-let {[1]xV1,[2]yV2,[3]zV3} = Vec3{11,-0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,11};
+let Vec3{|3|xv3,|2|yv2,|1|zv1} = Vec3{11,-0x7FFFFFFFFFFFFFFF,0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF};
+let {|1|xV1,|2|yV2,|3|zV3} = Vec3{11,-0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,11};
 let Vec3{xa0,ya1,za2} = Vec3{0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,11,11};
 let {xA3,yA2,zA1} = Vec3{11,0x7FFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFF};
 
-let of u8 [x,y,z] = 1;
+let {x,y,z} = 1;
 
-let [__aa, ..] = [1,2,3];
+let [u8] {__aa, ..} = {1,2,3};
 
-let [aa_N3,b_N3,c_N3] = [1,2,3];
+let {aa_N3,b_N3,c_N3} = {1,2,3};
 
-let U8arr3 [aa_U8arr3_,b_U8arr3,c_U8arr3] = [1,2,3];
+let U8arr3 {aa_U8arr3_,b_U8arr3,c_U8arr3} = {1,2,3};
 
 let mut &mut _TnTObj{
-	[__t] mut &mut a44__,
-	[n_] b44,
-	[_t2_] mut BTn___{
-		[t__] a221,
-		[n_] b221
+	|__t| mut &mut a44__,
+	|n_| b44,
+	|_t2_| mut BTn___{
+		|t__| a221,
+		|n_| b221
 	},
-	[___n2] mut {
-		[_t] ax2x,
-		[__n] _b2z
+	|___n2| mut {
+		|_t| ax2x,
+		|__n| _b2z
 	},
 	..
 } = __getTnT_Obj();
@@ -63,84 +63,80 @@ let mut &mut TnT{
 		b3
 	},
 	b,
-	( mut Tn{
+	mut Tn{
 		a2,
 		b2
-	}),
+	},
 	..
 } = getTnT();
 
-let mut &mut TnTArr[
+let mut &mut TnTArr{
 	mut &mut {
-		as u32 aa,
-		as u64 b3
+		u32 aa,
+		u64 b3
 	},
 	b,
-	(mut Tn{
-		[t] as [u128] a2,
-		[n] as [u8;34] b2,
+	mut Tn{
+		|t| [u128] a2,
+		|n| [u8;34] b2,
 		..
-	}),
+	},
 	_,
 	d24,
 	..
-] = getTnT();
+} = getTnT();
 
 
 
-let mut &mut _TnTArr[
+let mut &mut _TnTArr{
 	mut &mut {
 		_a0a,
 		b_3
 	},
 	b_,
-	( mut T_n{
-		[t] a26,
-		[n] b2Xz
-	}),
+	mut T_n{
+		|t| a26,
+		|n| b2Xz
+	},
 	_,
 	d24__,
 	..
-] = getTnT_();
+} = getTnT_();
 
 
-let mut &mut TnTArr4[
+let mut &mut TnTArr4{
 	mut &mut _aa,
-	(b_4,b3_4,c4_4, ..),
+	{b_4,b3_4,c4_4, ..},
 	mut Tn_4{
-		[t_4] a2_4,
-		[n4_] b2_4
+		|t_4| a2_4,
+		|n4_| b2_4
 	},
 	mut {
-		[t] a2_45,
-		[n] b2_45
+		|t| a2_45,
+		|n| b2_45
 	},
 	..
-] = getTnT_4();
+} = getTnT_4();
 
 
-let mut &mut TnTArr_99[
+let mut &mut TnTArr_99{
 	mut &mut {
 		aa_99,
 		b3_99
 	},
 	b_99,
-	( mut Tn{
+	mut Tn{
 		a2_99,
 		b2_99
-	}),
+	},
 	_,
 	d24_99,
 	..
-] = getTnT_99();
-
+} = getTnT_99();
 
 
 let #u8 zGC = 4;
 let #u8 wGC = alloc 4;
-
-
-
 
 
 
