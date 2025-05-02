@@ -28,7 +28,6 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	--TODO: parse borrow lifetimes here:
 	typeunop ::= "*" | "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
 	
 	unop @::= | typeunop | "alloc"
