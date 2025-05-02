@@ -52,6 +52,7 @@ New Syntax {
 		| "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
+		| arrayMultiplyConstruct
 		| "?"
 		| "//" typeExp
 		| {typeunop} basicTypeExp
