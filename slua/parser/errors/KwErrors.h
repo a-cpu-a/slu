@@ -17,6 +17,13 @@ namespace slua::parse
 			"{}"
 			, errorLocStr(in)));
 	}
+	inline void throwUnexpectedSafety(AnyInput auto& in, const Position pos)
+	{
+		throw UnexpectedKeywordError(std::format(
+			"Unexpected safe/unsafe, at"
+			"{}"
+			, errorLocStr(in,pos)));
+	}
 	inline void throwExpectedSafeable(AnyInput auto& in)
 	{
 		throw UnexpectedKeywordError(std::format(

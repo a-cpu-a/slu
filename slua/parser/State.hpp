@@ -242,6 +242,13 @@ namespace slua::parse
 		};
 		using TABLE_CONSTRUCTOR = TableConstructorV<true>;
 
+		struct FN
+		{
+			std::unique_ptr<TypeExpr> argType;
+			std::unique_ptr<TypeExpr> retType;
+			OptSafety safety = OptSafety::DEFAULT;
+		};
+
 		struct DYN
 		{
 			TraitExpr expr;
@@ -266,6 +273,7 @@ namespace slua::parse
 		TypeExprDataType::IMPL,
 		TypeExprDataType::SLICER,
 		TypeExprDataType::ERR,
+		TypeExprDataType::FN,
 
 		ExprType::NUMERAL_U64,
 		ExprType::NUMERAL_I64,
