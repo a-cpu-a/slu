@@ -6,7 +6,7 @@ New Syntax {
 
 	postunop @::= | ‘?’
 	
-	tryItem ::= "catch" pat ["if" exp] "=>" explist
+	tryItem ::= pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | matchElseItem | ";"
 	
 	tryExp ::= "try" "(" exp ")" ["->" typeExp] "{" {tryStat} "}"

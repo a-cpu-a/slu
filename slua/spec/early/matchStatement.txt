@@ -53,7 +53,7 @@ New Syntax {
 	pat ::= sPat | dPat
 	patNoNpfList ::= sPat | dPatNoNpfList
 	
-	matchItem ::= "case" pat ["if" exp] "=>" explist
+	matchItem ::= pat ["if" exp] "=>" explist
 	matchElseItem ::= "else" ["if" exp] "=>" explist
 	matchStat ::= matchItem | matchElseItem | ";"
 	
@@ -65,8 +65,8 @@ New Syntax {
 
 New Keywords {
 	match
-	as
 	case
+	as
 }
 
 Match Statement {
