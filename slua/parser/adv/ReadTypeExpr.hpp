@@ -20,6 +20,7 @@
 #include <slua/parser/adv/ReadTable.hpp>
 #include <slua/parser/adv/ReadTraitExpr.hpp>
 #include <slua/parser/errors/CharErrors.h>
+#include <slua/parser/errors/KwErrors.h>
 
 namespace slua::parse
 {
@@ -46,7 +47,24 @@ namespace slua::parse
 			ret.unOps.push_back(uOp);
 		}
 
-		const char firstChar = in.peek();
+		char firstChar = in.peek();
+		OptSafety safety = OptSafety::DEFAULT;
+		if (firstChar == 's')
+		{
+			if (checkReadTextToken(in,"safe"))
+			{
+				skipSpace(in);
+				firstChar = in.peek();
+			}
+		}
+		else if (firstChar == 'u')
+		{
+			if(checkReadTextToken(in, "unsafe"))
+			{
+				skipSpace(in);
+				firstChar = in.peek();
+			}
+		}
 
 		switch (firstChar)
 		{
@@ -66,6 +84,20 @@ namespace slua::parse
 			break;
 		case '{': // table constructor
 			ret.data = TypeExprDataType::TABLE_CONSTRUCTOR(readTableConstructor(in,false));
+			break;
+		case 'f'://fn
+			if (checkReadTextToken(in, "fn"))
+			{// [safety] "fn" typeExp "->" typeExp
+				TypeExprDataType::FN res{};
+				res.safety = safety;
+				safety = OptSafety::DEFAULT;
+
+				res.argType = std::make_unique<TypeExpr>(readTypeExpr(in, false));
+				requireToken(in, "->");
+				res.retType = std::make_unique<TypeExpr>(readTypeExpr(in, false));
+				
+				ret.data = std::move(res);
+			}
 			break;
 		case 'd':
 			if (checkReadTextToken(in, "dyn"))
@@ -94,6 +126,10 @@ namespace slua::parse
 		default:
 			break;
 		}
+
+		if(safety != OptSafety::DEFAULT)
+			throwUnexpectedSafety(in,ret.place);
+
 		if (!intentionalyErrInferr 
 			&& std::holds_alternative<TypeExprDataType::ERR_INFERR>(ret.data))
 		{

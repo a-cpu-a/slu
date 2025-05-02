@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, comptime, modules
+# Dependencies: Lua, comptime, modules, safety, arrayConstructor
 #
 
 New Syntax {
@@ -52,6 +52,7 @@ New Syntax {
 		| typeunop {typeunop} typeExp
 		| basicTypeExp binop typeExp
 		| ["-"] Numeral
+		| [safety] "fn" typeExp "->" typeExp
 	
 	typeExpMutBase ::= ["mut"] typeExp
 	basicTypeExpMutBase ::= "mut" typeExp | basicTypeExp
