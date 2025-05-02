@@ -11,6 +11,7 @@ New Syntax {
 
 New Keywords {
 	fn
+	newtype
 }
 
 Fn Statement {
@@ -18,7 +19,7 @@ Fn Statement {
 	Creates a new global or local function with a name 'Name', that cant be modified.
 	
 	
-	If the "type" tag is added, then this function returns a nominal/strong type, and it must always return a type or a error.
+	If the "newtype" tag is added, then this function returns a nominal/strong type, and it must always return a type or a error.
 	
 	
 	Param types, and return type are assigned automatically, if missing.

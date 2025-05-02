@@ -4,27 +4,37 @@
 
 New Syntax {
 	
-	PreLet ::=
-	
-	stat @::= | OptExportPrefix PreLet ["newtype"] "let" uncondDestrPat ["=" explist]
+	stat @::= | OptExportPrefix ["newtype"] "const" uncondDestrPat ["=" explist]
 }
 
 New Keywords {
-	let
+	const
 	newtype
 }
 
-Let Statement {
+Const Statement {
 	
-	Creates new global or local variable(s) with names, that cant be modified (not even its contents), unless mut is added.
+	Creates new global or local variable(s) with names, that cant be modified (not even its contents).
 	
 	Types are assigned automatically, when needed.
 
-
-	Global variables are automatically marked with comptime, unless marked with @EntrypointInit, using comptime on globals is an soft-error.
-	
+	These variables are automatically marked with comptime, using comptime is an parse error.
 	
 	If the "newtype" tag is added, then this variable makes a nominal/strong type.
+	
+	
+	Unlike 'let', 'const' variables are available in any order, and dont have to be in top-to-bottom order.
+	
+	```slua
+	
+	let VecU8 hi = {1,2,3}; --Valid, since 'VecU8' is a const variable 
+	
+	newtype const VecU8 = Vec(u8);
+	
+	const Y = X+1; -- Valid, unlike for let.
+	const X = 0;
+	```
+	
 	
 	Implementation {
 		May be a local ?<const>? variable
