@@ -69,7 +69,7 @@ namespace slua::parse
 		case '+':
 		case '%':
 		case '^':
-		case '&':
+		//case '&': //ref op
 		//case '*': //Maybe a deref?
 		case '!':
 		//case '~': // that is a unary op too
