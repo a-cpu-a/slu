@@ -439,7 +439,7 @@ namespace slua::parse
 		PatType::Simple,
 		PatType::Destr
 	>;
-	struct ___PatHack : Pat {};
+	struct ___PatHack : Pat { using Pat::Pat; };
 	struct DestrField
 	{
 		MpItmIdV<true> name;
