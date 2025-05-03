@@ -6,12 +6,11 @@ New Syntax {
 	
 	PreLet ::=
 	
-	stat @::= | OptExportPrefix PreLet ["newtype"] "let" uncondDestrPat ["=" explist]
+	stat @::= | OptExportPrefix PreLet "let" uncondDestrPat ["=" explist]
 }
 
 New Keywords {
 	let
-	newtype
 }
 
 Let Statement {
@@ -20,11 +19,8 @@ Let Statement {
 	
 	Types are assigned automatically, when needed.
 
-
 	Global variables are automatically marked with comptime, unless marked with @EntrypointInit, using comptime on globals is an soft-error.
 	
-	
-	If the "newtype" tag is added, then this variable makes a nominal/strong type.
 	
 	Implementation {
 		May be a local ?<const>? variable

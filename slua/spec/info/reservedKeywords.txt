@@ -87,7 +87,6 @@ New Keywords {
 	struct 		(506k)		(62.2k)		Define a struct
 	module		(651k)		(40.2k)		module def
 	extern		(..)		(..)		extern blocks, extern spec
-	newtype		(..)		(..)		newtype tag
 	comptime	(256)		(4)			comptime marker / expr
 	
 	
@@ -99,4 +98,5 @@ Data {
 	a			(6.1m)		(3.6m)		advanced types
 	is			(4.8m)		(1m)		postfix types?
 	new 		(1.8m)		(303k)		?
+	newtype		(..)		(..)		newtype tag
 }
