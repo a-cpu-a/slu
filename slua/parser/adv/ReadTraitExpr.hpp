@@ -23,10 +23,8 @@ namespace slua::parse
 	template<AnyInput In>
 	inline TraitExpr readTraitExpr(In& in)
 	{
-		const Position startPos = in.getLoc();
-		
 		TraitExpr ret;
-		ret.place = startPos;
+		ret.place = in.getLoc();
 
 		const char firstChar = in.peek();
 		
