@@ -68,7 +68,11 @@ namespace slua::parse
 		TO_REF,			// "&"
 		TO_REF_MUT,		// "&mut"
 		TO_PTR_CONST,	// "*const"
-		TO_PTR_MUT		// "*mut"
+		TO_PTR_MUT,		// "*mut"
+
+
+		//Pseudo, only for type prefixes
+		MUT				// "mut"
 	};
 
 	enum class PostUnOpType : uint8_t
