@@ -24,15 +24,10 @@ New Syntax {
 	destrSpec ::= basicTypeOrTypePrefix | ("as" typeExp)
 	destrSpecMut ::= basicTypeOrTypePrefixMut | ("as" typeExpMut)
 	
-	
-	destrField ::= "|" tupleableName "|" pat
-	
-	destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
-	
 	extraFieldSignifier ::= "," ".."
 	
 	
-	
+	destrField ::= "|" tupleableName "|" pat
 	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
 	destrPatFieldList ::= pat {"," pat} [extraFieldSignifier]
 	
@@ -45,6 +40,7 @@ New Syntax {
 		| "_"
 		
 		
+	destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
 	uncondDestrFieldList ::= destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier]
 	uncondDestrPatFieldList ::= uncondDestrPat {"," uncondDestrPat} [extraFieldSignifier]
 	
@@ -55,6 +51,7 @@ New Syntax {
 		
 		| destrSpecMut Name
 		| "_"
+	
 	
 	ndPat ::= sPat
 	pat ::= sPat | dPat
