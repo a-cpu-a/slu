@@ -1,0 +1,24 @@
+#
+# Dependencies: Lua, type
+#
+
+Unsized {
+	
+	Some types have no size defined at compile-time, including slices ([T]), functions and dyn types.
+	
+	Just because they have no size, doesnt mean you cant store them inside a type.
+	They may be stored with a size in bytes attached.
+	
+	Sometimes there is no size attached, like when its not needed.
+	
+	Pointers/references to these types might include a size, if they are slices or maybe functions.
+	Pointers/refs to dyn's dont have such info, as its not needed, since you can use the vtable to find it out.
+	
+	`[u8]` -> slice of u8, could have any size.
+	`fn{}->void` -> bytes of a function, could have any size, depending on the code within it.
+	`dyn Add` -> bytes of a type that implements some trait, could have any size
+	
+	Implementation {
+		May be wrapped only when its impossible/impractical to not do it.
+	}
+}
