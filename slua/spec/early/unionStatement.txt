@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "union" Name tableconstructor
+	stat @::= | OptExportPrefix "union" Name "{" [structConstructor] "}"
 }
 
 New Keywords {
