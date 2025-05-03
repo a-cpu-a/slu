@@ -4,6 +4,7 @@
 
 New Syntax {
 	--Note that this 'var' only supports basic args
+	--Also, type expr is prefered of func call / var, so if they return types, then they are treated as types.
 	matchPatItem ::= {unop} "(" comptimeExp ")" {postunop}
 		| {unop} Numeral {postunop}
 		| {unop} StringLiteral {postunop}
