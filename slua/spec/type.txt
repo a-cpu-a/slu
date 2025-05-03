@@ -26,7 +26,7 @@ New Syntax {
 	
 	--Note: 'var' inside traitExp,typeExp doesnt allow "" and {} style args
 	
-	structField ::= annotations OptExportPrefix [Name "="] type
+	structField ::= annotations OptExportPrefix [Name "="] typeExpMut
 	structConstructor ::= structField {fieldsep structField} [fieldsep]
 	
 	
