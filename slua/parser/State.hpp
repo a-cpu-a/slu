@@ -202,12 +202,35 @@ namespace slua::parse
 
 	namespace ExprType
 	{
+
+		template<bool isSlua>
+		using LIM_PREFIX_EXPv = std::unique_ptr<LimPrefixExprV<isSlua>>;	// "prefixexp"
+		template<AnyCfgable CfgT> using LIM_PREFIX_EXP = SelV<CfgT, LIM_PREFIX_EXPv>;
+
+		template<bool isSlua>
+		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
+		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
+
+		struct OPEN_RANGE {};					// "..."
+
+		struct LITERAL_STRING { std::string v; };				// "LiteralString"
+		struct NUMERAL { double v; };							// "Numeral"
+
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
 
 		//u64,i128,u128, for slua only
 		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
 		struct NUMERAL_U128 { uint64_t lo = 0; uint64_t hi = 0; }; // "Numeral"
 		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
+
+		template<bool isSlua>
+		struct ARRAY_CONSTRUCTORv
+		{
+			std::unique_ptr<ExpressionV<isSlua>> val;
+			std::unique_ptr<ExpressionV<isSlua>> size;
+		};
+		template<AnyCfgable CfgT>
+		using ARRAY_CONSTRUCTOR = SelV<CfgT, ARRAY_CONSTRUCTORv>;
 	}
 	using Lifetime = std::vector<MpItmIdV<true>>;
 	struct UnOpItem
@@ -298,6 +321,50 @@ namespace slua::parse
 		std::vector<UnOpItem> unOps;
 		bool hasMut : 1 = false;
 	};
+
+	// match patterns
+
+	namespace SimplePatType
+	{
+		struct Range
+		{
+			std::unique_ptr<struct SimplePat> l;
+			std::unique_ptr<struct SimplePat> r;
+		};
+		using TypeExpr = slua::parse::TypeExpr;
+	}
+	using SimplePatData = std::variant<
+		ExprType::OPEN_RANGE,			// "..."
+
+		SimplePatType::Range,
+		SimplePatType::TypeExpr,
+
+		ExprType::LIM_PREFIX_EXPv<true>,// "prefixexp"
+		ExprType::FUNC_CALLv<true>,		// "prefixexp argsThing {argsThing}"
+
+		ExprType::LITERAL_STRING,		// "LiteralString"
+		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
+
+		ExprType::NUMERAL_U64,
+		ExprType::NUMERAL_I64,
+		ExprType::NUMERAL_U128,
+		ExprType::NUMERAL_I128,
+
+		ExprType::ARRAY_CONSTRUCTORv<true>
+	>;
+	struct SimplePat 
+	{
+		SimplePatData data;
+		std::vector<UnOpItem> unOps;
+		SmallEnumList<PostUnOpType> postUnOps;
+	};
+	namespace PatType
+	{
+		//x or y or z
+		using Simple = std::vector<SimplePat>;
+	}
+
+
 	//Common
 
 	template<bool isSlua>
@@ -339,21 +406,11 @@ namespace slua::parse
 		using NIL = std::monostate;								// "nil"
 		struct FALSE {};										// "false"
 		struct TRUE {};											// "true"
-		struct NUMERAL { double v; };							// "Numeral"
-		struct LITERAL_STRING { std::string v; };				// "LiteralString"
 		struct VARARGS {};										// "..."
 
 		template<bool isSlua>
 		struct FUNCTION_DEFv { FunctionV<isSlua> v; };				// "functiondef"
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
-
-		template<bool isSlua>
-		using LIM_PREFIX_EXPv = std::unique_ptr<LimPrefixExprV<isSlua>>;	// "prefixexp"
-		template<AnyCfgable CfgT> using LIM_PREFIX_EXP = SelV<CfgT, LIM_PREFIX_EXPv>;
-
-		template<bool isSlua>
-		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
-		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
 		template<bool isSlua>
 		struct TABLE_CONSTRUCTORv { TableConstructorV<isSlua> v; };	// "tableconstructor"
@@ -371,20 +428,10 @@ namespace slua::parse
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlua>>};     // "unop exp"	//Inlined as opt prefix
 
 
-		struct OPEN_RANGE { };					// "..."
 
 		using LIFETIME = Lifetime;	// " '/' var" {'/' var"}
 		using TYPE_EXPR = TypeExpr;
 		using TRAIT_EXPR = TraitExpr;
-
-		template<bool isSlua>
-		struct ARRAY_CONSTRUCTORv
-		{
-			std::unique_ptr<ExpressionV<isSlua>> val;
-			std::unique_ptr<ExpressionV<isSlua>> size;
-		};
-		template<AnyCfgable CfgT> 
-		using ARRAY_CONSTRUCTOR = SelV<CfgT, ARRAY_CONSTRUCTORv>;
 	}
 
 	template<bool isSlua>
