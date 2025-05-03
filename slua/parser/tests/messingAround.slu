@@ -267,3 +267,26 @@ newtype const Qu3 = struct{
 }
 
 const trait BasicMathOps = Add + Sub + Mul + Div;
+
+
+match (getArgV4()) -> u8 {
+	&mut TnTArr4{
+		mut &mut _aa,
+		{b_4="Hi" or "Hello",u8 b3_4,c4_4, ..},
+		Tn_4{
+			|t_4| Vec(u8) a2_4,
+			|n4_| b2_4 = 54
+		},
+		mut {
+			|t| a2_45 = 1...100,
+			|n| None
+		} cicada,
+		..
+	} => do {
+		cicada.t = 4;
+		a2_4:clear();
+		print$("b_4: {}",b_4);
+		panic$();
+	};
+	else => 100;
+}
