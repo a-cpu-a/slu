@@ -5,7 +5,8 @@
 New Syntax {
 	
 	typePrefix ::= ["mut"] {typeunop}
-	basicTypeOrTypePrefixMut ::= typePrefix | basicTypeExpMut
+	basicTypeOrTypePrefix ::= typePrefix | basicTypeExp
+	basicTypeOrTypePrefixMut ::= basicTypeOrTypePrefix | basicTypeExpMut
 	
 	
 	borrowLifetime ::= "/" Name {"/" Name}
