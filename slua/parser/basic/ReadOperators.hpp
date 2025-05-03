@@ -45,7 +45,7 @@ namespace slua::parse
 			in.skip();
 			return UnOpType::LENGTH;
 		case '~':
-			if (typeOnly)break;
+			if constexpr (in.settings() & sluaSyn)break;
 			in.skip();
 			return UnOpType::BITWISE_NOT;
 		case '&':

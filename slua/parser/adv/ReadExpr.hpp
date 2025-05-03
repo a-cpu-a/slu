@@ -102,7 +102,7 @@ namespace slua::parse
 		//case '&': //ref op
 		//case '*': //Maybe a deref?
 		case '!':
-		//case '~': // that is a unary op too
+		case '~':
 		case '|':
 			if constexpr (in.settings() & sluaSyn)
 			{
