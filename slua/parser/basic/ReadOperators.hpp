@@ -41,7 +41,7 @@ namespace slua::parse
 				return UnOpType::LOGICAL_NOT;
 			break;
 		case '#':
-			if (typeOnly)break;
+			if constexpr (in.settings() & sluaSyn)break;
 			in.skip();
 			return UnOpType::LENGTH;
 		case '~':

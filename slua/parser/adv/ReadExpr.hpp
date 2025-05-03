@@ -101,7 +101,8 @@ namespace slua::parse
 		case '^':
 		//case '&': //ref op
 		//case '*': //Maybe a deref?
-		case '!':
+		//case '!':
+		case '#':
 		case '~':
 		case '|':
 			if constexpr (in.settings() & sluaSyn)
