@@ -48,35 +48,35 @@ let mut &mut _TnTObj{
 	|_t2_| mut BTn___{
 		|t__| a221,
 		|n_| b221
-	},
+	}  _wrap1,
 	|___n2| mut {
 		|_t| ax2x,
 		|__n| _b2z
-	},
+	} _wrap21,
 	..
-} = __getTnT_Obj();
+} _wrap2 = __getTnT_Obj();
 
 
 let mut &mut TnT{
 	mut &mut {
 		aa,
 		b3
-	},
+	} wrap33,
 	b,
 	mut Tn{
 		a2,
 		b2
-	},
+	} wrap334,
 	..
-} = getTnT();
+} wrap331 = getTnT();
 
-let mut &mut TnTArr{
-	mut &mut {
+let &mut TnTArr{
+	&mut {
 		u32 aa,
 		u64 b3
 	},
 	b,
-	mut Tn{
+	Tn{
 		|t| [u128] a2,
 		|n| [u8;34] b2,
 		..
@@ -88,8 +88,8 @@ let mut &mut TnTArr{
 
 
 
-let mut &mut _TnTArr{
-	mut &mut {
+let &mut _TnTArr{
+	&mut {
 		_a0a,
 		b_3
 	},
@@ -97,35 +97,35 @@ let mut &mut _TnTArr{
 	mut T_n{
 		|t| a26,
 		|n| b2Xz
-	},
+	} wrap331,
 	_,
 	d24__,
 	..
 } = getTnT_();
 
 
-let mut &mut TnTArr4{
+let &mut TnTArr4{
 	mut &mut _aa,
 	{b_4,b3_4,c4_4, ..},
-	mut Tn_4{
+	Tn_4{
 		|t_4| a2_4,
 		|n4_| b2_4
 	},
 	mut {
 		|t| a2_45,
 		|n| b2_45
-	},
+	} cicada,
 	..
 } = getTnT_4();
 
 
-let mut &mut TnTArr_99{
-	mut &mut {
+let &mut TnTArr_99{
+	&mut {
 		aa_99,
 		b3_99
 	},
 	b_99,
-	mut Tn{
+	Tn{
 		a2_99,
 		b2_99
 	},
