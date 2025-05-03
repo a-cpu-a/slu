@@ -57,7 +57,6 @@ New Syntax {
 	
 	ndPat ::= sPat
 	pat ::= sPat | dPat
-	patNoNpfList ::= sPat | dPatNoNpfList
 	
 	matchItem ::= pat ["if" exp] "=>" explist
 	matchElseItem ::= "else" ["if" exp] "=>" explist
