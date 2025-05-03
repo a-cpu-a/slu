@@ -82,7 +82,7 @@ SLua_MAP_TYPE(uint8_t, slua::Int);
 ```cpp
 std::vector<uint8_t> srcCode = ...;
 
-sluaParse::Input in;
+sluaParse::VecInput in;
 in.fName = ...;
 in.text = srcCode; // "in.text" is a span, so no copy is made. "srcCode" needs to exist while "in" does.
 
