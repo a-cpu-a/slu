@@ -33,24 +33,24 @@ New Syntax {
 	
 	
 	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
-	destrTupFieldList ::= pat {"," pat} [extraFieldSignifier]
+	destrListFieldList ::= pat {"," pat} [extraFieldSignifier]
 	
 	dPat ::= destrSpec "{" destrFieldList "}" 
 		| destrSpecMut "{" destrFieldList "}"  Name
-		| destrSpec "{" destrTupFieldList "}"
-		| destrSpecMut "{" destrTupFieldList "}" Name
+		| destrSpec "{" destrListFieldList "}"
+		| destrSpecMut "{" destrListFieldList "}" Name
 		
 		| destrSpecMut Name ["=" ndPat] 
 		| "_"
 		
 		
 	uncondDestrFieldList ::= destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier]
-	uncondDestrTupFieldList ::= uncondDestrPat {"," uncondDestrPat} [extraFieldSignifier]
+	uncondDestrListFieldList ::= uncondDestrPat {"," uncondDestrPat} [extraFieldSignifier]
 	
 	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}"
 		| destrSpecMut "{" uncondDestrFieldList "}" Name
-		| destrSpec "{" uncondDestrTupFieldList "}"
-		| destrSpecMut "{" uncondDestrTupFieldList "}" Name
+		| destrSpec "{" uncondDestrListFieldList "}"
+		| destrSpecMut "{" uncondDestrListFieldList "}" Name
 		
 		| destrSpecMut Name
 		| "_"
