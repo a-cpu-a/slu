@@ -3,7 +3,7 @@
 #
 
 New Syntax {
-	--Note that this 'var' only supports basic args
+	--Note that this 'var' only supports basic args, and cant be a deref
 	--Also, type expr is prefered of func call / var, so if they return types, then they are treated as types.
 	--Note: unop cant be deref, ref, ptr, other type ones
 	matchPatItem ::= {unop} "(" comptimeExp ")" {postunop}
