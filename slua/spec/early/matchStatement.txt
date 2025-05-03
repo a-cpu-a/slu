@@ -7,14 +7,15 @@ New Syntax {
 	--Also, type expr is prefered of func call / var, so if they return types, then they are treated as types.
 	--Note: unop cant be deref, ref, ptr, other type ones
 	--Note: binop doesnt allow 'or' and 'and'
-	matchPatItem ::= {unop} "(" comptimeExp ")" {postunop}
-		| {unop} Numeral {postunop}
-		| {unop} StringLiteral {postunop}
-		| {unop} var {postunop}
-		| {unop} functioncallBasicArgs {postunop}
+	matchPatItem ::= "(" comptimeExp ")"
+		| Numeral
+		| StringLiteral
+		| var
+		| functioncallBasicArgs
 		| matchPatItem binop matchPatItem
 		| arrayMultiplyConstruct
 		| basicTypeExp
+		| {unop} matchPatItem {postunop}
 		| "..."
 	
 	matchPatBinOp ::= "or"
