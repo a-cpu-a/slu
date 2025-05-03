@@ -4,17 +4,16 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix ["newtype"] "const" uncondDestrPat ["=" explist]
+	stat @::= | OptExportPrefix "const" uncondDestrPat ["=" explist]
 }
 
 New Keywords {
 	const
-	newtype
 }
 
 Const Statement {
 	
-	Creates new global or local variable(s) with names, that cant be modified (not even its contents).
+	Creates new global variable(s) with names, that cant be modified (not even its contents).
 	
 	Types are assigned automatically, when needed.
 
