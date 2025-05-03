@@ -328,18 +328,19 @@ namespace slua::parse
 
 	namespace SimplePatType
 	{
-		struct Range
-		{
-			std::unique_ptr<struct SimplePat> l;
-			std::unique_ptr<struct SimplePat> r;
-		};
 		using TypeExpr = slua::parse::TypeExpr;
+
+		struct MULTI_OP
+		{
+			std::unique_ptr<struct SimplePat> first;
+			std::vector<std::pair<BinOpType, struct SimplePat>> extra;
+		};
 	}
 	using SimplePatData = std::variant<
 		ExprType::OPEN_RANGE,			// "..."
 
-		SimplePatType::Range,
 		SimplePatType::TypeExpr,
+		SimplePatType::MULTI_OP,
 
 		ExprType::LIM_PREFIX_EXPv<true>,// "prefixexp"
 		ExprType::FUNC_CALLv<true>,		// "prefixexp argsThing {argsThing}"
