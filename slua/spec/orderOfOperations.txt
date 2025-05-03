@@ -8,7 +8,7 @@ Order of Operations {
 	
 	--decide if wrap & sat operators should exist?
 	--sat -> |
-	--wrap -> &
+	--wrap -> & or %
 	--location would be after, aka (+&, +|, <<|, <<&)
 	
 	```
