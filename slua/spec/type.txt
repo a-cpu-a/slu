@@ -26,6 +26,10 @@ New Syntax {
 	
 	--Note: 'var' inside traitExp,typeExp doesnt allow "" and {} style args
 	
+	structField ::= annotations OptExportPrefix [Name "="] type
+	structConstructor ::= structField {fieldsep structField} [fieldsep]
+	
+	
 	traitExp ::= ‘(’ exp ‘)’
 		| var
 		| functioncallBasicArgs
@@ -41,6 +45,8 @@ New Syntax {
 		| "[" exp "]"
 		| arrayMultiplyConstruct
 		| "?"
+		| "struct" "{" [structConstructor] "}"
+		| "union" "{" [structConstructor] "}"
 		| "//" typeExp
 		| typeunop {typeunop} typeExp
 		| basicTypeExp binop typeExp
@@ -56,7 +62,7 @@ New Syntax {
 	
 	typeExp ::= basicTypeExp
 		| typeExp binop typeExp
-		| tableconstructor
+		| "{" [structConstructor] "}"
 		
 	typeExpMut ::= typeExpMutBase
 		| basicTypeExpMut
