@@ -11,15 +11,14 @@ New Syntax {
 		| {unop} StringLiteral {postunop}
 		| {unop} var {postunop}
 		| {unop} functioncallBasicArgs {postunop}
+		| matchPatItem binop matchPatItem
 		| arrayMultiplyConstruct
 		| basicTypeExp
 		| "..."
 	
-	matchPatItemRanged ::= matchPatItem "..." matchPatItem | matchPatItem
+	matchPatBinOp ::= ","
+	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
-	
-	matchPatBinOp ::= "or"
-	sPat ::= matchPatItemRanged {matchPatBinOp matchPatItemRanged}
 	
 	destrSpec ::= basicTypeOrTypePrefix | ("as" typeExp)
 	destrSpecMut ::= basicTypeOrTypePrefixMut | ("as" typeExpMut)
@@ -38,8 +37,8 @@ New Syntax {
 		
 		| destrSpecMut Name ["=" ndPat] 
 		| "_"
-		
-		
+	
+	
 	destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
 	uncondDestrFieldList ::= destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier]
 	uncondDestrPatFieldList ::= uncondDestrPat {"," uncondDestrPat} [extraFieldSignifier]
