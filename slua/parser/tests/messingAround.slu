@@ -266,23 +266,4 @@ newtype const Qu3 = struct{
 	ex z = mut u32;
 }
 
-struct Qu {
-	ex mut u32 x;
-	ex mut u32 y;
-	ex mut u32 z;
-};
-struct Qu2 {
-	ex mut u32,
-	ex mut u32,
-	ex mut u32;
-	ex mut u32 x;
-	ex mut u32 y;
-	ex mut u32 z;
-};
-newtype const Qu3 = struct{
-	ex mut u32 x;
-	ex mut u32 y;
-	ex mut u32 z;
-}
-
 const trait BasicMathOps = Add + Sub + Mul + Div;
