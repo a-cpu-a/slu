@@ -6,6 +6,7 @@ New Syntax {
 	--Note that this 'var' only supports basic args, and cant be a deref
 	--Also, type expr is prefered of func call / var, so if they return types, then they are treated as types.
 	--Note: unop cant be deref, ref, ptr, other type ones
+	--Note: binop doesnt allow 'or' and 'and'
 	matchPatItem ::= {unop} "(" comptimeExp ")" {postunop}
 		| {unop} Numeral {postunop}
 		| {unop} StringLiteral {postunop}
@@ -16,7 +17,7 @@ New Syntax {
 		| basicTypeExp
 		| "..."
 	
-	matchPatBinOp ::= ","
+	matchPatBinOp ::= "or"
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
 	
