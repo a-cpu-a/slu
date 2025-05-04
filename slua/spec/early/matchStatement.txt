@@ -14,8 +14,8 @@ New Syntax {
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
 	
 	
-	destrSpec ::= basicTypeOrTypePrefix | ("as" typeExp)
-	destrSpecMut ::= basicTypeOrTypePrefixMut | ("as" typeExpMut)
+	destrSpec ::= matchPatItem | ("as" typeExp)
+	destrSpecMut ::= matchPatItem | ("as" typeExpMut)
 	
 	extraFieldSignifier ::= "," ".."
 	
