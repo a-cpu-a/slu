@@ -474,9 +474,7 @@ namespace slua::parse
 	{
 		using Any = std::monostate;
 		struct Fields;
-		struct FieldsNamed;
 		struct List;
-		struct ListNamed;
 
 		struct Name;
 		struct NameRestrict;
