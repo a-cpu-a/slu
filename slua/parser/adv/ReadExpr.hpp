@@ -51,6 +51,16 @@ namespace slua::parse
 	}
 
 	template<AnyInput In>
+	inline void handleOpenRange(In& in, Expression<In>& basicRes)
+	{
+		if (basicRes.unOps.back().type == UnOpType::RANGE_BEFORE)
+		{
+			basicRes.unOps.erase(basicRes.unOps.end());
+			basicRes.data = ExprType::OPEN_RANGE();
+		}
+	}
+
+	template<bool FOR_PAT=false,AnyInput In>
 	inline Expression<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
@@ -102,17 +112,12 @@ namespace slua::parse
 		//case '&': //ref op
 		//case '*': //Maybe a deref?
 		//case '!':
+		case '|'://todo: handle as lambda
 		case '#':
 		case '~':
-		case '|':
 			if constexpr (in.settings() & sluaSyn)
 			{
-				if(basicRes.unOps.back().type== UnOpType::RANGE_BEFORE)
-				{
-					basicRes.unOps.erase(basicRes.unOps.end());
-					basicRes.data = ExprType::OPEN_RANGE();
-					break;
-				}
+				handleOpenRange(in,basicRes);
 			}
 			break;
 		case '/':
@@ -312,7 +317,10 @@ namespace slua::parse
 
 			break;
 		case '{':
-			basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
+			if constexpr (FOR_PAT)
+				handleOpenRange(in, basicRes);
+			else
+				basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
 			break;
 		}
 
@@ -323,7 +331,7 @@ namespace slua::parse
 			if (firstChar != '(' && !isValidNameStartChar(firstChar))
 				throwExpectedExpr(in);
 
-			basicRes.data = parsePrefixExprVar<ExprData<In>,true>(in,allowVarArg, firstChar);
+			basicRes.data = parsePrefixExprVar<ExprData<In>,true,FOR_PAT>(in,allowVarArg, firstChar);
 		}
 		if constexpr(in.settings() & sluaSyn)
 		{//Postfix op
@@ -387,7 +395,7 @@ namespace slua::parse
 		ExprType::MULTI_OPERATION<In> resData{};
 
 		resData.first = std::make_unique<Expression<In>>(std::move(basicRes));
-		resData.extra.emplace_back(firstBinOp, readExpr(in,allowVarArg,false));
+		resData.extra.emplace_back(firstBinOp, readExpr<FOR_PAT>(in,allowVarArg,false));
 
 		while (true)
 		{
@@ -401,7 +409,7 @@ namespace slua::parse
 			if (binOp == BinOpType::NONE)
 				break;
 
-			resData.extra.emplace_back(binOp, readExpr(in,allowVarArg,false));
+			resData.extra.emplace_back(binOp, readExpr<FOR_PAT>(in,allowVarArg,false));
 		}
 		Expression<In> ret;
 		ret.place = startPos;
