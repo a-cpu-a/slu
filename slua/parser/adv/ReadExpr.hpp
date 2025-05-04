@@ -318,7 +318,11 @@ namespace slua::parse
 			break;
 		case '{':
 			if constexpr (FOR_PAT)
+			{
 				handleOpenRange(in, basicRes);
+				basicRes.data = ExprType::PAT_TYPE_PREFIX{};
+				return basicRes;
+			}
 			else
 				basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
 			break;
@@ -330,6 +334,27 @@ namespace slua::parse
 
 			if (firstChar != '(' && !isValidNameStartChar(firstChar))
 				throwExpectedExpr(in);
+
+			if constexpr (FOR_PAT)
+			{
+				if (firstChar != '(')
+				{// check if unops are a type prefix
+					size_t iterIdx = 0;
+					
+					while (isValidNameChar(in.peekAt(iterIdx)))
+						iterIdx++;
+					// Lands on non valid idx
+					iterIdx = weakSkipSpace(in, iterIdx);
+
+					// => = , }, BUT not ==
+					const char nextChar = in.peek(iterIdx);
+					if ((nextChar == '=' && in.peekAt(iterIdx + 1) != '=') || nextChar == ',' || nextChar == '}')
+					{
+						basicRes.data = ExprType::PAT_TYPE_PREFIX{};
+						return basicRes;
+					}
+				}
+			}
 
 			basicRes.data = parsePrefixExprVar<ExprData<In>,true,FOR_PAT>(in,allowVarArg, firstChar);
 		}
