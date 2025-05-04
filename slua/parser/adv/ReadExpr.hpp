@@ -72,6 +72,13 @@ namespace slua::parse
 		bool isNilIntentional = false;
 		Expression<In> basicRes;
 		basicRes.place = startPos;
+
+		if constexpr (FOR_PAT)
+		{// This allows mut as a type prefix, not just type expression.
+			if (checkReadTextToken(in, "mut"))
+				basicRes.unOps.push_back({ .type = UnOpType::MUT });
+		}
+
 		while (true)
 		{
 			const UnOpType uOp = readOptUnOp(in);
