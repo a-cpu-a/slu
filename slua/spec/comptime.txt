@@ -5,9 +5,9 @@
 
 New Syntax {
 
-	PreFn ::= ["comptime"]
-	PreLet ::= ["comptime"]
-	PreConst ::= ["comptime"]
+	PreFn @::= ["comptime"]
+	PreLet @::= ["comptime"]
+	PreConst @::= ["comptime"]
 	
 	comptimeExp ::= exp
 	comptimeVar ::= modpath {"." tupleableName}
