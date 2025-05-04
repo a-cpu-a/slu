@@ -324,129 +324,6 @@ namespace slua::parse
 
 	using TypePrefix = std::vector<UnOpItem>;
 
-	// match patterns
-
-	namespace SimplePatType
-	{
-		using TypeExpr = slua::parse::TypeExpr;
-
-		struct MULTI_OP
-		{
-			std::unique_ptr<struct SimplePat> first;
-			std::vector<std::pair<BinOpType, struct SimplePat>> extra;
-		};
-	}
-	using SimplePatData = std::variant<
-		ExprType::OPEN_RANGE,			// "..."
-
-		SimplePatType::TypeExpr,
-		SimplePatType::MULTI_OP,
-
-		ExprType::LIM_PREFIX_EXPv<true>,// "prefixexp"
-		ExprType::FUNC_CALLv<true>,		// "prefixexp argsThing {argsThing}"
-
-		ExprType::LITERAL_STRING,		// "LiteralString"
-		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
-
-		ExprType::NUMERAL_U64,
-		ExprType::NUMERAL_I64,
-		ExprType::NUMERAL_U128,
-		ExprType::NUMERAL_I128,
-
-		ExprType::ARRAY_CONSTRUCTORv<true>
-	>;
-	struct SimplePat 
-	{
-		SimplePatData data;
-		std::vector<UnOpItem> unOps;
-		SmallEnumList<PostUnOpType> postUnOps;
-	};
-	using NdPat = std::vector<SimplePat>;
-
-	namespace DestrSpecType
-	{
-		using Type = TypeExpr;
-		using Prefix = TypePrefix;
-	}
-	using DestrSpec = std::variant<
-		DestrSpecType::Type,
-		DestrSpecType::Prefix
-
-	>;
-	namespace DestrPatType
-	{
-		using Any = std::monostate;
-		struct Fields;
-		struct FieldsNamed;
-		struct List;
-		struct ListNamed;
-
-		struct Name;
-		struct NameRestrict;
-	}
-	struct DestrField;
-	struct ___PatHack;
-	namespace DestrPatType
-	{
-		struct Fields
-		{
-			DestrSpec spec;
-			bool extraFields : 1 = false;
-			std::vector<DestrField> items;
-		};
-		struct FieldsNamed : Fields
-		{
-			MpItmIdV<true> name;
-		};
-		struct List
-		{
-			DestrSpec spec;
-			bool extraFields : 1 = false;
-			std::vector<___PatHack> items;
-		};
-		struct ListNamed : List
-		{
-			MpItmIdV<true> name;
-		};
-
-		struct Name
-		{
-			MpItmIdV<true> name;
-			DestrSpec spec;
-		};
-		struct NameRestrict : Name
-		{
-			NdPat restriction;
-		};
-	}
-	using DestrPat = std::variant<
-		DestrPatType::Any,
-
-		DestrPatType::Fields,
-		DestrPatType::FieldsNamed,
-		DestrPatType::List,
-		DestrPatType::ListNamed,
-
-		DestrPatType::Name,
-		DestrPatType::NameRestrict
-	>;
-	namespace PatType
-	{
-		//x or y or z
-		using Simple = NdPat;
-		using Destr = DestrPat;
-	}
-	using Pat = std::variant<
-		PatType::Simple,
-		PatType::Destr
-	>;
-	struct ___PatHack : Pat { using Pat::Pat; };
-	struct DestrField
-	{
-		MpItmIdV<true> name;
-		Pat pat;
-	};
-
 
 	//Common
 
@@ -575,6 +452,106 @@ namespace slua::parse
 	{
 		SmallEnumList<PostUnOpType> postUnOps;
 	};
+
+	//Slua
+
+
+	// match patterns
+
+	using NdPat = ExpressionV<true>;
+
+	namespace DestrSpecType
+	{
+		using Type = TypeExpr;
+		using Prefix = TypePrefix;
+	}
+	using DestrSpec = std::variant<
+		DestrSpecType::Type,
+		DestrSpecType::Prefix
+
+	>;
+	namespace DestrPatType
+	{
+		using Any = std::monostate;
+		struct Fields;
+		struct FieldsNamed;
+		struct List;
+		struct ListNamed;
+
+		struct Name;
+		struct NameRestrict;
+	}
+	struct DestrField;
+	struct ___PatHack;
+	namespace DestrPatType
+	{
+		struct Fields
+		{
+			DestrSpec spec;
+			bool extraFields : 1 = false;
+			std::vector<DestrField> items;
+		};
+		struct FieldsNamed : Fields
+		{
+			MpItmIdV<true> name;
+		};
+		struct List
+		{
+			DestrSpec spec;
+			bool extraFields : 1 = false;
+			std::vector<___PatHack> items;
+		};
+		struct ListNamed : List
+		{
+			MpItmIdV<true> name;
+		};
+
+		struct Name
+		{
+			MpItmIdV<true> name;
+			DestrSpec spec;
+		};
+		struct NameRestrict : Name
+		{
+			NdPat restriction;
+		};
+	}
+	namespace PatType
+	{
+		//x or y or z
+		using Simple = NdPat;
+
+		using DestrAny = DestrPatType::Any;
+
+		using DestrFields = DestrPatType::Fields;
+		using DestrFieldsNamed = DestrPatType::FieldsNamed;
+		using DestrList = DestrPatType::List;
+		using DestrListNamed = DestrPatType::ListNamed;
+
+		using DestrName = DestrPatType::Name;
+		using DestrNameRestrict = DestrPatType::NameRestrict;
+	}
+	using Pat = std::variant<
+		PatType::Simple,
+
+		PatType::DestrAny,
+
+		PatType::DestrFields,
+		PatType::DestrFieldsNamed,
+		PatType::DestrList,
+		PatType::DestrListNamed,
+
+		PatType::DestrName,
+		PatType::DestrNameRestrict
+	>;
+	struct ___PatHack : Pat { using Pat::Pat; };
+	struct DestrField
+	{
+		MpItmIdV<true> name;
+		Pat pat;
+	};
+
+	//Common
 
 	namespace SubVarType
 	{
