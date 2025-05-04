@@ -462,11 +462,11 @@ namespace slua::parse
 
 	namespace DestrSpecType
 	{
-		using Type = TypeExpr;
+		using Spat = parse::NdPat;
 		using Prefix = TypePrefix;
 	}
 	using DestrSpec = std::variant<
-		DestrSpecType::Type,
+		DestrSpecType::Spat,
 		DestrSpecType::Prefix
 
 	>;
