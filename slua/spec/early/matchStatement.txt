@@ -8,14 +8,10 @@ New Syntax {
 	--Note: binop doesnt allow 'and'. And 'or' is used in a different way
 	--Note: table-constructor is not parsed.
 	--Note: lambdas are not parsed. Aka `|...| ...`
-	matchPatItem ::= exp
-	
-	matchPatBinOp ::= "or"
-	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
+	sPat ::= exp
 	
 	
-	destrSpec ::= matchPatItem | typePrefix | ("as" typeExp)
-	destrSpecMut ::= matchPatItem | typePrefix | ("as" typeExpMut)
+	destrSpec ::= sPat | typePrefix | ("as" typeExpMut)
 	
 	extraFieldSignifier ::= "," ".."
 	
@@ -24,12 +20,10 @@ New Syntax {
 	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
 	destrPatFieldList ::= pat {"," pat} [extraFieldSignifier]
 	
-	dPat ::= destrSpec "{" destrFieldList "}" 
-		| destrSpecMut "{" destrFieldList "}"  Name
-		| destrSpec "{" destrPatFieldList "}"
-		| destrSpecMut "{" destrPatFieldList "}" Name
+	dPat ::= destrSpec "{" destrFieldList "}" [Name]
+		| destrSpec "{" destrPatFieldList "}" [Name]
 		
-		| destrSpecMut Name ["=" ndPat] 
+		| destrSpec Name ["=" ndPat] 
 		| "_"
 	
 	
@@ -37,12 +31,10 @@ New Syntax {
 	uncondDestrFieldList ::= destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier]
 	uncondDestrPatFieldList ::= uncondDestrPat {"," uncondDestrPat} [extraFieldSignifier]
 	
-	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}"
-		| destrSpecMut "{" uncondDestrFieldList "}" Name
-		| destrSpec "{" uncondDestrPatFieldList "}"
-		| destrSpecMut "{" uncondDestrPatFieldList "}" Name
+	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}" [Name]
+		| destrSpec "{" uncondDestrPatFieldList "}" [Name]
 		
-		| destrSpecMut Name
+		| destrSpec Name
 		| "_"
 	
 	
