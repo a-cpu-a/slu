@@ -22,7 +22,7 @@ New Syntax {
 		| ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet
 		| ‘for’ uncondDestrPat ‘=’ ‘(’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet
 		| ‘for’ uncondDestrPat ‘in’ ‘(’ exp ‘)’ statOrRet
-		| ‘local’ namelist [‘=’ explist]
+		| ‘local’ uncondDestrPat [‘=’ explist]
 
 
 	retstat ::= return [explist]
