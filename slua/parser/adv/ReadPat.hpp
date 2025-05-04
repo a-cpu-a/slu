@@ -86,6 +86,8 @@ namespace slua::parse
 		default:
 			break;
 		}
+		//try var like stuff
+
 		throwExpectedPat(in);
 	}
 }
