@@ -5,9 +5,10 @@
 New Syntax {
 	
 	typePrefix ::= {typeunop}
-	basicTypeOrTypePrefix ::= typePrefix | basicTypeExp
-	basicTypeOrTypePrefixMut ::= ["mut"] typePrefix | basicTypeExpMut
 	
+	typeunop ::= "*" | "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
+	
+	unop @::= | typeunop | "alloc"
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
@@ -20,10 +21,6 @@ New Syntax {
 	macroParamList ::= macroParam {macroParamSep macroParam}
 	
 	tupleableName ::= Name | Integral
-	
-	typeunop ::= "*" | "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
-	
-	unop @::= | typeunop | "alloc"
 	
 	--Note: 'var' inside traitExp,typeExp doesnt allow "" and {} style args
 	
