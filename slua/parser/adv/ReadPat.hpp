@@ -23,7 +23,7 @@
 namespace slua::parse
 {
 	template<class T,bool NAMED, AnyInput In>
-	inline T readFieldsDestr(In& in, auto&& ty)
+	inline T readFieldsDestr(In& in, auto&& ty, const bool uncond)
 	{
 		T ret;
 		ret.spec = std::move(ty);
@@ -43,10 +43,10 @@ namespace slua::parse
 				requireToken(in, "|");
 				skipSpace(in);
 
-				ret.items.emplace_back(fieldName, readPat(in));
+				ret.items.emplace_back(fieldName, readPat(in, uncond));
 			}
 			else
-				ret.items.emplace_back(readPat(in));
+				ret.items.emplace_back(readPat(in, uncond));
 
 		} while (checkReadToken(in,","));
 
@@ -61,7 +61,7 @@ namespace slua::parse
 		return ret;
 	}
 	template<bool IS_EXPR,AnyInput In>
-	inline Pat readPatPastExpr(In& in,auto&& ty)
+	inline Pat readPatPastExpr(In& in,auto&& ty,const bool uncond)
 	{
 		skipSpace(in);
 
@@ -71,24 +71,35 @@ namespace slua::parse
 			in.skip();
 			skipSpace(in);
 			if (in.peek() == '|')
-				return readFieldsDestr<DestrPatType::Fields,true>(in,std::move(ty));
+				return readFieldsDestr<DestrPatType::Fields,true>(in,std::move(ty), uncond);
 
-			return readFieldsDestr<DestrPatType::List, false>(in, std::move(ty));
+			return readFieldsDestr<DestrPatType::List, false>(in, std::move(ty), uncond);
 		}
 		else if (firstChar == '}' || firstChar == ',')
 		{
 			if constexpr(IS_EXPR)
-				return PatType::Simple{ std::move(ty) };
+			{
+				if (!uncond)
+					return PatType::Simple{ std::move(ty) };
+			}
 			throwExpectedPatDestr(in);
 		}
 		//Must be Name then
 
 		MpItmId<In> name = in.genData.resolveUnknown(readName(in));
-		return PatType::DestrName{ name,std::move(ty)};
+
+		if(!uncond)
+		{
+			skipSpace(in);
+			if (in.peek() == '=')
+				return PatType::DestrNameRestrict{ {name,std::move(ty)},readExpr(in,false) };
+		}
+
+		return PatType::DestrName{ name,std::move(ty) };
 	}
 	//Will not skip space!
 	template<AnyInput In>
-	inline Pat readPat(In& in)
+	inline Pat readPat(In& in, const bool uncond)
 	{
 		const char firstChar = in.peek();
 
@@ -96,7 +107,7 @@ namespace slua::parse
 		{
 			TypeExpr ty = readTypeExpr(in, true);
 
-			return readPatPastExpr<false>(in, std::move(ty));
+			return readPatPastExpr<false>(in, std::move(ty), uncond);
 		}
 		else if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
 		{
@@ -107,9 +118,9 @@ namespace slua::parse
 
 		if (std::holds_alternative<ExprType::PAT_TYPE_PREFIX>(expr.data))
 		{
-			return readPatPastExpr<false>(in, TypePrefix(std::move(expr.unOps)));
+			return readPatPastExpr<false>(in, TypePrefix(std::move(expr.unOps)), uncond);
 		}
 
-		return readPatPastExpr<true>(in,std::move(expr));
+		return readPatPastExpr<true>(in,std::move(expr), uncond);
 	}
 }
