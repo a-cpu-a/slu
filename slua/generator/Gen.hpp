@@ -298,6 +298,7 @@ namespace slua::parse
 		varcase(const ExprType::TRAIT_EXPR&) {
 			//TODO
 		},
+		varcase(const ExprType::PAT_TYPE_PREFIX&) {},//Yes, nothing
 		varcase(const ExprType::NUMERAL_U64) {
 			out.add(std::to_string(var.v));
 		},

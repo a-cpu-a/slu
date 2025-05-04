@@ -392,6 +392,8 @@ namespace slua::parse
 		using LIFETIME = Lifetime;	// " '/' var" {'/' var"}
 		using TYPE_EXPR = TypeExpr;
 		using TRAIT_EXPR = TraitExpr;
+
+		struct PAT_TYPE_PREFIX {};
 	}
 
 	template<bool isSlua>

@@ -60,7 +60,7 @@ namespace slua::parse
 
 		return ret;
 	}
-	template<bool TYPE_EXPR,AnyInput In>
+	template<bool IS_EXPR,AnyInput In>
 	inline Pat readPatPastExpr(In& in,auto&& ty)
 	{
 		skipSpace(in);
@@ -77,7 +77,7 @@ namespace slua::parse
 		}
 		else if (firstChar == '}' || firstChar == ',')
 		{
-			if constexpr(!TYPE_EXPR)
+			if constexpr(IS_EXPR)
 				return PatType::Simple{ std::move(ty) };
 			throwExpectedPatDestr(in);
 		}
@@ -96,7 +96,7 @@ namespace slua::parse
 		{
 			TypeExpr ty = readTypeExpr(in, true);
 
-			return readPatPastExpr<true>(in, std::move(ty));
+			return readPatPastExpr<false>(in, std::move(ty));
 		}
 		else if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
 		{
@@ -104,8 +104,12 @@ namespace slua::parse
 		}
 
 		Expression<In> expr = readExpr<true>(in, false);
-		//TODO: type prefix form parsing
 
-		return readPatPastExpr<false>(in,std::move(expr));
+		if (std::holds_alternative<ExprType::PAT_TYPE_PREFIX>(expr.data))
+		{
+			return readPatPastExpr<false>(in, TypePrefix(std::move(expr.unOps)));
+		}
+
+		return readPatPastExpr<true>(in,std::move(expr));
 	}
 }
