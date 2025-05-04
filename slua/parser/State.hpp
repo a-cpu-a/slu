@@ -490,20 +490,14 @@ namespace slua::parse
 			DestrSpec spec;
 			bool extraFields : 1 = false;
 			std::vector<DestrField> items;
-		};
-		struct FieldsNamed : Fields
-		{
-			MpItmIdV<true> name;
+			MpItmIdV<true> name;//May be empty
 		};
 		struct List
 		{
 			DestrSpec spec;
 			bool extraFields : 1 = false;
 			std::vector<___PatHack> items;
-		};
-		struct ListNamed : List
-		{
-			MpItmIdV<true> name;
+			MpItmIdV<true> name;//May be empty
 		};
 
 		struct Name
@@ -524,9 +518,7 @@ namespace slua::parse
 		using DestrAny = DestrPatType::Any;
 
 		using DestrFields = DestrPatType::Fields;
-		using DestrFieldsNamed = DestrPatType::FieldsNamed;
 		using DestrList = DestrPatType::List;
-		using DestrListNamed = DestrPatType::ListNamed;
 
 		using DestrName = DestrPatType::Name;
 		using DestrNameRestrict = DestrPatType::NameRestrict;
@@ -537,9 +529,7 @@ namespace slua::parse
 		PatType::DestrAny,
 
 		PatType::DestrFields,
-		PatType::DestrFieldsNamed,
 		PatType::DestrList,
-		PatType::DestrListNamed,
 
 		PatType::DestrName,
 		PatType::DestrNameRestrict
