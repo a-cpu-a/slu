@@ -3,20 +3,12 @@
 #
 
 New Syntax {
-	--Note that this 'var' only supports basic args, and cant be a deref
-	--Also, type expr is prefered of func call / var, so if they return types, then they are treated as types.
-	--Note: unop cant be deref, ref, ptr, other type ones
-	--Note: binop doesnt allow 'or' and 'and'
-	matchPatItem ::= "(" comptimeExp ")"
-		| Numeral
-		| StringLiteral
-		| var
-		| functioncallBasicArgs
-		| matchPatItem binop matchPatItem
-		| arrayMultiplyConstruct
-		| basicTypeExp
-		| {unop} matchPatItem {postunop}
-		| "..."
+	--Note that this only supports basic args
+	--Also, type expr is prefered over func call / var, so if they return types, then they are treated as types.
+	--Note: binop doesnt allow 'and'. And 'or' is used in a different way
+	--Note: table-constructor is not parsed.
+	--Note: lambdas are not parsed. Aka `|...| ...`
+	matchPatItem ::= exp
 	
 	matchPatBinOp ::= "or"
 	sPat ::= matchPatItem {matchPatBinOp matchPatItem}
