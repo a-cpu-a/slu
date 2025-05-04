@@ -8,21 +8,21 @@ New Syntax {
 
 	block ::= {stat} [retstat [‘;’]]
 
-	basicstat ::= ‘;’ | 
-		 varlist ‘=’ explist | 
-		 functioncall | 
-		 ‘break’ | 
-		 ‘goto’ Name
+	basicstat ::= ‘;’
+		 | varlist ‘=’ explist
+		 | functioncall
+		 | ‘break’
+		 | ‘goto’ Name
 
-	stat ::=  basicstat | 
-		 label | 
-		 ‘{’ block ‘}’ | 
-		 ‘while’ ‘(’ exp ‘)’ statOrRet | 
-		 ‘repeat’ statOrRetOsc ‘until’ exp | 
-		 ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet | 
-		 ‘for’ uncondDestrPat ‘=’ ‘(’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet | 
-		 ‘for’ uncondDestrPat ‘in’ ‘(’ exp ‘)’ statOrRet | 
-		 ‘local’ namelist [‘=’ explist]
+	stat ::=  basicstat
+		 | label
+		 | ‘{’ block ‘}’
+		 | ‘while’ ‘(’ exp ‘)’ statOrRet
+		 | ‘repeat’ statOrRetOsc ‘until’ exp
+		 | ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet
+		 | ‘for’ uncondDestrPat ‘=’ ‘(’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet
+		 | ‘for’ uncondDestrPat ‘in’ ‘(’ exp ‘)’ statOrRet
+		 | ‘local’ namelist [‘=’ explist]
 
 
 	retstat ::= return [explist]
@@ -48,8 +48,8 @@ New Syntax {
 
 	explist ::= exp {‘,’ exp}
 
-	exp ::=  Numeral | LiteralString | 
-		 prefixexp | functioncall | tableconstructor | exp binop exp | {unop} exp {postunop}
+	exp ::=  Numeral | LiteralString
+		 | prefixexp | functioncall | tableconstructor | exp binop exp | {unop} exp {postunop}
 
 	prefixexp ::= var | ‘(’ exp ‘)’
 	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
@@ -68,10 +68,10 @@ New Syntax {
 
 	fieldsep ::= ‘,’ | ‘;’
 
-	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ | 
-		 ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ | 
-		 ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘!=’ | 
-		 ‘and’ | ‘or’
+	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’
+		 | ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’
+		 | ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘!=’
+		 | ‘and’ | ‘or’
 
 	unop ::= ‘-’ | ‘!’
 	
