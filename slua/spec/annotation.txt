@@ -9,8 +9,8 @@ New Syntax {
 	annotation ::= "@" comptimeVar [tableconstructor]
 	
 	
-	stat @::= annotations stat
-	exp @::= annotations exp
+	stat @::= | annotations stat
+	exp @::= | annotations exp
 }
 
 Annotation {
