@@ -28,10 +28,12 @@ namespace slua::parse
 			, errorLocStr(in)
 		));
 	}
-	inline void throwExpectedPat(AnyInput auto& in)
+	inline void throwExpectedPatDestr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
-			"Expected pattern at"
+			"Expected pattern destructuring for "
+			LUACC_SINGLE_STRING("as")
+			", at"
 			"{}"
 			, errorLocStr(in)
 		));

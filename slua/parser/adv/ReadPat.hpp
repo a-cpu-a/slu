@@ -16,78 +16,96 @@
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/adv/ReadExprBase.hpp>
 #include <slua/parser/adv/RequireToken.hpp>
+#include <slua/parser/adv/ReadTypeExpr.hpp>
+#include <slua/parser/adv/ReadName.hpp>
 #include <slua/parser/errors/CharErrors.h>
 
 namespace slua::parse
 {
+	template<class T,bool NAMED, AnyInput In>
+	inline T readFieldsDestr(In& in, auto&& ty)
+	{
+		T ret;
+		ret.spec = std::move(ty);
+		do
+		{
+			skipSpace(in);
+			if (in.peekAt(2) != '.' && checkReadToken(in,".."))
+			{
+				ret.extraFields = true;
+				break;
+			}
+			if constexpr(NAMED)
+			{
+				requireToken(in, "|");
+				skipSpace(in);
+				MpItmId<In> fieldName = in.genData.resolveUnknown(readName(in));
+				requireToken(in, "|");
+				skipSpace(in);
+
+				ret.items.emplace_back(fieldName, readPat(in));
+			}
+			else
+				ret.items.emplace_back(readPat(in));
+
+		} while (checkReadToken(in,","));
+
+		requireToken(in, "}");
+		skipSpace(in);
+
+		if (isValidNameChar(in.peek()))
+			ret.name = in.genData.resolveUnknown(readName(in));
+		else
+			ret.name = { SIZE_MAX };
+
+		return ret;
+	}
+	template<bool TYPE_EXPR,AnyInput In>
+	inline Pat readPatPastExpr(In& in,auto&& ty)
+	{
+		skipSpace(in);
+
+		const char firstChar = in.peek();
+		if (firstChar == '{')
+		{
+			in.skip();
+			skipSpace(in);
+			if (in.peek() == '|')
+				return readFieldsDestr<DestrPatType::Fields,true>(in,std::move(ty));
+
+			return readFieldsDestr<DestrPatType::List, false>(in, std::move(ty));
+		}
+		else if (firstChar == '}' || firstChar == ',')
+		{
+			if constexpr(!TYPE_EXPR)
+				return PatType::Simple{ std::move(ty) };
+			throwExpectedPatDestr(in);
+		}
+		//Must be Name then
+
+		MpItmId<In> name = in.genData.resolveUnknown(readName(in));
+		return PatType::DestrName{ name,std::move(ty)};
+	}
+	//Will not skip space!
 	template<AnyInput In>
 	inline Pat readPat(In& in)
 	{
 		const char firstChar = in.peek();
 
-		switch (firstChar)
+		if (firstChar == 'a' && checkReadTextToken("as"))
 		{
-		case '.':
-			if (checkReadToken(in, "..."))
-			{
-				//un op
-			}
-			[[fallthrough]];
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-			//readNumeral();
-			break;
-		case '{':
-			//destructor
-		case '-':
-		case '!':
-			//un op
-		case '&':
-		case '*':
-			//type
-		case '(':
-			//exp or typeexp
-			break;
-		case '?':
-		case '/':
-			//type
+			TypeExpr ty = readTypeExpr(in, true);
 
-
-		case '[':
-			//string? type? array?
-		case '"':
-		case '\'':
-			//str
-
-		case 'a':
-			//as?
-		case 'd':
-			//dyn?
-		case 'f':
-			//fn?
-		case 'impl':
-			//impl?
-		case 'm':
-			//mut?
-		case 's':
-			//struct? safe fn?
-		case 't':
-			//type? trait?
-		case 'u':
-			//union? unsafe fn?
-		default:
-			break;
+			return readPatPastExpr<true>(in, std::move(ty));
 		}
-		//try var like stuff
+		else if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
+		{
+			return PatType::DestrAny{};
+		}
 
-		throwExpectedPat(in);
+		Expression<In> expr = readExpr<true>(in, false);
+		//TODO: type prefix form parsing
+
+		return readPatPastExpr<false>(in,std::move(expr));
 	}
 }
