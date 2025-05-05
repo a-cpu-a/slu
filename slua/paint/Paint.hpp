@@ -12,6 +12,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slua/Settings.hpp>
+#include <slua/ext/CppMatch.hpp>
 #include <slua/parser/Input.hpp>
 #include <slua/parser/State.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
@@ -36,14 +37,39 @@ namespace slua::paint
 		se.template add<tok>(TOK_SIZE - 1);
 	}
 	template<AnySemOutput Se>
-	inline void paintStat(Se& se, const parse::Statement<Se>& f)
+	inline void paintExpr(Se& se, const parse::Expression<Se>& f)
 	{
 		se.move(f.place);
 	}
 	template<AnySemOutput Se>
-	inline void paintExpr(Se& se, const parse::Expression<Se>& f)
+	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& f)
+	{
+		//todo
+	}
+	template<AnySemOutput Se>
+	inline void paintStat(Se& se, const parse::Statement<Se>& f)
 	{
 		se.move(f.place);
+		ezmatch(f.data)(
+		varcase(const parse::StatementType::BLOCK&) {
+			se.template add<Tok::BRACES>();
+			paintBlock(se, var);
+			skipSpace(se);
+			se.template add<Tok::BRACES>();
+		},
+		varcase(const parse::StatementType::ASSIGN&) {
+			paintVarList(se, var.vars);
+			skipSpace(se);
+			se.template add<Tok::ASSIGN>();
+			paintExprList(se, var.exprs);
+		},
+		varcase(const parse::StatementType::DROP&) {
+			paintKw<Tok::DROP_STAT>(se, "drop");
+			paintExpr(se, var.expr);
+			skipSpace(se);
+			se.template add<Tok::PUNCTUATION>();
+		}
+		);
 	}
 	template<AnySemOutput Se>
 	inline void paintExprList(Se& se, const parse::ExpList<Se>& f)
