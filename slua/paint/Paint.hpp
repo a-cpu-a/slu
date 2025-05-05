@@ -53,7 +53,7 @@ namespace slua::paint
 		se.move(f.place);
 		//todo: unops
 		ezmatch(f.data)();
-		if constexpr (se.settings() & sluaSyn)
+		if constexpr (Se::settings() & sluaSyn)
 		{
 			//todo: post unops
 		}
@@ -135,7 +135,7 @@ namespace slua::paint
 		}
 		if (f.hadReturn)
 		{
-			if constexpr(se.settings()&sluaSyn)
+			if constexpr(Se::settings()&sluaSyn)
 			{
 				skipSpace(se);
 				if (se.in.peek() == 'd')
