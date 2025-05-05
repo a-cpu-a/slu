@@ -10,6 +10,7 @@ New Syntax {
 	
 	
 	stat @::= | annotations stat
+	basicExp @::= | annotations basicExp
 	exp @::= | annotations exp
 }
 

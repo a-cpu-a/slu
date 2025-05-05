@@ -4,6 +4,7 @@
 
 New Syntax {
 	
+	basicExp @::= | basicExp "as" typeExp
 	exp @::= | exp "as" typeExp
 }
 

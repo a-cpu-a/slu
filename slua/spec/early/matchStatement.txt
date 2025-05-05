@@ -3,12 +3,10 @@
 #
 
 New Syntax {
-	--Note that this only supports basic args
 	--Also, type expr is prefered over func call / var, so if they return types, then they are treated as types.
 	--Note: binop doesnt allow 'and'. And 'or' is used in a different way
-	--Note: table-constructor is not parsed.
-	--Note: lambdas are not parsed. Aka `|...| ...`
-	sPat ::= exp
+	--Note: || lambdas are not parsed. Aka `|...| ...`
+	sPat ::= basicExp
 	
 	
 	destrSpec ::= sPat | typePrefix | ("as" typeExpMut)
@@ -45,9 +43,9 @@ New Syntax {
 	matchElseItem ::= "else" ["if" exp] "=>" explist
 	matchStat ::= matchItem | matchElseItem | ";"
 	
-	matchExp ::= "match" "(" exp ")" ["->" typeExp] "{" {matchStat} "}"
+	matchExp ::= "match" basicExp ["->" typeExp] "{" {matchStat} "}"
 	
-	exp @::= | matchExp
+	basicExp @::= | matchExp
 	stat @::= | matchExp
 }
 

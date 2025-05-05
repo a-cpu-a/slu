@@ -9,9 +9,9 @@ New Syntax {
 	tryItem ::= pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | matchElseItem | ";"
 	
-	tryExp ::= "try" "(" exp ")" ["->" typeExp] "{" {tryStat} "}"
+	tryExp ::= "try" basicExp ["->" typeExp] "{" {tryStat} "}"
 	
-	exp @::= | tryExp
+	basicExp @::= | tryExp
 	stat @::= | tryExp
 	
 	
