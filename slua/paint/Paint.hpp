@@ -108,6 +108,11 @@ namespace slua::paint
 			paintKw<Tok::FN_STAT>(se, "safe");
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
+		varcase(const parse::StatementType::LABEL<Se>&) {
+			paintKw<Tok::PUNCTUATION>(se, ":::");
+			paintName<Tok::NAME_LABEL>(se, var.v);
+			paintKw<Tok::PUNCTUATION>(se, ":");
+		},
 		varcase(const parse::StatementType::GOTO<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "goto");
 			paintName<Tok::NAME_LABEL>(se, var.v);
