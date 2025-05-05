@@ -121,6 +121,7 @@ namespace slua::paint
 			{ t.in } -> AnyInput;
 
 			{ t.move(Position()) } -> std::same_as<T&>;
+			{ t.template move<Tok::WHITESPACE>(Position()) } -> std::same_as<T&>;
 
 			{ t.add(Tok::WHITESPACE) } -> std::same_as<T&>;
 			{ t.add(Tok::WHITESPACE,Tok::WHITESPACE) } -> std::same_as<T&>;
@@ -204,9 +205,14 @@ namespace slua::paint
 		SemOutput& add(Tok t,size_t count=1) {
 			return add(t,t, count));
 		}
+
+		template<Tok t>
 		SemOutput& move(Position p) {
 
 			return *this;
+		}
+		SemOutput& move(Position p) {
+			return move<Tok::WHITESPACE>(p);
 		}
 	};
 }
