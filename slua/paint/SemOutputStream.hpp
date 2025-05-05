@@ -232,6 +232,10 @@ namespace slua::paint
 				Position loc = in.getLoc();
 				if (loc.index == p.index && loc.line == p.line)
 					break;
+
+				if (out.size() <= loc.line)
+					out.resize(loc.line + 1);
+
 				out[loc.line].resize(loc.index+1, pair);
 			}
 			return *this;
