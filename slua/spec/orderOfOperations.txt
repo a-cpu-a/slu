@@ -42,6 +42,7 @@ Order of Operations {
 	```
 	
 	Everything is left to right, except for <<, >> and ^ which are right to left
+	(unary operators are also right to left)
 	
 	
 	
