@@ -82,6 +82,7 @@ namespace slua::parse
 	_Slua_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
 	_Slua_MAKE_SETTING_CVAR(noIntOverflow);
 	_Slua_MAKE_SETTING_CVAR(sluaSyn);
+	_Slua_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
 
 
 #undef _Slua_MAKE_SETTING_CVAR

@@ -151,6 +151,12 @@ namespace slua::parse
 		{
 			const char c = in.peek();
 
+			if constexpr (in.settings() & numberSpacing)
+			{
+				if (c == '_')
+					continue;
+			}
+
 			const bool digit = hex ? isHexDigitChar(c) : isDigitChar(c);
 
 			if (digit)
