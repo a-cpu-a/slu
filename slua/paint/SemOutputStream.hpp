@@ -80,6 +80,9 @@ namespace slua::paint
 		OR,
 		AND,
 
+		PAT_OR,
+		PAT_AND,
+
 		ADD,
 
 		MOD,
