@@ -34,30 +34,34 @@ namespace slua::paint
 
 		COND_STAT,//if, else, elseif, for, while, try, match, do
 		VAR_STAT,//let, local, const, use
-		FN_STAT,//fn, function, extern, safe, unsafe
-		RET_STAT,//return, do return, throw, break, continue
+		FN_STAT,//fn, function, extern, safe, unsafe, async, return, do return, throw, break, continue
 		CON_STAT,//struct, enum, union, mod, axiom, impl, trait
 
 		DROP_STAT,//drop, as
 
 		EX_TINT,//ex (overlay over export, which has the same color as next token)
 		COMP_TINT,//comptime (overlay over comptime, which has the same color as next token)
+		TYPE_TAG, //typw
 
 		END_STAT,//end
 
 		ASSIGN,// =
 		PAT_RESTRICT,// =
 		GEN_OP,// =>, ==, != || () {} []
+		PUNCTUATION,// >= <= > < , ;
+		MP,// ::
+		TBL,// {}
 
 		MP_IDX,// : ::
 		NAME,// .123 .xxx xxx
 		NAME_TABLE,// xxx inside {xxx=...}
-		NAME_TYPE,
+		NAME_TYPE,// type trait xxx
 
 		NUMBER,
-		NUMBER_KIND,
+		NUMBER_TYPE,// u8, u16, ...
+		NUMBER_KIND,// 0x, 0b, 0o, eE pP
 		STRING,
-		STRING_OUT, // the quotes, [=['s or the type (`c"xxx"`, the c)
+		STRING_OUT, // String, the quotes, [=['s or the type (`c"xxx"`, the c)
 
 		SPLICER,// @()
 		SPLICE_VAR,// $xxx xxx$
@@ -87,6 +91,9 @@ namespace slua::paint
 		NOT,
 		SUB,
 		NEG,
+
+		SIZEOF,// lua # un operator
+		BITNOT,// lua ~ un operator
 
 		CONCAT,
 		RANGE,
