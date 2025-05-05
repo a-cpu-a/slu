@@ -22,7 +22,6 @@ namespace slua::stok
 	using parse::AnySettings;
 	using parse::Setting;
 
-	using parse::ParsedFile;
 	using parse::Position;
 
 	enum class Tok : uint8_t
@@ -113,7 +112,6 @@ namespace slua::stok
 		//{ t.db } -> std::same_as<LuaMpDb>;
 
 			{ t.in } -> AnyInput;
-			{ t.f } -> std::same_as<const ParsedFile<T>&>;
 
 			{ t.move(Position()) } -> std::same_as<T&>;
 
@@ -121,6 +119,11 @@ namespace slua::stok
 			{ t.add(Tok::WHITESPACE,Tok::WHITESPACE) } -> std::same_as<T&>;
 			{ t.template add<Tok::WHITESPACE>() } -> std::same_as<T&>;
 			{ t.template add<Tok::WHITESPACE, Tok::WHITESPACE>() } -> std::same_as<T&>;
+
+			{ t.add(Tok::WHITESPACE,1ULL) } -> std::same_as<T&>;
+			{ t.add(Tok::WHITESPACE,Tok::WHITESPACE, 1ULL) } -> std::same_as<T&>;
+			{ t.template add<Tok::WHITESPACE>(1ULL) } -> std::same_as<T&>;
+			{ t.template add<Tok::WHITESPACE, Tok::WHITESPACE>(1ULL) } -> std::same_as<T&>;
 
 	}
 #endif // Slua_NoConcepts
@@ -135,7 +138,7 @@ namespace slua::stok
 				//Add colors:
 			case Tok::WHITESPACE:
 			default:
-				return 0x388831 * (uint32_t(tok) + 1);
+				return 0x388831 * (uint32_t(tok) + 1) | 0xFF000000;
 			}
 		}
 		static constexpr uint32_t from(const Tok tok, const Tok overlayTok)
@@ -164,37 +167,35 @@ namespace slua::stok
 	{
 		using SemPair = decltype(Converter::from(Tok::WHITESPACE, Tok::WHITESPACE));
 		
-		constexpr SemOutput(In& in, const ParsedFile<SemOutput>& f, SettingsT) :in(in), f(f) {}
-		constexpr SemOutput(In& in, const ParsedFile<SemOutput>& f) : in(in), f(f) {}
+		constexpr SemOutput(In& in, SettingsT) :in(in) {}
+		constexpr SemOutput(In& in) : in(in) {}
 
 		constexpr static SettingsT settings()
 		{
 			return SettingsT();
 		}
 
-
 		In& in;
-		const ParsedFile<SemOutput>& f;
 		std::vector<std::vector<SemPair>> out;
 
-		SemOutput& addRaw(const SemPair p)
+		SemOutput& addRaw(const SemPair p, size_t count = 1)
 		{
 			//TODO
 			return *this;
 		}
 		template<Tok t,Tok overlayTok>
-		SemOutput& add() {
-			return addRaw(Converter::from(t,overlayTok));
+		SemOutput& add(size_t count = 1) {
+			return addRaw(Converter::from(t,overlayTok), count));
 		}
 		template<Tok t>
-		SemOutput& add() {
-			return add<t,t>();
+		SemOutput& add(size_t count = 1) {
+			return add<t,t>(count);
 		}
-		SemOutput& add(Tok t,Tok overlayTok) {
-			return addRaw(Converter::from(t, overlayTok));
+		SemOutput& add(Tok t,Tok overlayTok, size_t count = 1) {
+			return addRaw(Converter::from(t, overlayTok), count));
 		}
-		SemOutput& add(Tok t) {
-			return add(t,t);
+		SemOutput& add(Tok t,size_t count=1) {
+			return add(t,t, count));
 		}
 		SemOutput& move(Position p) {
 
