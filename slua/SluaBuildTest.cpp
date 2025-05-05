@@ -38,6 +38,7 @@ void _test()
 	slua::parse::VecInput in2{ slua::parse::sluaSyn
 		| slua::parse::noIntOverflow
 		| slua::parse::spacedFuncCallStrForm 
+		| slua::parse::numberSpacing
 	};
 	slua::parse::parseFile(in2);
 
