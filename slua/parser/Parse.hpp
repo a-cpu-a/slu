@@ -26,6 +26,7 @@
 #include "adv/ReadStringLiteral.hpp"
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"
+#include "adv/ReadPat.hpp"
 #include "errors/KwErrors.h"
 
 
@@ -109,6 +110,17 @@
 
 namespace slua::parse
 {
+	template<AnyInput In>
+	inline Parameter<In> readFuncParam(In& in)
+	{
+		Parameter<In> p;
+		if constexpr (in.settings() & sluaSyn)
+			p.names = readPat(in, true);
+		else
+			p.name = in.genData.resolveUnknown(readName(in));
+		
+		return p;
+	}
 	//Pair{fn, hadErr}
 	template<AnyInput In>
 	inline std::pair<Function<In>,bool> readFuncBody(In& in)
@@ -134,12 +146,7 @@ namespace slua::parse
 		}
 		else if (ch != ')')
 		{//must have non-empty namelist
-			{
-				Parameter<In> p;
-				p.name = in.genData.resolveUnknown(readName(in));
-
-				ret.params.emplace_back(std::move(p));
-			}
+			ret.params.emplace_back(readFuncParam(in));
 
 			while (checkReadToken(in, ","))
 			{
@@ -148,10 +155,7 @@ namespace slua::parse
 					ret.hasVarArgParam = true;
 					break;//cant have anything after the ... arg
 				}
-				Parameter<In> p;
-				p.name = in.genData.resolveUnknown(readName(in));
-
-				ret.params.emplace_back(std::move(p));
+				ret.params.emplace_back(readFuncParam(in));
 			}
 		}
 
@@ -427,7 +431,7 @@ namespace slua::parse
 
 				StatementType::LOCAL_ASSIGN<In> res;
 				if constexpr(in.settings() & sluaSyn)
-					res.names = readNameList(in);
+					res.names = readPat(in,true);
 				else
 					res.names = readAttNameList(in);
 
