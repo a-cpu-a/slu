@@ -57,8 +57,8 @@ namespace slua::paint
 			if constexpr(se.settings()&sluaSyn)
 			{
 				skipSpace(se);
-				if (se.in.peek() == 'd');
-				paintKw<Tok::FN_STAT, false>(se, "do");
+				if (se.in.peek() == 'd')
+					paintKw<Tok::FN_STAT, false>(se, "do");
 			}
 			paintKw<Tok::FN_STAT>(se,"return");
 			paintExprList(se,f.retExprs);
