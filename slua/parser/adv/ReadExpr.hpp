@@ -354,7 +354,7 @@ namespace slua::parse
 					iterIdx = weakSkipSpace(in, iterIdx);
 
 					// => = , }, BUT not ==
-					const char nextChar = in.peek(iterIdx);
+					const char nextChar = in.peekAt(iterIdx);
 					if ((nextChar == '=' && in.peekAt(iterIdx + 1) != '=') || nextChar == ',' || nextChar == '}')
 					{
 						basicRes.data = ExprType::PAT_TYPE_PREFIX{};
