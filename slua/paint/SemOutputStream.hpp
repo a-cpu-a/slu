@@ -15,7 +15,7 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/State.hpp>
 
-namespace slua::stok
+namespace slua::paint
 {
 	using parse::AnyCfgable;
 	using parse::AnyInput;
