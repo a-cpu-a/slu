@@ -303,7 +303,11 @@ namespace slua::parse
 				 for namelist in explist do block end |
 				*/
 
-				NameList<In> names = readNameList(in);
+				Sel<in.settings()&sluaSyn, NameList<In>,Pat> names;
+				if constexpr (in.settings() & sluaSyn)
+					names = readPat(in, true);
+				else
+					names = readNameList(in);
 				
 				bool isNumeric = false;
 
@@ -313,10 +317,14 @@ namespace slua::parse
 					isNumeric = names.size() == 1 && checkReadToken(in, "=");
 				if (isNumeric)
 				{
-					if constexpr (in.settings() & sluaSyn)
-						requireToken(in, "(");
 					StatementType::FOR_LOOP_NUMERIC<In> res{};
-					res.varName = names[0];
+					if constexpr (in.settings() & sluaSyn)
+					{
+						requireToken(in, "(");
+						res.varName = std::move(names);
+					}
+					else
+						res.varName = names[0];
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					res.start = readExpr(in, allowVarArg);
@@ -336,7 +344,7 @@ namespace slua::parse
 				// for namelist in explist do block end | 
 
 				StatementType::FOR_LOOP_GENERIC<In> res{};
-				res.varNames = names;
+				res.varNames = std::move(names);
 
 				requireToken(in, "in");
 				if constexpr (in.settings() & sluaSyn)
