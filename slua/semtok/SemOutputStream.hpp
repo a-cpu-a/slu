@@ -28,6 +28,10 @@ namespace slua::stok
 	enum class Tok : uint8_t
 	{
 		WHITESPACE = 0, //comments too
+		COMMENT_OUTER, //The -- [=[ ]=] parts
+		COMMENT_WIP, //tod..., fixm...
+		COMMENT_DOC, // text inside ---
+		COMMENT_DOC_OUTER, // ---
 
 		COND_STAT,//if, else, elseif, for, while, try, match, do
 		VAR_STAT,//let, local, const, use
@@ -44,11 +48,17 @@ namespace slua::stok
 
 		ASSIGN,// =
 		PAT_RESTRICT,// =
-		GEN_OP,// =>, ==, != ||
+		GEN_OP,// =>, ==, != || () {} []
 
 		MP_IDX,// : ::
 		NAME,// .123 .xxx xxx
 		NAME_TABLE,// xxx inside {xxx=...}
+		NAME_TYPE,
+
+		NUMBER,
+		NUMBER_KIND,
+		STRING,
+		STRING_OUT, // the quotes, [=['s or the type (`c"xxx"`, the c)
 
 		SPLICER,// @()
 		SPLICE_VAR,// $xxx xxx$
@@ -112,11 +122,6 @@ namespace slua::stok
 			{ t.template add<Tok::WHITESPACE>() } -> std::same_as<T&>;
 			{ t.template add<Tok::WHITESPACE, Tok::WHITESPACE>() } -> std::same_as<T&>;
 
-			{ t.set(Position(),Tok::WHITESPACE) } -> std::same_as<T&>;
-			{ t.set(Position(),Tok::WHITESPACE,Tok::WHITESPACE) } -> std::same_as<T&>;
-			{ t.template set<Tok::WHITESPACE>(Position()) } -> std::same_as<T&>;
-			{ t.template set<Tok::WHITESPACE, Tok::WHITESPACE>(Position()) } -> std::same_as<T&>;
-
 	}
 #endif // Slua_NoConcepts
 	;
@@ -158,7 +163,7 @@ namespace slua::stok
 	struct SemOutput
 	{
 		using SemPair = decltype(Converter::from(Tok::WHITESPACE, Tok::WHITESPACE));
-
+		
 		constexpr SemOutput(In& in, const ParsedFile<SemOutput>& f, SettingsT) :in(in), f(f) {}
 		constexpr SemOutput(In& in, const ParsedFile<SemOutput>& f) : in(in), f(f) {}
 
@@ -190,6 +195,10 @@ namespace slua::stok
 		}
 		SemOutput& add(Tok t) {
 			return add(t,t);
+		}
+		SemOutput& move(Position p) {
+
+			return *this;
 		}
 	};
 }
