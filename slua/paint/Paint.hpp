@@ -16,6 +16,7 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/State.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
+#include <slua/parser/VecInput.hpp>
 #include <slua/paint/SemOutputStream.hpp>
 
 namespace slua::paint
@@ -23,6 +24,7 @@ namespace slua::paint
 	using parse::sluaSyn;
 
 	inline bool skipSpace(AnySemOutput auto& se) {
+		//TODO: special comment coloring
 		return parse::skipSpace(se.in);//Doesnt write to the sem out thing
 	}
 	template<Tok tok=Tok::NAME, bool SKIP_SPACE = true,AnySemOutput Se>
@@ -31,6 +33,8 @@ namespace slua::paint
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
 		//todo
+		//se.in.genData;
+		
 	}
 	template<Tok tok,bool SKIP_SPACE = true, size_t TOK_SIZE>
 	inline void paintKw(AnySemOutput auto& se, const char(&tokChr)[TOK_SIZE])
@@ -64,19 +68,19 @@ namespace slua::paint
 	{
 		se.move(f.place);
 		ezmatch(f.data)(
-		varcase(const parse::StatementType::BLOCK&) {
+		varcase(const parse::StatementType::BLOCK<Se>&) {
 			se.template add<Tok::BRACES>();
-			paintBlock(se, var);
+			paintBlock(se, var.bl);
 			skipSpace(se);
 			se.template add<Tok::BRACES>();
 		},
-		varcase(const parse::StatementType::ASSIGN&) {
+		varcase(const parse::StatementType::ASSIGN<Se>&) {
 			paintVarList(se, var.vars);
 			skipSpace(se);
 			se.template add<Tok::ASSIGN>();
 			paintExprList(se, var.exprs);
 		},
-		varcase(const parse::StatementType::DROP&) {
+		varcase(const parse::StatementType::DROP<Se>&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);
 		},
@@ -104,7 +108,7 @@ namespace slua::paint
 			paintKw<Tok::FN_STAT>(se, "safe");
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
-		varcase(const parse::StatementType::GOTO&) {
+		varcase(const parse::StatementType::GOTO<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "goto");
 			paintName<Tok::NAME_LABEL>(se, var.v);
 		}
@@ -113,11 +117,11 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintExprList(Se& se, const parse::ExpList<Se>& f)
 	{
-		for (parse::Expression<Se>& i : f)
+		for (const parse::Expression<Se>& i : f)
 		{
 			paintExpr(se, i);
 			skipSpace(se);
-			if (i != f.back())
+			if (&i != &f.back())
 				se.template add<Tok::PUNCTUATION>();
 		}
 	}

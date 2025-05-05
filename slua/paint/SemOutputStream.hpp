@@ -172,18 +172,17 @@ namespace slua::paint
 	};
 
 	//Converter::from(Tok,Tok) -> SemPair
-	template<AnyInput In,class Converter= ColorConverter,AnySettings SettingsT = Setting<void>>
+	template<AnyInput In,class Converter= ColorConverter>
 	struct SemOutput
 	{
 		//Possible a color, likely u16 or u32
 		using SemPair = decltype(Converter::from(Tok::WHITESPACE, Tok::WHITESPACE));
 		
-		constexpr SemOutput(In& in, SettingsT) :in(in) {}
 		constexpr SemOutput(In& in) : in(in) {}
 
-		constexpr static SettingsT settings()
+		constexpr static auto settings()
 		{
-			return SettingsT();
+			return In::settings();
 		}
 
 		In& in;
