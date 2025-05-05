@@ -60,7 +60,7 @@ namespace slua::parse
 		}
 	}
 
-	template<bool FOR_PAT=false,AnyInput In>
+	template<bool IS_BASIC=false,bool FOR_PAT=false,AnyInput In>
 	inline Expression<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
@@ -363,7 +363,7 @@ namespace slua::parse
 				}
 			}
 
-			basicRes.data = parsePrefixExprVar<ExprData<In>,true,FOR_PAT>(in,allowVarArg, firstChar);
+			basicRes.data = parsePrefixExprVar<ExprData<In>,true, IS_BASIC>(in,allowVarArg, firstChar);
 		}
 		if constexpr(in.settings() & sluaSyn)
 		{//Postfix op
@@ -427,7 +427,7 @@ namespace slua::parse
 		ExprType::MULTI_OPERATION<In> resData{};
 
 		resData.first = std::make_unique<Expression<In>>(std::move(basicRes));
-		resData.extra.emplace_back(firstBinOp, readExpr<FOR_PAT>(in,allowVarArg,false));
+		resData.extra.emplace_back(firstBinOp, readExpr<IS_BASIC,FOR_PAT>(in,allowVarArg,false));
 
 		while (true)
 		{
@@ -441,7 +441,7 @@ namespace slua::parse
 			if (binOp == BinOpType::NONE)
 				break;
 
-			resData.extra.emplace_back(binOp, readExpr<FOR_PAT>(in,allowVarArg,false));
+			resData.extra.emplace_back(binOp, readExpr<IS_BASIC, FOR_PAT>(in,allowVarArg,false));
 		}
 		Expression<In> ret;
 		ret.place = startPos;

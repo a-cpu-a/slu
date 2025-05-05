@@ -114,7 +114,7 @@ namespace slua::parse
 			return PatType::DestrAny{};
 		}
 
-		Expression<In> expr = readExpr<true>(in, false);
+		Expression<In> expr = readExpr<true,true>(in, false);
 
 		if (std::holds_alternative<ExprType::PAT_TYPE_PREFIX>(expr.data))
 		{
