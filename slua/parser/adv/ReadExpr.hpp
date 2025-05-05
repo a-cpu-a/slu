@@ -346,7 +346,7 @@ namespace slua::parse
 			{
 				if (firstChar != '(')
 				{// check if unops are a type prefix
-					size_t iterIdx = 0;
+					size_t iterIdx = 1;
 					
 					while (isValidNameChar(in.peekAt(iterIdx)))
 						iterIdx++;
