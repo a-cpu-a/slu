@@ -51,7 +51,7 @@ namespace slua::paint
 		GEN_OP,// =>, ==, != || () {} []
 		PUNCTUATION,// >= <= > < , ;
 		MP,// ::
-		TBL,// {}
+		BRACES,// {} (may be combined with some tint, to get a colored brace)
 
 		MP_IDX,// : ::
 		NAME,// .123 .xxx xxx
