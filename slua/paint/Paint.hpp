@@ -66,8 +66,6 @@ namespace slua::paint
 		varcase(const parse::StatementType::DROP&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);
-			skipSpace(se);
-			se.template add<Tok::PUNCTUATION>();
 		}
 		);
 	}
