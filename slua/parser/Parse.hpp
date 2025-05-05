@@ -319,22 +319,19 @@ namespace slua::parse
 				{
 					StatementType::FOR_LOOP_NUMERIC<In> res{};
 					if constexpr (in.settings() & sluaSyn)
-					{
-						requireToken(in, "(");//TODO: non () version, with . <true>
 						res.varName = std::move(names);
-					}
 					else
 						res.varName = names[0];
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					res.start = readExpr(in, allowVarArg);
 					requireToken(in, ",");
-					res.end = readExpr(in, allowVarArg);
+					res.end = readExpr<in.settings() & sluaSyn>(in, allowVarArg);
 
 					if (checkReadToken(in, ","))
-						res.step = readExpr(in, allowVarArg);
+						res.step = readExpr<in.settings() & sluaSyn>(in, allowVarArg);
 
-					if constexpr (in.settings() & sluaSyn) requireToken(in, ")");
+
 
 					res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
 
