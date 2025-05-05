@@ -103,7 +103,7 @@ namespace slua::parse
 	{
 		const char firstChar = in.peek();
 
-		if (firstChar == 'a' && checkReadTextToken("as"))
+		if (firstChar == 'a' && checkReadTextToken(in,"as"))
 		{
 			TypeExpr ty = readTypeExpr(in, true);
 
