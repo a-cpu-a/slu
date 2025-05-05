@@ -6,6 +6,7 @@ New Syntax {
 	--Also, type expr is prefered over func call / var, so if they return types, then they are treated as types.
 	--Note: binop doesnt allow 'and'. And 'or' is used in a different way
 	--Note: || lambdas are not parsed. Aka `|...| ...`
+	--Note: table constructors are not parsed.
 	sPat ::= basicExp
 	
 	

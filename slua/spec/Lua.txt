@@ -49,12 +49,12 @@ New Syntax {
 
 	explist ::= exp {‘,’ exp}
 
-	basicExp ::=  Numeral | LiteralString
+	basicExp ::=  Numeral | LiteralString | tableconstructor
 		| prefixexpBfuncArgs | functioncallBasicArgs
 		| basicExp binop basicExp | {unop} basicExp {postunop}
 	
 	exp ::=  basicExp
-		| prefixexp | functioncall | tableconstructor
+		| prefixexp | functioncall
 		| exp binop exp | {unop} exp {postunop}
 
 	prefixexp ::= var | ‘(’ exp ‘)’
