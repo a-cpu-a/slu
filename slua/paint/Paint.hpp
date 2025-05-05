@@ -15,9 +15,9 @@
 #include <slua/parser/Input.hpp>
 #include <slua/parser/State.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
-#include <slua/semtok/SemOutputStream.hpp>
+#include <slua/paint/SemOutputStream.hpp>
 
-namespace slua::stok
+namespace slua::paint
 {
 	inline bool skipSpace(AnySemOutput auto& se) {
 		return parse::skipSpace(se.in);
