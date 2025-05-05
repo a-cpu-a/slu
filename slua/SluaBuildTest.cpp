@@ -25,6 +25,7 @@
 
 #include <slua/parser/Parse.hpp>
 #include <slua/parser/VecInput.hpp>
+#include <slua/paint/Paint.hpp>
 #include <slua/generator/Gen.hpp>
 #include <slua/MetaTableUtils.hpp>
 
@@ -40,9 +41,13 @@ void _test()
 		| slua::parse::spacedFuncCallStrForm 
 		| slua::parse::numberSpacing
 	};
-	slua::parse::parseFile(in2);
+	const auto f =slua::parse::parseFile(in2);
 
 	slua::parse::Output out;
 	out.db = std::move(in.genData.mpDb);
 	slua::parse::genFile(out, {});
+
+	slua::paint::SemOutput semOut(in2);
+
+	slua::paint::paintFile(semOut, f);
 }

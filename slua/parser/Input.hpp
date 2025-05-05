@@ -54,7 +54,7 @@ namespace slua::parse
 		AnyCfgable<T> && requires(T t) {
 
 		//{ t.genData } -> AnyGenData;
-		{ t.genData } -> AnyGenDataV<T::settings()&sluaSyn>;
+		{ t.genData } -> AnyGenDataV<std::remove_cvref_t<T>::settings()&sluaSyn>;
 
 		{ t.skip() } -> std::same_as<void>;
 		{ t.skip((size_t)100) } -> std::same_as<void>;
