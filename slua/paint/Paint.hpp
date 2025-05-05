@@ -25,6 +25,13 @@ namespace slua::paint
 	inline bool skipSpace(AnySemOutput auto& se) {
 		return parse::skipSpace(se.in);//Doesnt write to the sem out thing
 	}
+	template<Tok tok=Tok::NAME, bool SKIP_SPACE = true,AnySemOutput Se>
+	inline void paintName(Se& se, const parse::MpItmId<Se>& f)
+	{
+		if constexpr (SKIP_SPACE)
+			skipSpace(se);
+		//todo
+	}
 	template<Tok tok,bool SKIP_SPACE = true, size_t TOK_SIZE>
 	inline void paintKw(AnySemOutput auto& se, const char(&tokChr)[TOK_SIZE])
 	{
@@ -73,13 +80,33 @@ namespace slua::paint
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);
 		},
-		varcase(const parse::StatementType::MOD_CRATE&) {
+		varcase(const parse::StatementType::MOD_CRATE) {
 			paintKw<Tok::CON_STAT>(se, "mod");
 			paintKw<Tok::CON_STAT>(se, "crate");
 		},
-		varcase(const parse::StatementType::MOD_SELF&) {
+		varcase(const parse::StatementType::MOD_SELF) {
 			paintKw<Tok::CON_STAT>(se, "mod");
 			paintKw<Tok::VAR_STAT>(se, "self");
+		},
+		varcase(const parse::StatementType::BREAK) {
+			paintKw<Tok::COND_STAT>(se, "break");
+		},
+		varcase(const parse::StatementType::SEMICOLON) {
+			paintKw<Tok::PUNCTUATION>(se, ";");
+		},
+		varcase(const parse::StatementType::UNSAFE_LABEL) {
+			paintKw<Tok::PUNCTUATION>(se, ":::");
+			paintKw<Tok::FN_STAT>(se, "unsafe");
+			paintKw<Tok::PUNCTUATION>(se, ":");
+		},
+		varcase(const parse::StatementType::SAFE_LABEL) {
+			paintKw<Tok::PUNCTUATION>(se, ":::");
+			paintKw<Tok::FN_STAT>(se, "safe");
+			paintKw<Tok::PUNCTUATION>(se, ":");
+		},
+		varcase(const parse::StatementType::GOTO&) {
+			paintKw<Tok::COND_STAT>(se, "goto");
+			paintName<Tok::NAME_LABEL>(se, var.v);
 		}
 		);
 	}

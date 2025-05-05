@@ -57,6 +57,7 @@ namespace slua::paint
 		NAME,// .123 .xxx xxx
 		NAME_TABLE,// xxx inside {xxx=...}
 		NAME_TYPE,// type trait xxx
+		NAME_LABEL,
 
 		NUMBER,
 		NUMBER_TYPE,// u8, u16, ...
