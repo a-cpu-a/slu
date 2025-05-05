@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix [safety] PreFn "function" Name "(" [TypedParamList] ")" ["->" typeExp] statOrRet
+	stat @::= | OptExportPrefix [safety] PreFn "function" Name "(" [paramList] ")" ["->" typeExp] statOrRet
 }
 
 Function Statement {

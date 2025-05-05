@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	exp @::= | [safety] PreFn "function" "(" [TypedParamList] ")" ["->" typeExp] statOrRet
+	exp @::= | [safety] PreFn "function" "(" [paramList] ")" ["->" typeExp] statOrRet
 }
 
 Function Expression {
