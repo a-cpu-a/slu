@@ -69,10 +69,19 @@ namespace slua::paint
 		se.move(f.place);
 		ezmatch(f.data)(
 		varcase(const parse::StatementType::BLOCK<Se>&) {
-			se.template add<Tok::BRACES>();
-			paintBlock(se, var.bl);
-			skipSpace(se);
-			se.template add<Tok::BRACES>();
+			if constexpr(Se::settings() & sluaSyn)
+			{
+				se.template add<Tok::BRACES>();
+				paintBlock(se, var.bl);
+				skipSpace(se);
+				se.template add<Tok::BRACES>();
+			}
+			else
+			{
+				paintKw<Tok::COND_STAT>(se, "do");
+				paintBlock(se, var.bl);
+				paintKw<Tok::END_STAT>(se, "end");
+			}
 		},
 		varcase(const parse::StatementType::ASSIGN<Se>&) {
 			paintVarList(se, var.vars);
@@ -109,13 +118,34 @@ namespace slua::paint
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
 		varcase(const parse::StatementType::LABEL<Se>&) {
-			paintKw<Tok::PUNCTUATION>(se, ":::");
+			paintKw<Tok::PUNCTUATION>(se, parse::sel<Se>("::", ":::"));
 			paintName<Tok::NAME_LABEL>(se, var.v);
-			paintKw<Tok::PUNCTUATION>(se, ":");
+			paintKw<Tok::PUNCTUATION>(se, parse::sel<Se>("::", ":"));
 		},
 		varcase(const parse::StatementType::GOTO<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "goto");
 			paintName<Tok::NAME_LABEL>(se, var.v);
+		},
+		varcase(const parse::StatementType::MOD_DEF<Se>&) {
+			if (var.exported)
+				se.template add<Tok::CON_STAT,Tok::EX_TINT>();
+			paintKw<Tok::CON_STAT>(se, "mod");
+			paintName<Tok::NAME_LABEL>(se, var.name);
+		},
+		varcase(const parse::StatementType::MOD_DEF_INLINE<Se>&) {
+			if (var.exported)
+				se.template add<Tok::CON_STAT,Tok::EX_TINT>();
+			paintKw<Tok::CON_STAT>(se, "mod");
+			paintName<Tok::NAME_LABEL>(se, var.name);
+
+			paintKw<Tok::CON_STAT>(se, "as");
+
+			skipSpace(se);
+
+			se.template add<Tok::BRACES>();
+			paintBlock(se, var.bl);
+			skipSpace(se);
+			se.template add<Tok::BRACES>();
 		}
 		);
 	}
