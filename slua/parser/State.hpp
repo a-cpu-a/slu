@@ -720,7 +720,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct FOR_LOOP_NUMERICv
 		{
-			MpItmIdV<isSlua> varName;
+			Sel<isSlua, MpItmIdV<isSlua>, Pat> varName;
 			ExpressionV<isSlua> start;
 			ExpressionV<isSlua> end;//inclusive
 			std::optional<ExpressionV<isSlua>> step;
@@ -732,7 +732,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct FOR_LOOP_GENERICv
 		{
-			NameListV<isSlua> varNames;
+			Sel<isSlua, NameListV<isSlua>, Pat> varNames;
 			ExpListV<isSlua> exprs;//size must be > 0
 			BlockV<isSlua> bl;
 		};
