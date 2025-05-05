@@ -320,7 +320,7 @@ namespace slua::parse
 					StatementType::FOR_LOOP_NUMERIC<In> res{};
 					if constexpr (in.settings() & sluaSyn)
 					{
-						requireToken(in, "(");
+						requireToken(in, "(");//TODO: non () version, with . <true>
 						res.varName = std::move(names);
 					}
 					else
@@ -348,11 +348,7 @@ namespace slua::parse
 
 				requireToken(in, "in");
 				if constexpr (in.settings() & sluaSyn)
-				{
-					requireToken(in, "(");
-					res.exprs.emplace_back(readExpr(in, allowVarArg));
-					requireToken(in, ")");
-				}
+					res.exprs.emplace_back(readExpr<true>(in, allowVarArg));
 				else
 					res.exprs = readExpList(in, allowVarArg);
 
@@ -503,7 +499,7 @@ namespace slua::parse
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
 
-				Expression<In> expr = readExprParens(in,allowVarArg);
+				Expression<In> expr = readBasicExpr(in,allowVarArg);
 
 				Block<In> bl = readDoOrStatOrRet<true>(in,allowVarArg);
 				return in.genData.addStat(place, 
@@ -533,7 +529,7 @@ namespace slua::parse
 
 				StatementType::IF_THEN_ELSE<In> res{};
 
-				res.cond = readExprParens(in,allowVarArg);
+				res.cond = readBasicExpr(in,allowVarArg);
 
 				if constexpr (in.settings() & sluaSyn)
 				{
@@ -543,7 +539,7 @@ namespace slua::parse
 					{
 						if (checkReadTextToken(in, "if"))
 						{
-							Expression<In> elExpr = readExprParens(in, allowVarArg);
+							Expression<In> elExpr = readBasicExpr(in, allowVarArg);
 							Block<In> elBlock = readDoOrStatOrRet<isLoop, SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
 
 							res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));

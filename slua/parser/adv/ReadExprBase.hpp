@@ -334,12 +334,10 @@ namespace slua::parse
 	}
 
 	template<AnyInput In>
-	inline Expression<In> readExprParens(In& in, const bool allowVarArg, const bool readBiOp = true) {
+	inline Expression<In> readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
 		if constexpr (in.settings() & sluaSyn)
 		{
-			requireToken(in, "(");
-			Expression<In> ex = readExpr(in, allowVarArg, readBiOp);
-			requireToken(in, ")");
+			Expression<In> ex = readExpr<true>(in, allowVarArg, readBiOp);
 			return ex;
 		}
 		else
