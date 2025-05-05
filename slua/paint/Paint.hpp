@@ -40,6 +40,12 @@ namespace slua::paint
 	inline void paintExpr(Se& se, const parse::Expression<Se>& f)
 	{
 		se.move(f.place);
+		//todo: unops
+		ezmatch(f.data)();
+		if constexpr (se.settings() & sluaSyn)
+		{
+			//todo: post unops
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& f)
