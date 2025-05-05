@@ -6,7 +6,7 @@ New Syntax {
 	
 	implArg ::= typeExp Name
 	
-	stat @::= | OptExportPrefix "impl" ["with" "(" TypedParamList ")"] [traitExp "for"] (typeExp | traitExp) "{" {stat} "}"
+	stat @::= | OptExportPrefix "impl" ["with" "(" paramList ")"] [traitExp "for"] (typeExp | traitExp) "{" {stat} "}"
 }
 
 New Keywords {

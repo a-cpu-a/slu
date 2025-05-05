@@ -12,8 +12,8 @@ New Syntax {
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
-	typedParam ::= destrTupFieldUncond
-	TypedParamList ::= typedParam {"," typedParam}
+	typedParam ::= uncondDestrPat
+	paramList ::= typedParam {"," typedParam}
 	
 	macroParam ::= ["macro"] typedParam
 	
