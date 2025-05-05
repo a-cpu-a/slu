@@ -61,8 +61,7 @@ New Syntax {
 		| basicTypeExpMut
 		| typeExpMut binop typeExpMut
 	
-	basicExp @::= | borrowLifetime | basicTypeExpMutBase | traitExp
-	exp @::= | typeExpMut
+	basicExp @::= | borrowLifetime | typeExpMut | traitExp
 }
 
 New Keywords {
