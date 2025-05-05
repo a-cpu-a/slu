@@ -19,6 +19,8 @@
 
 namespace slua::paint
 {
+	using parse::sluaSyn;
+
 	inline bool skipSpace(AnySemOutput auto& se) {
 		return parse::skipSpace(se.in);
 	}
@@ -39,6 +41,10 @@ namespace slua::paint
 		se.move(f.place);
 	}
 	template<AnySemOutput Se>
+	inline void paintExprList(Se& se, const parse::ExpList<Se>& f)
+	{
+	}
+	template<AnySemOutput Se>
 	inline void paintBlock(Se& se, const parse::Block<Se>& f)
 	{
 		se.move(f.start);
@@ -48,11 +54,16 @@ namespace slua::paint
 		}
 		if (f.hadReturn)
 		{
-			//TODO:
-			skipSpace(se);
-			if (se.in.peek() == 'd');
-				paintKw<Tok::RET_STAT,false>(se, "do");
-			paintKw<Tok::RET_STAT>(se,"return");
+			if constexpr(se.settings()&sluaSyn)
+			{
+				skipSpace(se);
+				if (se.in.peek() == 'd');
+				paintKw<Tok::FN_STAT, false>(se, "do");
+			}
+			paintKw<Tok::FN_STAT>(se,"return");
+			paintExprList(se,f.retExprs);
+			//for ;
+			se.template move<Tok::PUNCTUATION>(f.end);
 		}
 	}
 	template<AnySemOutput Se>
