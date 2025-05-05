@@ -327,15 +327,11 @@ namespace slua::parse
 
 	//Common
 
+	//NOTE: has overload later!!!
 	template<bool isSlua>
 	struct ParameterV
 	{
 		MpItmIdV<isSlua> name;
-	};
-	template<>
-	struct ParameterV<true> : ParameterV<false>
-	{
-		TypeExpr ty;
 	};
 	template<AnyCfgable CfgT>
 	using Parameter = SelV<CfgT, ParameterV>;
@@ -538,7 +534,12 @@ namespace slua::parse
 		PatType::DestrName,
 		PatType::DestrNameRestrict
 	>;
-	struct ___PatHack : Pat { using Pat::Pat; };
+	template<>
+	struct ParameterV<true>
+	{
+		Pat names;
+	};
+	struct ___PatHack : Pat {};
 	struct DestrField
 	{
 		MpItmIdV<true> name;
@@ -754,7 +755,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct LOCAL_ASSIGNv
 		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			Sel<isSlua, AttribNameListV<isSlua>, NameListV<isSlua>> names;
+			Sel<isSlua, AttribNameListV<isSlua>, Pat> names;
 			ExpListV<isSlua> exprs;
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
