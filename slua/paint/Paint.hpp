@@ -22,7 +22,7 @@ namespace slua::paint
 	using parse::sluaSyn;
 
 	inline bool skipSpace(AnySemOutput auto& se) {
-		return parse::skipSpace(se.in);
+		return parse::skipSpace(se.in);//Doesnt write to the sem out thing
 	}
 	template<Tok tok,bool SKIP_SPACE = true, size_t TOK_SIZE>
 	inline void paintKw(AnySemOutput auto& se, const char(&tokChr)[TOK_SIZE])
@@ -41,8 +41,20 @@ namespace slua::paint
 		se.move(f.place);
 	}
 	template<AnySemOutput Se>
+	inline void paintExpr(Se& se, const parse::Expression<Se>& f)
+	{
+		se.move(f.place);
+	}
+	template<AnySemOutput Se>
 	inline void paintExprList(Se& se, const parse::ExpList<Se>& f)
 	{
+		for (parse::Expression<Se>& i : f)
+		{
+			paintExpr(se, i);
+			skipSpace(se);
+			if (i != f.back())
+				se.template add<Tok::PUNCTUATION>();
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintBlock(Se& se, const parse::Block<Se>& f)
