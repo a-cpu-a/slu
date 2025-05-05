@@ -740,7 +740,9 @@ namespace slua::parse
 		},
 
 		varcase(const StatementType::DROP<Out>&) {
-			out.add("drop ").add(out.db.asSv(var.var)).addNewl(";");
+			out.add("drop ");;
+			genExpr(out, var.expr); 
+			out.addNewl(";");
 		},
 		varcase(const StatementType::USE&) {
 			if (var.exported)out.add("ex ");

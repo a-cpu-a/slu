@@ -458,7 +458,7 @@ namespace slua::parse
 				if (checkReadTextToken(in, "drop"))
 				{
 					return in.genData.addStat(place,
-						StatementType::DROP<In>(in.genData.resolveName(readName(in)))
+						StatementType::DROP<In>(readExpr(in,allowVarArg))
 					);
 				}
 			}
