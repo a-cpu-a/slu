@@ -6,6 +6,9 @@ New Syntax {
 
 	annotations ::= {annotation}
 	
+	--Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
+	-- INVALID: @Mark {return true}
+	-- VALID: @Mark{} {return true}
 	annotation ::= "@" comptimeVar [tableconstructor]
 	
 	
