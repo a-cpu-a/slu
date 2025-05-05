@@ -34,9 +34,9 @@ namespace slua::paint
 		COMMENT_DOC_OUTER, // ---
 
 		COND_STAT,//if, else, elseif, for, while, try, match, do
-		VAR_STAT,//let, local, const, use
+		VAR_STAT,//let, local, const, use, self
 		FN_STAT,//fn, function, extern, safe, unsafe, async, return, do return, throw, break, continue
-		CON_STAT,//struct, enum, union, mod, axiom, impl, trait
+		CON_STAT,//struct, enum, union, mod, axiom, impl, trait, crate, Self
 
 		DROP_STAT,//drop, as
 
