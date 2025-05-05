@@ -425,6 +425,8 @@ namespace slua::parse
 		ExprType::TYPE_EXPR,
 		ExprType::TRAIT_EXPR,
 
+		ExprType::PAT_TYPE_PREFIX,
+
 		ExprType::ARRAY_CONSTRUCTORv<isSlua>
 	>;
 
