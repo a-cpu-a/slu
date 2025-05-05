@@ -776,7 +776,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct DROPv
 		{
-			MpItmIdV<isSlua> var;
+			ExpressionV<isSlua> expr;
 		};
 		template<AnyCfgable CfgT> using DROP = SelV<CfgT, DROPv>;
 
