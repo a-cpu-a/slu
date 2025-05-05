@@ -270,6 +270,7 @@ namespace slua::parse
 				" " LUACC_SINGLE_STRING("{}")
 				"{}", number, errorLocStr(in)));
 		}
+		throw InternalError("Failed to return from readNumeralExtra");
 	}
 
 	template<class DataT,bool ALLOW_FLOAT = true, AnyInput In>

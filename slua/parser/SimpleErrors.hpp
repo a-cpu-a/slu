@@ -50,6 +50,7 @@ namespace slua::parse
 	_Slua_MAKE_ERROR(UnexpectedFileEndError);
 	_Slua_MAKE_ERROR(ReservedNameError);
 	_Slua_MAKE_ERROR(ErrorWhileContext);
+	_Slua_MAKE_ERROR(InternalError);
 
 #undef _Slua_MAKE_ERROR
 }

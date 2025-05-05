@@ -585,15 +585,15 @@ namespace slua::parse
 						break;
 					case 'u'://use? unsafe?
 						if (readUchStat(in, place, true))
-							return ret;
+							return;
 						break;
 					case 's'://safe?
 						if (readSchStat(in, place, true))
-							return ret;
+							return;
 						break;
 					case 'm'://mod?
 						if (readModStat(in, place, true))
-							return ret;
+							return;
 						break;
 					default:
 						break;
@@ -606,21 +606,21 @@ namespace slua::parse
 			if constexpr (in.settings() & sluaSyn)
 			{
 				if(readSchStat(in, place,false))
-					return ret;
+					return;
 			}
 			break;
 		case 'u'://use? unsafe?
 			if constexpr (in.settings() & sluaSyn)
 			{
 				if (readUchStat(in, place, false))
-					return ret;
+					return;
 			}
 			break;
 		case 'm'://mod?
 			if constexpr (in.settings() & sluaSyn)
 			{
 				if (readModStat(in, place, false))
-					return ret;
+					return;
 			}
 			break;
 		case 't'://type?
