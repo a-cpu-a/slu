@@ -21,7 +21,7 @@ New Syntax {
 		| ‘repeat’ statOrRetOsc ‘until’ exp
 		| ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet
 		| ‘for’ uncondDestrPat ‘=’ ‘(’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet
-		| ‘for’ uncondDestrPat ‘=’ basicExp ‘,’ basicExp [‘,’ basicExp] statOrRet
+		| ‘for’ uncondDestrPat ‘=’ exp ‘,’ basicExp [‘,’ basicExp] statOrRet
 		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
 
