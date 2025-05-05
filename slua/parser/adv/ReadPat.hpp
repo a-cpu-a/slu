@@ -75,7 +75,7 @@ namespace slua::parse
 
 			return readFieldsDestr<DestrPatType::List, false>(in, std::move(ty), uncond);
 		}
-		else if (firstChar == '}' || firstChar == ',')
+		else if (firstChar == ')' || firstChar == '}' || firstChar == ',')
 		{
 			if constexpr(IS_EXPR)
 			{
