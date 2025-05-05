@@ -5,7 +5,8 @@
 New Syntax {
 	
 	exp @::= | [safety] PreFn "|" [paramList] "|" ["->" typeExp "=>"] exp
-	exp @::= | [safety] PreFn "|" [paramList] "|" "->" typeExp statOrRetNsc
+	basicExp @::= | [safety] PreFn "|" [paramList] "|" ["->" typeExp "=>"] basicExp
+	basicExp @::= | [safety] PreFn "|" [paramList] "|" "->" typeExp statOrRetNsc
 }
 
 Function Expression {

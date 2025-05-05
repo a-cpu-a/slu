@@ -17,17 +17,18 @@ New Syntax {
 	stat ::=  basicstat
 		| label
 		| ‘{’ block ‘}’
-		| ‘while’ ‘(’ exp ‘)’ statOrRet
+		| ‘while’ basicExp statOrRet
 		| ‘repeat’ statOrRetOsc ‘until’ exp
 		| ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet
 		| ‘for’ uncondDestrPat ‘=’ ‘(’ exp ‘,’ exp [‘,’ exp] ‘)’ statOrRet
-		| ‘for’ uncondDestrPat ‘in’ ‘(’ exp ‘)’ statOrRet
+		| ‘for’ uncondDestrPat ‘=’ basicExp ‘,’ basicExp [‘,’ basicExp] statOrRet
+		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
 
 
 	retstat ::= return [explist]
 
-	ifcond ::= ‘if’ ‘(’ exp ‘)’
+	ifcond ::= ‘if’ basicExp
 
 	basicstatOrRet ::= retstat | basicstat
 	statOrRet ::= (basicstatOrRet ‘;’) | ‘{’ block ‘}’
@@ -48,12 +49,18 @@ New Syntax {
 
 	explist ::= exp {‘,’ exp}
 
-	exp ::=  Numeral | LiteralString
-		| prefixexp | functioncall | tableconstructor | exp binop exp | {unop} exp {postunop}
+	basicExp ::=  Numeral | LiteralString
+		| prefixexpBfuncArgs | functioncallBasicArgs
+		| basicExp binop basicExp | {unop} basicExp {postunop}
+	
+	exp ::=  basicExp
+		| prefixexp | functioncall | tableconstructor
+		| exp binop exp | {unop} exp {postunop}
 
 	prefixexp ::= var | ‘(’ exp ‘)’
 	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
 	
+	--Note: this var doesnt allow {} and "" style args.
 	prefixexpBfuncArgs ::= var | functioncallBasicArgs | ‘(’ exp ‘)’
 	functioncallBasicArgs ::=  prefixexpBfuncArgs basicargs | prefixexpBfuncArgs ‘:’ Name basicargs 
 

@@ -22,22 +22,17 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	--Note: 'var' inside traitExp,typeExp doesnt allow "" and {} style args
 	
 	structField ::= annotations OptExportPrefix [Name "="] typeExpMut
 	structConstructor ::= structField {fieldsep structField} [fieldsep]
 	
 	
-	traitExp ::= ‘(’ exp ‘)’
-		| var
-		| functioncallBasicArgs
+	traitExp ::= basicExp
 		| traitExp "+" traitExp
 	
-	basicTypeExp ::= ‘(’ exp ‘)’ 
+	basicTypeExp ::= basicExp
 		| "trait"
 		| "type"
-		| var
-		| functioncallBasicArgs
 		| "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
@@ -66,7 +61,8 @@ New Syntax {
 		| basicTypeExpMut
 		| typeExpMut binop typeExpMut
 	
-	exp @::= | typeExpMut | traitExp | borrowLifetime
+	basicExp @::= | borrowLifetime | basicTypeExpMutBase | traitExp
+	exp @::= | typeExpMut
 }
 
 New Keywords {

@@ -117,7 +117,7 @@ New Syntax {
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
 	
 	stat @::= | macroInvSpl
-	exp @::= | macroInvSpl
+	basicExp @::= | macroInvSpl
 	var @::= | macroInvSpl
 	Name @::= | macroInvSpl
 	type @::= | macroInvSpl

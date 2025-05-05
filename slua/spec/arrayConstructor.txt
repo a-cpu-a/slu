@@ -6,7 +6,7 @@ New Syntax {
 	
 	arrayMultiplyConstruct ::= "[" exp ";" comptimeExp "]"
 	
-	exp @::= | arrayMultiplyConstruct
+	basicExp @::= | arrayMultiplyConstruct
 }
 
 Array Constructor {

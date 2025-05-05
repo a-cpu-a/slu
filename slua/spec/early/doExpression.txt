@@ -6,7 +6,7 @@ New Syntax {
 	
 	blockOrRet ::= retstatSemi | ( "{" block "}" )
 
-	exp @::= | ["comptime"] "do" [safety] ["->" typeExp] statOrRet
+	basicExp @::= | ["comptime"] "do" [safety] ["->" typeExp] statOrRet
 	
 	retstat @::= | "do" retstat
 }

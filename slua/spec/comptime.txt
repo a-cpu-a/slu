@@ -14,7 +14,7 @@ New Syntax {
 	comptimeVarType ::= modpath
 	comptimeFunccall ::= comptimeVar [":" tupleableName] args
 	
-	exp @::= | comptime(exp)
+	basicExp @::= | comptime(exp)
 }
 
 New Keywords {
