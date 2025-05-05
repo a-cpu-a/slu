@@ -14,6 +14,7 @@
 #include <slua/Settings.hpp>
 #include <slua/parser/Input.hpp>
 #include <slua/parser/State.hpp>
+#include <slua/parser/adv/SkipSpace.hpp>
 
 namespace slua::paint
 {
@@ -173,6 +174,7 @@ namespace slua::paint
 	template<AnyInput In,class Converter= ColorConverter,AnySettings SettingsT = Setting<void>>
 	struct SemOutput
 	{
+		//Possible a color, likely u16 or u32
 		using SemPair = decltype(Converter::from(Tok::WHITESPACE, Tok::WHITESPACE));
 		
 		constexpr SemOutput(In& in, SettingsT) :in(in) {}
@@ -188,27 +190,50 @@ namespace slua::paint
 
 		SemOutput& addRaw(const SemPair p, size_t count = 1)
 		{
-			//TODO
+			Position loc = in.getLoc();
+			in.skip(count);
+			if (out.size() <= loc.line)
+				out.resize(loc.line + 1);
+			out[loc.line].resize(loc.index + count,p);
 			return *this;
 		}
 		template<Tok t,Tok overlayTok>
 		SemOutput& add(size_t count = 1) {
-			return addRaw(Converter::from(t,overlayTok), count));
+			return addRaw(Converter::from(t,overlayTok), count);
 		}
 		template<Tok t>
 		SemOutput& add(size_t count = 1) {
 			return add<t,t>(count);
 		}
 		SemOutput& add(Tok t,Tok overlayTok, size_t count = 1) {
-			return addRaw(Converter::from(t, overlayTok), count));
+			return addRaw(Converter::from(t, overlayTok), count);
 		}
 		SemOutput& add(Tok t,size_t count=1) {
-			return add(t,t, count));
+			return add(t,t, count);
 		}
 
 		template<Tok t>
-		SemOutput& move(Position p) {
+		SemOutput& move(Position p) 
+		{
+			parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 
+			constexpr SemPair pair = Converter::tok2Col(t);
+
+			// handle newlines, while moving towards 'p'
+			while (in)
+			{
+				const uint8_t ch = in.get();
+				if (parse::manageNewlineState(ch, nlState, in))
+				{
+					out.emplace_back();
+					in.newLine();
+				}
+
+				Position loc = in.getLoc();
+				if (loc.index == p.index && loc.line == p.line)
+					break;
+				out[loc.line].resize(loc.index+1, pair);
+			}
 			return *this;
 		}
 		SemOutput& move(Position p) {
