@@ -17,6 +17,7 @@
 #include <slua/parser/State.hpp>
 #include <slua/parser/adv/SkipSpace.hpp>
 #include <slua/parser/VecInput.hpp>
+#include <slua/parser/basic/CharInfo.hpp>
 #include <slua/paint/SemOutputStream.hpp>
 
 namespace slua::paint
@@ -96,12 +97,12 @@ namespace slua::paint
 			se.template add<Tok::STRING_OUT>(tint);
 			se.in.skip();
 
-			se.template move<Tok::STRING>();
+			se.template move<Tok::STRING>(end);
 			se.template replPrev<Tok::STRING_OUT>(tint,level+2);
 		}
 		else
 		{
-			se.template move<Tok::STRING>();
+			se.template move<Tok::STRING>(end);
 			se.template replPrev<Tok::STRING_OUT>(tint);
 		}
 	}
@@ -110,6 +111,59 @@ namespace slua::paint
 	{
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
+		const char ch = se.in.peekAt(1);
+		bool hex = ch == 'x' || ch == 'X';
+		if (hex || ch == 'O' || ch == 'o' || ch == 'd' || ch == 'D')
+		{
+			se.template add<Tok::NUMBER_KIND>(tint,2);
+			se.in.skip(2);
+		}
+		bool wasUscore = false;
+		bool parseType = false;
+		while (se.in)
+		{
+			const char chr = se.in.peek();
+			if (wasUscore && chr!='_' && (!hex || !parse::isHexDigitChar(chr)) && parse::isValidNameStartChar(chr))
+			{
+				parseType = true;
+				break;
+			}
+			wasUscore = false;
+			if(chr=='e' || chr=='E' || chr == 'p' || chr == 'P')
+			{
+				se.template add<Tok::NUMBER_KIND>(tint, 1);
+				se.in.skip();
+				continue;
+			}
+			if (chr == '_')
+				wasUscore = true;
+
+			if (chr == '.')
+			{
+				// Handle ranges, concat, etc
+				if (se.in.peekAt(1) == '.')
+					break;
+			}
+
+			if (chr!='.' && chr!='_' && !(hex && parse::isHexDigitChar(chr)) && !parse::isDigitChar(chr))
+				break;
+
+			se.template add<Tok::NUMBER>(tint);
+			se.in.skip();
+		}
+		if (parseType)
+		{
+			while (se.in)
+			{
+				if (parse::isValidNameChar(se.in.peek()))
+				{
+					se.template add<Tok::NUMBER_TYPE>(tint);
+					se.in.skip();
+				}
+				else
+					break;
+			}
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE)
