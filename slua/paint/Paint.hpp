@@ -133,6 +133,30 @@ namespace slua::paint
 			paintKw<Tok::END_STAT>(se, "end");
 		}
 	}
+	template<bool DO_END,AnySemOutput Se>
+	inline void paintStatOrRet(Se& se, const parse::Block<Se>& itm)
+	{
+		if constexpr (Se::settings() & sluaSyn)
+		{
+			skipSpace(se);
+			bool hadBrace = false;
+			if (se.in.peek() == '{')
+			{
+				hadBrace = true;
+				paintKw<Tok::BRACES>(se, "{");
+			}
+
+			paintBlock(se, itm);
+
+			if(hadBrace)
+				paintKw<Tok::BRACES>(se, "}");
+			return;
+		}
+		if constexpr(DO_END)
+			paintDoEndBlock(se, itm);
+		else
+			paintBlock(se, itm);
+	}
 	template<AnySemOutput Se>
 	inline void paintUseVariant(Se& se, const parse::UseVariant& itm)
 	{
@@ -187,7 +211,7 @@ namespace slua::paint
 				paintKw<Tok::PUNCTUATION>(se, ",");
 				paintExpr(se, *var.step);
 			}
-			paintDoEndBlock(se, var.bl);
+			paintStatOrRet<true>(se, var.bl);
 		},
 		varcase(const parse::StatementType::FOR_LOOP_GENERIC<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");
@@ -197,39 +221,23 @@ namespace slua::paint
 
 			paintExprOrList(se, var.exprs);
 
-			paintDoEndBlock(se, var.bl);
+			paintStatOrRet<true>(se, var.bl);
 		},
 		varcase(const parse::StatementType::IF_THEN_ELSE<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "if");
 			paintExpr(se, var.cond);
-			bool hadBrace = false;
-			if constexpr (Se::settings() & sluaSyn)
-			{
-				skipSpace(se);
-				if (se.in.peek() == '{')
-				{
-					hadBrace = true;
-					paintKw<Tok::BRACES>(se, "{");
-				}
-			}
-			else
+
+			if constexpr (!(Se::settings() & sluaSyn))
 				paintKw<Tok::COND_STAT>(se, "then");
-			paintBlock(se, var.bl);
+
+			paintStatOrRet<false>(se, var.bl);
 			for (const auto& [cond,bl] : var.elseIfs)
 			{
 				if constexpr (Se::settings() & sluaSyn)
 				{
-					if(hadBrace)
-						paintKw<Tok::BRACES>(se, "}");
 					paintKw<Tok::COND_STAT>(se, "else");
 					paintKw<Tok::COND_STAT>(se, "if");
 					paintExpr(se, cond);
-					skipSpace(se);
-					if (se.in.peek() == '{')
-					{
-						hadBrace = true;
-						paintKw<Tok::BRACES>(se, "{");
-					}
 				}
 				else
 				{
@@ -237,33 +245,15 @@ namespace slua::paint
 					paintExpr(se, cond);
 					paintKw<Tok::COND_STAT>(se, "then");
 				}
-				paintBlock(se, var.bl);
+				paintStatOrRet<false>(se, bl);
 			}
 			if (var.elseBlock.has_value())
 			{
-				if constexpr (Se::settings() & sluaSyn)
-				{
-					if (hadBrace)
-						paintKw<Tok::BRACES>(se, "}");
-					paintKw<Tok::COND_STAT>(se, "else");
-					skipSpace(se);
-					if (se.in.peek() == '{')
-					{
-						hadBrace = true;
-						paintKw<Tok::BRACES>(se, "{");
-					}
-				}
-				else
-					paintKw<Tok::COND_STAT>(se, "else");
-				paintBlock(se, var.bl);
+				paintKw<Tok::COND_STAT>(se, "else");
+				paintStatOrRet<false>(se, *var.elseBlock);
 			}
 
-			if constexpr (Se::settings() & sluaSyn)
-			{
-				if (hadBrace)
-					paintKw<Tok::BRACES>(se, "}");
-			}
-			else
+			if constexpr (!(Se::settings() & sluaSyn))
 				paintKw<Tok::END_STAT>(se, "end");
 
 		},
