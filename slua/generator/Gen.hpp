@@ -409,7 +409,7 @@ namespace slua::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genModPath(Out& out, const ModPath& obj)
+	inline void genModPath(Out& out, const lang::ViewModPath& obj)
 	{
 		out.add(obj[0]);
 		for (size_t i = 1; i < obj.size(); i++)
@@ -747,7 +747,7 @@ namespace slua::parse
 		varcase(const StatementType::USE&) {
 			if (var.exported)out.add("ex ");
 			out.add("use ");
-			genModPath(out, var.base);
+			genModPath(out, out.db.asVmp(var.base));
 			genUseVariant(out, var.useVariant);
 			out.addNewl(";");
 		},

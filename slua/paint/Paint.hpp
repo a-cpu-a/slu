@@ -71,7 +71,7 @@ namespace slua::paint
 		}
 	}
 	template<Tok tok,AnySemOutput Se>
-	inline void paintMp(Se& se, const lang::ModPath& itm)
+	inline void paintMp(Se& se, const parse::MpItmId<Se>& itm)
 	{
 		//TODO
 	}
@@ -137,7 +137,7 @@ namespace slua::paint
 		{
 			paintBlock(se, itm);
 			skipSpace(se);
-			se.template add<Tok::BRACES>();
+			paintKw<Tok::BRACES>(se, "}");
 		}
 		else
 		{
@@ -149,7 +149,7 @@ namespace slua::paint
 	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
 		if constexpr (Se::settings() & sluaSyn)
-			se.template add<Tok::BRACES>();
+			paintKw<Tok::BRACES>(se, "{");
 		else
 			paintKw<Tok::COND_STAT>(se, "do");
 		paintEndBlock(se, itm);

@@ -768,7 +768,7 @@ namespace slua::parse
 
 		struct USE
 		{
-			ModPath base;//the aliased/imported thing, or modpath base
+			MpItmIdV<true> base;//the aliased/imported thing, or modpath base
 			UseVariant useVariant;
 			ExportData exported=false;
 		};
