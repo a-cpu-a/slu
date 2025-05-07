@@ -115,7 +115,7 @@ namespace slua::parse
 	{
 		Parameter<In> p;
 		if constexpr (in.settings() & sluaSyn)
-			p.names = readPat(in, true);
+			p.name = readPat(in, true);
 		else
 			p.name = in.genData.resolveUnknown(readName(in));
 		

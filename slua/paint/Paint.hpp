@@ -127,20 +127,47 @@ namespace slua::paint
 		//TODO
 	}
 	template<AnySemOutput Se>
-	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
+	inline void paintEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
 		if constexpr (Se::settings() & sluaSyn)
 		{
-			se.template add<Tok::BRACES>();
 			paintBlock(se, itm);
 			skipSpace(se);
 			se.template add<Tok::BRACES>();
 		}
 		else
 		{
-			paintKw<Tok::COND_STAT>(se, "do");
 			paintBlock(se, itm);
 			paintKw<Tok::END_STAT>(se, "end");
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
+	{
+		if constexpr (Se::settings() & sluaSyn)
+			se.template add<Tok::BRACES>();
+		else
+			paintKw<Tok::COND_STAT>(se, "do");
+		paintEndBlock(se, itm);
+	}
+	template<AnySemOutput Se>
+	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm)
+	{
+	}
+	template<AnySemOutput Se>
+	inline void paintSafety(Se& se, const parse::OptSafety itm)
+	{
+		switch (itm)
+		{
+		case parse::OptSafety::SAFE:
+			paintKw<Tok::FN_STAT>(se, "safe");
+			break;
+		case parse::OptSafety::UNSAFE:
+			paintKw<Tok::FN_STAT>(se, "unsafe");
+			break;
+		case parse::OptSafety::DEFAULT:
+		default:
+			break;
 		}
 	}
 	template<bool DO_END,AnySemOutput Se>
@@ -166,6 +193,40 @@ namespace slua::paint
 			paintDoEndBlock(se, itm);
 		else
 			paintBlock(se, itm);
+	}
+	template<AnySemOutput Se>
+	inline void paintFuncDef(Se& se, const parse::StatementType::FUNCTION_DEF<Se>& itm)
+	{
+		se.move(itm.place);//TODO: parse this correctly
+
+		//TODO:
+		//if (itm.func.exported)
+		//	paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
+
+		if constexpr (Se::settings() & sluaSyn)
+			paintSafety(se, itm.func.safety);
+		paintKw<Tok::FN_STAT>(se, "function");
+		paintName<Tok::NAME>(se, itm.name);
+		paintKw<Tok::GEN_OP>(se, "(");
+		for (const parse::Parameter<Se>& i : itm.func.params)
+		{
+			paintPatOrNamelist(se, i.name);
+
+			if (&i != &itm.func.params.back())
+				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+		paintKw<Tok::GEN_OP>(se, ")");
+		if constexpr (Se::settings() & sluaSyn)
+		{
+			if (itm.func.retType.has_value())
+			{
+				paintKw<Tok::GEN_OP>(se, "->");
+				paintTypeExpr(se, *itm.func.retType);
+			}
+			paintKw<Tok::BRACES>(se, "{");
+		}
+		paintEndBlock(se, itm.func.block);
+		
 	}
 	template<AnySemOutput Se>
 	inline void paintUseVariant(Se& se, const parse::UseVariant& itm)
@@ -301,6 +362,13 @@ namespace slua::paint
 			skipSpace(se);
 			se.template add<Tok::ASSIGN>();
 			paintExprList(se, var.exprs);
+		},
+		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
+			paintFuncDef(se, var);
+		},
+		varcase(const parse::StatementType::LOCAL_FUNCTION_DEF<Se>&) {
+			paintKw<Tok::FN_STAT>(se, "local");
+			paintFuncDef(se, var);
 		},
 		varcase(const parse::StatementType::DROP<Se>&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
