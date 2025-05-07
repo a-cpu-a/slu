@@ -43,6 +43,7 @@ namespace slua::lang
 
 	using ModPath = std::vector<std::string>;
 	using ModPathView = std::span<const std::string>;
+	using ViewModPath = std::vector<std::string_view>;
 
 	struct HashModPathView
 	{

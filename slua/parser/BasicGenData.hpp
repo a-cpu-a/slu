@@ -90,6 +90,11 @@ namespace slua::parse
 				return {};//empty
 			return id2Name.at(v.id.val);
 		}
+		lang::ViewModPath asVmp(const MpItmIdV<false> v) const {
+			if (v.id.val == SIZE_MAX)
+				return {};//empty
+			return { id2Name.at(v.id.val) };
+		}
 	};
 	struct BasicMpDb
 	{
@@ -124,6 +129,20 @@ namespace slua::parse
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
 			return mps[v.mp.id].id2Name.at(v.id.val);
+		}
+		lang::ViewModPath asVmp(const MpItmIdV<true> v) const {
+			if (v.id.val == SIZE_MAX)
+				return {};//empty
+			const BasicModPathData& mp = mps[v.mp.id];
+
+			lang::ViewModPath res;
+			res.reserve(mp.path.size() + 1);
+
+			for (const std::string& s : mp.path)
+				res.push_back(s);
+			res.push_back(mp.id2Name.at(v.id.val));
+
+			return res;
 		}
 	};
 
@@ -182,6 +201,9 @@ namespace slua::parse
 
 		std::string_view asSv(const MpItmIdV<isSlua> id) const {
 			return mpDb.asSv(id);
+		}
+		lang::ViewModPath asVmp(const MpItmIdV<isSlua> v) const {
+			return { mpDb.asVmp(v)};
 		}
 
 		constexpr void pushUnsafe() {
