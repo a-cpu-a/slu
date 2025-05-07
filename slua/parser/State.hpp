@@ -537,7 +537,7 @@ namespace slua::parse
 	template<>
 	struct ParameterV<true>
 	{
-		Pat names;
+		Pat name;
 	};
 	struct ___PatHack : Pat {};
 	struct DestrField
