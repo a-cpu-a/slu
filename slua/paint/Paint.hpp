@@ -40,7 +40,7 @@ namespace slua::paint
 		se.template add<tok>(name.size());
 		
 	}
-	template<Tok tok,bool SKIP_SPACE = true, size_t TOK_SIZE>
+	template<Tok tok, Tok overlayTok,bool SKIP_SPACE = true, size_t TOK_SIZE>
 	inline void paintKw(AnySemOutput auto& se, const char(&tokChr)[TOK_SIZE])
 	{
 		if constexpr(SKIP_SPACE)
@@ -49,40 +49,86 @@ namespace slua::paint
 		{
 			_ASSERT(se.in.peekAt(i) == tokChr[i]);
 		}
-		se.template add<tok>(TOK_SIZE - 1);
+		se.template add<tok, overlayTok>(TOK_SIZE - 1);
+	}
+	template<Tok tok,bool SKIP_SPACE = true, size_t TOK_SIZE>
+	inline void paintKw(AnySemOutput auto& se, const char(&tokChr)[TOK_SIZE]) {
+		paintKw<tok,tok,SKIP_SPACE>(se, tokChr);
 	}
 	template<AnySemOutput Se>
-	inline void paintExpr(Se& se, const parse::Expression<Se>& f)
+	inline void paintExpr(Se& se, const parse::Expression<Se>& itm)
 	{
-		se.move(f.place);
+		se.move(itm.place);
 		//todo: unops
-		ezmatch(f.data)();
+		ezmatch(itm.data)();
 		if constexpr (Se::settings() & sluaSyn)
 		{
 			//todo: post unops
 		}
 	}
+	template<Tok tok,AnySemOutput Se>
+	inline void paintMp(Se& se, const lang::ModPath& itm)
+	{
+		//TODO
+	}
 	template<AnySemOutput Se>
-	inline void paintVar(Se& se, const parse::Var<Se>& f)
+	inline void paintVar(Se& se, const parse::Var<Se>& itm)
 	{
 		//todo
 	}
 	template<AnySemOutput Se>
-	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& f)
+	inline void paintPatOrNamelist(Se& se, const auto& itm)
 	{
-		for (const parse::Var<Se>& i : f)
+
+	}
+	template<AnySemOutput Se>
+	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& itm)
+	{
+		for (const parse::Var<Se>& i : itm)
 		{
 			paintVar(se, i);
-			skipSpace(se);
-			if (&i != &f.back())
-				se.template add<Tok::PUNCTUATION>();
+
+			if (&i != &itm.back())
+				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintStat(Se& se, const parse::Statement<Se>& f)
+	inline void paintUseVariant(Se& se, const parse::UseVariant& itm)
 	{
-		se.move(f.place);
-		ezmatch(f.data)(
+		ezmatch(itm)(
+			// use xxxx::Xxx;
+		varcase(const parse::UseVariantType::IMPORT&) {},
+
+			// use xxxx::Xxx::*;
+		varcase(const parse::UseVariantType::EVERYTHING_INSIDE) {
+			paintKw<Tok::PUNCTUATION>(se, "::");
+			paintKw<Tok::PUNCTUATION>(se, "*");
+		},
+			// use xxxx::Xxx as yyy;
+		varcase(const parse::UseVariantType::AS_NAME&) {
+			paintKw<Tok::VAR_STAT>(se, "as");
+			paintName<Tok::NAME>(se, var);
+		},
+			// use xxxx::Xxx::{self,a,b,c};
+		varcase(const parse::UseVariantType::LIST_OF_STUFF&) {
+			paintKw<Tok::PUNCTUATION>(se, "::");
+			paintKw<Tok::BRACES>(se, "{");
+			for (const parse::MpItmId<Se>& i : var)
+			{
+				paintName<Tok::NAME>(se, i);
+
+				if (&i != &var.back())
+					paintKw<Tok::PUNCTUATION>(se, ",");
+			}
+			paintKw<Tok::BRACES>(se, "}");
+		}
+		);
+	}
+	template<AnySemOutput Se>
+	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
+	{
+		se.move(itm.place);
+		ezmatch(itm.data)(
 		varcase(const parse::StatementType::BLOCK<Se>&) {
 			if constexpr(Se::settings() & sluaSyn)
 			{
@@ -100,6 +146,15 @@ namespace slua::paint
 		},
 		varcase(const parse::StatementType::ASSIGN<Se>&) {
 			paintVarList(se, var.vars);
+			skipSpace(se);
+			se.template add<Tok::ASSIGN>();
+			paintExprList(se, var.exprs);
+		},
+		varcase(const parse::StatementType::LOCAL_ASSIGN<Se>&) {
+			paintKw<Tok::VAR_STAT>(se, "local");
+
+			paintPatOrNamelist(se, var.names);
+			
 			skipSpace(se);
 			se.template add<Tok::ASSIGN>();
 			paintExprList(se, var.exprs);
@@ -143,15 +198,26 @@ namespace slua::paint
 		},
 		varcase(const parse::StatementType::MOD_DEF<Se>&) {
 			if (var.exported)
-				se.template add<Tok::CON_STAT,Tok::EX_TINT>();
+				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
 			paintKw<Tok::CON_STAT>(se, "mod");
-			paintName<Tok::NAME_LABEL>(se, var.name);
+			paintName<Tok::NAME>(se, var.name);
+		},
+		varcase(const parse::StatementType::USE&) {
+			if constexpr (Se::settings() & sluaSyn)
+			{
+				if (var.exported)
+					paintKw<Tok::VAR_STAT, Tok::EX_TINT>(se, "ex");
+
+				paintKw<Tok::CON_STAT>(se, "use");
+				paintMp<Tok::NAME>(se, var.base);
+				paintUseVariant(se, var.useVariant);
+			}
 		},
 		varcase(const parse::StatementType::MOD_DEF_INLINE<Se>&) {
 			if (var.exported)
-				se.template add<Tok::CON_STAT,Tok::EX_TINT>();
+				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
 			paintKw<Tok::CON_STAT>(se, "mod");
-			paintName<Tok::NAME_LABEL>(se, var.name);
+			paintName<Tok::NAME>(se, var.name);
 
 			paintKw<Tok::CON_STAT>(se, "as");
 
@@ -165,25 +231,25 @@ namespace slua::paint
 		);
 	}
 	template<AnySemOutput Se>
-	inline void paintExprList(Se& se, const parse::ExpList<Se>& f)
+	inline void paintExprList(Se& se, const parse::ExpList<Se>& itm)
 	{
-		for (const parse::Expression<Se>& i : f)
+		for (const parse::Expression<Se>& i : itm)
 		{
 			paintExpr(se, i);
-			skipSpace(se);
-			if (&i != &f.back())
-				se.template add<Tok::PUNCTUATION>();
+
+			if (&i != &itm.back())
+				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintBlock(Se& se, const parse::Block<Se>& f)
+	inline void paintBlock(Se& se, const parse::Block<Se>& itm)
 	{
-		se.move(f.start);
-		for (const parse::Statement<Se>& stat : f.statList)
+		se.move(itm.start);
+		for (const parse::Statement<Se>& stat : itm.statList)
 		{
 			paintStat(se, stat);
 		}
-		if (f.hadReturn)
+		if (itm.hadReturn)
 		{
 			if constexpr(Se::settings()&sluaSyn)
 			{
@@ -192,9 +258,9 @@ namespace slua::paint
 					paintKw<Tok::FN_STAT, false>(se, "do");
 			}
 			paintKw<Tok::FN_STAT>(se,"return");
-			paintExprList(se,f.retExprs);
+			paintExprList(se, itm.retExprs);
 			//for ;
-			se.template move<Tok::PUNCTUATION>(f.end);
+			se.template move<Tok::PUNCTUATION>(itm.end);
 		}
 	}
 	template<AnySemOutput Se>
