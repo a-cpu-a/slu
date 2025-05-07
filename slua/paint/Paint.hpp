@@ -56,7 +56,7 @@ namespace slua::paint
 		paintKw<tok,tok,SKIP_SPACE>(se, tokChr);
 	}
 	template<AnySemOutput Se>
-	inline void paintExpr(Se& se, const parse::Expression<Se>& itm)
+	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE)
 	{
 		se.move(itm.place);
 		//todo: unops
