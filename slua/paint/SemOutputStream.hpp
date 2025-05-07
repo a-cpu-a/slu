@@ -41,6 +41,7 @@ namespace slua::paint
 		CON_STAT,//struct, enum, union, mod, axiom, impl, trait, crate, Self
 
 		DROP_STAT,//drop
+		BUILITIN_VAR,//false true nil
 
 		EX_TINT,//ex (overlay over export, which has the same color as next token)
 		COMP_TINT,//comptime (overlay over comptime, which has the same color as next token)
@@ -136,12 +137,24 @@ namespace slua::paint
 			{ t.add(Tok::WHITESPACE) } -> std::same_as<T&>;
 			{ t.add(Tok::WHITESPACE,Tok::WHITESPACE) } -> std::same_as<T&>;
 			{ t.template add<Tok::WHITESPACE>() } -> std::same_as<T&>;
+			{ t.template add<Tok::WHITESPACE>(Tok::WHITESPACE) } -> std::same_as<T&>;
 			{ t.template add<Tok::WHITESPACE, Tok::WHITESPACE>() } -> std::same_as<T&>;
-
 			{ t.add(Tok::WHITESPACE,1ULL) } -> std::same_as<T&>;
 			{ t.add(Tok::WHITESPACE,Tok::WHITESPACE, 1ULL) } -> std::same_as<T&>;
 			{ t.template add<Tok::WHITESPACE>(1ULL) } -> std::same_as<T&>;
+			{ t.template add<Tok::WHITESPACE>(Tok::WHITESPACE,1ULL) } -> std::same_as<T&>;
 			{ t.template add<Tok::WHITESPACE, Tok::WHITESPACE>(1ULL) } -> std::same_as<T&>;
+
+			{ t.replPrev(Tok::WHITESPACE) } -> std::same_as<T&>;
+			{ t.replPrev(Tok::WHITESPACE,Tok::WHITESPACE) } -> std::same_as<T&>;
+			{ t.template replPrev<Tok::WHITESPACE>() } -> std::same_as<T&>;
+			{ t.template replPrev<Tok::WHITESPACE>(Tok::WHITESPACE) } -> std::same_as<T&>;
+			{ t.template replPrev<Tok::WHITESPACE, Tok::WHITESPACE>() } -> std::same_as<T&>;
+			{ t.replPrev(Tok::WHITESPACE, 1ULL) } -> std::same_as<T&>;
+			{ t.replPrev(Tok::WHITESPACE,Tok::WHITESPACE, 1ULL) } -> std::same_as<T&>;
+			{ t.template replPrev<Tok::WHITESPACE>(1ULL) } -> std::same_as<T&>;
+			{ t.template replPrev<Tok::WHITESPACE>(Tok::WHITESPACE, 1ULL) } -> std::same_as<T&>;
+			{ t.template replPrev<Tok::WHITESPACE, Tok::WHITESPACE>(1ULL) } -> std::same_as<T&>;
 
 	}
 #endif // Slua_NoConcepts
@@ -199,7 +212,7 @@ namespace slua::paint
 		SemOutput& addRaw(const SemPair p, size_t count = 1)
 		{
 			Position loc = in.getLoc();
-			in.skip(count);
+			//in.skip(count);
 			if (out.size() <= loc.line)
 				out.resize(loc.line + 1);
 			out[loc.line].resize(loc.index + count,p);
@@ -213,11 +226,48 @@ namespace slua::paint
 		SemOutput& add(size_t count = 1) {
 			return add<t,t>(count);
 		}
+		template<Tok t>
+		SemOutput& add(Tok overlayTok,size_t count = 1) {
+			return addRaw(Converter::from(t, overlayTok), count);
+		}
 		SemOutput& add(Tok t,Tok overlayTok, size_t count = 1) {
 			return addRaw(Converter::from(t, overlayTok), count);
 		}
 		SemOutput& add(Tok t,size_t count=1) {
 			return add(t,t, count);
+		}
+
+		SemOutput& replPrevRaw(const SemPair p, size_t count = 1)
+		{
+			for (auto& k : std::ranges::reverse_view{ out })
+			{
+				for (auto& pv : std::ranges::reverse_view{ k })
+				{
+					pv = p;
+					count--;
+					if(count==0)
+						return *this;
+				}
+			}
+			return *this;
+		}
+		template<Tok t,Tok overlayTok>
+		SemOutput& replPrev(size_t count = 1) {
+			return replPrevRaw(Converter::from(t,overlayTok), count);
+		}
+		template<Tok t>
+		SemOutput& replPrev(size_t count = 1) {
+			return replPrev<t,t>(count);
+		}
+		template<Tok t>
+		SemOutput& replPrev(Tok overlayTok, size_t count = 1) {
+			return replPrevRaw(Converter::from(t, overlayTok), count);
+		}
+		SemOutput& replPrev(Tok t,Tok overlayTok, size_t count = 1) {
+			return replPrevRaw(Converter::from(t, overlayTok), count);
+		}
+		SemOutput& replPrev(Tok t, size_t count = 1) {
+			return replPrev(t,t, count);
 		}
 
 		template<Tok t>
