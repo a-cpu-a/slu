@@ -11,6 +11,10 @@ namespace slua::lang
 {
 	//Mp refs
 
+	using ModPath = std::vector<std::string>;
+	using ModPathView = std::span<const std::string>;
+	using ViewModPath = std::vector<std::string_view>;
+
 	struct ModPathId
 	{
 		size_t id; //Id 0 -> unknownRoot
@@ -31,6 +35,9 @@ namespace slua::lang
 		std::string_view asSv(const /*AnyNameDbOrGenDataV<isSlua>*/ auto& v) const {
 			return v.asSv(*this);
 		}
+		ViewModPath asVmp(const /*AnyNameDbOrGenDataV<isSlua>*/ auto& v) const {
+			return v.asVmp(*this);
+		}
 	};
 	template<>
 	struct MpItmIdV<true> : MpItmIdV<false>
@@ -40,10 +47,6 @@ namespace slua::lang
 
 	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
 	using ExportData = bool;
-
-	using ModPath = std::vector<std::string>;
-	using ModPathView = std::span<const std::string>;
-	using ViewModPath = std::vector<std::string_view>;
 
 	struct HashModPathView
 	{
