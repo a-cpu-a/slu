@@ -38,11 +38,11 @@ namespace slua::paint
 		FN_STAT,//fn, function, extern, safe, unsafe, async, return, do return, throw, break, continue
 		CON_STAT,//struct, enum, union, mod, axiom, impl, trait, crate, Self
 
-		DROP_STAT,//drop, as
+		DROP_STAT,//drop
 
 		EX_TINT,//ex (overlay over export, which has the same color as next token)
 		COMP_TINT,//comptime (overlay over comptime, which has the same color as next token)
-		TYPE_TAG, //typw
+		TYPE_TAG, //type
 
 		END_STAT,//end
 
@@ -72,6 +72,7 @@ namespace slua::paint
 
 
 		AS,
+		IN,
 
 		IMPL,
 		DYN,

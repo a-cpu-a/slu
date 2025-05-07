@@ -733,7 +733,7 @@ namespace slua::parse
 		struct FOR_LOOP_GENERICv
 		{
 			Sel<isSlua, NameListV<isSlua>, Pat> varNames;
-			ExpListV<isSlua> exprs;//size must be > 0
+			Sel<isSlua, ExpListV<isSlua>, ExpressionV<isSlua>> exprs;//size must be > 0
 			BlockV<isSlua> bl;
 		};
 		template<AnyCfgable CfgT> using FOR_LOOP_GENERIC = SelV<CfgT, FOR_LOOP_GENERICv>;

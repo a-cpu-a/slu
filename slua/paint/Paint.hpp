@@ -77,9 +77,33 @@ namespace slua::paint
 		//todo
 	}
 	template<AnySemOutput Se>
-	inline void paintPatOrNamelist(Se& se, const auto& itm)
+	inline void paintPat(Se& se, const parse::Pat& itm)
 	{
 
+	}
+	template<Tok tok, AnySemOutput Se>
+	inline void paintNameList(Se& se, const std::vector<parse::MpItmId<Se>>& itm)
+	{
+		for (const parse::MpItmId<Se>& i : itm)
+		{
+			paintName<tok>(se, i);
+
+			if (&i != &itm.back())
+				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintPatOrNamelist(Se& se, const auto& itm)
+	{
+		if constexpr (Se::settings() & sluaSyn)
+			paintPat(se, itm);
+		else
+		{
+			if constexpr (std::same_as<decltype(itm), parse::MpItmId<Se>>)
+				paintName<Tok::NAME>(se, itm);
+			else
+				paintNameList<Tok::NAME>(se, itm);
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& itm)
@@ -90,6 +114,23 @@ namespace slua::paint
 
 			if (&i != &itm.back())
 				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
+	{
+		if constexpr (Se::settings() & sluaSyn)
+		{
+			se.template add<Tok::BRACES>();
+			paintBlock(se, itm);
+			skipSpace(se);
+			se.template add<Tok::BRACES>();
+		}
+		else
+		{
+			paintKw<Tok::COND_STAT>(se, "do");
+			paintBlock(se, itm);
+			paintKw<Tok::END_STAT>(se, "end");
 		}
 	}
 	template<AnySemOutput Se>
@@ -130,24 +171,38 @@ namespace slua::paint
 		se.move(itm.place);
 		ezmatch(itm.data)(
 		varcase(const parse::StatementType::BLOCK<Se>&) {
-			if constexpr(Se::settings() & sluaSyn)
+			paintDoEndBlock(se, var.bl);
+		},
+		varcase(const parse::StatementType::FOR_LOOP_NUMERIC<Se>&) {
+			paintKw<Tok::COND_STAT>(se, "for");
+
+			paintPatOrNamelist(se, var.varName);
+			paintKw<Tok::ASSIGN>(se, "=");
+
+			paintExpr(se, var.start);
+			paintKw<Tok::PUNCTUATION>(se, ",");
+			paintExpr(se, var.end);
+			if (var.step.has_value())
 			{
-				se.template add<Tok::BRACES>();
-				paintBlock(se, var.bl);
-				skipSpace(se);
-				se.template add<Tok::BRACES>();
+				paintKw<Tok::PUNCTUATION>(se, ",");
+				paintExpr(se, *var.step);
 			}
-			else
-			{
-				paintKw<Tok::COND_STAT>(se, "do");
-				paintBlock(se, var.bl);
-				paintKw<Tok::END_STAT>(se, "end");
-			}
+			paintDoEndBlock(se, var.bl);
+		},
+		varcase(const parse::StatementType::FOR_LOOP_GENERIC<Se>&) {
+			paintKw<Tok::COND_STAT>(se, "for");
+
+			paintPatOrNamelist(se, var.varNames);
+			paintKw<Tok::IN>(se, "in");
+
+			paintExprOrList(se, var.exprs);
+
+			paintDoEndBlock(se, var.bl);
 		},
 		varcase(const parse::StatementType::ASSIGN<Se>&) {
 			paintVarList(se, var.vars);
 			skipSpace(se);
-			se.template add<Tok::ASSIGN>();
+			paintKw<Tok::ASSIGN>(se, "=");
 			paintExprList(se, var.exprs);
 		},
 		varcase(const parse::StatementType::LOCAL_ASSIGN<Se>&) {
@@ -240,6 +295,14 @@ namespace slua::paint
 			if (&i != &itm.back())
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
+	}
+	template<AnySemOutput Se>
+	inline void paintExprOrList(Se& se, const parse::ExpList<Se>& itm) {
+		return paintExprList(se, itm);
+	}
+	template<AnySemOutput Se>
+	inline void paintExprOrList(Se& se, const parse::Expression<Se>& itm) {
+		return paintExpr(se, itm);
 	}
 	template<AnySemOutput Se>
 	inline void paintBlock(Se& se, const parse::Block<Se>& itm)
