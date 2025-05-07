@@ -230,6 +230,15 @@ namespace slua::paint
 
 			paintStatOrRet<true>(se, var.bl);
 		},
+		varcase(const parse::StatementType::REPEAT_UNTIL<Se>&) {
+			paintKw<Tok::COND_STAT>(se, "repeat");
+
+			paintStatOrRet<false>(se, var.bl);
+
+			paintKw<Tok::COND_STAT>(se, "until");
+
+			paintExpr(se, var.cond);
+		},
 		varcase(const parse::StatementType::IF_THEN_ELSE<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "if");
 			paintExpr(se, var.cond);
