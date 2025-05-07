@@ -126,26 +126,62 @@ namespace slua::mlvl
 		}
 	}
 
+	enum class OpKind : uint8_t { BinOp, UnOp, PostUnOp };
+
+	struct MultiOpOrderEntry
+	{
+		size_t index;
+		size_t opIdx;
+		OpKind kind;
+		uint8_t precedence;
+		Assoc assoc = Assoc::LEFT; // Only relevant for BinOp
+	};
+
 	// Returns the order of operations as indices into `extra`
 	// Store parse::BinOpType in `extra[...].first`
+	// Store std::vector<parse::UnOpItem> in `extra[...].second.unOps`
+	// Store std::vector<parse::PostUnOpType> in `extra[...].second.postUnOps`
 	template<bool isLua>
-	constexpr std::vector<size_t> multiOpOrder(const auto& m) {
-		std::vector<size_t> indices(m.extra.size());
-		std::iota(indices.begin(), indices.end(), 0);
+	constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m) {
+		std::vector<MultiOpOrderEntry> ops;
 
-		std::sort(indices.begin(), indices.end(), [&](size_t a, size_t b) {
-			auto pa = precedence<isLua>(m.extra[a].first);
-			auto pb = precedence<isLua>(m.extra[b].first);
-			if (pa != pb) return pa > pb;
 
-			Assoc assoc = associativity<isLua>(m.extra[a].first); // same as b
-			if (assoc == Assoc::LEFT)
-				return a < b;
-			else
-				return a > b;
+		size_t j = 0;
+		for (const auto& un : m.first.unOps)
+		{
+			ops.push_back({ 0,j++, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
+		}
+		j = 0;
+		for (const auto post : m.first.postUnOps)
+		{
+			ops.push_back({ 0,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::RIGHT });
+		}
+
+		// Add binary ops
+		for (size_t i = 0; i < m.extra.size(); ++i)
+		{
+			j = 0;
+			for (const auto& un : m.extra[i].second.unOps)
+			{
+				ops.push_back({ i,j++, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
+			}
+			auto& bin = m.extra[i].first;
+			ops.push_back({ i,0, OpKind::BinOp, precedence<isLua>(bin), associativity<isLua>(bin) });
+			j = 0;
+			for (const auto post : m.extra[i].second.postUnOps)
+			{
+				ops.push_back({ i,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::RIGHT });
+			}
+		}
+
+		std::sort(ops.begin(), ops.end(), [](const MultiOpOrderEntry& a, const MultiOpOrderEntry& b) {
+			if (a.precedence != b.precedence)
+				return a.precedence > b.precedence;
+
+			return (a.assoc == Assoc::LEFT) ? a.index < b.index : a.index > b.index;
 			});
 
-		return indices;
+		return ops;
 	}
 
 	struct UnOpOrderEntry
@@ -161,12 +197,12 @@ namespace slua::mlvl
 
 		for (size_t i = 0; i < expr.unOps.size(); ++i)
 		{
-			ops.push_back({ i, false, precedence(expr.unOps[i]) });
+			ops.push_back({ i, false, precedence<isLua>(expr.unOps[i]) });
 		}
 
 		for (size_t i = 0; i < expr.postUnOps.size(); ++i)
 		{
-			ops.push_back({ i, true, precedence(expr.postUnOps[i]) });
+			ops.push_back({ i, true, precedence<isLua>(expr.postUnOps[i]) });
 		}
 
 		std::sort(ops.begin(), ops.end(), [](const UnOpOrderEntry& a, const UnOpOrderEntry& b) {
