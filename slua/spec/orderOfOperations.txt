@@ -36,7 +36,7 @@ Order of Operations {
 	unary operators (!	-	mut	  &    &mut	   *mut	   *const)
 	^
 	unary operators (*)
-	?
+	postfix unary operator (?)
 	
 	(pseudo) .	 :	 ::	  function-args
 	(pseudo) (parenthesis) [slicifier]
@@ -54,6 +54,10 @@ Order of Operations {
 	
 	true or (false and true)
 	
+	
+	((*(x?))...)
+	((*x)^10)
+	(x^(y?))
 	
 	((1|2)|4) & x
 	
