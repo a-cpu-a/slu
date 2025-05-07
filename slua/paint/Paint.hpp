@@ -32,8 +32,12 @@ namespace slua::paint
 	{
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
-		//todo
-		//se.in.genData;
+		const std::string_view name = se.in.genData.asSv(f);
+		for (size_t i = 0; i < name.size(); i++)
+		{
+			_ASSERT(se.in.peekAt(i) == name[i]);
+		}
+		se.template add<tok>(name.size());
 		
 	}
 	template<Tok tok,bool SKIP_SPACE = true, size_t TOK_SIZE>
