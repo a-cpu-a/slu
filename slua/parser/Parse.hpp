@@ -345,7 +345,7 @@ namespace slua::parse
 
 				requireToken(in, "in");
 				if constexpr (in.settings() & sluaSyn)
-					res.exprs.emplace_back(readExpr<true>(in, allowVarArg));
+					res.exprs = readExpr<true>(in, allowVarArg);
 				else
 					res.exprs = readExpList(in, allowVarArg);
 
