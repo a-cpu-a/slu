@@ -296,7 +296,7 @@ namespace slua::parse
 			if constexpr(in.settings()&sluaSyn)
 			{
 				if (in.peekAt(1) == '=')// [=....
-					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
+					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar),in.getLoc());
 				else
 				{// must be a array constructor
 					in.skip();
@@ -320,7 +320,7 @@ namespace slua::parse
 				}
 			}
 			else
-				basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar));
+				basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar), in.getLoc());
 
 			break;
 		case '{':
@@ -334,7 +334,6 @@ namespace slua::parse
 				basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
 			break;
 		}
-
 		if (!isNilIntentional
 			&& std::holds_alternative<ExprType::NIL>(basicRes.data))
 		{//Prefix expr! or func-call
