@@ -117,6 +117,16 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
+	inline void paintLimPrefixExpr(Se& se, const parse::LimPrefixExpr<Se>& itm)
+	{
+		//TODO
+	}
+	template<AnySemOutput Se>
+	inline void paintArgChain(Se& se, const std::vector<parse::ArgFuncCall<Se>>& itm)
+	{
+		//TODO
+	}
+	template<AnySemOutput Se>
 	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
 		if constexpr (Se::settings() & sluaSyn)
@@ -272,6 +282,10 @@ namespace slua::paint
 			if constexpr (!(Se::settings() & sluaSyn))
 				paintKw<Tok::END_STAT>(se, "end");
 
+		},
+		varcase(const parse::StatementType::FUNC_CALL<Se>&) {
+			paintLimPrefixExpr(se, *var.val);
+			paintArgChain(se, var.argChain);
 		},
 		varcase(const parse::StatementType::ASSIGN<Se>&) {
 			paintVarList(se, var.vars);
