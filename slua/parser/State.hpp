@@ -213,7 +213,7 @@ namespace slua::parse
 
 		struct OPEN_RANGE {};					// "..."
 
-		struct LITERAL_STRING { std::string v; };				// "LiteralString"
+		struct LITERAL_STRING { std::string v; Position end;};	// "LiteralString"
 		struct NUMERAL { double v; };							// "Numeral"
 
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
