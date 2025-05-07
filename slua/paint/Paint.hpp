@@ -199,6 +199,74 @@ namespace slua::paint
 
 			paintDoEndBlock(se, var.bl);
 		},
+		varcase(const parse::StatementType::IF_THEN_ELSE<Se>&) {
+			paintKw<Tok::COND_STAT>(se, "if");
+			paintExpr(se, var.cond);
+			bool hadBrace = false;
+			if constexpr (Se::settings() & sluaSyn)
+			{
+				skipSpace(se);
+				if (se.in.peek() == '{')
+				{
+					hadBrace = true;
+					paintKw<Tok::BRACES>(se, "{");
+				}
+			}
+			else
+				paintKw<Tok::COND_STAT>(se, "then");
+			paintBlock(se, var.bl);
+			for (const auto& [cond,bl] : var.elseIfs)
+			{
+				if constexpr (Se::settings() & sluaSyn)
+				{
+					if(hadBrace)
+						paintKw<Tok::BRACES>(se, "}");
+					paintKw<Tok::COND_STAT>(se, "else");
+					paintKw<Tok::COND_STAT>(se, "if");
+					paintExpr(se, cond);
+					skipSpace(se);
+					if (se.in.peek() == '{')
+					{
+						hadBrace = true;
+						paintKw<Tok::BRACES>(se, "{");
+					}
+				}
+				else
+				{
+					paintKw<Tok::COND_STAT>(se, "elseif");
+					paintExpr(se, cond);
+					paintKw<Tok::COND_STAT>(se, "then");
+				}
+				paintBlock(se, var.bl);
+			}
+			if (var.elseBlock.has_value())
+			{
+				if constexpr (Se::settings() & sluaSyn)
+				{
+					if (hadBrace)
+						paintKw<Tok::BRACES>(se, "}");
+					paintKw<Tok::COND_STAT>(se, "else");
+					skipSpace(se);
+					if (se.in.peek() == '{')
+					{
+						hadBrace = true;
+						paintKw<Tok::BRACES>(se, "{");
+					}
+				}
+				else
+					paintKw<Tok::COND_STAT>(se, "else");
+				paintBlock(se, var.bl);
+			}
+
+			if constexpr (Se::settings() & sluaSyn)
+			{
+				if (hadBrace)
+					paintKw<Tok::BRACES>(se, "}");
+			}
+			else
+				paintKw<Tok::END_STAT>(se, "end");
+
+		},
 		varcase(const parse::StatementType::ASSIGN<Se>&) {
 			paintVarList(se, var.vars);
 			skipSpace(se);
