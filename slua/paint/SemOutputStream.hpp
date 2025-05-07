@@ -27,6 +27,8 @@ namespace slua::paint
 
 	enum class Tok : uint8_t
 	{
+		NONE = 0,
+
 		WHITESPACE = 0, //comments too
 		COMMENT_OUTER, //The -- [=[ ]=] parts
 		COMMENT_WIP, //tod..., fixm...
