@@ -63,9 +63,20 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& f)
+	inline void paintVar(Se& se, const parse::Var<Se>& f)
 	{
 		//todo
+	}
+	template<AnySemOutput Se>
+	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& f)
+	{
+		for (const parse::Var<Se>& i : f)
+		{
+			paintVar(se, i);
+			skipSpace(se);
+			if (&i != &f.back())
+				se.template add<Tok::PUNCTUATION>();
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintStat(Se& se, const parse::Statement<Se>& f)
