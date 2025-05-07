@@ -56,13 +56,58 @@ namespace slua::mlvl
         case parse::BinOpType::NOT_EQUAL: return 10;
 
 
-        case parse::BinOpType::LOGICAL_AND: return 1;
-        case parse::BinOpType::LOGICAL_OR: return 0;
+		case parse::BinOpType::LOGICAL_AND: return 6;
+		case parse::BinOpType::LOGICAL_OR: return 5;
 
         case parse::BinOpType::NONE:
             break;
         }
-        Slua_panic("Unknown operator, no precedence<slua>() defined");
+		Slua_panic("Unknown operator, no precedence<slua>(BinOpType) defined");
+	}
+	template<bool isLua>
+	constexpr uint8_t precedence(const parse::UnOpItem& op) {
+		switch (op.type)
+		{
+			//Slua
+		case parse::UnOpType::RANGE_BEFORE:	if constexpr (!isLua)return 30;//same as range between
+		case parse::UnOpType::ALLOCATE:if constexpr (!isLua)return 0;
+		case parse::UnOpType::DEREF:if constexpr (!isLua)return 100;//above exponent
+			break;
+			//Lua
+		case parse::UnOpType::LENGTH:        // "#"
+		case parse::UnOpType::BITWISE_NOT:   // "~"
+			if constexpr (!isLua)break;//Not in slua
+		case parse::UnOpType::NEGATE:        // "-"
+		case parse::UnOpType::LOGICAL_NOT:   // "not"
+			return 85;//Between exponent and mul, div, ..
+			//Slua
+		case parse::UnOpType::TO_REF:			// "&"
+		case parse::UnOpType::TO_REF_MUT:		// "&mut"
+		case parse::UnOpType::TO_PTR_CONST:	// "*const"
+		case parse::UnOpType::TO_PTR_MUT:		// "*mut"
+			//Pseudo, only for type prefixes
+		case parse::UnOpType::MUT:				// "mut"
+			if constexpr (isLua)break;
+			return 85;//Between exponent and mul, div, ..
+			//
+		case parse::UnOpType::NONE:
+			break;
+		}
+		Slua_panic("Unknown operator, no precedence<slua>(UnOpItem) defined");
+	}
+	template<bool isLua>
+	constexpr uint8_t precedence(parse::PostUnOpType op) {
+		static_assert(!isLua);
+		switch (op)
+		{
+		case parse::PostUnOpType::PROPOGATE_ERR: return 110;//above exponent and deref
+
+		case parse::PostUnOpType::RANGE_AFTER: return 30;//same as range between
+
+		case parse::PostUnOpType::NONE:
+			break;
+		}
+		Slua_panic("Unknown operator, no precedence<slua>(PostUnOpType) defined");
     }
 
     template<bool isLua>
