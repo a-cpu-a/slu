@@ -127,7 +127,6 @@ namespace slua::mlvl
 	}
 
 	enum class OpKind : uint8_t { BinOp, UnOp, PostUnOp };
-
 	struct MultiOpOrderEntry
 	{
 		size_t index;
@@ -136,16 +135,16 @@ namespace slua::mlvl
 		uint8_t precedence;
 		Assoc assoc = Assoc::LEFT; // Only relevant for BinOp
 	};
-
 	// Returns the order of operations as indices into `extra`
 	// Store parse::BinOpType in `extra[...].first`
 	// Store std::vector<parse::UnOpItem> in `extra[...].second.unOps`
 	// Store std::vector<parse::PostUnOpType> in `extra[...].second.postUnOps`
 	template<bool isLua>
-	constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m) {
+	constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m)
+	{
 		std::vector<MultiOpOrderEntry> ops;
 
-
+		//First entry
 		size_t j = 0;
 		for (const auto& un : m.first.unOps)
 		{
@@ -156,7 +155,6 @@ namespace slua::mlvl
 		{
 			ops.push_back({ 0,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::RIGHT });
 		}
-
 		// Add binary ops
 		for (size_t i = 0; i < m.extra.size(); ++i)
 		{
@@ -179,8 +177,7 @@ namespace slua::mlvl
 				return a.precedence > b.precedence;
 
 			return (a.assoc == Assoc::LEFT) ? a.index < b.index : a.index > b.index;
-			});
-
+		});
 		return ops;
 	}
 
@@ -191,15 +188,14 @@ namespace slua::mlvl
 		uint8_t precedence;
 	};
 	template<bool isLua>
-	constexpr std::vector<size_t> unaryOpOrder(const auto& expr) {
-
+	constexpr std::vector<size_t> unaryOpOrder(const auto& expr) 
+	{
 		std::vector<UnOpOrderEntry> ops;
 
 		for (size_t i = 0; i < expr.unOps.size(); ++i)
 		{
 			ops.push_back({ i, false, precedence<isLua>(expr.unOps[i]) });
 		}
-
 		for (size_t i = 0; i < expr.postUnOps.size(); ++i)
 		{
 			ops.push_back({ i, true, precedence<isLua>(expr.postUnOps[i]) });
@@ -208,7 +204,6 @@ namespace slua::mlvl
 		std::sort(ops.begin(), ops.end(), [](const UnOpOrderEntry& a, const UnOpOrderEntry& b) {
 			return a.precedence > b.precedence; // Higher precedence first
 		});
-
 		return ops;
 	}
 }
