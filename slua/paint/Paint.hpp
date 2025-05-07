@@ -59,6 +59,10 @@ namespace slua::paint
 	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE)
 	{
 		se.move(itm.place);
+		if (std::holds_alternative<parse::ExprType::MULTI_OPERATION>(itm.data))
+		{
+			//complex version
+		}
 		//todo: unops
 		ezmatch(itm.data)();
 		if constexpr (Se::settings() & sluaSyn)
