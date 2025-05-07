@@ -71,6 +71,8 @@ namespace slua::paint
 		ANNOTATION,// @xxx @xxx{}
 
 
+		AS,
+
 		IMPL,
 		DYN,
 		MUT,
