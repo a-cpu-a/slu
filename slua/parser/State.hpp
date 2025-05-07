@@ -350,7 +350,7 @@ namespace slua::parse
 	template<>
 	struct FunctionV<true> : BaseFunctionV<true>
 	{
-		TypeExpr retType;
+		std::optional<TypeExpr> retType;
 		OptSafety safety = OptSafety::DEFAULT;
 	};
 
