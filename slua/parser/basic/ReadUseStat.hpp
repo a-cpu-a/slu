@@ -21,7 +21,7 @@ namespace slua::parse
 			StatementType::USE res{};
 			res.exported = exported;
 
-			res.base = readModPath(in);
+			res.base = in.genData.resolveName(readModPath(in));
 
 			if (in.peek() == ':')
 			{
