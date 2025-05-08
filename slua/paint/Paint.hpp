@@ -166,16 +166,95 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE)
+	inline void paintLifetime(Se& se, const parse::Lifetime& itm)
+	{
+		for (const auto& i : itm)
+		{
+			paintKw<Tok::NAME_LIFETIME>(se, "/");
+			paintName<Tok::NAME_LIFETIME>(se, i);
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintPostUnOp(Se& se, const parse::PostUnOpType& itm)
+	{
+		switch (itm)
+		{
+		case parse::PostUnOpType::RANGE_AFTER:
+			paintKw<Tok::RANGE>(se, "...");
+			break;
+		case parse::PostUnOpType::PROPOGATE_ERR:
+			paintKw<Tok::GEN_OP>(se, "?");
+			break;
+		case parse::PostUnOpType::NONE:
+			break;
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintUnOpItem(Se& se, const parse::UnOpItem& itm)
+	{
+		switch (itm.type)
+		{
+		case parse::UnOpType::BITWISE_NOT:
+			paintKw<Tok::GEN_OP>(se, "~");
+			break;
+		case parse::UnOpType::LOGICAL_NOT:
+			paintKw<Tok::GEN_OP>(se,parse::sel<Se>("not", "!"));
+			break;
+		case parse::UnOpType::NEGATE:
+			paintKw<Tok::GEN_OP>(se, "-");
+			break;
+		case parse::UnOpType::LENGTH:
+			paintKw<Tok::GEN_OP>(se, "#");
+			break;
+		case parse::UnOpType::DEREF:
+			paintKw<Tok::DEREF>(se, "*");
+			break;
+		case parse::UnOpType::ALLOCATE:
+			paintKw<Tok::GEN_OP>(se, "alloc");
+			break;
+		case parse::UnOpType::RANGE_BEFORE:
+			paintKw<Tok::RANGE>(se, "...");
+			break;
+		case parse::UnOpType::MUT:
+			paintKw<Tok::MUT>(se, "mut");
+			break;
+		case parse::UnOpType::TO_PTR_CONST:
+			paintKw<Tok::PTR_CONST>(se, "*");
+			paintKw<Tok::PTR_CONST>(se, "const");
+			break;
+		case parse::UnOpType::TO_PTR_MUT:
+			paintKw<Tok::MUT>(se, "*");
+			paintKw<Tok::MUT>(se, "mut");
+			break;
+		case parse::UnOpType::TO_REF:
+			paintKw<Tok::REF>(se, "&");
+			paintLifetime(se, itm.life);
+			break;
+		case parse::UnOpType::TO_REF_MUT:
+			paintKw<Tok::MUT>(se, "&");
+			paintLifetime(se, itm.life);
+			paintKw<Tok::MUT>(se, "mut");
+			break;
+		case parse::UnOpType::NONE:
+			break;
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
 	{
 		se.move(itm.place);
 		if (std::holds_alternative<parse::ExprType::MULTI_OPERATION>(itm.data))
 		{
 			//complex version
 		}
-		//todo: unops
+		if (unOps)
+		{
+			for (const auto& i : itm.unOps)
+				paintUnOpItem(se, i);
+		}
 		ezmatch(itm.data)(
 		varcase(const parse::ExprType::MULTI_OPERATION<Se>&) {
+			//TODO: use this as the form without colors, just GEN_OP
 			Slua_panic("parse::ExprType::MULTI_OPERATION should have been handled outside!");
 		},
 		varcase(const parse::ExprType::FALSE) {
@@ -234,7 +313,11 @@ namespace slua::paint
 		);
 		if constexpr (Se::settings() & sluaSyn)
 		{
-			//todo: post unops
+			if (unOps)
+			{
+				for (const auto& i : itm.postUnOps)
+					paintPostUnOp(se, i);
+			}
 		}
 	}
 	template<Tok tok,AnySemOutput Se>

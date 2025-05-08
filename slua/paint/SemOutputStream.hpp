@@ -61,6 +61,7 @@ namespace slua::paint
 		NAME_TABLE,// xxx inside {xxx=...}
 		NAME_TYPE,// type trait xxx
 		NAME_LABEL,
+		NAME_LIFETIME,
 
 		NUMBER,
 		NUMBER_TYPE,// u8, u16, ...
