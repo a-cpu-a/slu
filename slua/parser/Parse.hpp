@@ -114,7 +114,7 @@ namespace slua::parse
 	inline Parameter<In> readFuncParam(In& in)
 	{
 		Parameter<In> p;
-		if constexpr (in.settings() & sluaSyn)
+		if constexpr (In::settings() & sluaSyn)
 			p.name = readPat(in, true);
 		else
 			p.name = in.genData.resolveUnknown(readName(in));
@@ -160,7 +160,7 @@ namespace slua::parse
 		}
 
 		requireToken(in, ")");
-		if constexpr (in.settings() & sluaSyn)
+		if constexpr (In::settings() & sluaSyn)
 		{
 			if (checkReadToken(in,"->"))
 				ret.retType = readTypeExpr(in,false);
@@ -195,7 +195,7 @@ namespace slua::parse
 	template<bool isLoop,SemicolMode semicolMode = SemicolMode::REQUIRE, AnyInput In>
 	inline Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
 	{
-		if constexpr(in.settings() & sluaSyn)
+		if constexpr(In::settings() & sluaSyn)
 		{
 			skipSpace(in);
 			if (in.peek() == '{')
@@ -303,22 +303,22 @@ namespace slua::parse
 				 for namelist in explist do block end |
 				*/
 
-				Sel<in.settings()&sluaSyn, NameList<In>,Pat> names;
-				if constexpr (in.settings() & sluaSyn)
+				Sel<In::settings()&sluaSyn, NameList<In>,Pat> names;
+				if constexpr (In::settings() & sluaSyn)
 					names = readPat(in, true);
 				else
 					names = readNameList(in);
 				
 				bool isNumeric = false;
 
-				if constexpr (in.settings() & sluaSyn)
+				if constexpr (In::settings() & sluaSyn)
 					isNumeric = checkReadToken(in, "=");
 				else//1 name, then MAYBE equal
 					isNumeric = names.size() == 1 && checkReadToken(in, "=");
 				if (isNumeric)
 				{
 					StatementType::FOR_LOOP_NUMERIC<In> res{};
-					if constexpr (in.settings() & sluaSyn)
+					if constexpr (In::settings() & sluaSyn)
 						res.varName = std::move(names);
 					else
 						res.varName = names[0];
@@ -326,10 +326,10 @@ namespace slua::parse
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					res.start = readExpr(in, allowVarArg);
 					requireToken(in, ",");
-					res.end = readExpr<in.settings() & sluaSyn>(in, allowVarArg);
+					res.end = readExpr<In::settings() & sluaSyn>(in, allowVarArg);
 
 					if (checkReadToken(in, ","))
-						res.step = readExpr<in.settings() & sluaSyn>(in, allowVarArg);
+						res.step = readExpr<In::settings() & sluaSyn>(in, allowVarArg);
 
 
 
@@ -344,7 +344,7 @@ namespace slua::parse
 				res.varNames = std::move(names);
 
 				requireToken(in, "in");
-				if constexpr (in.settings() & sluaSyn)
+				if constexpr (In::settings() & sluaSyn)
 					res.exprs = readExpr<true>(in, allowVarArg);
 				else
 					res.exprs = readExpList(in, allowVarArg);
@@ -393,7 +393,7 @@ namespace slua::parse
 					local function Name funcbody |
 					local attnamelist [‘=’ explist]
 				*/
-				if constexpr(!(in.settings() & sluaSyn))
+				if constexpr(!(In::settings() & sluaSyn))
 				{
 					if (checkReadTextToken(in, "function"))
 					{ // local function Name funcbody
@@ -431,7 +431,7 @@ namespace slua::parse
 				// Local Variable
 
 				StatementType::LOCAL_ASSIGN<In> res;
-				if constexpr(in.settings() & sluaSyn)
+				if constexpr(In::settings() & sluaSyn)
 					res.names = readPat(in,true);
 				else
 					res.names = readAttNameList(in);
@@ -444,7 +444,7 @@ namespace slua::parse
 			}
 			break;
 		case '{':// ‘{’ block ‘}’
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (In::settings() & sluaSyn)
 			{
 				in.skip();//Skip ‘{’
 				return in.genData.addStat(place,
@@ -453,7 +453,7 @@ namespace slua::parse
 			}
 			break;
 		case 'd'://do?
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (In::settings() & sluaSyn)
 			{
 				if (checkReadTextToken(in, "drop"))
 				{
@@ -508,7 +508,7 @@ namespace slua::parse
 			if (checkReadTextToken(in, "repeat"))
 			{ // repeat block until exp
 				Block<In> bl;
-				if constexpr (in.settings() & sluaSyn)
+				if constexpr (In::settings() & sluaSyn)
 					bl = readDoOrStatOrRet<true, SemicolMode::NONE>(in, allowVarArg);
 				else
 					bl = readBlock<true>(in, allowVarArg);
@@ -528,7 +528,7 @@ namespace slua::parse
 
 				res.cond = readBasicExpr(in,allowVarArg);
 
-				if constexpr (in.settings() & sluaSyn)
+				if constexpr (In::settings() & sluaSyn)
 				{
 					res.bl = readDoOrStatOrRet<isLoop, SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
 
@@ -572,7 +572,7 @@ namespace slua::parse
 
 			//Slua
 		case 'e'://ex ...?
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (In::settings() & sluaSyn)
 			{
 				if (checkReadTextToken(in, "ex"))
 				{
@@ -603,28 +603,28 @@ namespace slua::parse
 			}
 			break;
 		case 's'://safe?
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (In::settings() & sluaSyn)
 			{
 				if(readSchStat(in, place,false))
 					return;
 			}
 			break;
 		case 'u'://use? unsafe?
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (In::settings() & sluaSyn)
 			{
 				if (readUchStat(in, place, false))
 					return;
 			}
 			break;
 		case 'm'://mod?
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (In::settings() & sluaSyn)
 			{
 				if (readModStat(in, place, false))
 					return;
 			}
 			break;
 		case 't'://type?
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (In::settings() & sluaSyn)
 			{
 			}
 			break;
