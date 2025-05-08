@@ -68,7 +68,7 @@ namespace slua::paint
 			skipSpace(se);
 		for (size_t i = 0; i < sv.size(); i++)
 		{
-			_ASSERT(se.in.peekAt(i) == tokChr[i]);
+			_ASSERT(se.in.peekAt(i) == sv[i]);
 		}
 		se.template add<tok, overlayTok>(sv.size());
 		se.in.skip(sv.size());
@@ -175,6 +175,83 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
+	inline void paintBinOp(Se& se, const parse::BinOpType& itm)
+	{
+		switch (itm)
+		{
+		case parse::BinOpType::ADD:
+			paintKw<Tok::GEN_OP>(se, "+");
+			break;
+		case parse::BinOpType::SUBTRACT:
+			paintKw<Tok::GEN_OP>(se, "-");
+			break;
+		case parse::BinOpType::MULTIPLY:
+			paintKw<Tok::GEN_OP>(se, "*");
+			break;
+		case parse::BinOpType::DIVIDE:
+			paintKw<Tok::GEN_OP>(se, "/");
+			break;
+		case parse::BinOpType::FLOOR_DIVIDE:
+			paintKw<Tok::GEN_OP>(se, "//");
+			break;
+		case parse::BinOpType::MODULO:
+			paintKw<Tok::GEN_OP>(se, "%");
+			break;
+		case parse::BinOpType::EXPONENT:
+			paintKw<Tok::GEN_OP>(se, "^");
+			break;
+		case parse::BinOpType::BITWISE_AND:
+			paintKw<Tok::GEN_OP>(se, "&");
+			break;
+		case parse::BinOpType::BITWISE_OR:
+			paintKw<Tok::GEN_OP>(se, "|");
+			break;
+		case parse::BinOpType::BITWISE_XOR:
+			paintKw<Tok::GEN_OP>(se, "~");
+			break;
+		case parse::BinOpType::SHIFT_LEFT:
+			paintKw<Tok::GEN_OP>(se, "<<");
+			break;
+		case parse::BinOpType::SHIFT_RIGHT:
+			paintKw<Tok::GEN_OP>(se, ">>");
+			break;
+		case parse::BinOpType::CONCATENATE:
+			paintKw<Tok::GEN_OP>(se, "..");
+			break;
+		case parse::BinOpType::LESS_THAN:
+			paintKw<Tok::GEN_OP>(se, "<");
+			break;
+		case parse::BinOpType::LESS_EQUAL:
+			paintKw<Tok::GEN_OP>(se, "<=");
+			break;
+		case parse::BinOpType::GREATER_THAN:
+			paintKw<Tok::GEN_OP>(se, ">");
+			break;
+		case parse::BinOpType::GREATER_EQUAL:
+			paintKw<Tok::GEN_OP>(se, ">=");
+			break;
+		case parse::BinOpType::EQUAL:
+			paintKw<Tok::GEN_OP>(se, "==");
+			break;
+		case parse::BinOpType::NOT_EQUAL:
+			paintKw<Tok::GEN_OP>(se, parse::sel<Se>("~=", "!="));
+			break;
+		case parse::BinOpType::LOGICAL_AND:
+			paintKw<Tok::AND>(se, "and");
+			break;
+		case parse::BinOpType::LOGICAL_OR:
+			paintKw<Tok::OR>(se, "or");
+			break;
+			//Slua:
+		case parse::BinOpType::RANGE_BETWEEN:
+			paintKw<Tok::RANGE>(se, "...");
+			break;
+		case parse::BinOpType::NONE:
+			break;
+		}
+
+	}
+	template<AnySemOutput Se>
 	inline void paintPostUnOp(Se& se, const parse::PostUnOpType& itm)
 	{
 		switch (itm)
@@ -243,10 +320,10 @@ namespace slua::paint
 	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
 	{
 		se.move(itm.place);
-		if (std::holds_alternative<parse::ExprType::MULTI_OPERATION>(itm.data))
+		/*if (std::holds_alternative<parse::ExprType::MULTI_OPERATION>(itm.data))
 		{
 			//complex version
-		}
+		}*/
 		if (unOps)
 		{
 			for (const auto& i : itm.unOps)
@@ -254,8 +331,12 @@ namespace slua::paint
 		}
 		ezmatch(itm.data)(
 		varcase(const parse::ExprType::MULTI_OPERATION<Se>&) {
-			//TODO: use this as the form without colors, just GEN_OP
-			Slua_panic("parse::ExprType::MULTI_OPERATION should have been handled outside!");
+			paintExpr(se, *var.first);
+			for (const auto& [op,expr] : var.extra)
+			{
+				paintBinOp(se, op);
+				paintExpr(se, expr);
+			}
 		},
 		varcase(const parse::ExprType::FALSE) {
 			paintKw<Tok::BUILITIN_VAR>(se, "false");
@@ -304,7 +385,7 @@ namespace slua::paint
 			paintKw<Tok::GEN_OP>(se, "]");
 		},
 		varcase(const parse::ExprType::FUNCTION_DEF<Se>&) {
-			paintFuncDef(se, var.v,parse::MpItmId<Se>(SIZE_MAX));
+			paintFuncDef(se, var.v, parse::MpItmId<Se>({ SIZE_MAX }));
 		},
 		varcase(const parse::ExprType::FUNC_CALL<Se>&) {
 			paintLimPrefixExpr(se, *var.val);
