@@ -318,7 +318,7 @@ namespace slua::parse
 	{
 		TypeExprData data;
 		Position place;
-		std::vector<UnOpItem> unOps;
+		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 		bool hasMut : 1 = false;
 	};
 
