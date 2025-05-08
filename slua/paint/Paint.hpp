@@ -175,6 +175,11 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
+	inline void paintTable(Se& se, const parse::TableConstructor<Se>& itm)
+	{
+		//TODO
+	}
+	template<AnySemOutput Se>
 	inline void paintBinOp(Se& se, const parse::BinOpType& itm)
 	{
 		switch (itm)
@@ -371,11 +376,17 @@ namespace slua::paint
 		varcase(const parse::ExprType::NUMERAL_U64) {
 			paintNumber(se, tint);
 		},
+		varcase(const parse::ExprType::LIFETIME&) {
+			paintLifetime(se, var);
+		},
 		varcase(const parse::ExprType::TYPE_EXPR&) {
 			paintTypeExpr(se, var);
 		},
 		varcase(const parse::ExprType::TRAIT_EXPR&) {
 			paintTraitExpr(se, var);
+		},
+		varcase(const parse::ExprType::TABLE_CONSTRUCTOR<Se>&) {
+			paintTable(se, var.v);
 		},
 		varcase(const parse::ExprType::ARRAY_CONSTRUCTOR<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "[");
@@ -384,12 +395,18 @@ namespace slua::paint
 			paintExpr(se, *var.size);
 			paintKw<Tok::GEN_OP>(se, "]");
 		},
+		varcase(const parse::ExprType::LIM_PREFIX_EXP<Se>&) {
+			paintLimPrefixExpr(se, *var);
+		},
 		varcase(const parse::ExprType::FUNCTION_DEF<Se>&) {
 			paintFuncDef(se, var.v, parse::MpItmId<Se>({ SIZE_MAX }));
 		},
 		varcase(const parse::ExprType::FUNC_CALL<Se>&) {
 			paintLimPrefixExpr(se, *var.val);
 			paintArgChain(se, var.argChain);
+		},
+		varcase(const parse::ExprType::PAT_TYPE_PREFIX&) {
+			Slua_panic("Pat type prefix leaked outside of pattern parsing!");
 		}
 		);
 		if constexpr (Se::settings() & sluaSyn)
@@ -401,21 +418,37 @@ namespace slua::paint
 			}
 		}
 	}
-	template<Tok tok,AnySemOutput Se>
+	template<Tok tok, Tok overlayTok=Tok::NONE,AnySemOutput Se>
 	inline void paintMp(Se& se, const parse::MpItmId<Se>& itm)
 	{
-		const lang::ViewModPath mp = itm.asVmp(se.in.genData);
+		const lang::ViewModPath mp = se.in.genData.asVmp(itm);
 		for (auto& i : mp)
 		{
 			if(i=="self")
-				paintKw<Tok::VAR_STAT>(se, "self");
+			{
+				paintKw<Tok::VAR_STAT,
+					overlayTok == Tok::NONE ? Tok::VAR_STAT : overlayTok
+				>(se, "self");
+			}
 			else if(i=="Self" || i=="crate")
-				paintSv<Tok::CON_STAT>(se, i);
+			{
+				paintSv<Tok::CON_STAT,
+					overlayTok == Tok::NONE ? Tok::CON_STAT : overlayTok
+				>(se, i);
+			}
 			else
-				paintSv<tok>(se, i);
+			{
+				paintSv<tok,
+					overlayTok == Tok::NONE ? tok : overlayTok
+				>(se, i);
+			}
 
 			if (&i != &mp.back())
-				paintKw<Tok::MP>(se, "::");
+			{
+				paintKw<Tok::MP,
+					overlayTok == Tok::NONE ? Tok::MP : overlayTok
+				>(se, "::");
+			}
 		}
 	}
 	template<AnySemOutput Se>
@@ -428,7 +461,7 @@ namespace slua::paint
 				if (var.hasDeref)
 				{
 					paintKw<Tok::DEREF>(se, "*");
-					paintName<Tok::NAME, Tok::DEREF>(se, var.v);
+					paintMp<Tok::NAME, Tok::DEREF>(se, var.v);
 					return;//From match, not func
 				}
 			}
@@ -446,11 +479,13 @@ namespace slua::paint
 			paintKw<Tok::GEN_OP, Tok::DEREF>(se, ")");
 		}
 		);
+		//TODO:
+		//itm.sub
 	}
 	template<AnySemOutput Se>
 	inline void paintPat(Se& se, const parse::Pat& itm)
 	{
-
+		//TODO
 	}
 	template<Tok tok, AnySemOutput Se>
 	inline void paintNameList(Se& se, const std::vector<parse::MpItmId<Se>>& itm)
@@ -524,10 +559,12 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintTraitExpr(Se& se, const parse::TraitExpr& itm)
 	{
+		//TODO
 	}
 	template<AnySemOutput Se>
 	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm)
 	{
+		//TODO
 	}
 	template<AnySemOutput Se>
 	inline void paintSafety(Se& se, const parse::OptSafety itm)
