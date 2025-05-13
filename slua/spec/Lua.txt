@@ -19,7 +19,6 @@ New Syntax {
 		| ‘{’ block ‘}’
 		| ‘while’ basicExp statOrRet
 		| ‘repeat’ statOrRetOsc ‘until’ exp
-		| ifcond [statOrRetOsc {‘else’ ifcond statOrRetOsc} ‘else’ [ifcond]] statOrRet
 		| ‘for’ uncondDestrPat ‘=’ exp ‘,’ basicExp [‘,’ basicExp] statOrRet
 		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
@@ -27,12 +26,13 @@ New Syntax {
 
 	retstat ::= return [explist]
 
-	ifcond ::= ‘if’ basicExp
 
 	basicstatOrRet ::= retstat | basicstat
 	statOrRet ::= (basicstatOrRet ‘;’) | ‘{’ block ‘}’
 	statOrRetNsc ::= basicstatOrRet | ‘{’ block ‘}’
 	statOrRetOsc ::= statOrRet | statOrRetNsc
+	
+	
 
 	label ::= ‘:::’ Name ‘:’
 
