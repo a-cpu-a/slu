@@ -9,7 +9,11 @@ New Syntax {
 	--Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
 	-- INVALID: @Mark {return true}
 	-- VALID: @Mark{} {return true}
-	annotation ::= "@" comptimeVar [tableconstructor]
+	annotation ::= "@" ["^"] comptimeVar [tableconstructor]
+		| "---"LiteralString
+		| "---" LineOfText
+		| "--^"LiteralString
+		| "--^" LineOfText
 	
 	
 	stat @::= | annotations stat
@@ -27,10 +31,20 @@ Annotation {
 	
 	The constructor arguments to annotations are optional, but in some cases you will need them, as not having them would conflict with other table constructors
 	
+	If there is a '^', then the annotation applies to the container its inside of, not the next item.
+	
 	Any type can be used as a annotation, as long as it is marked with @Annotation.
 	Using a type that isnt marked with @Annotation is a soft-error, and @Annotation is added for you.
 	
 	Annotations only exist at compile-time, so you cant access them from run-time code.
+	
+	You can add multiple of the same annotation type, there is no limit of 1 per type.
+	
+	There cant be any spaces after the '---' for it to count as a string-based doc comment.
+	LineOfText means that the full line is consumed until a newline and added as a doc comment, escapes are not read.
+	Doc comments are desugared into '@Doc{txt="Comment text"}'.
+	Doc comments with "^" are desugared into '@^Doc{txt="Comment text"}'.
+	
 }
 
 New Annotations {
@@ -84,7 +98,7 @@ New Annotations {
 
 	```
 	@EntrypointInit
-	let Mutex<String> state = Mutex{"Hello"};
+	let Mutex(String) state = Mutex{"Hello"};
 
 	-- State is immutable, but the string inside of it isnt.
 	-- This is safe, as the mutex stops any concurent accesses, and it is only initialized once, before any code runs.
