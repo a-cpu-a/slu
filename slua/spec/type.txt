@@ -36,7 +36,6 @@ New Syntax {
 		| "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
-		| arrayMultiplyConstruct
 		| "?"
 		| "struct" "{" [structConstructor] "}"
 		| "union" "{" [structConstructor] "}"

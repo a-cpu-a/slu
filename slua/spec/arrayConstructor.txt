@@ -4,18 +4,19 @@
 
 New Syntax {
 	
-	arrayMultiplyConstruct ::= "[" exp ";" comptimeExp "]"
 	
-	basicExp @::= | arrayMultiplyConstruct
+	binop @::= | "of"
 }
 
 Array Constructor {
 	
 	Construct an array of one item X many times
 	
-	[x;y] -> x the element, y how many of it.
+	`y of x` -> x the element, y how many of it.
 	x must be copyable (any kind).
 	y must be a non-negative integer.
 	if y is 0, then x will not be evaluated.
+	
+	The result of the operator is not a real value, and can only be used inside of a table constructor.
 	
 }

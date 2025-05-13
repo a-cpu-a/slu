@@ -18,6 +18,8 @@ Order of Operations {
 
 	unary operators (alloc)
 	
+	of
+	
 	or
 	and
 	!=	== (Not the same as lua!)
