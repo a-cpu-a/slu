@@ -125,6 +125,7 @@ namespace slua::mlvl
 		case parse::BinOpType::EXPONENT:
 		case parse::BinOpType::SHIFT_LEFT:
 		case parse::BinOpType::SHIFT_RIGHT:
+		case parse::BinOpType::ARRAY_CONSTRUCT:
 			return Assoc::RIGHT;
 		default:
 			return Assoc::LEFT;
