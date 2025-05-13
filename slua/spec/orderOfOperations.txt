@@ -28,7 +28,6 @@ Order of Operations {
 	
 	<	>	<=	 >=
 	
-	
 	... binary, post and prefix range operators
 	
 	|	~	&	(Not the same as lua! they are all equal)
