@@ -223,14 +223,6 @@ namespace slua::parse
 		struct NUMERAL_U128 { uint64_t lo = 0; uint64_t hi = 0; }; // "Numeral"
 		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
 
-		template<bool isSlua>
-		struct ARRAY_CONSTRUCTORv
-		{
-			std::unique_ptr<ExpressionV<isSlua>> val;
-			std::unique_ptr<ExpressionV<isSlua>> size;
-		};
-		template<AnyCfgable CfgT>
-		using ARRAY_CONSTRUCTOR = SelV<CfgT, ARRAY_CONSTRUCTORv>;
 	}
 	using Lifetime = std::vector<MpItmIdV<true>>;
 	struct UnOpItem
@@ -421,9 +413,7 @@ namespace slua::parse
 		ExprType::TYPE_EXPR,
 		ExprType::TRAIT_EXPR,
 
-		ExprType::PAT_TYPE_PREFIX,
-
-		ExprType::ARRAY_CONSTRUCTORv<isSlua>
+		ExprType::PAT_TYPE_PREFIX
 	>;
 
 	template<AnyCfgable CfgT>

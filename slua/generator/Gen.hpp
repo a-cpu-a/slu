@@ -68,6 +68,8 @@ namespace slua::parse
 		case BinOpType::LOGICAL_OR:
 			return "or"sv;
 			// Slua
+		case BinOpType::ARRAY_CONSTRUCT:
+			return "of"sv;
 		case BinOpType::RANGE_BETWEEN:
 			return "..."sv;
 		default:
@@ -311,13 +313,6 @@ namespace slua::parse
 			out.add("0x");
 			writeU64Hex(out, var.hi);
 			writeU64Hex(out, var.lo);
-		},
-		varcase(const ExprType::ARRAY_CONSTRUCTOR<Out>&) {
-			out.add("[");
-			genExpr(out,*var.val);
-			out.add("; ");
-			genExpr(out, *var.size);
-			out.add("]");
 		}
 		);
 		if constexpr(out.settings()&sluaSyn)
