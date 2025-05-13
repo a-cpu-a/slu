@@ -1,0 +1,50 @@
+#
+# Dependencies: Lua
+#
+
+Whitespace {
+	
+	Whitespace is fully ignored in a way that code cant rely on it or read it.
+	Whitespace is ignored while parsing.
+	
+	Whitespace characters include the standard ASCII whitespace characters space, form feed, newline, carriage return, horizontal tab, and vertical tab.
+	
+	Whitespace includes comments, both multi-line and single-line.
+	
+	Single line comments start with '--' and end at a newline.
+	Single line comments dont start with 3 dashes, since 3 dashes identify a doc-comment.
+	Single line comments dont start with '--^', since that identifies a doc-comment.
+	
+	
+	Multiline comments:
+
+	We define an opening long bracket of level n as
+	an opening square bracket followed by n equal
+	signs followed by another opening square bracket.
+
+	So, an opening long bracket of level 1 is written
+	as [=[, an opening long bracket of level 2 is
+	written as [==[, and so on.
+	
+	The minimum long bracket level is 1.
+
+	A closing long bracket is defined similarly; for
+	instance, a closing long bracket of level 4 is
+	written as ]====].
+
+	A long literal starts with
+	an opening long bracket of any level and ends at
+	the first closing long bracket of the same level.
+
+	It can contain any text except a closing bracket
+	of the same level.
+
+	Literals in this bracketed form can run for
+	several lines, do not interpret any escape
+	sequences, and ignore long brackets of
+	any other level.
+
+
+	In the spec, whenever there is a space inside one of the ebnf's, whitespace may be inserted.
+
+}
