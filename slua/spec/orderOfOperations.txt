@@ -20,12 +20,14 @@ Order of Operations {
 	
 	of
 	
+	.. (Not the same pos as lua!)
+	
 	or
 	and
 	!=	== (Not the same as lua!)
+	
 	<	>	<=	 >=
 	
-	.. (Not the same pos as lua!)
 	
 	... binary, post and prefix range operators
 	

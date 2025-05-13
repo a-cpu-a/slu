@@ -45,7 +45,7 @@ namespace slua::mlvl
 			break;
 
 			//Lua
-		case parse::BinOpType::CONCATENATE:if constexpr (!isLua) return 20;
+		case parse::BinOpType::CONCATENATE:if constexpr (!isLua) return 4;
 			return 55;//Lua, between +- and << >>
 
 		case parse::BinOpType::GREATER_EQUAL:
@@ -164,13 +164,13 @@ namespace slua::mlvl
 		// Add binary ops
 		for (size_t i = 0; i < m.extra.size(); ++i)
 		{
+			auto& bin = m.extra[i].first;
+			ops.push_back({ i,0, OpKind::BinOp, precedence<isLua>(bin), associativity<isLua>(bin) });
 			j = 0;
 			for (const auto& un : m.extra[i].second.unOps)
 			{
 				ops.push_back({ i,j++, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
 			}
-			auto& bin = m.extra[i].first;
-			ops.push_back({ i,0, OpKind::BinOp, precedence<isLua>(bin), associativity<isLua>(bin) });
 			j = 0;
 			for (const auto post : m.extra[i].second.postUnOps)
 			{
@@ -179,6 +179,23 @@ namespace slua::mlvl
 		}
 
 		std::sort(ops.begin(), ops.end(), [](const MultiOpOrderEntry& a, const MultiOpOrderEntry& b) {
+
+			if (a.index == b.index)
+			{
+				if (a.kind == OpKind::BinOp || b.kind == OpKind::BinOp)
+				{//Only one is binOp
+					if (a.kind == OpKind::BinOp)
+						return a.precedence > b.precedence;
+
+					//b is bin
+					return a.kind == OpKind::BinOp;
+				}
+				if (a.kind == OpKind::UnOp && b.kind == OpKind::UnOp)
+					return a.precedence > b.precedence;
+				if (a.kind == OpKind::PostUnOp && b.kind == OpKind::PostUnOp)
+					return a.precedence > b.precedence;
+			}
+
 			if (a.precedence != b.precedence)
 				return a.precedence > b.precedence;
 
