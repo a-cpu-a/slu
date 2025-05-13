@@ -38,7 +38,20 @@ Function Expression {
 	
 	let statLambda = || do {
 		return "Hello world";
+		-- Works cuz ur returning from the lambda directly.
+		-- Meaning `do return "Hello world";` would work too
 	}
+	
+	
+	let l1 = || 100;
+	let l2 = || -> u8 => 100;
+	let l3 = || {1,2,3};
+	let l4 = || -> {u8,u8,u8} => {1,2,3};
+	let l5 = || do {do return 100;};
+	let l6 = || -> u8 => do {do return 100;};
+	let l7 = || -> u8 {return 100;};
+	let l9 = || print("Hello");
+	let l8 = || do {print("Hello");} --Always returns void, cuz ur not returning the print.
 	
 	```
 	
@@ -47,5 +60,28 @@ Function Expression {
 		or a pointer plus some captured data.
 		
 		In lua, this can be the equivelant function, or could also be a table with a special metatable.
+	}
+	
+	Archive {
+		```
+		-- Lamda form 1 - The one we use today.
+		-- Expressions by default.
+		-- Statements only if "=>" missing after ret-type
+		
+		--Lamda form 2
+		-- Like form 1,except "=>" required for expressions
+		-- Statements by default.
+		let l1 = || => 100;
+		let l2 = || -> u8 => 100;
+		let l3 = || => {1,2,3};
+		let l4 = || -> {u8,u8,u8} => {1,2,3};
+		let l5 = || => do {do return 100;}; --
+		let l6 = || -> u8 => do {do return 100;};
+		let l7 = || {return 100;};
+		let l8 = || -> u8 {return 100;};
+		let l9 = || print("Hello"); --Always returns void, no matter the return type of print, because its a func-call statement
+		let l9 = || => print("Hello");
+		let l0 = || => do {print("Hello");}
+		```
 	}
 }
