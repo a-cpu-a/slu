@@ -139,7 +139,7 @@ namespace slua::mlvl
 		size_t opIdx;
 		OpKind kind;
 		uint8_t precedence;
-		Assoc assoc = Assoc::LEFT; // Only relevant for BinOp
+		Assoc assoc = Assoc::LEFT; // Only varying for BinOp
 	};
 	// Returns the order of operations as indices into `extra`
 	// Store parse::BinOpType in `extra[...].first`
@@ -148,10 +148,32 @@ namespace slua::mlvl
 	template<bool isLua>
 	constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m)
 	{
+		/*
+
+		When sorting, binop to binop order is always the same, even when removing all unary ops.
+		This means you can sort the un ops after bin-ops.
+
+		Sorting un ops:
+
+		left > right, if both have same precedence.
+		UnOp > PostUnOp, if both have same precedence.
+
+
+		Un ops can only apply to their expression, or the result of a bin op.
+
+		If you have a un op with a higher precedence than a bin op, it will always be applied before even if there are lower un ops before it.
+		With equal precedences, the un ops are applied after.
+		Any un ops in between a bin op are applied before the bin op.
+
+		un op precedences between other un ops only matters if they are on different sides of a expr.
+		This means that un ops will expand outwards from the expression, going to the highest precedence un op, until matching the precedence of a bin op.
+
+		*/
+
 		std::vector<MultiOpOrderEntry> ops;
 
 		//First entry
-		size_t j = 0;
+		/*size_t j = 0;
 		for (const auto& un : m.first.unOps)
 		{
 			ops.push_back({ 0,j++, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
@@ -159,14 +181,14 @@ namespace slua::mlvl
 		j = 0;
 		for (const auto post : m.first.postUnOps)
 		{
-			ops.push_back({ 0,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::RIGHT });
-		}
+			ops.push_back({ 0,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
+		}*/
 		// Add binary ops
 		for (size_t i = 0; i < m.extra.size(); ++i)
 		{
 			auto& bin = m.extra[i].first;
 			ops.push_back({ i,0, OpKind::BinOp, precedence<isLua>(bin), associativity<isLua>(bin) });
-			j = 0;
+			/*j = 0;
 			for (const auto& un : m.extra[i].second.unOps)
 			{
 				ops.push_back({ i,j++, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
@@ -174,33 +196,21 @@ namespace slua::mlvl
 			j = 0;
 			for (const auto post : m.extra[i].second.postUnOps)
 			{
-				ops.push_back({ i,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::RIGHT });
-			}
+				ops.push_back({ i,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
+			}*/
 		}
 
 		std::sort(ops.begin(), ops.end(), [](const MultiOpOrderEntry& a, const MultiOpOrderEntry& b) {
-
-			if (a.index == b.index)
-			{
-				if (a.kind == OpKind::BinOp || b.kind == OpKind::BinOp)
-				{//Only one is binOp
-					if (a.kind == OpKind::BinOp)
-						return a.precedence > b.precedence;
-
-					//b is bin
-					return a.kind == OpKind::BinOp;
-				}
-				if (a.kind == OpKind::UnOp && b.kind == OpKind::UnOp)
-					return a.precedence > b.precedence;
-				if (a.kind == OpKind::PostUnOp && b.kind == OpKind::PostUnOp)
-					return a.precedence > b.precedence;
-			}
 
 			if (a.precedence != b.precedence)
 				return a.precedence > b.precedence;
 
 			return (a.assoc == Assoc::LEFT) ? a.index < b.index : a.index > b.index;
 		});
+
+
+		//TODO: tree-ify, add un ops
+
 		return ops;
 	}
 
