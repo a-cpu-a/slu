@@ -248,6 +248,9 @@ namespace slua::paint
 			paintKw<Tok::OR>(se, "or");
 			break;
 			//Slua:
+		case parse::BinOpType::ARRAY_CONSTRUCT:
+			paintKw<Tok::ARRAY_CONSTRUCT>(se, "of");
+			break;
 		case parse::BinOpType::RANGE_BETWEEN:
 			paintKw<Tok::RANGE>(se, "...");
 			break;
@@ -387,13 +390,6 @@ namespace slua::paint
 		},
 		varcase(const parse::ExprType::TABLE_CONSTRUCTOR<Se>&) {
 			paintTable(se, var.v);
-		},
-		varcase(const parse::ExprType::ARRAY_CONSTRUCTOR<Se>&) {
-			paintKw<Tok::GEN_OP>(se, "[");
-			paintExpr(se, *var.val);
-			paintKw<Tok::PUNCTUATION>(se, ";");
-			paintExpr(se, *var.size);
-			paintKw<Tok::GEN_OP>(se, "]");
 		},
 		varcase(const parse::ExprType::LIM_PREFIX_EXP<Se>&) {
 			paintLimPrefixExpr(se, *var);

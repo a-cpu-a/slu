@@ -298,25 +298,14 @@ namespace slua::parse
 				if (in.peekAt(1) == '=')// [=....
 					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar),in.getLoc());
 				else
-				{// must be a array constructor
+				{// must be a slicer [x]
 					in.skip();
-					Expression<In> firstItem = readExpr(in, allowVarArg);
-					if (in.peek() == ';')
-					{//[x;y]
-						in.skip();
-						ExprType::ARRAY_CONSTRUCTOR<In> res;
-						res.val = std::make_unique<Expression<In>>(std::move(firstItem));
-						res.size = std::make_unique<Expression<In>>(readExpr(in, allowVarArg));
-						requireToken(in, "]");
-						basicRes.data = std::move(res);
-					}
-					else
-					{//[x]
-						basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::SLICER{
-							std::make_unique<Expression<In>>(std::move(firstItem)
-						)}});
-						requireToken(in, "]");
-					}
+
+					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::SLICER{
+						std::make_unique<Expression<In>>(
+							readExpr(in, allowVarArg)
+					)} });
+					requireToken(in, "]");
 				}
 			}
 			else

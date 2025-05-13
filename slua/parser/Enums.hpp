@@ -46,6 +46,7 @@ namespace slua::parse
 
 		// Slua
 
+		ARRAY_CONSTRUCT,// "of"
 		RANGE_BETWEEN,	// "..."
 	};
 

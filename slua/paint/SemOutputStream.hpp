@@ -84,6 +84,8 @@ namespace slua::paint
 
 		TRY,// ? operator
 
+		ARRAY_CONSTRUCT,
+
 		OR,
 		AND,
 

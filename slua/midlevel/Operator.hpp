@@ -40,12 +40,13 @@ namespace slua::mlvl
 		case parse::BinOpType::BITWISE_XOR:if constexpr (isLua)return 41;
 		case parse::BinOpType::BITWISE_AND: return 42;
 
+			//Slua
 		case parse::BinOpType::RANGE_BETWEEN: if constexpr (!isLua)return 30;
 			break;
 
+			//Lua
 		case parse::BinOpType::CONCATENATE:if constexpr (!isLua) return 20;
 			return 55;//Lua, between +- and << >>
-
 
 		case parse::BinOpType::GREATER_EQUAL:
 		case parse::BinOpType::GREATER_THAN:
@@ -58,6 +59,10 @@ namespace slua::mlvl
 
 		case parse::BinOpType::LOGICAL_AND: return 6;
 		case parse::BinOpType::LOGICAL_OR: return 5;
+
+			//Slua
+		case parse::BinOpType::ARRAY_CONSTRUCT: if constexpr (!isLua)return 2;
+			break;
 
 		case parse::BinOpType::NONE:
 			break;
