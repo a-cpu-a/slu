@@ -20,7 +20,8 @@
 
 namespace slua::paint
 {
-	inline std::string asHtml(const AnySemOutput auto& se) {
+	inline std::string toHtml(const AnySemOutput auto& se) {
+		
 		return "TODO: NYI";
 	}
 }
