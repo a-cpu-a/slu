@@ -56,7 +56,7 @@ namespace slua::paint
 		MP,// ::
 		BRACES,// {} (may be combined with some tint, to get a colored brace)
 
-		MP_IDX,// : ::
+		MP_IDX,// . : ::
 		NAME,// .123 .xxx xxx
 		NAME_TABLE,// xxx inside {xxx=...}
 		NAME_TYPE,// type trait xxx
