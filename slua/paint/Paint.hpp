@@ -482,6 +482,23 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
+	inline void paintSubVar(Se& se, const parse::SubVar<Se>& itm)
+	{
+		paintArgChain(se, itm.funcCalls);
+
+		ezmatch(itm.idx)(
+		varcase(const parse::SubVarType::EXPR<Se>&) {
+			paintKw<Tok::GEN_OP>(se, "[");
+			paintExpr(se, var.idx);
+			paintKw<Tok::GEN_OP>(se, "]");
+		},
+		varcase(const parse::SubVarType::NAME<Se>&) {
+			paintKw<Tok::MP_IDX>(se, ".");
+			paintName<Tok::NAME>(se, var.idx);
+		}
+		);
+	}
+	template<AnySemOutput Se>
 	inline void paintVar(Se& se, const parse::Var<Se>& itm)
 	{
 		ezmatch(itm.base)(
@@ -509,8 +526,10 @@ namespace slua::paint
 			paintKw<Tok::GEN_OP, Tok::DEREF>(se, ")");
 		}
 		);
-		//TODO:
-		//itm.sub
+		for (const parse::SubVar<Se>& i : itm.sub)
+		{
+			paintSubVar(se, i);
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintPat(Se& se, const parse::Pat& itm)
