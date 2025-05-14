@@ -429,7 +429,7 @@ namespace slua::paint
 			paintLimPrefixExpr(se, *var);
 		},
 		varcase(const parse::ExprType::FUNCTION_DEF<Se>&) {
-			paintFuncDef(se, var.v, parse::MpItmId<Se>({ SIZE_MAX }));
+			paintFuncDef(se, var.v, parse::MpItmId<Se>({ SIZE_MAX }), false);
 		},
 		varcase(const parse::ExprType::FUNC_CALL<Se>&) {
 			paintLimPrefixExpr(se, *var.val);
@@ -727,7 +727,65 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm)
 	{
-		//TODO
+		se.move(itm.place);
+		if(itm.hasMut)
+			paintKw<Tok::MUT>(se, "mut");
+		for (const parse::UnOpItem& i : itm.unOps)
+			paintUnOpItem(se, i);
+
+		ezmatch(itm.data)(
+		varcase(const parse::TypeExprDataType::ERR_INFERR&) {
+			paintKw<Tok::TRY>(se, "?");
+		},
+		varcase(const parse::TypeExprDataType::ERR&) {
+			paintKw<Tok::GEN_OP>(se, "//");
+			paintTypeExpr(se, *var.err);
+		},
+		varcase(const parse::TypeExprDataType::FUNC_CALL&) {
+			paintLimPrefixExpr(se, *var.val);
+			paintArgChain(se, var.argChain);
+		},
+		varcase(const parse::TypeExprDataType::LIM_PREFIX_EXP&) {
+			paintLimPrefixExpr(se, *var);
+		},
+		varcase(const parse::TypeExprDataType::SLICER&) {
+			paintKw<Tok::GEN_OP>(se, "[");
+			paintExpr(se, *var);
+			paintKw<Tok::GEN_OP>(se, "]");
+		},
+		varcase(const parse::TypeExprDataType::TABLE_CONSTRUCTOR&) {
+			paintTable(se, var);
+		},
+		varcase(const parse::TypeExprDataType::DYN&) {
+			paintKw<Tok::DYN>(se, "dyn");
+			paintTraitExpr(se, var.expr);
+		},
+		varcase(const parse::TypeExprDataType::IMPL&) {
+			paintKw<Tok::IMPL>(se, "impl");
+			paintTraitExpr(se, var.expr);
+		},
+		varcase(const parse::TypeExprDataType::FN&) {
+			paintSafety(se, var.safety);
+			paintKw<Tok::FN_STAT>(se, "fn");
+			paintTypeExpr(se, *var.argType);
+			paintKw<Tok::GEN_OP>(se, "->");
+			paintTypeExpr(se, *var.retType);
+		},
+		varcase(const parse::TypeExprDataType::TRAIT_TY&) {
+			paintKw<Tok::NAME_TYPE>(se, "trait");
+		},
+		varcase(const parse::TypeExprDataType::TYPE_TY&) {
+			paintKw<Tok::NAME_TYPE>(se, "type");
+		},
+		varcase(const parse::TypeExprDataType::MULTI_OP&) {
+			paintTypeExpr(se, *var.first);
+			for (const auto& [op, expr] : var.extra)
+			{
+				paintBinOp(se, op);
+				paintTypeExpr(se, expr);
+			}
+		}
+		);
 	}
 	template<AnySemOutput Se>
 	inline void paintSafety(Se& se, const parse::OptSafety itm)
@@ -771,14 +829,15 @@ namespace slua::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name, const Position pos = {})
+	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {})
 	{
-		//TODO:
-		//if (itm.func.exported)
-		//	paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
-
 		if constexpr (Se::settings() & sluaSyn)
+		{
+			if (exported)
+				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
+
 			paintSafety(se, func.safety);
+		}
 		paintKw<Tok::FN_STAT>(se, "function");
 
 		if(!name.empty())
@@ -941,11 +1000,11 @@ namespace slua::paint
 			paintExprList(se, var.exprs);
 		},
 		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
-			paintFuncDef(se, var.func, var.name, var.place);
+			paintFuncDef(se, var.func, var.name,false, var.place);//TODO export data
 		},
 		varcase(const parse::StatementType::LOCAL_FUNCTION_DEF<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "local");
-			paintFuncDef(se, var.func, var.name, var.place);
+			paintFuncDef(se, var.func, var.name, false, var.place);
 		},
 		varcase(const parse::StatementType::DROP<Se>&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
