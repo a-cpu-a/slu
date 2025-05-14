@@ -588,7 +588,27 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintArgChain(Se& se, const std::vector<parse::ArgFuncCall<Se>>& itm)
 	{
-		//TODO
+		for (const parse::ArgFuncCall<Se>& i : itm)
+		{
+			if (!i.funcName.empty())
+			{
+				paintKw<Tok::MP_IDX>(se, ":");
+				paintName<Tok::NAME>(se, i.funcName);
+			}
+			ezmatch(i.args)(
+			varcase(const parse::ArgsType::EXPLIST<Se>&) {
+				paintKw<Tok::GEN_OP>(se, "(");
+				paintExprList(se, var.v);
+				paintKw<Tok::GEN_OP>(se, ")");
+			},
+			varcase(const parse::ArgsType::TABLE<Se>&) {
+				paintTable(se, var.v);
+			},
+			varcase(const parse::ArgsType::LITERAL&) {
+				paintString(se, var.v, var.end, Tok::NONE);
+			}
+			);
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintEndBlock(Se& se, const parse::Block<Se>& itm)
