@@ -154,7 +154,7 @@ namespace slua::parse
 			{
 				if (checkReadTextToken(in, "dyn"))
 				{
-					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::DYN{readTraitExpr(in)} });
+					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::DYN{readTraitExpr(in)},basicRes.place });
 					break;
 				}
 			}
@@ -164,7 +164,7 @@ namespace slua::parse
 			{
 				if (checkReadTextToken(in, "impl"))
 				{
-					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::IMPL{readTraitExpr(in)} });
+					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::IMPL{readTraitExpr(in)} ,basicRes.place });
 					break;
 				}
 			}
@@ -175,7 +175,7 @@ namespace slua::parse
 				if (!checkReadTextToken(in, "safe"))
 					break;
 				requireToken(in, "fn");
-				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::SAFE) });
+				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::SAFE),basicRes.place });
 			}
 			break;
 		case 'u'://unsafe fn
@@ -184,7 +184,7 @@ namespace slua::parse
 				if (!checkReadTextToken(in, "unsafe"))
 					break;
 				requireToken(in, "fn");
-				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::UNSAFE) });
+				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::UNSAFE),basicRes.place });
 			}
 			break;
 		case 'f':
@@ -192,7 +192,7 @@ namespace slua::parse
 			{
 				if (checkReadTextToken(in, "fn"))
 				{
-					basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::DEFAULT) });
+					basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::DEFAULT),basicRes.place });
 					break;
 				}
 			} else {
@@ -304,7 +304,7 @@ namespace slua::parse
 					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::SLICER{
 						std::make_unique<Expression<In>>(
 							readExpr(in, allowVarArg)
-					)} });
+					)},basicRes.place });
 					requireToken(in, "]");
 				}
 			}
