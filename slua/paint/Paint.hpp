@@ -581,7 +581,7 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm)
+	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm, const Tok tint = Tok::NONE)
 	{
 		se.move(itm.place);
 		if(itm.hasMut)
@@ -595,7 +595,19 @@ namespace slua::paint
 		},
 		varcase(const parse::TypeExprDataType::ERR&) {
 			paintKw<Tok::GEN_OP>(se, "//");
-			paintTypeExpr(se, *var.err);
+			paintTypeExpr(se, *var.err, tint);
+		},
+		varcase(const parse::ExprType::NUMERAL_I128) {
+			paintNumber(se, tint);
+		},
+		varcase(const parse::ExprType::NUMERAL_U128) {
+			paintNumber(se, tint);
+		},
+		varcase(const parse::ExprType::NUMERAL_I64) {
+			paintNumber(se, tint);
+		},
+		varcase(const parse::ExprType::NUMERAL_U64) {
+			paintNumber(se, tint);
 		},
 		varcase(const parse::TypeExprDataType::FUNC_CALL&) {
 			paintLimPrefixExpr(se, *var.val);
