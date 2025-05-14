@@ -225,7 +225,8 @@ namespace slua::paint
 				paintTypeExpr(se, var);
 		},
 		varcase(const parse::ExprType::TRAIT_EXPR&) {
-			paintTraitExpr(se, var);
+			if constexpr (Se::settings() & sluaSyn)
+				paintTraitExpr(se, var);
 		},
 		varcase(const parse::ExprType::TABLE_CONSTRUCTOR<Se>&) {
 			paintTable(se, var.v);
