@@ -285,6 +285,11 @@ namespace slua::parse
 		{
 			std::unique_ptr<TypeExpr> err;
 		};
+
+		using ExprType::NUMERAL_U64;
+		using ExprType::NUMERAL_I64;
+		using ExprType::NUMERAL_U128;
+		using ExprType::NUMERAL_I128;
 	}
 	using TypeExprData = std::variant<
 		TypeExprDataType::ERR_INFERR,
@@ -301,10 +306,10 @@ namespace slua::parse
 		TypeExprDataType::ERR,
 		TypeExprDataType::FN,
 
-		ExprType::NUMERAL_U64,
-		ExprType::NUMERAL_I64,
-		ExprType::NUMERAL_U128,
-		ExprType::NUMERAL_I128
+		TypeExprDataType::NUMERAL_U64,
+		TypeExprDataType::NUMERAL_I64,
+		TypeExprDataType::NUMERAL_U128,
+		TypeExprDataType::NUMERAL_I128
 	>;
 	struct TypeExpr
 	{
