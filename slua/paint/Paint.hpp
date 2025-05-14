@@ -555,7 +555,16 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintLimPrefixExpr(Se& se, const parse::LimPrefixExpr<Se>& itm)
 	{
-		//TODO
+		ezmatch(itm)(
+		varcase(const parse::LimPrefixExprType::VAR<Se>&) {
+			paintVar(se, var.v);
+		},
+		varcase(const parse::LimPrefixExprType::EXPR<Se>&) {
+			paintKw<Tok::GEN_OP>(se, "(");
+			paintExpr(se, var.v);
+			paintKw<Tok::GEN_OP>(se, ")");
+		}
+		);
 	}
 	template<AnySemOutput Se>
 	inline void paintArgChain(Se& se, const std::vector<parse::ArgFuncCall<Se>>& itm)
