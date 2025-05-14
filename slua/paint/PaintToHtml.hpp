@@ -6,6 +6,7 @@
 #include <string>
 #include <span>
 #include <vector>
+#include <unordered_set>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -20,8 +21,87 @@
 
 namespace slua::paint
 {
-	inline std::string toHtml(const AnySemOutput auto& se) {
+	inline std::string getCssFor(const AnySemOutput auto& se) {
 		
-		return "TODO: NYI";
+		std::unordered_set<uint32_t> colors;
+
+		for (const auto& chList : se.out)
+		{
+			for (const uint32_t chCol : chList)
+			{
+				colors.insert(chCol & 0xFFFFFF);
+			}
+		}
+		std::string res;
+		for (const uint32_t col : colors)
+		{
+			res += ".C";
+			for (size_t i = 0; i < 6; i++)
+			{
+				const uint8_t nibble = (col >> (20 - i * 4)) & 0xF;
+				if (nibble < 10)
+					res += '0' + nibble;
+				else
+					res += 'A' + (nibble - 10);
+			}
+			res += "{color:#";
+			for (size_t i = 0; i < 6; i++)
+			{
+				const uint8_t nibble = (col >> (20 - i * 4)) & 0xF;
+				if (nibble < 10)
+					res += '0' + nibble;
+				else
+					res += 'A' + (nibble - 10);
+			}
+			res += '}';
+		}
+		return res;
+	}
+	inline std::string toHtml(const AnySemOutput auto& se,const bool includeStyle) {
+		std::string res;
+		if (includeStyle)
+		{
+			res += "<style>" + getCssFor(se) + "</style>";
+		}
+		res += "<code>";
+		uint32_t prevCol = 0xFFFFFF;
+		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
+		while (se.in)
+		{
+			const char ch = se.in.get();
+			if (parse::manageNewlineState(ch, nlState, se.in))
+			{
+				res += "<br>";
+				continue;
+			}
+			if (ch == '\'')
+			{
+				res += "&#39;";
+				continue;
+			}
+			if (ch == '\"')
+			{
+				res += "&#34;";
+				continue;
+			}
+			if (ch == '>')
+			{
+				res += "&gt;";
+				continue;
+			}
+			if (ch == '<')
+			{
+				res += "&lt;";
+				continue;
+			}
+			if (ch == '&')
+			{
+				res += "&amp;";
+				continue;
+			}
+			res += ch;
+		}
+		res += "</code>";
+		return res;
 	}
 }

@@ -133,6 +133,7 @@ namespace slua::paint
 		//{ t.db } -> std::same_as<LuaMpDb>;
 
 			{ t.in } -> AnyInput;
+			{ t.out } -> std::same_as<std::vector<std::vector<typename T::SemPair>>&>;
 
 			{ t.move(Position()) } -> std::same_as<T&>;
 			{ t.template move<Tok::WHITESPACE>(Position()) } -> std::same_as<T&>;

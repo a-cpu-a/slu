@@ -26,6 +26,7 @@
 #include <slua/parser/Parse.hpp>
 #include <slua/parser/VecInput.hpp>
 #include <slua/paint/Paint.hpp>
+#include <slua/paint/PaintToHtml.hpp>
 #include <slua/generator/Gen.hpp>
 #include <slua/MetaTableUtils.hpp>
 
@@ -50,4 +51,5 @@ void _test()
 	slua::paint::SemOutput semOut(in2);
 
 	slua::paint::paintFile(semOut, f);
+	slua::paint::toHtml(semOut, true);
 }
