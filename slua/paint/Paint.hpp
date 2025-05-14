@@ -771,7 +771,7 @@ namespace slua::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function<Se>& func,const parse::MpItmId<Se> name,const Position pos)
+	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name, const Position pos = {})
 	{
 		//TODO:
 		//if (itm.func.exported)
