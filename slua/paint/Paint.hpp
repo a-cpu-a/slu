@@ -433,7 +433,7 @@ namespace slua::paint
 			if (!i.attrib.empty())
 			{
 				paintKw<Tok::PUNCTUATION>(se, "<");
-				paintName<tok>(se, i.attrib);
+				paintSv<tok>(se, i.attrib);
 				paintKw<Tok::PUNCTUATION>(se, ">");
 			}
 
