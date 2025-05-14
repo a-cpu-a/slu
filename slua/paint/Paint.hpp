@@ -532,9 +532,61 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintPat(Se& se, const parse::Pat& itm)
+	inline void paintDestrField(Se& se, const parse::DestrField& itm)
 	{
 		//TODO
+	}
+	template<AnySemOutput Se>
+	inline void paintDestrSpec(Se& se, const parse::DestrSpec& itm)
+	{
+		//TODO
+	}
+	template<AnySemOutput Se>
+	inline void paintPat(Se& se, const parse::Pat& itm)
+	{
+		ezmatch(itm)(
+		varcase(const parse::PatType::Simple&) {
+			paintExpr(se, var);
+		},
+		varcase(const parse::PatType::DestrAny) {
+			paintKw<Tok::GEN_OP>(se, "_");
+		},
+		varcase(const parse::PatType::DestrName&) {
+			paintDestrSpec(se, var.spec);
+			paintName<Tok::NAME>(se, var.name);
+		},
+		varcase(const parse::PatType::DestrNameRestrict&) {
+			paintDestrSpec(se, var.spec);
+			paintName<Tok::NAME>(se, var.name);
+			paintKw<Tok::PAT_RESTRICT>(se, "=");
+			paintExpr(se, var.restriction);
+		},
+		
+		//parse::PatType::DestrFields or parse::PatType::DestrList
+		varcase(const parse::AnyCompoundDestr auto&) 
+		{
+			paintDestrSpec(se, var.spec);
+			paintKw<Tok::GEN_OP>(se, "{");
+			for (const auto& i : var.items)
+			{
+				if constexpr(std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrField>)
+					paintDestrField(se, i);
+				else
+					paintPat(se, i);
+
+				if (&i != &var.items.back())
+					paintKw<Tok::PUNCTUATION>(se, ",");
+			}
+			if (var.extraFields)
+			{
+				paintKw<Tok::PUNCTUATION>(se, ",");
+				paintKw<Tok::PUNCTUATION>(se, "..");
+			}
+			paintKw<Tok::GEN_OP>(se, "}");
+
+			paintName<Tok::NAME>(se, var.name);
+		}
+		);
 	}
 	template<Tok tok, AnySemOutput Se>
 	inline void paintNameList(Se& se, const std::vector<parse::MpItmId<Se>>& itm)
