@@ -221,7 +221,8 @@ namespace slua::paint
 			paintLifetime(se, var);
 		},
 		varcase(const parse::ExprType::TYPE_EXPR&) {
-			paintTypeExpr(se, var);
+			if constexpr (Se::settings() & sluaSyn)
+				paintTypeExpr(se, var);
 		},
 		varcase(const parse::ExprType::TRAIT_EXPR&) {
 			paintTraitExpr(se, var);
