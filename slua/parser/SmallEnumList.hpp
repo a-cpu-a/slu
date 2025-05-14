@@ -133,6 +133,7 @@ namespace slua::parse
 			large.size++;
 		}
 
+		template<bool rev>
 		struct SmallEnumListIterator
 		{
 			using iterator_category = std::forward_iterator_tag;
@@ -148,12 +149,18 @@ namespace slua::parse
 			}
 
 			pointer operator->() const {
-				return &m_list->at(m_index);
+				return &*this;
 			}
 
 			SmallEnumListIterator& operator++() {
+				if constexpr (rev)
+				{
+					Slua_require(m_index != 0);
+					--m_index;
+					return *this;
+				}
 				++m_index;
-				Slua_require(m_index<= m_list->size());//allow == size, as that is end()
+				Slua_require(m_index <= m_list->size());//allow == size, as that is end()
 				return *this;
 			}
 
@@ -172,15 +179,34 @@ namespace slua::parse
 			size_t m_index;
 		};
 
-		using iterator = SmallEnumListIterator;
-		using const_iterator = SmallEnumListIterator;
+		using iterator = SmallEnumListIterator<false>;
+		using const_iterator = SmallEnumListIterator<false>;
+		using reverse_iterator = SmallEnumListIterator<true>;
+		using const_reverse_iterator = SmallEnumListIterator<true>;
 
 		iterator begin() const {
 			return iterator(this, 0);
 		}
-
+		const_iterator cbegin() const {
+			return const_iterator(this, 0);
+		}
 		iterator end() const {
 			return iterator(this, size());
+		}
+		const_iterator cend() const {
+			return const_iterator(this, size());
+		}
+		reverse_iterator rbegin() const {
+			return reverse_iterator(this, size());
+		}
+		const_reverse_iterator crbegin() const {
+			return const_reverse_iterator(this, size());
+		}
+		reverse_iterator rend() const {
+			return reverse_iterator(this, 0);
+		}
+		const_reverse_iterator crend() const {
+			return const_reverse_iterator(this, 0);
 		}
 
 		~SmallEnumList()
