@@ -25,6 +25,9 @@ namespace slua::paint
 
 	using parse::Position;
 
+	//ms sad
+#undef IN
+
 	enum class Tok : uint8_t
 	{
 		NONE = 0,

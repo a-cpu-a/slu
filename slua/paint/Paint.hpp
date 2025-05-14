@@ -422,6 +422,23 @@ namespace slua::paint
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
 	}
+	template<Tok tok, AnySemOutput Se>
+	inline void paintAttribNameList(Se& se, const parse::AttribNameList<Se>& itm)
+	{
+		for (const parse::AttribName<Se>& i : itm)
+		{
+			paintName<tok>(se, i.name);
+			if (!i.attrib.empty())
+			{
+				paintKw<Tok::PUNCTUATION>(se, "<");
+				paintName<tok>(se, i.attrib);
+				paintKw<Tok::PUNCTUATION>(se, ">");
+			}
+
+			if (&i != &itm.back())
+				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+	}
 	template<AnySemOutput Se>
 	inline void paintPatOrNamelist(Se& se, const auto& itm)
 	{
@@ -429,8 +446,10 @@ namespace slua::paint
 			paintPat(se, itm);
 		else
 		{
-			if constexpr (std::same_as<decltype(itm), parse::MpItmId<Se>>)
+			if constexpr (std::same_as<std::remove_cvref_t<decltype(itm)>, parse::MpItmId<Se>>)
 				paintName<Tok::NAME>(se, itm);
+			else if constexpr (std::same_as<std::remove_cvref_t<decltype(itm)>, parse::AttribNameList<Se>>)
+				paintAttribNameList<Tok::NAME>(se, itm);
 			else
 				paintNameList<Tok::NAME>(se, itm);
 		}
