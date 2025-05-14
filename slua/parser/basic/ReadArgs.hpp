@@ -20,7 +20,7 @@ namespace slua::parse
 		const char ch = in.peek();
 		if (ch == '"' || ch == '\'' || ch == '[')
 		{
-			return ArgsType::LITERAL(readStringLiteral(in, ch));
+			return ArgsType::LITERAL(readStringLiteral(in, ch),in.getLoc());
 		}
 		else if (ch == '(')
 		{

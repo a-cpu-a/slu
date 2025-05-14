@@ -172,7 +172,7 @@ namespace slua::parse
 		struct TABLEv { TableConstructorV<isSlua> v; };	// "tableconstructor"
 		template<AnyCfgable CfgT> using TABLE = SelV<CfgT, TABLEv>;
 
-		struct LITERAL { std::string v; };		// "LiteralString"
+		struct LITERAL { std::string v; Position end; };// "LiteralString"
 	};
 	template<bool isSlua>
 	using ArgsV = std::variant<
