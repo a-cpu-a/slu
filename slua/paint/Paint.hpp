@@ -769,8 +769,9 @@ namespace slua::paint
 		else
 			paintBlock(se, itm);
 	}
+	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function<Se>& func,const parse::MpItmId<Se> name)
+	inline void paintFuncDef(Se& se, const parse::Function<Se>& func,const parse::MpItmId<Se> name,const Position pos)
 	{
 		//TODO:
 		//if (itm.func.exported)
@@ -779,6 +780,10 @@ namespace slua::paint
 		if constexpr (Se::settings() & sluaSyn)
 			paintSafety(se, func.safety);
 		paintKw<Tok::FN_STAT>(se, "function");
+
+		if(!name.empty())
+			se.move(pos);
+
 		paintName<Tok::NAME>(se, name);
 		paintKw<Tok::GEN_OP>(se, "(");
 		for (const parse::Parameter<Se>& i : func.params)
@@ -936,13 +941,11 @@ namespace slua::paint
 			paintExprList(se, var.exprs);
 		},
 		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
-			se.move(var.place);//TODO: parse this correctly
-			paintFuncDef(se, var.func, var.name);
+			paintFuncDef(se, var.func, var.name, var.place);
 		},
 		varcase(const parse::StatementType::LOCAL_FUNCTION_DEF<Se>&) {
-			se.move(var.place);//TODO: parse this correctly
 			paintKw<Tok::FN_STAT>(se, "local");
-			paintFuncDef(se, var.func, var.name);
+			paintFuncDef(se, var.func, var.name, var.place);
 		},
 		varcase(const parse::StatementType::DROP<Se>&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
