@@ -513,10 +513,15 @@ namespace slua::parse
 		using DestrName = DestrPatType::Name;
 		using DestrNameRestrict = DestrPatType::NameRestrict;
 	}
-	using Pat = std::variant<
-		PatType::Simple,
+	template<typename T>
+	concept AnyCompoundDestr = 
+		std::same_as<std::remove_cv_t<T>, DestrPatType::Fields>
+		|| std::same_as<std::remove_cv_t<T>, DestrPatType::List>;
 
+	using Pat = std::variant<
 		PatType::DestrAny,
+
+		PatType::Simple,
 
 		PatType::DestrFields,
 		PatType::DestrList,

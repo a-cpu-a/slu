@@ -22,7 +22,7 @@
 
 namespace slua::parse
 {
-	template<class T,bool NAMED, AnyInput In>
+	template<AnyCompoundDestr T,bool NAMED, AnyInput In>
 	inline T readFieldsDestr(In& in, auto&& ty, const bool uncond)
 	{
 		T ret;
