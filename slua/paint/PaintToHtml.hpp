@@ -57,23 +57,44 @@ namespace slua::paint
 		}
 		return res;
 	}
-	inline std::string toHtml(const AnySemOutput auto& se,const bool includeStyle) {
+	inline std::string toHtml(AnySemOutput auto& se,const bool includeStyle) {
 		std::string res;
 		if (includeStyle)
 		{
 			res += "<style>" + getCssFor(se) + "</style>";
 		}
-		res += "<code>";
+		res += "<code><span>";
 		uint32_t prevCol = 0xFFFFFF;
+
 		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 		while (se.in)
 		{
 			const char ch = se.in.get();
+			
 			if (parse::manageNewlineState(ch, nlState, se.in))
 			{
 				res += "<br>";
 				continue;
 			}
+
+
+			const parse::Position loc = se.in.getLoc();
+			const uint32_t col = se.out[loc.line][loc.index];
+
+			if (prevCol != col)
+			{
+				res += "</span><span class=C";
+				for (size_t i = 0; i < 6; i++)
+				{
+					const uint8_t nibble = (col >> (20 - i * 4)) & 0xF;
+					if (nibble < 10)
+						res += '0' + nibble;
+					else
+						res += 'A' + (nibble - 10);
+				}
+				res += ">";
+			}
+
 			if (ch == '\'')
 			{
 				res += "&#39;";
@@ -101,7 +122,7 @@ namespace slua::paint
 			}
 			res += ch;
 		}
-		res += "</code>";
+		res += "</span></code>";
 		return res;
 	}
 }
