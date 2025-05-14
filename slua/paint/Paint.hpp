@@ -537,9 +537,24 @@ namespace slua::paint
 		//TODO
 	}
 	template<AnySemOutput Se>
-	inline void paintDestrSpec(Se& se, const parse::DestrSpec& itm)
+	inline void paintTypePrefix(Se& se, const parse::TypePrefix& itm)
 	{
 		//TODO
+	}
+	template<AnySemOutput Se>
+	inline void paintDestrSpec(Se& se, const parse::DestrSpec& itm)
+	{
+		ezmatch(itm)(
+		varcase(const parse::DestrSpecType::Spat&) {
+			paintExpr(se, var);
+		},
+		varcase(const parse::DestrSpecType::Type&) {
+			paintTypeExpr(se, var);
+		},
+		varcase(const parse::DestrSpecType::Prefix&) {
+			paintTypePrefix(se, var);
+		}
+		);
 	}
 	template<AnySemOutput Se>
 	inline void paintPat(Se& se, const parse::Pat& itm)
