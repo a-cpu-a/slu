@@ -534,12 +534,16 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintDestrField(Se& se, const parse::DestrField& itm)
 	{
-		//TODO
+		paintKw<Tok::GEN_OP>(se, "|");
+		paintName<Tok::NAME>(se, itm.name);
+		paintKw<Tok::GEN_OP>(se, "|");
+		paintPat(se, itm.pat);
 	}
 	template<AnySemOutput Se>
 	inline void paintTypePrefix(Se& se, const parse::TypePrefix& itm)
 	{
-		//TODO
+		for (const parse::UnOpItem& i : itm)
+			paintUnOpItem(se, i);
 	}
 	template<AnySemOutput Se>
 	inline void paintDestrSpec(Se& se, const parse::DestrSpec& itm)
