@@ -736,7 +736,7 @@ namespace slua::parse
 		template<bool isSlua>
 		struct FUNCTION_DEFv
 		{// "function funcname funcbody"    //n may contain dots, 1 colon
-			Position place; 
+			Position place;//Right before func-name
 			MpItmIdV<isSlua> name;
 			FunctionV<isSlua> func;
 		};
