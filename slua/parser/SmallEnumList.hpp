@@ -144,8 +144,10 @@ namespace slua::parse
 
 			SmallEnumListIterator(const SmallEnumList* list, size_t index) : m_list(list), m_index(index) {}
 
+			constexpr uint8_t revOffset = rev ? 1 : 0;
+
 			reference operator*() const {
-				return m_list->at(m_index);
+				return m_list->at(m_index- revOffset);
 			}
 
 			pointer operator->() const {
