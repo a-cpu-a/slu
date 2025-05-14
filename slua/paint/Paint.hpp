@@ -591,7 +591,7 @@ namespace slua::paint
 
 		ezmatch(itm.data)(
 		varcase(const parse::TypeExprDataType::ERR_INFERR&) {
-			paintKw<Tok::TRY>(se, "?");
+			paintKw<Tok::GEN_OP>(se, "?");
 		},
 		varcase(const parse::TypeExprDataType::ERR&) {
 			paintKw<Tok::GEN_OP>(se, "//");
