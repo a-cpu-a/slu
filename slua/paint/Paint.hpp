@@ -598,7 +598,21 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintTraitExpr(Se& se, const parse::TraitExpr& itm)
 	{
-		//TODO
+		se.move(itm.place);
+		for (const parse::TraitExprItem& i : itm.traitCombo)
+		{
+			ezmatch(i)(
+			varcase(const parse::TraitExprItemType::FUNC_CALL&) {
+				paintLimPrefixExpr(se, *var.val);
+				paintArgChain(se, var.argChain);
+			},
+			varcase(const parse::TraitExprItemType::LIM_PREFIX_EXP&) {
+				paintLimPrefixExpr(se, *var);
+			}
+			);
+			if (&i != &itm.traitCombo.back())
+				paintKw<Tok::ADD>(se, "+");
+		}
 	}
 	template<AnySemOutput Se>
 	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm)
