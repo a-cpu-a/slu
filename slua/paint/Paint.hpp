@@ -175,9 +175,43 @@ namespace slua::paint
 		}
 	}
 	template<AnySemOutput Se>
+	inline void paintField(Se& se, const parse::Field<Se>& itm)
+	{
+		ezmatch(itm)(
+		varcase(const parse::FieldType::EXPR2EXPR<Se>&) {
+			paintKw<Tok::PUNCTUATION>(se, "[");
+			paintExpr(se, var.idx);
+			paintKw<Tok::PUNCTUATION>(se, "]");
+			paintKw<Tok::ASSIGN>(se, "=");
+			paintExpr(se, var.v);
+		},
+		varcase(const parse::FieldType::NAME2EXPR<Se>&) {
+			paintName<Tok::NAME_TABLE>(se, var.idx);
+			paintKw<Tok::ASSIGN>(se, "=");
+			paintExpr(se, var.v);
+		},
+		varcase(const parse::FieldType::EXPR<Se>&) {
+			paintExpr(se, var.v);
+		},
+		varcase(const parse::FieldType::NONE) {
+			Slua_panic("field shouldnt be FieldType::NONE, found while painting.");
+		}
+		);
+	}
+	template<AnySemOutput Se>
 	inline void paintTable(Se& se, const parse::TableConstructor<Se>& itm)
 	{
-		//TODO
+		paintKw<Tok::GEN_OP>(se, "{");
+		for (const parse::Field<Se>& f : itm)
+		{
+			paintField(se, f);
+			skipSpace(se);
+			if (se.in.peek() == ',')
+				paintKw<Tok::PUNCTUATION>(se, ",");
+			else if (se.in.peek() == ';')
+				paintKw<Tok::PUNCTUATION>(se, ";");
+		}
+		paintKw<Tok::GEN_OP>(se, "}");
 	}
 	template<AnySemOutput Se>
 	inline void paintBinOp(Se& se, const parse::BinOpType& itm)
@@ -631,6 +665,7 @@ namespace slua::paint
 			}
 			paintKw<Tok::BRACES>(se, "{");
 		}
+		//No do, for functions in lua
 		paintEndBlock(se, func.block);
 		
 	}
