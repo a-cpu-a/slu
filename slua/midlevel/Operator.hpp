@@ -141,6 +141,64 @@ namespace slua::mlvl
 		uint8_t precedence;
 		Assoc assoc = Assoc::LEFT; // Only varying for BinOp
 	};
+	struct ExprUnOpsEntry
+	{
+		size_t preConsumed=0;
+		size_t sufConsumed=0;
+	};
+
+	template<bool isLua>
+	constexpr uint8_t calcPrecedence(auto p, const auto& end)
+	{
+		uint8_t prec = 0;
+		while (p!=end)
+		{
+			prec = std::max(prec, precedence<isLua>(*p));
+			p++;
+		}
+		return prec;
+	}
+
+	template<bool isLua>
+	constexpr void consumeUnOps(std::vector<MultiOpOrderEntry>& unOps,const auto& item,const size_t itemIdx, ExprUnOpsEntry& entry,const bool onLeftSide,const uint8_t minPrecedence)
+	{
+		auto pSuf = item.postUnOps.cbegin()+ entry.sufConsumed;
+		auto pPre = item.unOps.crbegin() + entry.preConsumed;
+		//Loop pre in reverse, to get it as inner->outter
+
+		bool allowLeft = true;
+		bool allowRight = true;
+
+		while (pSuf != item.postUnOps.cend() || pPre != item.unOps.crend())
+		{
+			const bool preAlive = pPre != item.unOps.crend();
+			const bool sufAlive = pSuf != item.postUnOps.cend();
+
+			const uint8_t prePrec = preAlive ? calcPrecedence<isLua>(pPre, item.unOps.crend()) : 0;
+			const uint8_t sufPrec = sufAlive ? calcPrecedence<isLua>(pSuf, item.postUnOps.cend()) : 0;
+
+			if (sufAlive && (!preAlive || sufPrec > prePrec))
+			{
+				//Once its not allowed once, it never will be, ever again.
+				allowLeft = allowLeft && (onLeftSide || sufPrec > minPrecedence);
+				if (allowLeft)
+				{
+					unOps.push_back({ itemIdx,entry.sufConsumed++, OpKind::PostUnOp, sufPrec,Assoc::LEFT });
+				}
+				pSuf++;
+			}
+			else
+			{
+				allowRight = allowRight && (!onLeftSide || prePrec > minPrecedence);
+				if (allowRight)
+				{
+					unOps.push_back({ itemIdx,entry.preConsumed++, OpKind::UnOp, prePrec,Assoc::RIGHT });
+				}
+				pPre++;
+			}
+		}
+	}
+
 	// Returns the order of operations as indices into `extra`
 	// Store parse::BinOpType in `extra[...].first`
 	// Store std::vector<parse::UnOpItem> in `extra[...].second.unOps`
@@ -168,6 +226,8 @@ namespace slua::mlvl
 		un op precedences between other un ops only matters if they are on different sides of a expr.
 		This means that un ops will expand outwards from the expression, going to the highest precedence un op, until matching the precedence of a bin op.
 
+		The effective precedence of a un op is the highest of any that are applied after, and itself.
+		(*-0) -> negative takes the max of (-,*) sees that * has more, so copies it.
 		*/
 
 		std::vector<MultiOpOrderEntry> ops;
@@ -207,11 +267,82 @@ namespace slua::mlvl
 
 			return (a.assoc == Assoc::LEFT) ? a.index < b.index : a.index > b.index;
 		});
+		
+		std::vector<ExprUnOpsEntry> exprUnOps(ops.size()+1);
+		std::vector<std::vector<MultiOpOrderEntry>> unOps(ops.size());
+		std::vector<MultiOpOrderEntry> unOpsLast;
+		size_t unOpCount = m.first.unOps.size() + m.first.postUnOps.size();
+		
 
+		for (size_t i = 0; i < ops.size(); i++)
+		{
+			const MultiOpOrderEntry& e = ops[i];
+			
+			ExprUnOpsEntry& leftEntry = exprUnOps[e.index];
+			const auto& left = (e.index==0)
+				? m.first
+				: m.extra[e.index-1].second;
+			ExprUnOpsEntry& rightEntry = exprUnOps[e.index+1];
+			const auto& right = m.extra[e.index].second;
 
-		//TODO: tree-ify, add un ops
+			//e.index is unique to every binop.
+			unOpCount += right.unOps.size() + right.postUnOps.size();
 
-		return ops;
+			const bool lAssoc = e.assoc == Assoc::LEFT;
+
+			const auto& item1 = lAssoc ? left : right;
+			const size_t item1Idx = lAssoc ? e.index : e.index + 1; // +1, cuz 1 is first expr
+			const auto& item2 = lAssoc ? right : left;
+			const size_t item2Idx = lAssoc ? e.index + 1 : e.index;
+			ExprUnOpsEntry& ent1 = lAssoc ? leftEntry : rightEntry;
+			ExprUnOpsEntry& ent2 = lAssoc ? rightEntry : leftEntry;
+
+			consumeUnOps<isLua>(unOps[i],item1, item1Idx, ent1, lAssoc,e.precedence);
+			consumeUnOps<isLua>(unOps[i],item2, item2Idx, ent2,!lAssoc,e.precedence);
+		}
+		//Consume first, last expr un ops if needed.
+		// min op prec is 0xFF, to mark the opposite sides as not usable.
+		consumeUnOps<isLua>(unOpsLast, m.first,0, exprUnOps.front(), false, 0xFF);
+		consumeUnOps<isLua>(unOpsLast, m.extra.back().second,m.extra.size(), exprUnOps.back(), true, 0xFF);
+
+		/*
+		size_t j = 0;
+		for (const auto& un : m.first.unOps)
+		{
+			unOps.push_back({ 0,j++,b, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
+		}
+		j = 0;
+		for (const auto post : m.first.postUnOps)
+		{
+			unOps.push_back({ 0,j++,b, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
+		}*/
+
+			/*
+			j = 0;
+			for (const auto& un : m.extra[i.index].second.unOps)
+			{
+				unOps.push_back({ i.index,j++,b, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
+			}
+			j = 0;
+			for (const auto post : m.extra[i.index].second.postUnOps)
+			{
+				unOps.push_back({ i.index,j++,b, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
+			}*/
+
+		std::vector<MultiOpOrderEntry> opsRes;
+		opsRes.reserve(ops.size() + unOpCount);
+
+		size_t j = 0;
+		for (std::vector<MultiOpOrderEntry>& i : unOps)
+		{
+			std::move(i.begin(), i.end(), std::back_inserter(opsRes));
+			opsRes.emplace_back(std::move(ops[j++]));
+		}
+		std::move(unOpsLast.begin(), unOpsLast.end(), std::back_inserter(opsRes));
+
+		_ASSERT(opsRes.size() == ops.size() + unOpCount);
+
+		return opsRes;
 	}
 
 	struct UnOpOrderEntry
@@ -221,8 +352,9 @@ namespace slua::mlvl
 		uint8_t precedence;
 	};
 	template<bool isLua>
-	constexpr std::vector<size_t> unaryOpOrder(const auto& expr) 
+	constexpr std::vector<size_t> unaryOpOrderTodo(const auto& expr) 
 	{
+		//TODO: this doesnt handle mixed order on one side, assoc of both.
 		std::vector<UnOpOrderEntry> ops;
 
 		for (size_t i = 0; i < expr.unOps.size(); ++i)
