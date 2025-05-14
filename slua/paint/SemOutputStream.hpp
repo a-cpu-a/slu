@@ -51,7 +51,7 @@ namespace slua::paint
 
 		ASSIGN,// =
 		PAT_RESTRICT,// =
-		GEN_OP,// =>, ==, != || () {} [] ->
+		GEN_OP,// =>, ==, != || () {} [] -> _
 		PUNCTUATION,// >= <= > < , ;
 		MP,// ::
 		BRACES,// {} (may be combined with some tint, to get a colored brace)
