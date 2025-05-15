@@ -43,6 +43,8 @@ namespace slua::paint
 		FN_STAT,//fn, function, extern, safe, unsafe, async, return, do return, throw, break, continue
 		CON_STAT,//struct, enum, union, mod, axiom, impl, trait, crate, Self
 
+		END_STAT,//end
+
 		DROP_STAT,//drop
 		BUILITIN_VAR,//false true nil
 
@@ -50,16 +52,14 @@ namespace slua::paint
 		COMP_TINT,//comptime (overlay over comptime, which has the same color as next token)
 		TYPE_TAG, //type
 
-		END_STAT,//end
-
 		ASSIGN,// =
 		PAT_RESTRICT,// =
 		GEN_OP,// =>, ==, != || () {} [] -> _
 		PUNCTUATION,// >= <= > < , ;
+		MP_IDX,// . : ::
 		MP,// ::
 		BRACES,// {} (may be combined with some tint, to get a colored brace)
 
-		MP_IDX,// . : ::
 		NAME,// .123 .xxx xxx
 		NAME_TABLE,// xxx inside {xxx=...}
 		NAME_TYPE,// type trait xxx
@@ -68,7 +68,7 @@ namespace slua::paint
 
 		NUMBER,
 		NUMBER_TYPE,// u8, u16, ...
-		NUMBER_KIND,// 0x, 0b, 0o, eE pP
+		NUMBER_KIND,// 0x, 0b, 0o, eE+- pP+-
 		STRING,
 		STRING_OUT, // String, the quotes, [=['s or the type (`c"xxx"`, the c)
 
@@ -114,7 +114,8 @@ namespace slua::paint
 
 		CONCAT,
 		RANGE,
-		SHIFT,
+		SHL,
+		SHR,
 
 		DEREF,
 		EXP,
@@ -123,6 +124,9 @@ namespace slua::paint
 		REF_SHARE,
 
 		PTR_CONST,
+
+
+		ENUM_COUNT
 	};
 
 	//Here, so custom semantic token outputs can be made
@@ -172,8 +176,8 @@ namespace slua::paint
 	template<class Converter>
 	constexpr uint32_t basicTokBlend(const Tok tok, const Tok overlayTok)
 	{
-		const uint32_t to = Converter::tok2Col(tok);
-		const uint32_t from = Converter::tok2Col(overlayTok);
+		const uint32_t to = Converter::tok2Col(overlayTok);
+		const uint32_t from = Converter::tok2Col(tok);
 
 		const uint8_t t = 100;
 		const uint8_t s = 0xFF - t;
