@@ -1,6 +1,6 @@
 
 
-
+--Not exponents, just -1, like 0xe minus one
 assert((0xe-1)==13)
 assert((0x0e-1)==13)
 
