@@ -52,62 +52,44 @@ namespace slua::paint
 			switch (tok)
 			{
 				//Add colors:
-			case Tok::GEN_OP:
-				return col(0xD3D3D3);
-			case Tok::PUNCTUATION:
-				return col(0xD3D3D3);
+			case Tok::GEN_OP: return col(0xD3D3D3);
+			case Tok::PUNCTUATION: return col(0xD3D3D3);
 			case Tok::BRACES:
 			case Tok::MP_IDX:
-			case Tok::MP:
-				return col(0xBFC4CC);
+			case Tok::MP: return col(0xBFC4CC);
 
-			case Tok::NAME:
-				return col(0xD8D8D8);
-			case Tok::NAME_TABLE:
-				return col(0x9CA5B2);
-			case Tok::NAME_TYPE:
-				return col(0x36A57E);
-				//TODO: NAME_LIFETIME
-				//TODO: NAME_LABEL
-			case Tok::BUILITIN_VAR:
-				return col(0x6582C1);
+			case Tok::NAME: return col(0xD8D8D8);
+			case Tok::NAME_TABLE: return col(0x9CA5B2);
+			case Tok::NAME_TYPE: return col(0x36A57E);
+			case Tok::NAME_LIFETIME: return col(0x829167);
+			case Tok::NAME_LABEL: return col(0x72CC82);
+			case Tok::BUILITIN_VAR: return col(0x6582C1);
 
-			case Tok::NUMBER:
-				return col(0x539BBD);
-			case Tok::NUMBER_KIND:
-				return col(0x726CA2);
-			case Tok::NUMBER_TYPE:
-				return col(0x90BBCC);
+			case Tok::NUMBER: return col(0x539BBD);
+			case Tok::NUMBER_KIND: return col(0x726CA2);
+			case Tok::NUMBER_TYPE: return col(0x90BBCC);
 
-			case Tok::STRING:
-				return col(0x7AA737);
-			case Tok::STRING_OUT:
-				return col(0xACD163);
+			case Tok::STRING: return col(0x7AA737);
+			case Tok::STRING_OUT: return col(0xACD163);
 
 			case Tok::FN_STAT:
-			case Tok::END_STAT:
-				return col(0xCE4C4C);
+			case Tok::END_STAT: return col(0xCE4C4C);
 
-			case Tok::COND_STAT:
-				return col(0xBD71C4);
-			case Tok::VAR_STAT:
-				return col(0xD87D7D);
-			case Tok::ASSIGN:
-				return col(0xE5506F);
+			case Tok::IN:
+			case Tok::COND_STAT: return col(0xBD71C4);
+			case Tok::VAR_STAT: return col(0xD87D7D);
+			case Tok::ASSIGN: return col(0xE5506F);
 
-			case Tok::WHITESPACE:
-			case Tok::COMMENT_OUTER:
-				return col(0xFF00FF);//TODO: choose some grays
-			case Tok::COMMENT_WIP:
-				return col(0xCCFF00);
-			case Tok::COMMENT_DOC:
-				return col(0x378731);
-			case Tok::COMMENT_DOC_OUTER:
-				return col(0x196022);
+			case Tok::COMMENT_WIP: return col(0xCCFF00);
+			case Tok::WHITESPACE: return col(0x575763);
+			case Tok::COMMENT_OUTER: return col(0x3D3D44);
+			case Tok::COMMENT_DOC: return col(0x378731);
+			case Tok::COMMENT_DOC_OUTER: return col(0x196022);
 
 
-				//TODO: PAT_RESTRICT
+			case Tok::AS:
 			case Tok::CON_STAT: return col(0xD8B770);
+			case Tok::PAT_RESTRICT: return col(0xBFC4CC);
 			case Tok::DROP_STAT: return col(0x666CCC);
 			case Tok::EX_TINT: return col(0x22275B);
 			case Tok::COMP_TINT: return col(0xC6C611);
@@ -115,22 +97,21 @@ namespace slua::paint
 			case Tok::SPLICER: return col(0xFF00FF);//TODO: maybe some yellow?
 			case Tok::SPLICE_VAR: return col(0xFF00FF);//TODO: maybe some yellow? or maybe cyan/light blue
 
-			case Tok::MUT: return col(0xFF9647);
+			case Tok::PTR_CONST:
 			case Tok::REF: return col(0x8AB6CE);
+
+			case Tok::MUT: return col(0xFF9647);
 			case Tok::REF_SHARE: return col(0xE4C4FF);
-			case Tok::PTR_CONST: return col(0xFF00FF);//TODO: what darkish red color should this be?
-			case Tok::RANGE: return col(0xFF00FF);//TODO: what dark blue color should this be?
+			case Tok::RANGE: return col(0x498CFF);
 			case Tok::DEREF: return col(0xBFC4CC);
 			case Tok::NOT: return col(0xFF4242);
-			case Tok::ARRAY_CONSTRUCT: return col(0xFF00FF);//TODO: what limey color should this be?
-			case Tok::TRY: return col(0xFF00FF);//TODO: what gray color should this be?
+			case Tok::ARRAY_CONSTRUCT: return col(0xA6BC6D);
+			case Tok::TRY: return col(0x68997E);
 			case Tok::DYN: return col(0xBF87FF);
-			case Tok::IMPL: return col(0xBF87FF);//TODO: what orange color should this be?
-			case Tok::AS: return col(0xBF87FF);//TODO: what orange color should this be?
-			case Tok::IN: return col(0xBF87FF);//TODO: what orange color should this be?
+			case Tok::IMPL: return col(0xCE905A);
 				
-			case Tok::AND: return col(0xFF00FF);//TODO: what blue color should this be?
-			case Tok::OR: return col(0xFF00FF);//TODO: what orange color should this be?
+			case Tok::AND: return col(0x5787DB);
+			case Tok::OR: return col(0xB58055);
 			case Tok::MOD: return col(0xB565AB);
 			case Tok::ADD: return col(0xAAFF71);
 			case Tok::SUB: return col(0xFF4242);
