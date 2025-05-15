@@ -74,8 +74,9 @@ namespace slua::paint
 		{
 			const parse::Position loc = se.in.getLoc();
 			const char ch = se.in.get();
-			
-			if (parse::manageNewlineState(ch, nlState, se.in))
+
+			//Already skipping
+			if (parse::manageNewlineState<true>(ch, nlState, se.in))
 			{
 				res += "<br>";
 				continue;

@@ -197,16 +197,24 @@ namespace slua::parse
 				const char c = in.get();
 				if (c == firstTypeChar) break;
 
+				//No skip pre nl, cuz it will error anyway.
+				if (manageNewlineState<false>(c, nlState, in))
+				{
+					throw UnexpectedCharacterError(
+						LUACC_INVALID "Unfinished " LC_string ", line ended"
+						+ errorLocStr(in)
+					);
+				}
+
 				if (c == '\\')
 				{
-					manageNewlineState(c, nlState, in);
-
 					const char next = in.get();
 					switch (next)
 					{
 					case '\n':
 					case '\r':
-						manageNewlineState(next, nlState, in);
+						//No skip pre nl, cuz loc is not visible in painting.
+						manageNewlineState<false>(next, nlState, in);
 						if (next == '\r')
 						{// \r\n is treated as 1 char here
 							if (in.peek() == '\n')
@@ -236,8 +244,8 @@ namespace slua::parse
 							const char checkChar = in.peek();
 							if (!isSpaceChar(checkChar))
 								break;
-
-							manageNewlineState(checkChar, nlState, in);
+							//No skip pre nl, cuz it is not visible in painting.
+							manageNewlineState<false>(checkChar, nlState, in);
 
 							in.skip();
 						}
@@ -341,18 +349,8 @@ namespace slua::parse
 						, next, errorLocStr(in)));
 					}
 				}
-				else if(c=='\n' || c=='\r')
-				{
-					throw UnexpectedCharacterError(
-						LUACC_INVALID "Unfinished " LC_string ", line ended"
-						+ errorLocStr(in)
-					);
-				}
 				else
-				{
-					manageNewlineState(c, nlState, in);
 					result += c;
-				}
 			}
 		}
 		else if (firstTypeChar == '[')
@@ -384,7 +382,8 @@ namespace slua::parse
 			while (true)
 			{
 				const char c = in.get();
-				if (manageNewlineState(c, nlState, in))
+				//No skip pre nl, cuz it is not visible in painting.
+				if (manageNewlineState<false>(c, nlState, in))
 				{
 					if (!skipNl)
 						result += '\n';
