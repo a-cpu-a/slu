@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -220,9 +220,9 @@ namespace slua::paint
 		{
 			Position loc = in.getLoc();
 			//in.skip(count);
-			if (out.size() <= loc.line)
-				out.resize(loc.line + 1);
-			out[loc.line].resize(loc.index + count,p);
+			if (out.size() <= loc.line-1)
+				out.resize(loc.line);
+			out[loc.line-1].resize(loc.index + count,p);
 			return *this;
 		}
 		template<Tok t,Tok overlayTok>
@@ -299,13 +299,15 @@ namespace slua::paint
 				}
 
 				Position loc = in.getLoc();
+
 				if (loc.index == p.index && loc.line == p.line)
 					break;
 
-				if (out.size() <= loc.line)
-					out.resize(loc.line + 1);
+				//Add the color to the char.
+				if (out.size() <= loc.line - 1)
+					out.resize(loc.line);
+				out[loc.line - 1].resize(loc.index + 1, pair);
 
-				out[loc.line].resize(loc.index+1, pair);
 			}
 			return *this;
 		}
