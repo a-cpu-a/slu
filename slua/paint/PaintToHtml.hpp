@@ -21,6 +21,20 @@
 
 namespace slua::paint
 {
+	/*
+	ps, add something like this:
+	```css
+	.slua-code-box {
+		tab-size: 3;
+		white-space-collapse: preserve;
+		background:#151515;
+		padding:8px;
+		border-radius:8px;
+		margin: 4px 0px;
+		display: block;
+	}
+	```
+	*/
 	inline std::string getCssFor(const AnySemOutput auto& se) {
 		
 		std::unordered_set<uint32_t> colors;
