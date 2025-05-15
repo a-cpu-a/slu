@@ -295,7 +295,7 @@ namespace slua::paint
 				if (parse::manageNewlineState(in.get(), nlState, in))
 				{
 					out.emplace_back();
-					//in.newLine();
+					continue;
 				}
 
 				//Add the color to the char.
