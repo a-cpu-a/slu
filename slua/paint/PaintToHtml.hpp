@@ -66,7 +66,7 @@ namespace slua::paint
 		{
 			res += "<style>" + getCssFor(se) + "</style>";
 		}
-		res += "<code><span>";
+		res += "<code class=slua-code-box><span>";
 		uint32_t prevCol = 0xFFFFFF;
 
 		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
