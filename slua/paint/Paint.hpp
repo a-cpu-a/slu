@@ -80,7 +80,8 @@ namespace slua::paint
 				break;
 			}
 			wasUscore = false;
-			if(chr=='e' || chr=='E' || chr == 'p' || chr == 'P')
+			if (!hex && (chr == 'e' || chr == 'E')
+				|| hex && (chr == 'p' || chr == 'P'))
 			{
 				se.template add<Tok::NUMBER_KIND>(tint, 1);
 				se.in.skip();
@@ -104,7 +105,7 @@ namespace slua::paint
 
 			if (chr!='.' && chr!='_' && !(hex && parse::isHexDigitChar(chr)) && !parse::isDigitChar(chr))
 				break;
-
+			
 			se.template add<Tok::NUMBER>(tint);
 			se.in.skip();
 		}
