@@ -178,7 +178,7 @@ namespace slua::paint
 				//Add colors:
 			case Tok::WHITESPACE:
 			default:
-				return 0x388831 * (uint32_t(tok) + 1) | 0xFF000000;
+				return (0x122311 * uint32_t(tok) ^ 0x388831 * (uint32_t(tok) + 1)) | 0xFF000000;
 			}
 		}
 		static constexpr uint32_t from(const Tok tok, const Tok overlayTok)
