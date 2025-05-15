@@ -169,6 +169,26 @@ namespace slua::paint
 #endif // Slua_NoConcepts
 	;
 
+	template<class Converter>
+	constexpr uint32_t basicTokBlend(const Tok tok, const Tok overlayTok)
+	{
+		const uint32_t to = Converter::tok2Col(tok);
+		const uint32_t from = Converter::tok2Col(overlayTok);
+
+		const uint8_t t = 100;
+		const uint8_t s = 0xFF - t;
+		return (
+			(((((from >> 0) & 0xff) * s +
+				((to >> 0) & 0xff) * t) >> 8)) |
+			(((((from >> 8) & 0xff) * s +
+				((to >> 8) & 0xff) * t)) & ~0xff) |
+			(((((from >> 16) & 0xff) * s +
+				((to >> 16) & 0xff) * t) << 8) & ~0xffff) |
+			(((((from >> 24) & 0xff) * s +
+				((to >> 24) & 0xff) * t) << 16) & ~0xffffff)
+			);
+	}
+
 	struct ColorConverter
 	{
 		static constexpr uint32_t tok2Col(const Tok tok)
@@ -181,23 +201,8 @@ namespace slua::paint
 				return (0x122311 * uint32_t(tok) ^ 0x388831 * (uint32_t(tok) + 1)) | 0xFF000000;
 			}
 		}
-		static constexpr uint32_t from(const Tok tok, const Tok overlayTok)
-		{
-			const uint32_t to = tok2Col(tok);
-			const uint32_t from = tok2Col(overlayTok);
-
-			const uint8_t t = 100;
-			const uint8_t s = 0xFF - t;
-			return (
-				(((((from >> 0) & 0xff) * s +
-					((to >> 0) & 0xff) * t) >> 8)) |
-				(((((from >> 8) & 0xff) * s +
-					((to >> 8) & 0xff) * t)) & ~0xff) |
-				(((((from >> 16) & 0xff) * s +
-					((to >> 16) & 0xff) * t) << 8) & ~0xffff) |
-				(((((from >> 24) & 0xff) * s +
-					((to >> 24) & 0xff) * t) << 16) & ~0xffffff)
-				);
+		static constexpr uint32_t from(const Tok tok, const Tok overlayTok) {
+			return basicTokBlend<ColorConverter>(tok, overlayTok);
 		}
 	};
 
