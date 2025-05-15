@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -952,6 +952,9 @@ namespace slua::paint
 			se.template move<Tok::PUNCTUATION>(itm.end);
 		}
 	}
+	/*
+	Make sure to reset in first: `in.reset();`
+	*/
 	template<AnySemOutput Se>
 	inline void paintFile(Se& se, const parse::ParsedFile<Se>& f)
 	{
