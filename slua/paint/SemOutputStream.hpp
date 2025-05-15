@@ -284,6 +284,10 @@ namespace slua::paint
 
 			constexpr SemPair pair = Converter::tok2Col(t);
 
+			Position startLoc = in.getLoc();
+			if (startLoc.index == p.index && startLoc.line == p.line)
+				return *this;
+
 			// handle newlines, while moving towards 'p'
 			while (in)
 			{
