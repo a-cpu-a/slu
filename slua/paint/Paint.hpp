@@ -60,7 +60,9 @@ namespace slua::paint
 	{
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
-		const char ch = se.in.peekAt(1);
+		
+		// null, if right before the end of the file.
+		const char ch = se.in.isOob(1) ? 0 : se.in.peekAt(1);
 		bool hex = ch == 'x' || ch == 'X';
 		if (hex || ch == 'O' || ch == 'o' || ch == 'd' || ch == 'D')
 		{
