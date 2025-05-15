@@ -835,6 +835,8 @@ namespace slua::paint
 
 			paintPatOrNamelist(se, var.names);
 			
+			if (var.exprs.empty())return;
+
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExprList(se, var.exprs);
 		},
