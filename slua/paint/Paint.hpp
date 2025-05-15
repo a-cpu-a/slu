@@ -32,7 +32,7 @@ namespace slua::paint
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
 
-		se.template add<Tok::STRING_OUT>(tint);
+		se.template add<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
 		const char fChar = se.in.get();
 		if (fChar == '[')
 		{
@@ -40,19 +40,19 @@ namespace slua::paint
 			while (se.in.peek() == '=')
 			{
 				level++;
-				se.template add<Tok::STRING_OUT>(tint);
+				se.template add<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
 				se.in.skip();
 			}
-			se.template add<Tok::STRING_OUT>(tint);
+			se.template add<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
 			se.in.skip();
 
 			se.template move<Tok::STRING>(end);
-			se.template replPrev<Tok::STRING_OUT>(tint,level+2);
+			se.template replPrev<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint,level+2);
 		}
 		else
 		{
 			se.template move<Tok::STRING>(end);
-			se.template replPrev<Tok::STRING_OUT>(tint);
+			se.template replPrev<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
 		}
 	}
 	template<bool SKIP_SPACE = true>
@@ -66,7 +66,7 @@ namespace slua::paint
 		bool hex = ch == 'x' || ch == 'X';
 		if (hex || ch == 'O' || ch == 'o' || ch == 'd' || ch == 'D')
 		{
-			se.template add<Tok::NUMBER_KIND>(tint,2);
+			se.template add<Tok::NUMBER_KIND>(tint == Tok::NONE ? Tok::NUMBER_KIND : tint,2);
 			se.in.skip(2);
 		}
 		bool wasUscore = false;
@@ -83,12 +83,12 @@ namespace slua::paint
 			if (!hex && (chr == 'e' || chr == 'E')
 				|| hex && (chr == 'p' || chr == 'P'))
 			{
-				se.template add<Tok::NUMBER_KIND>(tint, 1);
+				se.template add<Tok::NUMBER_KIND>(tint == Tok::NONE ? Tok::NUMBER_KIND : tint, 1);
 				se.in.skip();
 				const char maybeSign = se.in.peek();
 				if (maybeSign == '+' || maybeSign == '-')
 				{
-					se.template add<Tok::NUMBER_KIND>(tint, 1);
+					se.template add<Tok::NUMBER_KIND>(tint == Tok::NONE ? Tok::NUMBER_KIND : tint, 1);
 					se.in.skip();
 				}
 				continue;
@@ -106,7 +106,7 @@ namespace slua::paint
 			if (chr!='.' && chr!='_' && !(hex && parse::isHexDigitChar(chr)) && !parse::isDigitChar(chr))
 				break;
 			
-			se.template add<Tok::NUMBER>(tint);
+			se.template add<Tok::NUMBER>(tint == Tok::NONE ? Tok::NUMBER : tint);
 			se.in.skip();
 		}
 		if (parseType)
@@ -115,7 +115,7 @@ namespace slua::paint
 			{
 				if (parse::isValidNameChar(se.in.peek()))
 				{
-					se.template add<Tok::NUMBER_TYPE>(tint);
+					se.template add<Tok::NUMBER_TYPE>(tint == Tok::NONE ? Tok::NUMBER_TYPE : tint);
 					se.in.skip();
 				}
 				else
