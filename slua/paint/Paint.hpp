@@ -688,9 +688,12 @@ namespace slua::paint
 		{
 			paintPatOrNamelist(se, i.name);
 
-			if (&i != &func.params.back())
+			if (&i != &func.params.back() || func.hasVarArgParam)
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
+		if(func.hasVarArgParam)
+			paintKw<Tok::PUNCTUATION>(se, "...");
+
 		paintKw<Tok::GEN_OP>(se, ")");
 		if constexpr (Se::settings() & sluaSyn)
 		{
