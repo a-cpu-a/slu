@@ -72,6 +72,7 @@ namespace slua::paint
 		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 		while (se.in)
 		{
+			const parse::Position loc = se.in.getLoc();
 			const char ch = se.in.get();
 			
 			if (parse::manageNewlineState(ch, nlState, se.in))
@@ -81,7 +82,6 @@ namespace slua::paint
 			}
 
 
-			const parse::Position loc = se.in.getLoc();
 			const uint32_t col = se.out[loc.line-1][loc.index]&0xFFFFFF;
 
 			if (prevCol != col)
