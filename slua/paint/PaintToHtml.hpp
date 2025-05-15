@@ -83,7 +83,8 @@ namespace slua::paint
 			}
 
 
-			const uint32_t col = se.out[loc.line-1][loc.index]&0xFFFFFF;
+			const auto& lineCols = se.out[loc.line - 1];
+			const uint32_t col = (lineCols.size()<=loc.index ? se.commentPair() : lineCols[loc.index]) & 0xFFFFFF;
 
 			if (prevCol != col)
 			{
