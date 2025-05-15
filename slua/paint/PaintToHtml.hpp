@@ -76,7 +76,7 @@ namespace slua::paint
 			const char ch = se.in.get();
 
 			//Already skipping
-			if (parse::manageNewlineState<true>(ch, nlState, se.in))
+			if (parse::manageNewlineState<false>(ch, nlState, se.in))
 			{
 				res += "<br>";
 				continue;
