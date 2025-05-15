@@ -284,20 +284,9 @@ namespace slua::paint
 
 			constexpr SemPair pair = Converter::tok2Col(t);
 
-			Position startLoc = in.getLoc();
-			if (startLoc.index == p.index && startLoc.line == p.line)
-				return *this;
-
 			// handle newlines, while moving towards 'p'
 			while (in)
 			{
-				const uint8_t ch = in.get();
-				if (parse::manageNewlineState(ch, nlState, in))
-				{
-					out.emplace_back();
-					in.newLine();
-				}
-
 				Position loc = in.getLoc();
 
 				if (loc.index == p.index && loc.line == p.line)
@@ -308,6 +297,11 @@ namespace slua::paint
 					out.resize(loc.line);
 				out[loc.line - 1].resize(loc.index + 1, pair);
 
+				if (parse::manageNewlineState(in.get(), nlState, in))
+				{
+					out.emplace_back();
+					in.newLine();
+				}
 			}
 			return *this;
 		}
