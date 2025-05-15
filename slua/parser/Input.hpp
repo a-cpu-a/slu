@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -55,6 +55,8 @@ namespace slua::parse
 
 		//{ t.genData } -> AnyGenData;
 		{ t.genData } -> AnyGenDataV<std::remove_cvref_t<T>::settings()&sluaSyn>;
+
+		{ t.restart() } -> std::same_as<void>;
 
 		{ t.skip() } -> std::same_as<void>;
 		{ t.skip((size_t)100) } -> std::same_as<void>;

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -40,6 +40,13 @@ namespace slua::parse
 
 		std::span<const uint8_t> text;
 		size_t idx = 0;
+
+		void restart() 
+		{
+			curLine = 1;
+			curLinePos = 0;
+			idx = 0;
+		}
 
 		uint8_t peek()
 		{
