@@ -52,8 +52,8 @@ namespace slua::paint
 			switch (tok)
 			{
 				//Add colors:
-			case Tok::GEN_OP: return col(0xD3D3D3);
-			case Tok::PUNCTUATION: return col(0xD3D3D3);
+			case Tok::GEN_OP: return col(0x8E98A8);
+			case Tok::PUNCTUATION: return col(0xA9B0BC);
 			case Tok::BRACES:
 			case Tok::MP_IDX:
 			case Tok::MP: return col(0xBFC4CC);
@@ -72,11 +72,10 @@ namespace slua::paint
 			case Tok::STRING: return col(0x7AA737);
 			case Tok::STRING_OUT: return col(0xACD163);
 
-			case Tok::FN_STAT:
-			case Tok::END_STAT: return col(0xCE4C4C);
-
 			case Tok::IN:
 			case Tok::COND_STAT: return col(0xBD71C4);
+			case Tok::END_STAT:
+			case Tok::FN_STAT: return col(0xCE4C4C);
 			case Tok::VAR_STAT: return col(0xD87D7D);
 			case Tok::ASSIGN: return col(0xE5506F);
 
