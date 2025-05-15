@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -24,6 +24,7 @@ namespace slua::parse
 	};
 
 	//Returns if newline was added
+	template <bool skipPreNl>
 	inline bool manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
 	{
 		switch (nlState)
@@ -31,6 +32,7 @@ namespace slua::parse
 		case slua::parse::ParseNewlineState::NONE:
 			if (ch == '\n')
 			{
+				if constexpr (skipPreNl)in.skip();
 				in.newLine();
 				return true;
 			}
@@ -40,12 +42,14 @@ namespace slua::parse
 		case slua::parse::ParseNewlineState::CARI:
 			if (ch != '\r')
 			{//  \r\n, or \r(normal char)
+				if constexpr (skipPreNl)in.skip();
 				in.newLine();
 				nlState = slua::parse::ParseNewlineState::NONE;
 				return true;
 			}
 			else// \r\r
 			{
+				if constexpr (skipPreNl)in.skip();
 				in.newLine();
 				return true;
 			}
@@ -167,13 +171,14 @@ namespace slua::parse
 		while (in)
 		{
 			const uint8_t ch = in.peek();
-			manageNewlineState(ch, nlState, in);
+			const bool newLine = manageNewlineState<true>(ch, nlState, in);
 
 			if (insideLineComment)
 			{
-				if (ch == '\n' || ch == '\r')
+				if (newLine)
 				{
 					insideLineComment = false;//new line, so exit comment
+					continue;
 				}
 
 				in.skip();
@@ -183,6 +188,9 @@ namespace slua::parse
 			// Handle inside-multiline-comment scenario
 			else if (insideMultilineComment)
 			{
+				if (newLine)
+					continue;
+
 				if (ch == ']') // Check for possible multiline comment closing
 				{
 					size_t level = 0;
@@ -209,6 +217,12 @@ namespace slua::parse
 			horizontal tab, and vertical tab.
 
 			*/
+
+			if (newLine)
+			{
+				res = true;
+				continue;
+			}
 
 			if (isSpaceChar(ch))
 			{

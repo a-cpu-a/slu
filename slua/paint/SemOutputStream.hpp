@@ -292,7 +292,8 @@ namespace slua::paint
 				if (loc.index == p.index && loc.line == p.line)
 					break;
 
-				if (parse::manageNewlineState(in.get(), nlState, in))
+				//Already skipping
+				if (parse::manageNewlineState<false>(in.get(), nlState, in))
 				{
 					out.emplace_back();
 					continue;
