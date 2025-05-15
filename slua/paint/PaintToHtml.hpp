@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -57,6 +57,9 @@ namespace slua::paint
 		}
 		return res;
 	}
+	/*
+	Make sure to reset in first: `in.reset();`
+	*/
 	inline std::string toHtml(AnySemOutput auto& se,const bool includeStyle) {
 		std::string res;
 		if (includeStyle)
@@ -79,7 +82,7 @@ namespace slua::paint
 
 
 			const parse::Position loc = se.in.getLoc();
-			const uint32_t col = se.out[loc.line][loc.index];
+			const uint32_t col = se.out[loc.line-1][loc.index]&0xFFFFFF;
 
 			if (prevCol != col)
 			{
