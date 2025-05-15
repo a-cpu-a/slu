@@ -515,7 +515,7 @@ namespace slua::paint
 			);
 		}
 	}
-	template<AnySemOutput Se>
+	template<bool forCond,AnySemOutput Se>
 	inline void paintEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
 		if constexpr (Se::settings() & sluaSyn)
@@ -527,7 +527,7 @@ namespace slua::paint
 		else
 		{
 			paintBlock(se, itm);
-			paintKw<Tok::END_STAT>(se, "end");
+			paintKw<forCond? Tok::COND_STAT : Tok::END_STAT>(se, "end");
 		}
 	}
 	template<AnySemOutput Se>
@@ -537,7 +537,7 @@ namespace slua::paint
 			paintKw<Tok::BRACES>(se, "{");
 		else
 			paintKw<Tok::COND_STAT>(se, "do");
-		paintEndBlock(se, itm);
+		paintEndBlock<true>(se, itm);
 	}
 	template<AnySemOutput Se>
 	inline void paintTraitExpr(Se& se, const parse::TraitExpr& itm)
@@ -712,7 +712,7 @@ namespace slua::paint
 			paintKw<Tok::BRACES>(se, "{");
 		}
 		//No do, for functions in lua
-		paintEndBlock(se, func.block);
+		paintEndBlock<false>(se, func.block);
 		
 	}
 	template<AnySemOutput Se>
@@ -828,7 +828,7 @@ namespace slua::paint
 			}
 
 			if constexpr (!(Se::settings() & sluaSyn))
-				paintKw<Tok::END_STAT>(se, "end");
+				paintKw<Tok::COND_STAT>(se, "end");
 
 		},
 		varcase(const parse::StatementType::FUNC_CALL<Se>&) {
