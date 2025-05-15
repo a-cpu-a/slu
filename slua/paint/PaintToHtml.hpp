@@ -86,6 +86,7 @@ namespace slua::paint
 
 			if (prevCol != col)
 			{
+				prevCol = col;
 				res += "</span><span class=C";
 				for (size_t i = 0; i < 6; i++)
 				{
