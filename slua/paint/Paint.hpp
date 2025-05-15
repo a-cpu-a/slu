@@ -84,6 +84,12 @@ namespace slua::paint
 			{
 				se.template add<Tok::NUMBER_KIND>(tint, 1);
 				se.in.skip();
+				const char maybeSign = se.in.peek();
+				if (maybeSign == '+' || maybeSign == '-')
+				{
+					se.template add<Tok::NUMBER_KIND>(tint, 1);
+					se.in.skip();
+				}
 				continue;
 			}
 			if (chr == '_')
