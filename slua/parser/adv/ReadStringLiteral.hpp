@@ -244,8 +244,8 @@ namespace slua::parse
 							const char checkChar = in.peek();
 							if (!isSpaceChar(checkChar))
 								break;
-							//No skip pre nl, cuz it is not visible in painting.
-							manageNewlineState<false>(checkChar, nlState, in);
+							if (manageNewlineState<true>(checkChar, nlState, in))
+								continue;
 
 							in.skip();
 						}
