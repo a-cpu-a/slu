@@ -262,12 +262,41 @@ namespace slua::parse
 		return false;
 	}
 
+	template<bool isLoop, AnyInput In>
+	inline bool readCchStat(In& in, const Position place, const ExportData exported, const bool allowVarArg)
+	{
+		if (in.isOob(2))
+			return false;
+
+		const char ch2 = in.peekAt(2);
+		switch (ch2)
+		{
+		case 'm':
+			if (checkReadTextToken(in, "comptime"))
+				throw 333;
+			//TODO
+			break;
+		case 'n':
+			if (checkReadTextToken(in, "const"))
+			{
+				//TODO: exported
+				readVarStatement<isLoop, StatementType::CONST<In>>(in, place, allowVarArg);
+				return true;
+			}
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
+
 
 	template<AnyInput In>
 	inline bool readSchStat(In& in, const Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "safe"))
 		{
+			//TODO
 			throwExpectedSafeable(in);
 		}
 		return false;
@@ -459,8 +488,8 @@ namespace slua::parse
 		case 'c'://const comptime?
 			if constexpr (In::settings() & sluaSyn)
 			{
-				if (checkReadTextToken(in, "const"))
-					return readVarStatement<isLoop, StatementType::CONST<In>>(in, place, allowVarArg);
+				if(readCchStat<isLoop>(in, place, false, allowVarArg))
+					return;
 			}
 			break;
 		case '{':// ‘{’ block ‘}’
@@ -602,6 +631,12 @@ namespace slua::parse
 					case 'f'://fn? function?
 						break;
 					case 't'://type?
+						break;
+					case 'l'://let? local?
+						break;
+					case 'c'://const? comptime?
+						if (readCchStat<isLoop>(in, place, true, allowVarArg))
+							return;
 						break;
 					case 'u'://use? unsafe?
 						if (readUchStat(in, place, true))
