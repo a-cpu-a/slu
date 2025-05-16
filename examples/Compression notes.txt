@@ -1,0 +1,23 @@
+DEFLATE seems to like no nestLimit
+anything more complex seems to like a nestLimit of 1
+no compression also likes no nestLimit
+
+350975/31734
+350975/31726
+350975/27362
+350975/37822
+
+LZMA+1Nest = 11.0599042X
+LZM2+1Nest = 11.0626931X
+BZIP+1Nest = 12.827096X
+DEFL+1Nest = 9.40674332X
+
+316514/31898
+316514/31890
+316514/28060
+316514/37311
+
+LZMA+32Nest = 9.92269108X
+LZM2+32Nest = 9.92518031X
+BZIP+32Nest = 11.2799002X
+DEFL+32Nest = 8.4831283X
