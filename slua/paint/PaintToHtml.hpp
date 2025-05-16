@@ -80,8 +80,9 @@ namespace slua::paint
 		{
 			res += "<style>" + getCssFor(se) + "</style>";
 		}
-		res += "<code class=slua-code-box><span>";
+		res += "<code class=slua-code-box>";
 		uint32_t prevCol = 0xFFFFFF;
+		bool prevColorSet = false;
 
 		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 		while (se.in)
@@ -112,10 +113,13 @@ namespace slua::paint
 					col = lineCols[loc.index] & 0xFFFFFF;
 			}
 
-			if (prevCol != col)
+			if (prevCol != col || !prevColorSet)
 			{
 				prevCol = col;
-				res += "</span><span class=C";
+				if(prevColorSet)
+					res += "</span>";
+				prevColorSet = true;
+				res += "<span class=C";
 				for (size_t i = 0; i < 6; i++)
 				{
 					const uint8_t nibble = (col >> (20 - i * 4)) & 0xF;
@@ -154,7 +158,10 @@ namespace slua::paint
 			}
 			res += ch;
 		}
-		res += "</span></code>";
+		if (prevColorSet)
+			res += "</span></code>";
+		else
+			res += "</code>";
 		return res;
 	}
 }
