@@ -603,7 +603,7 @@ namespace slua::parse
 
 			genExprParens(out, var.cond);
 
-			if constexpr (out.settings() & sluaSyn) 
+			if constexpr (Out::settings() & sluaSyn) 
 				out.newLine().add('{');
 			else
 				out.add(" do");
@@ -617,14 +617,14 @@ namespace slua::parse
 		varcase(const StatementType::REPEAT_UNTIL<Out>&) {
 			out.add("repeat");
 
-			if constexpr (out.settings() & sluaSyn)
+			if constexpr (Out::settings() & sluaSyn)
 				out.newLine().add('{');
 			out.tabUpNewl();
 
 			genBlock(out, var.bl);
 			out.unTabNewl();
 
-			if constexpr (out.settings() & sluaSyn)
+			if constexpr (Out::settings() & sluaSyn)
 				out.add('}');
 			out.add("until ");
 			genExpr(out, var.cond);
@@ -638,7 +638,7 @@ namespace slua::parse
 			out.add("if ");
 			genExprParens(out, var.cond);
 
-			if constexpr (out.settings() & sluaSyn)
+			if constexpr (Out::settings() & sluaSyn)
 				out.newLine().add('{');
 			else
 				out.add(" then");
@@ -646,7 +646,7 @@ namespace slua::parse
 
 			genBlock(out, var.bl);
 
-			if constexpr (out.settings() & sluaSyn)
+			if constexpr (Out::settings() & sluaSyn)
 				out.unTabNewl().add('}').tabUpNewl();
 
 			if (!var.elseIfs.empty())
@@ -657,7 +657,7 @@ namespace slua::parse
 						.add(sel<Out>("elseif ", "else if "));
 					genExprParens(out, expr);
 
-					if constexpr (out.settings() & sluaSyn)
+					if constexpr (Out::settings() & sluaSyn)
 						out.newLine().add('{');
 					else
 						out.add(" then");
@@ -665,7 +665,7 @@ namespace slua::parse
 
 					genBlock(out, bl);
 
-					if constexpr (out.settings() & sluaSyn)
+					if constexpr (Out::settings() & sluaSyn)
 						out.unTabNewl().add('}').tabUpNewl();
 				}
 			}
@@ -674,18 +674,18 @@ namespace slua::parse
 				out.unTabNewl()
 					.add("else");
 
-				if constexpr (out.settings() & sluaSyn)
+				if constexpr (Out::settings() & sluaSyn)
 					out.newLine().add('{');
 				out.tabUpNewl();
 
 				genBlock(out, *var.elseBlock);
 
-				if constexpr (out.settings() & sluaSyn)
+				if constexpr (Out::settings() & sluaSyn)
 					out.unTabNewl().add('}').tabUpNewl();
 			}
 			out.unTabNewl();
 
-			if constexpr (!(out.settings() & sluaSyn))
+			if constexpr (!(Out::settings() & sluaSyn))
 				out.addNewl("end");
 		},
 
@@ -702,7 +702,7 @@ namespace slua::parse
 				genExpr(out, *var.step);
 			}
 			out.add(sel<Out>(" do", ")"));
-			if constexpr (out.settings() & sluaSyn) out.newLine().add('{');
+			if constexpr (Out::settings() & sluaSyn) out.newLine().add('{');
 			out.tabUpNewl();
 
 			genBlock(out, var.bl);
@@ -716,7 +716,7 @@ namespace slua::parse
 			genExpList(out, var.exprs);
 
 			out.add(sel<Out>(" do", ")"));
-			if constexpr (out.settings() & sluaSyn) out.newLine().add('{');
+			if constexpr (Out::settings() & sluaSyn) out.newLine().add('{');
 			out.tabUpNewl();
 
 			genBlock(out, var.bl);
