@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -760,6 +760,13 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
 
+		template<bool isSlua>
+		struct LETv : LOCAL_ASSIGNv<isSlua>	{};
+		template<AnyCfgable CfgT> using LET = SelV<CfgT, LETv>;
+
+		template<bool isSlua>
+		struct CONSTv : LOCAL_ASSIGNv<isSlua>	{};
+		template<AnyCfgable CfgT> using CONST = SelV<CfgT, CONSTv>;
 
 		// Slua
 
@@ -807,6 +814,8 @@ namespace slua::parse
 
 		StatementType::ASSIGNv<isSlua>,			// "varlist = explist"
 		StatementType::LOCAL_ASSIGNv<isSlua>,	// "local attnamelist [= explist]"
+		StatementType::LETv<isSlua>,	// "let pat [= explist]"
+		StatementType::CONSTv<isSlua>,	// "const pat [= explist]"
 
 		StatementType::FUNC_CALLv<isSlua>,		// "functioncall"
 		StatementType::LABELv<isSlua>,			// "label"

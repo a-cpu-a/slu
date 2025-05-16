@@ -747,6 +747,18 @@ namespace slua::paint
 		}
 		);
 	}
+	template<size_t TOK_SIZE,AnySemOutput Se>
+	inline void paintVarStat(Se& se, const auto& itm, const char(&tokChr)[TOK_SIZE])
+	{
+		paintKw<Tok::VAR_STAT>(se, tokChr);
+
+		paintPatOrNamelist(se, var.names);
+
+		if (var.exprs.empty())return;
+
+		paintKw<Tok::ASSIGN>(se, "=");
+		paintExprList(se, var.exprs);
+	}
 	template<AnySemOutput Se>
 	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
 	{
@@ -841,14 +853,13 @@ namespace slua::paint
 			paintExprList(se, var.exprs);
 		},
 		varcase(const parse::StatementType::LOCAL_ASSIGN<Se>&) {
-			paintKw<Tok::VAR_STAT>(se, "local");
-
-			paintPatOrNamelist(se, var.names);
-			
-			if (var.exprs.empty())return;
-
-			paintKw<Tok::ASSIGN>(se, "=");
-			paintExprList(se, var.exprs);
+			paintVarStat(se,var, "local");
+		},
+		varcase(const parse::StatementType::LET<Se>&) {
+			paintVarStat(se,var, "let");
+		},
+		varcase(const parse::StatementType::CONST<Se>&) {
+			paintVarStat(se,var, "const");
 		},
 		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
 			paintFuncDef(se, var.func, var.name,false, var.place);//TODO export data

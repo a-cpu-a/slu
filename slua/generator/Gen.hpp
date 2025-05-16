@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -526,6 +526,19 @@ namespace slua::parse
 		);
 	}
 
+	template<size_t N,AnyOutput Out>
+	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
+	{
+		out.add(kw);
+		genAtribNameList(out, var.names);
+		if (!var.exprs.empty())
+		{
+			out.add(" = ");
+			genExpList(out, var.exprs);
+		}
+		out.addNewl(';');
+		out.wasSemicolon = true;
+	}
 	template<AnyOutput Out>
 	inline void genStat(Out& out, const Statement<Out>& obj)
 	{
@@ -545,15 +558,13 @@ namespace slua::parse
 			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::LOCAL_ASSIGN<Out>&) {
-			out.add("local ");
-			genAtribNameList(out,var.names);
-			if (!var.exprs.empty())
-			{
-				out.add(" = ");
-				genExpList(out, var.exprs);
-			}
-			out.addNewl(';');
-			out.wasSemicolon = true;
+			genVarStat(out, var,"local ");
+		},
+		varcase(const StatementType::LET<Out>&) {
+			genVarStat(out, var, "let ");
+		},
+		varcase(const StatementType::CONST<Out>&) {
+			genVarStat(out, var, "const ");
 		},
 
 		varcase(const StatementType::FUNC_CALL<Out>&) {
