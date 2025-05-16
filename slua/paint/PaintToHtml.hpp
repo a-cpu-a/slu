@@ -96,6 +96,12 @@ namespace slua::paint
 				continue;
 			}
 
+			if (parse::isSpaceChar(ch))
+			{
+				res += ch;
+				continue;//Dont explicitly paint it!
+			}
+
 			//TODO: fix space skip code, so it doesnt do this:
 			uint32_t col = se.commentPair();
 
