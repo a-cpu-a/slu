@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -273,6 +273,22 @@ namespace slua::parse
 		return false;
 	}
 
+	template<bool isLoop,class StatT, AnyInput In>
+	inline void readVarStatement(In& in, const Position place, const bool allowVarArg)
+	{
+		StatT res;
+		if constexpr (In::settings() & sluaSyn)
+			res.names = readPat(in, true);
+		else
+			res.names = readAttNameList(in);
+
+		if (checkReadToken(in, "="))
+		{// [‘=’ explist]
+			res.exprs = readExpList(in, allowVarArg);
+		}
+		return in.genData.addStat(place, std::move(res));
+	}
+
 	template<bool isLoop, AnyInput In>
 	inline void readStatment(In& in,const bool allowVarArg)
 	{
@@ -430,17 +446,7 @@ namespace slua::parse
 				}
 				// Local Variable
 
-				StatementType::LOCAL_ASSIGN<In> res;
-				if constexpr(In::settings() & sluaSyn)
-					res.names = readPat(in,true);
-				else
-					res.names = readAttNameList(in);
-
-				if (checkReadToken(in, "="))
-				{// [‘=’ explist]
-					res.exprs = readExpList(in,allowVarArg);
-				}
-				return in.genData.addStat(place, std::move(res));
+				return readVarStatement<isLoop, StatementType::LOCAL_ASSIGN<In>>(in,place, allowVarArg);
 			}
 			break;
 		case '{':// ‘{’ block ‘}’
