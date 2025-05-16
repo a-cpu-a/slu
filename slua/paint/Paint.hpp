@@ -756,7 +756,7 @@ namespace slua::paint
 		if constexpr (Se::settings() & sluaSyn)
 		{
 			if (itm.exported)
-				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
+				paintKw<Tok::VAR_STAT, Tok::EX_TINT>(se, "ex");
 		}
 
 		paintKw<Tok::VAR_STAT>(se, tokChr);
