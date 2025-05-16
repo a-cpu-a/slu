@@ -23,6 +23,7 @@
 //for enums...
 #undef FALSE
 #undef TRUE
+#undef CONST
 
 namespace slua::parse
 {
