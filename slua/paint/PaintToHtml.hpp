@@ -87,10 +87,26 @@ namespace slua::paint
 		}
 		return { res, mostCommonCol};
 	}
+	//SIZE_MAX when not found
+	inline size_t locateColStackIndex(const std::vector<uint32_t>& colStack,const uint32_t col)
+	{
+		size_t i = colStack.size()-1;
+		for (const uint32_t c : std::ranges::reverse_view{ colStack })
+		{
+			if(c == col)
+				return i;
+			i--;
+		}
+		return SIZE_MAX;
+	}
 	/*
 	Make sure to reset in first: `in.reset();`
+
+	DEFLATE seems to like no nestLimit
+	anything more complex seems to like a nestLimit of 1
+	no compression also likes no nestLimit
 	*/
-	inline std::string toHtml(AnySemOutput auto& se,const bool includeStyle) {
+	inline std::string toHtml(AnySemOutput auto& se,const bool includeStyle,const size_t nestLimit=32) {
 		std::string res;
 
 		auto [cssStr, mostCommonCol] = getCssFor(se, includeStyle);
@@ -115,8 +131,8 @@ namespace slua::paint
 				res += 'A' + (nibble - 10);
 		}
 		res += "\">";
-		uint32_t prevCol = 0xFFFFFF;
-		bool closeSpan = false;
+		std::vector<uint32_t> colStack;
+		colStack.push_back(mostCommonCol);
 
 		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 		while (se.in)
@@ -147,17 +163,19 @@ namespace slua::paint
 					col = lineCols[loc.index] & 0xFFFFFF;
 			}
 
-			if (prevCol != col)
+			if (colStack.back() != col)
 			{
-				prevCol = col;
-
-				if(closeSpan)
-					res += "</span>";
-				if (col == mostCommonCol)
-					closeSpan = false;
-				else
+				// Go down the stack, or go up
+				size_t idx = locateColStackIndex(colStack, col);
+				if (idx == SIZE_MAX)
 				{
-					closeSpan = true;
+					// Check nest limit, if we are too deep, then we need to pop the stack
+					if (colStack.size() > nestLimit)
+					{
+						colStack.pop_back();
+						res.append("</span>",7);
+					}
+					colStack.push_back(col);
 					res += "<span class=C";
 					for (size_t i = 0; i < 6; i++)
 					{
@@ -168,6 +186,26 @@ namespace slua::paint
 							res += 'A' + (nibble - 10);
 					}
 					res += ">";
+				}
+				else
+				{
+					//We are going up the stack, so we need to pop the stack until we reach the right color
+					const size_t popCount = colStack.size() - idx - 1;
+					const size_t start = res.size();
+					res.resize(start + popCount * 7);
+					char* d = res.data();
+					for (size_t i = 0; i < popCount; i++)
+					{
+						const size_t j = start + i * 7;
+						d[j+0]='<';
+						d[j+1]='/';
+						d[j+2]='s';
+						d[j+3]='p';
+						d[j+4]='a';
+						d[j+5]='n';
+						d[j+6]='>';
+					}
+					colStack.resize(idx + 1);//remove the popped colors
 				}
 			}
 
@@ -198,10 +236,9 @@ namespace slua::paint
 			}
 			res += ch;
 		}
-		if (closeSpan)
-			res += "</span></code>";
-		else
-			res += "</code>";
+		for (size_t i = 0; i < colStack.size()-1; i++)
+			res += "</span>";
+		res += "</code>";
 		return res;
 	}
 }
