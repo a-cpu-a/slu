@@ -39,12 +39,17 @@ namespace slua::paint
 		getCssFor(const AnySemOutput auto& se, const bool makeCssStr) 
 	{
 		std::unordered_map<uint32_t,size_t> colors;
-
+		uint32_t prevCol = 0xFF00FF;
 		for (const auto& chList : se.out)
 		{
-			for (const uint32_t chCol : chList)
+			for (uint32_t chCol : chList)
 			{
-				colors[chCol & 0xFFFFFF]++;
+				chCol &= 0xFFFFFF;
+
+				if (prevCol == chCol)
+					continue;
+				prevCol = chCol;
+				colors[chCol]++;
 			}
 		}
 
