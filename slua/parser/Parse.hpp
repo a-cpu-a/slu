@@ -448,6 +448,20 @@ namespace slua::parse
 
 				return readVarStatement<isLoop, StatementType::LOCAL_ASSIGN<In>>(in,place, allowVarArg);
 			}
+
+			if constexpr (In::settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "let"))
+					return readVarStatement<isLoop, StatementType::LET<In>>(in, place, allowVarArg);
+			}
+
+			break;
+		case 'c'://const?
+			if constexpr (In::settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "const"))
+					return readVarStatement<isLoop, StatementType::CONST<In>>(in, place, allowVarArg);
+			}
 			break;
 		case '{':// ‘{’ block ‘}’
 			if constexpr (In::settings() & sluaSyn)
