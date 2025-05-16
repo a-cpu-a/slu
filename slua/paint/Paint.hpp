@@ -978,16 +978,18 @@ namespace slua::paint
 			}
 			paintKw<Tok::FN_STAT>(se,"return");
 			paintExprList(se, itm.retExprs);
-			//for ;
-			se.template move<Tok::PUNCTUATION>(itm.end);
+
+			skipSpace(se);
+			if (se.in && (se.in.peek() == ';'))
+				paintKw<Tok::PUNCTUATION>(se, ";");
 		}
 	}
 	/*
 	Make sure to reset in first: `in.reset();`
 	*/
 	template<AnySemOutput Se>
-	inline void paintFile(Se& se, const parse::ParsedFile<Se>& f)
-	{
+	inline void paintFile(Se& se, const parse::ParsedFile<Se>& f) {
 		paintBlock(se, f.code);
+		skipSpace(se);
 	}
 }
