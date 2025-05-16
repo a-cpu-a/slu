@@ -66,7 +66,7 @@ namespace slua::paint
 			case Tok::BUILITIN_VAR: return col(0x6582C1);
 
 			case Tok::NUMBER: return col(0x539BBD);
-			case Tok::NUMBER_KIND: return col(0x726CA2);
+			case Tok::NUMBER_KIND: return col(0x6B73A1);
 			case Tok::NUMBER_TYPE: return col(0x90BBCC);
 
 			case Tok::STRING: return col(0x7AA737);
