@@ -1,3 +1,5 @@
+From limited testing, nest limits dont effect local-file browsing performance
+
 DEFLATE seems to like no nestLimit
 anything more complex seems to like a nestLimit of 1
 no compression also likes no nestLimit
