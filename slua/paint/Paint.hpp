@@ -753,6 +753,12 @@ namespace slua::paint
 	template<size_t TOK_SIZE,AnySemOutput Se>
 	inline void paintVarStat(Se& se, const auto& itm, const char(&tokChr)[TOK_SIZE])
 	{
+		if constexpr (Se::settings() & sluaSyn)
+		{
+			if (itm.exported)
+				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
+		}
+
 		paintKw<Tok::VAR_STAT>(se, tokChr);
 
 		paintPatOrNamelist(se, itm.names);

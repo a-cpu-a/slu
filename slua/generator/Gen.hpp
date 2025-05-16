@@ -529,6 +529,12 @@ namespace slua::parse
 	template<size_t N,AnyOutput Out>
 	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
 	{
+		if constexpr (Out::settings() & sluaSyn)
+		{
+			if (obj.exported)
+				out.add("ex ");
+		}
+
 		out.add(kw);
 		genAtribNameList(out, obj.names);
 		if (!obj.exprs.empty())

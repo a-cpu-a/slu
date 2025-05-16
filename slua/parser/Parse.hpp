@@ -279,8 +279,7 @@ namespace slua::parse
 		case 'n':
 			if (checkReadTextToken(in, "const"))
 			{
-				//TODO: exported
-				readVarStatement<isLoop, StatementType::CONST<In>>(in, place, allowVarArg);
+				readVarStatement<isLoop, StatementType::CONST<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;
@@ -303,11 +302,14 @@ namespace slua::parse
 	}
 
 	template<bool isLoop,class StatT, AnyInput In>
-	inline void readVarStatement(In& in, const Position place, const bool allowVarArg)
+	inline void readVarStatement(In& in, const Position place, const bool allowVarArg, const ExportData exported)
 	{
 		StatT res;
 		if constexpr (In::settings() & sluaSyn)
+		{
 			res.names = readPat(in, true);
+			res.exported = exported;
+		}
 		else
 			res.names = readAttNameList(in);
 
@@ -475,13 +477,13 @@ namespace slua::parse
 				}
 				// Local Variable
 
-				return readVarStatement<isLoop, StatementType::LOCAL_ASSIGN<In>>(in,place, allowVarArg);
+				return readVarStatement<isLoop, StatementType::LOCAL_ASSIGN<In>>(in,place, allowVarArg,false);
 			}
 
 			if constexpr (In::settings() & sluaSyn)
 			{
 				if (checkReadTextToken(in, "let"))
-					return readVarStatement<isLoop, StatementType::LET<In>>(in, place, allowVarArg);
+					return readVarStatement<isLoop, StatementType::LET<In>>(in, place, allowVarArg,false);
 			}
 
 			break;
