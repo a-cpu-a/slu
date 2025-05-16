@@ -210,7 +210,7 @@ namespace slua::parse
 				return in.genData.popScope(in.getLoc());
 			//Basic Statement + ';'
 
-			readStatment<isLoop>(in, allowVarArg);
+			readStatement<isLoop>(in, allowVarArg);
 
 			Block<In> bl = in.genData.popScope(in.getLoc());
 
@@ -290,7 +290,7 @@ namespace slua::parse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline void readStatment(In& in,const bool allowVarArg)
+	inline void readStatement(In& in,const bool allowVarArg)
 	{
 		/*
 		 varlist ‘=’ explist |
