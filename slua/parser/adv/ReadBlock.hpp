@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -126,7 +126,7 @@ namespace slua::parse
 
 			// Not some end / return keyword, must be a statement
 
-			readStatment<isLoop>(in, allowVarArg);
+			readStatement<isLoop>(in, allowVarArg);
 		}
 		return in.genData.popScope(in.getLoc());
 	}
