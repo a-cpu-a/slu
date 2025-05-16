@@ -756,8 +756,15 @@ namespace slua::parse
 		template<bool isSlua>
 		struct LOCAL_ASSIGNv
 		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			Sel<isSlua, AttribNameListV<isSlua>, Pat> names;
+			AttribNameListV<isSlua> names;
 			ExpListV<isSlua> exprs;
+		};
+		template<>
+		struct LOCAL_ASSIGNv<true>
+		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+			Pat names;
+			ExpListV<true> exprs;
+			ExportData exported = false;
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
 
