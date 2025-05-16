@@ -530,11 +530,11 @@ namespace slua::parse
 	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
 	{
 		out.add(kw);
-		genAtribNameList(out, var.names);
-		if (!var.exprs.empty())
+		genAtribNameList(out, obj.names);
+		if (!obj.exprs.empty())
 		{
 			out.add(" = ");
-			genExpList(out, var.exprs);
+			genExpList(out, obj.exprs);
 		}
 		out.addNewl(';');
 		out.wasSemicolon = true;

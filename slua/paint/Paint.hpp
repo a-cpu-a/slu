@@ -752,12 +752,12 @@ namespace slua::paint
 	{
 		paintKw<Tok::VAR_STAT>(se, tokChr);
 
-		paintPatOrNamelist(se, var.names);
+		paintPatOrNamelist(se, itm.names);
 
-		if (var.exprs.empty())return;
+		if (itm.exprs.empty())return;
 
 		paintKw<Tok::ASSIGN>(se, "=");
-		paintExprList(se, var.exprs);
+		paintExprList(se, itm.exprs);
 	}
 	template<AnySemOutput Se>
 	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
