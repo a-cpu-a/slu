@@ -456,7 +456,7 @@ namespace slua::parse
 			}
 
 			break;
-		case 'c'://const?
+		case 'c'://const comptime?
 			if constexpr (In::settings() & sluaSyn)
 			{
 				if (checkReadTextToken(in, "const"))
