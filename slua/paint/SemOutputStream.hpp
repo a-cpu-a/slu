@@ -6,6 +6,7 @@
 #include <string>
 #include <span>
 #include <vector>
+#include <ranges>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -14,7 +15,7 @@
 #include <slua/Settings.hpp>
 #include <slua/parser/Input.hpp>
 #include <slua/parser/State.hpp>
-#include <slua/parser/adv/SkipSpace.hpp>
+#include <slua/parser/ManageNewline.hpp>
 
 namespace slua::paint
 {
@@ -141,8 +142,6 @@ namespace slua::paint
 
 			{ t.in } -> AnyInput;
 			{ t.out } -> std::same_as<std::vector<std::vector<typename T::SemPair>>&>;
-			//Hack for skip space: temporary!!!
-			{ t.commentPair() } -> std::same_as<typename T::SemPair>;
 
 			{ t.move(Position()) } -> std::same_as<T&>;
 			{ t.template move<Tok::WHITESPACE>(Position()) } -> std::same_as<T&>;
@@ -222,10 +221,6 @@ namespace slua::paint
 		constexpr static auto settings()
 		{
 			return In::settings();
-		}
-
-		consteval static SemPair commentPair() {
-			return Converter::from(Tok::WHITESPACE, Tok::WHITESPACE);
 		}
 
 		In& in;
