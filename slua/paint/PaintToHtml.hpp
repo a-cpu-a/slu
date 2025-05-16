@@ -102,9 +102,9 @@ namespace slua::paint
 	/*
 	Make sure to reset in first: `in.reset();`
 
-	DEFLATE seems to like no nestLimit
+	DEFLATE seems to like high nestLimit
 	anything more complex seems to like a nestLimit of 1
-	no compression also likes no nestLimit
+	no compression also likes high nestLimit
 	*/
 	inline std::string toHtml(AnySemOutput auto& se,const bool includeStyle,const size_t nestLimit=32) {
 		std::string res;
