@@ -35,20 +35,31 @@ namespace slua::paint
 	}
 	```
 	*/
-	inline std::string getCssFor(const AnySemOutput auto& se) {
-		
-		std::unordered_set<uint32_t> colors;
+	inline std::pair<std::string,uint32_t> 
+		getCssFor(const AnySemOutput auto& se, const bool makeCssStr) 
+	{
+		std::unordered_map<uint32_t,size_t> colors;
 
 		for (const auto& chList : se.out)
 		{
 			for (const uint32_t chCol : chList)
 			{
-				colors.insert(chCol & 0xFFFFFF);
+				colors[chCol & 0xFFFFFF]++;
 			}
 		}
+
+		uint32_t mostCommonCol = UINT32_MAX;
+		size_t mostCommonColCount = 0;
+
 		std::string res;
-		for (const uint32_t col : colors)
+		for (const auto [col,count]: colors)
 		{
+			if(mostCommonColCount < count)
+			{
+				mostCommonColCount = count;
+				mostCommonCol = col;
+			}
+
 			res += ".C";
 			for (size_t i = 0; i < 6; i++)
 			{
@@ -69,20 +80,38 @@ namespace slua::paint
 			}
 			res += '}';
 		}
-		return res;
+		return { res, mostCommonCol};
 	}
 	/*
 	Make sure to reset in first: `in.reset();`
 	*/
 	inline std::string toHtml(AnySemOutput auto& se,const bool includeStyle) {
 		std::string res;
+
+		auto [cssStr, mostCommonCol] = getCssFor(se, includeStyle);
 		if (includeStyle)
 		{
-			res += "<style>" + getCssFor(se) + "</style>";
+			res += "<style>" + cssStr + "</style>";
 		}
-		res += "<code class=slua-code-box>";
+
+		if (mostCommonCol == UINT32_MAX)
+		{// Its empty
+			res += "<code class=slua-code-box></code>";
+			return res;
+		}
+
+		res += "<code class=\"slua-code-box C";
+		for (size_t i = 0; i < 6; i++)
+		{
+			const uint8_t nibble = (mostCommonCol >> (20 - i * 4)) & 0xF;
+			if (nibble < 10)
+				res += '0' + nibble;
+			else
+				res += 'A' + (nibble - 10);
+		}
+		res += "\">";
 		uint32_t prevCol = 0xFFFFFF;
-		bool prevColorSet = false;
+		bool closeSpan = false;
 
 		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 		while (se.in)
@@ -113,22 +142,28 @@ namespace slua::paint
 					col = lineCols[loc.index] & 0xFFFFFF;
 			}
 
-			if (prevCol != col || !prevColorSet)
+			if (prevCol != col)
 			{
 				prevCol = col;
-				if(prevColorSet)
+
+				if(closeSpan)
 					res += "</span>";
-				prevColorSet = true;
-				res += "<span class=C";
-				for (size_t i = 0; i < 6; i++)
+				if (col == mostCommonCol)
+					closeSpan = false;
+				else
 				{
-					const uint8_t nibble = (col >> (20 - i * 4)) & 0xF;
-					if (nibble < 10)
-						res += '0' + nibble;
-					else
-						res += 'A' + (nibble - 10);
+					closeSpan = true;
+					res += "<span class=C";
+					for (size_t i = 0; i < 6; i++)
+					{
+						const uint8_t nibble = (col >> (20 - i * 4)) & 0xF;
+						if (nibble < 10)
+							res += '0' + nibble;
+						else
+							res += 'A' + (nibble - 10);
+					}
+					res += ">";
 				}
-				res += ">";
 			}
 
 			if (ch == '\'')
@@ -158,7 +193,7 @@ namespace slua::paint
 			}
 			res += ch;
 		}
-		if (prevColorSet)
+		if (closeSpan)
 			res += "</span></code>";
 		else
 			res += "</code>";
