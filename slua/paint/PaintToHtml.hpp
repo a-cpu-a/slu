@@ -153,15 +153,7 @@ namespace slua::paint
 				continue;//Dont explicitly paint it!
 			}
 
-			//TODO: fix space skip code, so it doesnt do this:
-			uint32_t col = se.commentPair();
-
-			if(loc.line<se.out.size())
-			{
-				const auto& lineCols = se.out[loc.line - 1];
-				if(loc.index < lineCols.size())
-					col = lineCols[loc.index] & 0xFFFFFF;
-			}
+			const uint32_t col = se.out[loc.line - 1][loc.index] & 0xFFFFFF;
 
 			if (colStack.back() != col)
 			{

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -26,8 +26,7 @@ namespace slua::paint
 	using parse::sluaSyn;
 
 	inline bool skipSpace(AnySemOutput auto& se) {
-		//TODO: special comment coloring
-		return parse::skipSpace(se.in);//Doesnt write to the sem out thing
+		return parse::skipSpace(se);//TODO: identify TODO's FIXME's WIP's, etc
 	}
 	template<Tok tok, Tok overlayTok, bool SKIP_SPACE = true, AnySemOutput Se>
 	inline void paintName(Se& se, const parse::MpItmId<Se>& f)

@@ -10,52 +10,14 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slua/parser/Input.hpp>
+#include <slua/parser/ManageNewline.hpp>
+#include <slua/paint/SemOutputStream.hpp>
 
 namespace slua::parse
 {
 	constexpr bool isSpaceChar(const char ch)
 	{
 		return ch == ' ' || ch == '\f' || ch == '\t' || ch == '\v' || ch == '\n' || ch == '\r';
-	}
-	enum class ParseNewlineState : uint8_t
-	{
-		NONE,
-		CARI,
-	};
-
-	//Returns if newline was added
-	template <bool skipPreNl>
-	inline bool manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
-	{
-		switch (nlState)
-		{
-		case slua::parse::ParseNewlineState::NONE:
-			if (ch == '\n')
-			{
-				if constexpr (skipPreNl)in.skip();
-				in.newLine();
-				return true;
-			}
-			else if (ch == '\r')
-				nlState = slua::parse::ParseNewlineState::CARI;
-			break;
-		case slua::parse::ParseNewlineState::CARI:
-			if (ch != '\r')
-			{//  \r\n, or \r(normal char)
-				if constexpr (skipPreNl)in.skip();
-				in.newLine();
-				nlState = slua::parse::ParseNewlineState::NONE;
-				return true;
-			}
-			else// \r\r
-			{
-				if constexpr (skipPreNl)in.skip();
-				in.newLine();
-				return true;
-			}
-			break;
-		}
-		return false;
 	}
 
 	//Returns idx of non-space/comment char
@@ -121,9 +83,22 @@ namespace slua::parse
 		}
 		return idx;
 	}
+
+	template <typename T>
+	concept InputOrSemTokStream = AnyInput<T> || slua::paint::AnySemOutput<T>;
+
 	//Returns true, when idx changed
-	inline bool skipSpace(AnyInput auto& in)
+	template<InputOrSemTokStream SorIn>
+	inline bool skipSpace(SorIn& sOrIn)
 	{
+		constexpr bool isSem = slua::paint::AnySemOutput<SorIn>;
+		auto& in = *([&] {
+			if constexpr (isSem)
+				return &sOrIn.in;
+			else
+				return &sOrIn;
+			})();
+		
 		/*
 
 		Lua is a free-form language.
@@ -181,6 +156,8 @@ namespace slua::parse
 					continue;
 				}
 
+				if constexpr (isSem)
+					sOrIn.template add<paint::Tok::WHITESPACE>();
 				in.skip();
 				continue;
 			}
@@ -201,10 +178,14 @@ namespace slua::parse
 					if (in.peekAt(1 + level) == ']' && level == multilineCommentLevel)
 					{
 						insideMultilineComment = false;
+						if constexpr (isSem)
+							sOrIn.template add<paint::Tok::COMMENT_OUTER>(2 + level);
 						in.skip(2 + level); // Skip closing bracket
 						continue;
 					}
 				}
+				if constexpr (isSem)
+					sOrIn.template add<paint::Tok::WHITESPACE>();
 				in.skip(); // Skip other characters in multiline comment
 				continue;
 			}
@@ -226,6 +207,8 @@ namespace slua::parse
 
 			if (isSpaceChar(ch))
 			{
+				if constexpr (isSem)
+					sOrIn.template add<paint::Tok::WHITESPACE>();
 				in.skip();
 				res = true;
 				continue;
@@ -245,7 +228,7 @@ namespace slua::parse
 						while (in.peekAt(3 + level) == '=') // Count '=' signs
 							level++;
 
-						if constexpr (in.settings() & sluaSyn)
+						if constexpr (SorIn::settings() & sluaSyn && !isSem)
 						{
 							if (level == 0)
 								throwMultilineCommentMissingEqual(in);
@@ -255,12 +238,18 @@ namespace slua::parse
 						{
 							insideMultilineComment = true;
 							multilineCommentLevel = level;
+							if constexpr (isSem)
+								sOrIn.template add<paint::Tok::COMMENT_OUTER>(4 + level);
 							in.skip(4 + level); // Skip "--[=["
 							continue;
 						}
 					}
 
 					insideLineComment = true; // Otherwise, it's a single-line comment
+					
+					if constexpr (isSem)
+						sOrIn.template add<paint::Tok::COMMENT_OUTER>(2);
+
 					in.skip(2); // Skip "--"
 					continue;
 				}

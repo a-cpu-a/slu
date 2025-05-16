@@ -174,6 +174,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
 	{
+		//skipSpace(se);
 		se.move(itm.place);
 		/*if (std::holds_alternative<parse::ExprType::MULTI_OPERATION>(itm.data))
 		{
@@ -542,6 +543,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintTraitExpr(Se& se, const parse::TraitExpr& itm)
 	{
+		skipSpace(se);
 		se.move(itm.place);
 		for (const parse::TraitExprItem& i : itm.traitCombo)
 		{
@@ -561,6 +563,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm, const Tok tint = Tok::NONE)
 	{
+		skipSpace(se);
 		se.move(itm.place);
 		if(itm.hasMut)
 			paintKw<Tok::MUT>(se, "mut");
@@ -762,6 +765,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
 	{
+		skipSpace(se);
 		se.move(itm.place);
 		ezmatch(itm.data)(
 		varcase(const parse::StatementType::BLOCK<Se>&) {
@@ -958,6 +962,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintBlock(Se& se, const parse::Block<Se>& itm)
 	{
+		skipSpace(se);
 		se.move(itm.start);
 		for (const parse::Statement<Se>& stat : itm.statList)
 		{
