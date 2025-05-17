@@ -495,17 +495,17 @@ namespace slua::parse
 
 		return in.genData.addStat(place, std::move(res));
 	}
-	//StatementType::IF_THEN_ELSE<In>
-	template<bool isLoop,class T,bool BASIC, AnyInput In>
-	inline T readIfCond(In& in, const bool allowVarArg)
+	//TODO: handle basic
+	template<bool isLoop,bool forExpr,bool BASIC, AnyInput In>
+	inline auto readIfCond(In& in, const bool allowVarArg)
 	{
-		T res{};
+		BaseIfCond<In,forExpr> res{};
 
-		res.cond = readBasicExpr(in, allowVarArg);
+		res.cond = mayBoxFrom<forExpr>(readBasicExpr(in, allowVarArg));
 
 		if constexpr (In::settings() & sluaSyn)
 		{
-			res.bl = readStatOrExpr<isLoop, false>(in, allowVarArg);
+			res.bl = mayBoxFrom<forExpr>(readStatOrExpr<isLoop, false>(in, allowVarArg));
 
 			while (checkReadTextToken(in, "else"))
 			{
@@ -518,14 +518,14 @@ namespace slua::parse
 					continue;
 				}
 
-				res.elseBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
+				res.elseBlock = mayBoxFrom<forExpr>(readStatOrExpr<isLoop, false>(in, allowVarArg));
 				break;
 			}
 		}
 		else
 		{
 			requireToken(in, "then");
-			res.bl = readBlock<isLoop>(in, allowVarArg);
+			res.bl = wontBox(readBlock<isLoop>(in, allowVarArg));
 			while (checkReadTextToken(in, "elseif"))
 			{
 				Expression<In> elExpr = readExpr(in, allowVarArg);
@@ -536,7 +536,7 @@ namespace slua::parse
 			}
 
 			if (checkReadTextToken(in, "else"))
-				res.elseBlock = readBlock<isLoop>(in, allowVarArg);
+				res.elseBlock = wontBox(readBlock<isLoop>(in, allowVarArg));
 
 			requireToken(in, "end");
 		}
@@ -680,7 +680,7 @@ namespace slua::parse
 			if (checkReadTextToken(in, "if"))
 			{ // if exp then block {elseif exp then block} [else block] end
 				return in.genData.addStat(place, 
-					readIfCond<isLoop,StatementType::IF_THEN_ELSE<In>,false>(
+					readIfCond<isLoop,false,false>(
 						in,allowVarArg
 				));
 			}
