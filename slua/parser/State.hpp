@@ -161,6 +161,27 @@ namespace slua::parse
 	template<AnyCfgable CfgT>
 	using Block = SelV<CfgT, BlockV>;
 
+	namespace StatOrExprType
+	{
+		template<bool isSlua>
+		using STATv = StatementV<isSlua>;
+		template<AnyCfgable CfgT> using STAT = SelV<CfgT, STATv>;
+
+		template<bool isSlua>
+		using BLOCKv = BlockV<isSlua>;
+		template<AnyCfgable CfgT> using BLOCK = SelV<CfgT, BLOCKv>;
+
+		template<bool isSlua>
+		using EXPRv = ExpressionV<isSlua>;
+		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+	}
+	template<bool isSlua>
+	using StatOrExprV = std::variant<
+		StatOrExprType::STATv<isSlua>,
+		StatOrExprType::BLOCKv<isSlua>,
+		StatOrExprType::EXPRv<isSlua>
+	>;
+	template<AnyCfgable CfgT> using StatOrExpr = SelV<CfgT, StatOrExprV>;
 
 
 	namespace ArgsType
