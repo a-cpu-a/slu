@@ -25,7 +25,7 @@ Drop Statement {
 	drop (if x => y else => z);
 	```
 	Not one of the following:
-	B: does nothing if y and z are trivialy copyable, otherwise just like A.
-	C: error if they are trivialy copyable.
-	D: always drop both, even if one/both are trivialy copyable.
+	A: does nothing if y and z are trivialy copyable, otherwise just like A.
+	B: error if they are trivialy copyable.
+	C: always drop both, even if one/both are trivialy copyable.
 }
