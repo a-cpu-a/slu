@@ -64,3 +64,27 @@ match getArgV4() -> u8 {
 	};
 	else => 100;
 }
+
+
+
+enum Option(T) {
+	None,
+	Some = T
+}
+
+-- Desugars into the following:
+
+---Returns a nominally unique type, so you cant make a Option yourself by
+--- doing `None(T) | Some(T)`, only this function can return a Option
+struct fn Option(type T) 
+{
+	--Note: T in the following two statements cant refer to the local variable T, because they are global statements.
+	---Nominally unique unit type
+	struct None(T) {};
+	---Nominally different to T
+	struct Some(T) = T;
+	
+	return None(T) | Some(T);
+}
+
+--Use it: Option::Some(u8), Option(u8) Some{100} None{} None
