@@ -740,12 +740,20 @@ namespace slua::parse
 		template<AnyCfgable CfgT> using FOR_LOOP_GENERIC = SelV<CfgT, FOR_LOOP_GENERICv>;
 
 		template<bool isSlua>
-		struct FUNCTION_DEFv
+		struct FuncDefBase
 		{// "function funcname funcbody"    
 			Position place;//Right before func-name
 			MpItmIdV<isSlua> name; // name may contain dots, 1 colon if !isSlua
 			FunctionV<isSlua> func;
 		};
+		template<bool isSlua>
+		struct FUNCTION_DEFv : FuncDefBase<isSlua> {};
+		template<>
+		struct FUNCTION_DEFv<true> : FuncDefBase<true> 
+		{
+			ExportData exported = false;
+		};
+
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
 
 		template<bool isSlua>

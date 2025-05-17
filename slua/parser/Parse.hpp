@@ -353,6 +353,9 @@ namespace slua::parse
 	{
 		StatT res{};
 
+		if constexpr (In::settings() & sluaSyn)
+			res.exported = exported;
+
 		res.place = in.getLoc();
 
 		res.name = in.genData.resolveUnknown(readFuncName(in));
