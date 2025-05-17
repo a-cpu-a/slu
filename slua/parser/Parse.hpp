@@ -639,20 +639,20 @@ namespace slua::parse
 
 				if constexpr (In::settings() & sluaSyn)
 				{
-					res.bl = readDoOrStatOrRet<isLoop, SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
+					res.bl = readStatOrExpr<isLoop,false>(in, allowVarArg);
 
 					while (checkReadTextToken(in, "else"))
 					{
 						if (checkReadTextToken(in, "if"))
 						{
 							Expression<In> elExpr = readBasicExpr(in, allowVarArg);
-							Block<In> elBlock = readDoOrStatOrRet<isLoop, SemicolMode::REQUIRE_OR_KW>(in, allowVarArg);
+							StatOrExpr<In> elBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
 
 							res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
 							continue;
 						}
 
-						res.elseBlock = readDoOrStatOrRet<isLoop>(in, allowVarArg);
+						res.elseBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
 						break;
 					}
 				}
