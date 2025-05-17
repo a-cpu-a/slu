@@ -26,6 +26,30 @@ Enum Statement {
 	The default layout is optimized for size & speed, and can change depending on where it is used.
 	Ofcourse it can be fixed to a standard format, by using (TODO: ???), however this will prevent some optimizations.
 	
+	```slua
+	enum Option(T) {
+		None,
+		Some = T
+	}
+
+	-- Desugars into the following:
+
+	---Returns a nominally unique type, so you cant make a Option yourself by
+	--- doing `None(T) | Some(T)`, only this function can return a Option
+	struct fn Option(type T) 
+	{
+		--Note: T in the following two statements cant refer to the local variable T, because they are global statements.
+		---Nominally unique unit type
+		struct None(type T) {};
+		---Nominally different to T
+		struct Some(type T) = T;
+		
+		return None(T) | Some(T);
+	}
+
+	--Use it: Option::Some(u8), Option(u8) Some{100} None{} None
+	```
+	
 	Implementation {
 		Must support atleast 32768 fields.
 	}
