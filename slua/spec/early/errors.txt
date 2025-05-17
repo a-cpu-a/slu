@@ -9,7 +9,7 @@ New Syntax {
 	tryItem ::= pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | matchElseItem | ";"
 	
-	tryExp ::= "try" basicExp ["->" typeExp] "{" {tryStat} "}"
+	tryExp ::= "try" (‘{’ block ‘}’ ‘catch’ | basicExp) ["->" typeExp] "{" {tryStat} "}"
 	
 	basicExp @::= | tryExp
 	stat @::= | tryExp
@@ -76,9 +76,11 @@ Errors {
 	
 	fn myErrFunc() -> u8//Err {
 		-- ...
-		throw Err::OOM{};-- Error!
+		throw Err::Oom{};-- Error!
 		-- ...
 	}
+	
+	try{}catch{}
 
 	let u8 passTheError = myErrFunc()?;				-- Get the value or propagate the error
 	let u8 panicOnError = myErrFunc():get();		-- Get the value or panic
@@ -87,15 +89,15 @@ Errors {
 	let u8 differentError = myErrFunc()
 		:wrapError(fn(e){ return "Oh no: "..e }); -- Changes the error type, and prefixes the error message.
 	
-	let u8 qq = try(myErrFunc()){
+	let u8 qq = try myErrFunc() {
 	
 		-- The return type is optional. 
 		-- -> u8?(some variant), the ? and the stuff after it, would be needed since we arent matching every error.
 		
-		Err::PMsg x => panic$("Error " .. x.1);-- PMsg is a tuple, we are indexing into the first element
+		Err::Pmsg x => panic$("Error " .. x.1);-- Pmsg is a tuple, we are indexing into the first element
 		
-		Err::OOM => panic$("Out of memory!");
-		Err::Msg{v} => gen {
+		Err::Oom => panic$("Out of memory!");
+		Err::Msg{v} => do {
 			print(v);
 			
 			return 0;
@@ -111,7 +113,7 @@ Errors {
 		
 		Errors can be handled via exceptions (stack unwinding) or returned as values.
 		
-		The compiler can choose which will be faster in some cases, but is recommended to trust the developer.
+		The compiler can choose which will be faster in some cases.
 		A compiler flag to choose the default should exist, and most of the time it should default to "unwind"
 		
 		Return by value could be implemented using a register flag.
@@ -120,7 +122,7 @@ Errors {
 		Functions returning errors could be compiled twice, to allow users to use both exceptions and error values.
 		It is recommended for compilers to defer the duplication to as late as possible.
 		(Static linking -> no split)
-		(Dynamic linking -> no choice, but to split)
+		(Dynamic linking -> no choice but to split)
 		
 	}
 }
