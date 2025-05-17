@@ -115,7 +115,7 @@
 New Syntax {
 
 	macroSplice ::= "@(" comptimeExp ")"
-	macroInvoke ::= (comptimeVar"$" ProgrammableArgs)
+	macroInvoke ::= comptimeVar"$" ProgrammableArgs
 	macroVar ::= "$"comptimeVar
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
 	
@@ -131,7 +131,7 @@ New Syntax {
 	macroParamsBlock ::= ("(" macroParamList ")")
 		| ("[" macroParamList "]")
 		| ("{" macroParamList "}") 
-		| ("!>" macroParamList "<!")
+		| ("!(" macroParamList ")!")
 	
 	PreMacro ::=
 	
@@ -146,6 +146,7 @@ New Keywords {
 Macro {
 	
 	--TODO: a way to splice out basic keywords, like "mut", "ex" and "comptime"
+	-- maybe token sequences?
 	
 	Creates a new global or local macro with a name 'Name', that cant be modified.
 	
@@ -154,7 +155,7 @@ Macro {
 	macroSplice -> splices the token sequence(s) resulting from a expresion
 	macroVar -> shortcut for macroSplice, only works for token typed local variables.
 	macroInvoke -> run a macro & splice it.
-	The "!>" "<!" args mean that there is nothing surrounding the args.
+	The "!(" ")!" args mean that there is nothing surrounding the args.
 	"macro" functions are implicitly comptime.
 	
 	macroInvoke gets turned from 
@@ -173,7 +174,7 @@ Macro {
 	You can call macro-functions like normal comptime functions.
 	When doing that, semicolon seperators use commas, and you also need to use "()", or the other calling forms.
 	
-	When using "!> <!", you cant have more than 1 argument, and it cant be a list.
+	When using "!( )!", you cant have more than 1 argument, and it cant be a list.
 	
 	Right after a CommaList, you are not allowed to use a comma seperator.
 	Right after a SemicolList, you are not allowed to use a semicolon seperator.
