@@ -68,21 +68,25 @@ New Keywords {
 	mut
 	trait
 	type
+}
+
+New types {
+
+	trait
+	type
 	
 	lifetime
 	
 	void
 	bool
 	integer
-	number
-	ptrdata
+	fastnum
+	NumVec
 	Any
 	str
 	String
 	Table
-	Func
 	Userdata
-	Thread
 	
 	f8
 	f16
@@ -108,48 +112,56 @@ New Keywords {
 Official Types {
 
 	(names starting with a capital are complex types)
-
+	
+	trait {
+		Represents some trait as a value.
+	}
+	type {
+		Represents some type as a value.
+	}
+	lifetime {
+		Represents some lifetime as a value.
+	}
 	void {
-		Nothing, no type is allowed.
-		Variables and function arguments cant have this type.
-		Only allowed as function return type.
+		A unit, used as the default type.
 	}
 	bool {
-		A lua boolean
+		A boolean, either true or false
 	}
 	integer {
 		A 25, 32, 64, or 54 bit integer
 		54 bit integers are only for luajit, and older versions of lua (can store up to 2^53).
 		25 bit integers are for 32bit versions of lua pre 5.3 (can store up to 2^24
 		
-		Slua types can be cast into this, any overflows are still handled.
+		Slua types can be cast into this, any overflows are still errors.
 		
 		Platform specific, so on some very old platforms, might be 8 or 16 bit sized.
 	}
-	number {
+	NumVec {
+		a vector of numbers, ment for vectorial operations
+		```
+		const u8x4 = NumVec{4 of u8};
+		--...
+		let mulRes = 100 * u8x4{4,3,2,1};
+		```
+	}
+	fastnum {
 		A 32 or 64 bit float, might also be a integer on some lua versions.
 		
-		Slua types can be cast into this, any overflows are still handled.
-	}
-	ptrdata {
-		Basic data / pointer passed from compiler (light-data)
+		Slua types can be cast into this, any overflows are still errors.
 	}
 	
 	Any {
 		Any type is allowed, except void
 	}
 	str {
-		A lua-like string, immutable.
-		Unlike lua, this is just a reference to a real string, or part of one.
+		A part of a owning string, immutable.
 		
-		a sized array of utf8 bytes, or utf16 chars.
+		a reference to a string of utf8 bytes, or utf16 chars.
 		
-		Must be valid utf8, using the old standard that allows charaters up to 32~ bits, and without any surrogate pairs.
-		Or valid utf16, with no malformed surrogate pairs.
+		Must be valid utf16, with no malformed surrogate pairs, or valid utf8, using the old standard that allows charaters up to 32~ bits, without any surrogate pairs.
 		
-		On most platforms the contents are utf8.
-		
-		Some platforms, like java & javascript use utf16.
+		On most hosts the contents are utf8, some hosts, like java & javascript use utf16.
 	}
 	String {
 		A mutable string.
@@ -160,29 +172,22 @@ Official Types {
 	}
 	Table {
 		A lua like table, can have fields and indices
-		Valid keys: any lua type, except nil or NaN. Yes, this also includes floats and negative numbers.
-	}
-	Func {
-		Any function: C, lua, etc
+		Valid keys: any primitive type (Table,Func,String,uX,iX,fX,true/false,...), except void or NaN. 
+		Yes, this also includes floats and negative numbers.
 	}
 	Userdata {
 		Special data passed from the compiler
 	}
-	Thread {
-		The coroutines
-	}
 	f8,f16,f128 {
 		Reserved, may be used in the future.
-		(intended for uses outside of lua, but will be supported inside lua, when added)
+		(intended for uses outside of simple hosts like lua, but will be supported inside them, when added)
 	}
 	f32,f64 {
 		32 or 64 bit floats.
 		
 		Implementation {
-			When compiling to lua, f32 may be interpreted as f64, for performance reasons.
-			Do not rely on that!
-			
-			if only f32 is natively available, then f64 is emulated.
+			If f32/f64 is not natively supported, then it is emulated.
+			If the native implementation has bugs, then it is also emulated.
 		}
 	}
 	i8,i16,i32,i64,i128 {
@@ -196,39 +201,20 @@ Official Types {
 		Optimized 8,16,32,64 or 128 bit unsigned integers.
 		Implementation {
 			u32, u64 may be emulated on platforms like luajit, or 32bit versions of lua.
-			u64 multiplication, division, modulo, exp are all emulated on normal lua, but are optimized on slua runtimes (luajit might be optimized when possible too).
+			u64 multiplication, division, modulo, exp are all emulated on normal lua, (luajit might be optimized when possible).
 			u128 is always emulated in lua.
 		}
 	}
 	isize {
-		i32, i54, i64, ... depending on platform.
+		i32, i48, i54, i64, ... depending on platform.
 	}
 	usize {
-		u32, u54, u64, ... depending on platform.
+		u32, u48, u54, u64, ... depending on platform.
 	}
 }
 
 Type Specifiers {
 	
-	Array {
-		Format: "[" X arraySizer "]"  --TODO: should this exist: {arraySizer}
-		Sizes must be positive integers, or be zero
-		
-		Multiple array sizers can be used, to create multi-dimensional arrays
-		
-		Unlike table arrays, negative or zero indices will error.
-		Out of bounds access will also error.
-		
-		Indices start at 1
-		
-		Implementation {
-			Accessing elements through normal lua code is not supported, unless exported to lua.
-			
-			multi-dimensional arrays may be flattened into less dimensions.
-			
-			The compiler must prove that indices will always be valid, before removing run-time checks.
-		}
-	}
 	Slice {
 		Format: "[" X "]"
 		
@@ -333,9 +319,9 @@ Type Specifiers {
 		
 		drop myPtr2;--Drops the pointer, not really meaningfull
 		
-		let *mut u8 firstArgPtr = *mut firstArg;
-		
 	:::unsafe:
+	
+		let *mut u8 firstArgPtr = *mut firstArg;
 		
 		firstArgPtr = 4;
 		
