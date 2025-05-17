@@ -4,10 +4,10 @@
 
 New Syntax {
 	
-	statOrBasicExpr ::= ["->" typeExp] (statOrRetOsc | "=>" basicExp)
-	statOrExpr ::= ["->" typeExp] (statOrRetOsc | "=>" exp)
+	statOrBasicExpr ::= (statOrRetOsc | "=>" basicExp)
+	statOrExpr ::= (statOrRetOsc | "=>" exp)
 	
-	ifExpRoot ::= ifcond [statOrExpr {‘else’ ifcond statOrExpr} ‘else’ [ifcond]]
+	ifExpRoot ::= ifcond ["->" typeExp] [statOrExpr {‘else’ ifcond statOrExpr} ‘else’ [ifcond]]
 	
 	ifcond ::= ‘if’ basicExp
 	
@@ -33,16 +33,18 @@ If Statement {
 	
 	```slua
 
-	let x = if true => 0 else => 1
+	let x = if true -> 0...1 
+				=> 0 
+				else => 1
 
 	if true => 100
-	else if true -> u8 => 100
+	else if true => 100
 	else if true => {1,2,3}
-	else if true -> {u8,u8,u8} => {1,2,3}
+	else if true => {1,2,3}
 	else if true => do {do return 100;}
-	else if true -> u8 => do {do return 100;}
+	else if true => do {do return 100;}
 	else if true {return 100;}
-	else if true -> u8 {return 100;}
+	else if true {return 100;}
 	else if true print("Hello")
 	else if true => print("Hello")
 	else		 => do {print("Hello");}
@@ -60,20 +62,5 @@ If Statement {
 	
 	Implementation {
 		May be a jump table, if else chain, etc.
-	}
-	
-	Archive {
-		```
-		--Experimental lambda form:
-		if true 100
-		else if true -> u8 => 100
-		else if true {1,2,3}
-		else if true -> {u8,u8,u8} => {1,2,3}
-		else if true do {do return 100;}
-		else if true -> u8 => do {do return 100;}
-		else if true -> u8 {return 100;}
-		else if true print("Hello")
-		else if true do {print("Hello");}
-		```
 	}
 }
