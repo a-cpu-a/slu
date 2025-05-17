@@ -17,4 +17,15 @@ Drop Statement {
 	
 	This is useful, for deleting variables before they have gone out of scope.
 	
+	When passed a deref type (*&xxx), the lifetime of that variable is dropped.
+	static, and thread local lifetimes are not allowed.
+	
+	The following drops both y and z, cuz the if doesnt decay the (de)references to both variables.
+	```
+	drop (if x => y else => z);
+	```
+	Not one of the following:
+	B: does nothing if y and z are trivialy copyable, otherwise just like A.
+	C: error if they are trivialy copyable.
+	D: always drop both, even if one/both are trivialy copyable.
 }
