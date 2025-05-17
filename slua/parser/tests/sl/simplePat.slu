@@ -1,0 +1,30 @@
+
+let _ = 3;
+
+
+
+let {4 of u8} __b__ = {4 of 1}
+let {44 of u8} _c = {44 of 1};
+let {__a,__,_c_} = {1,2,3}
+let [u8] {_a,_,c_,..} = {1,2,3}
+
+
+let u8x1 bbb = {1};
+let u8 bb = 1;
+let &&mut u8 x3 = &&mut bb
+
+let integer x = 4;
+
+let [u8] {x7,y7,z8,..} = {0,0xF,0xFFFFFFFF};
+
+let {x4,y6} = 1,2.0;
+let {x5,y7} = 1,{2.0};
+
+
+let {xj,yj,zj} = 1
+
+let [u8] {__aa, ..} = {1,2,3};
+
+let {aa_N3,b_N3,c_N3} = {1,2,3};
+
+let u8x3 {aa_U8arr3_,b_U8arr3,c_U8arr3} = {1,2,3};

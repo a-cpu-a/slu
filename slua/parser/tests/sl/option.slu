@@ -1,0 +1,8 @@
+
+let Z_test = Some{3}; --Option(3)
+
+--Z_test is Option::Some(3);
+
+Z_test = None;
+
+--Z_test is Option::None(3);

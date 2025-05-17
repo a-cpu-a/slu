@@ -1,0 +1,13 @@
+
+
+let x_test = NoTrivialCopy{4};
+let mut v_test = Vec{};
+
+v_test.add(x_test);
+let mut w_test = *x_test;
+v_test.add(v_test[0]);
+
+v_test.add(x_test); 	--moves x_test out
+w_test = x_test; --Error, x_test has no value!
+v_test.add(v_test[0]); --Error, self and arg are of the same object/lifetime thing.
+
