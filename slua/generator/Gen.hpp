@@ -266,6 +266,7 @@ namespace slua::parse
 			genLiteral(out,var.v);
 		},
 		varcase(const ExprType::FUNCTION_DEF<Out>&) {
+			out.add("function ");
 			genFuncDef(out, var.v,""sv);
 		},
 		varcase(const ExprType::FUNC_CALL<Out>&) {
@@ -442,8 +443,7 @@ namespace slua::parse
 	template<AnyOutput Out>
 	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
 	{
-		out.add("function ")
-			.add(name)
+		out.add(name)
 			.add('(');
 
 		for (const Parameter<Out>& par : var.params)
@@ -730,11 +730,17 @@ namespace slua::parse
 				.addNewl(sel<Out>("end","}"));
 		},
 
+		varcase(const StatementType::FN<Out>&) {
+			out.add("fn ");
+			genFuncDef(out, var.func, out.db.asSv(var.name));
+		},
+
 		varcase(const StatementType::FUNCTION_DEF<Out>&) {
+			out.add("function ");
 			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 		varcase(const StatementType::LOCAL_FUNCTION_DEF<Out>&) {
-			out.add("local ");
+			out.add("local function ");
 			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 

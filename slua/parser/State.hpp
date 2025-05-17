@@ -741,12 +741,16 @@ namespace slua::parse
 
 		template<bool isSlua>
 		struct FUNCTION_DEFv
-		{// "function funcname funcbody"    //n may contain dots, 1 colon
+		{// "function funcname funcbody"    
 			Position place;//Right before func-name
-			MpItmIdV<isSlua> name;
+			MpItmIdV<isSlua> name; // name may contain dots, 1 colon if !isSlua
 			FunctionV<isSlua> func;
 		};
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
+
+		template<bool isSlua>
+		struct FNv : FUNCTION_DEFv<isSlua> {};
+		template<AnyCfgable CfgT> using FN = SelV<CfgT, FNv>;
 
 		template<bool isSlua>
 		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlua> {};
@@ -837,6 +841,7 @@ namespace slua::parse
 		StatementType::FOR_LOOP_GENERICv<isSlua>,	// "for namelist in explist do block end"
 
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
+		StatementType::FNv<isSlua>,					// "fn funcname funcbody"
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
 
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
