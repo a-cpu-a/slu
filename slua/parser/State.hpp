@@ -178,6 +178,8 @@ namespace slua::parse
 	>;
 	template<AnyCfgable CfgT> using StatOrExpr = SelV<CfgT, StatOrExprV>;
 
+	template<bool isSlua> using SoeOrBlockV = Sel<isSlua,BlockV<isSlua>,StatOrExprV<isSlua>>;
+	template<AnyCfgable CfgT> using SoeOrBlock = SelV<CfgT, SoeOrBlockV>;
 
 	namespace ArgsType
 	{
@@ -727,9 +729,9 @@ namespace slua::parse
 		struct IF_THEN_ELSEv
 		{
 			ExpressionV<isSlua> cond;
-			BlockV<isSlua> bl;
-			std::vector<std::pair<ExpressionV<isSlua>, BlockV<isSlua>>> elseIfs;
-			std::optional<BlockV<isSlua>> elseBlock;
+			SoeOrBlockV<isSlua> bl;
+			std::vector<std::pair<ExpressionV<isSlua>, SoeOrBlockV<isSlua>>> elseIfs;
+			std::optional<SoeOrBlockV<isSlua>> elseBlock;
 		};
 		template<AnyCfgable CfgT> using IF_THEN_ELSE = SelV<CfgT, IF_THEN_ELSEv>;
 

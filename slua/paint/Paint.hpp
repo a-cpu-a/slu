@@ -676,6 +676,24 @@ namespace slua::paint
 		else
 			paintBlock(se, itm);
 	}
+	template<bool DO_END, AnySemOutput Se>
+	inline void paintSoeOrBlock(Se& se, const parse::SoeOrBlock<Se>& itm)
+	{
+		if constexpr (Se::settings() & sluaSyn)
+		{
+			ezmatch(itm)(
+			varcase(const parse::StatOrExprType::BLOCK<Se>&) {
+				paintStatOrRet<DO_END>(se, var);
+			},
+			varcase(const parse::StatOrExprType::EXPR<Se>&) {
+				paintKw<Tok::GEN_OP>(se, "=>");
+				paintExpr(se, var);
+			}
+			);
+		}
+		else
+			paintStatOrRet<DO_END>(se, itm);
+	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
 	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
@@ -829,7 +847,7 @@ namespace slua::paint
 			if constexpr (!(Se::settings() & sluaSyn))
 				paintKw<Tok::COND_STAT>(se, "then");
 
-			paintStatOrRet<false>(se, var.bl);
+			paintSoeOrBlock<false>(se, var.bl);
 			for (const auto& [cond,bl] : var.elseIfs)
 			{
 				if constexpr (Se::settings() & sluaSyn)
@@ -844,12 +862,12 @@ namespace slua::paint
 					paintExpr(se, cond);
 					paintKw<Tok::COND_STAT>(se, "then");
 				}
-				paintStatOrRet<false>(se, bl);
+				paintSoeOrBlock<false>(se, bl);
 			}
 			if (var.elseBlock.has_value())
 			{
 				paintKw<Tok::COND_STAT>(se, "else");
-				paintStatOrRet<false>(se, *var.elseBlock);
+				paintSoeOrBlock<false>(se, *var.elseBlock);
 			}
 
 			if constexpr (!(Se::settings() & sluaSyn))

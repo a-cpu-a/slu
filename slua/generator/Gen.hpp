@@ -526,6 +526,22 @@ namespace slua::parse
 		);
 	}
 
+	template<AnyOutput Out>
+	inline void genStatOrExpr(Out& out, const parse::StatOrExpr<Out>& obj)
+	{
+		ezmatch(obj)(
+		varcase(const parse::StatOrExprType::BLOCK<Out>&) {
+			out.newLine().add('{').tabUpNewl();
+			genBlock(out, var.bl);
+			out.unTabNewl().add('}');
+		},
+		varcase(const parse::StatOrExprType::EXPR<Out>&) {
+			out.add("=> ");
+			genExpr(out, var);
+		}
+		);
+	}
+
 	template<size_t N,AnyOutput Out>
 	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
 	{
@@ -642,18 +658,18 @@ namespace slua::parse
 
 		varcase(const StatementType::IF_THEN_ELSE<Out>&) {
 			out.add("if ");
-			genExprParens(out, var.cond);
 
 			if constexpr (Out::settings() & sluaSyn)
-				out.newLine().add('{');
+			{
+				genExpr(out, var.cond);
+				genStatOrExpr(out, var.bl);
+			}
 			else
-				out.add(" then");
-			out.tabUpNewl();
-
-			genBlock(out, var.bl);
-
-			if constexpr (Out::settings() & sluaSyn)
-				out.unTabNewl().add('}').tabUpNewl();
+			{
+				genExprParens(out, var.cond);
+				out.add(" then").tabUpNewl();
+				genBlock(out, var.bl);
+			}
 
 			if (!var.elseIfs.empty())
 			{
@@ -661,18 +677,18 @@ namespace slua::parse
 				{
 					out.unTabNewl()
 						.add(sel<Out>("elseif ", "else if "));
-					genExprParens(out, expr);
 
 					if constexpr (Out::settings() & sluaSyn)
-						out.newLine().add('{');
+					{
+						genExpr(out, expr);
+						genStatOrExpr(out, bl);
+					}
 					else
-						out.add(" then");
-					out.tabUpNewl();
-
-					genBlock(out, bl);
-
-					if constexpr (Out::settings() & sluaSyn)
-						out.unTabNewl().add('}').tabUpNewl();
+					{
+						genExprParens(out, expr);
+						out.add(" then").tabUpNewl();
+						genBlock(out, bl);
+					}
 				}
 			}
 			if (var.elseBlock)
@@ -681,13 +697,14 @@ namespace slua::parse
 					.add("else");
 
 				if constexpr (Out::settings() & sluaSyn)
-					out.newLine().add('{');
-				out.tabUpNewl();
-
-				genBlock(out, *var.elseBlock);
-
-				if constexpr (Out::settings() & sluaSyn)
-					out.unTabNewl().add('}').tabUpNewl();
+				{
+					genStatOrExpr(out, *var.elseBlock);
+				}
+				else
+				{
+					out.tabUpNewl();
+					genBlock(out, *var.elseBlock);
+				}
 			}
 			out.unTabNewl();
 
