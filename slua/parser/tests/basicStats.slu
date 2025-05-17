@@ -1,0 +1,21 @@
+
+ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
+ex safe fn helloWorld2() -> &mut u8 {}
+ex fn helloWorld3() -> &[u8] {}
+unsafe fn helloWorld4() -> &mut[str] {}
+safe fn helloWorld5() -> *mut[str] {}
+fn helloWorld0() -> *const[str] {}
+
+drop helloWorld0
+
+use self::helloWorld0::*
+use crate::helloWorld1::*
+use self::helloWorld0 as hw0
+use crate::helloWorld1 as hw1
+use helloWorld2 as hw2
+
+
+const X1 = 4
+const X2 = "Hello string"
+const X3 = true or true
+const X4 = [u8]
