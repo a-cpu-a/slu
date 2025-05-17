@@ -164,10 +164,6 @@ namespace slua::parse
 	namespace StatOrExprType
 	{
 		template<bool isSlua>
-		using STATv = StatementV<isSlua>;
-		template<AnyCfgable CfgT> using STAT = SelV<CfgT, STATv>;
-
-		template<bool isSlua>
 		using BLOCKv = BlockV<isSlua>;
 		template<AnyCfgable CfgT> using BLOCK = SelV<CfgT, BLOCKv>;
 
@@ -177,7 +173,6 @@ namespace slua::parse
 	}
 	template<bool isSlua>
 	using StatOrExprV = std::variant<
-		StatOrExprType::STATv<isSlua>,
 		StatOrExprType::BLOCKv<isSlua>,
 		StatOrExprType::EXPRv<isSlua>
 	>;
