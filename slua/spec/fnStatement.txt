@@ -6,7 +6,7 @@ New Syntax {
 
 	PreFn ::=
 	
-	stat @::= | OptExportPrefix [safety] PreFn ["type"] "fn" Name "(" [paramList] ")" ["->" typeExp] statOrRet
+	stat @::= | OptExportPrefix [safety] PreFn ["struct"] "fn" Name "(" [paramList] ")" ["->" typeExp] statOrRet
 }
 
 New Keywords {
@@ -19,8 +19,7 @@ Fn Statement {
 	Creates a new global or local function with a name 'Name', that cant be modified.
 	
 	
-	If the "type" tag is added, then this function returns a nominal/strong type, and it must always return a type or a error.
-	The returned type must not have nominality.
+	If the "struct" tag is added, then this function returns a nominal/strong type, and it must always return a type or a error.
 	
 	
 	Param types, and return type are assigned automatically, if missing.
