@@ -1,13 +1,13 @@
-#
-# Dependencies: Lua, annotation
+﻿#
+# Dependencies: Lua, annotation, structStatement
 #
 
 New Syntax {
 	
-	enumfield ::= annotations OptExportPrefix Name ["=" type]
+	enumfield ::= annotations OptExportPrefix Name [structInit]
 	enumfieldList ::= enumfield {fieldsep enumfield} [fieldsep]
 	
-	stat @::= | OptExportPrefix "enum" Name "{" [enumfieldList] "}"
+	stat @::= | OptExportPrefix "enum" Name ["(" [paramList] ")"] "{" [enumfieldList] "}"
 }
 
 New Keywords {

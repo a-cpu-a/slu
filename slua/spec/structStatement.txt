@@ -4,7 +4,9 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "struct" Name "{" [structConstructor] "}"
+	structInit ::= "{" [structConstructor] "}" | "=" typeExp
+	
+	stat @::= | OptExportPrefix "struct" Name ["(" [paramList] ")"] structInit
 }
 
 New Keywords {

@@ -1,10 +1,10 @@
 #
-# Dependencies: Lua, annotation
+# Dependencies: Lua, annotation, structStatement
 #
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "union" Name "{" [structConstructor] "}"
+	stat @::= | OptExportPrefix "union" Name ["(" [paramList] ")"] structInit
 }
 
 New Keywords {
