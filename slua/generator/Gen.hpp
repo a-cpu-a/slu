@@ -763,12 +763,6 @@ namespace slua::parse
 			genUseVariant(out, var.useVariant);
 			out.addNewl(";");
 		},
-		varcase(const StatementType::MOD_CRATE&) {
-			out.addNewl("mod crate;");
-		},
-		varcase(const StatementType::MOD_SELF&) {
-			out.addNewl("mod self;");
-		},
 		varcase(const StatementType::MOD_DEF<Out>&) {
 			if (var.exported)out.add("ex ");
 			out.add("mod ").add(out.db.asSv(var.name)).addNewl(";");

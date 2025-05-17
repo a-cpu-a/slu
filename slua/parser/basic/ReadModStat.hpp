@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -18,24 +18,7 @@ namespace slua::parse
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
-			std::string strName =
-				exported
-				? readName(in)
-				: readName<true>(in);
-			if (!exported)
-			{
-				if (strName == "self")
-				{
-					in.genData.addStat(place, StatementType::MOD_SELF{});
-					return true;
-				}
-				if (strName == "crate")
-				{
-					in.genData.addStat(place, StatementType::MOD_CRATE{});
-					return true;
-				}
-			}
-			const MpItmId<In> modName = in.genData.resolveUnknown(strName);
+			const MpItmId<In> modName = in.genData.resolveUnknown(readName(in));
 
 			if (checkReadTextToken(in, "as"))
 			{

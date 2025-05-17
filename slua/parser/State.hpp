@@ -812,8 +812,6 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using MOD_DEF_INLINE = SelV<CfgT, MOD_DEF_INLINEv>;
 
-		struct MOD_SELF {};
-		struct MOD_CRATE {};
 	};
 
 	template<bool isSlua>
@@ -846,8 +844,6 @@ namespace slua::parse
 
 		StatementType::DROPv<isSlua>,	// "drop" Name
 		StatementType::USE,				// "use" ...
-		StatementType::MOD_SELF,				// "mod" "self"
-		StatementType::MOD_CRATE,				// "mod" "crate"
 		StatementType::MOD_DEFv<isSlua>,		// "mod" Name
 		StatementType::MOD_DEF_INLINEv<isSlua>	// "mod" Name "as" "{" block "}"
 	> ;
