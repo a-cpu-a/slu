@@ -1,0 +1,28 @@
+
+--type spec
+
+
+--deref
+
+
+		let intX = 4;
+		
+		let *&mut u8 xAlias = intX;
+		xAlias = 3;
+		drop xAlias; --Allow use of intX, once again
+		
+		--assertEq$(intX,3);
+		
+		
+		unsafe {
+			let **mut u8 xAliasUnsafe = *mut intX;
+			xAliasUnsafe = 2;
+		}
+		--assertEq$(intX,2);
+		
+		
+		let intXBorrow = &intX;
+		
+		let *&/intX u8 intXAlias = *intXBorrow; --The type represents, a derefed reference for some u8 with lifetime "intX".
+		let intXCopy = *intXBorrow; --The type is just u8, as a trivial copy was possible.
+		

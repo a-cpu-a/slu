@@ -1,0 +1,16 @@
+
+--type spec
+
+--borrow
+
+		let item1 = 4
+		let item2 = 5
+		
+		let &/item1 u8 myRef = &item1;
+		
+		let &mut u8 myRef2 = &mut item2;-- The annotation is inferred here.
+		
+		drop myRef2;-- Required, because not adding this, will produce a soft-error.
+		
+		let &/item1/item2 u8 z = &item1;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		

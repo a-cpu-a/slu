@@ -1,0 +1,66 @@
+
+
+
+
+
+
+
+let #u8 zGC = 4;
+let #u8 wGC = alloc 4;
+
+
+
+	
+--todo spec
+
+
+		fn prefixUpperify(str prefix,mut String s) -> String {
+			if (#s == 0) return s;
+			s[1] = s[1].upper()
+			return prefix..s;
+		}
+
+
+
+struct Qu {
+	ex x = mut u32;
+	ex y = mut u32;
+	ex z = mut u32;
+};
+struct Qu2 {
+	ex mut u32,
+	ex mut u32,
+	ex mut u32;
+	ex x = mut u32;
+	ex y = mut u32;
+	ex z = mut u32;
+};
+newtype const Qu3 = struct{
+	ex x = mut u32;
+	ex y = mut u32;
+	ex z = mut u32;
+}
+
+
+
+match getArgV4() -> u8 {
+	&mut TnTArr4{
+		mut &mut _aa,
+		{b_4="Hi" or "Hello",u8 b3_4,c4_4, ..},
+		Tn_4{
+			|t_4| Vec(u8) a2_4,
+			|n4_| b2_4 = 54
+		},
+		mut {
+			|t| a2_45 = 1...100,
+			|n| None
+		} cicada,
+		..
+	} => do {
+		cicada.t = 4;
+		a2_4:clear();
+		print$("b_4: {}",b_4);
+		panic$();
+	};
+	else => 100;
+}

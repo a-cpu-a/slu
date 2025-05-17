@@ -1,6 +1,6 @@
 
 
-local fieldTest = {
+fieldTest = {
 	apple,
 	syn4 = 4,
 	syn3 --[=[]=]= 3,

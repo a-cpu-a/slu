@@ -1,0 +1,64 @@
+
+let mut &mut _TnTObj{
+	|__t| mut &mut a44__,
+	|n_| b44,
+	|_t2_| mut BTn___{
+		|t__| a221,
+		|n_| b221
+	}  _wrap1,
+	|___n2| mut {
+		|_t| ax2x,
+		|__n| _b2z
+	} _wrap21,
+	..
+} _wrap2 = __getTnT_Obj();
+
+
+
+
+let mut &mut TnT{
+	mut &mut {
+		aa,
+		b3
+	} wrap33,
+	b,
+	mut Tn{
+		a2,
+		b2
+	} wrap334,
+	..
+} wrap331 = getTnT();
+
+
+let &mut TnTArr{
+	&mut {
+		u32 aa44,
+		u64 b344
+	},
+	b222,
+	Tn{
+		|t| [u128] a244,
+		|n| {34 of u8} b244,
+		..
+	},
+	_,
+	d2444,
+	..
+} = getTnT();
+
+
+
+
+let &mut TnTArr4{
+	mut &mut _aa,
+	{b_4,b3_4,c4_4, ..},
+	Tn_4{
+		|t_4| a2_4,
+		|n4_| b2_4
+	},
+	mut {
+		|t| a2_45,
+		|n| b2_45
+	} cicada,
+	..
+} = getTnT_4();

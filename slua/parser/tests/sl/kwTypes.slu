@@ -1,0 +1,7 @@
+
+const trait BasicMathOps = Add + Sub + Mul + Div + Exp;
+
+const type VecU8 = Vec(u8);
+const type GlobalUnit = {};
+const type TraitTypeAlias = trait;
+const type TypeTypeAlias = type;

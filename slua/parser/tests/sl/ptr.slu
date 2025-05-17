@@ -1,0 +1,22 @@
+
+--type spec
+
+
+--ptr
+		let firstArg = 1
+		let secondArg = 2
+		
+		
+		--Its (mostly) safe to make pointers, but not to use them.
+		--Some hosts dont support pointers. (Most do, like js,java,lua,cpp, ...)
+		
+		let *const u8 myPtr = *const firstArg;
+		
+		let *mut u8 myPtr2 = *mut secondArg;
+		
+		drop myPtr2;--Drops the pointer, not really meaningfull
+		
+		let *mut u8 firstArgPtr = *mut firstArg;
+		
+		
+		firstArgPtr = 4;
