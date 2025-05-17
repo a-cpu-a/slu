@@ -882,14 +882,6 @@ namespace slua::paint
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);
 		},
-		varcase(const parse::StatementType::MOD_CRATE) {
-			paintKw<Tok::CON_STAT>(se, "mod");
-			paintKw<Tok::CON_STAT>(se, "crate");
-		},
-		varcase(const parse::StatementType::MOD_SELF) {
-			paintKw<Tok::CON_STAT>(se, "mod");
-			paintKw<Tok::VAR_STAT>(se, "self");
-		},
 		varcase(const parse::StatementType::BREAK) {
 			paintKw<Tok::COND_STAT>(se, "break");
 		},
