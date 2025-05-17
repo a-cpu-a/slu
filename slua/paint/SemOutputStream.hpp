@@ -51,7 +51,6 @@ namespace slua::paint
 
 		EX_TINT,//ex (overlay over export, which has the same color as next token)
 		COMP_TINT,//comptime (overlay over comptime, which has the same color as next token)
-		TYPE_TAG, //type
 
 		ASSIGN,// =
 		PAT_RESTRICT,// =
