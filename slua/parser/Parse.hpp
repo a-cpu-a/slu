@@ -243,6 +243,8 @@ namespace slua::parse
 	template<AnyInput In>
 	inline bool readUchStat(In& in, const Position place, const ExportData exported)
 	{
+		if (in.isOob(1))
+			return false;
 		const char ch2 = in.peekAt(1);
 		switch (ch2)
 		{
@@ -262,6 +264,107 @@ namespace slua::parse
 		return false;
 	}
 
+	template<bool isLoop, AnyInput In>
+	inline bool readFchStat(In& in, const Position place, const ExportData exported, const bool allowVarArg)
+	{
+		if (in.isOob(1))
+			return false;
+		const char ch2 = in.peekAt(1);
+		switch (ch2)
+		{
+		case 'n':
+			if constexpr (In::settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "fn"))
+				{
+					readFunctionStatement<isLoop, StatementType::FN<In>>(
+						in, place, allowVarArg, exported
+					);
+					return true;
+				}
+			}
+			break;
+		case 'u':
+			if (checkReadTextToken(in, "function"))
+			{
+				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>>(
+					in, place, allowVarArg, exported
+				);
+				return true;
+			}
+			break;
+		case 'o':
+			if constexpr (In::settings() & sluaSyn)
+			{
+				if (exported)
+					break;
+			}
+			if (checkReadTextToken(in, "for"))
+			{
+				/*
+				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
+				 for namelist in explist do block end |
+				*/
+
+				Sel<In::settings()& sluaSyn, NameList<In>, Pat> names;
+				if constexpr (In::settings() & sluaSyn)
+					names = readPat(in, true);
+				else
+					names = readNameList(in);
+
+				bool isNumeric = false;
+
+				if constexpr (In::settings() & sluaSyn)
+					isNumeric = checkReadToken(in, "=");
+				else//1 name, then MAYBE equal
+					isNumeric = names.size() == 1 && checkReadToken(in, "=");
+				if (isNumeric)
+				{
+					StatementType::FOR_LOOP_NUMERIC<In> res{};
+					if constexpr (In::settings() & sluaSyn)
+						res.varName = std::move(names);
+					else
+						res.varName = names[0];
+
+					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+					res.start = readExpr(in, allowVarArg);
+					requireToken(in, ",");
+					res.end = readExpr<In::settings() & sluaSyn>(in, allowVarArg);
+
+					if (checkReadToken(in, ","))
+						res.step = readExpr<In::settings() & sluaSyn>(in, allowVarArg);
+
+
+
+					res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
+
+					in.genData.addStat(place, std::move(res));
+					return true;
+				}
+				// Generic Loop
+				// for namelist in explist do block end | 
+
+				StatementType::FOR_LOOP_GENERIC<In> res{};
+				res.varNames = std::move(names);
+
+				requireToken(in, "in");
+				if constexpr (In::settings() & sluaSyn)
+					res.exprs = readExpr<true>(in, allowVarArg);
+				else
+					res.exprs = readExpList(in, allowVarArg);
+
+
+				res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
+
+				in.genData.addStat(place, std::move(res));
+				return true;
+			}
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
 	template<bool isLoop, AnyInput In>
 	inline bool readLchStat(In& in, const Position place, const ExportData exported, const bool allowVarArg)
 	{
@@ -425,77 +528,8 @@ namespace slua::parse
 			return readLabel(in, place);
 
 		case 'f'://for?, function?, fn?
-			if (checkReadTextToken(in, "for"))
-			{
-				/*
-				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
-				 for namelist in explist do block end |
-				*/
-
-				Sel<In::settings()&sluaSyn, NameList<In>,Pat> names;
-				if constexpr (In::settings() & sluaSyn)
-					names = readPat(in, true);
-				else
-					names = readNameList(in);
-				
-				bool isNumeric = false;
-
-				if constexpr (In::settings() & sluaSyn)
-					isNumeric = checkReadToken(in, "=");
-				else//1 name, then MAYBE equal
-					isNumeric = names.size() == 1 && checkReadToken(in, "=");
-				if (isNumeric)
-				{
-					StatementType::FOR_LOOP_NUMERIC<In> res{};
-					if constexpr (In::settings() & sluaSyn)
-						res.varName = std::move(names);
-					else
-						res.varName = names[0];
-
-					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-					res.start = readExpr(in, allowVarArg);
-					requireToken(in, ",");
-					res.end = readExpr<In::settings() & sluaSyn>(in, allowVarArg);
-
-					if (checkReadToken(in, ","))
-						res.step = readExpr<In::settings() & sluaSyn>(in, allowVarArg);
-
-
-
-					res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
-
-					return in.genData.addStat(place, std::move(res));
-				}
-				// Generic Loop
-				// for namelist in explist do block end | 
-
-				StatementType::FOR_LOOP_GENERIC<In> res{};
-				res.varNames = std::move(names);
-
-				requireToken(in, "in");
-				if constexpr (In::settings() & sluaSyn)
-					res.exprs = readExpr<true>(in, allowVarArg);
-				else
-					res.exprs = readExpList(in, allowVarArg);
-
-
-				res.bl = readDoOrStatOrRet<true>(in,allowVarArg);
-
-				return in.genData.addStat(place, std::move(res));
-			}
-			if (checkReadTextToken(in, "function")) {
-				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>>(
-					in, place, allowVarArg, false
-				);
-			}
-			if constexpr (In::settings() & sluaSyn) {
-				if (checkReadTextToken(in, "fn"))
-				{
-					readFunctionStatement<isLoop, StatementType::FN<In>>(
-						in, place, allowVarArg, false
-					);
-				}
-			}
+			if(readFchStat<isLoop>(in, place, false, allowVarArg))
+				return;
 			break;
 		case 'l'://local?
 			if (readLchStat<isLoop>(in, place, false, allowVarArg))
@@ -646,6 +680,8 @@ namespace slua::parse
 					switch (in.peek())
 					{
 					case 'f'://fn? function?
+						if (readFchStat<isLoop>(in, place, true, allowVarArg))
+							return;
 						break;
 					case 't'://type?
 						break;
