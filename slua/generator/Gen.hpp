@@ -708,7 +708,8 @@ namespace slua::parse
 				genExpr(out, *var.step);
 			}
 			out.add(sel<Out>(" do", ")"));
-			if constexpr (Out::settings() & sluaSyn) out.newLine().add('{');
+			if constexpr (Out::settings() & sluaSyn) 
+				out.newLine().add('{');
 			out.tabUpNewl();
 
 			genBlock(out, var.bl);
@@ -722,7 +723,8 @@ namespace slua::parse
 			genExpList(out, var.exprs);
 
 			out.add(sel<Out>(" do", ")"));
-			if constexpr (Out::settings() & sluaSyn) out.newLine().add('{');
+			if constexpr (Out::settings() & sluaSyn) 
+				out.newLine().add('{');
 			out.tabUpNewl();
 
 			genBlock(out, var.bl);
@@ -731,11 +733,19 @@ namespace slua::parse
 		},
 
 		varcase(const StatementType::FN<Out>&) {
+			if constexpr (Out::settings() & sluaSyn)
+			{
+				if (var.exported)out.add("ex ");
+			}
 			out.add("fn ");
 			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 
 		varcase(const StatementType::FUNCTION_DEF<Out>&) {
+			if constexpr (Out::settings() & sluaSyn)
+			{
+				if (var.exported)out.add("ex ");
+			}
 			out.add("function ");
 			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},

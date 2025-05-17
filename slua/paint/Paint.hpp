@@ -875,10 +875,16 @@ namespace slua::paint
 			paintVarStat(se,var, "const");
 		},
 		varcase(const parse::StatementType::FN<Se>&) {
-			paintFuncDef(se, var.func, var.name,false, var.place,true);//TODO export data
+			if constexpr (Se::settings() & sluaSyn)
+				paintFuncDef(se, var.func, var.name, var.exported, var.place, true);
+			else
+				paintFuncDef(se, var.func, var.name, false, var.place, true);
 		},
 		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
-			paintFuncDef(se, var.func, var.name,false, var.place);//TODO export data
+			if constexpr (Se::settings() & sluaSyn)
+				paintFuncDef(se, var.func, var.name, var.exported, var.place);
+			else
+				paintFuncDef(se, var.func, var.name, false, var.place);
 		},
 		varcase(const parse::StatementType::LOCAL_FUNCTION_DEF<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "local");
