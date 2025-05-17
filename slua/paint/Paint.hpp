@@ -678,7 +678,7 @@ namespace slua::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {})
+	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
 	{
 		if constexpr (Se::settings() & sluaSyn)
 		{
@@ -687,7 +687,10 @@ namespace slua::paint
 
 			paintSafety(se, func.safety);
 		}
-		paintKw<Tok::FN_STAT>(se, "function");
+		if(fnKw)
+			paintKw<Tok::FN_STAT>(se, "fn");
+		else
+			paintKw<Tok::FN_STAT>(se, "function");
 
 		if(!name.empty())
 			se.move(pos);
@@ -870,6 +873,9 @@ namespace slua::paint
 		},
 		varcase(const parse::StatementType::CONST<Se>&) {
 			paintVarStat(se,var, "const");
+		},
+		varcase(const parse::StatementType::FN<Se>&) {
+			paintFuncDef(se, var.func, var.name,false, var.place,true);//TODO export data
 		},
 		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
 			paintFuncDef(se, var.func, var.name,false, var.place);//TODO export data

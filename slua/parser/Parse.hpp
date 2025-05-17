@@ -506,9 +506,18 @@ namespace slua::parse
 
 				return in.genData.addStat(place, std::move(res));
 			}
-			if (checkReadTextToken(in, "function"))
-			{ // function funcname funcbody
-				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>>(in, place, allowVarArg, false);
+			if (checkReadTextToken(in, "function")) {
+				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>>(
+					in, place, allowVarArg, false
+				);
+			}
+			if constexpr (In::settings() & sluaSyn) {
+				if (checkReadTextToken(in, "fn"))
+				{
+					readFunctionStatement<isLoop, StatementType::FN<In>>(
+						in, place, allowVarArg, false
+					);
+				}
 			}
 			break;
 		case 'l'://local?
