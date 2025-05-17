@@ -239,6 +239,15 @@ namespace slua::parse
 		return bl;
 	}
 
+	template<bool isLoop,bool BASIC, AnyInput In>
+	inline StatOrExpr<In> readStatOrExpr(In& in, const bool allowVarArg)
+	{
+		if (checkReadToken(in, "=>"))
+		{
+			return readExpr<BASIC>(in, allowVarArg);
+		}
+		return readDoOrStatOrRet<isLoop, SemicolMode::NONE>(in, allowVarArg);
+	}
 
 	template<AnyInput In>
 	inline bool readUchStat(In& in, const Position place, const ExportData exported)
