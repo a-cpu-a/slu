@@ -227,6 +227,9 @@ namespace slua::paint
 		varcase(const parse::ExprType::NUMERAL_U64) {
 			paintNumber(se, tint);
 		},
+		varcase(const parse::ExprType::IfCond<Se>&) {
+			paintIfCond<true>(se, var);
+		},
 		varcase(const parse::ExprType::LIFETIME&) {
 			paintLifetime(se, var);
 		},
@@ -739,6 +742,43 @@ namespace slua::paint
 		paintEndBlock<false>(se, func.block);
 		
 	}
+	template<bool isExpr,AnySemOutput Se>
+	inline void paintIfCond(Se& se,
+		const parse::BaseIfCond<Se,isExpr>& itm
+	)
+	{
+		paintKw<Tok::COND_STAT>(se, "if");
+		paintExpr(se, *itm.cond);
+
+		if constexpr (!(Se::settings() & sluaSyn))
+			paintKw<Tok::COND_STAT>(se, "then");
+
+		paintSoeOrBlock<false>(se, *itm.bl);
+		for (const auto& [cond, bl] : itm.elseIfs)
+		{
+			if constexpr (Se::settings() & sluaSyn)
+			{
+				paintKw<Tok::COND_STAT>(se, "else");
+				paintKw<Tok::COND_STAT>(se, "if");
+				paintExpr(se, cond);
+			}
+			else
+			{
+				paintKw<Tok::COND_STAT>(se, "elseif");
+				paintExpr(se, cond);
+				paintKw<Tok::COND_STAT>(se, "then");
+			}
+			paintSoeOrBlock<false>(se, bl);
+		}
+		if (itm.elseBlock.has_value())
+		{
+			paintKw<Tok::COND_STAT>(se, "else");
+			paintSoeOrBlock<false>(se, **itm.elseBlock);
+		}
+
+		if constexpr (!(Se::settings() & sluaSyn))
+			paintKw<Tok::COND_STAT>(se, "end");
+	}
 	template<AnySemOutput Se>
 	inline void paintUseVariant(Se& se, const parse::UseVariant& itm)
 	{
@@ -840,39 +880,8 @@ namespace slua::paint
 
 			paintExpr(se, var.cond);
 		},
-		varcase(const parse::StatementType::IF_THEN_ELSE<Se>&) {
-			paintKw<Tok::COND_STAT>(se, "if");
-			paintExpr(se, var.cond);
-
-			if constexpr (!(Se::settings() & sluaSyn))
-				paintKw<Tok::COND_STAT>(se, "then");
-
-			paintSoeOrBlock<false>(se, var.bl);
-			for (const auto& [cond,bl] : var.elseIfs)
-			{
-				if constexpr (Se::settings() & sluaSyn)
-				{
-					paintKw<Tok::COND_STAT>(se, "else");
-					paintKw<Tok::COND_STAT>(se, "if");
-					paintExpr(se, cond);
-				}
-				else
-				{
-					paintKw<Tok::COND_STAT>(se, "elseif");
-					paintExpr(se, cond);
-					paintKw<Tok::COND_STAT>(se, "then");
-				}
-				paintSoeOrBlock<false>(se, bl);
-			}
-			if (var.elseBlock.has_value())
-			{
-				paintKw<Tok::COND_STAT>(se, "else");
-				paintSoeOrBlock<false>(se, *var.elseBlock);
-			}
-
-			if constexpr (!(Se::settings() & sluaSyn))
-				paintKw<Tok::COND_STAT>(se, "end");
-
+		varcase(const parse::StatementType::IfCond<Se>&) {
+			paintIfCond<false>(se, var);
 		},
 		varcase(const parse::StatementType::FUNC_CALL<Se>&) {
 			paintLimPrefixExpr(se, *var.val);

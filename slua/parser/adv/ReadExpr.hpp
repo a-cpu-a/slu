@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -165,6 +165,14 @@ namespace slua::parse
 				if (checkReadTextToken(in, "impl"))
 				{
 					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::IMPL{readTraitExpr(in)} ,basicRes.place });
+					break;
+				}
+				if (checkReadTextToken(in, "if"))
+				{
+					//TODO: isloop
+					basicRes.data = readIfCond<false, true, IS_BASIC>(
+						in, allowVarArg
+					);
 					break;
 				}
 			}

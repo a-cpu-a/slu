@@ -42,6 +42,36 @@ namespace slua::parse
 		else
 			return tok;
 	}
+	template<bool boxed,class T>
+	struct MayBox
+	{
+		Sel<boxed, T, std::unique_ptr<T>> v;
+
+		T& get() {
+			if constexpr (boxed) return *v; else return v;
+		}
+		const T& get() const {
+			if constexpr (boxed) return *v; else return v;
+		}
+
+		T& operator*() { return get(); }
+		const T& operator*() const { return get(); }
+
+		T& operator->() { return &get(); }
+		const T* operator->() const { return &get(); }
+	};
+	template<bool boxed,class T>
+	constexpr auto mayBoxFrom(T&& v)
+	{
+		if constexpr (boxed)
+			return MayBox<true, T>(std::make_unique<T>(std::move(v)));
+		else
+			return MayBox<false, T>(std::move(v));
+	}
+	template<class T>
+	constexpr MayBox<false,T> wontBox(T&& v) {
+		return MayBox<false,T>(std::move(v));
+	}
 
 	//Mp ref
 	template<AnyCfgable CfgT> using MpItmId = SelV<CfgT, lang::MpItmIdV>;
@@ -180,6 +210,9 @@ namespace slua::parse
 
 	template<bool isSlua> using SoeOrBlockV = Sel<isSlua,BlockV<isSlua>,StatOrExprV<isSlua>>;
 	template<AnyCfgable CfgT> using SoeOrBlock = SelV<CfgT, SoeOrBlockV>;
+
+	template<bool isSlua> using SoeBoxOrBlockV = Sel<isSlua, BlockV<isSlua>, std::unique_ptr<StatOrExprV<isSlua>>>;
+	template<AnyCfgable CfgT> using SoeBoxOrBlock = SelV<CfgT, SoeBoxOrBlockV>;
 
 	namespace ArgsType
 	{
@@ -373,6 +406,19 @@ namespace slua::parse
 	template<AnyCfgable CfgT>
 	using Function = SelV<CfgT, FunctionV>;
 
+
+
+	template<bool isSlua,bool boxIt>
+	struct BaseIfCondV
+	{
+		std::vector<std::pair<ExpressionV<isSlua>, SoeOrBlockV<isSlua>>> elseIfs;
+		MayBox<boxIt, ExpressionV<isSlua>> cond;
+		MayBox<boxIt, SoeOrBlockV<isSlua>> bl;
+		std::optional<MayBox<boxIt, SoeOrBlockV<isSlua>>> elseBlock;
+	};
+	template<AnyCfgable CfgT, bool boxIt> 
+	using BaseIfCond = Sel<CfgT::settings()&sluaSyn, BaseIfCondV<false,boxIt>, BaseIfCondV<true,boxIt>>;
+
 	namespace ExprType
 	{
 		using NIL = std::monostate;								// "nil"
@@ -399,6 +445,9 @@ namespace slua::parse
 
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlua>>};     // "unop exp"	//Inlined as opt prefix
 
+		template<bool isSlua>
+		using IfCondV = BaseIfCondV<isSlua, true>;
+		template<AnyCfgable CfgT> using IfCond = SelV<CfgT, IfCondV>;
 
 
 		using LIFETIME = Lifetime;	// " '/' var" {'/' var"}
@@ -426,6 +475,8 @@ namespace slua::parse
 		ExprType::MULTI_OPERATIONv<isSlua>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
 		// Slua
+
+		ExprType::IfCondV<isSlua>,
 
 		ExprType::OPEN_RANGE,			// "..."
 
@@ -726,14 +777,8 @@ namespace slua::parse
 
 		// "if exp then block {elseif exp then block} [else block] end"
 		template<bool isSlua>
-		struct IF_THEN_ELSEv
-		{
-			ExpressionV<isSlua> cond;
-			SoeOrBlockV<isSlua> bl;
-			std::vector<std::pair<ExpressionV<isSlua>, SoeOrBlockV<isSlua>>> elseIfs;
-			std::optional<SoeOrBlockV<isSlua>> elseBlock;
-		};
-		template<AnyCfgable CfgT> using IF_THEN_ELSE = SelV<CfgT, IF_THEN_ELSEv>;
+		using IfCondV = BaseIfCondV<isSlua, false>;
+		template<AnyCfgable CfgT> using IfCond = SelV<CfgT, IfCondV>;
 
 		// "for Name = exp , exp [, exp] do block end"
 		template<bool isSlua>
@@ -861,7 +906,7 @@ namespace slua::parse
 		StatementType::WHILE_LOOPv<isSlua>,		// "while exp do block end"
 		StatementType::REPEAT_UNTILv<isSlua>,	// "repeat block until exp"
 
-		StatementType::IF_THEN_ELSEv<isSlua>,	// "if exp then block {elseif exp then block} [else block] end"
+		StatementType::IfCondV<isSlua>,	// "if exp then block {elseif exp then block} [else block] end"
 
 		StatementType::FOR_LOOP_NUMERICv<isSlua>,	// "for Name = exp , exp [, exp] do block end"
 		StatementType::FOR_LOOP_GENERICv<isSlua>,	// "for namelist in explist do block end"

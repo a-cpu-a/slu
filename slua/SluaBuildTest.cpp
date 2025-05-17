@@ -1,4 +1,4 @@
-
+﻿
 
 //This file is used to test compilation
 
@@ -35,21 +35,33 @@ void _test()
 {
 
 	slua::parse::VecInput in;
-	slua::parse::parseFile(in);
-
-	slua::parse::VecInput in2{ slua::parse::sluaSyn
-		| slua::parse::noIntOverflow
-		| slua::parse::spacedFuncCallStrForm 
-		| slua::parse::numberSpacing
-	};
-	const auto f =slua::parse::parseFile(in2);
+	const auto f = slua::parse::parseFile(in);
 
 	slua::parse::Output out;
 	out.db = std::move(in.genData.mpDb);
 	slua::parse::genFile(out, {});
 
-	slua::paint::SemOutput semOut(in2);
+	slua::paint::SemOutput semOut(in);
 
 	slua::paint::paintFile(semOut, f);
 	slua::paint::toHtml(semOut, true);
+
+
+
+	constexpr auto allSettings = slua::parse::sluaSyn
+		| slua::parse::noIntOverflow
+		| slua::parse::spacedFuncCallStrForm
+		| slua::parse::numberSpacing;
+
+	slua::parse::VecInput in2{ allSettings };
+	const auto f2 =slua::parse::parseFile(in2);
+
+	slua::parse::Output out2(allSettings);
+	out2.db = std::move(in2.genData.mpDb);
+	slua::parse::genFile(out2, {});
+
+	slua::paint::SemOutput semOut2(in2);
+
+	slua::paint::paintFile(semOut2, f2);
+	slua::paint::toHtml(semOut2, true);
 }

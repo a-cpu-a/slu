@@ -301,6 +301,9 @@ namespace slua::parse
 		varcase(const ExprType::TRAIT_EXPR&) {
 			//TODO
 		},
+		varcase(const ExprType::IfCond<Out>&) {
+			genIfCond<true>(out, var);
+		},
 		varcase(const ExprType::PAT_TYPE_PREFIX&) {},//Yes, nothing
 		varcase(const ExprType::NUMERAL_U64) {
 			out.add(std::to_string(var.v));
@@ -448,7 +451,10 @@ namespace slua::parse
 
 		for (const Parameter<Out>& par : var.params)
 		{
-			out.add(out.db.asSv(par.name));
+			if constexpr (out.settings() & sluaSyn)
+				throw 11;//TODO
+			else
+				out.add(out.db.asSv(par.name));
 			if (&par != &var.params.back() || var.hasVarArgParam)
 				out.add(", ");
 
@@ -479,6 +485,11 @@ namespace slua::parse
 			if (&v != &obj.back())
 				out.add(", ");
 		}
+	}
+	template<AnyOutput Out>
+	inline void genPat(Out& out, const Pat& obj)
+	{
+		//TODO
 	}
 	template<AnyOutput Out>
 	inline void genAtribNameList(Out& out, const AttribNameList<Out>& obj)
@@ -528,11 +539,12 @@ namespace slua::parse
 
 	template<AnyOutput Out>
 	inline void genStatOrExpr(Out& out, const parse::StatOrExpr<Out>& obj)
+
 	{
 		ezmatch(obj)(
 		varcase(const parse::StatOrExprType::BLOCK<Out>&) {
 			out.newLine().add('{').tabUpNewl();
-			genBlock(out, var.bl);
+			genBlock(out, var);
 			out.unTabNewl().add('}');
 		},
 		varcase(const parse::StatOrExprType::EXPR<Out>&) {
@@ -540,6 +552,64 @@ namespace slua::parse
 			genExpr(out, var);
 		}
 		);
+	}
+	template<bool isExpr,AnyOutput Out>
+	inline void genIfCond(Out& out,
+		const parse::BaseIfCond<Out, isExpr>& itm)
+	{
+		out.add("if ");
+
+		if constexpr (Out::settings() & sluaSyn)
+		{
+			genExpr(out, *itm.cond);
+			genStatOrExpr(out, *itm.bl);
+		}
+		else
+		{
+			genExprParens(out, *itm.cond);
+			out.add(" then").tabUpNewl();
+			genBlock(out, *itm.bl);
+		}
+
+		if (!itm.elseIfs.empty())
+		{
+			for (const auto& [expr, bl] : itm.elseIfs)
+			{
+				out.unTabNewl()
+					.add(sel<Out>("elseif ", "else if "));
+
+				if constexpr (Out::settings() & sluaSyn)
+				{
+					genExpr(out, expr);
+					genStatOrExpr(out, bl);
+				}
+				else
+				{
+					genExprParens(out, expr);
+					out.add(" then").tabUpNewl();
+					genBlock(out, bl);
+				}
+			}
+		}
+		if (itm.elseBlock)
+		{
+			out.unTabNewl()
+				.add("else");
+
+			if constexpr (Out::settings() & sluaSyn)
+			{
+				genStatOrExpr(out, **itm.elseBlock);
+			}
+			else
+			{
+				out.tabUpNewl();
+				genBlock(out, **itm.elseBlock);
+			}
+		}
+		out.unTabNewl();
+
+		if constexpr (!(Out::settings() & sluaSyn))
+			out.addNewl("end");
 	}
 
 	template<size_t N,AnyOutput Out>
@@ -552,7 +622,10 @@ namespace slua::parse
 		}
 
 		out.add(kw);
-		genAtribNameList(out, obj.names);
+		if constexpr (Out::settings() & sluaSyn)
+			genPat(out, obj.names);
+		else
+			genAtribNameList(out, obj.names);
 		if (!obj.exprs.empty())
 		{
 			out.add(" = ");
@@ -619,6 +692,9 @@ namespace slua::parse
 			out.unTabNewl()
 				.addNewl(sel<Out>("end", "}"));
 		},
+		varcase(const StatementType::IfCond<Out>&) {
+			genIfCond<false>(out, var);
+		},
 		varcase(const StatementType::WHILE_LOOP<Out>&) {
 			out.newLine();//Extra spacing
 			out.add("while ");
@@ -655,98 +731,52 @@ namespace slua::parse
 			out.newLine();//Extra spacing
 			out.wasSemicolon = true;
 		},
-
-		varcase(const StatementType::IF_THEN_ELSE<Out>&) {
-			out.add("if ");
+		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
 
 			if constexpr (Out::settings() & sluaSyn)
-			{
-				genExpr(out, var.cond);
-				genStatOrExpr(out, var.bl);
-			}
+				throw 1111;//TODO: for loop gen
 			else
 			{
-				genExprParens(out, var.cond);
-				out.add(" then").tabUpNewl();
-				genBlock(out, var.bl);
-			}
-
-			if (!var.elseIfs.empty())
-			{
-				for (const auto& [expr, bl] : var.elseIfs)
-				{
-					out.unTabNewl()
-						.add(sel<Out>("elseif ", "else if "));
-
-					if constexpr (Out::settings() & sluaSyn)
-					{
-						genExpr(out, expr);
-						genStatOrExpr(out, bl);
-					}
-					else
-					{
-						genExprParens(out, expr);
-						out.add(" then").tabUpNewl();
-						genBlock(out, bl);
-					}
-				}
-			}
-			if (var.elseBlock)
-			{
-				out.unTabNewl()
-					.add("else");
-
-				if constexpr (Out::settings() & sluaSyn)
-				{
-					genStatOrExpr(out, *var.elseBlock);
-				}
-				else
-				{
-					out.tabUpNewl();
-					genBlock(out, *var.elseBlock);
-				}
-			}
-			out.unTabNewl();
-
-			if constexpr (!(Out::settings() & sluaSyn))
-				out.addNewl("end");
-		},
-
-		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
-			out.add(sel<Out>("for ", "for ("))
-				.add(out.db.asSv(var.varName))
-				.add(" = ");
-			genExpr(out, var.start);
-			out.add(", ");
-			genExpr(out, var.end);
-			if (var.step)
-			{
+				out.add(sel<Out>("for ", "for ("))
+					.add(out.db.asSv(var.varName))
+					.add(" = ");
+				genExpr(out, var.start);
 				out.add(", ");
-				genExpr(out, *var.step);
-			}
-			out.add(sel<Out>(" do", ")"));
-			if constexpr (Out::settings() & sluaSyn) 
-				out.newLine().add('{');
-			out.tabUpNewl();
+				genExpr(out, var.end);
+				if (var.step)
+				{
+					out.add(", ");
+					genExpr(out, *var.step);
+				}
+				out.add(sel<Out>(" do", ")"));
+				if constexpr (Out::settings() & sluaSyn)
+					out.newLine().add('{');
+				out.tabUpNewl();
 
-			genBlock(out, var.bl);
-			out.unTabNewl()
-				.addNewl(sel<Out>("end", "}"));
+				genBlock(out, var.bl);
+				out.unTabNewl()
+					.addNewl(sel<Out>("end", "}"));
+			}
 		},
 		varcase(const StatementType::FOR_LOOP_GENERIC<Out>&) {
-			out.add(sel<Out>("for ", "for ("));
-			genNames(out, var.varNames);
-			out.add(" in ");
-			genExpList(out, var.exprs);
+			if constexpr (Out::settings() & sluaSyn)
+				throw 6666;//TODO: for loop gen
+			else
+			{
+				out.add(sel<Out>("for ", "for ("));
+				genNames(out, var.varNames);
+				out.add(" in ");
+				genExpList(out, var.exprs);
 
-			out.add(sel<Out>(" do", ")"));
-			if constexpr (Out::settings() & sluaSyn) 
-				out.newLine().add('{');
-			out.tabUpNewl();
+				out.add(sel<Out>(" do", ")"));
+				if constexpr (Out::settings() & sluaSyn)
+					out.newLine().add('{');
+				out.tabUpNewl();
 
-			genBlock(out, var.bl);
-			out.unTabNewl()
-				.addNewl(sel<Out>("end","}"));
+				genBlock(out, var.bl);
+				out.unTabNewl()
+					.addNewl(sel<Out>("end", "}"));
+			}
 		},
 
 		varcase(const StatementType::FN<Out>&) {
