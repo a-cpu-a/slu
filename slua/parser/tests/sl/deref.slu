@@ -20,7 +20,6 @@
 		}
 		--assertEq$(intX,2);
 		
-		
 		let intXBorrow = &intX;
 		
 		let *&/intX u8 intXAlias = *intXBorrow; --The type represents, a derefed reference for some u8 with lifetime "intX".
