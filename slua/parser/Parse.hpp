@@ -263,6 +263,79 @@ namespace slua::parse
 	}
 
 	template<bool isLoop, AnyInput In>
+	inline bool readLchStat(In& in, const Position place, const ExportData exported, const bool allowVarArg)
+	{
+		if (in.isOob(1))
+			return false;
+
+		const char ch2 = in.peekAt(1);
+		switch (ch2)
+		{
+		case 'e':
+			if constexpr (In::settings() & sluaSyn)
+			{
+				if (checkReadTextToken(in, "let"))
+				{
+					readVarStatement<isLoop, StatementType::LET<In>>(in, place, allowVarArg, exported);
+					return true;
+				}
+			}
+			break;
+		case 'o':
+			if (checkReadTextToken(in, "local"))
+			{
+				/*
+					local function Name funcbody |
+					local attnamelist [‘=’ explist]
+				*/
+				if constexpr (!(In::settings() & sluaSyn))
+				{
+					if (checkReadTextToken(in, "function"))
+					{ // local function Name funcbody
+						StatementType::LOCAL_FUNCTION_DEF<In> res;
+
+						res.place = in.getLoc();
+
+						res.name = in.genData.resolveUnknown(readFuncName(in));
+
+						try
+						{
+							auto [fun, err] = readFuncBody(in);
+							res.func = std::move(fun);
+							if (err)
+							{
+
+								in.handleError(std::format(
+									"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+									in.genData.asSv(res.name), errorLocStr(in, res.place)
+								));
+							}
+						}
+						catch (const ParseError& e)
+						{
+							in.handleError(e.m);
+							throw ErrorWhileContext(std::format(
+								"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+								in.genData.asSv(res.name), errorLocStr(in, res.place)
+							));
+						}
+
+						in.genData.addStat(place, std::move(res));
+						return true;
+					}
+				}
+				// Local Variable
+				readVarStatement<isLoop, StatementType::LOCAL_ASSIGN<In>>(in, place, allowVarArg, exported);
+				return true;
+			}
+			break;
+		default:
+			break;
+		}
+		return false;
+	}
+
+	template<bool isLoop, AnyInput In>
 	inline bool readCchStat(In& in, const Position place, const ExportData exported, const bool allowVarArg)
 	{
 		if (in.isOob(2))
@@ -434,57 +507,8 @@ namespace slua::parse
 			}
 			break;
 		case 'l'://local?
-			if (checkReadTextToken(in, "local"))
-			{//func, or var
-				/*
-					local function Name funcbody |
-					local attnamelist [‘=’ explist]
-				*/
-				if constexpr(!(In::settings() & sluaSyn))
-				{
-					if (checkReadTextToken(in, "function"))
-					{ // local function Name funcbody
-						StatementType::LOCAL_FUNCTION_DEF<In> res;
-
-						res.place = in.getLoc();
-
-						res.name = in.genData.resolveUnknown(readFuncName(in));
-
-						try
-						{
-							auto [fun, err] = readFuncBody(in);
-							res.func = std::move(fun);
-							if (err)
-							{
-
-								in.handleError(std::format(
-									"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-									in.genData.asSv(res.name), errorLocStr(in, res.place)
-								));
-							}
-						}
-						catch (const ParseError& e)
-						{
-							in.handleError(e.m);
-							throw ErrorWhileContext(std::format(
-								"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-								in.genData.asSv(res.name), errorLocStr(in, res.place)
-							));
-						}
-
-						return in.genData.addStat(place, std::move(res));
-					}
-				}
-				// Local Variable
-
-				return readVarStatement<isLoop, StatementType::LOCAL_ASSIGN<In>>(in,place, allowVarArg,false);
-			}
-
-			if constexpr (In::settings() & sluaSyn)
-			{
-				if (checkReadTextToken(in, "let"))
-					return readVarStatement<isLoop, StatementType::LET<In>>(in, place, allowVarArg,false);
-			}
+			if (readLchStat<isLoop>(in, place, false, allowVarArg))
+				return;
 
 			break;
 		case 'c'://const comptime?
@@ -635,6 +659,8 @@ namespace slua::parse
 					case 't'://type?
 						break;
 					case 'l'://let? local?
+						if (readLchStat<isLoop>(in, place, true, allowVarArg))
+							return;
 						break;
 					case 'c'://const? comptime?
 						if (readCchStat<isLoop>(in, place, true, allowVarArg))
