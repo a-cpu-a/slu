@@ -495,6 +495,53 @@ namespace slua::parse
 
 		return in.genData.addStat(place, std::move(res));
 	}
+	//StatementType::IF_THEN_ELSE<In>
+	template<bool isLoop,class T,bool BASIC, AnyInput In>
+	inline T readIfCond(In& in, const bool allowVarArg)
+	{
+		T res{};
+
+		res.cond = readBasicExpr(in, allowVarArg);
+
+		if constexpr (In::settings() & sluaSyn)
+		{
+			res.bl = readStatOrExpr<isLoop, false>(in, allowVarArg);
+
+			while (checkReadTextToken(in, "else"))
+			{
+				if (checkReadTextToken(in, "if"))
+				{
+					Expression<In> elExpr = readBasicExpr(in, allowVarArg);
+					StatOrExpr<In> elBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
+
+					res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
+					continue;
+				}
+
+				res.elseBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
+				break;
+			}
+		}
+		else
+		{
+			requireToken(in, "then");
+			res.bl = readBlock<isLoop>(in, allowVarArg);
+			while (checkReadTextToken(in, "elseif"))
+			{
+				Expression<In> elExpr = readExpr(in, allowVarArg);
+				requireToken(in, "then");
+				Block<In> elBlock = readBlock<isLoop>(in, allowVarArg);
+
+				res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
+			}
+
+			if (checkReadTextToken(in, "else"))
+				res.elseBlock = readBlock<isLoop>(in, allowVarArg);
+
+			requireToken(in, "end");
+		}
+		return res;
+	}
 	template<bool isLoop,class StatT, AnyInput In>
 	inline void readVarStatement(In& in, const Position place, const bool allowVarArg, const ExportData exported)
 	{
@@ -632,50 +679,10 @@ namespace slua::parse
 		case 'i'://if?
 			if (checkReadTextToken(in, "if"))
 			{ // if exp then block {elseif exp then block} [else block] end
-
-				StatementType::IF_THEN_ELSE<In> res{};
-
-				res.cond = readBasicExpr(in,allowVarArg);
-
-				if constexpr (In::settings() & sluaSyn)
-				{
-					res.bl = readStatOrExpr<isLoop,false>(in, allowVarArg);
-
-					while (checkReadTextToken(in, "else"))
-					{
-						if (checkReadTextToken(in, "if"))
-						{
-							Expression<In> elExpr = readBasicExpr(in, allowVarArg);
-							StatOrExpr<In> elBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
-
-							res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
-							continue;
-						}
-
-						res.elseBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
-						break;
-					}
-				}
-				else
-				{
-					requireToken(in, "then");
-					res.bl = readBlock<isLoop>(in, allowVarArg);
-					while (checkReadTextToken(in, "elseif"))
-					{
-						Expression<In> elExpr = readExpr(in, allowVarArg);
-						requireToken(in, "then");
-						Block<In> elBlock = readBlock<isLoop>(in, allowVarArg);
-
-						res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
-					}
-
-					if (checkReadTextToken(in, "else"))
-						res.elseBlock = readBlock<isLoop>(in, allowVarArg);
-
-					requireToken(in, "end");
-				}
-
-				return in.genData.addStat(place, std::move(res));
+				return in.genData.addStat(place, 
+					readIfCond<isLoop,StatementType::IF_THEN_ELSE<In>,false>(
+						in,allowVarArg
+				));
 			}
 			break;
 
