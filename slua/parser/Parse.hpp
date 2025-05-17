@@ -292,35 +292,9 @@ namespace slua::parse
 				{
 					if (checkReadTextToken(in, "function"))
 					{ // local function Name funcbody
-						StatementType::LOCAL_FUNCTION_DEF<In> res;
-
-						res.place = in.getLoc();
-
-						res.name = in.genData.resolveUnknown(readFuncName(in));
-
-						try
-						{
-							auto [fun, err] = readFuncBody(in);
-							res.func = std::move(fun);
-							if (err)
-							{
-
-								in.handleError(std::format(
-									"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-									in.genData.asSv(res.name), errorLocStr(in, res.place)
-								));
-							}
-						}
-						catch (const ParseError& e)
-						{
-							in.handleError(e.m);
-							throw ErrorWhileContext(std::format(
-								"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-								in.genData.asSv(res.name), errorLocStr(in, res.place)
-							));
-						}
-
-						in.genData.addStat(place, std::move(res));
+						readFunctionStatement<isLoop, StatementType::LOCAL_FUNCTION_DEF<In>>(
+							in, place, allowVarArg, false
+						);
 						return true;
 					}
 				}
