@@ -18,7 +18,7 @@ Order of Operations {
 
 	unary operators (alloc)
 	
-	of
+	**
 	
 	.. (Not the same pos as lua!)
 	
@@ -45,7 +45,7 @@ Order of Operations {
 	(pseudo) (parenthesis) [slicifier]
 	```
 	
-	Everything is left to right, except for of, <<, >> and ^ which are right to left
+	Everything is left to right, except for **, <<, >> and ^ which are right to left
 	(unary operators are also right to left)
 	
 	
