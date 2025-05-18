@@ -1,4 +1,4 @@
-﻿# <img alt="Slu Lang logo - hollow star with a cresent going through the middle" src="/slua/spec/info/Logo_white.png" width="120"> <img alt="Slu Lang" src="/slua/spec/info/LogoText.svg" width="150"> 
+﻿# <img alt="Slu Lang logo - hollow star with a cresent going through the middle" src="/spec/info/Logo_white.png" width="120"> <img alt="Slu Lang" src="/spec/info/LogoText.svg" width="150"> 
  
 Wip slu compiler/parser/linter currently written in C++ 20. 
 
