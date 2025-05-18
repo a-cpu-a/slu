@@ -369,9 +369,17 @@ namespace slua::parse
 		Position place;
 		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 		bool hasMut : 1 = false;
+
+		bool isBasicStruct() const
+		{
+			return !hasMut && unOps.empty()
+				&& std::holds_alternative<TypeExprDataType::TABLE_CONSTRUCTOR>(data);
+		}
 	};
 
 	using TypePrefix = std::vector<UnOpItem>;
+
+
 
 
 	//Common
@@ -386,9 +394,13 @@ namespace slua::parse
 	using Parameter = SelV<CfgT, ParameterV>;
 
 	template<bool isSlua>
+	using ParamListV = std::vector<ParameterV<isSlua>>;
+	template<AnyCfgable CfgT> using ParamList = SelV<CfgT, ParamListV>;
+
+	template<bool isSlua>
 	struct BaseFunctionV
 	{
-		std::vector<ParameterV<isSlua>> params;
+		ParamListV<isSlua> params;
 		BlockV<isSlua> block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
@@ -843,6 +855,8 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
 
+		// Slua
+
 		template<bool isSlua>
 		struct LETv : LOCAL_ASSIGNv<isSlua>	{};
 		template<AnyCfgable CfgT> using LET = SelV<CfgT, LETv>;
@@ -851,7 +865,15 @@ namespace slua::parse
 		struct CONSTv : LOCAL_ASSIGNv<isSlua>	{};
 		template<AnyCfgable CfgT> using CONST = SelV<CfgT, CONSTv>;
 
-		// Slua
+		template<bool isSlua>
+		struct StructV
+		{
+			ParamListV<isSlua> params;
+			TypeExpr type;
+			MpItmIdV<isSlua> name;
+			ExportData exported = false;
+		};
+		template<AnyCfgable CfgT> using Struct = SelV<CfgT, StructV>;
 
 		struct UNSAFE_LABEL {};
 		struct SAFE_LABEL {};
@@ -914,6 +936,8 @@ namespace slua::parse
 		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
 		StatementType::FNv<isSlua>,					// "fn funcname funcbody"
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
+
+		StatementType::StructV<isSlua>,
 
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
 		StatementType::SAFE_LABEL,		// ::: safe :
