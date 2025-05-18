@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -20,10 +20,28 @@ namespace slua::parse
 			+ errorLocStr(in)
 		);
 	}
+	inline void throwUnexpectedVarArgs(AnyInput auto& in)
+	{
+		throw UnexpectedCharacterError(std::format(
+			"Varargs "
+			LUACC_SINGLE_STRING("...")
+			" are not supported"
+			"{}"
+			, errorLocStr(in)
+		));
+	}
 	inline void throwExpectedTraitExpr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected trait expression at"
+			"{}"
+			, errorLocStr(in)
+		));
+	}
+	inline void throwExpectedStructOrAssign(AnyInput auto& in)
+	{
+		throw UnexpectedCharacterError(std::format(
+			"Expected struct or assignment at"
 			"{}"
 			, errorLocStr(in)
 		));
