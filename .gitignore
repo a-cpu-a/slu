@@ -1,4 +1,4 @@
-.gitattributes
+﻿.gitattributes
 
 *.so
 *.o
@@ -6,13 +6,12 @@
 
 manual/manual.html
 
-testes/time.txt
-testes/time-debug.txt
+slu/ext/lua/testes/time.txt
+slu/ext/lua/testes/time-debug.txt
 
-testes/libs/all
+slu/ext/lua/testes/libs/all
 
 temp
-lua
 /.vs
 
 
