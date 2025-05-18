@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "union" Name ["(" [paramList] ")"] structInit
+	stat @::= | OptExportPrefix "union" Name ["(" [paramList] ")"] basicStruct
 }
 
 New Keywords {

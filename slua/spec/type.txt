@@ -25,6 +25,7 @@ New Syntax {
 	
 	structField ::= annotations OptExportPrefix [Name "="] typeExpMut
 	structConstructor ::= structField {fieldsep structField} [fieldsep]
+	basicStruct ::= "{" [structConstructor] "}"
 	
 	
 	traitExp ::= basicExp
@@ -32,13 +33,12 @@ New Syntax {
 	
 	basicTypeExp ::= basicExp
 		| "trait"
-		| "type"
 		| "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
 		| "?"
-		| "struct" "{" [structConstructor] "}"
-		| "union" "{" [structConstructor] "}"
+		| "struct" basicStruct
+		| "union" basicStruct
 		| "//" typeExp
 		| typeunop {typeunop} typeExp
 		| basicTypeExp binop typeExp
@@ -54,7 +54,7 @@ New Syntax {
 	
 	typeExp ::= basicTypeExp
 		| typeExp binop typeExp
-		| "{" [structConstructor] "}"
+		| basicStruct
 		
 	typeExpMut ::= typeExpMutBase
 		| basicTypeExpMut
@@ -67,7 +67,6 @@ New Keywords {
 	const
 	mut
 	trait
-	type
 }
 
 New types {
