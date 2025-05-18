@@ -450,18 +450,19 @@ namespace slua::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genParamList(Out& out, const ParamList<Out>& itm)
+	inline void genParamList(Out& out, const ParamList<Out>& itm,const bool hasVarArgParam)
 	{
-		for (const Parameter<Out>& par : itm.params)
+		for (const Parameter<Out>& par : itm)
 		{
 			if constexpr (out.settings() & sluaSyn)
 				throw 11;//TODO
 			else
 				out.add(out.db.asSv(par.name));
-			if (&par != &itm.params.back() || itm.hasVarArgParam)
+			if (&par != &itm.back() || hasVarArgParam)
 				out.add(", ");
-
 		}
+		if (hasVarArgParam)
+			out.add("...");
 	}
 	template<AnyOutput Out>
 	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
@@ -469,10 +470,7 @@ namespace slua::parse
 		out.add(name)
 			.add('(');
 
-		genParamList(out, var.params);
-		
-		if (var.hasVarArgParam)
-			out.add("...");
+		genParamList(out, var.params,var.hasVarArgParam);
 
 		out.add(')');
 
@@ -821,13 +819,13 @@ namespace slua::parse
 			if (!var.params.empty())
 			{
 				out.add('(');
-				genParamList(out, var.params);
+				genParamList(out, var.params,false);
 				out.add(')');
 			}
 			if (!var.type.isBasicStruct())
 				out.add(" = ");
 			else
-				otu.add(" ");
+				out.add(" ");
 
 			genTypeExpr(out, var.type);
 		},
