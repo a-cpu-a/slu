@@ -10,7 +10,7 @@
 #include <slu/types/Converter.hpp>
 #include <slu/types/ReadWrite.hpp>
 
-namespace slua
+namespace slu
 {
 	struct AnyRef
 	{

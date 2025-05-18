@@ -9,7 +9,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	struct RegistryRef
 	{

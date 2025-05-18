@@ -11,7 +11,7 @@
 
 #include <slu/parser/Input.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	enum class ParseNewlineState : uint8_t
 	{
@@ -25,7 +25,7 @@ namespace slua::parse
 	{
 		switch (nlState)
 		{
-		case slua::parse::ParseNewlineState::NONE:
+		case slu::parse::ParseNewlineState::NONE:
 			if (ch == '\n')
 			{
 				if constexpr (skipPreNl)in.skip();
@@ -33,14 +33,14 @@ namespace slua::parse
 				return true;
 			}
 			else if (ch == '\r')
-				nlState = slua::parse::ParseNewlineState::CARI;
+				nlState = slu::parse::ParseNewlineState::CARI;
 			break;
-		case slua::parse::ParseNewlineState::CARI:
+		case slu::parse::ParseNewlineState::CARI:
 			if (ch != '\r')
 			{//  \r\n, or \r(normal char)
 				if constexpr (skipPreNl)in.skip();
 				in.newLine();
-				nlState = slua::parse::ParseNewlineState::NONE;
+				nlState = slu::parse::ParseNewlineState::NONE;
 				return true;
 			}
 			else// \r\r

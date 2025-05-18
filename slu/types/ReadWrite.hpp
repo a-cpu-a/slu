@@ -7,38 +7,38 @@
 
 #include "Converter.hpp"
 
-namespace slua
+namespace slu
 {
 	/* Push something to the lua stack */
 	template <typename T>
 	inline int push(lua_State* L, T&& data) {
 
-		using LuaType = slua::ToLua<T>;
+		using LuaType = slu::ToLua<T>;
 
 		return LuaType::push(L, std::forward<T>(data));
 	}
 
 
-	template<slua::NonLuaType T>
+	template<slu::NonLuaType T>
 	inline T read(lua_State* L, const int idx, T) {
-		if constexpr (requires{slua::ToLua<T>::read(nullptr, 0).val; })
-			return (T)slua::ToLua<T>::read(L, idx).val;
+		if constexpr (requires{slu::ToLua<T>::read(nullptr, 0).val; })
+			return (T)slu::ToLua<T>::read(L, idx).val;
 		else
-			return slua::ToLua<T>::read(L, idx);
+			return slu::ToLua<T>::read(L, idx);
 	}
-	template<slua::LuaType T>
+	template<slu::LuaType T>
 	inline T read(lua_State* L, const int idx, T) {
 		return T::read(L, idx);
 	}
 
-	template<slua::NonLuaType T>
+	template<slu::NonLuaType T>
 	inline T read(lua_State* L, const int idx) {
-		if constexpr (requires{slua::ToLua<T>::read(nullptr, 0).val; })
-			return (T)slua::ToLua<T>::read(L, idx).val;
+		if constexpr (requires{slu::ToLua<T>::read(nullptr, 0).val; })
+			return (T)slu::ToLua<T>::read(L, idx).val;
 		else
-			return slua::ToLua<T>::read(L, idx);
+			return slu::ToLua<T>::read(L, idx);
 	}
-	template<slua::LuaType T>
+	template<slu::LuaType T>
 	inline T read(lua_State* L, const int idx) {
 		return T::read(L, idx);
 	}

@@ -7,7 +7,7 @@
 
 #include <slu/paint/SemOutputStream.hpp>
 
-namespace slua::paint
+namespace slu::paint
 {
 	// You are likely not using srgb for your colors.
 	// (using srgb colors means that they get brightened by the gpu/whatever)

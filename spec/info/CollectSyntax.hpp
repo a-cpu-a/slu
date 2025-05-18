@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** Ai
 */
 #pragma once
@@ -11,7 +11,7 @@
 #include <vector>
 #include <regex>
 
-namespace slua::spec {
+namespace slu::spec {
 
     struct Rule
     {

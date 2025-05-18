@@ -9,7 +9,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	struct Float
 	{
@@ -32,6 +32,6 @@ namespace slua
 		static constexpr const char* getName() { return LC_double; }
 	};
 }
-// Map basic types to slua::Float, to allow easy pushing, reading, and checking
-Slua_mapType(float, slua::Float);
-Slua_mapType(double, slua::Float);
+// Map basic types to slu::Float, to allow easy pushing, reading, and checking
+Slu_mapType(float, slu::Float);
+Slu_mapType(double, slu::Float);

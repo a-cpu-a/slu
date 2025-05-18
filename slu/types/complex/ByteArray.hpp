@@ -11,7 +11,7 @@
 #include <slu/types/Converter.hpp>
 #include <slu/types/TypeUtils.hpp>
 
-namespace slua
+namespace slu
 {
 	template<size_t SIZE>
 	struct ByteArray
@@ -27,7 +27,7 @@ namespace slua
 			for (size_t i = 0; i < SIZE; i++)
 			{
 				lua_pushinteger(L, data.val[i]);
-				slua::lua_setTableValue(L, i + 1);
+				slu::lua_setTableValue(L, i + 1);
 			}
 			return 1;
 		}
@@ -38,7 +38,7 @@ namespace slua
 
 			for (size_t i = 0; i < checkLen; i++)//load in first ones
 			{
-				const int ty = slua::lua_getTableValue(L, idx, i + 1);
+				const int ty = slu::lua_getTableValue(L, idx, i + 1);
 				ret.val[i] = (uint8_t)lua_tointeger(L, -1);
 
 				lua_pop(L, 1);
@@ -59,7 +59,7 @@ namespace slua
 
 			for (size_t i = 0; i < checkLen; i++)//check types
 			{
-				const int ty = slua::lua_getTableValue(L, idx, i);
+				const int ty = slu::lua_getTableValue(L, idx, i);
 				lua_pop(L, 1);
 
 				if (ty != LUA_TNUMBER)//|| ty == LUA_TSTRING
@@ -69,10 +69,10 @@ namespace slua
 		}
 
 	private:
-		static constexpr std::string getStrName() { return "byte-array[" LUACC_NUMBER + slua::cexpToString(SIZE) + LUACC_DEFAULT "]\0"; }
+		static constexpr std::string getStrName() { return "byte-array[" LUACC_NUMBER + slu::cexpToString(SIZE) + LUACC_DEFAULT "]\0"; }
 
 		SLua_WrapGetStrName(getStrName);
 	};
 }
-// Map basic types to slua::ByteArray, to allow easy pushing, reading, and checking
-Slua_mapType(std::array<uint8_t Slua_co SIZE>, slua::ByteArray<SIZE>, size_t SIZE);
+// Map basic types to slu::ByteArray, to allow easy pushing, reading, and checking
+Slu_mapType(std::array<uint8_t Slu_co SIZE>, slu::ByteArray<SIZE>, size_t SIZE);

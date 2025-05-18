@@ -16,7 +16,7 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/basic/CharInfo.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	inline constexpr uint64_t LAST_DIGIT_HEX = 0xFULL << (64 - 8);
 
@@ -223,7 +223,7 @@ namespace slua::parse
 		}
 		else
 		{
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				ExprType::NUMERAL_U128 n128 = hex
 					? parseHexU128(in, number)

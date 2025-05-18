@@ -16,7 +16,7 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/adv/ReadExpr.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	constexpr bool isFieldSep(const char ch)
 	{

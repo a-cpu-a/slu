@@ -21,9 +21,9 @@
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/PaintOps.hpp>
 
-namespace slua::paint
+namespace slu::paint
 {
-	using parse::sluaSyn;
+	using parse::sluSyn;
 
 	inline bool skipSpace(AnySemOutput auto& se) {
 		return parse::skipSpace(se);//TODO: identify TODO's FIXME's WIP's, etc

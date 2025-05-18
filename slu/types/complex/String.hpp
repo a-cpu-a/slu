@@ -10,7 +10,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	struct String
 	{
@@ -25,7 +25,7 @@ namespace slua
 			return 1;
 		}
 		static String read(lua_State* L, const int idx) {
-			return slua::readString(L, idx);
+			return slu::readString(L, idx);
 		}
 		static bool check(lua_State* L, const int idx) {
 			return lua_isstring(L, idx);
@@ -85,6 +85,6 @@ namespace slua
 
 
 }
-// Map basic types to slua::String(View), to allow easy pushing, reading, and checking
-Slua_mapType(std::string, slua::String);
-Slua_mapType(std::string_view, slua::StringView);
+// Map basic types to slu::String(View), to allow easy pushing, reading, and checking
+Slu_mapType(std::string, slu::String);
+Slu_mapType(std::string_view, slu::StringView);

@@ -16,7 +16,7 @@
 #include <slu/parser/adv/SkipSpace.hpp>
 #include <slu/parser/adv/RequireToken.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	/**
 	 * Encode a code point using UTF-8
@@ -361,7 +361,7 @@ namespace slua::parse
 				level++;
 				in.skip();
 			}
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (level == 0)
 					throw UnexpectedCharacterError(

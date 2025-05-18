@@ -20,7 +20,7 @@
 #include <slu/parser/adv/ReadName.hpp>
 #include <slu/parser/errors/CharErrors.h>
 
-namespace slua::parse
+namespace slu::parse
 {
 	template<AnyCompoundDestr T,bool NAMED, AnyInput In>
 	inline T readFieldsDestr(In& in, auto&& ty, const bool uncond)

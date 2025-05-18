@@ -18,7 +18,7 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/errors/CharErrors.h>
 
-namespace slua::parse
+namespace slu::parse
 {
 	template<AnyInput In>
 	inline TraitExpr readTraitExpr(In& in)

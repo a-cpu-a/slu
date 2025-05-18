@@ -15,12 +15,12 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/basic/CharInfo.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
 	{
-		if constexpr (in.settings() & sluaSyn)
+		if constexpr (in.settings() & sluSyn)
 		{
 			if (startCh == '}') return true;
 			if (startCh == 'u')

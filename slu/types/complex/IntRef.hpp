@@ -9,7 +9,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	struct IntRef
 	{
@@ -53,7 +53,7 @@ namespace slua
 			return IntRef(L, idx);
 		}
 		static bool check(lua_State* L, const int idx) {
-			return lua_istable(L, idx) && slua::lua_isTableValueOfType(L, idx, 1, LUA_TNUMBER);
+			return lua_istable(L, idx) && slu::lua_isTableValueOfType(L, idx, 1, LUA_TNUMBER);
 		}
 		static constexpr const char* getName() { return LUACC_NUMBER "integer-reference" LUACC_DEFAULT; }
 	};

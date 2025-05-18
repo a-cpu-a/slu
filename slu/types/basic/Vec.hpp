@@ -11,7 +11,7 @@
 #include <slu/types/Converter.hpp>
 #include <slu/types/TypeUtils.hpp>
 
-namespace slua
+namespace slu
 {
 	template <typename T, bool INT, bool SIGNED, size_t BITS>
 	struct Vec
@@ -28,11 +28,11 @@ namespace slua
 			{
 				if constexpr (INT)
 				{
-					Slua_setTableValue(L, i + 1, lua_pushinteger(L, data.val[i]));
+					Slu_setTableValue(L, i + 1, lua_pushinteger(L, data.val[i]));
 				}
 				else
 				{
-					Slua_setTableValue(L, i + 1, lua_pushnumber(L, data.val[i]));
+					Slu_setTableValue(L, i + 1, lua_pushnumber(L, data.val[i]));
 				}
 			}
 			return 1;
@@ -60,7 +60,7 @@ namespace slua
 				return false;
 			for (int i = 0; i < T::length(); i++)
 			{
-				if (!slua::lua_isTableValueOfType(L, idx, i + 1, LUA_TNUMBER))
+				if (!slu::lua_isTableValueOfType(L, idx, i + 1, LUA_TNUMBER))
 					return false;
 			}
 			return true;
@@ -79,37 +79,37 @@ namespace slua
 			else
 				type = 'f';//float, f64vec4
 
-			return type + slua::cexpToString(BITS) + "vec" + slua::cexpToString(T::length()) + "\0";
+			return type + slu::cexpToString(BITS) + "vec" + slu::cexpToString(T::length()) + "\0";
 		}
-		Slua_wrapGetStrName(getStrName);
+		Slu_wrapGetStrName(getStrName);
 	};
 }
-// Map basic types to slua::Vec, to allow easy pushing, reading, and checking
-Slua_mapType1(glm::u64vec4, slua::Vec<glm::u64vec4, true, false, 64>);
-Slua_mapType1(glm::i64vec4, slua::Vec<glm::i64vec4, true, true, 64>);
-Slua_mapType1(glm::u64vec3, slua::Vec<glm::u64vec3, true, false, 64>);
-Slua_mapType1(glm::i64vec3, slua::Vec<glm::i64vec3, true, true, 64>);
-Slua_mapType1(glm::u64vec2, slua::Vec<glm::u64vec2, true, false, 64>);
-Slua_mapType1(glm::i64vec2, slua::Vec<glm::i64vec2, true, true, 64>);
+// Map basic types to slu::Vec, to allow easy pushing, reading, and checking
+Slu_mapType1(glm::u64vec4, slu::Vec<glm::u64vec4, true, false, 64>);
+Slu_mapType1(glm::i64vec4, slu::Vec<glm::i64vec4, true, true, 64>);
+Slu_mapType1(glm::u64vec3, slu::Vec<glm::u64vec3, true, false, 64>);
+Slu_mapType1(glm::i64vec3, slu::Vec<glm::i64vec3, true, true, 64>);
+Slu_mapType1(glm::u64vec2, slu::Vec<glm::u64vec2, true, false, 64>);
+Slu_mapType1(glm::i64vec2, slu::Vec<glm::i64vec2, true, true, 64>);
 
-Slua_mapType1(glm::u32vec4, slua::Vec<glm::u32vec4, true, false, 32>);
-Slua_mapType1(glm::i32vec4, slua::Vec<glm::i32vec4, true, true, 32>);
-Slua_mapType1(glm::u32vec3, slua::Vec<glm::u32vec3, true, false, 32>);
-Slua_mapType1(glm::i32vec3, slua::Vec<glm::i32vec3, true, true, 32>);
-Slua_mapType1(glm::u32vec2, slua::Vec<glm::u32vec2, true, false, 32>);
-Slua_mapType1(glm::i32vec2, slua::Vec<glm::i32vec2, true, true, 32>);
+Slu_mapType1(glm::u32vec4, slu::Vec<glm::u32vec4, true, false, 32>);
+Slu_mapType1(glm::i32vec4, slu::Vec<glm::i32vec4, true, true, 32>);
+Slu_mapType1(glm::u32vec3, slu::Vec<glm::u32vec3, true, false, 32>);
+Slu_mapType1(glm::i32vec3, slu::Vec<glm::i32vec3, true, true, 32>);
+Slu_mapType1(glm::u32vec2, slu::Vec<glm::u32vec2, true, false, 32>);
+Slu_mapType1(glm::i32vec2, slu::Vec<glm::i32vec2, true, true, 32>);
 
-Slua_mapType1(glm::u16vec4, slua::Vec<glm::u16vec4, true, false, 16>);
-Slua_mapType1(glm::i16vec4, slua::Vec<glm::i16vec4, true, true, 16>);
-Slua_mapType1(glm::u16vec3, slua::Vec<glm::u16vec3, true, false, 16>);
-Slua_mapType1(glm::i16vec3, slua::Vec<glm::i16vec3, true, true, 16>);
-Slua_mapType1(glm::u16vec2, slua::Vec<glm::u16vec2, true, false, 16>);
-Slua_mapType1(glm::i16vec2, slua::Vec<glm::i16vec2, true, true, 16>);
+Slu_mapType1(glm::u16vec4, slu::Vec<glm::u16vec4, true, false, 16>);
+Slu_mapType1(glm::i16vec4, slu::Vec<glm::i16vec4, true, true, 16>);
+Slu_mapType1(glm::u16vec3, slu::Vec<glm::u16vec3, true, false, 16>);
+Slu_mapType1(glm::i16vec3, slu::Vec<glm::i16vec3, true, true, 16>);
+Slu_mapType1(glm::u16vec2, slu::Vec<glm::u16vec2, true, false, 16>);
+Slu_mapType1(glm::i16vec2, slu::Vec<glm::i16vec2, true, true, 16>);
 
-Slua_mapType1(glm::vec2, slua::Vec<glm::vec2, false, true, 32>);
-Slua_mapType1(glm::vec3, slua::Vec<glm::vec3, false, true, 32>);
-Slua_mapType1(glm::vec4, slua::Vec<glm::vec4, false, true, 32>);
+Slu_mapType1(glm::vec2, slu::Vec<glm::vec2, false, true, 32>);
+Slu_mapType1(glm::vec3, slu::Vec<glm::vec3, false, true, 32>);
+Slu_mapType1(glm::vec4, slu::Vec<glm::vec4, false, true, 32>);
 
-Slua_mapType1(glm::dvec2, slua::Vec<glm::dvec2, false, true, 64>);
-Slua_mapType1(glm::dvec3, slua::Vec<glm::dvec3, false, true, 64>);
-Slua_mapType1(glm::dvec4, slua::Vec<glm::dvec4, false, true, 64>);
+Slu_mapType1(glm::dvec2, slu::Vec<glm::dvec2, false, true, 64>);
+Slu_mapType1(glm::dvec3, slu::Vec<glm::dvec3, false, true, 64>);
+Slu_mapType1(glm::dvec4, slu::Vec<glm::dvec4, false, true, 64>);

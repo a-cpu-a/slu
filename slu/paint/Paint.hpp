@@ -22,9 +22,9 @@
 #include <slu/paint/PaintOps.hpp>
 #include <slu/paint/PaintBasics.hpp>
 
-namespace slua::paint
+namespace slu::paint
 {
-	using parse::sluaSyn;
+	using parse::sluSyn;
 
 	template<bool SKIP_SPACE = true>
 	inline void paintString(AnySemOutput auto& se, const std::string_view sv,const Position end,const Tok tint) 
@@ -152,7 +152,7 @@ namespace slua::paint
 			paintExpr(se, var.v);
 		},
 		varcase(const parse::FieldType::NONE) {
-			Slua_panic("field shouldnt be FieldType::NONE, found while painting.");
+			Slu_panic("field shouldnt be FieldType::NONE, found while painting.");
 		}
 		);
 	}
@@ -237,7 +237,7 @@ namespace slua::paint
 			paintTypeExpr(se, var);
 		},
 		varcase(const parse::ExprType::TRAIT_EXPR&) {
-			if constexpr (Se::settings() & sluaSyn)
+			if constexpr (Se::settings() & sluSyn)
 				paintTraitExpr(se, var);
 		},
 		varcase(const parse::ExprType::TABLE_CONSTRUCTOR<Se>&) {
@@ -254,10 +254,10 @@ namespace slua::paint
 			paintArgChain(se, var.argChain);
 		},
 		varcase(const parse::ExprType::PAT_TYPE_PREFIX&) {
-			Slua_panic("Pat type prefix leaked outside of pattern parsing!");
+			Slu_panic("Pat type prefix leaked outside of pattern parsing!");
 		}
 		);
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			if (unOps)
 			{
@@ -321,7 +321,7 @@ namespace slua::paint
 	{
 		ezmatch(itm.base)(
 		varcase(const parse::BaseVarType::NAME<Se>&) {
-			if constexpr (Se::settings() & sluaSyn)
+			if constexpr (Se::settings() & sluSyn)
 			{
 				if (var.hasDeref)
 				{
@@ -456,7 +456,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintPatOrNamelist(Se& se, const auto& itm)
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 			paintPat(se, itm);
 		else
 		{
@@ -521,7 +521,7 @@ namespace slua::paint
 	template<bool forCond,AnySemOutput Se>
 	inline void paintEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			paintBlock(se, itm);
 			skipSpace(se);
@@ -536,7 +536,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 			paintKw<Tok::BRACES>(se, "{");
 		else
 			paintKw<Tok::COND_STAT>(se, "do");
@@ -565,7 +565,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm, const Tok tint = Tok::NONE)
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			skipSpace(se);
 			se.move(itm.place);
@@ -664,7 +664,7 @@ namespace slua::paint
 	template<bool DO_END,AnySemOutput Se>
 	inline void paintStatOrRet(Se& se, const parse::Block<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			skipSpace(se);
 			bool hadBrace = false;
@@ -688,7 +688,7 @@ namespace slua::paint
 	template<bool DO_END, AnySemOutput Se>
 	inline void paintSoeOrBlock(Se& se, const parse::SoeOrBlock<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			ezmatch(itm)(
 			varcase(const parse::StatOrExprType::BLOCK<Se>&) {
@@ -720,7 +720,7 @@ namespace slua::paint
 	template<AnySemOutput Se>
 	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			if (exported)
 				paintKw<Tok::FN_STAT, Tok::EX_TINT>(se, "ex");
@@ -740,7 +740,7 @@ namespace slua::paint
 		paintParamList(se, func.params, func.hasVarArgParam);
 
 		paintKw<Tok::GEN_OP>(se, ")");
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			if (func.retType.has_value())
 			{
@@ -761,13 +761,13 @@ namespace slua::paint
 		paintKw<Tok::COND_STAT>(se, "if");
 		paintExpr(se, *itm.cond);
 
-		if constexpr (!(Se::settings() & sluaSyn))
+		if constexpr (!(Se::settings() & sluSyn))
 			paintKw<Tok::COND_STAT>(se, "then");
 
 		paintSoeOrBlock<false>(se, *itm.bl);
 		for (const auto& [cond, bl] : itm.elseIfs)
 		{
-			if constexpr (Se::settings() & sluaSyn)
+			if constexpr (Se::settings() & sluSyn)
 			{
 				paintKw<Tok::COND_STAT>(se, "else");
 				paintKw<Tok::COND_STAT>(se, "if");
@@ -787,7 +787,7 @@ namespace slua::paint
 			paintSoeOrBlock<false>(se, **itm.elseBlock);
 		}
 
-		if constexpr (!(Se::settings() & sluaSyn))
+		if constexpr (!(Se::settings() & sluSyn))
 			paintKw<Tok::COND_STAT>(se, "end");
 	}
 	template<AnySemOutput Se>
@@ -825,7 +825,7 @@ namespace slua::paint
 	template<size_t TOK_SIZE,AnySemOutput Se>
 	inline void paintVarStat(Se& se, const auto& itm, const char(&tokChr)[TOK_SIZE])
 	{
-		if constexpr (Se::settings() & sluaSyn)
+		if constexpr (Se::settings() & sluSyn)
 		{
 			if (itm.exported)
 				paintKw<Tok::VAR_STAT, Tok::EX_TINT>(se, "ex");
@@ -931,13 +931,13 @@ namespace slua::paint
 			paintVarStat(se,var, "const");
 		},
 		varcase(const parse::StatementType::FN<Se>&) {
-			if constexpr (Se::settings() & sluaSyn)
+			if constexpr (Se::settings() & sluSyn)
 				paintFuncDef(se, var.func, var.name, var.exported, var.place, true);
 			else
 				paintFuncDef(se, var.func, var.name, false, var.place, true);
 		},
 		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
-			if constexpr (Se::settings() & sluaSyn)
+			if constexpr (Se::settings() & sluSyn)
 				paintFuncDef(se, var.func, var.name, var.exported, var.place);
 			else
 				paintFuncDef(se, var.func, var.name, false, var.place);
@@ -962,7 +962,7 @@ namespace slua::paint
 			paintName<Tok::NAME_LABEL>(se, var.v);
 		},
 
-		// Slua
+		// Slu
 
 		varcase(const parse::StatementType::Struct<Se>&) {
 			paintStructBasic(se, var, "struct");
@@ -998,7 +998,7 @@ namespace slua::paint
 			paintName<Tok::NAME>(se, var.name);
 		},
 		varcase(const parse::StatementType::USE&) {
-			if constexpr (Se::settings() & sluaSyn)
+			if constexpr (Se::settings() & sluSyn)
 			{
 				if (var.exported)
 					paintKw<Tok::VAR_STAT, Tok::EX_TINT>(se, "ex");
@@ -1052,7 +1052,7 @@ namespace slua::paint
 		}
 		if (itm.hadReturn)
 		{
-			if constexpr(Se::settings()&sluaSyn)
+			if constexpr(Se::settings()&sluSyn)
 			{
 				skipSpace(se);
 				if (se.in.peek() == 'd')

@@ -11,7 +11,7 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/adv/ReadName.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	//Doesnt skip space, the current character must be a valid args starter
 	template<AnyInput In>

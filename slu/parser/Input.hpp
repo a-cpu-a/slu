@@ -15,46 +15,46 @@
 #include <slu/lang/BasicState.hpp>
 #include "Position.hpp"
 
-namespace slua::parse
+namespace slu::parse
 {
-	template<class T, bool isSlua>
+	template<class T, bool isSlu>
 	concept AnyGenDataV =
-#ifdef Slua_NoConcepts
+#ifdef Slu_NoConcepts
 		true
 #else
-		requires(T t,lang::MpItmIdV<isSlua> v) {
+		requires(T t,lang::MpItmIdV<isSlu> v) {
 			{ t.asSv(v) } -> std::same_as<std::string_view>;
-			{ t.resolveEmpty() } -> std::same_as<lang::MpItmIdV<isSlua>>;
+			{ t.resolveEmpty() } -> std::same_as<lang::MpItmIdV<isSlu>>;
 
-			{ t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
-			{ t.resolveUnknown(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
+			{ t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
+			{ t.resolveUnknown(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
 
-			{ t.resolveName(std::string()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
-			{ t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlua>>;
+			{ t.resolveName(std::string()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
+			{ t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
 	}
-#endif // Slua_NoConcepts
+#endif // Slu_NoConcepts
 	;
 	/*
 	template<class T>
 	concept AnyGenData =
-#ifdef Slua_NoConcepts
+#ifdef Slu_NoConcepts
 		true
 #else
 		AnyGenDataV<T,true> || AnyGenDataV<T, false>
-#endif // Slua_NoConcepts
+#endif // Slu_NoConcepts
 	;*/
 	
 	//Here, so streamed inputs can be made
 	template<class T>
 	concept AnyInput =
-#ifdef Slua_NoConcepts
+#ifdef Slu_NoConcepts
 		true
 #else
 
 		AnyCfgable<T> && requires(T t) {
 
 		//{ t.genData } -> AnyGenData;
-		{ t.genData } -> AnyGenDataV<std::remove_cvref_t<T>::settings()&sluaSyn>;
+		{ t.genData } -> AnyGenDataV<std::remove_cvref_t<T>::settings()&sluSyn>;
 
 		{ t.restart() } -> std::same_as<void>;
 
@@ -87,7 +87,7 @@ namespace slua::parse
 		{t.handleError(std::string()) } -> std::same_as<void>;
 		{t.hasError() } -> std::same_as<bool>;
 	}
-#endif // Slua_NoConcepts
+#endif // Slu_NoConcepts
 	;
 
 	inline std::string errorLocStr(const AnyInput auto& in,const Position pos) {

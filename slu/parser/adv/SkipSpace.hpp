@@ -13,7 +13,7 @@
 #include <slu/parser/ManageNewline.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	constexpr bool isSpaceChar(const char ch)
 	{
@@ -40,7 +40,7 @@ namespace slua::parse
 				while (in.peekAt(idx + 1 + level) == '=') level++;
 
 
-				if constexpr (in.settings() & sluaSyn)
+				if constexpr (in.settings() & sluSyn)
 				{
 					if (level == 0)
 						throwMultilineCommentMissingEqual(in);
@@ -85,13 +85,13 @@ namespace slua::parse
 	}
 
 	template <typename T>
-	concept InputOrSemTokStream = AnyInput<T> || slua::paint::AnySemOutput<T>;
+	concept InputOrSemTokStream = AnyInput<T> || slu::paint::AnySemOutput<T>;
 
 	//Returns true, when idx changed
 	template<InputOrSemTokStream SorIn>
 	inline bool skipSpace(SorIn& sOrIn)
 	{
-		constexpr bool isSem = slua::paint::AnySemOutput<SorIn>;
+		constexpr bool isSem = slu::paint::AnySemOutput<SorIn>;
 		auto& in = *([&] {
 			if constexpr (isSem)
 				return &sOrIn.in;
@@ -228,7 +228,7 @@ namespace slua::parse
 						while (in.peekAt(3 + level) == '=') // Count '=' signs
 							level++;
 
-						if constexpr (SorIn::settings() & sluaSyn && !isSem)
+						if constexpr (SorIn::settings() & sluSyn && !isSem)
 						{
 							if (level == 0)
 								throwMultilineCommentMissingEqual(in);

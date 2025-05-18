@@ -17,7 +17,7 @@
 #include <slu/gen/Output.hpp>
 
 
-namespace slua::parse
+namespace slu::parse
 {
 	template<AnyCfgable Out>
 	inline std::string_view getBinOpAsStr(const BinOpType t)
@@ -67,7 +67,7 @@ namespace slua::parse
 			return "and"sv;
 		case BinOpType::LOGICAL_OR:
 			return "or"sv;
-			// Slua
+			// Slu
 		case BinOpType::ARRAY_CONSTRUCT:
 			return "of"sv;
 		case BinOpType::RANGE_BETWEEN:
@@ -91,7 +91,7 @@ namespace slua::parse
 			return " #"sv;
 		case UnOpType::BITWISE_NOT:
 			return " ~"sv;
-			// Slua
+			// Slu
 		case UnOpType::RANGE_BEFORE:
 			return " ..."sv;
 
@@ -118,7 +118,7 @@ namespace slua::parse
 		using namespace std::literals;
 		switch (t)
 		{
-			// Slua
+			// Slu
 		case PostUnOpType::RANGE_AFTER:
 			return "... "sv;
 
@@ -203,9 +203,9 @@ namespace slua::parse
 	template<AnyOutput Out>
 	inline void genExprParens(Out& out, const Expression<Out>& obj)
 	{
-		if constexpr (out.settings() & sluaSyn) out.add('(');
+		if constexpr (out.settings() & sluSyn) out.add('(');
 		genExpr(out, obj);
-		if constexpr (out.settings() & sluaSyn) out.add(')');
+		if constexpr (out.settings() & sluSyn) out.add(')');
 	}
 
 	template<AnyOutput Out>
@@ -228,7 +228,7 @@ namespace slua::parse
 		for (const UnOpItem t : obj.unOps)
 		{
 			out.add(getUnOpAsStr<Out>(t.type));
-			if constexpr (out.settings() & sluaSyn)
+			if constexpr (out.settings() & sluSyn)
 			{
 				if (t.type == UnOpType::TO_REF_MUT)
 				{
@@ -298,7 +298,7 @@ namespace slua::parse
 			out.add("...");
 		},
 		varcase(const ExprType::LIFETIME&) {
-			if constexpr (out.settings() & sluaSyn)
+			if constexpr (out.settings() & sluSyn)
 				genLifetime(out, var);
 		},
 		varcase(const ExprType::TYPE_EXPR&) {
@@ -325,7 +325,7 @@ namespace slua::parse
 			writeU64Hex(out, var.lo);
 		}
 		);
-		if constexpr(out.settings()&sluaSyn)
+		if constexpr(out.settings()&sluSyn)
 		{
 			for (const PostUnOpType t : obj.postUnOps)
 			{
@@ -428,7 +428,7 @@ namespace slua::parse
 	{
 		ezmatch(obj.base)(
 		varcase(const BaseVarType::NAME<Out>&) {
-			if constexpr(out.settings() & sluaSyn) {
+			if constexpr(out.settings() & sluSyn) {
 				if (var.hasDeref)out.add('*');
 			}
 			out.add(out.db.asSv(var.v));
@@ -454,7 +454,7 @@ namespace slua::parse
 	{
 		for (const Parameter<Out>& par : itm)
 		{
-			if constexpr (out.settings() & sluaSyn)
+			if constexpr (out.settings() & sluSyn)
 				throw 11;//TODO
 			else
 				out.add(out.db.asSv(par.name));
@@ -474,7 +474,7 @@ namespace slua::parse
 
 		out.add(')');
 
-		if constexpr (out.settings() & sluaSyn)
+		if constexpr (out.settings() & sluSyn)
 			out.newLine().add('{');
 		out.tabUpNewl();
 
@@ -569,7 +569,7 @@ namespace slua::parse
 	{
 		out.add("if ");
 
-		if constexpr (Out::settings() & sluaSyn)
+		if constexpr (Out::settings() & sluSyn)
 		{
 			genExpr(out, *itm.cond);
 			genStatOrExpr(out, *itm.bl);
@@ -588,7 +588,7 @@ namespace slua::parse
 				out.unTabNewl()
 					.add(sel<Out>("elseif ", "else if "));
 
-				if constexpr (Out::settings() & sluaSyn)
+				if constexpr (Out::settings() & sluSyn)
 				{
 					genExpr(out, expr);
 					genStatOrExpr(out, bl);
@@ -606,7 +606,7 @@ namespace slua::parse
 			out.unTabNewl()
 				.add("else");
 
-			if constexpr (Out::settings() & sluaSyn)
+			if constexpr (Out::settings() & sluSyn)
 			{
 				genStatOrExpr(out, **itm.elseBlock);
 			}
@@ -618,21 +618,21 @@ namespace slua::parse
 		}
 		out.unTabNewl();
 
-		if constexpr (!(Out::settings() & sluaSyn))
+		if constexpr (!(Out::settings() & sluSyn))
 			out.addNewl("end");
 	}
 
 	template<size_t N,AnyOutput Out>
 	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
 	{
-		if constexpr (Out::settings() & sluaSyn)
+		if constexpr (Out::settings() & sluSyn)
 		{
 			if (obj.exported)
 				out.add("ex ");
 		}
 
 		out.add(kw);
-		if constexpr (Out::settings() & sluaSyn)
+		if constexpr (Out::settings() & sluSyn)
 			genPat(out, obj.names);
 		else
 			genAtribNameList(out, obj.names);
@@ -711,7 +711,7 @@ namespace slua::parse
 
 			genExprParens(out, var.cond);
 
-			if constexpr (Out::settings() & sluaSyn) 
+			if constexpr (Out::settings() & sluSyn) 
 				out.newLine().add('{');
 			else
 				out.add(" do");
@@ -725,14 +725,14 @@ namespace slua::parse
 		varcase(const StatementType::REPEAT_UNTIL<Out>&) {
 			out.add("repeat");
 
-			if constexpr (Out::settings() & sluaSyn)
+			if constexpr (Out::settings() & sluSyn)
 				out.newLine().add('{');
 			out.tabUpNewl();
 
 			genBlock(out, var.bl);
 			out.unTabNewl();
 
-			if constexpr (Out::settings() & sluaSyn)
+			if constexpr (Out::settings() & sluSyn)
 				out.add('}');
 			out.add("until ");
 			genExpr(out, var.cond);
@@ -743,7 +743,7 @@ namespace slua::parse
 		},
 		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
 
-			if constexpr (Out::settings() & sluaSyn)
+			if constexpr (Out::settings() & sluSyn)
 				throw 1111;//TODO: for loop gen
 			else
 			{
@@ -759,7 +759,7 @@ namespace slua::parse
 					genExpr(out, *var.step);
 				}
 				out.add(sel<Out>(" do", ")"));
-				if constexpr (Out::settings() & sluaSyn)
+				if constexpr (Out::settings() & sluSyn)
 					out.newLine().add('{');
 				out.tabUpNewl();
 
@@ -769,7 +769,7 @@ namespace slua::parse
 			}
 		},
 		varcase(const StatementType::FOR_LOOP_GENERIC<Out>&) {
-			if constexpr (Out::settings() & sluaSyn)
+			if constexpr (Out::settings() & sluSyn)
 				throw 6666;//TODO: for loop gen
 			else
 			{
@@ -779,7 +779,7 @@ namespace slua::parse
 				genExpList(out, var.exprs);
 
 				out.add(sel<Out>(" do", ")"));
-				if constexpr (Out::settings() & sluaSyn)
+				if constexpr (Out::settings() & sluSyn)
 					out.newLine().add('{');
 				out.tabUpNewl();
 
@@ -790,7 +790,7 @@ namespace slua::parse
 		},
 
 		varcase(const StatementType::FN<Out>&) {
-			if constexpr (Out::settings() & sluaSyn)
+			if constexpr (Out::settings() & sluSyn)
 			{
 				if (var.exported)out.add("ex ");
 			}
@@ -799,7 +799,7 @@ namespace slua::parse
 		},
 
 		varcase(const StatementType::FUNCTION_DEF<Out>&) {
-			if constexpr (Out::settings() & sluaSyn)
+			if constexpr (Out::settings() & sluSyn)
 			{
 				if (var.exported)out.add("ex ");
 			}
@@ -811,7 +811,7 @@ namespace slua::parse
 			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 
-		//Slua!
+		//Slu!
 
 		varcase(const StatementType::Struct<Out>&) {
 			if (var.exported)out.add("ex ");

@@ -9,7 +9,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	struct Bool
 	{
@@ -32,5 +32,5 @@ namespace slua
 		static constexpr const char* getName() { return LUACC_BOOLEAN "bool" LUACC_DEFAULT; }
 	};
 }
-// Map basic types to slua::Bool to allow easy pushing, reading, and checking
-Slua_mapType(bool, slua::Bool);
+// Map basic types to slu::Bool to allow easy pushing, reading, and checking
+Slu_mapType(bool, slu::Bool);

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -6,7 +6,7 @@
 #include <string>
 #include <array>
 
-namespace slua
+namespace slu
 {
 	inline constexpr std::string cexpToString(size_t v)
 	{
@@ -35,9 +35,9 @@ namespace slua
 
 
 // The proper way to use std::string for names
-#define Slua_wrapGetStrName(_FUNC_NAME) \
+#define Slu_wrapGetStrName(_FUNC_NAME) \
 	private: inline const static constexpr auto \
-		name_buf = slua::cexpStrToArray( \
+		name_buf = slu::cexpStrToArray( \
 			[]() constexpr {return _FUNC_NAME(); }, \
 			[]() constexpr {return _FUNC_NAME().size(); } \
 		); \

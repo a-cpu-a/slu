@@ -19,7 +19,7 @@
 #include <slu/parser/basic/CharInfo.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 
-namespace slua::paint
+namespace slu::paint
 {
 	template<AnySemOutput Se>
 	inline void paintBinOp(Se& se, const parse::BinOpType& itm)
@@ -89,7 +89,7 @@ namespace slua::paint
 		case parse::BinOpType::LOGICAL_OR:
 			paintKw<Tok::OR>(se, "or");
 			break;
-			//Slua:
+			//Slu:
 		case parse::BinOpType::ARRAY_CONSTRUCT:
 			paintKw<Tok::ARRAY_CONSTRUCT>(se, "of");
 			break;

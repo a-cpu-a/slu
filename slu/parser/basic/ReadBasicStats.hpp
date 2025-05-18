@@ -16,7 +16,7 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/adv/ReadName.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	template<AnyInput In>
 	inline void readLabel(In& in, const Position place)
@@ -26,7 +26,7 @@ namespace slua::parse
 
 		requireToken(in, sel<In>("::", ":::"));
 
-		if constexpr (in.settings() & sluaSyn)
+		if constexpr (in.settings() & sluSyn)
 		{
 			if (checkReadTextToken(in, "unsafe"))
 			{

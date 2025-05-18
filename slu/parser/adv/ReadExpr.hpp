@@ -23,7 +23,7 @@
 #include <slu/parser/adv/ReadTraitExpr.hpp>
 #include <slu/parser/adv/ReadTypeExpr.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	template<AnyInput In>
 	inline Lifetime readLifetime(In& in)
@@ -98,7 +98,7 @@ namespace slua::parse
 		default:
 			break;
 		case '?':
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				in.skip();
 				basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::ERR_INFERR{},basicRes.place });
@@ -122,13 +122,13 @@ namespace slua::parse
 		case '|'://todo: handle as lambda
 		case '#':
 		case '~':
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				handleOpenRange(in,basicRes);
 			}
 			break;
 		case '/':
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (in.peekAt(1) == '/') // '//'
 				{
@@ -140,7 +140,7 @@ namespace slua::parse
 			}
 			break;
 		case 'm':
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (checkTextToken(in, "mut"))
 				{
@@ -150,7 +150,7 @@ namespace slua::parse
 			}
 			break;
 		case 'd':
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (checkReadTextToken(in, "dyn"))
 				{
@@ -160,7 +160,7 @@ namespace slua::parse
 			}
 			break;
 		case 'i':
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (checkReadTextToken(in, "impl"))
 				{
@@ -178,7 +178,7 @@ namespace slua::parse
 			}
 			break;
 		case 's'://safe fn
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (!checkReadTextToken(in, "safe"))
 					break;
@@ -187,7 +187,7 @@ namespace slua::parse
 			}
 			break;
 		case 'u'://unsafe fn
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (!checkReadTextToken(in, "unsafe"))
 					break;
@@ -196,7 +196,7 @@ namespace slua::parse
 			}
 			break;
 		case 'f':
-			if constexpr(in.settings() & sluaSyn)
+			if constexpr(in.settings() & sluSyn)
 			{
 				if (checkReadTextToken(in, "fn"))
 				{
@@ -239,7 +239,7 @@ namespace slua::parse
 			}
 			break;
 		case 'n':
-			if constexpr (in.settings() & sluaSyn)break;
+			if constexpr (in.settings() & sluSyn)break;
 
 			if (checkReadTextToken(in, "nil"))
 			{
@@ -249,7 +249,7 @@ namespace slua::parse
 			}
 			break;
 		case 't':
-			if constexpr (in.settings() & sluaSyn)
+			if constexpr (in.settings() & sluSyn)
 			{
 				if (checkReadTextToken(in, "trait"))
 					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::TRAIT_TY{},basicRes.place });
@@ -259,7 +259,7 @@ namespace slua::parse
 			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
 		case '.':
-			if constexpr(!(in.settings() & sluaSyn))
+			if constexpr(!(in.settings() & sluSyn))
 			{
 				if (checkReadToken(in, "..."))
 				{
@@ -291,7 +291,7 @@ namespace slua::parse
 		case '"':
 		case '\'':
 		case '[':
-			if constexpr(in.settings()&sluaSyn)
+			if constexpr(in.settings()&sluSyn)
 			{
 				if (in.peekAt(1) == '=')// [=....
 					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar),in.getLoc());
@@ -351,7 +351,7 @@ namespace slua::parse
 
 			basicRes.data = parsePrefixExprVar<ExprData<In>,true, IS_BASIC>(in,allowVarArg, firstChar);
 		}
-		if constexpr(in.settings() & sluaSyn)
+		if constexpr(in.settings() & sluSyn)
 		{//Postfix op
 			while(checkReadToken(in,"?"))
 				basicRes.postUnOps.push_back(PostUnOpType::PROPOGATE_ERR);

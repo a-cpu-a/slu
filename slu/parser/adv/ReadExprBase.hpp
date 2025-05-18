@@ -20,7 +20,7 @@
 #include <slu/parser/basic/ReadOperators.hpp>
 #include <slu/parser/errors/CharErrors.h>
 
-namespace slua::parse
+namespace slu::parse
 {
 	template<AnyInput In>
 	inline ModPath readModPath(In& in,const std::string& start)
@@ -75,7 +75,7 @@ namespace slua::parse
 		//Lua doesnt reserve mp_start names, so doesnt matter
 		std::string start = readName<true>(in);
 
-		if constexpr (in.settings() & sluaSyn)
+		if constexpr (in.settings() & sluSyn)
 		{
 			ModPath mp = readModPath(in, std::move(start));
 
@@ -168,7 +168,7 @@ namespace slua::parse
 		
 		varData.emplace_back();
 
-		if constexpr ((!FOR_EXPR || BASIC_ARGS) && (in.settings() & sluaSyn))
+		if constexpr ((!FOR_EXPR || BASIC_ARGS) && (in.settings() & sluSyn))
 		{
 			if (firstChar == '*')
 			{
@@ -212,7 +212,7 @@ namespace slua::parse
 
 					varData.emplace_back();
 
-					if constexpr (in.settings() & sluaSyn)
+					if constexpr (in.settings() & sluSyn)
 					{
 						const bool hasDeref = checkReadToken(in,"*");
 
@@ -335,7 +335,7 @@ namespace slua::parse
 
 	template<AnyInput In>
 	inline Expression<In> readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
-		if constexpr (in.settings() & sluaSyn)
+		if constexpr (in.settings() & sluSyn)
 		{
 			Expression<In> ex = readExpr<true>(in, allowVarArg, readBiOp);
 			return ex;
