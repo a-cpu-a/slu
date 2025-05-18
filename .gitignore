@@ -6,10 +6,10 @@
 
 manual/manual.html
 
-slu/ext/lua/testes/time.txt
-slu/ext/lua/testes/time-debug.txt
+ext/lua/testes/time.txt
+ext/lua/testes/time-debug.txt
 
-slu/ext/lua/testes/libs/all
+ext/lua/testes/libs/all
 
 temp
 /.vs

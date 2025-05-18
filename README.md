@@ -1,4 +1,4 @@
-# <img alt="Slu Lang logo - hollow star with a cresent going through the middle" src="/slua/spec/info/Logo_white.png" width="120"> <img alt="Slu Lang" src="/slua/spec/info/LogoText.svg" width="150"> 
+﻿# <img alt="Slu Lang logo - hollow star with a cresent going through the middle" src="/slua/spec/info/Logo_white.png" width="120"> <img alt="Slu Lang" src="/slua/spec/info/LogoText.svg" width="150"> 
  
 Wip slu compiler/parser/linter currently written in C++ 20. 
 
@@ -12,4 +12,4 @@ Ranged integers `const u8 = 0...0xFF`, currently out of range stuff is (planned 
 Builtin result type `throw MyErr{"oh no"}`  
 Compile-time code execution (Must be safe to execute. might output ur personal files tho... maybe?)  
 
-[Spec is located here](/slua/spec/)
+[Spec is located here](/spec/)
