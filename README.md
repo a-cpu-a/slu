@@ -1,5 +1,5 @@
-# <img alt="Slua logo - hollow star with a cresent going through the middle" src="/slua/spec/info/Logo_white.png" width="120"> <img alt="Star Lua" src="/slua/spec/info/LogoText.svg" width="150"> 
-Safe embedable scripting environments. 
+﻿# <img alt="Slu Lang logo - hollow star with a cresent going through the middle" src="/slua/spec/info/Logo_white.png" width="120"> <img alt="Slu Lang" src="/slua/spec/info/LogoText.svg" width="150"> 
+Safe embedable scripting environments, ... 
  
 For C++ 20.
 
