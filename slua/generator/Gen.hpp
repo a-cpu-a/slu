@@ -209,6 +209,12 @@ namespace slua::parse
 	}
 
 	template<AnyOutput Out>
+	inline void genTypeExpr(Out& out, const TypeExpr& obj)
+	{
+		//TODO
+	}
+
+	template<AnyOutput Out>
 	inline void genLifetime(Out& out, const Lifetime& obj)
 	{
 		for (MpItmId<Out> i : obj)
@@ -296,7 +302,7 @@ namespace slua::parse
 				genLifetime(out, var);
 		},
 		varcase(const ExprType::TYPE_EXPR&) {
-			//TODO
+			genTypeExpr(out, var);
 		},
 		varcase(const ExprType::TRAIT_EXPR&) {
 			//TODO
@@ -444,21 +450,27 @@ namespace slua::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
+	inline void genParamList(Out& out, const ParamList<Out>& itm)
 	{
-		out.add(name)
-			.add('(');
-
-		for (const Parameter<Out>& par : var.params)
+		for (const Parameter<Out>& par : itm.params)
 		{
 			if constexpr (out.settings() & sluaSyn)
 				throw 11;//TODO
 			else
 				out.add(out.db.asSv(par.name));
-			if (&par != &var.params.back() || var.hasVarArgParam)
+			if (&par != &itm.params.back() || itm.hasVarArgParam)
 				out.add(", ");
 
 		}
+	}
+	template<AnyOutput Out>
+	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
+	{
+		out.add(name)
+			.add('(');
+
+		genParamList(out, var.params);
+		
 		if (var.hasVarArgParam)
 			out.add("...");
 
@@ -802,6 +814,23 @@ namespace slua::parse
 		},
 
 		//Slua!
+
+		varcase(const StatementType::Struct<Out>&) {
+			if (var.exported)out.add("ex ");
+			out.add("struct ").add(out.db.asSv(var.name));
+			if (!var.params.empty())
+			{
+				out.add('(');
+				genParamList(out, var.params);
+				out.add(')');
+			}
+			if (!var.type.isBasicStruct())
+				out.add(" = ");
+			else
+				otu.add(" ");
+
+			genTypeExpr(out, var.type);
+		},
 
 		varcase(const StatementType::UNSAFE_LABEL) {
 			out.unTabTemp()
