@@ -26,7 +26,7 @@ Enum Statement {
 	The default layout is optimized for size & speed, and can change depending on where it is used.
 	Ofcourse it can be fixed to a standard format, by using (TODO: ???), however this will prevent some optimizations.
 	
-	```slua
+	```slu
 	enum Option(T) {
 		None,
 		Some = T

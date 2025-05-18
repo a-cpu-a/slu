@@ -33,7 +33,7 @@ If Statement {
 	
 	The return type is assigned automatically, if missing.
 	When in expressions, the return type is not decayed into a value, unless explicitly set as such, or if one of the cases would return a value.
-	```slua
+	```slu
 	--Both y and z are dropped, due to the possibility that x is either value.
 	drop if x => y else => z;
 	
@@ -41,7 +41,7 @@ If Statement {
 	let &/y/z selected = &(if x => y else => z)
 	```
 	
-	```slua
+	```slu
 
 	let x = if true -> 0...1 
 				=> 0 

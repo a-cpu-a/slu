@@ -159,11 +159,11 @@ Macro {
 	"macro" functions are implicitly comptime.
 	
 	macroInvoke gets turned from 
-	```slua
+	```slu
 	macroWithArgs_Name_Stat$(myNameArg,local x = 44)
 	```
 	into 
-	```slua
+	```slu
 	@(macroWithArgs_Name_Stat(Name${myNameArg},Stat${local x = 44}))
 	```
 	macroVar gets turned from `$myVar` into `@(myVar)`

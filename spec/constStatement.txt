@@ -22,7 +22,7 @@ Const Statement {
 	
 	Unlike 'let', 'const' variables are available in any order, and dont have to be in top-to-bottom order.
 	
-	```slua
+	```slu
 	
 	let VecU8 hi = {1,2,3}; --Valid, since 'VecU8' is a const variable 
 	

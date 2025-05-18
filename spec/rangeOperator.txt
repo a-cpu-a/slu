@@ -19,7 +19,7 @@ Range Operator {
 	...X -> _<=X
 	X...Y -> _>=X and _<=Y
 	
-	```slua
+	```slu
 	
 	let anyRange = ...;
 	let range = 1...4;

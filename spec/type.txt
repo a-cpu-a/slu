@@ -132,7 +132,7 @@ Official Types {
 		54 bit integers are only for luajit, and older versions of lua (can store up to 2^53).
 		25 bit integers are for 32bit versions of lua pre 5.3 (can store up to 2^24
 		
-		Slua types can be cast into this, any overflows are still errors.
+		Slu types can be cast into this, any overflows are still errors.
 		
 		Platform specific, so on some very old platforms, might be 8 or 16 bit sized.
 	}
@@ -147,7 +147,7 @@ Official Types {
 	fastnum {
 		A 32 or 64 bit float, might also be a integer on some lua versions.
 		
-		Slua types can be cast into this, any overflows are still errors.
+		Slu types can be cast into this, any overflows are still errors.
 	}
 	
 	Any {
@@ -255,7 +255,7 @@ Type Specifiers {
 		
 		Makes the type borrowing, this means that it is a borrowed value.
 		
-		```slua
+		```slu
 		let item1 = 4
 		let item2 = 5
 		
@@ -274,7 +274,7 @@ Type Specifiers {
 		
 		Represents a dereferenced borrow / ptr.
 		
-		```slua
+		```slu
 		
 		let intX = 4;
 		
@@ -304,7 +304,7 @@ Type Specifiers {
 		
 		Makes the type a pointer.
 		
-		```slua
+		```slu
 		let firstArg = 1;
 		let secondArg = 2;
 		
