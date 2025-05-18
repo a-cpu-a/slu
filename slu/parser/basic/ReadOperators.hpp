@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -10,10 +10,10 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slua/parser/State.hpp>
-#include <slua/parser/Input.hpp>
-#include <slua/parser/adv/SkipSpace.hpp>
-#include <slua/parser/adv/RequireToken.hpp>
+#include <slu/parser/State.hpp>
+#include <slu/parser/Input.hpp>
+#include <slu/parser/adv/SkipSpace.hpp>
+#include <slu/parser/adv/RequireToken.hpp>
 
 namespace slua::parse
 {

@@ -1,26 +1,26 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
-#include <slua/types/Converter.hpp>
-#include <slua/types/ReadWrite.hpp>
-#include <slua/types/basic/Lua.hpp>
-#include <slua/Context.hpp>
+#include <slu/types/Converter.hpp>
+#include <slu/types/ReadWrite.hpp>
+#include <slu/types/basic/Lua.hpp>
+#include <slu/Context.hpp>
 
 //include by default, cuz error messages are confusing
-/*#include <slua/types/basic/Bool.hpp>
-#include <slua/types/basic/Float.hpp>
-#include <slua/types/basic/Integer.hpp>
-#include <slua/types/basic/TableRef.hpp>
-#include <slua/types/basic/Optional.hpp>
+/*#include <slu/types/basic/Bool.hpp>
+#include <slu/types/basic/Float.hpp>
+#include <slu/types/basic/Integer.hpp>
+#include <slu/types/basic/TableRef.hpp>
+#include <slu/types/basic/Optional.hpp>
 
-#include <slua/types/complex/ByteArray.hpp>
-#include <slua/types/complex/Function.hpp>
-#include <slua/types/complex/IntRef.hpp>
-#include <slua/types/complex/OptFunc.hpp>
-#include <slua/types/complex/String.hpp>
-#include <slua/types/complex/TableKey.hpp>*/
+#include <slu/types/complex/ByteArray.hpp>
+#include <slu/types/complex/Function.hpp>
+#include <slu/types/complex/IntRef.hpp>
+#include <slu/types/complex/OptFunc.hpp>
+#include <slu/types/complex/String.hpp>
+#include <slu/types/complex/TableKey.hpp>*/
 
 namespace slua
 {

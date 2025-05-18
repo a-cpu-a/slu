@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -7,8 +7,8 @@
 #include <unordered_map>
 #include <variant>
 
-#include <slua/parser/State.hpp>
-#include <slua/lang/BasicState.hpp>
+#include <slu/parser/State.hpp>
+#include <slu/lang/BasicState.hpp>
 
 namespace slua::mlvl
 {

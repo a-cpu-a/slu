@@ -1,15 +1,15 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
 #include <string>
-#include <slua/Include.hpp>
+#include <slu/Include.hpp>
 
-#include <slua/Utils.hpp>
-#include <slua/types/Converter.hpp>
-#include <slua/types/ReadWrite.hpp>
-#include <slua/types/complex/String.hpp> //This uses slua::push, with a string
+#include <slu/Utils.hpp>
+#include <slu/types/Converter.hpp>
+#include <slu/types/ReadWrite.hpp>
+#include <slu/types/complex/String.hpp> //This uses slua::push, with a string
 
 namespace slua
 {

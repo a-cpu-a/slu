@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice at the end of this file
 */
 #pragma once
@@ -11,7 +11,7 @@
 #include <iostream>
 #include <exception>
 
-#include <slua/ErrorType.hpp>
+#include <slu/ErrorType.hpp>
 
 #ifndef LUA_INCL_IMPLEMENTATION
 #define LUA_INCL_IMPLEMENTATION
@@ -28,64 +28,64 @@
 extern "C"
 {
 
-#include <luaconf.h>
+#include <slu/ext/lua/luaconf.h>
 
-#include <ldebug.h>
-#include <ltable.h>
-#include <lopcodes.h>
-#include <lobject.h>
-#include <lstring.h>
-#include <llimits.h>
-#include <lctype.h>
-#include <llex.h>
-#include <lmem.h>
-#include <lstate.h>
-#include <lzio.h>
-#include <lparser.h>
-#include <lfunc.h>
-#include <lundump.h>
-#include <lcode.h>
-#include <ldo.h>
-#include <ltm.h>
-#include <lgc.h>
-#include <lvm.h>
-#include <lua.h>
-#include <lualib.h>
-#include <lauxlib.h>
-#include <lapi.h>
+#include <slu/ext/lua/ldebug.h>
+#include <slu/ext/lua/ltable.h>
+#include <slu/ext/lua/lopcodes.h>
+#include <slu/ext/lua/lobject.h>
+#include <slu/ext/lua/lstring.h>
+#include <slu/ext/lua/llimits.h>
+#include <slu/ext/lua/lctype.h>
+#include <slu/ext/lua/llex.h>
+#include <slu/ext/lua/lmem.h>
+#include <slu/ext/lua/lstate.h>
+#include <slu/ext/lua/lzio.h>
+#include <slu/ext/lua/lparser.h>
+#include <slu/ext/lua/lfunc.h>
+#include <slu/ext/lua/lundump.h>
+#include <slu/ext/lua/lcode.h>
+#include <slu/ext/lua/ldo.h>
+#include <slu/ext/lua/ltm.h>
+#include <slu/ext/lua/lgc.h>
+#include <slu/ext/lua/lvm.h>
+#include <slu/ext/lua/lua.h>
+#include <slu/ext/lua/lualib.h>
+#include <slu/ext/lua/lauxlib.h>
+#include <slu/ext/lua/lapi.h>
 
 #ifdef INCLUDE_LUA_C_FILES
-#include <lstrlib.c>
-#include <lmathlib.c>
-#include <lcorolib.c>
-#include <lbaselib.c>
-#include <ldblib.c>//debug
-#include <ltablib.c>
-#include <lutf8lib.c>
-#include <loslib.c>
+#include <slu/ext/lua/lstrlib.c>
+#include <slu/ext/lua/lmathlib.c>
+#include <slu/ext/lua/lcorolib.c>
+#include <slu/ext/lua/lbaselib.c>
+#include <slu/ext/lua/ldblib.c>//debug
+#include <slu/ext/lua/ltablib.c>
+#include <slu/ext/lua/lutf8lib.c>
+#include <slu/ext/lua/loslib.c>
 
-#include <ldebug.c>
-#include <ltable.c>
-#include <lopcodes.c>
-#include <lobject.c>
-#include <lstring.c>
-#include <lctype.c>
-#include <llex.c>
-#include <lmem.c>
-#include <lstate.c>
-#include <lzio.c>
-#include <lparser.c>
-#include <lfunc.c>
-#include <lundump.c>
-#include <ldump.c>
-#include <lcode.c>
-#include <linit.c>
-#include <ldo.c>
-#include <ltm.c>
-#include <lgc.c>
-#include <lvm.c>
-#include <lauxlib.c>
-#include <lapi.c>
+#include <slu/ext/lua/ldebug.c>
+#include <slu/ext/lua/ltable.c>
+#include <slu/ext/lua/lopcodes.c>
+#include <slu/ext/lua/lobject.c>
+#include <slu/ext/lua/lstring.c>
+#include <slu/ext/lua/lctype.c>
+#include <slu/ext/lua/llex.c>
+#include <slu/ext/lua/lmem.c>
+#include <slu/ext/lua/lstate.c>
+#include <slu/ext/lua/lzio.c>
+#include <slu/ext/lua/lparser.c>
+#include <slu/ext/lua/lfunc.c>
+#include <slu/ext/lua/lundump.c>
+#include <slu/ext/lua/ldump.c>
+#include <slu/ext/lua/lcode.c>
+#include <slu/ext/lua/linit.c>
+#include <slu/ext/lua/ldo.c>
+#include <slu/ext/lua/ltm.c>
+#include <slu/ext/lua/lgc.c>
+#include <slu/ext/lua/lvm.c>
+#include <slu/ext/lua/lauxlib.c>
+#include <slu/ext/lua/lapi.c>
 #endif
 
 }

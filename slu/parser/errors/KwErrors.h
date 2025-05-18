@@ -1,10 +1,10 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
-#include <slua/parser/SimpleErrors.hpp>
-#include <slua/parser/Input.hpp>
+#include <slu/parser/SimpleErrors.hpp>
+#include <slu/parser/Input.hpp>
 
 namespace slua::parse
 {

@@ -12,12 +12,12 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slua/Settings.hpp>
-#include <slua/parser/Input.hpp>
-#include <slua/parser/State.hpp>
-#include <slua/parser/adv/SkipSpace.hpp>
-#include <slua/paint/SemOutputStream.hpp>
-#include <slua/paint/Paint.hpp>
+#include <slu/Settings.hpp>
+#include <slu/parser/Input.hpp>
+#include <slu/parser/State.hpp>
+#include <slu/parser/adv/SkipSpace.hpp>
+#include <slu/paint/SemOutputStream.hpp>
+#include <slu/paint/Paint.hpp>
 
 namespace slua::paint
 {

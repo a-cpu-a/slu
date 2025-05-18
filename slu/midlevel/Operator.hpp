@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -9,8 +9,8 @@
 #include <algorithm>
 #include <numeric>
 
-#include <slua/parser/State.hpp>
-#include <slua/lang/BasicState.hpp>
+#include <slu/parser/State.hpp>
+#include <slu/lang/BasicState.hpp>
 
 namespace slua::mlvl
 {

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -7,8 +7,8 @@
 #include <array>
 #include <type_traits>
 
-#include <slua/Utils.hpp>
-#include <slua/types/ReadWrite.hpp>
+#include <slu/Utils.hpp>
+#include <slu/types/ReadWrite.hpp>
 
 namespace slua
 {

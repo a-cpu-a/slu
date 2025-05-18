@@ -1,18 +1,18 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
 #include <string>
 #include <variant>
-#include <slua/Include.hpp>
+#include <slu/Include.hpp>
 
-#include <slua/Utils.hpp>
-#include <slua/types/Converter.hpp>
-#include <slua/types/ReadWrite.hpp>
-#include <slua/types/complex/String.hpp>
-#include <slua/types/basic/Integer.hpp>
-#include <slua/ext/CppMatch.hpp>
+#include <slu/Utils.hpp>
+#include <slu/types/Converter.hpp>
+#include <slu/types/ReadWrite.hpp>
+#include <slu/types/complex/String.hpp>
+#include <slu/types/basic/Integer.hpp>
+#include <slu/ext/CppMatch.hpp>
 
 
 namespace slua { struct StackItemRef; }//Forward decl

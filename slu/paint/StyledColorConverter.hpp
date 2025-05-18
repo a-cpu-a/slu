@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-#include <slua/paint/SemOutputStream.hpp>
+#include <slu/paint/SemOutputStream.hpp>
 
 namespace slua::paint
 {
