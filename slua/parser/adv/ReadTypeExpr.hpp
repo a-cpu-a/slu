@@ -88,17 +88,25 @@ namespace slua::parse
 			break;
 		}
 		case '{': // table constructor
-			ret.data = TypeExprDataType::TABLE_CONSTRUCTOR(readTableConstructor(in,false));
+			ret.data = TypeExprDataType::Struct(readTableConstructor(in,false));
 			break;
-		case 's'://safe fn
+		case 's'://safe fn struct
 			if (!checkReadTextToken(in, "safe"))
+			{
+				if(checkReadTextToken(in, "struct"))
+					ret.data = TypeExprDataType::Struct(readTableConstructor(in, false));
 				break;
+			}
 			requireToken(in,"fn");
 			ret.data = readFnType(in, OptSafety::SAFE);
 			break;
-		case 'u'://unsafe fn
+		case 'u'://unsafe fn union
 			if (!checkReadTextToken(in, "unsafe"))
+			{
+				if (checkReadTextToken(in, "union"))
+					ret.data = TypeExprDataType::Union(readTableConstructor(in, false));
 				break;
+			}
 			requireToken(in,"fn");
 			ret.data = readFnType(in, OptSafety::UNSAFE);
 			break;

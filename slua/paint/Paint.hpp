@@ -606,8 +606,15 @@ namespace slua::paint
 				paintExpr(se, *var);
 				paintKw<Tok::GEN_OP>(se, "]");
 			},
-			varcase(const parse::TypeExprDataType::TABLE_CONSTRUCTOR&) {
+			varcase(const parse::TypeExprDataType::Struct&) {
+				skipSpace(se);
+				if(se.in.peek()=='s')
+					paintKw<Tok::CON_STAT>(se, "struct");
 				paintTable(se, var);
+			},
+			varcase(const parse::TypeExprDataType::Union&) {
+				paintKw<Tok::CON_STAT>(se, "union");
+				paintTable(se, var.fields);
 			},
 			varcase(const parse::TypeExprDataType::DYN&) {
 				paintKw<Tok::DYN>(se, "dyn");

@@ -314,7 +314,10 @@ namespace slua::parse
 			std::unique_ptr<TypeExpr> first;
 			std::vector<std::pair<BinOpType, TypeExpr>> extra;
 		};
-		using TABLE_CONSTRUCTOR = TableConstructorV<true>;
+		using Struct = TableConstructorV<true>;
+		struct Union {
+			TableConstructorV<true> fields;
+		};
 
 		struct FN
 		{
@@ -349,7 +352,8 @@ namespace slua::parse
 		TypeExprDataType::LIM_PREFIX_EXP,
 		TypeExprDataType::FUNC_CALL,
 		TypeExprDataType::MULTI_OP,
-		TypeExprDataType::TABLE_CONSTRUCTOR,
+		TypeExprDataType::Struct,
+		TypeExprDataType::Union,
 		TypeExprDataType::DYN,
 		TypeExprDataType::IMPL,
 		TypeExprDataType::SLICER,
@@ -371,7 +375,7 @@ namespace slua::parse
 		bool isBasicStruct() const
 		{
 			return !hasMut && unOps.empty()
-				&& std::holds_alternative<TypeExprDataType::TABLE_CONSTRUCTOR>(data);
+				&& std::holds_alternative<TypeExprDataType::Struct>(data);
 		}
 	};
 
