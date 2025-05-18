@@ -627,9 +627,6 @@ namespace slua::paint
 			varcase(const parse::TypeExprDataType::TRAIT_TY&) {
 				paintKw<Tok::NAME_TYPE>(se, "trait");
 			},
-			varcase(const parse::TypeExprDataType::TYPE_TY&) {
-				paintKw<Tok::NAME_TYPE>(se, "type");
-			},
 			varcase(const parse::TypeExprDataType::MULTI_OP&) {
 				paintTypeExpr(se, *var.first);
 				for (const auto& [op, expr] : var.extra)

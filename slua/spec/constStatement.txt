@@ -19,8 +19,6 @@ Const Statement {
 
 	These variables are automatically marked with comptime, using comptime is an parse error.
 	
-	If the "newtype" tag is added, then this variable makes a nominal/strong type.
-	
 	
 	Unlike 'let', 'const' variables are available in any order, and dont have to be in top-to-bottom order.
 	

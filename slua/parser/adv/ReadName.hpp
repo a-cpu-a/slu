@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -34,7 +34,7 @@ namespace slua::parse
 	"generator", "gen",	"yield", "async", "await", "static", \
 	/* documented */\
 	"it", "to", "as", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
-	"also","case", "drop", "enum", "impl","with", "type","safe", "const", \
+	"also","case", "drop", "enum", "impl","with", "safe", "const", \
 	"alloc", "macro", "match", "catch", "throw","trait", "union", \
 	"axiom","unsafe","struct", "module", "extern", "comptime"
 

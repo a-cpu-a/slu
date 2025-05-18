@@ -11,7 +11,7 @@ New Syntax {
 
 New Keywords {
 	fn
-	type
+	struct
 }
 
 Fn Statement {
