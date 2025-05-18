@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -84,6 +84,10 @@ namespace slua::parse
 	_Slua_MAKE_SETTING_CVAR(sluaSyn);
 	_Slua_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
 
+	constexpr auto sluaCommon = spacedFuncCallStrForm
+		| noIntOverflow 
+		| sluaSyn
+		| numberSpacing;
 
 #undef _Slua_MAKE_SETTING_CVAR
 

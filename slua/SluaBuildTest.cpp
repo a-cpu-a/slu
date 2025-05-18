@@ -48,15 +48,11 @@ void _test()
 
 
 
-	constexpr auto allSettings = slua::parse::sluaSyn
-		| slua::parse::noIntOverflow
-		| slua::parse::spacedFuncCallStrForm
-		| slua::parse::numberSpacing;
 
-	slua::parse::VecInput in2{ allSettings };
+	slua::parse::VecInput in2{ slua::parse::sluaCommon };
 	const auto f2 =slua::parse::parseFile(in2);
 
-	slua::parse::Output out2(allSettings);
+	slua::parse::Output out2(slua::parse::sluaCommon);
 	out2.db = std::move(in2.genData.mpDb);
 	slua::parse::genFile(out2, {});
 
