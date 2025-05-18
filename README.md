@@ -4,6 +4,8 @@ Wip slu compiler/parser/linter currently written in C++ 20.
 
 The goal is to make a safe and fast language, that is easy to transpile into other languages and bytecodes, but also ir's like llvm ir. 
 
+## Features
+
 Types as values (no generics, just functions: `Vec(u8)`)  
 Safety checking  
 Borrow checking (hopefuly easy to understand with lfetimes being just variable names: `&/var1/var2 T`)  
