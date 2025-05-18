@@ -51,7 +51,7 @@ New Annotations {
 	@Annotation{} - Marks a type as a annotation.
 	
 	Example:
-	```slua
+	```slu
 	@Annotation
 	struct FuncMarker {}
 	
@@ -65,7 +65,7 @@ New Annotations {
 	A soft-error is produced, if the builtin doesnt exist, and the annotation is ignored.
 	
 	Example:
-	```slua
+	```slu
 	ex type Expr = @Builtin{"base::type/exp"}void;
 	```
 	
@@ -76,7 +76,7 @@ New Annotations {
 	If the condition evaluates to `false`, the annotated code is **entirely omitted** from the compiled output.
 	
 	Example:
-	```slua
+	```slu
 	comptime let isDebug = true;
 	
 	@Cfg{onlyIf=isDebug}

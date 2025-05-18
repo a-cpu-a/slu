@@ -19,11 +19,11 @@ New Abis {
 	"C++" {
 		Compatible with c++ code
 	}
-	"Slua" {
-		By default Slua is equivelant to None.
-		However, if dynamic linking is used, and this is exported out of the crate, then will be equivelant to SluaLock.
+	"Slu" {
+		By default Slu is equivelant to None.
+		However, if dynamic linking is used, and this is exported out of the crate, then will be equivelant to SluLock.
 	}
-	"SluaLock" {
+	"SluLock" {
 		A abi will be generated & optimized for the thing(func,var,...) & put into some lock file.
 	}
 	"Lua" {

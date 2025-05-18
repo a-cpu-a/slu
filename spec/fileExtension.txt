@@ -6,12 +6,8 @@ File Extension {
 	
 	it will be ".slu"
 	
-	".slua" was once used for something called sharp lua, but that isnt rly developed anymore (13~ years ago).
-	Its some unity extension thing, no idea why it produces .slua files tho, since they are just .lua files
-	And on github there are kinda too many files (700)
-
 	".slu" seems to be used for some shell files, which is not a big deal, esp cuz there are only ~50 of them on github.
-	And because, slua could support its own shell header thing, making sure its the right one.
+	And because, slu could support its own shell header thing, making sure its the right one.
 
 	".sl" seems to be used alot for other language files (shell, slash)
 }

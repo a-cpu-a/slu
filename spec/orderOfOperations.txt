@@ -52,7 +52,7 @@ Order of Operations {
 	
 	Examples, where no difference exists, if you remove braces
 	
-	```slua
+	```slu
 	
 	
 	true or (false and true)

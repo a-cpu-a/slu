@@ -37,7 +37,7 @@ Modules {
 	The mod keyword declares a new module.
 	It tells the compiler that the subsequent block (or file) defines a new namespace which may contain functions, variables, types, macros, or even nested modules.
 	The "as" form creates a module inline.
-	The simple form defers the module to another file (module X; is for file "/X.slua").
+	The simple form defers the module to another file (module X; is for file "/X.slu").
 	
 	The "use" keyword is used to import modules or specific names from modules into the current scope. 
 	This allows you to refer to items defined elsewhere without needing to specify the full path every time.
@@ -58,26 +58,26 @@ Modules {
 	
 	The file, folder structure is strict, every folder represents a module.
 	The src folder represents the crate.
-	For every module nest, you will need a folder, and a file (src/aaa/... + src/aaa.slua), the file defines things the modules inside it, and potentially things like functions.
+	For every module nest, you will need a folder, and a file (src/aaa/... + src/aaa.slu), the file defines things the modules inside it, and potentially things like functions.
 	The folder is only needed for file based submodules.
-	The src folder also needs at least one file called "lib.slua" or "main.slua"
+	The src folder also needs at least one file called "lib.slu" or "main.slu"
 	
 	# Example File Structure
 	
 	```
 	my_crate/
 	├─ src/
-	│  ├─ main.slua
-	│  ├─ lib.slua
-	│  ├─ module1.slua
+	│  ├─ main.slu
+	│  ├─ lib.slu
+	│  ├─ module1.slu
 	│  ├─ module1/
-	│  │  └─ submod.slua
-	│  └─ utils.slua
+	│  │  └─ submod.slu
+	│  └─ utils.slu
 	├─ TODO_CHOOSE_NAME.toml
 	├─ TODO_CHOOSE_NAME.lock
 	├─ build/
 	├─ tests/
-	│  └─ test1.slua
+	│  └─ test1.slu
 	└─ README.md
 	```
 	

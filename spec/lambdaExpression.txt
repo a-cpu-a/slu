@@ -18,7 +18,7 @@ Function Expression {
 	Some statement types dont work with `-> typeExp` syntax. (expr func call `(100).xx()`, deref assign `*x = 4`)
 	
 	Examples:
-	```slua
+	```slu
 	let f = unsafe comptime || -> u8 => 42
 	let add = |i32 x, i32 y| -> i32 => x + y
 	let fact = |i32 n| -> i32 {
