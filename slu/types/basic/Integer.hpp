@@ -13,7 +13,7 @@ namespace slu
 {
 	struct Int
 	{
-		int64_t val; // Special variable, used to unconvert automaticaly in SLua_MAP_TYPE
+		int64_t val; // Special variable, used to unconvert automaticaly in Slu_MAP_TYPE
 
 		constexpr Int() = default;
 		constexpr Int(const int64_t value) :val(value) {}

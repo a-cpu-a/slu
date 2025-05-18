@@ -71,7 +71,7 @@ namespace slu
 	private:
 		static constexpr std::string getStrName() { return "byte-array[" LUACC_NUMBER + slu::cexpToString(SIZE) + LUACC_DEFAULT "]\0"; }
 
-		SLua_WrapGetStrName(getStrName);
+		Slu_WrapGetStrName(getStrName);
 	};
 }
 // Map basic types to slu::ByteArray, to allow easy pushing, reading, and checking
