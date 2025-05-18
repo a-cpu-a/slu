@@ -36,7 +36,7 @@ namespace slu
 	};
 }
 
-//To let you use commas inside SLua_MAP_TYPE types
+//To let you use commas inside Slu_MAP_TYPE types
 #define Slu_co ,
 
 // MUST NOT be inside a namespace !!!
@@ -47,6 +47,6 @@ namespace slu
 
 // MUST NOT be inside a namespace !!!
 // 
-// like SLua_MAP_TYPE, except the wrapper can contain commas
+// like Slu_MAP_TYPE, except the wrapper can contain commas
 //
 #define Slu_mapType1(_NORMAL_TYPE,...) namespace slu { template<>struct _ToLua<_NORMAL_TYPE> {using Type = __VA_ARGS__;}; }

@@ -36,7 +36,7 @@ namespace slu
 		}
 
 		// The function should be (/*const*/ THIS_T& thisObject, const slu::TableKey& key), /*const*/ -> optionally const
-		// Call it as if this was a method inside MetaTableGetters (var.SLua_newGetter("fn", abc);)
+		// Call it as if this was a method inside MetaTableGetters (var.Slu_newGetter("fn", abc);)
 #define Slu_getter(_NAME,_CPP_FUNC) \
 	{_NAME, Slu_wrapRaw(_NAME, _CPP_FUNC),true}
 

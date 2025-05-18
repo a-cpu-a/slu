@@ -16,7 +16,7 @@ namespace slu
 	template<class T>
 	struct Optional
 	{
-		std::optional<T> val; // Special variable, used to unconvert automaticaly in SLua_MAP_TYPE
+		std::optional<T> val; // Special variable, used to unconvert automaticaly in Slu_MAP_TYPE
 
 		constexpr Optional() = default;
 		constexpr Optional(const std::optional<T> value) :val(value) {}
