@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -120,18 +120,8 @@ namespace slua::parse
 			break;
 		case 't':
 		{
-			const char ch2 = in.peekAt(1);
-			if (ch2 == 'r')
-			{
-				if (checkReadTextToken(in, "trait"))
-					ret.data = TypeExprDataType::TRAIT_TY{};
-
-			}
-			else if (ch2 == 'y')
-			{
-				if (checkReadTextToken(in, "type"))
-					ret.data = TypeExprDataType::TYPE_TY{};
-			}
+			if (checkReadTextToken(in, "trait"))
+				ret.data = TypeExprDataType::TRAIT_TY{};
 			break;
 		}
 		case '0':

@@ -69,7 +69,6 @@ New Keywords {
 	enum   		(129k)		(8.5k)		Define a enum
 	impl   		(594k)		(23.8k)		Implement a trait
 	with		(..)		(..)		Impl with args
-	type		(1.9m)		(78.3k)		type alias
 	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
@@ -98,5 +97,6 @@ Data {
 	a			(6.1m)		(3.6m)		advanced types
 	is			(4.8m)		(1m)		postfix types?
 	new 		(1.8m)		(303k)		?
+	type		(1.9m)		(78.3k)		type alias
 	newtype		(..)		(..)		newtype tag
 }
