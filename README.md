@@ -8,7 +8,7 @@ The goal is to make a safe and fast language, that is easy to transpile into oth
 
 Types as values (no generics, just functions: `Vec(u8)`)  
 Safety checking  
-Borrow checking (hopefuly easy to understand with lfetimes being just variable names: `&/var1/var2 T`)  
+Borrow checking (hopefuly easy to understand with lifetimes being just variable names: `&/var1/var2 T`)  
 Structural and nominal types  
 Ranged integers `const u8 = 0...0xFF`, currently out of range stuff is (planned to be) handled at runtime, unless they dont overlap  
 Builtin result type `throw MyErr{"oh no"}`  
