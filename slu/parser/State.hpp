@@ -14,8 +14,8 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slua/ext/ExtendVariant.hpp>
-#include <slua/lang/BasicState.hpp>
+#include <slu/ext/ExtendVariant.hpp>
+#include <slu/lang/BasicState.hpp>
 #include "Enums.hpp"
 #include "SmallEnumList.hpp"
 #include "Input.hpp"

@@ -1,15 +1,15 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
 #include <string>
-#include <slua/Include.hpp>
+#include <slu/Include.hpp>
 #include <glm/glm.hpp>
 
-#include <slua/Utils.hpp>
-#include <slua/types/Converter.hpp>
-#include <slua/types/TypeUtils.hpp>
+#include <slu/Utils.hpp>
+#include <slu/types/Converter.hpp>
+#include <slu/types/TypeUtils.hpp>
 
 namespace slua
 {

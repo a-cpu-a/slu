@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -11,13 +11,13 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slua/Settings.hpp>
-#include <slua/ext/CppMatch.hpp>
-#include <slua/parser/Input.hpp>
-#include <slua/parser/State.hpp>
-#include <slua/parser/VecInput.hpp>
-#include <slua/parser/basic/CharInfo.hpp>
-#include <slua/paint/SemOutputStream.hpp>
+#include <slu/Settings.hpp>
+#include <slu/ext/CppMatch.hpp>
+#include <slu/parser/Input.hpp>
+#include <slu/parser/State.hpp>
+#include <slu/parser/VecInput.hpp>
+#include <slu/parser/basic/CharInfo.hpp>
+#include <slu/paint/SemOutputStream.hpp>
 
 namespace slua::paint
 {

@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -7,14 +7,14 @@
 #include <intrin.h>
 #endif
 #include <cstdint>
-#include <luaconf.h>
+#include <slu/ext/lua/luaconf.h>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slua/parser/State.hpp>
-#include <slua/parser/Input.hpp>
+#include <slu/parser/State.hpp>
+#include <slu/parser/Input.hpp>
 
 namespace slua::parse
 {

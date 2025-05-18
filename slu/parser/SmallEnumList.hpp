@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "Enums.hpp"
-#include <slua/ErrorType.hpp>
+#include <slu/ErrorType.hpp>
 
 namespace slua::parse
 {

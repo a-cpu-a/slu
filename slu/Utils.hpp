@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -10,8 +10,8 @@
 #include <bit>
 #include <format>
 
-#include <slua/Include.hpp>
-#include <slua/ErrorType.hpp>
+#include <slu/Include.hpp>
+#include <slu/ErrorType.hpp>
 
 #if !defined(_MSC_VER) || defined(__clang__)
 #define _Slua_NO_RETURN(...)

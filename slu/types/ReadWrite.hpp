@@ -3,7 +3,7 @@
 */
 #pragma once
 
-#include <slua/Include.hpp>
+#include <slu/Include.hpp>
 
 #include "Converter.hpp"
 

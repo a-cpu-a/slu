@@ -11,17 +11,17 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slua/parser/State.hpp>
-#include <slua/parser/Input.hpp>
-#include <slua/parser/adv/SkipSpace.hpp>
-#include <slua/parser/adv/ReadExprBase.hpp>
-#include <slua/parser/adv/RequireToken.hpp>
-#include <slua/parser/adv/ReadStringLiteral.hpp>
-#include <slua/parser/adv/ReadNumeral.hpp>
-#include <slua/parser/basic/ReadOperators.hpp>
-#include <slua/parser/errors/CharErrors.h>
-#include <slua/parser/adv/ReadTraitExpr.hpp>
-#include <slua/parser/adv/ReadTypeExpr.hpp>
+#include <slu/parser/State.hpp>
+#include <slu/parser/Input.hpp>
+#include <slu/parser/adv/SkipSpace.hpp>
+#include <slu/parser/adv/ReadExprBase.hpp>
+#include <slu/parser/adv/RequireToken.hpp>
+#include <slu/parser/adv/ReadStringLiteral.hpp>
+#include <slu/parser/adv/ReadNumeral.hpp>
+#include <slu/parser/basic/ReadOperators.hpp>
+#include <slu/parser/errors/CharErrors.h>
+#include <slu/parser/adv/ReadTraitExpr.hpp>
+#include <slu/parser/adv/ReadTypeExpr.hpp>
 
 namespace slua::parse
 {

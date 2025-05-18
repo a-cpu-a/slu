@@ -4,31 +4,31 @@
 
 //Test macro, dont use, doesnt improve performace. (actually hurts it lol)
 //#define Slua_NoConcepts
-#include <slua/Include.hpp>
-#include <slua/ErrorType.hpp>
-#include <slua/Context.hpp>
-#include <slua/MetaTableUtils.hpp>
-#include <slua/WrapFunc.hpp>
-#include <slua/Utils.hpp>
+#include <slu/Include.hpp>
+#include <slu/ErrorType.hpp>
+#include <slu/Context.hpp>
+#include <slu/MetaTableUtils.hpp>
+#include <slu/WrapFunc.hpp>
+#include <slu/Utils.hpp>
 
-#include <slua/types/Converter.hpp>
-#include <slua/types/ReadWrite.hpp>
-#include <slua/types/TypeUtils.hpp>
-#include <slua/types/UserData.hpp>
-#include <slua/types/complex/AnyRef.hpp>
-#include <slua/types/complex/OptFunc.hpp>
-#include <slua/types/complex/Vector.hpp>
-#include <slua/types/complex/Function.hpp>
-#include <slua/types/basic/StackItem.hpp>
-#include <slua/types/basic/Optional.hpp>
-#include <slua/types/basic/RegistryRef.hpp>
+#include <slu/types/Converter.hpp>
+#include <slu/types/ReadWrite.hpp>
+#include <slu/types/TypeUtils.hpp>
+#include <slu/types/UserData.hpp>
+#include <slu/types/complex/AnyRef.hpp>
+#include <slu/types/complex/OptFunc.hpp>
+#include <slu/types/complex/Vector.hpp>
+#include <slu/types/complex/Function.hpp>
+#include <slu/types/basic/StackItem.hpp>
+#include <slu/types/basic/Optional.hpp>
+#include <slu/types/basic/RegistryRef.hpp>
 
-#include <slua/parser/Parse.hpp>
-#include <slua/parser/VecInput.hpp>
-#include <slua/paint/Paint.hpp>
-#include <slua/paint/PaintToHtml.hpp>
-#include <slua/generator/Gen.hpp>
-#include <slua/MetaTableUtils.hpp>
+#include <slu/parser/Parse.hpp>
+#include <slu/parser/VecInput.hpp>
+#include <slu/paint/Paint.hpp>
+#include <slu/paint/PaintToHtml.hpp>
+#include <slu/gen/Gen.hpp>
+#include <slu/MetaTableUtils.hpp>
 
 
 void _test()

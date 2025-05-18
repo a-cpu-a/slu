@@ -1,13 +1,13 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
 #include <vector>
-#include <slua/Include.hpp>
+#include <slu/Include.hpp>
 
-#include <slua/WrapFunc.hpp>
-#include <slua/types/complex/TableKey.hpp>
+#include <slu/WrapFunc.hpp>
+#include <slu/types/complex/TableKey.hpp>
 
 
 namespace slua

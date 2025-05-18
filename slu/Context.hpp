@@ -1,9 +1,9 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
-#include <slua/Include.hpp>
+#include <slu/Include.hpp>
 
 namespace slua
 {
