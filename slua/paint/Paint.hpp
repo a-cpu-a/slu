@@ -840,6 +840,24 @@ namespace slua::paint
 		paintKw<Tok::ASSIGN>(se, "=");
 		paintExprList(se, itm.exprs);
 	}
+	template<size_t TOK_SIZE,AnySemOutput Se>
+	inline void paintStructBasic(Se& se, const auto& itm, const char(&tokChr)[TOK_SIZE])
+	{
+		if (itm.exported)
+			paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
+
+		paintKw<Tok::CON_STAT>(se, tokChr);
+
+		paintName<Tok::NAME>(se, itm.name);
+
+		skipSpace(se);
+		if (se.in.peek() == '(')
+		{
+			paintKw<Tok::PUNCTUATION>(se, "(");
+			paintParamList(se, itm.params, false);
+			paintKw<Tok::PUNCTUATION>(se, ")");
+		}
+	}
 	template<AnySemOutput Se>
 	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
 	{
@@ -947,27 +965,18 @@ namespace slua::paint
 		// Slua
 
 		varcase(const parse::StatementType::Struct<Se>&) {
-			if (var.exported)
-				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
-
-			paintKw<Tok::CON_STAT>(se, "struct");
-
-			paintName<Tok::NAME>(se, var.name);
-
-			skipSpace(se);
-			if (se.in.peek() == '(')
-			{
-				paintKw<Tok::PUNCTUATION>(se, "(");
-				paintParamList(se, var.params,false);
-				paintKw<Tok::PUNCTUATION>(se, ")");
-			}
+			paintStructBasic(se, var, "struct");
 
 			skipSpace(se);
 			if(se.in.peek()=='=')
 				paintKw<Tok::ASSIGN>(se, "=");
-
 			paintTypeExpr(se, var.type);
 		},
+		varcase(const parse::StatementType::Union<Se>&) {
+			paintStructBasic(se, var, "union");
+			paintTable(se, var.type);
+		},
+
 		varcase(const parse::StatementType::DROP<Se>&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);

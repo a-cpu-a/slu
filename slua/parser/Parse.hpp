@@ -257,19 +257,26 @@ namespace slua::parse
 	template<AnyInput In>
 	inline bool readUchStat(In& in, const Position place, const ExportData exported)
 	{
-		if (in.isOob(1))
+		if (in.isOob(2))
 			return false;
-		const char ch2 = in.peekAt(1);
+		const char ch2 = in.peekAt(2);
 		switch (ch2)
 		{
-		case 's':
+		case 'e':
 			if (readUseStat(in, place, exported))
 				return true;
 			break;
-		case 'n':
+		case 's':
 			if (checkReadTextToken(in, "unsafe"))
 			{
 				throwExpectedUnsafeable(in);
+			}
+			break;
+		case 'i':
+			if (checkReadTextToken(in, "union"))
+			{
+				readStructStat<StatementType::Union<In>, true>(in, place, exported);
+				return true;
 			}
 			break;
 		default:
@@ -473,7 +480,7 @@ namespace slua::parse
 		case 't':
 			if (checkReadTextToken(in, "struct"))
 			{
-				readStructStat(in, place, exported);
+				readStructStat<StatementType::Struct<In>,false>(in, place, exported);
 				return true;
 			}
 			break;

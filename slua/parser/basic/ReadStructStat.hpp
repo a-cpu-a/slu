@@ -35,10 +35,10 @@ namespace slua::parse
 
 		return res;
 	}
-	template<AnyInput In>
+	template<class T,bool structOnly,AnyInput In>
 	inline void readStructStat(In& in, const Position place, const ExportData exported)
 	{
-		StatementType::Struct<In> res{};
+		T res{};
 		res.exported = exported;
 
 		res.name = in.genData.resolveUnknown(readName(in));
@@ -50,18 +50,22 @@ namespace slua::parse
 
 			res.params = readParamList(in);
 		}
-		switch (in.peek())
+		if constexpr (structOnly)
+			res.type = readTableConstructor(in, false);
+		else
 		{
-		case '{':
-			res.type = readTypeExpr(in, false);
-			break;
-		case '=':
-			in.skip();
-			res.type = readTypeExpr(in, false);
-			break;
-		default:
-			throwExpectedStructOrAssign(in);
-
+			switch (in.peek())
+			{
+			case '{':
+				res.type = readTypeExpr(in, false);
+				break;
+			case '=':
+				in.skip();
+				res.type = readTypeExpr(in, false);
+				break;
+			default:
+				throwExpectedStructOrAssign(in);
+			}
 		}
 
 		in.genData.addStat(place, std::move(res));
