@@ -9,9 +9,9 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 #include <slu/types/ReadWrite.hpp>
-#include <slu/types/complex/String.hpp> //This uses slua::push, with a string
+#include <slu/types/complex/String.hpp> //This uses slu::push, with a string
 
-namespace slua
+namespace slu
 {
 	enum class TableKeyType : uint8_t
 	{
@@ -36,14 +36,14 @@ namespace slua
 		{
 			switch (type)
 			{
-			case slua::TableKeyType::INT:
+			case slu::TableKeyType::INT:
 				return std::to_string(intVal);
-			case slua::TableKeyType::FLOAT:
+			case slu::TableKeyType::FLOAT:
 				return std::to_string(floatVal);
-			case slua::TableKeyType::STRING:
+			case slu::TableKeyType::STRING:
 				return strVal;
 			}
-			Slua_panic("Memory corrupted");
+			Slu_panic("Memory corrupted");
 			std::abort();
 		}
 
@@ -51,14 +51,14 @@ namespace slua
 		{
 			switch (data.type)
 			{
-			case slua::TableKeyType::INT:
+			case slu::TableKeyType::INT:
 				lua_pushinteger(L, data.intVal);
 				break;
-			case slua::TableKeyType::FLOAT:
+			case slu::TableKeyType::FLOAT:
 				lua_pushnumber(L, data.floatVal);
 				break;
-			case slua::TableKeyType::STRING:
-				slua::push(L, data.strVal);
+			case slu::TableKeyType::STRING:
+				slu::push(L, data.strVal);
 				break;
 			}
 			return 1;
@@ -82,7 +82,7 @@ namespace slua
 			}
 			else
 			{
-				ret.strVal = slua::readString(L, idx);
+				ret.strVal = slu::readString(L, idx);
 				ret.type = TableKeyType::STRING;
 			}
 			return ret;

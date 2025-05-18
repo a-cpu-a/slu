@@ -10,7 +10,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/ReadWrite.hpp>
 
-namespace slua
+namespace slu
 {
 	inline constexpr size_t TYPE_ID_SIZE = 2;
 
@@ -113,9 +113,9 @@ namespace slua
 			return Userdata<T>(L, idx);
 		}
 		static bool check(lua_State* L, const int idx) {
-			return slua::checkThrowing<T>(L,idx);
+			return slu::checkThrowing<T>(L,idx);
 		}
-		static constexpr const char* getName() { return slua::getName<T>(); }
+		static constexpr const char* getName() { return slu::getName<T>(); }
 
 		T& get() const {
 			return *((T*)lua_touserdata(_L, _idx));
@@ -133,25 +133,25 @@ namespace slua
 //Pushes userdata
 //Note: it will have 0 uservalues
 template<class T, class... ARGS_T>
-inline T& slua_newUserdata(lua_State* L, ARGS_T&&... constructorArgs)
+inline T& slu_newUserdata(lua_State* L, ARGS_T&&... constructorArgs)
 {
 	//Should size be aligned to 2 bytes?
-	void* place = lua_newuserdatauv(L, sizeof(T) + slua::TYPE_ID_SIZE, 0);
+	void* place = lua_newuserdatauv(L, sizeof(T) + slu::TYPE_ID_SIZE, 0);
 
 	// https://isocpp.org/wiki/faq/dtors#placement-new
 	auto id = new(place) T(std::forward<ARGS_T>(constructorArgs)...);
-	slua::setTypeId(id);
+	slu::setTypeId(id);
 
 	return *id;
 }
 
 template<class T>
-inline int _slua_handleUserDataGC(lua_State* L)
+inline int _slu_handleUserDataGC(lua_State* L)
 {
 	if (lua_gettop(L) != 1)
-		return slua::lua_error(L, "__gc needs the original object!");
-	if (!slua::checkAndClearTypeId<T>(L, 1))
-		return slua::lua_error(L, "__gc needs a different type ... Mem Leak?");
+		return slu::lua_error(L, "__gc needs the original object!");
+	if (!slu::checkAndClearTypeId<T>(L, 1))
+		return slu::lua_error(L, "__gc needs a different type ... Mem Leak?");
 
 	T* con = (T*)lua_touserdata(L, 1);
 
@@ -161,13 +161,13 @@ inline int _slua_handleUserDataGC(lua_State* L)
 }
 
 template<class T>
-inline bool slua_newMetatable(lua_State* L, const char* typeName)
+inline bool slu_newMetatable(lua_State* L, const char* typeName)
 {
 	if (luaL_newmetatable(L, typeName))
 	{
 		if constexpr (!std::is_trivially_destructible_v<T>)
 		{
-			lua_pushcfunction(L, _slua_handleUserDataGC<T>);
+			lua_pushcfunction(L, _slu_handleUserDataGC<T>);
 			lua_setfield(L, -2, "__gc");
 		}
 		return true;
@@ -175,19 +175,19 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 	return false;
 }
 
-#define _Slua_STRINGIZE(x) #x
-#define _Slua_STRINGIZE2(x) _Slua_STRINGIZE(x)
+#define _Slu_STRINGIZE(x) #x
+#define _Slu_STRINGIZE2(x) _Slu_STRINGIZE(x)
 
 // MUST NOT be inside a namespace !!!
 // 
 // 
 //
-#define _Slua_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_CUSTOMIZATION) \
-	struct _sluaWrapperFor__ ## _TY_NAME { \
+#define _Slu_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_CUSTOMIZATION) \
+	struct _sluWrapperFor__ ## _TY_NAME { \
 	static int push(lua_State* L, auto&& data) \
 	{ \
-		slua_newUserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<decltype(data)>(data)); \
-		if(slua_newMetatable<_NAMESPACED_TYPE_ACCESS>(L,#_TY_NAME  ":"  _Slua_STRINGIZE2(__LINE__))) \
+		slu_newUserdata<_NAMESPACED_TYPE_ACCESS>(L,std::forward<decltype(data)>(data)); \
+		if(slu_newMetatable<_NAMESPACED_TYPE_ACCESS>(L,#_TY_NAME  ":"  _Slu_STRINGIZE2(__LINE__))) \
 			_METATABLE_CUSTOMIZATION;\
 		lua_setmetatable(L, -2); \
 		return 1; \
@@ -196,11 +196,11 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 		return *((_NAMESPACED_TYPE_ACCESS*)lua_touserdata(L,idx)); \
 	} \
 	static bool check(lua_State* L, const int idx) { \
-		return slua::checkTypeId<_NAMESPACED_TYPE_ACCESS>(L, idx); \
+		return slu::checkTypeId<_NAMESPACED_TYPE_ACCESS>(L, idx); \
 	} \
 	static constexpr const char* getName() { return _NAMESPACED_TYPE_ACCESS::getName(); } \
 	}; \
-	Slua_mapType(_NAMESPACED_TYPE_ACCESS,_sluaWrapperFor__ ## _TY_NAME)
+	Slu_mapType(_NAMESPACED_TYPE_ACCESS,_sluWrapperFor__ ## _TY_NAME)
 
 
 
@@ -208,12 +208,12 @@ inline bool slua_newMetatable(lua_State* L, const char* typeName)
 // 
 // _METATABLE_SETUP_FUNC -> a function taking 1 lua_State*, manipulating the table on the head of the stack.
 //
-#define Slua_mapType2Userdata(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_SETUP_FUNC) \
-	_Slua_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_SETUP_FUNC(L))
+#define Slu_mapType2Userdata(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_SETUP_FUNC) \
+	_Slu_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,_METATABLE_SETUP_FUNC(L))
 
 // MUST NOT be inside a namespace !!!
 // 
 // 
 //
-#define Slua_mapType2UserdataNoMetatable(_TY_NAME,_NAMESPACED_TYPE_ACCESS) \
-	_Slua_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,)
+#define Slu_mapType2UserdataNoMetatable(_TY_NAME,_NAMESPACED_TYPE_ACCESS) \
+	_Slu_MAP_TYPE_2_USERDATA(_TY_NAME,_NAMESPACED_TYPE_ACCESS,)

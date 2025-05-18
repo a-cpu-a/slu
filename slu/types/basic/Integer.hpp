@@ -9,7 +9,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	struct Int
 	{
@@ -39,12 +39,12 @@ namespace slua
 		static constexpr const char* getName() { return LC_integer; }
 	};
 }
-// Map basic types to slua::Int, to allow easy pushing, reading, and checking
-Slua_mapType(uint8_t, slua::Int);
-Slua_mapType(uint16_t, slua::Int);
-Slua_mapType(uint32_t, slua::Int);
-Slua_mapType(uint64_t, slua::Int);
-Slua_mapType(int8_t, slua::Int);
-Slua_mapType(int16_t, slua::Int);
-Slua_mapType(int32_t, slua::Int);
-Slua_mapType(int64_t, slua::Int);
+// Map basic types to slu::Int, to allow easy pushing, reading, and checking
+Slu_mapType(uint8_t, slu::Int);
+Slu_mapType(uint16_t, slu::Int);
+Slu_mapType(uint32_t, slu::Int);
+Slu_mapType(uint64_t, slu::Int);
+Slu_mapType(int8_t, slu::Int);
+Slu_mapType(int16_t, slu::Int);
+Slu_mapType(int32_t, slu::Int);
+Slu_mapType(int64_t, slu::Int);

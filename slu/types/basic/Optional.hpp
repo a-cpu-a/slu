@@ -11,7 +11,7 @@
 #include <slu/types/Converter.hpp>
 #include <slu/types/ReadWrite.hpp>
 
-namespace slua
+namespace slu
 {
 	template<class T>
 	struct Optional
@@ -25,7 +25,7 @@ namespace slua
 		static int push(lua_State* L, const Optional<T>& data)
 		{
 			if (data.val.has_value())
-				return slua::push(L, *data.val);
+				return slu::push(L, *data.val);
 
 			lua_pushnil(L);
 			return 1;
@@ -35,12 +35,12 @@ namespace slua
 		static Optional<T> read(lua_State* L, const int idx) {
 			if (lua_isnil(L, idx))
 				return {};
-			return slua::read<T>(L,idx);
+			return slu::read<T>(L,idx);
 		}
 		// Returns if succeded
 		// And takes idx, which is the position of the item on the stack
 		static bool check(lua_State* L, const int idx) {
-			return lua_isnil(L, idx) || slua::checkThrowing<T>(L,idx);
+			return lua_isnil(L, idx) || slu::checkThrowing<T>(L,idx);
 		}
 		// The name of your type, used inside error messages.
 		static constexpr const char* getName() { return "optional"; }
@@ -54,5 +54,5 @@ namespace slua
 	template<typename T>
 	concept _is_std_optional = __is_std_optional<T>::v::value;
 }
-// Map basic types to slua::Optional, to allow easy pushing, reading, and checking
-Slua_mapType(OPT_T, slua::Optional<typename OPT_T::value_type>, slua::_is_std_optional OPT_T);
+// Map basic types to slu::Optional, to allow easy pushing, reading, and checking
+Slu_mapType(OPT_T, slu::Optional<typename OPT_T::value_type>, slu::_is_std_optional OPT_T);

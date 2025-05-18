@@ -22,7 +22,7 @@
 #include <slu/parser/errors/CharErrors.h>
 #include <slu/parser/errors/KwErrors.h>
 
-namespace slua::parse
+namespace slu::parse
 {
 	//No space skip!
 	//YOU parse the 'fn'

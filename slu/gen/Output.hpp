@@ -14,12 +14,12 @@
 #include <slu/Settings.hpp>
 #include <slu/parser/Input.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	//Here, so streamed outputs can be made
 	template<class T>
 	concept AnyOutput =
-#ifdef Slua_NoConcepts
+#ifdef Slu_NoConcepts
 		true
 #else
 		AnyCfgable<T> && requires(T t) {
@@ -56,7 +56,7 @@ namespace slua::parse
 
 		{ t.wasSemicolon } -> std::same_as<bool&>;
 	}
-#endif // Slua_NoConcepts
+#endif // Slu_NoConcepts
 	;
 
 	inline void updateLinePos(size_t& curLinePos, std::span<const uint8_t> sp)
@@ -82,7 +82,7 @@ namespace slua::parse
 		}
 
 
-		Sel<SettingsT()&sluaSyn, LuaMpDb, BasicMpDb> db;
+		Sel<SettingsT()&sluSyn, LuaMpDb, BasicMpDb> db;
 
 		std::vector<uint8_t> text;
 		uint64_t tabs=0;

@@ -9,7 +9,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	//does not allow C-functions
 	//may, or may not be nil

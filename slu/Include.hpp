@@ -4,8 +4,8 @@
 #pragma once
 
 //hg
-#ifndef _SLUA__INCLUDE_HPP
-#define _SLUA__INCLUDE_HPP
+#ifndef _SLU__INCLUDE_HPP
+#define _SLU__INCLUDE_HPP
 
 
 #include <iostream>
@@ -126,4 +126,4 @@ extern "C"
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ******************************************************************************/
 
-#endif // _SLUA__INCLUDE_HPP
+#endif // _SLU__INCLUDE_HPP

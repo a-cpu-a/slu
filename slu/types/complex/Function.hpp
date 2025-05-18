@@ -9,7 +9,7 @@
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 
-namespace slua
+namespace slu
 {
 	//does not allow C-functions
 	//may, or may not be nil
@@ -30,14 +30,14 @@ namespace slua
 				return 1;
 			}
 
-			slua::loadFunction(L, data.func, data.name.c_str(), true);
+			slu::loadFunction(L, data.func, data.name.c_str(), true);
 			return 1;
 		}
 		static Function read(lua_State* L, const int idx) {
 			if (lua_isnil(L, idx)) return Function();
 
 			lua_pushvalue(L, idx);
-			return slua::dumpFunction(L, true);
+			return slu::dumpFunction(L, true);
 		}
 		static bool check(lua_State* L, const int idx) {
 			return (lua_isfunction(L, idx) || lua_isnil(L, idx)) && !lua_iscfunction(L, idx);

@@ -8,7 +8,7 @@
 #include "Enums.hpp"
 #include <slu/ErrorType.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	//TODO: reuse this code more... later
 
@@ -63,15 +63,15 @@ namespace slua::parse
 		{
 			if (m_isSmall())
 			{
-				Slua_require(idx < small.size);
+				Slu_require(idx < small.size);
 				return small.first14[idx];
 			}
-			Slua_require(idx < large.size);
+			Slu_require(idx < large.size);
 			return large.ptr[idx];
 		}
 		void erase_back()
 		{
-			Slua_require(size()!=0);
+			Slu_require(size()!=0);
 			if (m_isSmall())
 			{
 				small.size--;
@@ -116,7 +116,7 @@ namespace slua::parse
 				const uint8_t reserv = (uint8_t)std::min((size_t)UINT8_MAX, large.size + 1);//+1 for storage method
 
 
-				Slua_require((reserv + large.size) <= MAX_LARGE_SIZE);
+				Slu_require((reserv + large.size) <= MAX_LARGE_SIZE);
 
 				T* ptr = (T*)std::realloc(large.ptr, large.size + reserv - 1);// -1, cuz large.reserve is stored in +1
 
@@ -157,12 +157,12 @@ namespace slua::parse
 			SmallEnumListIterator& operator++() {
 				if constexpr (rev)
 				{
-					Slua_require(m_index != 0);
+					Slu_require(m_index != 0);
 					--m_index;
 					return *this;
 				}
 				++m_index;
-				Slua_require(m_index <= m_list->size());//allow == size, as that is end()
+				Slu_require(m_index <= m_list->size());//allow == size, as that is end()
 				return *this;
 			}
 

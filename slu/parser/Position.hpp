@@ -1,10 +1,10 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
 
-namespace slua::parse
+namespace slu::parse
 {
 	struct Position
 	{

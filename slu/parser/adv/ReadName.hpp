@@ -17,13 +17,13 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/basic/CharInfo.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
-#define _Slua_COMMON_KWS \
+#define _Slu_COMMON_KWS \
 	"and", "break", "do", "else", "elseif", "end", "for", "function", \
 	"goto", "if", "in", "local", "not", "or", "repeat", "return", \
 	"then", "until", "while"
-#define _Slua_KWS \
+#define _Slu_KWS \
 	/* freedom */\
 	"continue", "where", "reloc", "loop", "raw", "ref", \
 	/* future */\
@@ -39,33 +39,33 @@ namespace slua::parse
 	"axiom","unsafe","struct", "module", "extern", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
-		"false", "nil", _Slua_COMMON_KWS, "true"
+		"false", "nil", _Slu_COMMON_KWS, "true"
 	};
-	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA = {
-		_Slua_COMMON_KWS,
-		_Slua_KWS,
+	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU = {
+		_Slu_COMMON_KWS,
+		_Slu_KWS,
 
 		//Conditional
 		"self", "Self", "crate",
 	};
-	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLUA_MP_START = {
-		_Slua_COMMON_KWS,
-		_Slua_KWS
+	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
+		_Slu_COMMON_KWS,
+		_Slu_KWS
 	};
 #undef _LUA_KWS
-#undef _Slua_COMMON_KWS
+#undef _Slu_COMMON_KWS
 
 	template<bool forMpStart>
 	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
 		const std::unordered_set<std::string>* checkSet = &RESERVED_KEYWORDS;
 
-		if constexpr (in.settings() & sluaSyn)
+		if constexpr (in.settings() & sluSyn)
 		{
 			if constexpr (forMpStart)
-				checkSet = &RESERVED_KEYWORDS_SLUA_MP_START;
+				checkSet = &RESERVED_KEYWORDS_SLU_MP_START;
 			else
-				checkSet = &RESERVED_KEYWORDS_SLUA;
+				checkSet = &RESERVED_KEYWORDS_SLU;
 		}
 
 		// Check if the resulting string is a reserved keyword

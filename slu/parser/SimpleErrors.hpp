@@ -16,7 +16,7 @@
 #include <slu/parser/State.hpp>
 #include <slu/parser/Input.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	struct ParseFailError : std::exception
 	{
@@ -39,18 +39,18 @@ namespace slua::parse
 		using BasicParseError::BasicParseError;
 	};
 
-#define _Slua_MAKE_ERROR(_NAME) struct _NAME : ParseError \
+#define _Slu_MAKE_ERROR(_NAME) struct _NAME : ParseError \
 	{ \
 		using ParseError::ParseError;\
 	}
 
-	_Slua_MAKE_ERROR(UnicodeError);
-	_Slua_MAKE_ERROR(UnexpectedKeywordError);
-	_Slua_MAKE_ERROR(UnexpectedCharacterError);
-	_Slua_MAKE_ERROR(UnexpectedFileEndError);
-	_Slua_MAKE_ERROR(ReservedNameError);
-	_Slua_MAKE_ERROR(ErrorWhileContext);
-	_Slua_MAKE_ERROR(InternalError);
+	_Slu_MAKE_ERROR(UnicodeError);
+	_Slu_MAKE_ERROR(UnexpectedKeywordError);
+	_Slu_MAKE_ERROR(UnexpectedCharacterError);
+	_Slu_MAKE_ERROR(UnexpectedFileEndError);
+	_Slu_MAKE_ERROR(ReservedNameError);
+	_Slu_MAKE_ERROR(ErrorWhileContext);
+	_Slu_MAKE_ERROR(InternalError);
 
-#undef _Slua_MAKE_ERROR
+#undef _Slu_MAKE_ERROR
 }

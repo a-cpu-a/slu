@@ -19,12 +19,12 @@
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/Paint.hpp>
 
-namespace slua::paint
+namespace slu::paint
 {
 	/*
 	ps, add something like this:
 	```css
-	.slua-code-box {
+	.slu-code-box {
 		tab-size: 3;
 		white-space-collapse: preserve;
 		background:#151515;
@@ -117,11 +117,11 @@ namespace slua::paint
 
 		if (mostCommonCol == UINT32_MAX)
 		{// Its empty
-			res += "<code class=slua-code-box></code>";
+			res += "<code class=slu-code-box></code>";
 			return res;
 		}
 
-		res += "<code class=\"slua-code-box C";
+		res += "<code class=\"slu-code-box C";
 		for (size_t i = 0; i < 6; i++)
 		{
 			const uint8_t nibble = (mostCommonCol >> (20 - i * 4)) & 0xF;

@@ -14,16 +14,16 @@
 #include <slu/ErrorType.hpp>
 
 #if !defined(_MSC_VER) || defined(__clang__)
-#define _Slua_NO_RETURN(...)
+#define _Slu_NO_RETURN(...)
 #else
-#define _Slua_NO_RETURN(...) \
+#define _Slu_NO_RETURN(...) \
 	do {__pragma(warning(push))__pragma(warning(suppress: 4645)) \
 		return __VA_ARGS__; \
 		__pragma(warning(pop)) \
 	}while(0)
 #endif
 
-namespace slua
+namespace slu
 {
 	//if a function is prefixed with lua_, its kinda unsafe
 
@@ -38,21 +38,21 @@ namespace slua
 
 		lua_error(L);
 
-		_Slua_NO_RETURN(0);
+		_Slu_NO_RETURN(0);
 	}
 
 	[[noreturn]] inline int lua_error(lua_State* L, const std::string& str) {
 		lua_pushlstring(L, str.data(), str.size());
 		lua_error(L);
-		_Slua_NO_RETURN(0);
+		_Slu_NO_RETURN(0);
 	}
-	[[noreturn]] inline int lua_error(lua_State* L, const slua::Error& e) {
+	[[noreturn]] inline int lua_error(lua_State* L, const slu::Error& e) {
 		lua_error(L, e.msg);
-		_Slua_NO_RETURN(0);
+		_Slu_NO_RETURN(0);
 	}
 	[[noreturn]] inline int lua_error(lua_State* L, const char* str) {
 		luaL_error(L, str);
-		_Slua_NO_RETURN(0);
+		_Slu_NO_RETURN(0);
 	}
 
 	inline std::string readString(lua_State* L, const int idx) {
@@ -163,5 +163,5 @@ namespace slua
 
 
 //changes a value of the table you just created
-#define Slua_setStrKeyTableValue(_L,_KEY,...) lua_pushstring(_L, (_KEY));__VA_ARGS__;lua_rawset(_L, -3)
-#define Slua_setTableValue(_L,_IDX,...) __VA_ARGS__;slua::lua_setTableValue(_L,_IDX)
+#define Slu_setStrKeyTableValue(_L,_KEY,...) lua_pushstring(_L, (_KEY));__VA_ARGS__;lua_rawset(_L, -3)
+#define Slu_setTableValue(_L,_IDX,...) __VA_ARGS__;slu::lua_setTableValue(_L,_IDX)

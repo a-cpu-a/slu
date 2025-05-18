@@ -10,11 +10,11 @@
 #include <slu/parser/State.hpp>
 #include <slu/lang/BasicState.hpp>
 
-namespace slua::mlvl
+namespace slu::mlvl
 {
-	using slua::lang::ModPath;
-	using slua::lang::ModPathView;
-	using slua::lang::ExportData;
+	using slu::lang::ModPath;
+	using slu::lang::ModPathView;
+	using slu::lang::ExportData;
 
 	/*
 	

@@ -25,20 +25,20 @@
 #undef TRUE
 #undef CONST
 
-namespace slua::parse
+namespace slu::parse
 {
 
 	template<AnyCfgable CfgT, template<bool> class T>
-	using SelV = T<CfgT::settings()& sluaSyn>;
+	using SelV = T<CfgT::settings()& sluSyn>;
 
-	template<bool isSlua, class T,class SlT>
-	using Sel = std::conditional_t<isSlua,SlT,T>;
+	template<bool isSlu, class T,class SlT>
+	using Sel = std::conditional_t<isSlu,SlT,T>;
 
 	template<AnyCfgable Cfg, size_t TOK_SIZE, size_t TOK_SIZE2>
-	consteval const auto& sel(const char(&tok)[TOK_SIZE], const char(&sluaTok)[TOK_SIZE2])
+	consteval const auto& sel(const char(&tok)[TOK_SIZE], const char(&sluTok)[TOK_SIZE2])
 	{
-		if constexpr (Cfg::settings() & sluaSyn)
-			return sluaTok;
+		if constexpr (Cfg::settings() & sluSyn)
+			return sluTok;
 		else
 			return tok;
 	}
@@ -80,54 +80,54 @@ namespace slua::parse
 
 	//Forward declare
 
-	template<bool isSlua> struct StatementV;
+	template<bool isSlu> struct StatementV;
 	template<AnyCfgable CfgT> using Statement = SelV<CfgT, StatementV>;
 
-	template<bool isSlua> struct ExpressionV;
+	template<bool isSlu> struct ExpressionV;
 	template<AnyCfgable CfgT> using Expression = SelV<CfgT, ExpressionV>;
 
-	template<bool isSlua> struct VarV;
+	template<bool isSlu> struct VarV;
 	template<AnyCfgable CfgT> using Var = SelV<CfgT, VarV>;
 
 	namespace FieldType {
-		template<bool isSlua> struct EXPR2EXPRv;
+		template<bool isSlu> struct EXPR2EXPRv;
 		template<AnyCfgable CfgT> using EXPR2EXPR = SelV<CfgT, EXPR2EXPRv>;
 
-		template<bool isSlua> struct NAME2EXPRv;
+		template<bool isSlu> struct NAME2EXPRv;
 		template<AnyCfgable CfgT> using NAME2EXPR = SelV<CfgT, NAME2EXPRv>;
 
-		template<bool isSlua> struct EXPRv;
+		template<bool isSlu> struct EXPRv;
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
 	namespace LimPrefixExprType
 	{
-		template<bool isSlua> struct VARv;			// "var"
+		template<bool isSlu> struct VARv;			// "var"
 		template<AnyCfgable CfgT> using VAR = SelV<CfgT, VARv>;
 
-		template<bool isSlua> struct EXPRv;	// "'(' exp ')'"
+		template<bool isSlu> struct EXPRv;	// "'(' exp ')'"
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
-	template<bool isSlua>
+	template<bool isSlu>
 	using LimPrefixExprV = std::variant<
-		LimPrefixExprType::VARv<isSlua>,
-		LimPrefixExprType::EXPRv<isSlua>
+		LimPrefixExprType::VARv<isSlu>,
+		LimPrefixExprType::EXPRv<isSlu>
 	>;
 	template<AnyCfgable CfgT>
 	using LimPrefixExpr = SelV<CfgT, LimPrefixExprV>;
 
-	template<bool isSlua> struct ArgFuncCallV;
+	template<bool isSlu> struct ArgFuncCallV;
 	template<AnyCfgable CfgT> using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
 
-	template<bool isSlua> struct FuncCallV;
+	template<bool isSlu> struct FuncCallV;
 	template<AnyCfgable CfgT> using FuncCall = SelV<CfgT, FuncCallV>;
 
-	template<bool isSlua>
-	using ExpListV = std::vector<ExpressionV<isSlua>>;
+	template<bool isSlu>
+	using ExpListV = std::vector<ExpressionV<isSlu>>;
 	template<AnyCfgable CfgT> using ExpList = SelV<CfgT, ExpListV>;
 
 	struct TypeExpr;
 
-	// Slua
+	// Slu
 
 	//Possible future optimization:
 	/*
@@ -135,10 +135,10 @@ namespace slua::parse
 	*/
 
 
-	using slua::lang::MpItmIdV;
-	using slua::lang::ModPath;
-	using slua::lang::ModPathView;
-	using slua::lang::ExportData;
+	using slu::lang::MpItmIdV;
+	using slu::lang::ModPath;
+	using slu::lang::ModPathView;
+	using slu::lang::ExportData;
 	using SubModPath = std::vector<std::string>;
 
 
@@ -147,32 +147,32 @@ namespace slua::parse
 
 	namespace FieldType { struct NONE {}; }
 
-	template<bool isSlua>
+	template<bool isSlu>
 	using FieldV = std::variant<
 		FieldType::NONE,// Here, so variant has a default value (DO NOT USE)
 
-		FieldType::EXPR2EXPRv<isSlua>, // "'[' exp ']' = exp"
-		FieldType::NAME2EXPRv<isSlua>, // "Name = exp"
-		FieldType::EXPRv<isSlua>       // "exp"
+		FieldType::EXPR2EXPRv<isSlu>, // "'[' exp ']' = exp"
+		FieldType::NAME2EXPRv<isSlu>, // "Name = exp"
+		FieldType::EXPRv<isSlu>       // "exp"
 	>;
 
 	template<AnyCfgable CfgT>
 	using Field = SelV<CfgT, FieldV>;
 
 	// ‘{’ [fieldlist] ‘}’
-	template<bool isSlua>
-	using TableConstructorV = std::vector<FieldV<isSlua>>;
+	template<bool isSlu>
+	using TableConstructorV = std::vector<FieldV<isSlu>>;
 	template<AnyCfgable CfgT>
 	using TableConstructor = SelV<CfgT, TableConstructorV>;
 
 
 
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct BlockV
 	{
-		std::vector<StatementV<isSlua>> statList;
-		ExpListV<isSlua> retExprs;//Special, may contain 0 elements (even with hadReturn)
+		std::vector<StatementV<isSlu>> statList;
+		ExpListV<isSlu> retExprs;//Special, may contain 0 elements (even with hadReturn)
 
 		//Scope scope;
 
@@ -193,74 +193,74 @@ namespace slua::parse
 
 	namespace StatOrExprType
 	{
-		template<bool isSlua>
-		using BLOCKv = BlockV<isSlua>;
+		template<bool isSlu>
+		using BLOCKv = BlockV<isSlu>;
 		template<AnyCfgable CfgT> using BLOCK = SelV<CfgT, BLOCKv>;
 
-		template<bool isSlua>
-		using EXPRv = ExpressionV<isSlua>;
+		template<bool isSlu>
+		using EXPRv = ExpressionV<isSlu>;
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
-	template<bool isSlua>
+	template<bool isSlu>
 	using StatOrExprV = std::variant<
-		StatOrExprType::BLOCKv<isSlua>,
-		StatOrExprType::EXPRv<isSlua>
+		StatOrExprType::BLOCKv<isSlu>,
+		StatOrExprType::EXPRv<isSlu>
 	>;
 	template<AnyCfgable CfgT> using StatOrExpr = SelV<CfgT, StatOrExprV>;
 
-	template<bool isSlua> using SoeOrBlockV = Sel<isSlua,BlockV<isSlua>,StatOrExprV<isSlua>>;
+	template<bool isSlu> using SoeOrBlockV = Sel<isSlu,BlockV<isSlu>,StatOrExprV<isSlu>>;
 	template<AnyCfgable CfgT> using SoeOrBlock = SelV<CfgT, SoeOrBlockV>;
 
-	template<bool isSlua> using SoeBoxOrBlockV = Sel<isSlua, BlockV<isSlua>, std::unique_ptr<StatOrExprV<isSlua>>>;
+	template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<StatOrExprV<isSlu>>>;
 	template<AnyCfgable CfgT> using SoeBoxOrBlock = SelV<CfgT, SoeBoxOrBlockV>;
 
 	namespace ArgsType
 	{
-		template<bool isSlua>
-		struct EXPLISTv { ExpListV<isSlua> v; };			// "'(' [explist] ')'"
+		template<bool isSlu>
+		struct EXPLISTv { ExpListV<isSlu> v; };			// "'(' [explist] ')'"
 		template<AnyCfgable CfgT> using EXPLIST = SelV<CfgT, EXPLISTv>;
 
-		template<bool isSlua>
-		struct TABLEv { TableConstructorV<isSlua> v; };	// "tableconstructor"
+		template<bool isSlu>
+		struct TABLEv { TableConstructorV<isSlu> v; };	// "tableconstructor"
 		template<AnyCfgable CfgT> using TABLE = SelV<CfgT, TABLEv>;
 
 		struct LITERAL { std::string v; Position end; };// "LiteralString"
 	};
-	template<bool isSlua>
+	template<bool isSlu>
 	using ArgsV = std::variant<
-		ArgsType::EXPLISTv<isSlua>,
-		ArgsType::TABLEv<isSlua>,
+		ArgsType::EXPLISTv<isSlu>,
+		ArgsType::TABLEv<isSlu>,
 		ArgsType::LITERAL
 	>;
 
 	template<AnyCfgable CfgT>
 	using Args = SelV<CfgT, ArgsV>;
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct ArgFuncCallV
 	{// funcArgs ::=  [‘:’ Name] args
 
-		MpItmIdV<isSlua> funcName;//If empty, then no colon needed. Only used for ":xxx"
-		ArgsV<isSlua> args;
+		MpItmIdV<isSlu> funcName;//If empty, then no colon needed. Only used for ":xxx"
+		ArgsV<isSlu> args;
 	};
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct FuncCallV
 	{
-		std::unique_ptr<LimPrefixExprV<isSlua>> val;
-		std::vector<ArgFuncCallV<isSlua>> argChain;
+		std::unique_ptr<LimPrefixExprV<isSlu>> val;
+		std::vector<ArgFuncCallV<isSlu>> argChain;
 	};
 
 
 	namespace ExprType
 	{
 
-		template<bool isSlua>
-		using LIM_PREFIX_EXPv = std::unique_ptr<LimPrefixExprV<isSlua>>;	// "prefixexp"
+		template<bool isSlu>
+		using LIM_PREFIX_EXPv = std::unique_ptr<LimPrefixExprV<isSlu>>;	// "prefixexp"
 		template<AnyCfgable CfgT> using LIM_PREFIX_EXP = SelV<CfgT, LIM_PREFIX_EXPv>;
 
-		template<bool isSlua>
-		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
+		template<bool isSlu>
+		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
 		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
 		struct OPEN_RANGE {};					// "..."
@@ -270,7 +270,7 @@ namespace slua::parse
 
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
 
-		//u64,i128,u128, for slua only
+		//u64,i128,u128, for slu only
 		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
 		struct NUMERAL_U128 { uint64_t lo = 0; uint64_t hi = 0; }; // "Numeral"
 		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
@@ -283,7 +283,7 @@ namespace slua::parse
 		UnOpType type;
 	};
 
-	//Slua
+	//Slu
 
 	namespace TraitExprItemType
 	{
@@ -387,28 +387,28 @@ namespace slua::parse
 	//Common
 
 	//NOTE: has overload later!!!
-	template<bool isSlua>
+	template<bool isSlu>
 	struct ParameterV
 	{
-		MpItmIdV<isSlua> name;
+		MpItmIdV<isSlu> name;
 	};
 	template<AnyCfgable CfgT>
 	using Parameter = SelV<CfgT, ParameterV>;
 
-	template<bool isSlua>
-	using ParamListV = std::vector<ParameterV<isSlua>>;
+	template<bool isSlu>
+	using ParamListV = std::vector<ParameterV<isSlu>>;
 	template<AnyCfgable CfgT> using ParamList = SelV<CfgT, ParamListV>;
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct BaseFunctionV
 	{
-		ParamListV<isSlua> params;
-		BlockV<isSlua> block;
+		ParamListV<isSlu> params;
+		BlockV<isSlu> block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
 
-	template<bool isSlua>
-	struct FunctionV : BaseFunctionV<isSlua>
+	template<bool isSlu>
+	struct FunctionV : BaseFunctionV<isSlu>
 	{};
 	template<>
 	struct FunctionV<true> : BaseFunctionV<true>
@@ -422,16 +422,16 @@ namespace slua::parse
 
 
 
-	template<bool isSlua,bool boxIt>
+	template<bool isSlu,bool boxIt>
 	struct BaseIfCondV
 	{
-		std::vector<std::pair<ExpressionV<isSlua>, SoeOrBlockV<isSlua>>> elseIfs;
-		MayBox<boxIt, ExpressionV<isSlua>> cond;
-		MayBox<boxIt, SoeOrBlockV<isSlua>> bl;
-		std::optional<MayBox<boxIt, SoeOrBlockV<isSlua>>> elseBlock;
+		std::vector<std::pair<ExpressionV<isSlu>, SoeOrBlockV<isSlu>>> elseIfs;
+		MayBox<boxIt, ExpressionV<isSlu>> cond;
+		MayBox<boxIt, SoeOrBlockV<isSlu>> bl;
+		std::optional<MayBox<boxIt, SoeOrBlockV<isSlu>>> elseBlock;
 	};
 	template<AnyCfgable CfgT, bool boxIt> 
-	using BaseIfCond = Sel<CfgT::settings()&sluaSyn, BaseIfCondV<false,boxIt>, BaseIfCondV<true,boxIt>>;
+	using BaseIfCond = Sel<CfgT::settings()&sluSyn, BaseIfCondV<false,boxIt>, BaseIfCondV<true,boxIt>>;
 
 	namespace ExprType
 	{
@@ -440,27 +440,27 @@ namespace slua::parse
 		struct TRUE {};											// "true"
 		struct VARARGS {};										// "..."
 
-		template<bool isSlua>
-		struct FUNCTION_DEFv { FunctionV<isSlua> v; };				// "functiondef"
+		template<bool isSlu>
+		struct FUNCTION_DEFv { FunctionV<isSlu> v; };				// "functiondef"
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
 
-		template<bool isSlua>
-		struct TABLE_CONSTRUCTORv { TableConstructorV<isSlua> v; };	// "tableconstructor"
+		template<bool isSlu>
+		struct TABLE_CONSTRUCTORv { TableConstructorV<isSlu> v; };	// "tableconstructor"
 		template<AnyCfgable CfgT> using TABLE_CONSTRUCTOR = SelV<CfgT, TABLE_CONSTRUCTORv>;
 
 		//unOps is always empty for this type
-		template<bool isSlua>
+		template<bool isSlu>
 		struct MULTI_OPERATIONv
 		{
-			std::unique_ptr<ExpressionV<isSlua>> first;
-			std::vector<std::pair<BinOpType, ExpressionV<isSlua>>> extra;//size>=1
+			std::unique_ptr<ExpressionV<isSlu>> first;
+			std::vector<std::pair<BinOpType, ExpressionV<isSlu>>> extra;//size>=1
 		};      // "exp binop exp"
 		template<AnyCfgable CfgT> using MULTI_OPERATION = SelV<CfgT, MULTI_OPERATIONv>;
 
-		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlua>>};     // "unop exp"	//Inlined as opt prefix
+		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlu>>};     // "unop exp"	//Inlined as opt prefix
 
-		template<bool isSlua>
-		using IfCondV = BaseIfCondV<isSlua, true>;
+		template<bool isSlu>
+		using IfCondV = BaseIfCondV<isSlu, true>;
 		template<AnyCfgable CfgT> using IfCond = SelV<CfgT, IfCondV>;
 
 
@@ -471,7 +471,7 @@ namespace slua::parse
 		struct PAT_TYPE_PREFIX {};
 	}
 
-	template<bool isSlua>
+	template<bool isSlu>
 	using ExprDataV = std::variant<
 		ExprType::NIL,                  // "nil"
 		ExprType::FALSE,                // "false"
@@ -481,16 +481,16 @@ namespace slua::parse
 
 		ExprType::LITERAL_STRING,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
-		ExprType::FUNCTION_DEFv<isSlua>,			// "functiondef"
-		ExprType::LIM_PREFIX_EXPv<isSlua>,		// "prefixexp"
-		ExprType::FUNC_CALLv<isSlua>,			// "prefixexp argsThing {argsThing}"
-		ExprType::TABLE_CONSTRUCTORv<isSlua>,	// "tableconstructor"
+		ExprType::FUNCTION_DEFv<isSlu>,			// "functiondef"
+		ExprType::LIM_PREFIX_EXPv<isSlu>,		// "prefixexp"
+		ExprType::FUNC_CALLv<isSlu>,			// "prefixexp argsThing {argsThing}"
+		ExprType::TABLE_CONSTRUCTORv<isSlu>,	// "tableconstructor"
 
-		ExprType::MULTI_OPERATIONv<isSlua>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
+		ExprType::MULTI_OPERATIONv<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
-		// Slua
+		// Slu
 
-		ExprType::IfCondV<isSlua>,
+		ExprType::IfCondV<isSlu>,
 
 		ExprType::OPEN_RANGE,			// "..."
 
@@ -509,10 +509,10 @@ namespace slua::parse
 	using ExprData = SelV<CfgT, ExprDataV>;
 
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct BaseExpressionV
 	{
-		ExprDataV<isSlua> data;
+		ExprDataV<isSlu> data;
 		Position place;
 		std::vector<UnOpItem> unOps;
 
@@ -522,8 +522,8 @@ namespace slua::parse
 		BaseExpressionV& operator=(BaseExpressionV&&) = default;
 	};
 
-	template<bool isSlua>
-	struct ExpressionV : BaseExpressionV<isSlua>
+	template<bool isSlu>
+	struct ExpressionV : BaseExpressionV<isSlu>
 	{
 	};
 	template<>
@@ -532,7 +532,7 @@ namespace slua::parse
 		SmallEnumList<PostUnOpType> postUnOps;
 	};
 
-	//Slua
+	//Slu
 
 
 	// match patterns
@@ -634,23 +634,23 @@ namespace slua::parse
 
 	namespace SubVarType
 	{
-		template<bool isSlua>
-		struct NAMEv { MpItmIdV<isSlua> idx; };	// {funcArgs} ‘.’ Name
+		template<bool isSlu>
+		struct NAMEv { MpItmIdV<isSlu> idx; };	// {funcArgs} ‘.’ Name
 		template<AnyCfgable CfgT> using NAME = SelV<CfgT, NAMEv>;
 
-		template<bool isSlua>
-		struct EXPRv { ExpressionV<isSlua> idx; };	// {funcArgs} ‘[’ exp ‘]’
+		template<bool isSlu>
+		struct EXPRv { ExpressionV<isSlu> idx; };	// {funcArgs} ‘[’ exp ‘]’
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 	}
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct SubVarV
 	{
-		std::vector<ArgFuncCallV<isSlua>> funcCalls;
+		std::vector<ArgFuncCallV<isSlu>> funcCalls;
 
 		std::variant<
-			SubVarType::NAMEv<isSlua>,
-			SubVarType::EXPRv<isSlua>
+			SubVarType::NAMEv<isSlu>,
+			SubVarType::EXPRv<isSlu>
 		> idx;
 	};
 
@@ -659,10 +659,10 @@ namespace slua::parse
 
 	namespace BaseVarType
 	{
-		template<bool isSlua>
+		template<bool isSlu>
 		struct NAMEv
 		{
-			MpItmIdV<isSlua> v;
+			MpItmIdV<isSlu> v;
 		};
 		template<>
 		struct NAMEv<true>
@@ -673,74 +673,74 @@ namespace slua::parse
 		template<AnyCfgable CfgT>
 		using NAME = SelV<CfgT, NAMEv>;
 
-		template<bool isSlua>
+		template<bool isSlu>
 		struct EXPRv
 		{
-			ExpressionV<isSlua> start;
+			ExpressionV<isSlu> start;
 		};
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 
-		// Slua only:
+		// Slu only:
 		
 
-		template<bool isSlua>
+		template<bool isSlu>
 		struct EXPR_DEREF_NO_SUBv
 		{
-			ExpressionV<isSlua> start;
+			ExpressionV<isSlu> start;
 		};
 		template<AnyCfgable CfgT> using EXPR_DEREF_NO_SUB = SelV<CfgT, EXPR_DEREF_NO_SUBv>;
 
 	}
-	template<bool isSlua>
+	template<bool isSlu>
 	using BaseVarV = std::variant<
-		BaseVarType::NAMEv<isSlua>,
-		BaseVarType::EXPRv<isSlua>,
-		BaseVarType::EXPR_DEREF_NO_SUBv<isSlua>
+		BaseVarType::NAMEv<isSlu>,
+		BaseVarType::EXPRv<isSlu>,
+		BaseVarType::EXPR_DEREF_NO_SUBv<isSlu>
 	>;
 
 	template<AnyCfgable CfgT>
 	using BaseVar = SelV<CfgT, BaseVarV>;
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct VarV
 	{
-		BaseVarV<isSlua> base;
-		std::vector<SubVarV<isSlua>> sub;
+		BaseVarV<isSlu> base;
+		std::vector<SubVarV<isSlu>> sub;
 	};
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct AttribNameV
 	{
-		MpItmIdV<isSlua> name;
+		MpItmIdV<isSlu> name;
 		std::string attrib;//empty -> no attrib
 	};
 	template<AnyCfgable CfgT> using AttribName = SelV<CfgT, AttribNameV>;
 
 	namespace FieldType
 	{
-		template<bool isSlua>
-		struct EXPR2EXPRv { ExpressionV<isSlua> idx; ExpressionV<isSlua> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		template<bool isSlu>
+		struct EXPR2EXPRv { ExpressionV<isSlu> idx; ExpressionV<isSlu> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
 
-		template<bool isSlua>
-		struct NAME2EXPRv { MpItmIdV<isSlua> idx; ExpressionV<isSlua> v; };	// "Name ‘=’ exp"
+		template<bool isSlu>
+		struct NAME2EXPRv { MpItmIdV<isSlu> idx; ExpressionV<isSlu> v; };	// "Name ‘=’ exp"
 
-		template<bool isSlua>
-		struct EXPRv { ExpressionV<isSlua> v; };							// "exp"
+		template<bool isSlu>
+		struct EXPRv { ExpressionV<isSlu> v; };							// "exp"
 	}
 	namespace LimPrefixExprType
 	{
-		template<bool isSlua>
-		struct VARv { VarV<isSlua> v; };			// "var"
+		template<bool isSlu>
+		struct VARv { VarV<isSlu> v; };			// "var"
 
-		template<bool isSlua>
-		struct EXPRv { ExpressionV<isSlua> v; };	// "'(' exp ')'"
+		template<bool isSlu>
+		struct EXPRv { ExpressionV<isSlu> v; };	// "'(' exp ')'"
 	}
 
-	template<bool isSlua>
-	using AttribNameListV = std::vector<AttribNameV<isSlua>>;
+	template<bool isSlu>
+	using AttribNameListV = std::vector<AttribNameV<isSlu>>;
 	template<AnyCfgable CfgT> using AttribNameList = SelV<CfgT, AttribNameListV>;
-	template<bool isSlua>
-	using NameListV = std::vector<MpItmIdV<isSlua>>;
+	template<bool isSlu>
+	using NameListV = std::vector<MpItmIdV<isSlu>>;
 	template<AnyCfgable CfgT> using NameList = SelV<CfgT, NameListV>;
 
 	namespace UseVariantType
@@ -757,12 +757,12 @@ namespace slua::parse
 		UseVariantType::LIST_OF_STUFF
 	>;
 
-	template<class TyTy, bool isSlua>
+	template<class TyTy, bool isSlu>
 	struct StructBaseV
 	{
-		ParamListV<isSlua> params;
+		ParamListV<isSlu> params;
 		TyTy type;
-		MpItmIdV<isSlua> name;
+		MpItmIdV<isSlu> name;
 		ExportData exported = false;
 	};
 
@@ -770,70 +770,70 @@ namespace slua::parse
 	{
 		using SEMICOLON = std::monostate;	// ";"
 
-		template<bool isSlua>
-		struct ASSIGNv { std::vector<VarV<isSlua>> vars; ExpListV<isSlua> exprs; };// "varlist = explist" //e.size must be > 0
+		template<bool isSlu>
+		struct ASSIGNv { std::vector<VarV<isSlu>> vars; ExpListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
 		template<AnyCfgable CfgT> using ASSIGN = SelV<CfgT, ASSIGNv>;
 
-		template<bool isSlua>
-		using FUNC_CALLv = FuncCallV<isSlua>;								// "functioncall"
+		template<bool isSlu>
+		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
 		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
-		template<bool isSlua>
-		struct LABELv { MpItmIdV<isSlua> v; };		// "label"
+		template<bool isSlu>
+		struct LABELv { MpItmIdV<isSlu> v; };		// "label"
 		template<AnyCfgable CfgT> using LABEL = SelV<CfgT, LABELv>;
 		struct BREAK { };
-		template<bool isSlua>					// "break"
-		struct GOTOv { MpItmIdV<isSlua> v; };			// "goto Name"
+		template<bool isSlu>					// "break"
+		struct GOTOv { MpItmIdV<isSlu> v; };			// "goto Name"
 		template<AnyCfgable CfgT> using GOTO = SelV<CfgT, GOTOv>;
 
-		template<bool isSlua>
-		struct BLOCKv { BlockV<isSlua> bl; };							// "do block end"
+		template<bool isSlu>
+		struct BLOCKv { BlockV<isSlu> bl; };							// "do block end"
 		template<AnyCfgable CfgT> using BLOCK = SelV<CfgT, BLOCKv>;
 
-		template<bool isSlua>
-		struct WHILE_LOOPv { ExpressionV<isSlua> cond; BlockV<isSlua> bl; };		// "while exp do block end"
+		template<bool isSlu>
+		struct WHILE_LOOPv { ExpressionV<isSlu> cond; BlockV<isSlu> bl; };		// "while exp do block end"
 		template<AnyCfgable CfgT> using WHILE_LOOP = SelV<CfgT, WHILE_LOOPv>;
 
-		template<bool isSlua>
-		struct REPEAT_UNTILv :WHILE_LOOPv<isSlua> {};						// "repeat block until exp"
+		template<bool isSlu>
+		struct REPEAT_UNTILv :WHILE_LOOPv<isSlu> {};						// "repeat block until exp"
 		template<AnyCfgable CfgT> using REPEAT_UNTIL = SelV<CfgT, REPEAT_UNTILv>;
 
 		// "if exp then block {elseif exp then block} [else block] end"
-		template<bool isSlua>
-		using IfCondV = BaseIfCondV<isSlua, false>;
+		template<bool isSlu>
+		using IfCondV = BaseIfCondV<isSlu, false>;
 		template<AnyCfgable CfgT> using IfCond = SelV<CfgT, IfCondV>;
 
 		// "for Name = exp , exp [, exp] do block end"
-		template<bool isSlua>
+		template<bool isSlu>
 		struct FOR_LOOP_NUMERICv
 		{
-			Sel<isSlua, MpItmIdV<isSlua>, Pat> varName;
-			ExpressionV<isSlua> start;
-			ExpressionV<isSlua> end;//inclusive
-			std::optional<ExpressionV<isSlua>> step;
-			BlockV<isSlua> bl;
+			Sel<isSlu, MpItmIdV<isSlu>, Pat> varName;
+			ExpressionV<isSlu> start;
+			ExpressionV<isSlu> end;//inclusive
+			std::optional<ExpressionV<isSlu>> step;
+			BlockV<isSlu> bl;
 		};
 		template<AnyCfgable CfgT> using FOR_LOOP_NUMERIC = SelV<CfgT, FOR_LOOP_NUMERICv>;
 
 		// "for namelist in explist do block end"
-		template<bool isSlua>
+		template<bool isSlu>
 		struct FOR_LOOP_GENERICv
 		{
-			Sel<isSlua, NameListV<isSlua>, Pat> varNames;
-			Sel<isSlua, ExpListV<isSlua>, ExpressionV<isSlua>> exprs;//size must be > 0
-			BlockV<isSlua> bl;
+			Sel<isSlu, NameListV<isSlu>, Pat> varNames;
+			Sel<isSlu, ExpListV<isSlu>, ExpressionV<isSlu>> exprs;//size must be > 0
+			BlockV<isSlu> bl;
 		};
 		template<AnyCfgable CfgT> using FOR_LOOP_GENERIC = SelV<CfgT, FOR_LOOP_GENERICv>;
 
-		template<bool isSlua>
+		template<bool isSlu>
 		struct FuncDefBase
 		{// "function funcname funcbody"    
 			Position place;//Right before func-name
-			MpItmIdV<isSlua> name; // name may contain dots, 1 colon if !isSlua
-			FunctionV<isSlua> func;
+			MpItmIdV<isSlu> name; // name may contain dots, 1 colon if !isSlu
+			FunctionV<isSlu> func;
 		};
-		template<bool isSlua>
-		struct FUNCTION_DEFv : FuncDefBase<isSlua> {};
+		template<bool isSlu>
+		struct FUNCTION_DEFv : FuncDefBase<isSlu> {};
 		template<>
 		struct FUNCTION_DEFv<true> : FuncDefBase<true> 
 		{
@@ -842,20 +842,20 @@ namespace slua::parse
 
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
 
-		template<bool isSlua>
-		struct FNv : FUNCTION_DEFv<isSlua> {};
+		template<bool isSlu>
+		struct FNv : FUNCTION_DEFv<isSlu> {};
 		template<AnyCfgable CfgT> using FN = SelV<CfgT, FNv>;
 
-		template<bool isSlua>
-		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlua> {};
+		template<bool isSlu>
+		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlu> {};
 		template<AnyCfgable CfgT> using LOCAL_FUNCTION_DEF = SelV<CfgT, LOCAL_FUNCTION_DEFv>;
 				// "local function Name funcbody" //n may not ^^^
 
-		template<bool isSlua>
+		template<bool isSlu>
 		struct LOCAL_ASSIGNv
 		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			AttribNameListV<isSlua> names;
-			ExpListV<isSlua> exprs;
+			AttribNameListV<isSlu> names;
+			ExpListV<isSlu> exprs;
 		};
 		template<>
 		struct LOCAL_ASSIGNv<true>
@@ -866,22 +866,22 @@ namespace slua::parse
 		};
 		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
 
-		// Slua
+		// Slu
 
-		template<bool isSlua>
-		struct LETv : LOCAL_ASSIGNv<isSlua>	{};
+		template<bool isSlu>
+		struct LETv : LOCAL_ASSIGNv<isSlu>	{};
 		template<AnyCfgable CfgT> using LET = SelV<CfgT, LETv>;
 
-		template<bool isSlua>
-		struct CONSTv : LOCAL_ASSIGNv<isSlua>	{};
+		template<bool isSlu>
+		struct CONSTv : LOCAL_ASSIGNv<isSlu>	{};
 		template<AnyCfgable CfgT> using CONST = SelV<CfgT, CONSTv>;
 
-		template<bool isSlua>
-		struct StructV : StructBaseV<TypeExpr,isSlua> {};
+		template<bool isSlu>
+		struct StructV : StructBaseV<TypeExpr,isSlu> {};
 		template<AnyCfgable CfgT> using Struct = SelV<CfgT, StructV>;
 
-		template<bool isSlua>
-		struct UnionV : StructBaseV<TableConstructorV<isSlua>, isSlua> {};
+		template<bool isSlu>
+		struct UnionV : StructBaseV<TableConstructorV<isSlu>, isSlu> {};
 		template<AnyCfgable CfgT> using Union = SelV<CfgT, UnionV>;
 
 		struct UNSAFE_LABEL {};
@@ -894,92 +894,92 @@ namespace slua::parse
 			ExportData exported=false;
 		};
 
-		template<bool isSlua>
+		template<bool isSlu>
 		struct DROPv
 		{
-			ExpressionV<isSlua> expr;
+			ExpressionV<isSlu> expr;
 		};
 		template<AnyCfgable CfgT> using DROP = SelV<CfgT, DROPv>;
 
-		template<bool isSlua>
+		template<bool isSlu>
 		struct MOD_DEFv
 		{
-			MpItmIdV<isSlua> name;
+			MpItmIdV<isSlu> name;
 			ExportData exported = false;
 		};
 		template<AnyCfgable CfgT> using MOD_DEF = SelV<CfgT, MOD_DEFv>;
 
-		template<bool isSlua>
+		template<bool isSlu>
 		struct MOD_DEF_INLINEv
 		{ 
-			MpItmIdV<isSlua> name;
-			BlockV<isSlua> bl;
+			MpItmIdV<isSlu> name;
+			BlockV<isSlu> bl;
 			ExportData exported = false;
 		};
 		template<AnyCfgable CfgT> using MOD_DEF_INLINE = SelV<CfgT, MOD_DEF_INLINEv>;
 
 	};
 
-	template<bool isSlua>
+	template<bool isSlu>
 	using StatementDataV = std::variant<
 		StatementType::SEMICOLON,				// ";"
 
-		StatementType::ASSIGNv<isSlua>,			// "varlist = explist"
-		StatementType::LOCAL_ASSIGNv<isSlua>,	// "local attnamelist [= explist]"
-		StatementType::LETv<isSlua>,	// "let pat [= explist]"
-		StatementType::CONSTv<isSlua>,	// "const pat [= explist]"
+		StatementType::ASSIGNv<isSlu>,			// "varlist = explist"
+		StatementType::LOCAL_ASSIGNv<isSlu>,	// "local attnamelist [= explist]"
+		StatementType::LETv<isSlu>,	// "let pat [= explist]"
+		StatementType::CONSTv<isSlu>,	// "const pat [= explist]"
 
-		StatementType::FUNC_CALLv<isSlua>,		// "functioncall"
-		StatementType::LABELv<isSlua>,			// "label"
+		StatementType::FUNC_CALLv<isSlu>,		// "functioncall"
+		StatementType::LABELv<isSlu>,			// "label"
 		StatementType::BREAK,					// "break"
-		StatementType::GOTOv<isSlua>,			// "goto Name"
-		StatementType::BLOCKv<isSlua>,			// "do block end"
-		StatementType::WHILE_LOOPv<isSlua>,		// "while exp do block end"
-		StatementType::REPEAT_UNTILv<isSlua>,	// "repeat block until exp"
+		StatementType::GOTOv<isSlu>,			// "goto Name"
+		StatementType::BLOCKv<isSlu>,			// "do block end"
+		StatementType::WHILE_LOOPv<isSlu>,		// "while exp do block end"
+		StatementType::REPEAT_UNTILv<isSlu>,	// "repeat block until exp"
 
-		StatementType::IfCondV<isSlua>,	// "if exp then block {elseif exp then block} [else block] end"
+		StatementType::IfCondV<isSlu>,	// "if exp then block {elseif exp then block} [else block] end"
 
-		StatementType::FOR_LOOP_NUMERICv<isSlua>,	// "for Name = exp , exp [, exp] do block end"
-		StatementType::FOR_LOOP_GENERICv<isSlua>,	// "for namelist in explist do block end"
+		StatementType::FOR_LOOP_NUMERICv<isSlu>,	// "for Name = exp , exp [, exp] do block end"
+		StatementType::FOR_LOOP_GENERICv<isSlu>,	// "for namelist in explist do block end"
 
-		StatementType::FUNCTION_DEFv<isSlua>,		// "function funcname funcbody"
-		StatementType::FNv<isSlua>,					// "fn funcname funcbody"
-		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
+		StatementType::FUNCTION_DEFv<isSlu>,		// "function funcname funcbody"
+		StatementType::FNv<isSlu>,					// "fn funcname funcbody"
+		StatementType::LOCAL_FUNCTION_DEFv<isSlu>,	// "local function Name funcbody"
 
-		StatementType::StructV<isSlua>,
-		StatementType::UnionV<isSlua>,
+		StatementType::StructV<isSlu>,
+		StatementType::UnionV<isSlu>,
 
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
 		StatementType::SAFE_LABEL,		// ::: safe :
 
-		StatementType::DROPv<isSlua>,	// "drop" Name
+		StatementType::DROPv<isSlu>,	// "drop" Name
 		StatementType::USE,				// "use" ...
-		StatementType::MOD_DEFv<isSlua>,		// "mod" Name
-		StatementType::MOD_DEF_INLINEv<isSlua>	// "mod" Name "as" "{" block "}"
+		StatementType::MOD_DEFv<isSlu>,		// "mod" Name
+		StatementType::MOD_DEF_INLINEv<isSlu>	// "mod" Name "as" "{" block "}"
 	> ;
 
 	template<AnyCfgable CfgT>
 	using StatementData = SelV<CfgT, StatementDataV>;
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct StatementV
 	{
-		StatementDataV<isSlua> data;
+		StatementDataV<isSlu> data;
 		Position place;
 
 		StatementV() = default;
-		StatementV(StatementDataV<isSlua>&& data) :data(std::move(data)) {}
+		StatementV(StatementDataV<isSlu>&& data) :data(std::move(data)) {}
 		StatementV(const StatementV&) = delete;
 		StatementV(StatementV&&) = default;
 		StatementV& operator=(StatementV&&) = default;
 	};
 
 
-	template<bool isSlua>
+	template<bool isSlu>
 	struct ParsedFileV
 	{
 		//TypeList types
-		BlockV<isSlua> code;
+		BlockV<isSlu> code;
 	};
 	template<AnyCfgable CfgT>
 	using ParsedFile = SelV<CfgT, ParsedFileV>;

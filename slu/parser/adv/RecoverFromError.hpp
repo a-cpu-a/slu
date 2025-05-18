@@ -16,7 +16,7 @@
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/adv/ReadStringLiteral.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	inline bool isStrStarter(AnyInput auto& in)
 	{

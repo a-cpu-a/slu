@@ -3,7 +3,7 @@
 //This file is used to test compilation
 
 //Test macro, dont use, doesnt improve performace. (actually hurts it lol)
-//#define Slua_NoConcepts
+//#define Slu_NoConcepts
 #include <slu/Include.hpp>
 #include <slu/ErrorType.hpp>
 #include <slu/Context.hpp>
@@ -34,30 +34,30 @@
 void _test()
 {
 
-	slua::parse::VecInput in;
-	const auto f = slua::parse::parseFile(in);
+	slu::parse::VecInput in;
+	const auto f = slu::parse::parseFile(in);
 
-	slua::parse::Output out;
+	slu::parse::Output out;
 	out.db = std::move(in.genData.mpDb);
-	slua::parse::genFile(out, {});
+	slu::parse::genFile(out, {});
 
-	slua::paint::SemOutput semOut(in);
+	slu::paint::SemOutput semOut(in);
 
-	slua::paint::paintFile(semOut, f);
-	slua::paint::toHtml(semOut, true);
-
-
+	slu::paint::paintFile(semOut, f);
+	slu::paint::toHtml(semOut, true);
 
 
-	slua::parse::VecInput in2{ slua::parse::sluaCommon };
-	const auto f2 =slua::parse::parseFile(in2);
 
-	slua::parse::Output out2(slua::parse::sluaCommon);
+
+	slu::parse::VecInput in2{ slu::parse::sluCommon };
+	const auto f2 =slu::parse::parseFile(in2);
+
+	slu::parse::Output out2(slu::parse::sluCommon);
 	out2.db = std::move(in2.genData.mpDb);
-	slua::parse::genFile(out2, {});
+	slu::parse::genFile(out2, {});
 
-	slua::paint::SemOutput semOut2(in2);
+	slu::paint::SemOutput semOut2(in2);
 
-	slua::paint::paintFile(semOut2, f2);
-	slua::paint::toHtml(semOut2, true);
+	slu::paint::paintFile(semOut2, f2);
+	slu::paint::toHtml(semOut2, true);
 }

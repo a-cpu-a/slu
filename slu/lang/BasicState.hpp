@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -7,7 +7,7 @@
 #include <vector>
 #include <span>
 
-namespace slua::lang
+namespace slu::lang
 {
 	//Mp refs
 
@@ -23,7 +23,7 @@ namespace slua::lang
 	{
 		size_t val;
 	};
-	template<bool isSlua>
+	template<bool isSlu>
 	struct MpItmIdV
 	{
 		LocalObjId id;// Practically a string pool lol
@@ -32,10 +32,10 @@ namespace slua::lang
 		constexpr bool empty() const {
 			return id.val == SIZE_MAX;
 		}
-		std::string_view asSv(const /*AnyNameDbOrGenDataV<isSlua>*/ auto& v) const {
+		std::string_view asSv(const /*AnyNameDbOrGenDataV<isSlu>*/ auto& v) const {
 			return v.asSv(*this);
 		}
-		ViewModPath asVmp(const /*AnyNameDbOrGenDataV<isSlua>*/ auto& v) const {
+		ViewModPath asVmp(const /*AnyNameDbOrGenDataV<isSlu>*/ auto& v) const {
 			return v.asVmp(*this);
 		}
 	};

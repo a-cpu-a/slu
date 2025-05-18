@@ -14,7 +14,7 @@
 #include <slu/parser/State.hpp>
 #include <slu/parser/Input.hpp>
 
-namespace slua::parse
+namespace slu::parse
 {
 	using lang::LocalObjId;
 	using lang::ModPathId;
@@ -27,7 +27,7 @@ namespace slua::parse
 
 		If a host asks for one of these names as text, then use one of these forms:
 			Same as for normal text or
-			__SLUAANON__(hex form of bytes, same as for normal text)
+			__SLUANON__(hex form of bytes, same as for normal text)
 
 		(Hex forms in lowercase)
 	*/
@@ -151,7 +151,7 @@ namespace slua::parse
 		bool isSafe : 1 = false;
 		bool forPop : 1 = false;
 	};
-	template<bool isSlua>
+	template<bool isSlu>
 	struct BasicGenScopeV
 	{
 		size_t anonId;//size_max -> not anon
@@ -160,16 +160,16 @@ namespace slua::parse
 
 		std::vector<GenSafety> safetyList;
 
-		BlockV<isSlua> res;
+		BlockV<isSlu> res;
 
 	};
-	template<bool isSlua>
+	template<bool isSlu>
 	struct BasicGenDataV
 	{
-		//ParsedFileV<isSlua> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
+		//ParsedFileV<isSlu> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
 		
-		Sel<isSlua, LuaMpDb, BasicMpDb> mpDb;
-		std::vector<BasicGenScopeV<isSlua>> scopes;
+		Sel<isSlu, LuaMpDb, BasicMpDb> mpDb;
+		std::vector<BasicGenScopeV<isSlu>> scopes;
 		std::vector<size_t> anonScopeCounts = {0};
 		ModPath totalMp;
 
@@ -199,10 +199,10 @@ namespace slua::parse
 
 		*/
 
-		std::string_view asSv(const MpItmIdV<isSlua> id) const {
+		std::string_view asSv(const MpItmIdV<isSlu> id) const {
 			return mpDb.asSv(id);
 		}
-		lang::ViewModPath asVmp(const MpItmIdV<isSlua> v) const {
+		lang::ViewModPath asVmp(const MpItmIdV<isSlu> v) const {
 			return { mpDb.asVmp(v)};
 		}
 
@@ -255,8 +255,8 @@ namespace slua::parse
 			scopes.back().res.start = start;
 			anonScopeCounts.push_back(0);
 		}
-		BlockV<isSlua> popScope(const Position end) {
-			BlockV<isSlua> res = std::move(scopes.back().res);
+		BlockV<isSlu> popScope(const Position end) {
+			BlockV<isSlu> res = std::move(scopes.back().res);
 			res.end = end;
 			scopes.pop_back();
 			totalMp.pop_back();
@@ -267,12 +267,12 @@ namespace slua::parse
 			scopes.back().res.hadReturn = true;
 		}
 		// Make sure to run no args `scopeReturn()` first!
-		void scopeReturn(ExpListV<isSlua>&& expList) {
+		void scopeReturn(ExpListV<isSlu>&& expList) {
 			scopes.back().res.retExprs = std::move(expList);
 		}
 
-		constexpr void addStat(const Position place,StatementDataV<isSlua>&& data){
-			StatementV<isSlua> stat = { std::move(data) };
+		constexpr void addStat(const Position place,StatementDataV<isSlu>&& data){
+			StatementV<isSlu> stat = { std::move(data) };
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}
@@ -283,7 +283,7 @@ namespace slua::parse
 		constexpr std::optional<size_t> resolveLocalOpt(const std::string& name)
 		{
 			size_t scopeRevId = 0;
-			for (const BasicGenScopeV<isSlua>& scope : std::views::reverse(scopes))
+			for (const BasicGenScopeV<isSlu>& scope : std::views::reverse(scopes))
 			{
 				scopeRevId++;
 
@@ -295,9 +295,9 @@ namespace slua::parse
 			}
 			return {};
 		}
-		constexpr MpItmIdV<isSlua> resolveName(const std::string& name)
+		constexpr MpItmIdV<isSlu> resolveName(const std::string& name)
 		{// Check if its local
-			if constexpr (isSlua)
+			if constexpr (isSlu)
 			{
 				//either known local being indexed ORR unknown(potentially from a `use ::*`)
 				const std::optional<size_t> v = resolveLocalOpt(name);
@@ -312,7 +312,7 @@ namespace slua::parse
 			}
 			return resolveUnknown(name);
 		}
-		constexpr MpItmIdV<isSlua> resolveName(const ModPath& name)
+		constexpr MpItmIdV<isSlu> resolveName(const ModPath& name)
 		{
 			if (name.size() == 1)
 				return resolveName(name[0]);//handles self implicitly!!!
@@ -347,9 +347,9 @@ namespace slua::parse
 			return resolveUnknown(name);
 		}
 		// .XXX, XXX, :XXX
-		constexpr MpItmIdV<isSlua> resolveUnknown(const std::string& name)
+		constexpr MpItmIdV<isSlu> resolveUnknown(const std::string& name)
 		{
-			if constexpr(isSlua)
+			if constexpr(isSlu)
 			{
 				LocalObjId id = mpDb.mps[0].get(name);
 				return MpItmIdV<true>{id, { 0 }};
@@ -360,7 +360,7 @@ namespace slua::parse
 				return MpItmIdV<false>{id};
 			}
 		}
-		constexpr MpItmIdV<isSlua> resolveUnknown(const ModPath& name)
+		constexpr MpItmIdV<isSlu> resolveUnknown(const ModPath& name)
 		{
 			ModPathId mp = mpDb.template get<true>(
 				ModPathView(name).subspan(0, name.size() - 1) // All but last elem
@@ -368,9 +368,9 @@ namespace slua::parse
 			LocalObjId id = mpDb.mps[mp.id].get(name.back());
 			return MpItmIdV<true>{id,mp};
 		}
-		constexpr MpItmIdV<isSlua> resolveEmpty()
+		constexpr MpItmIdV<isSlu> resolveEmpty()
 		{
-			return MpItmIdV<isSlua>{SIZE_MAX};
+			return MpItmIdV<isSlu>{SIZE_MAX};
 		}
 	};
 }

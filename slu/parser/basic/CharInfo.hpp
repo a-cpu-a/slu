@@ -1,11 +1,11 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
 
 #include <cstdint>
 
-namespace slua::parse
+namespace slu::parse
 {
 	constexpr uint8_t CAPITAL_BIT = 'x' - 'X';
 	static_assert('x' - 'X' == 32);//is simple bit flip?

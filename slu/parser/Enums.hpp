@@ -1,4 +1,4 @@
-/*
+﻿/*
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
@@ -9,7 +9,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-namespace slua::parse
+namespace slu::parse
 {
 	enum class OptSafety : uint8_t
 	{
@@ -44,7 +44,7 @@ namespace slua::parse
 		LOGICAL_AND,    // "and"
 		LOGICAL_OR,     // "or"
 
-		// Slua
+		// Slu
 
 		ARRAY_CONSTRUCT,// "of"
 		RANGE_BETWEEN,	// "..."
@@ -59,7 +59,7 @@ namespace slua::parse
 		LENGTH,        // "#"
 		BITWISE_NOT,   // "~"
 
-		//Slua
+		//Slu
 
 		RANGE_BEFORE,	// "..."
 

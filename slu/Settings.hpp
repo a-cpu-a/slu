@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <type_traits>
 
-namespace slua::parse
+namespace slu::parse
 {
 
 	template<class THIS, class... SettingTs>
@@ -48,7 +48,7 @@ namespace slua::parse
 			return o.isOn(*this);
 		}
 	};
-#undef _Slua_MAKE_SETTING_FUNC
+#undef _Slu_MAKE_SETTING_FUNC
 
 	template<class T>
 	struct _AnySetting_impl
@@ -64,7 +64,7 @@ namespace slua::parse
 	template<class T>
 	concept AnySettings = _AnySetting_impl<std::remove_cvref_t<T>>::v::value;
 
-#define _Slua_MAKE_SETTING_CVAR(_NAME) \
+#define _Slu_MAKE_SETTING_CVAR(_NAME) \
 	struct _C_ ## _NAME : Setting<_C_ ## _NAME> \
 	{ \
 		using isSetting = std::true_type; \
@@ -79,19 +79,19 @@ namespace slua::parse
 	inline constexpr auto _NAME = _C_ ## _NAME()
 
 	//Parser only:
-	_Slua_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
-	_Slua_MAKE_SETTING_CVAR(noIntOverflow);
-	_Slua_MAKE_SETTING_CVAR(sluaSyn);
-	_Slua_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
+	_Slu_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
+	_Slu_MAKE_SETTING_CVAR(noIntOverflow);
+	_Slu_MAKE_SETTING_CVAR(sluSyn);
+	_Slu_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
 
-	constexpr auto sluaCommon = spacedFuncCallStrForm
+	constexpr auto sluCommon = spacedFuncCallStrForm
 		| noIntOverflow 
-		| sluaSyn
+		| sluSyn
 		| numberSpacing;
 
-#undef _Slua_MAKE_SETTING_CVAR
+#undef _Slu_MAKE_SETTING_CVAR
 
-#ifdef Slua_NoConcepts
+#ifdef Slu_NoConcepts
 #define AnyCfgable class
 #else
 	template<class T>

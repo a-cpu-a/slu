@@ -12,7 +12,7 @@
 #include <slu/parser/State.hpp>
 #include <slu/lang/BasicState.hpp>
 
-namespace slua::mlvl
+namespace slu::mlvl
 {
 	enum class Assoc : uint8_t { LEFT, RIGHT };
 
@@ -40,7 +40,7 @@ namespace slua::mlvl
 		case parse::BinOpType::BITWISE_XOR:if constexpr (isLua)return 41;
 		case parse::BinOpType::BITWISE_AND: return 42;
 
-			//Slua
+			//Slu
 		case parse::BinOpType::RANGE_BETWEEN: if constexpr (!isLua)return 30;
 			break;
 
@@ -60,20 +60,20 @@ namespace slua::mlvl
 		case parse::BinOpType::LOGICAL_AND: return 6;
 		case parse::BinOpType::LOGICAL_OR: return 5;
 
-			//Slua
+			//Slu
 		case parse::BinOpType::ARRAY_CONSTRUCT: if constexpr (!isLua)return 2;
 			break;
 
 		case parse::BinOpType::NONE:
 			break;
 		}
-		Slua_panic("Unknown operator, no precedence<slua>(BinOpType) defined");
+		Slu_panic("Unknown operator, no precedence<slu>(BinOpType) defined");
 	}
 	template<bool isLua>
 	constexpr uint8_t precedence(const parse::UnOpItem& op) {
 		switch (op.type)
 		{
-			//Slua
+			//Slu
 		case parse::UnOpType::RANGE_BEFORE:	if constexpr (!isLua)return 30;//same as range between
 		case parse::UnOpType::ALLOCATE:if constexpr (!isLua)return 0;
 		case parse::UnOpType::DEREF:if constexpr (!isLua)return 100;//above exponent
@@ -81,11 +81,11 @@ namespace slua::mlvl
 			//Lua
 		case parse::UnOpType::LENGTH:        // "#"
 		case parse::UnOpType::BITWISE_NOT:   // "~"
-			if constexpr (!isLua)break;//Not in slua
+			if constexpr (!isLua)break;//Not in slu
 		case parse::UnOpType::NEGATE:        // "-"
 		case parse::UnOpType::LOGICAL_NOT:   // "not"
 			return 85;//Between exponent and mul, div, ..
-			//Slua
+			//Slu
 		case parse::UnOpType::TO_REF:			// "&"
 		case parse::UnOpType::TO_REF_MUT:		// "&mut"
 		case parse::UnOpType::TO_PTR_CONST:	// "*const"
@@ -98,7 +98,7 @@ namespace slua::mlvl
 		case parse::UnOpType::NONE:
 			break;
 		}
-		Slua_panic("Unknown operator, no precedence<slua>(UnOpItem) defined");
+		Slu_panic("Unknown operator, no precedence<slu>(UnOpItem) defined");
 	}
 	template<bool isLua>
 	constexpr uint8_t precedence(parse::PostUnOpType op) {
@@ -112,7 +112,7 @@ namespace slua::mlvl
 		case parse::PostUnOpType::NONE:
 			break;
 		}
-		Slua_panic("Unknown operator, no precedence<slua>(PostUnOpType) defined");
+		Slu_panic("Unknown operator, no precedence<slu>(PostUnOpType) defined");
 	}
 
 	template<bool isLua>

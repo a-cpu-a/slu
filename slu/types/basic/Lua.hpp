@@ -9,7 +9,7 @@
 #include <slu/types/Converter.hpp>
 #include <slu/Utils.hpp>
 
-namespace slua
+namespace slu
 {
 	struct Nil {};
 
@@ -17,7 +17,7 @@ namespace slua
 	struct Ret
 	{
 		Error errorMsg;
-		slua::ToLua<T> val;
+		slu::ToLua<T> val;
 		bool errored = false;
 		bool isNil = false;
 
@@ -39,7 +39,7 @@ namespace slua
 				throw data.errorMsg;
 
 			if (!data.isNil)
-				return slua::push(L, data.val);
+				return slu::push(L, data.val);
 
 			lua_pushnil(L);
 			return 1;

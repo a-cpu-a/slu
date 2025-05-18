@@ -5,7 +5,7 @@
 
 #include <slu/Include.hpp>
 
-namespace slua
+namespace slu
 {
 	struct Math
 	{

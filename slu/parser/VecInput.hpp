@@ -17,7 +17,7 @@
 #include "Input.hpp"
 #include "BasicGenData.hpp"
 
-namespace slua::parse
+namespace slu::parse
 {
 	template<AnySettings SettingsT = Setting<void>>
 	struct VecInput
@@ -30,7 +30,7 @@ namespace slua::parse
 			return SettingsT();
 		}
 
-		BasicGenDataV<SettingsT()& sluaSyn> genData;
+		BasicGenDataV<SettingsT()& sluSyn> genData;
 
 		std::vector<std::string> handledErrors;
 

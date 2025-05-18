@@ -17,7 +17,7 @@
 #include <slu/parser/State.hpp>
 #include <slu/parser/ManageNewline.hpp>
 
-namespace slua::paint
+namespace slu::paint
 {
 	using parse::AnyCfgable;
 	using parse::AnyInput;
@@ -132,7 +132,7 @@ namespace slua::paint
 	//Here, so custom semantic token outputs can be made
 	template<class T>
 	concept AnySemOutput =
-#ifdef Slua_NoConcepts
+#ifdef Slu_NoConcepts
 		true
 #else
 		AnyCfgable<T> && requires(T t) {
@@ -168,7 +168,7 @@ namespace slua::paint
 			{ t.template replPrev<Tok::WHITESPACE, Tok::WHITESPACE>(1ULL) } -> std::same_as<T&>;
 
 	}
-#endif // Slua_NoConcepts
+#endif // Slu_NoConcepts
 	;
 
 	template<class Converter>
