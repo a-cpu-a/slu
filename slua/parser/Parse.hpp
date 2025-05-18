@@ -18,6 +18,7 @@
 #include "basic/ReadBasicStats.hpp"
 #include "basic/ReadModStat.hpp"
 #include "basic/ReadUseStat.hpp"
+#include "basic/ReadStructStat.hpp"
 #include "adv/ReadName.hpp"
 #include "adv/RequireToken.hpp"
 #include "adv/SkipSpace.hpp"
@@ -141,6 +142,8 @@ namespace slua::parse
 
 		if (ch == '.')
 		{
+			if constexpr (In::settings() & sluaSyn)
+				throwUnexpectedVarArgs(in);
 			requireToken(in, "...");
 			ret.hasVarArgParam = true;
 		}
@@ -152,6 +155,8 @@ namespace slua::parse
 			{
 				if (checkReadToken(in, "..."))
 				{
+					if constexpr (In::settings() & sluaSyn)
+						throwUnexpectedVarArgs(in);
 					ret.hasVarArgParam = true;
 					break;//cant have anything after the ... arg
 				}
@@ -452,10 +457,28 @@ namespace slua::parse
 	template<AnyInput In>
 	inline bool readSchStat(In& in, const Position place, const ExportData exported)
 	{
-		if (checkReadTextToken(in, "safe"))
+		if (in.isOob(1))
+			return false;
+
+		const char ch2 = in.peekAt(1);
+		switch (ch2)
 		{
-			//TODO
-			throwExpectedSafeable(in);
+		case 'a':
+			if (checkReadTextToken(in, "safe"))
+			{
+				//TODO
+				throwExpectedSafeable(in);
+			}
+			break;
+		case 't':
+			if (checkReadTextToken(in, "struct"))
+			{
+				readStructStat(in, place, exported);
+				return true;
+			}
+			break;
+		default:
+			break;
 		}
 		return false;
 	}
@@ -713,7 +736,7 @@ namespace slua::parse
 						if (readUchStat(in, place, true))
 							return;
 						break;
-					case 's'://safe?
+					case 's'://safe? struct?
 						if (readSchStat(in, place, true))
 							return;
 						break;
@@ -728,7 +751,7 @@ namespace slua::parse
 				}
 			}
 			break;
-		case 's'://safe?
+		case 's'://safe? struct?
 			if constexpr (In::settings() & sluaSyn)
 			{
 				if(readSchStat(in, place,false))
