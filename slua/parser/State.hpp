@@ -757,6 +757,15 @@ namespace slua::parse
 		UseVariantType::LIST_OF_STUFF
 	>;
 
+	template<class TyTy, bool isSlua>
+	struct StructBaseV
+	{
+		ParamListV<isSlua> params;
+		TyTy type;
+		MpItmIdV<isSlua> name;
+		ExportData exported = false;
+	};
+
 	namespace StatementType
 	{
 		using SEMICOLON = std::monostate;	// ";"
@@ -868,14 +877,12 @@ namespace slua::parse
 		template<AnyCfgable CfgT> using CONST = SelV<CfgT, CONSTv>;
 
 		template<bool isSlua>
-		struct StructV
-		{
-			ParamListV<isSlua> params;
-			TypeExpr type;
-			MpItmIdV<isSlua> name;
-			ExportData exported = false;
-		};
+		struct StructV : StructBaseV<TypeExpr,isSlua> {};
 		template<AnyCfgable CfgT> using Struct = SelV<CfgT, StructV>;
+
+		template<bool isSlua>
+		struct UnionV : StructBaseV<TableConstructorV<isSlua>, isSlua> {};
+		template<AnyCfgable CfgT> using Union = SelV<CfgT, UnionV>;
 
 		struct UNSAFE_LABEL {};
 		struct SAFE_LABEL {};
@@ -940,6 +947,7 @@ namespace slua::parse
 		StatementType::LOCAL_FUNCTION_DEFv<isSlua>,	// "local function Name funcbody"
 
 		StatementType::StructV<isSlua>,
+		StatementType::UnionV<isSlua>,
 
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
 		StatementType::SAFE_LABEL,		// ::: safe :

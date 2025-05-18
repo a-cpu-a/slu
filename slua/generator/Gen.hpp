@@ -830,6 +830,19 @@ namespace slua::parse
 			genTypeExpr(out, var.type);
 		},
 
+		varcase(const StatementType::Union<Out>&) {
+			if (var.exported)out.add("ex ");
+			out.add("union ").add(out.db.asSv(var.name));
+			if (!var.params.empty())
+			{
+				out.add('(');
+				genParamList(out, var.params,false);
+				out.add(')');
+			}
+			out.add(' ');
+			genTableConstructor(out, var.type);
+		},
+
 		varcase(const StatementType::UNSAFE_LABEL) {
 			out.unTabTemp()
 				.add(":::unsafe:")
