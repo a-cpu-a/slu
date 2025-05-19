@@ -634,6 +634,8 @@ namespace slu::parse
 
 	namespace SubVarType
 	{
+		using DEREF = std::monostate;
+
 		template<bool isSlu>
 		struct NAMEv { MpItmIdV<isSlu> idx; };	// {funcArgs} ‘.’ Name
 		template<AnyCfgable CfgT> using NAME = SelV<CfgT, NAMEv>;
@@ -649,6 +651,7 @@ namespace slu::parse
 		std::vector<ArgFuncCallV<isSlu>> funcCalls;
 
 		std::variant<
+			SubVarType::DEREF,
 			SubVarType::NAMEv<isSlu>,
 			SubVarType::EXPRv<isSlu>
 		> idx;
@@ -664,12 +667,6 @@ namespace slu::parse
 		{
 			MpItmIdV<isSlu> v;
 		};
-		template<>
-		struct NAMEv<true>
-		{
-			MpItmIdV<true> v;
-			bool hasDeref=false;
-		};
 		template<AnyCfgable CfgT>
 		using NAME = SelV<CfgT, NAMEv>;
 
@@ -680,22 +677,11 @@ namespace slu::parse
 		};
 		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
 
-		// Slu only:
-		
-
-		template<bool isSlu>
-		struct EXPR_DEREF_NO_SUBv
-		{
-			ExpressionV<isSlu> start;
-		};
-		template<AnyCfgable CfgT> using EXPR_DEREF_NO_SUB = SelV<CfgT, EXPR_DEREF_NO_SUBv>;
-
 	}
 	template<bool isSlu>
 	using BaseVarV = std::variant<
 		BaseVarType::NAMEv<isSlu>,
-		BaseVarType::EXPRv<isSlu>,
-		BaseVarType::EXPR_DEREF_NO_SUBv<isSlu>
+		BaseVarType::EXPRv<isSlu>
 	>;
 
 	template<AnyCfgable CfgT>

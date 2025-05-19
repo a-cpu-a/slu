@@ -64,7 +64,6 @@ namespace slu::parse
 		RANGE_BEFORE,	// "..."
 
 		ALLOCATE,		// "alloc"
-		DEREF,			// "*"
 
 		TO_REF,			// "&"
 		TO_REF_MUT,		// "&mut"
@@ -81,6 +80,8 @@ namespace slu::parse
 		NONE,
 
 		RANGE_AFTER,	// "..."
+
+		DEREF,			// ".*"
 
 		PROPOGATE_ERR,	// "?"
 	};

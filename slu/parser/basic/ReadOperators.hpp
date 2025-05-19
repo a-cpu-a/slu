@@ -64,7 +64,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "const"))
 				return UnOpType::TO_PTR_CONST;
 
-			return UnOpType::DEREF;
+			break;
 		case 'a':
 			if constexpr (!(in.settings() & sluSyn))break;
 			if (typeOnly)break;
@@ -93,6 +93,9 @@ namespace slu::parse
 			in.skip();
 			return PostUnOpType::PROPOGATE_ERR;
 		case '.':
+			if (checkReadToken(in, ".*"))
+				return PostUnOpType::DEREF;
+
 			if (checkReadToken(in, "..."))
 				return PostUnOpType::RANGE_AFTER;
 			break;

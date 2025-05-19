@@ -353,6 +353,7 @@ namespace slu::parse
 		}
 		if constexpr(in.settings() & sluSyn)
 		{//Postfix op
+			//TODO: read .* too
 			while(checkReadToken(in,"?"))
 				basicRes.postUnOps.push_back(PostUnOpType::PROPOGATE_ERR);
 			skipSpace(in);

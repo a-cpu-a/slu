@@ -50,7 +50,7 @@ namespace slu::parse
 		return readModPath(in,readName(in));
 	}
 
-	template<bool hasDeref,AnyInput In>
+	template<AnyInput In>
 	inline void parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
@@ -59,15 +59,8 @@ namespace slu::parse
 			Expression<In> res = readExpr(in,allowVarArg);
 			requireToken(in, ")");
 
-			if (hasDeref)
-			{
-				varDataOut.base = BaseVarType::EXPR_DEREF_NO_SUB<In>(std::move(res));
-			}
-			else
-			{
-				varDataOut.base = BaseVarType::EXPR<In>(std::move(res));
-				varDataNeedsSubThing = true;
-			}
+			varDataOut.base = BaseVarType::EXPR<In>(std::move(res));
+			varDataNeedsSubThing = true;
 			return;
 		}
 		// Must be Name, ... or mod path
@@ -79,18 +72,10 @@ namespace slu::parse
 		{
 			ModPath mp = readModPath(in, std::move(start));
 
-			if (mp.size() != 1)
-			{
-				varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp), hasDeref);
-				return;
-			}
-			start = std::move(mp[0]);
+			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp));
 		}
 		//Check, cuz 'excess elements in struct initializer' happens in normal lua
-		if constexpr(hasDeref)
-			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start), true);
-		else
-			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start));
+		varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start));
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
@@ -168,22 +153,7 @@ namespace slu::parse
 		
 		varData.emplace_back();
 
-		if constexpr ((!FOR_EXPR || BASIC_ARGS) && (in.settings() & sluSyn))
-		{
-			if (firstChar == '*')
-			{
-				in.skip();
-				skipSpace(in);
-				firstChar = in.peek();
-				parseVarBase<true>(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
-			}
-			else
-				parseVarBase<false>(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
-		}
-		else
-		{
-			parseVarBase<false>(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
-		}
+		parseVarBase(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
 
 		char opType;
 
@@ -212,19 +182,8 @@ namespace slu::parse
 
 					varData.emplace_back();
 
-					if constexpr (in.settings() & sluSyn)
-					{
-						const bool hasDeref = checkReadToken(in,"*");
-
-						if (hasDeref)
-						{
-							skipSpace(in);
-							parseVarBase<true>(in, allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
-							break;
-						}
-					}
 					skipSpace(in);
-					parseVarBase<false>(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
+					parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
 			default:
@@ -286,6 +245,20 @@ namespace slu::parse
 				{
 					if (in.peekAt(1) == '.') //is concat (..)
 						goto exit;
+				}
+				if constexpr (In::settings() & sluSyn)
+				{
+					if (in.peekAt(1) == '*')
+					{
+						in.skip(2);
+
+						varDataNeedsSubThing = false;
+						// Move auto-clears funcCallData
+						varData.back().sub.emplace_back(std::move(funcCallData), SubVarType::DEREF{});
+						funcCallData.clear();
+
+						break;
+					}
 				}
 
 				in.skip();//skip dot

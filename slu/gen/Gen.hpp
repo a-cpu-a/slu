@@ -95,8 +95,6 @@ namespace slu::parse
 		case UnOpType::RANGE_BEFORE:
 			return " ..."sv;
 
-		case UnOpType::DEREF:
-			return " *"sv;
 		case UnOpType::ALLOCATE:
 			return " alloc "sv;
 
@@ -122,6 +120,8 @@ namespace slu::parse
 		case PostUnOpType::RANGE_AFTER:
 			return "... "sv;
 
+		case PostUnOpType::DEREF:
+			return ".*"sv;
 		case PostUnOpType::PROPOGATE_ERR:
 			return "?"sv;
 		default:
@@ -409,6 +409,9 @@ namespace slu::parse
 			if (txt.empty())return;
 			out.add('.')
 				.add(txt);
+		},
+		varcase(const SubVarType::DEREF) {
+			out.add(".*");
 		}
 		);
 	}
@@ -428,18 +431,10 @@ namespace slu::parse
 	{
 		ezmatch(obj.base)(
 		varcase(const BaseVarType::NAME<Out>&) {
-			if constexpr(out.settings() & sluSyn) {
-				if (var.hasDeref)out.add('*');
-			}
 			out.add(out.db.asSv(var.v));
 		},
 		varcase(const BaseVarType::EXPR<Out>&) {
 			out.add('(');
-			genExpr(out, var.start);
-			out.add(')');
-		},
-		varcase(const BaseVarType::EXPR_DEREF_NO_SUB<Out>&) {
-			out.add("*(");
 			genExpr(out, var.start);
 			out.add(')');
 		}

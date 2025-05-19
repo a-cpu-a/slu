@@ -76,7 +76,6 @@ namespace slu::mlvl
 			//Slu
 		case parse::UnOpType::RANGE_BEFORE:	if constexpr (!isLua)return 30;//same as range between
 		case parse::UnOpType::ALLOCATE:if constexpr (!isLua)return 0;
-		case parse::UnOpType::DEREF:if constexpr (!isLua)return 100;//above exponent
 			break;
 			//Lua
 		case parse::UnOpType::LENGTH:        // "#"
@@ -105,7 +104,8 @@ namespace slu::mlvl
 		static_assert(!isLua);
 		switch (op)
 		{
-		case parse::PostUnOpType::PROPOGATE_ERR: return 110;//above exponent and deref
+		case parse::PostUnOpType::PROPOGATE_ERR:
+		case parse::PostUnOpType::DEREF:return 100;//above exponent
 
 		case parse::PostUnOpType::RANGE_AFTER: return 30;//same as range between
 

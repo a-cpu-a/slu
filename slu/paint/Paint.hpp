@@ -313,6 +313,9 @@ namespace slu::paint
 		varcase(const parse::SubVarType::NAME<Se>&) {
 			paintKw<Tok::MP_IDX>(se, ".");
 			paintName<Tok::NAME>(se, var.idx);
+		},
+		varcase(const parse::SubVarType::DEREF) {
+			paintKw<Tok::DEREF>(se, ".*");
 		}
 		);
 	}
@@ -321,27 +324,12 @@ namespace slu::paint
 	{
 		ezmatch(itm.base)(
 		varcase(const parse::BaseVarType::NAME<Se>&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				if (var.hasDeref)
-				{
-					paintKw<Tok::DEREF>(se, "*");
-					paintMp<Tok::NAME, Tok::DEREF>(se, var.v);
-					return;//From match, not func
-				}
-			}
 			paintName<Tok::NAME>(se, var.v);
 		},
 		varcase(const parse::BaseVarType::EXPR<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
 			paintExpr(se, var.start);
 			paintKw<Tok::GEN_OP>(se, ")");
-		},
-		varcase(const parse::BaseVarType::EXPR_DEREF_NO_SUB<Se>&) {
-			paintKw<Tok::DEREF>(se, "*");
-			paintKw<Tok::GEN_OP, Tok::DEREF>(se, "(");
-			paintExpr(se, var.start);
-			paintKw<Tok::GEN_OP, Tok::DEREF>(se, ")");
 		}
 		);
 		for (const parse::SubVar<Se>& i : itm.sub)

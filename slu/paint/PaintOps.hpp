@@ -109,6 +109,9 @@ namespace slu::paint
 		case parse::PostUnOpType::RANGE_AFTER:
 			paintKw<Tok::RANGE>(se, "...");
 			break;
+		case parse::PostUnOpType::DEREF:
+			paintKw<Tok::DEREF>(se, ".*");
+			break;
 		case parse::PostUnOpType::PROPOGATE_ERR:
 			paintKw<Tok::GEN_OP>(se, "?");
 			break;
@@ -132,9 +135,6 @@ namespace slu::paint
 			break;
 		case parse::UnOpType::LENGTH:
 			paintKw<Tok::GEN_OP>(se, "#");
-			break;
-		case parse::UnOpType::DEREF:
-			paintKw<Tok::DEREF>(se, "*");
 			break;
 		case parse::UnOpType::ALLOCATE:
 			paintKw<Tok::GEN_OP>(se, "alloc");
