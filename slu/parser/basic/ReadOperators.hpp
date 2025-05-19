@@ -112,6 +112,14 @@ namespace slu::parse
 		{
 		case '+':
 			in.skip();
+			if constexpr (in.settings() & sluSyn)
+			{
+				if (in.peek() == '+')
+				{
+					in.skip();
+					return BinOpType::CONCATENATE;
+				}
+			}
 			return BinOpType::ADD;
 		case '-':
 			in.skip();
@@ -186,14 +194,13 @@ namespace slu::parse
 			break;
 		case '.':
 
-			if constexpr(in.settings() & sluSyn)
-			{
-				if (checkReadToken(in, "..."))
-					return BinOpType::RANGE_BETWEEN;
-			}
-
 			if (checkReadToken(in, ".."))
-				return BinOpType::CONCATENATE;
+			{
+				if constexpr (in.settings() & sluSyn)
+					return BinOpType::RANGE_BETWEEN;
+				else
+					return BinOpType::CONCATENATE;
+			}
 			break;
 
 			// Slu

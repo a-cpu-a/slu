@@ -14,14 +14,14 @@ Order of Operations {
 
 	unary operators (alloc)
 	
-	++
-	**
-	
 	or
 	and
 	!=	== (Not the same as lua!)
 	
 	<	>	<=	 >=
+	
+	++
+	**
 	
 	.. binary, post and prefix range operators
 	

@@ -45,7 +45,7 @@ namespace slu::mlvl
 			break;
 
 			//Lua
-		case parse::BinOpType::CONCATENATE:if constexpr (!isLua) return 4;
+		case parse::BinOpType::CONCATENATE:if constexpr (!isLua) return 20;
 			return 55;//Lua, between +- and << >>
 
 		case parse::BinOpType::GREATER_EQUAL:
@@ -61,7 +61,7 @@ namespace slu::mlvl
 		case parse::BinOpType::LOGICAL_OR: return 5;
 
 			//Slu
-		case parse::BinOpType::ARRAY_MUL: if constexpr (!isLua)return 2;
+		case parse::BinOpType::ARRAY_MUL: if constexpr (!isLua)return 21;
 			break;
 
 		case parse::BinOpType::NONE:
