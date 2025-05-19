@@ -90,8 +90,8 @@ namespace slu::paint
 			paintKw<Tok::OR>(se, "or");
 			break;
 			//Slu:
-		case parse::BinOpType::ARRAY_CONSTRUCT:
-			paintKw<Tok::ARRAY_CONSTRUCT>(se, "of");
+		case parse::BinOpType::ARRAY_MUL:
+			paintKw<Tok::ARRAY_MUL>(se, "**");
 			break;
 		case parse::BinOpType::RANGE_BETWEEN:
 			paintKw<Tok::RANGE>(se, "...");

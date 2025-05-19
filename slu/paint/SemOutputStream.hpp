@@ -87,7 +87,7 @@ namespace slu::paint
 
 		TRY,// ? operator
 
-		ARRAY_CONSTRUCT,
+		ARRAY_MUL,
 
 		OR,
 		AND,

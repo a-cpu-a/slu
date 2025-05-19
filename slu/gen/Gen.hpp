@@ -68,8 +68,8 @@ namespace slu::parse
 		case BinOpType::LOGICAL_OR:
 			return "or"sv;
 			// Slu
-		case BinOpType::ARRAY_CONSTRUCT:
-			return "of"sv;
+		case BinOpType::ARRAY_MUL:
+			return "**"sv;
 		case BinOpType::RANGE_BETWEEN:
 			return "..."sv;
 		default:
