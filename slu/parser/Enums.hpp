@@ -34,7 +34,7 @@ namespace slu::parse
 		BITWISE_OR,     // "|"
 		SHIFT_RIGHT,    // ">>"
 		SHIFT_LEFT,     // "<<"
-		CONCATENATE,    // ".."
+		CONCATENATE,    // ".." or "++"
 		LESS_THAN,      // "<"
 		LESS_EQUAL,     // "<="
 		GREATER_THAN,   // ">"
@@ -47,7 +47,7 @@ namespace slu::parse
 		// Slu
 
 		ARRAY_MUL,// "**"
-		RANGE_BETWEEN,	// "..."
+		RANGE_BETWEEN,	// ".."
 	};
 
 	enum class UnOpType : uint8_t
@@ -61,7 +61,7 @@ namespace slu::parse
 
 		//Slu
 
-		RANGE_BEFORE,	// "..."
+		RANGE_BEFORE,	// ".."
 
 		ALLOCATE,		// "alloc"
 
@@ -79,7 +79,7 @@ namespace slu::parse
 	{
 		NONE,
 
-		RANGE_AFTER,	// "..."
+		RANGE_AFTER,	// ".."
 
 		DEREF,			// ".*"
 

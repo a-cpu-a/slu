@@ -81,7 +81,7 @@ New Annotations {
 	
 	@Cfg{onlyIf=isDebug}
 	function debugPrint(msg) {
-		print("[DEBUG] " .. msg);
+		print("[DEBUG] " ++ msg);
 	}
 	
 	@Cfg{not isDebug}

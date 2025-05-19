@@ -1,8 +1,8 @@
 
-for u8 i in (1...100) {}
-for u8 i in (1...100,10) {}
+for u8 i in (1..100) {}
+for u8 i in (1..100,10) {}
 for u8 i in (getRange(),getStep()) {}
 
 for {i,v} in (getVec()) {}
-for {k,_} in (myVec(),1...100) {}
+for {k,_} in (myVec(),1..100) {}
 for KvPair{k,v} in (getIter(),getArg()) {}

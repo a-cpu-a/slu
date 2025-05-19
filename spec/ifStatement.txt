@@ -43,7 +43,7 @@ If Statement {
 	
 	```slu
 
-	let x = if true -> 0...1 
+	let x = if true -> 0..1 
 				=> 0 
 				else => 1
 

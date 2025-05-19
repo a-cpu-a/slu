@@ -87,14 +87,14 @@ Errors {
 	let u8 neverError = myErrFunc():getOr(100);	-- Get the value or return ...
 	
 	let u8 differentError = myErrFunc()
-		:wrapError(fn(e){ return "Oh no: "..e }); -- Changes the error type, and prefixes the error message.
+		:wrapError(fn(e){ return "Oh no: "++e }); -- Changes the error type, and prefixes the error message.
 	
 	let u8 qq = try myErrFunc() {
 	
 		-- The return type is optional. 
 		-- -> u8?(some variant), the ? and the stuff after it, would be needed since we arent matching every error.
 		
-		Err::Pmsg x => panic$("Error " .. x.1);-- Pmsg is a tuple, we are indexing into the first element
+		Err::Pmsg x => panic$("Error " ++ x.1);-- Pmsg is a tuple, we are indexing into the first element
 		
 		Err::Oom => panic$("Out of memory!");
 		Err::Msg{v} => do {

@@ -31,9 +31,9 @@ Function Expression {
 	
 	let divide = unsafe |i32 x, i32 y| -> i32 => x / y
 	
-	let genl = || -> i32 => (1...100).len() + 1
+	let genl = || -> i32 => (1..100).len() + 1
 	let typeDoLambda = || -> u8 {
-		return (1...100).len()+1;
+		return (1..100).len()+1;
 	}
 	
 	let statLambda = || do {

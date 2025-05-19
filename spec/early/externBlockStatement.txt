@@ -54,10 +54,10 @@ Extern Block Statement {
 	
 	
 	
-	C pointers -> usize, or cc::IntPtr<T>
-	C const pointers -> usize, or cc::IntPtr<T>
+	C pointers -> usize, or cc::IntPtr(T)
+	C const pointers -> usize, or cc::IntPtr(T)
 	
-	C arrays -> [T; ...] (? can they be passed by value like this ?)
+	C arrays -> {T}**N (? can they be passed by value like this ?)
 	
 	cpp const refs -> *const T
 	cpp refs -> *mut T
@@ -68,10 +68,10 @@ Extern Block Statement {
 	lua integers -> integer
 	lua numbers -> number
 	lua strings -> lua::LuaStr
-	lua tables -> lua::LuaTable<...>
-	lua functions -> lua::LuaFn<...>
+	lua tables -> lua::LuaTable(...)
+	lua functions -> lua::LuaFn(...)
 	lua threads -> lua::LuaThread
-	lua user-data -> lua::LuaUserData<...>
+	lua user-data -> lua::LuaUserData(...)
 	lua light-user-data -> lua::LuaLightData
 	lua nil -> lua::LuaNil
 	
@@ -79,9 +79,9 @@ Extern Block Statement {
 	js integers -> integer
 	js numbers -> number
 	js string -> js::JsStr
-	js object -> js::JsObject<...>
-	js array -> js::JsArray<...>
-	js functions -> js::JsFn<...>
+	js object -> js::JsObject(...)
+	js array -> js::JsArray(...)
+	js functions -> js::JsFn(...)
 	js symbol -> js::JsSymbol
 	js null -> js::JsNull
 	js undefined -> js::JsUndefined
