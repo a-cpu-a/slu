@@ -10,7 +10,7 @@ New Syntax {
 	modpath ::= modpathStart {"::" Name}
 	submodpath ::= Name {"::" Name}
 
-	varbase @::= | [‘*’] modpath
+	varbase @::= | modpath
 	
 	stat @::= | OptExportPrefix "mod" Name "as" "{" block "}"
 	stat @::= | OptExportPrefix "mod" Name

@@ -17,7 +17,7 @@ Drop Statement {
 	
 	This is useful, for deleting variables before they have gone out of scope.
 	
-	When passed a deref type (*&xxx), the lifetime of that variable is dropped.
+	When passed a deref type (&xxx.*), the lifetime of that variable is dropped.
 	static, and thread local lifetimes are not allowed.
 	
 	The following drops both y and z, cuz the if doesnt decay the (de)references to both variables.

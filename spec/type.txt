@@ -6,9 +6,11 @@ New Syntax {
 	
 	typePrefix ::= ["mut"] {typeunop}
 	
-	typeunop ::= "*" | "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
+	typeunop ::= "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
+	typepostunop ::= ".*"
 	
 	unop @::= | typeunop | "alloc"
+	postunp @::= | typepostunop
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
@@ -40,7 +42,8 @@ New Syntax {
 		| "struct" basicStruct
 		| "union" basicStruct
 		| "//" typeExp
-		| typeunop {typeunop} typeExp
+		| typeunop {typeunop} typeExp {typepostunop}
+		| basicTypeExp {typepostunop}
 		| basicTypeExp binop typeExp
 		| ["-"] Numeral
 		| [safety] "fn" typeExp "->" typeExp
@@ -229,11 +232,12 @@ Type Specifiers {
 		}
 	}
 	Result {
-		Format: [X] "?" X
-		Format: [X] "??"
+		Format: [X] "//" X
+		Format: [X] "?"
 		
 		Allows both a error, and a value, or just an error, and the value type is inferred.
-		The type specifier '??' is just like '?', except the error type is inferred.
+		The type specifier '?' is just like '//', except the error type is inferred.
+		When '?' is used alone, both the value and error type is inferred.
 		
 		Allows use of the "?" operator, and other error handling tools.
 	}
@@ -270,7 +274,7 @@ Type Specifiers {
 		```
 	}
 	Deref {
-		Format "*" X
+		Format X ".*"
 		
 		Represents a dereferenced borrow / ptr.
 		
@@ -278,15 +282,14 @@ Type Specifiers {
 		
 		let intX = 4;
 		
-		let *&mut u8 xAlias = intX;
+		let &mut u8.* xAlias = intX;
 		xAlias = 3;
 		drop xAlias; --Allow use of intX, once again
 		
 		assertEq$(intX,3);
 		
-		let **mut u8 xAliasUnsafe = *mut intX;
-		
 		unsafe {
+			let *mut u8.* xAliasUnsafe = (*mut intX).*;
 			xAliasUnsafe = 2;
 		}
 		assertEq$(intX,2);
@@ -294,8 +297,8 @@ Type Specifiers {
 		
 		let intXBorrow = &intX;
 		
-		let *&/intX u8 intXAlias = *intXBorrow; --The type represents, a derefed reference for some u8 with lifetime "intX".
-		let intXCopy = *intXBorrow; --The type is just u8, as a trivial copy was possible.
+		let &/intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
+		let intXCopy = intXBorrow.*; --The type is just u8, as a trivial copy was possible.
 		
 		```
 	}
