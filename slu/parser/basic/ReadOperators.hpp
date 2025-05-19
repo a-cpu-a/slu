@@ -83,6 +83,7 @@ namespace slu::parse
 		}
 		return UnOpType::NONE;
 	}
+	template<bool noRangeOp>
 	inline PostUnOpType readOptPostUnOp(AnyInput auto& in)
 	{
 		skipSpace(in);
@@ -95,9 +96,11 @@ namespace slu::parse
 		case '.':
 			if (checkReadToken(in, ".*"))
 				return PostUnOpType::DEREF;
-
-			if (checkReadToken(in, "..."))
-				return PostUnOpType::RANGE_AFTER;
+			if constexpr(!noRangeOp)
+			{
+				if (checkReadToken(in, "..."))
+					return PostUnOpType::RANGE_AFTER;
+			}
 			break;
 		}
 		return PostUnOpType::NONE;

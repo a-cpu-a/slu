@@ -353,9 +353,14 @@ namespace slu::parse
 		}
 		if constexpr(in.settings() & sluSyn)
 		{//Postfix op
-			//TODO: read .* too
-			while(checkReadToken(in,"?"))
-				basicRes.postUnOps.push_back(PostUnOpType::PROPOGATE_ERR);
+
+			while (true)
+			{
+				const PostUnOpType uOp = readOptPostUnOp<true>(in);
+				if (uOp == PostUnOpType::NONE)break;
+				basicRes.unOps.push_back(uOp);
+			}
+
 			skipSpace(in);
 
 			if (checkToken(in, "..."))
