@@ -40,9 +40,9 @@ New Syntax {
 
 	varlist ::= var {‘,’ var}
 
-	varbase ::= Name | ‘(’ exp ‘)’ [subvar]
-	subvar ::= {args} (‘[’ exp ‘]’ | ‘.’ Name)
-	var ::= varbase {".*"} {subvar}
+	varbase ::= Name | ‘(’ exp ‘)’ subvar
+	subvar ::= {args} (‘[’ exp ‘]’ | ‘.’ Name | ‘.*’)
+	var ::= varbase {subvar}
 
 	namelist ::= Name {‘,’ Name}
 
