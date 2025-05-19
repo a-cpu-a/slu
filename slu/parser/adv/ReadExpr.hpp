@@ -358,7 +358,7 @@ namespace slu::parse
 			{
 				const PostUnOpType uOp = readOptPostUnOp<true>(in);
 				if (uOp == PostUnOpType::NONE)break;
-				basicRes.unOps.push_back(uOp);
+				basicRes.postUnOps.push_back(uOp);
 			}
 
 			skipSpace(in);
