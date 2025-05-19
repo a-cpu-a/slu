@@ -38,8 +38,7 @@ Order of Operations {
 	*	/	//
 	unary operators (!	-	mut	  &    &mut	   *mut	   *const)
 	^
-	unary operators (*)
-	postfix unary operator (?)
+	postfix unary operators (? .*)
 	
 	(pseudo) .	 :	 ::	  function-args
 	(pseudo) (parenthesis) [slicifier]
@@ -59,15 +58,15 @@ Order of Operations {
 	
 	(!1) / (-1)
 	1 / (-1)
-	1 / (*(&x))
-	1 / (!(*x))
-	(*x) / 1
-	(*(x?)) / 1
+	1 / (&(x.*))
+	1 / (!(x.*))
+	(x.*) / 1
+	((x?).*) / 1
 	(1 / (-1))...
 	((1...) / 1)...
 	(...((1...) / 1))...
 	(...((x?)?))...
-	(*(&(*(&(*(&((((x?)?)?)?)))))))...
+	(...(&(...((((x?)?)?)?))))...
 	&(alloc (x ...))
 	&(alloc ((...(x?))...))
 	&(alloc (...(((x?)...) ^ 5)))
@@ -76,15 +75,15 @@ Order of Operations {
 	
 	!(1 ^ (-1))
 	1 ^ (-1)
-	1 ^ (*(&x))
-	1 ^ (!(*x))
-	(*x) ^ 1
-	(*(x?)) ^ 1
+	1 ^ (&(x.*))
+	1 ^ (!(x.*))
+	(x.*) ^ 1
+	((x?).*) ^ 1
 	(1 ^ (-1))...
 	((1...) ^ 1)...
 	(...(((1...) ^ 1))...
 	
-	((*(x?))...)
+	(((x?).*)...)
 	!(x ^ 10)
 	x^(y?)
 	

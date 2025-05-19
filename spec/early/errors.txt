@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	postunop @::= | ‘?’
+	typepostunop @::= | ‘?’
 	
 	tryItem ::= pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | matchElseItem | ";"
@@ -72,7 +72,7 @@ Errors {
 	Unmatched errors are passed down as if they werent ever caught, and are added to the return type, if it isnt already specified,
 	this means that you have to use the '?' operator, or catch it elsewhere.
 	
-	```slua
+	```slu
 	
 	fn myErrFunc() -> u8//Err {
 		-- ...
