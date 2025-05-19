@@ -263,7 +263,7 @@ namespace slu::parse
 		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
 		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
 
-		struct OPEN_RANGE {};					// "..."
+		struct OPEN_RANGE {};					// ".."
 
 		struct LITERAL_STRING { std::string v; Position end;};	// "LiteralString"
 		struct NUMERAL { double v; };							// "Numeral"
@@ -492,7 +492,7 @@ namespace slu::parse
 
 		ExprType::IfCondV<isSlu>,
 
-		ExprType::OPEN_RANGE,			// "..."
+		ExprType::OPEN_RANGE,			// ".."
 
 		ExprType::NUMERAL_U64,			// "Numeral"
 		ExprType::NUMERAL_I128,			// "Numeral"

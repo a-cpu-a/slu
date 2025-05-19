@@ -207,7 +207,7 @@ namespace slu::paint
 			paintKw<Tok::PUNCTUATION>(se, "...");
 		},
 		varcase(const parse::ExprType::OPEN_RANGE) {
-			paintKw<Tok::RANGE>(se, "...");
+			paintKw<Tok::RANGE>(se, "..");
 		},
 		varcase(const parse::ExprType::LITERAL_STRING&) {
 			paintString(se, var.v,var.end,tint);

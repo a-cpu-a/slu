@@ -363,10 +363,10 @@ namespace slu::parse
 
 			skipSpace(in);
 
-			if (checkToken(in, "..."))
+			if (checkToken(in, ".."))
 			{
 				//binop or postunop?
-				const size_t nextCh = weakSkipSpace(in, 3);
+				const size_t nextCh = weakSkipSpace(in, 2);
 				const char nextChr = in.peekAt(nextCh);
 				if (nextChr == '.')
 				{
