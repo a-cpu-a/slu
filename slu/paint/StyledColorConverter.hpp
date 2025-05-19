@@ -104,7 +104,7 @@ namespace slu::paint
 			case Tok::RANGE: return col(0x498CFF);
 			case Tok::DEREF: return col(0xBFC4CC);
 			case Tok::NOT: return col(0xFF4242);
-			case Tok::ARRAY_CONSTRUCT: return col(0xA6BC6D);
+			case Tok::ARRAY_MUL: return col(0xA6BC6D);
 			case Tok::TRY: return col(0x68997E);
 			case Tok::DYN: return col(0xBF87FF);
 			case Tok::IMPL: return col(0xCE905A);

@@ -46,7 +46,7 @@ namespace slu::parse
 
 		// Slu
 
-		ARRAY_CONSTRUCT,// "of"
+		ARRAY_MUL,// "**"
 		RANGE_BETWEEN,	// "..."
 	};
 

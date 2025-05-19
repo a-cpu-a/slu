@@ -61,7 +61,7 @@ namespace slu::mlvl
 		case parse::BinOpType::LOGICAL_OR: return 5;
 
 			//Slu
-		case parse::BinOpType::ARRAY_CONSTRUCT: if constexpr (!isLua)return 2;
+		case parse::BinOpType::ARRAY_MUL: if constexpr (!isLua)return 2;
 			break;
 
 		case parse::BinOpType::NONE:

@@ -118,6 +118,14 @@ namespace slu::parse
 			return BinOpType::SUBTRACT;
 		case '*':
 			in.skip();
+			if constexpr (in.settings() & sluSyn)
+			{
+				if (in.peek() == '*')
+				{
+					in.skip();
+					return BinOpType::ARRAY_MUL;
+				}
+			}
 			return BinOpType::MULTIPLY;
 		case '/':
 			in.skip();
@@ -173,23 +181,6 @@ namespace slu::parse
 				return BinOpType::LOGICAL_AND;
 			break;
 		case 'o':
-			if constexpr (in.settings() & sluSyn)
-			{
-				if(!isValidNameChar(in.peekAt(2)))
-				{
-					if (in.peekAt(1) == 'f')
-					{
-						in.skip(2);
-						return BinOpType::ARRAY_CONSTRUCT;
-					}
-					else if (in.peekAt(1) == 'r')
-					{
-						in.skip(2);
-						return BinOpType::LOGICAL_OR;
-					}
-				}
-				break;
-			}
 			if (checkReadTextToken(in, "or"))
 				return BinOpType::LOGICAL_OR;
 			break;
