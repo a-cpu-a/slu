@@ -22,7 +22,8 @@ Trait Statement {
 	
 	Traits allow you to define functions for other types (and trait combinations), in a less repetetive way.
 	
+	Aliases for trait combinations can be made using the const statement:
 	```slu
-	const trait BasicMathOps = Add + Sub + Mul + Div + ...
+	const trait BasicMathOps = Add + Sub + Mul + Div
 	```
 }

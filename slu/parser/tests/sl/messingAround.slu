@@ -17,7 +17,7 @@ let #u8 wGC = alloc 4;
 		fn prefixUpperify(str prefix,mut String s) -> String {
 			if (#s == 0) return s;
 			s[1] = s[1].upper()
-			return prefix..s;
+			return prefix++s;
 		}
 
 
@@ -52,7 +52,7 @@ match getArgV4() -> u8 {
 			|n4_| b2_4 = 54
 		},
 		mut {
-			|t| a2_45 = 1...100,
+			|t| a2_45 = 1..100,
 			|n| None
 		} cicada,
 		..

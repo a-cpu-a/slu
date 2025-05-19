@@ -49,7 +49,7 @@
 		fn prefixUpperify(str prefix,mut String s) -> String {
 			if (s:len() == 0) return prefix;
 			s[1] = s[1].upper()
-			return prefix..s;
+			return prefix++s;
 		}
 	]=]
 	
@@ -71,7 +71,7 @@
 		let Vec(Stat) r;
 		
 		for (k,v in ns) {
-			let name = ("add"..(v as str)) as Name;
+			let name = ("add"++(v as str)) as Name;
 			r:push(
 				Stat${
 					ex macro fn $name {macro @(v) val } {
@@ -179,34 +179,7 @@ Macro {
 	Right after a CommaList, you are not allowed to use a comma seperator.
 	Right after a SemicolList, you are not allowed to use a semicolon seperator.
 	
-	Certain kinds of macro overloading are allowed.
-	Macro Overloading Rules {
-		
-		() is always allowed.
-		
-		All references to lists, allow both the list types, and also just manual 
-		list inlining, that means: `CommaList(T)` -> `T` or `T,T` or `T,T,T` ...
-		
-		T,T2,T3 ... can all be the same, cuz overloading doesnt care about the types, only the seperators.
-		
-		Overloading disables calling macros in the function style.
-		
-		--TODO: spec this out
-		(T;anyList(T2))					+ (commaList(T))
-		(T,anyList(T2))					+ (semicolList(T))
-		(T;anyList(T2))					+ (T,commaList(T);anyList(T3))
-		(T,anyList(T2))					+ (T;semicolList(T),anyList(T3))
-		(T;semicolList(T2),anyList(T3))	+ (commaList(T))
-		(T,commaList(T2);anyList(T3))	+ (semicolList(T))
-		(T;semicolList(T2),anyList(T3))	+ (T,commaList(T);anyList(T4))
-		(T,commaList(T2);anyList(T3))	+ (T;semicolList(T),anyList(T4))
-		
-		
-		Examples {
-			() + (T;T) + (CommaList(T))
-			Valid as it is: (T;anyList(T2)) + (commaList(T))
-		}
-	}
+	Macros cant be overloaded.
 	
 	Stat${} doesnt allow semicolon statements.
 	
