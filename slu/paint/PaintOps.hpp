@@ -94,7 +94,7 @@ namespace slu::paint
 			paintKw<Tok::ARRAY_MUL>(se, "**");
 			break;
 		case parse::BinOpType::RANGE_BETWEEN:
-			paintKw<Tok::RANGE>(se, "...");
+			paintKw<Tok::RANGE>(se, "..");
 			break;
 		case parse::BinOpType::NONE:
 			break;
@@ -107,7 +107,7 @@ namespace slu::paint
 		switch (itm)
 		{
 		case parse::PostUnOpType::RANGE_AFTER:
-			paintKw<Tok::RANGE>(se, "...");
+			paintKw<Tok::RANGE>(se, "..");
 			break;
 		case parse::PostUnOpType::DEREF:
 			paintKw<Tok::DEREF>(se, ".*");
@@ -140,7 +140,7 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, "alloc");
 			break;
 		case parse::UnOpType::RANGE_BEFORE:
-			paintKw<Tok::RANGE>(se, "...");
+			paintKw<Tok::RANGE>(se, "..");
 			break;
 		case parse::UnOpType::MUT:
 			paintKw<Tok::MUT>(se, "mut");

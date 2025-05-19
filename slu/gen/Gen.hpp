@@ -71,7 +71,7 @@ namespace slu::parse
 		case BinOpType::ARRAY_MUL:
 			return "**"sv;
 		case BinOpType::RANGE_BETWEEN:
-			return "..."sv;
+			return ".."sv;
 		default:
 			_ASSERT(false);
 			return "<ERROR>"sv;
@@ -93,7 +93,7 @@ namespace slu::parse
 			return " ~"sv;
 			// Slu
 		case UnOpType::RANGE_BEFORE:
-			return " ..."sv;
+			return " .."sv;
 
 		case UnOpType::ALLOCATE:
 			return " alloc "sv;
@@ -118,7 +118,7 @@ namespace slu::parse
 		{
 			// Slu
 		case PostUnOpType::RANGE_AFTER:
-			return "... "sv;
+			return ".. "sv;
 
 		case PostUnOpType::DEREF:
 			return ".*"sv;
@@ -295,7 +295,7 @@ namespace slu::parse
 			}
 		},
 		varcase(const ExprType::OPEN_RANGE) {
-			out.add("...");
+			out.add("..");
 		},
 		varcase(const ExprType::LIFETIME&) {
 			if constexpr (out.settings() & sluSyn)

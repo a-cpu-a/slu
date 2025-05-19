@@ -75,7 +75,7 @@ namespace slu::parse
 		case '.':
 			if  constexpr (!(in.settings() & sluSyn))break;
 			if (typeOnly)break;
-			if (checkReadToken(in, "..."))
+			if (checkReadToken(in, ".."))
 				return UnOpType::RANGE_BEFORE;
 			break;
 		default:
@@ -98,7 +98,7 @@ namespace slu::parse
 				return PostUnOpType::DEREF;
 			if constexpr(!noRangeOp)
 			{
-				if (checkReadToken(in, "..."))
+				if (checkReadToken(in, ".."))
 					return PostUnOpType::RANGE_AFTER;
 			}
 			break;
