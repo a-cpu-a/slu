@@ -50,7 +50,7 @@ namespace slu::parse
 		case BinOpType::SHIFT_LEFT:
 			return "<<"sv;
 		case BinOpType::CONCATENATE:
-			return ".."sv;
+			return sel<Out>("..", "++");
 		case BinOpType::LESS_THAN:
 			return "<"sv;
 		case BinOpType::LESS_EQUAL:

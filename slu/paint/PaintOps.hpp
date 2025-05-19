@@ -63,7 +63,7 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, ">>");
 			break;
 		case parse::BinOpType::CONCATENATE:
-			paintKw<Tok::GEN_OP>(se, "..");
+			paintKw<Tok::GEN_OP>(se, parse::sel<Se>("..", "++"));
 			break;
 		case parse::BinOpType::LESS_THAN:
 			paintKw<Tok::GEN_OP>(se, "<");
