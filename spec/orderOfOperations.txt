@@ -6,10 +6,11 @@ Order of Operations {
 	
 	--TODO: add compound operators for real
 	
+	--TODO: maybe ++ for concat, and .. for ranges?
 	
 	```
 	(pseudo) ;
-	(pseudo) = ..= |= ~= &= <<= >>= += -= %= *= /= //= ^=
+	(pseudo) = ..= |= ~= &= <<= >>= += -= %= *= /= //= ^= **=
 	(pseudo) ,
 
 	unary operators (alloc)
