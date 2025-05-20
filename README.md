@@ -2,7 +2,7 @@
  
 Wip slu compiler/parser/linter currently written in C++ 20. 
 
-The goal is to make a safe and fast language, that is easy to transpile into other languages and bytecodes, but also ir's like llvm ir. 
+The goal is to make a safe and fast language, that is easy to transpile into other languages, bytecodes, and ir's like llvm ir. 
 
 ## Features
 
