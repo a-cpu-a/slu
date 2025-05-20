@@ -10,7 +10,7 @@ Types as values (no generics, just functions: `Vec(u8)`)
 Safety checking  
 Borrow checking (hopefuly easy to understand with lifetimes being just variable names: `&/var1/var2 T`)  
 Structural and nominal types  
-Ranged integers `const u8 = 0...0xFF`, currently out of range stuff is (planned to be) handled at runtime, unless they dont overlap  
+Ranged integers `const u8 = 0..0xFF`, currently out of range stuff is (planned to be) handled at runtime, unless they dont overlap  
 Builtin result type `throw MyErr{"oh no"}`  
 Compile-time code execution (Must be safe to execute. might output ur personal files tho... maybe?)  
 
