@@ -53,6 +53,8 @@ namespace slu::parse
 	template<AnyInput In>
 	inline void handleOpenRange(In& in, Expression<In>& basicRes)
 	{
+		if (basicRes.unOps.empty())return;
+
 		if (basicRes.unOps.back().type == UnOpType::RANGE_BEFORE)
 		{
 			basicRes.unOps.erase(basicRes.unOps.end());
