@@ -224,15 +224,23 @@ namespace slu::parse
 		}
 		constexpr void setUnsafe()
 		{
-			GenSafety& gs = scopes.back().safetyList.back();
-			if(gs.forPop || gs.isSafe)
-				scopes.back().safetyList.emplace_back(false);
+			if(!scopes.back().safetyList.empty())
+			{
+				GenSafety& gs = scopes.back().safetyList.back();
+				if (!(gs.forPop || gs.isSafe))
+					return;
+			}
+			scopes.back().safetyList.emplace_back(false);
 		}
 		constexpr void setSafe()
 		{
-			GenSafety& gs = scopes.back().safetyList.back();
-			if (gs.forPop || !gs.isSafe)
-				scopes.back().safetyList.emplace_back(true);
+			if (!scopes.back().safetyList.empty())
+			{
+				GenSafety& gs = scopes.back().safetyList.back();
+				if (!(gs.forPop || !gs.isSafe))
+					return;
+			}
+			scopes.back().safetyList.emplace_back(true);
 		}
 
 		//For impl, lambda, scope, doExpr, things named '_'
