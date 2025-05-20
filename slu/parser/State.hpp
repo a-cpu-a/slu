@@ -870,6 +870,10 @@ namespace slu::parse
 		struct UnionV : StructBaseV<TableConstructorV<isSlu>, isSlu> {};
 		template<AnyCfgable CfgT> using Union = SelV<CfgT, UnionV>;
 
+		template<bool isSlu>
+		struct UnsafeBlockV { BlockV<isSlu> bl; };	// "unsafe {...}"
+		template<AnyCfgable CfgT> using UnsafeBlock = SelV<CfgT, UnsafeBlockV>;
+
 		struct UNSAFE_LABEL {};
 		struct SAFE_LABEL {};
 
@@ -935,6 +939,7 @@ namespace slu::parse
 		StatementType::StructV<isSlu>,
 		StatementType::UnionV<isSlu>,
 
+		StatementType::UnsafeBlockV<isSlu>,
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :
 		StatementType::SAFE_LABEL,		// ::: safe :
 

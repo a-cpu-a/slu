@@ -269,6 +269,7 @@ namespace slu::parse
 		case 's':
 			if (checkReadTextToken(in, "unsafe"))
 			{
+				//TODO: blocks, functions, maybe traits.
 				throwExpectedUnsafeable(in);
 			}
 			break;

@@ -838,6 +838,14 @@ namespace slu::parse
 			genTableConstructor(out, var.type);
 		},
 
+		varcase(const StatementType::UnsafeBlock<Out>&) {
+			out.newLine();//Extra spacing
+			out.add("unsafe {")
+				.tabUpNewl();
+			genBlock(out, var.bl);
+			out.unTabNewl()
+				.addNewl("}");
+		},
 		varcase(const StatementType::UNSAFE_LABEL) {
 			out.unTabTemp()
 				.add(":::unsafe:")
