@@ -15,7 +15,7 @@ let #u8 wGC = alloc 4;
 
 
 		fn prefixUpperify(str prefix,mut String s) -> String {
-			if (#s == 0) return s;
+			if (s.empty()) return s;
 			s[1] = s[1].upper()
 			return prefix++s;
 		}
@@ -35,7 +35,7 @@ struct Qu2 {
 	ex y = mut u32;
 	ex z = mut u32;
 };
-newtype const Qu3 = struct{
+const Qu3 = struct{
 	ex x = mut u32;
 	ex y = mut u32;
 	ex z = mut u32;
