@@ -1,0 +1,3 @@
+[submodule "slu/ext/lua"]
+	path = slu/ext/lua
+	url = https://github.com/a-cpu-a/slu-lua.git
