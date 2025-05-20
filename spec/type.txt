@@ -4,6 +4,8 @@
 
 New Syntax {
 	
+	--TODO: make fn types different from fn statements, to allow use of fn statements in expressions maybe?
+	
 	typePrefix ::= ["mut"] {typeunop}
 	
 	typeunop ::= "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
