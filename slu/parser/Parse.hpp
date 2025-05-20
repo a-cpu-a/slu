@@ -288,7 +288,6 @@ namespace slu::parse
 				default:
 					break;
 				}
-				//TODO: blocks, functions, maybe traits.
 				throwExpectedUnsafeable(in);
 			}
 			break;
@@ -481,7 +480,7 @@ namespace slu::parse
 	}
 
 
-	template<AnyInput In>
+	template<bool isLoop,AnyInput In>
 	inline bool readSchStat(In& in, const Position place, const ExportData exported)
 	{
 		if (in.isOob(1))
@@ -493,13 +492,23 @@ namespace slu::parse
 		case 'a':
 			if (checkReadTextToken(in, "safe"))
 			{
-				//TODO
+				skipSpace(in);
+				switch (in.peek())
+				{
+				case 'f':
+					if (readFchStat<isLoop>(in, place, exported, OptSafety::SAFE, false))
+						return true;
+					break;
+				default:
+					break;
+				}
 				throwExpectedSafeable(in);
 			}
 			break;
 		case 't':
 			if (checkReadTextToken(in, "struct"))
 			{
+				//TODO: `struct fn`
 				readStructStat<StatementType::Struct<In>,false>(in, place, exported);
 				return true;
 			}
@@ -769,7 +778,7 @@ namespace slu::parse
 							return;
 						break;
 					case 's'://safe? struct?
-						if (readSchStat(in, place, true))
+						if (readSchStat<isLoop>(in, place, true))
 							return;
 						break;
 					case 'm'://mod?
@@ -786,7 +795,7 @@ namespace slu::parse
 		case 's'://safe? struct?
 			if constexpr (In::settings() & sluSyn)
 			{
-				if(readSchStat(in, place,false))
+				if(readSchStat<isLoop>(in, place,false))
 					return;
 			}
 			break;
