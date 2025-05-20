@@ -526,12 +526,6 @@ namespace slu::parse
 	{
 		StatT res{};
 
-		if constexpr (In::settings() & sluSyn)
-		{
-			res.exported = exported;
-			res.func.safety = safety;
-		}
-
 		res.place = in.getLoc();
 
 		res.name = in.genData.resolveUnknown(readFuncName(in));
@@ -555,6 +549,12 @@ namespace slu::parse
 				"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
 				in.genData.asSv(res.name), errorLocStr(in, res.place)
 			));
+		}
+
+		if constexpr (In::settings() & sluSyn)
+		{
+			res.exported = exported;
+			res.func.safety = safety;
 		}
 
 		return in.genData.addStat(place, std::move(res));
