@@ -555,7 +555,7 @@ namespace slu::paint
 	{
 		if constexpr (Se::settings() & sluSyn)
 		{
-			skipSpace(se);
+			//skipSpace(se);
 			se.move(itm.place);
 			if(itm.hasMut)
 				paintKw<Tok::MUT>(se, "mut");
