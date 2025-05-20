@@ -108,7 +108,8 @@ namespace slu::parse
 			{
 				const size_t res = mps.size();
 
-				mp2Id.find(path)->second = { res };
+				mp2Id.emplace(ModPath(path.begin(), path.end()), res);
+
 				if constexpr (unknown)
 				{
 					ModPath tmp;
