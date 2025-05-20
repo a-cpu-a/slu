@@ -140,7 +140,10 @@ namespace slu::parse
 			res.reserve(mp.path.size() + 1);
 
 			for (const std::string& s : mp.path)
-				res.push_back(s);
+			{
+				if(s.front()!='$')
+					res.push_back(s);
+			}
 			res.push_back(mp.id2Name.at(v.id.val));
 
 			return res;
