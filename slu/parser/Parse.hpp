@@ -319,8 +319,8 @@ namespace slu::parse
 				if (checkReadTextToken(in, "fn"))
 				{
 					readFunctionStatement<isLoop, StatementType::FN<In>>(
-						in, place, allowVarArg, exported
-					);//TODO safety
+						in, place, allowVarArg, exported, safety
+					);
 					return true;
 				}
 			}
@@ -329,8 +329,8 @@ namespace slu::parse
 			if (checkReadTextToken(in, "function"))
 			{
 				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>>(
-					in, place, allowVarArg, exported
-				);//TODO safety
+					in, place, allowVarArg, exported, safety
+				);
 				return true;
 			}
 			break;
@@ -437,7 +437,7 @@ namespace slu::parse
 					if (checkReadTextToken(in, "function"))
 					{ // local function Name funcbody
 						readFunctionStatement<isLoop, StatementType::LOCAL_FUNCTION_DEF<In>>(
-							in, place, allowVarArg, false
+							in, place, allowVarArg, false,OptSafety::DEFAULT
 						);
 						return true;
 					}
@@ -511,12 +511,17 @@ namespace slu::parse
 	}
 
 	template<bool isLoop,class StatT, AnyInput In>
-	inline void readFunctionStatement(In& in, const Position place, const bool allowVarArg, const ExportData exported)
+	inline void readFunctionStatement(In& in, 
+		const Position place, const bool allowVarArg, 
+		const ExportData exported, const OptSafety safety)
 	{
 		StatT res{};
 
 		if constexpr (In::settings() & sluSyn)
+		{
 			res.exported = exported;
+			res.func.safety = safety;
+		}
 
 		res.place = in.getLoc();
 
