@@ -293,7 +293,7 @@ namespace slu::parse
 		case '[':
 			if constexpr(in.settings()&sluSyn)
 			{
-				if (in.peekAt(1) == '=')// [=....
+				if (firstChar!='[' || in.peekAt(1) == '=')// [=....
 					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar),in.getLoc());
 				else
 				{// must be a slicer [x]
