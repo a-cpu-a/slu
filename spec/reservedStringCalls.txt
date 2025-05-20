@@ -12,13 +12,13 @@ Reserved Syntax {
 	(print"Hello World!") -> error
 	(print'Hello World!') -> error
 	
-	((print)[=[Hello World!]=]) -> all good
-	((print)"Hello World!") -> all good
-	((print)'Hello World!') -> all good
+	((print)"Hello World!") -> error
+	((print)'Hello World!') -> error
 	
-	(_G["print"][=[Hello World!]=]) -> all good
-	(_G["print"]"Hello World!") -> all good
-	(_G["print"]'Hello World!') -> all good
+	((print) [=[Hello World!]=]) -> all good
+	(_G["print"] [=[Hello World!]=]) -> all good
+	(_G["print"] "Hello World!") -> all good
+	(_G["print"] 'Hello World!') -> all good
 	
 	(print [=[Hello World!]=]) -> all good
 	(print "Hello World!") -> all good
