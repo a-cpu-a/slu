@@ -88,20 +88,23 @@ namespace slu::parse
 	{
 		skipSpace(in);
 
-		switch (in.peek())
+		if(in)
 		{
-		case '?':
-			in.skip();
-			return PostUnOpType::PROPOGATE_ERR;
-		case '.':
-			if (checkReadToken(in, ".*"))
-				return PostUnOpType::DEREF;
-			if constexpr(!noRangeOp)
+			switch (in.peek())
 			{
-				if (checkReadToken(in, ".."))
-					return PostUnOpType::RANGE_AFTER;
+			case '?':
+				in.skip();
+				return PostUnOpType::PROPOGATE_ERR;
+			case '.':
+				if (checkReadToken(in, ".*"))
+					return PostUnOpType::DEREF;
+				if constexpr (!noRangeOp)
+				{
+					if (checkReadToken(in, ".."))
+						return PostUnOpType::RANGE_AFTER;
+				}
+				break;
 			}
-			break;
 		}
 		return PostUnOpType::NONE;
 	}
