@@ -254,13 +254,12 @@ namespace slu::parse
 		return readDoOrStatOrRet<isLoop, SemicolMode::NONE>(in, allowVarArg);
 	}
 
-	template<AnyInput In>
+	template<bool isLoop,AnyInput In>
 	inline bool readUchStat(In& in, const Position place, const ExportData exported)
 	{
 		if (in.isOob(2))
 			return false;
-		const char ch2 = in.peekAt(2);
-		switch (ch2)
+		switch (in.peekAt(2))
 		{
 		case 'e':
 			if (readUseStat(in, place, exported))
@@ -269,6 +268,26 @@ namespace slu::parse
 		case 's':
 			if (checkReadTextToken(in, "unsafe"))
 			{
+				skipSpace(in);
+				switch (in.peek())
+				{
+				case 'f':
+					if (readFchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, false))
+						return true;
+					break;
+				case '{':
+				{
+					in.skip();
+					in.genData.pushUnsafe();
+					StatementType::UnsafeBlock<In> res = { readBlockNoStartCheck<isLoop>(in, false) };
+					in.genData.popSafety();
+					in.genData.addStat(place, std::move(res));
+					return true;
+				}
+				case 't'://traits?
+				default:
+					break;
+				}
 				//TODO: blocks, functions, maybe traits.
 				throwExpectedUnsafeable(in);
 			}
@@ -287,7 +306,7 @@ namespace slu::parse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline bool readFchStat(In& in, const Position place, const ExportData exported, const bool allowVarArg)
+	inline bool readFchStat(In& in, const Position place, const ExportData exported,const OptSafety safety, const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
@@ -301,7 +320,7 @@ namespace slu::parse
 				{
 					readFunctionStatement<isLoop, StatementType::FN<In>>(
 						in, place, allowVarArg, exported
-					);
+					);//TODO safety
 					return true;
 				}
 			}
@@ -311,14 +330,14 @@ namespace slu::parse
 			{
 				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>>(
 					in, place, allowVarArg, exported
-				);
+				);//TODO safety
 				return true;
 			}
 			break;
 		case 'o':
 			if constexpr (In::settings() & sluSyn)
 			{
-				if (exported)
+				if (exported || safety!=OptSafety::DEFAULT)
 					break;
 			}
 			if (checkReadTextToken(in, "for"))
@@ -615,7 +634,7 @@ namespace slu::parse
 			return readLabel(in, place);
 
 		case 'f'://for?, function?, fn?
-			if(readFchStat<isLoop>(in, place, false, allowVarArg))
+			if(readFchStat<isLoop>(in, place, false,OptSafety::DEFAULT, allowVarArg))
 				return;
 			break;
 		case 'l'://local?
@@ -727,7 +746,7 @@ namespace slu::parse
 					switch (in.peek())
 					{
 					case 'f'://fn? function?
-						if (readFchStat<isLoop>(in, place, true, allowVarArg))
+						if (readFchStat<isLoop>(in, place, true, OptSafety::DEFAULT, allowVarArg))
 							return;
 						break;
 					case 't'://type?
@@ -741,7 +760,7 @@ namespace slu::parse
 							return;
 						break;
 					case 'u'://use? unsafe?
-						if (readUchStat(in, place, true))
+						if (readUchStat<isLoop>(in, place, true))
 							return;
 						break;
 					case 's'://safe? struct?
@@ -769,7 +788,7 @@ namespace slu::parse
 		case 'u'://use? unsafe?
 			if constexpr (In::settings() & sluSyn)
 			{
-				if (readUchStat(in, place, false))
+				if (readUchStat<isLoop>(in, place, false))
 					return;
 			}
 			break;

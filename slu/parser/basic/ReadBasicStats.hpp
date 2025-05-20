@@ -26,14 +26,16 @@ namespace slu::parse
 
 		requireToken(in, sel<In>("::", ":::"));
 
-		if constexpr (in.settings() & sluSyn)
+		if constexpr (In::settings() & sluSyn)
 		{
 			if (checkReadTextToken(in, "unsafe"))
 			{
+				in.genData.setUnsafe();
 				return in.genData.addStat(place, StatementType::UNSAFE_LABEL{});
 			}
 			else if (checkReadTextToken(in, "safe"))
 			{
+				in.genData.setSafe();
 				return in.genData.addStat(place, StatementType::SAFE_LABEL{});
 			}
 		}
