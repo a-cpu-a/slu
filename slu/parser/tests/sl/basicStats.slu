@@ -8,6 +8,7 @@ fn helloWorld0() -> *const[str] {}
 
 drop helloWorld0
 
+use self::helloWorld0::{self,hello}
 use self::helloWorld0::*
 use crate::helloWorld1::*
 use self::helloWorld0 as hw0

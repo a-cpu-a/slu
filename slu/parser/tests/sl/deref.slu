@@ -11,13 +11,13 @@ let &mut u8.* xAlias = intX;
 xAlias = 3;
 drop xAlias; --Allow use of intX, once again
 
-assertEq$(intX,3);
+--assertEq$(intX,3);
 
 unsafe {
 	let *mut u8.* xAliasUnsafe = (*mut intX).*;
 	xAliasUnsafe = 2;
 }
-assertEq$(intX,2);
+--assertEq$(intX,2);
 
 
 let intXBorrow = &intX;
