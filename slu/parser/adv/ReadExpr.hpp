@@ -381,7 +381,7 @@ namespace slu::parse
 				}
 				else if (
 					(nextChr >= 'a' && nextChr <= 'z')
-					&& (nextChr >= 'A' && nextChr <= 'Z'))
+					|| (nextChr >= 'A' && nextChr <= 'Z'))
 				{
 					if (peekName<true>(in, nextCh) == SIZE_MAX)
 					{//Its reserved
