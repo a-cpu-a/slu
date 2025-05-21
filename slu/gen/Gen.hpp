@@ -636,7 +636,7 @@ namespace slu::parse
 			// Fields / List
 		varcase(const AnyCompoundDestr auto&) {
 			genDestrSpec(out, var.spec);
-			out.add('{');
+			out.add('{').tabUpNewl();
 
 			constexpr bool isList = std::is_same_v<decltype(var), const PatType::DestrList&>;
 
@@ -658,7 +658,7 @@ namespace slu::parse
 
 			if(var.extraFields)
 				out.add(", ..");
-			out.add('}');
+			out.unTabNewl().add('}');
 			if(!var.name.empty())
 				out.add(' ').add(out.db.asSv(var.name));
 		},
