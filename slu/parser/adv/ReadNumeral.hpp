@@ -108,6 +108,54 @@ namespace slu::parse
 		return result;
 	}
 
+	template<bool noNulls=false>
+	constexpr void u64ToStr(const uint64_t v, char*/*[16]*/ out)
+	{
+		for (size_t i = 0; i < 16; i++)
+		{
+			const uint64_t va = uint64_t(v) >> (60 - 4 * i);
+
+			const uint8_t c = va & 0xF;
+			if (c <= 9)
+				out[i] = ('0' + c);
+			else
+				out[i] = ('A' + (c - 10));
+
+			if constexpr (!noNulls)
+			{
+				if (va == 0)
+					out[i] = 0;
+			}
+		}
+	}
+
+	template<bool prefix = true>
+	constexpr auto u128ToStr(const uint64_t lo, const uint64_t hi)
+	{
+		constexpr uint8_t prefix2 = prefix ? 2 : 0;
+		std::array<char, prefix2 + 32> res;
+		if constexpr (prefix)
+		{
+			res[0] = '0';
+			res[1] = 'x';
+		}
+		if (hi == 0)
+		{
+			u64ToStr(lo, (res.data() + prefix2));
+			res[16 + prefix2] = 0;
+
+			if (lo == 0)
+			{
+				res[prefix2] = '0';
+				res[prefix2+1] = 0;
+			}
+
+			return res;
+		}
+		u64ToStr<true>(hi, (res.data() + prefix2+16));
+		u64ToStr(lo, (res.data() + prefix2));
+		return res;
+	}
 
 	/*
 
@@ -117,24 +165,27 @@ namespace slu::parse
 		Numeral ::= HexNum | DecNum
 
 
-		DecNum ::= ((DigList ["." [DigList]]) | "." DigList) [DecExpSep [NumSign] DigList]
+		DecNum ::= ((DigList ["." [DigList]]) | "." DigList) [DecExpSep [NumSign] DigList] ["_" Name]
 
-		HexNum ::= "0" HexSep ((HexDigList ["." [HexDigList]]) | "." HexDigList) [HexExpSep [NumSign] DigList]
+		HexNum ::= "0" HexSep ((HexDigList ["." [HexDigList]]) | "." HexDigList) [HexExpSep [NumSign] DigList] ["_" Name]
 
 		DecExpSep	::= "e" | "E"
 		HexSep		::= "x" | "X"
 		HexExpSep	::= "p" | "P"
 
-		DigList		::= Digit {Digit}
-		HexDigList	::= HexDigit {HexDigit}
+		DigList		::= Digit {Digit} [{Digit | "_"} Digit]
+		HexDigList	::= HexDigit {HexDigit} [{Digit | "_"} Digit]
 
 		NumSign ::= "+" | "-"
 
 		Digit		::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 		HexDigit	::= Digit | a | b | c | d | e | f | A | B | C | D | E | F
+
+
 	*/
 
-	template<class DataT, bool ALLOW_FLOAT,AnyInput In>
+	//TODO: parse types
+	template<class DataT, bool ALLOW_FLOAT, bool allowSluType = true, AnyInput In>
 	inline DataT readNumeralExtra(In& in, const bool hex, const bool decPart, const char firstChar)
 	{
 		std::string number;
@@ -157,7 +208,7 @@ namespace slu::parse
 					continue;
 			}
 
-			const bool digit = hex ? isHexDigitChar(c) : isDigitChar(c);
+			const bool digit = (hex && !hasExp) ? isHexDigitChar(c) : isDigitChar(c);
 
 			if (digit)
 			{
@@ -278,7 +329,7 @@ namespace slu::parse
 		throw InternalError("Failed to return from readNumeralExtra");
 	}
 
-	template<class DataT,bool ALLOW_FLOAT = true, AnyInput In>
+	template<class DataT,bool ALLOW_FLOAT = true,bool allowSluType=true, AnyInput In>
 	inline DataT readNumeral(In& in, const char firstChar)
 	{
 		in.skip();
@@ -286,7 +337,7 @@ namespace slu::parse
 		if (firstChar == '.')
 		{
 			//must be non-hex, float(or must it..?)
-			return readNumeralExtra<DataT, ALLOW_FLOAT>(in, false, true, firstChar);
+			return readNumeralExtra<DataT, ALLOW_FLOAT, allowSluType>(in, false, true, firstChar);
 		}
 		if (!in)
 		{//The end of the stream!
@@ -299,6 +350,6 @@ namespace slu::parse
 			hex = true;
 			in.skip();//skip 'x'
 		}
-		return readNumeralExtra<DataT, ALLOW_FLOAT>(in,hex,false,firstChar);
+		return readNumeralExtra<DataT, ALLOW_FLOAT, allowSluType>(in,hex,false,firstChar);
 	}
 }
