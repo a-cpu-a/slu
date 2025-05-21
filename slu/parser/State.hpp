@@ -369,7 +369,8 @@ namespace slu::parse
 	{
 		TypeExprData data;
 		Position place;
-		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
+		std::vector<UnOpItem> unOps;
+		SmallEnumList<PostUnOpType> postUnOps;//TODO: parse this!
 		bool hasMut : 1 = false;
 
 		bool isBasicStruct() const
@@ -514,7 +515,7 @@ namespace slu::parse
 	{
 		ExprDataV<isSlu> data;
 		Position place;
-		std::vector<UnOpItem> unOps;
+		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 
 		BaseExpressionV() = default;
 		BaseExpressionV(const BaseExpressionV&) = delete;

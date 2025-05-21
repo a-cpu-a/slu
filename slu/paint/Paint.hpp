@@ -631,6 +631,9 @@ namespace slu::paint
 				}
 			}
 			);
+
+			for (const parse::PostUnOpType i : itm.postUnOps)
+				paintPostUnOp(se, i);
 		}
 	}
 	template<AnySemOutput Se>
