@@ -111,6 +111,7 @@ namespace slu::parse
 		}
 		else if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
 		{
+			in.skip();
 			return PatType::DestrAny{};
 		}
 
