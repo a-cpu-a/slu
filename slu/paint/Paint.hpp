@@ -359,8 +359,7 @@ namespace slu::paint
 			paintExpr(se, var);
 		},
 		varcase(const parse::DestrSpecType::Type&) {
-			if (parse::checkTextToken(se.in, "as"))
-				paintKw<Tok::VAR_STAT>(se, "as");
+			paintKw<Tok::VAR_STAT>(se, "as");
 			paintTypeExpr(se, var);
 		},
 		varcase(const parse::DestrSpecType::Prefix&) {

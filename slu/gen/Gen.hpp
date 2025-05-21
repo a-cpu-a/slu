@@ -610,8 +610,7 @@ namespace slu::parse
 	{
 		ezmatch(obj)(
 		varcase(const DestrSpecType::Type&) {
-			if (var.isBasicStruct())
-				out.add("as ");
+			out.add("as ");
 			genTypeExpr(out, var);
 			out.add(' ');
 		},
