@@ -152,7 +152,7 @@ namespace slu::parse
 
 		// Consume subsequent characters (letters, digits, or underscores)
 		size_t i = 1+ at;
-		while (in)
+		while (!in.isOob(i))
 		{
 			const uint8_t ch = in.peekAt(i);// Starts at 1
 			if (!isValidNameChar(ch))
