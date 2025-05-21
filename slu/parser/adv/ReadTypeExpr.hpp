@@ -94,7 +94,10 @@ namespace slu::parse
 			if (!checkReadTextToken(in, "safe"))
 			{
 				if(checkReadTextToken(in, "struct"))
+				{
+					requireToken(in, "{");
 					ret.data = TypeExprDataType::Struct(readTableConstructor(in, false));
+				}
 				break;
 			}
 			requireToken(in,"fn");
@@ -104,7 +107,10 @@ namespace slu::parse
 			if (!checkReadTextToken(in, "unsafe"))
 			{
 				if (checkReadTextToken(in, "union"))
+				{
+					requireToken(in, "{");
 					ret.data = TypeExprDataType::Union(readTableConstructor(in, false));
+				}
 				break;
 			}
 			requireToken(in,"fn");

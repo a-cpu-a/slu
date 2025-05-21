@@ -51,7 +51,10 @@ namespace slu::parse
 			res.params = readParamList(in);
 		}
 		if constexpr (structOnly)
+		{
+			requireToken(in, "{");
 			res.type = readTableConstructor(in, false);
+		}
 		else
 		{
 			switch (in.peek())
