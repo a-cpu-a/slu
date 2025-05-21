@@ -72,6 +72,12 @@ namespace slu::parse
 
 			skipSpace(in);
 
+			if constexpr (semicolReq == SemicolMode::NONE)
+			{
+				if (!in)
+					return true;
+			}
+
 			const char ch1 = in.peek();
 
 			if (ch1 == ';')
