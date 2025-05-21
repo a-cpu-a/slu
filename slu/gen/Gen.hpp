@@ -106,6 +106,8 @@ namespace slu::parse
 			return " *const "sv;
 		case UnOpType::TO_PTR_MUT:
 			return " *mut "sv;
+		case UnOpType::MUT:
+			return " mut "sv;
 		default:
 			_ASSERT(false);
 			return "<ERROR>"sv;

@@ -116,7 +116,10 @@ namespace slu::parse
 	{
 		Parameter<In> p;
 		if constexpr (In::settings() & sluSyn)
+		{
+			skipSpace(in);
 			p.name = readPat(in, true);
+		}
 		else
 			p.name = in.genData.resolveUnknown(readName(in));
 		
@@ -348,7 +351,10 @@ namespace slu::parse
 
 				Sel<In::settings()& sluSyn, NameList<In>, Pat> names;
 				if constexpr (In::settings() & sluSyn)
+				{
+					skipSpace(in);
 					names = readPat(in, true);
+				}
 				else
 					names = readNameList(in);
 
@@ -612,6 +618,7 @@ namespace slu::parse
 		StatT res;
 		if constexpr (In::settings() & sluSyn)
 		{
+			skipSpace(in);
 			res.names = readPat(in, true);
 			res.exported = exported;
 		}
