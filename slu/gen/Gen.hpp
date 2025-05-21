@@ -86,26 +86,26 @@ namespace slu::parse
 		case UnOpType::NEGATE:
 			return " -"sv;//TODO: elide space, when there is one already
 		case UnOpType::LOGICAL_NOT:
-			return sel<Out>(" not ", " !");
+			return sel<Out>(" not ", "!");
 		case UnOpType::LENGTH:
-			return " #"sv;
+			return "#"sv;
 		case UnOpType::BITWISE_NOT:
-			return " ~"sv;
+			return "~"sv;
 			// Slu
 		case UnOpType::RANGE_BEFORE:
-			return " .."sv;
+			return ".."sv;
 
 		case UnOpType::ALLOCATE:
 			return " alloc "sv;
 
 		case UnOpType::TO_REF:
-			return " &"sv;
+			return "&"sv;
 		case UnOpType::TO_REF_MUT:
-			return " &"sv;//mut missing, as lifetimes need to be added
+			return "&"sv;//mut missing, as lifetimes need to be added
 		case UnOpType::TO_PTR_CONST:
-			return " *const "sv;
+			return "*const "sv;
 		case UnOpType::TO_PTR_MUT:
-			return " *mut "sv;
+			return "*mut "sv;
 		case UnOpType::MUT:
 			return " mut "sv;
 		default:
@@ -326,9 +326,7 @@ namespace slu::parse
 	inline void genLifetime(Out& out, const Lifetime& obj)
 	{
 		for (MpItmId<Out> i : obj)
-		{
-			out.add("/").add(out.db.asSv(i));
-		}
+			out.add('/').add(out.db.asSv(i));
 	}
 
 	template<AnyOutput Out>
@@ -342,7 +340,9 @@ namespace slu::parse
 				if (t.type == UnOpType::TO_REF_MUT)
 				{
 					genLifetime(out, t.life);
-					out.add(" mut ");
+					if (!t.life.empty())
+						out.add(' ');
+					out.add("mut ");
 				}
 			}
 		}
@@ -613,9 +613,11 @@ namespace slu::parse
 			if (var.isBasicStruct())
 				out.add("as ");
 			genTypeExpr(out, var);
+			out.add(' ');
 		},
 		varcase(const DestrSpecType::Spat&) {
 			genExpr(out, var);
+			out.add(' ');
 		},
 		varcase(const DestrSpecType::Prefix&) {
 			genUnOps(out, var);
