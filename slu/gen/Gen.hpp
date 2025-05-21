@@ -296,14 +296,10 @@ namespace slu::parse
 			out.add(std::to_string(var.v));
 		},
 		varcase(const TypeExprDataType::NUMERAL_I128) {
-			out.add("0x");
-			writeU64Hex(out, var.hi);
-			writeU64Hex(out, var.lo);
+			out.add(parse::u128ToStr(var.lo, var.hi));
 		},
 		varcase(const TypeExprDataType::NUMERAL_U128) {
-			out.add("0x");
-			writeU64Hex(out, var.hi);
-			writeU64Hex(out, var.lo);
+			out.add(parse::u128ToStr(var.lo, var.hi));
 		}
 		);
 	}
@@ -374,6 +370,7 @@ namespace slu::parse
 		},
 
 		varcase(const ExprType::NUMERAL_I64) {
+			_ASSERT(!(Out::settings() & parse::noIntOverflow) || var.v >= 0);
 			if (var.v < 0)
 			{
 				out.add("0x");
@@ -430,14 +427,10 @@ namespace slu::parse
 			out.add(std::to_string(var.v));
 		},
 		varcase(const ExprType::NUMERAL_I128) {
-			out.add("0x");
-			writeU64Hex(out, var.hi);
-			writeU64Hex(out, var.lo);
+			out.add(parse::u128ToStr(var.lo, var.hi));
 		},
 		varcase(const ExprType::NUMERAL_U128) {
-			out.add("0x");
-			writeU64Hex(out, var.hi);
-			writeU64Hex(out, var.lo);
+			out.add(parse::u128ToStr(var.lo, var.hi));
 		}
 		);
 		if constexpr(out.settings()&sluSyn)
