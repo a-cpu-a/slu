@@ -39,7 +39,7 @@ namespace slu::parse
 			{
 				requireToken(in, "|");
 				skipSpace(in);
-				MpItmId<In> fieldName = in.genData.resolveUnknown(readName(in));
+				MpItmId<In> fieldName = in.genData.resolveUnknown(readSluTuplableName(in));
 				requireToken(in, "|");
 				skipSpace(in);
 

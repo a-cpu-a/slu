@@ -248,7 +248,7 @@ namespace slu::parse
 			{
 				if constexpr (FOR_EXPR)
 				{
-					if (in.peekAt(1) == '.') //is concat (..)
+					if (in.peekAt(1) == '.') //is concat or range (..)
 						goto exit;
 				}
 				if constexpr (In::settings() & sluSyn)
@@ -269,7 +269,7 @@ namespace slu::parse
 				in.skip();//skip dot
 
 				SubVarType::NAME<In> res{};
-				res.idx = in.genData.resolveUnknown(readName(in));
+				res.idx = in.genData.resolveUnknown(readSluTuplableName(in));
 
 				varDataNeedsSubThing = false;
 				// Move auto-clears funcCallData
