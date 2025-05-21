@@ -53,7 +53,7 @@ namespace slu::parse
 		requireToken(in, "}");
 		skipSpace(in);
 
-		if (isValidNameChar(in.peek()))
+		if (isValidNameChar(in.peek()) && !checkTextToken(in,"in"))
 			ret.name = in.genData.resolveUnknown(readName(in));
 		else
 			ret.name = { SIZE_MAX };
