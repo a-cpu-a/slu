@@ -900,6 +900,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 			{
 				if (var.exported)out.add("ex ");
+				genSafety(out, var.func.safety);
 			}
 			out.add("fn ");
 			genFuncDef(out, var.func, out.db.asSv(var.name));
@@ -909,6 +910,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 			{
 				if (var.exported)out.add("ex ");
+				genSafety(out, var.func.safety);
 			}
 			out.add("function ");
 			genFuncDef(out, var.func, out.db.asSv(var.name));
