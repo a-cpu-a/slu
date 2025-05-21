@@ -64,6 +64,8 @@ namespace slu::parse
 								idx += 2 + closeLevel; // Skip closing ']=]'
 								break;
 							}
+							idx += 1 + closeLevel; // Skip ']=' 
+							continue;
 						}
 						idx++;
 					}
@@ -183,6 +185,9 @@ namespace slu::parse
 						in.skip(2 + level); // Skip closing bracket
 						continue;
 					}
+
+					in.skip(1 + level);  // Skip ']='
+					continue;
 				}
 				if constexpr (isSem)
 					sOrIn.template add<paint::Tok::WHITESPACE>();
