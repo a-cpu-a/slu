@@ -390,7 +390,7 @@ namespace slu::parse
 					}
 				}
 				else if (// Not 0-9,_,",',$,[,{,(
-					(nextChr < '0' && nextChr > '9')
+					(nextChr < '0' || nextChr > '9')
 					&& nextChr!='_'
 					&& nextChr!='"'
 					&& nextChr!='\''
