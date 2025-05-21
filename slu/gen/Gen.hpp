@@ -386,7 +386,7 @@ namespace slu::parse
 			genTableConstructor(out, var.v);
 		},
 		varcase(const ArgsType::LITERAL&) {
-			genLiteral(out, var.v);
+			out.add(' '); genLiteral(out, var.v);
 		}
 		);
 	}
