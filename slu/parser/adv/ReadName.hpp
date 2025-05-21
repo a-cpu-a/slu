@@ -155,7 +155,7 @@ namespace slu::parse
 	}
 	template<bool forMpStart = false>
 	inline std::string readSluTuplableName(AnyInput auto& in, const bool allowError = false) {
-		return readName<forMpStart>(in, allowError);
+		return readName<forMpStart,true>(in, allowError);
 	}
 
 	//No space skip!
