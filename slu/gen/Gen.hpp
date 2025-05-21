@@ -1041,6 +1041,7 @@ namespace slu::parse
 			out.add("drop ");;
 			genExpr(out, var.expr); 
 			out.addNewl(";");
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::USE&) {
 			if (var.exported)out.add("ex ");
@@ -1048,10 +1049,12 @@ namespace slu::parse
 			genModPath(out, out.db.asVmp(var.base));
 			genUseVariant(out, var.useVariant);
 			out.addNewl(";");
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::MOD_DEF<Out>&) {
 			if (var.exported)out.add("ex ");
 			out.add("mod ").add(out.db.asSv(var.name)).addNewl(";");
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::MOD_DEF_INLINE<Out>&) {
 			if (var.exported)out.add("ex ");
