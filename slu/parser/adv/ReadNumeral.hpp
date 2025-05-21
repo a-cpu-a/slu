@@ -18,7 +18,7 @@
 
 namespace slu::parse
 {
-	inline constexpr uint64_t LAST_DIGIT_HEX = 0xFULL << (64 - 8);
+	inline constexpr uint64_t LAST_DIGIT_HEX = 0xFULL << (64 - 4);
 
 	constexpr int64_t parseHexInt(AnyInput auto& in, const std::string& str) {
 
