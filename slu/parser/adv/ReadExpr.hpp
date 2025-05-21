@@ -375,7 +375,7 @@ namespace slu::parse
 					const char dotChr = in.peekAt(nextCh + 1);
 					if(dotChr<'0' && dotChr>'9')
 					{//Is not number (.xxxx)
-						in.skip(nextCh);
+						in.skip(2);
 						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
 					}
 				}
@@ -385,7 +385,7 @@ namespace slu::parse
 				{
 					if (peekName<true>(in, nextCh) == SIZE_MAX)
 					{//Its reserved
-						in.skip(nextCh);
+						in.skip(2);
 						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
 					}
 				}
@@ -400,7 +400,7 @@ namespace slu::parse
 					&& nextChr!='('
 				)
 				{
-					in.skip(nextCh);
+					in.skip(2);
 					basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
 				}
 			}
