@@ -108,52 +108,40 @@ namespace slu::parse
 		return result;
 	}
 
-	template<bool noNulls=false>
-	constexpr void u64ToStr(const uint64_t v, char*/*[16]*/ out)
+	template<bool pad=false>
+	constexpr std::string u64ToStr(const uint64_t v)
 	{
+		std::string res;
 		for (size_t i = 0; i < 16; i++)
 		{
 			const uint64_t va = uint64_t(v) >> (60 - 4 * i);
 
-			const uint8_t c = va & 0xF;
-			if (c <= 9)
-				out[i] = ('0' + c);
-			else
-				out[i] = ('A' + (c - 10));
-
-			if constexpr (!noNulls)
+			if constexpr (!pad)
 			{
 				if (va == 0)
-					out[i] = 0;
+					continue;
 			}
+			const uint8_t c = va & 0xF;
+			if (c <= 9)
+				res += ('0' + c);
+			else
+				res += ('A' + (c - 10));
 		}
+		return res;
 	}
 
-	template<bool prefix = true>
-	constexpr auto u128ToStr(const uint64_t lo, const uint64_t hi)
+	constexpr std::string u128ToStr(const uint64_t lo, const uint64_t hi)
 	{
-		constexpr uint8_t prefix2 = prefix ? 2 : 0;
-		std::array<char, prefix2 + 32> res;
-		if constexpr (prefix)
+		std::string res = "0x";
+		if(hi!=0)
 		{
-			res[0] = '0';
-			res[1] = 'x';
+			res += u64ToStr(hi);
+			res += u64ToStr<true>(lo);
 		}
-		if (hi == 0)
-		{
-			u64ToStr(lo, (res.data() + prefix2));
-			res[16 + prefix2] = 0;
-
-			if (lo == 0)
-			{
-				res[prefix2] = '0';
-				res[prefix2+1] = 0;
-			}
-
-			return res;
-		}
-		u64ToStr<true>(hi, (res.data() + prefix2+16));
-		u64ToStr(lo, (res.data() + prefix2));
+		else if (lo != 0)
+			res += u64ToStr(lo);
+		else
+			res += '0';
 		return res;
 	}
 
