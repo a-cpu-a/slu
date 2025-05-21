@@ -653,7 +653,7 @@ namespace slu::parse
 					genPat(out, field.pat);
 				}
 				if (&field != &var.items.back())
-					out.add(", ");
+					out.add(",").newl();
 			}
 
 			if(var.extraFields)
