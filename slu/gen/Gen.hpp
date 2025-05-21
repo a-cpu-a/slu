@@ -604,9 +604,70 @@ namespace slu::parse
 		}
 	}
 	template<AnyOutput Out>
+	inline void genDestrSpec(Out& out, const DestrSpec& obj)
+	{
+		ezmatch(obj)(
+		varcase(const DestrSpecType::Type&) {
+			genTypeExpr(out, var);
+		},
+		varcase(const DestrSpecType::Spat&) {
+			genExpr(out, var);
+		},
+		varcase(const DestrSpecType::Prefix&) {
+			genUnOps(out, var);
+		}
+		);
+	}
+	template<AnyOutput Out>
 	inline void genPat(Out& out, const Pat& obj)
 	{
-		//TODO
+		ezmatch(obj)(
+		varcase(const PatType::DestrAny) {
+			out.add("_");
+		},
+		varcase(const PatType::Simple&) {
+			genExpr(out, var);
+		},
+			// Fields / List
+		varcase(const AnyCompoundDestr auto&) {
+			genDestrSpec(out, var.spec);
+			out.add('{');
+
+			constexpr bool isList = std::is_same_v<decltype(var), const PatType::DestrList&>;
+
+			for (const auto& field : var.items)
+			{
+				if constexpr(isList)
+					genPat(out, field);
+				else
+				{
+					out.add('|')
+						.add(out.db.asSv(field.name))
+						.add("| ");
+
+					genPat(out, field.pat);
+				}
+				if (&field != &var.items.back())
+					out.add(", ");
+			}
+
+			if(var.extraFields)
+				out.add(", ..");
+			out.add('}');
+			if(!var.name.empty())
+				out.add(' ').add(out.db.asSv(var.name));
+		},
+		varcase(const PatType::DestrName&) {
+			genDestrSpec(out, var.spec);
+			out.add(out.db.asSv(var.name));
+		},
+		varcase(const PatType::DestrNameRestrict&) {
+			genDestrSpec(out, var.spec);
+			out.add(out.db.asSv(var.name));
+			out.add(" = ");
+			genExpr(out, var.restriction);
+		}
+		);
 	}
 	template<AnyOutput Out>
 	inline void genAtribNameList(Out& out, const AttribNameList<Out>& obj)
