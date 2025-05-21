@@ -272,7 +272,29 @@ namespace slu::parse
 
 		//u64,i128,u128, for slu only
 		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
-		struct NUMERAL_U128 { uint64_t lo = 0; uint64_t hi = 0; }; // "Numeral"
+		struct NUMERAL_U128 { // "Numeral"
+			uint64_t lo = 0; 
+			uint64_t hi = 0; 
+
+			NUMERAL_U128 operator+(NUMERAL_U128 o) const
+			{
+				NUMERAL_U128 res = *this;
+				res.lo += o.lo;
+				res.hi += o.hi;
+				if (res.lo < lo)//overflow check
+					res.hi++;
+				return res;
+			}
+			NUMERAL_U128 shift(uint8_t count) const
+			{
+				NUMERAL_U128 res = *this;
+				res.hi <<= count;
+				res.hi |= lo >> (64 - count);
+				res.lo <<= count;
+				return res;
+			}
+
+		};
 		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
 	}
 
