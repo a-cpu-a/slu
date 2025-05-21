@@ -209,9 +209,115 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
+	inline void genSafety(Out& out, const OptSafety& obj)
+	{
+		switch (obj)
+		{
+		case OptSafety::DEFAULT:
+			break;
+		case OptSafety::SAFE:
+			out.add("safe ");
+			break;
+		case OptSafety::UNSAFE:
+			out.add("unsafe ");
+			break;
+		}
+	}
+
+	template<AnyOutput Out>
+	inline void genTraitExpr(Out& out, const TraitExpr& obj)
+	{
+
+	}
+	template<AnyOutput Out>
+	inline void genTypeExprData(Out& out, const TypeExprData& obj)
+	{
+		ezmatch(obj)(
+		varcase(const TypeExprDataType::DYN&) {
+			out.add("dyn ");
+			genTraitExpr(out,var.expr);
+		},
+		varcase(const TypeExprDataType::IMPL&) {
+			out.add("impl ");
+			genTraitExpr(out,var.expr);
+		},
+		varcase(const TypeExprDataType::ERR&) {
+			out.add("//");
+			genTypeExpr(out,*var.err);
+		},
+		varcase(const TypeExprDataType::SLICER&) {
+			out.add("[");
+			genExpr(out,*var);
+			out.add("]");
+		},
+		varcase(const TypeExprDataType::Union&) {
+			out.add("union ");
+			genTableConstructor(out, var.fields);
+		},
+		varcase(const TypeExprDataType::Struct&) {
+			out.add("struct ");
+			genTableConstructor(out, var);
+		},
+		varcase(const TypeExprDataType::FN&) {
+			genSafety(out, var.safety);
+			out.add("fn ");
+			genTypeExpr(out, *var.argType);
+			out.add(" -> ");
+			genTypeExpr(out, *var.retType);
+		},
+		varcase(const TypeExprDataType::ERR_INFERR) {
+			out.add("?");
+		},
+		varcase(const TypeExprDataType::TRAIT_TY) {
+			out.add("trait");
+		},
+		varcase(const TypeExprDataType::FUNC_CALL&) {
+			genFuncCall(out, var);
+		},
+		varcase(const TypeExprDataType::LIM_PREFIX_EXP&) {
+			genLimPrefixExpr(out, *var);
+		},
+		varcase(const TypeExprDataType::MULTI_OP&) {
+			genTypeExpr(out, *var.first);
+			for (const auto& [op, ex] : var.extra)
+			{
+				out.add(' ')
+					.add(getBinOpAsStr<Out>(op))
+					.add(' ');
+				genTypeExpr(out, ex);
+			}
+		},
+		varcase(const TypeExprDataType::NUMERAL_I64) {
+			out.add(std::to_string(var.v));
+		},
+		varcase(const TypeExprDataType::NUMERAL_U64) {
+			out.add(std::to_string(var.v));
+		},
+		varcase(const TypeExprDataType::NUMERAL_I128) {
+			out.add("0x");
+			writeU64Hex(out, var.hi);
+			writeU64Hex(out, var.lo);
+		},
+		varcase(const TypeExprDataType::NUMERAL_U128) {
+			out.add("0x");
+			writeU64Hex(out, var.hi);
+			writeU64Hex(out, var.lo);
+		}
+		);
+	}
+
+	template<AnyOutput Out>
 	inline void genTypeExpr(Out& out, const TypeExpr& obj)
 	{
-		//TODO
+		if constexpr (Out::settings() & sluSyn)
+		{
+			if (obj.hasMut)
+				out.add("mut ");
+			genUnOps(out, obj.unOps);
+			genTypeExprData(out, obj.data);
+			for (const PostUnOpType t : obj.postUnOps)
+				out.add(getPostUnOpAsStr(t));
+		}
 	}
 
 	template<AnyOutput Out>
@@ -222,10 +328,11 @@ namespace slu::parse
 			out.add("/").add(out.db.asSv(i));
 		}
 	}
+
 	template<AnyOutput Out>
-	inline void genExpr(Out& out, const Expression<Out>& obj)
+	inline void genUnOps(Out& out, const auto& obj)
 	{
-		for (const UnOpItem t : obj.unOps)
+		for (const UnOpItem& t : obj)
 		{
 			out.add(getUnOpAsStr<Out>(t.type));
 			if constexpr (out.settings() & sluSyn)
@@ -237,6 +344,12 @@ namespace slu::parse
 				}
 			}
 		}
+	}
+	template<AnyOutput Out>
+	inline void genExpr(Out& out, const Expression<Out>& obj)
+	{
+		genUnOps(out,obj.unOps);
+
 		using namespace std::literals;
 		ezmatch(obj.data)(
 		varcase(const ExprType::NIL) {
@@ -305,7 +418,7 @@ namespace slu::parse
 			genTypeExpr(out, var);
 		},
 		varcase(const ExprType::TRAIT_EXPR&) {
-			//TODO
+			genTraitExpr(out, var);
 		},
 		varcase(const ExprType::IfCond<Out>&) {
 			genIfCond<true>(out, var);
@@ -328,9 +441,7 @@ namespace slu::parse
 		if constexpr(out.settings()&sluSyn)
 		{
 			for (const PostUnOpType t : obj.postUnOps)
-			{
 				out.add(getPostUnOpAsStr(t));
-			}
 		}
 	}
 	template<AnyOutput Out>
@@ -450,9 +561,10 @@ namespace slu::parse
 		for (const Parameter<Out>& par : itm)
 		{
 			if constexpr (out.settings() & sluSyn)
-				throw 11;//TODO
+				genPat(out, par.name);
 			else
 				out.add(out.db.asSv(par.name));
+
 			if (&par != &itm.back() || hasVarArgParam)
 				out.add(", ");
 		}
