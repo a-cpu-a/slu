@@ -274,8 +274,22 @@ namespace slu::parse
 		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
 		struct NUMERAL_U128 { uint64_t lo = 0; uint64_t hi = 0; }; // "Numeral"
 		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
-
 	}
+
+	struct TupleName
+	{
+		uint64_t lo = 0; uint64_t hi = 0;
+		constexpr TupleName() = default;
+		constexpr TupleName(ExprType::NUMERAL_I64 v)
+			:lo(v.v) {}
+		constexpr TupleName(ExprType::NUMERAL_U64 v) 
+			:lo(v.v) {}
+		constexpr TupleName(ExprType::NUMERAL_I128 v)
+			:lo(v.lo),hi(v.hi) {}						   
+		constexpr TupleName(ExprType::NUMERAL_U128 v) 
+			:lo(v.lo),hi(v.hi) {}
+	};
+
 	using Lifetime = std::vector<MpItmIdV<true>>;
 	struct UnOpItem
 	{

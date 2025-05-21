@@ -16,6 +16,7 @@
 #include <slu/parser/adv/SkipSpace.hpp>
 #include <slu/parser/adv/RequireToken.hpp>
 #include <slu/parser/basic/CharInfo.hpp>
+#include <slu/parser/adv/ReadNumeral.hpp>
 
 namespace slu::parse
 {
@@ -113,7 +114,9 @@ namespace slu::parse
 			}
 			if (isDigitChar(firstChar))
 			{
-				//TODO: only allow 0-9 and maybe other number stuffs (0x, _, etc)
+				TupleName n = readNumeral<TupleName,false,false>(in, firstChar);
+				auto arr = u128ToStr(n.lo, n.hi);
+				return std::string(arr.data(),strnlen_s(arr.data(),arr.size()));
 			}
 		}
 		else
