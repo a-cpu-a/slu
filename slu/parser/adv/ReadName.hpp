@@ -74,7 +74,7 @@ namespace slu::parse
 		return false;
 	}
 
-	template<bool forMpStart=false>
+	template<bool forMpStart=false,bool sluTuplable=false>
 	inline std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
@@ -96,12 +96,35 @@ namespace slu::parse
 
 		const uint8_t firstChar = in.peek();
 
-		// Ensure the first character is valid (a letter or underscore)
-		if (!isValidNameStartChar(firstChar))
+		if constexpr(sluTuplable && (in.settings()&sluSyn))
 		{
-			if (allowError)
-				return "";
-			throw UnexpectedCharacterError("Invalid identifier/name start: must begin with a letter or underscore" + errorLocStr(in));
+			// Ensure the first character is valid (a letter, number or underscore)
+			if (!isValidNameChar(firstChar))
+			{
+				if (allowError)
+					return "";
+				throw UnexpectedCharacterError(std::format(
+					"Invalid identifier/"
+					LC_integer
+					"/name start: must begin with a letter, digit or underscore"
+					"{}"
+					, errorLocStr(in))
+				);
+			}
+			if (isDigitChar(firstChar))
+			{
+				//TODO: only allow 0-9 and maybe other number stuffs (0x, _, etc)
+			}
+		}
+		else
+		{
+			// Ensure the first character is valid (a letter or underscore)
+			if (!isValidNameStartChar(firstChar))
+			{
+				if (allowError)
+					return "";
+				throw UnexpectedCharacterError("Invalid identifier/name start: must begin with a letter or underscore" + errorLocStr(in));
+			}
 		}
 
 
@@ -130,6 +153,11 @@ namespace slu::parse
 
 		return res;
 	}
+	template<bool forMpStart = false>
+	inline std::string readSluTuplableName(AnyInput auto& in, const bool allowError = false) {
+		return readName<forMpStart>(in, allowError);
+	}
+
 	//No space skip!
 	//Returns SIZE_MAX, on non name inputs
 	//Otherwise, returns last peek() idx that returns a part of the name
