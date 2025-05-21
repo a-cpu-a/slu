@@ -341,9 +341,12 @@ namespace slu::parse
 					// Lands on non valid idx
 					iterIdx = weakSkipSpace(in, iterIdx);
 
-					// => = , }, BUT not ==
+					// => in = , }, BUT not ==
 					const char nextChar = in.peekAt(iterIdx);
-					if ((nextChar == '=' && in.peekAt(iterIdx + 1) != '=') || nextChar == ',' || nextChar == '}')
+					if ((nextChar == '=' && in.peekAt(iterIdx + 1) != '=')
+						|| nextChar == ',' || nextChar == '}'
+						|| nextChar=='i'&&(in.peekAt(iterIdx + 1)=='n' && !isValidNameChar(in.peekAt(iterIdx + 2)))
+						)
 					{
 						basicRes.data = ExprType::PAT_TYPE_PREFIX{};
 						return basicRes;
