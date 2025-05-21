@@ -909,50 +909,52 @@ namespace slu::parse
 		},
 		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
 
+			out.add("for ");
 			if constexpr (Out::settings() & sluSyn)
-				throw 1111;//TODO: for loop gen
+				genPat(out, var.varName);
 			else
+				out.add(out.db.asSv(var.varName));
+			out.add(" = ");
+			genExpr(out, var.start);
+			out.add(", ");
+			genExpr(out, var.end);
+			if (var.step)
 			{
-				out.add(sel<Out>("for ", "for ("))
-					.add(out.db.asSv(var.varName))
-					.add(" = ");
-				genExpr(out, var.start);
 				out.add(", ");
-				genExpr(out, var.end);
-				if (var.step)
-				{
-					out.add(", ");
-					genExpr(out, *var.step);
-				}
-				out.add(sel<Out>(" do", ")"));
-				if constexpr (Out::settings() & sluSyn)
-					out.newLine().add('{');
-				out.tabUpNewl();
-
-				genBlock(out, var.bl);
-				out.unTabNewl()
-					.addNewl(sel<Out>("end", "}"));
+				genExpr(out, *var.step);
 			}
+			if constexpr (Out::settings() & sluSyn)
+				out.newLine().add('{');
+			else
+				out.add(" do");
+
+			out.tabUpNewl();
+
+			genBlock(out, var.bl);
+			out.unTabNewl()
+				.addNewl(sel<Out>("end", "}"));
 		},
 		varcase(const StatementType::FOR_LOOP_GENERIC<Out>&) {
+			out.add("for ");
 			if constexpr (Out::settings() & sluSyn)
-				throw 6666;//TODO: for loop gen
+				genPat(out, var.varNames);
 			else
-			{
-				out.add(sel<Out>("for ", "for ("));
 				genNames(out, var.varNames);
-				out.add(" in ");
+			out.add(" in ");
+			if constexpr (Out::settings() & sluSyn)
+				genExpr(out, var.exprs);
+			else
 				genExpList(out, var.exprs);
 
-				out.add(sel<Out>(" do", ")"));
-				if constexpr (Out::settings() & sluSyn)
-					out.newLine().add('{');
-				out.tabUpNewl();
+			if constexpr (Out::settings() & sluSyn)
+				out.newLine().add('{');
+			else
+				out.add(" do");
+			out.tabUpNewl();
 
-				genBlock(out, var.bl);
-				out.unTabNewl()
-					.addNewl(sel<Out>("end", "}"));
-			}
+			genBlock(out, var.bl);
+			out.unTabNewl()
+				.addNewl(sel<Out>("end", "}"));
 		},
 
 		varcase(const StatementType::FN<Out>&) {
