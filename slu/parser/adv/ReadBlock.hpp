@@ -109,7 +109,6 @@ namespace slu::parse
 
 		while (true)
 		{
-			skipSpace(in);
 
 			if (!in)//File ended, so block ended too
 				break;
@@ -127,6 +126,8 @@ namespace slu::parse
 			// Not some end / return keyword, must be a statement
 
 			readStatement<isLoop>(in, allowVarArg);
+
+			skipSpace(in);
 		}
 		return in.genData.popScope(in.getLoc());
 	}

@@ -23,10 +23,10 @@
 namespace slu::parse
 {
 	template<AnyInput In>
-	inline ModPath readModPath(In& in,const std::string& start)
+	inline std::pair<ModPath,bool> readModPath(In& in,const std::string& start)
 	{
 		ModPath mp = { start };
-		skipSpace(in);
+		bool skipped = skipSpace(in);
 		while (checkToken(in, "::"))
 		{
 			const char afterCcChr = in.peekAt(2);
@@ -36,22 +36,22 @@ namespace slu::parse
 			in.skip(2);//skip '::'
 			skipSpace(in);
 			mp.push_back(readName(in));
-			skipSpace(in);
+			skipped = skipSpace(in);
 		}
-		return mp;
+		return { mp, skipped };
 	}
 	template<AnyInput In>
 	inline ModPath readModPath(In& in) {
-		return readModPath(in, readName<true>(in));
+		return readModPath(in, readName<true>(in)).first;
 	}
 	//Unlike readModPath, doesnt have the ability to do things like `self::xyz`
 	template<AnyInput In>
 	inline SubModPath readSubModPath(In& in) {
-		return readModPath(in,readName(in));
+		return readModPath(in,readName(in)).first;
 	}
 
 	template<AnyInput In>
-	inline void parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
+	inline bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
@@ -61,7 +61,7 @@ namespace slu::parse
 
 			varDataOut.base = BaseVarType::EXPR<In>(std::move(res));
 			varDataNeedsSubThing = true;
-			return;
+			return false;
 		}
 		// Must be Name, ... or mod path
 
@@ -70,12 +70,14 @@ namespace slu::parse
 
 		if constexpr (in.settings() & sluSyn)
 		{
-			ModPath mp = readModPath(in, std::move(start));
+			auto [mp,skipped] = readModPath(in, std::move(start));
 
 			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp));
+			return skipped;
 		}
 		//Check, cuz 'excess elements in struct initializer' happens in normal lua
 		varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start));
+		return false;
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
@@ -153,14 +155,17 @@ namespace slu::parse
 		
 		varData.emplace_back();
 
-		parseVarBase(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
+		bool skipped = parseVarBase(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
 
+		bool firstRun = true;
 		char opType;
 
 		//This requires manual parsing, and stuff (at every step, complex code)
 		while (true)
 		{
-			const bool skipped = skipSpace(in);
+			if (!firstRun || !skipped)
+				skipped = skipSpace(in);
+			firstRun = false;
 
 			if (!in)
 				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, funcCallData, varDataNeedsSubThing,0);
@@ -183,7 +188,7 @@ namespace slu::parse
 					varData.emplace_back();
 
 					skipSpace(in);
-					parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
+					skipped =  parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
 			default:
