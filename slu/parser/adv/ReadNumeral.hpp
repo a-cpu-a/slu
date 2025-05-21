@@ -28,7 +28,7 @@ namespace slu::parse
 		{
 			if constexpr (in.settings() & noIntOverflow)
 			{
-				if (result & LAST_DIGIT_HEX)//does it have anything?
+				if (((uint64_t)result & LAST_DIGIT_HEX) != 0)//does it have anything?
 				{// Yes, exit now!
 					reportIntTooBig(in, str);
 					return result;
@@ -50,7 +50,7 @@ namespace slu::parse
 		{
 			if constexpr (in.settings() & noIntOverflow)
 			{
-				if (result.hi & LAST_DIGIT_HEX)//does it have anything?
+				if ((result.hi & LAST_DIGIT_HEX)!=0)//does it have anything?
 				{// Yes, exit now!
 					reportIntTooBig(in, str);
 					return result;
@@ -94,15 +94,10 @@ namespace slu::parse
 				}
 			}
 
-			// Get top 4 bits that overflow into hi
-			uint64_t hi_carry = (result.lo >> 60);
-			result.lo *= 10;
-			result.hi = result.hi * 10 + hi_carry;
-
-			uint64_t new_lo = result.lo + digit;
-			if (new_lo < result.lo) result.hi++; // Detect overflow
-			result.lo = new_lo;
-
+			//multiply by 10 aka 0b1010
+			result = result.shift(1) + result.shift(3);
+			//atleast 0-9 wont overflow.
+			result.lo += digit;
 		}
 
 		return result;
