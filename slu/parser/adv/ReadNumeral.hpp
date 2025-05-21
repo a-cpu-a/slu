@@ -166,6 +166,11 @@ namespace slu::parse
 			}
 			else if (c == '.' && !hasDot && !hasExp)
 			{
+				if constexpr (In::settings()&sluSyn)
+				{
+					if (!in.isOob(1) && in.peekAt(1) == '.')
+						break;
+				}
 				hasDot = true;
 				isFloat = true;
 				number += in.get();
