@@ -171,7 +171,7 @@ namespace slu::paint
 		}
 		paintKw<Tok::GEN_OP>(se, "}");
 	}
-	template<AnySemOutput Se>
+	template<Tok nameTok=Tok::NAME,AnySemOutput Se>
 	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
 	{
 		//skipSpace(se);
@@ -187,11 +187,11 @@ namespace slu::paint
 		}
 		ezmatch(itm.data)(
 		varcase(const parse::ExprType::MULTI_OPERATION<Se>&) {
-			paintExpr(se, *var.first);
+			paintExpr<nameTok>(se, *var.first);
 			for (const auto& [op,expr] : var.extra)
 			{
 				paintBinOp(se, op);
-				paintExpr(se, expr);
+				paintExpr<nameTok>(se, expr);
 			}
 		},
 		varcase(const parse::ExprType::FALSE) {
@@ -244,13 +244,13 @@ namespace slu::paint
 			paintTable(se, var.v);
 		},
 		varcase(const parse::ExprType::LIM_PREFIX_EXP<Se>&) {
-			paintLimPrefixExpr(se, *var);
+			paintLimPrefixExpr<nameTok>(se, *var);
 		},
 		varcase(const parse::ExprType::FUNCTION_DEF<Se>&) {
 			paintFuncDef(se, var.v, parse::MpItmId<Se>({ SIZE_MAX }), false);
 		},
 		varcase(const parse::ExprType::FUNC_CALL<Se>&) {
-			paintLimPrefixExpr(se, *var.val);
+			paintLimPrefixExpr<nameTok>(se, *var.val);
 			paintArgChain(se, var.argChain);
 		},
 		varcase(const parse::ExprType::PAT_TYPE_PREFIX&) {
@@ -319,16 +319,16 @@ namespace slu::paint
 		}
 		);
 	}
-	template<AnySemOutput Se>
+	template<Tok nameTok,AnySemOutput Se>
 	inline void paintVar(Se& se, const parse::Var<Se>& itm)
 	{
 		ezmatch(itm.base)(
 		varcase(const parse::BaseVarType::NAME<Se>&) {
-			paintName<Tok::NAME>(se, var.v);
+			paintName<nameTok>(se, var.v);
 		},
 		varcase(const parse::BaseVarType::EXPR<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
-			paintExpr(se, var.start);
+			paintExpr<nameTok>(se, var.start);
 			paintKw<Tok::GEN_OP>(se, ")");
 		}
 		);
@@ -457,27 +457,27 @@ namespace slu::paint
 				paintNameList<Tok::NAME>(se, itm);
 		}
 	}
-	template<AnySemOutput Se>
+	template<Tok nameTok,AnySemOutput Se>
 	inline void paintVarList(Se& se, const std::vector<parse::Var<Se>>& itm)
 	{
 		for (const parse::Var<Se>& i : itm)
 		{
-			paintVar(se, i);
+			paintVar<nameTok>(se, i);
 
 			if (&i != &itm.back())
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
 	}
-	template<AnySemOutput Se>
+	template<Tok nameTok,AnySemOutput Se>
 	inline void paintLimPrefixExpr(Se& se, const parse::LimPrefixExpr<Se>& itm)
 	{
 		ezmatch(itm)(
 		varcase(const parse::LimPrefixExprType::VAR<Se>&) {
-			paintVar(se, var.v);
+			paintVar<nameTok>(se, var.v);
 		},
 		varcase(const parse::LimPrefixExprType::EXPR<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
-			paintExpr(se, var.v);
+			paintExpr<nameTok>(se, var.v);
 			paintKw<Tok::GEN_OP>(se, ")");
 		}
 		);
@@ -540,11 +540,11 @@ namespace slu::paint
 		{
 			ezmatch(i)(
 			varcase(const parse::TraitExprItemType::FUNC_CALL&) {
-				paintLimPrefixExpr(se, *var.val);
+				paintLimPrefixExpr<Tok::NAME_TRAIT>(se, *var.val);
 				paintArgChain(se, var.argChain);
 			},
 			varcase(const parse::TraitExprItemType::LIM_PREFIX_EXP&) {
-				paintLimPrefixExpr(se, *var);
+				paintLimPrefixExpr<Tok::NAME_TRAIT>(se, *var);
 			}
 			);
 			if (&i != &itm.traitCombo.back())
@@ -584,15 +584,15 @@ namespace slu::paint
 				paintNumber(se, tint);
 			},
 			varcase(const parse::TypeExprDataType::FUNC_CALL&) {
-				paintLimPrefixExpr(se, *var.val);
+				paintLimPrefixExpr<Tok::NAME_TYPE>(se, *var.val);
 				paintArgChain(se, var.argChain);
 			},
 			varcase(const parse::TypeExprDataType::LIM_PREFIX_EXP&) {
-				paintLimPrefixExpr(se, *var);
+				paintLimPrefixExpr<Tok::NAME_TYPE>(se, *var);
 			},
 			varcase(const parse::TypeExprDataType::SLICER&) {
 				paintKw<Tok::GEN_OP>(se, "[");
-				paintExpr(se, *var);
+				paintExpr<Tok::NAME_TYPE>(se, *var);
 				paintKw<Tok::GEN_OP>(se, "]");
 			},
 			varcase(const parse::TypeExprDataType::Struct&) {
@@ -905,11 +905,11 @@ namespace slu::paint
 			paintIfCond<false>(se, var);
 		},
 		varcase(const parse::StatementType::FUNC_CALL<Se>&) {
-			paintLimPrefixExpr(se, *var.val);
+			paintLimPrefixExpr<Tok::NAME>(se, *var.val);
 			paintArgChain(se, var.argChain);
 		},
 		varcase(const parse::StatementType::ASSIGN<Se>&) {
-			paintVarList(se, var.vars);
+			paintVarList<Tok::NAME>(se, var.vars);
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExprList(se, var.exprs);
 		},
