@@ -724,7 +724,7 @@ namespace slu::parse
 			out.unTabNewl().add('}');
 		},
 		varcase(const parse::StatOrExprType::EXPR<Out>&) {
-			out.add("=> ");
+			out.add(" => ");
 			genExpr(out, var);
 		}
 		);
@@ -739,6 +739,7 @@ namespace slu::parse
 		{
 			genExpr(out, *itm.cond);
 			genStatOrExpr(out, *itm.bl);
+			if constexpr (isExpr)out.add(' ');
 		}
 		else
 		{
@@ -759,6 +760,7 @@ namespace slu::parse
 				{
 					genExpr(out, expr);
 					genStatOrExpr(out, bl);
+					if constexpr (isExpr)out.add(' ');
 				}
 				else
 				{
