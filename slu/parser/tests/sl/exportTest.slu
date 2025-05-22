@@ -1,0 +1,3 @@
+ex let exLet=1
+ex local exLocal=1
+ex const exConst=1

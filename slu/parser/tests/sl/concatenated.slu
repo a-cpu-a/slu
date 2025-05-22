@@ -48,6 +48,16 @@ union GenMixedUnion(type Tx) {u8,str,x=type}
 ex struct ExStru{}
 ex union Exuni{}
 
+ex let exLet=1
+ex local exLocal=1
+ex const exConst=1
+
+mod mod_x
+mod mod_x_as as {}
+
+ex mod ex_mod
+ex mod ex_mod_as as {}
+
 let _=3
 let as{}x=3
 ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
