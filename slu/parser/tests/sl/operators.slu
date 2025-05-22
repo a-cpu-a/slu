@@ -1,0 +1,53 @@
+
+let allocOp = alloc 100;
+
+let orOp = true or false;
+let andOp = true and false;
+
+let eqOp = orOp==andOp;
+let neOp = eqOp!=andOp;
+
+let ltOp = 1 < 100;
+let gtOp = 1 > 100;
+let leOp = 1 <= 100;
+let geOp = 1 >= 100;
+
+let arrAddOp = {}++{};
+let arrMulOp = {}**100;
+
+let rangeAllOp = 1..1;
+let rangeMaxOp = ..1;
+let rangeMinOp = 1..;
+
+let bitOrOp = 1|1;
+let bitXorOp = 1~1;
+let bitAndOp = 1&1;
+
+let shlOp = 1<<1;
+let shrOp = 1>>1;
+
+let PseudoDynOp = dyn Add;
+let PseudoImplOp = impl Add;
+
+let addOp = 1+1;
+let subOp = 1-1;
+
+let modOp = 1%1;
+
+let mulOp = 1*1;
+let divOp = 1/1;
+let floorDivOp = 1//1;
+
+let notOp = !true;
+let negOp = -1;
+let mutOp = mut PseudoDynOp;
+
+let refOp = &mutOp;
+let refMutOp = &mut mutOp;
+let ptrMutOp = *mut mutOp;
+let ptrConstOp = *const mutOp;
+
+let expOp = 2^addOp;
+let errOp = x?;
+let derefOp = x.*;
+	
