@@ -132,7 +132,7 @@ namespace slu::paint
 			paintName<Tok::NAME_LIFETIME>(se, i);
 		}
 	}
-	template<AnySemOutput Se>
+	template<Tok nameTok,AnySemOutput Se>
 	inline void paintField(Se& se, const parse::Field<Se>& itm)
 	{
 		ezmatch(itm)(
@@ -141,28 +141,28 @@ namespace slu::paint
 			paintExpr(se, var.idx);
 			paintKw<Tok::PUNCTUATION>(se, "]");
 			paintKw<Tok::ASSIGN>(se, "=");
-			paintExpr(se, var.v);
+			paintExpr<nameTok>(se, var.v);
 		},
 		varcase(const parse::FieldType::NAME2EXPR<Se>&) {
 			paintName<Tok::NAME_TABLE>(se, var.idx);
 			paintKw<Tok::ASSIGN>(se, "=");
-			paintExpr(se, var.v);
+			paintExpr<nameTok>(se, var.v);
 		},
 		varcase(const parse::FieldType::EXPR<Se>&) {
-			paintExpr(se, var.v);
+			paintExpr<nameTok>(se, var.v);
 		},
 		varcase(const parse::FieldType::NONE) {
 			Slu_panic("field shouldnt be FieldType::NONE, found while painting.");
 		}
 		);
 	}
-	template<AnySemOutput Se>
+	template<Tok nameTok,AnySemOutput Se>
 	inline void paintTable(Se& se, const parse::TableConstructor<Se>& itm)
 	{
 		paintKw<Tok::GEN_OP>(se, "{");
 		for (const parse::Field<Se>& f : itm)
 		{
-			paintField(se, f);
+			paintField<nameTok>(se, f);
 			skipSpace(se);
 			if (se.in.peek() == ',')
 				paintKw<Tok::PUNCTUATION>(se, ",");
@@ -241,7 +241,7 @@ namespace slu::paint
 				paintTraitExpr(se, var);
 		},
 		varcase(const parse::ExprType::TABLE_CONSTRUCTOR<Se>&) {
-			paintTable(se, var.v);
+			paintTable<nameTok>(se, var.v);
 		},
 		varcase(const parse::ExprType::LIM_PREFIX_EXP<Se>&) {
 			paintLimPrefixExpr<nameTok>(se, *var);
@@ -499,7 +499,7 @@ namespace slu::paint
 				paintKw<Tok::GEN_OP>(se, ")");
 			},
 			varcase(const parse::ArgsType::TABLE<Se>&) {
-				paintTable(se, var.v);
+				paintTable<Tok::NAME>(se, var.v);
 			},
 			varcase(const parse::ArgsType::LITERAL&) {
 				paintString(se, var.v, var.end, Tok::NONE);
@@ -599,11 +599,11 @@ namespace slu::paint
 				skipSpace(se);
 				if(se.in.peek()=='s')
 					paintKw<Tok::CON_STAT>(se, "struct");
-				paintTable(se, var);
+				paintTable<Tok::NAME_TYPE>(se, var);
 			},
 			varcase(const parse::TypeExprDataType::Union&) {
 				paintKw<Tok::CON_STAT>(se, "union");
-				paintTable(se, var.fields);
+				paintTable<Tok::NAME_TYPE>(se, var.fields);
 			},
 			varcase(const parse::TypeExprDataType::DYN&) {
 				paintKw<Tok::DYN>(se, "dyn");
@@ -966,7 +966,7 @@ namespace slu::paint
 		},
 		varcase(const parse::StatementType::Union<Se>&) {
 			paintStructBasic(se, var, "union");
-			paintTable(se, var.type);
+			paintTable<Tok::NAME_TYPE>(se, var.type);
 		},
 
 		varcase(const parse::StatementType::DROP<Se>&) {
