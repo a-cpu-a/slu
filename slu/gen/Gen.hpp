@@ -751,8 +751,9 @@ namespace slu::parse
 		{
 			for (const auto& [expr, bl] : itm.elseIfs)
 			{
-				out.unTabNewl()
-					.add(sel<Out>("elseif ", "else if "));
+				if constexpr (!(Out::settings() & sluSyn))
+					out.unTabNewl();
+				out.add(sel<Out>("elseif ", "else if "));
 
 				if constexpr (Out::settings() & sluSyn)
 				{
@@ -769,8 +770,9 @@ namespace slu::parse
 		}
 		if (itm.elseBlock)
 		{
-			out.unTabNewl()
-				.add("else");
+			if constexpr (!(Out::settings() & sluSyn))
+				out.unTabNewl();
+			out.add("else");
 
 			if constexpr (Out::settings() & sluSyn)
 			{
@@ -782,10 +784,9 @@ namespace slu::parse
 				genBlock(out, **itm.elseBlock);
 			}
 		}
-		out.unTabNewl();
 
 		if constexpr (!(Out::settings() & sluSyn))
-			out.addNewl("end");
+			out.unTabNewl().addNewl("end");
 	}
 
 	template<size_t N,AnyOutput Out>
