@@ -66,6 +66,7 @@ namespace slu::paint
 		NAME_TRAIT,// xxx
 		NAME_LABEL,
 		NAME_LIFETIME,
+		LIFETIME_SEP,
 
 		NUMBER,
 		NUMBER_TYPE,// u8, u16, ...

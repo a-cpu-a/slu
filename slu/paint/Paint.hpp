@@ -128,7 +128,7 @@ namespace slu::paint
 	{
 		for (const auto& i : itm)
 		{
-			paintKw<Tok::NAME_LIFETIME>(se, "/");
+			paintKw<Tok::LIFETIME_SEP>(se, "/");
 			paintName<Tok::NAME_LIFETIME>(se, i);
 		}
 	}
