@@ -45,6 +45,9 @@ union GenYunion(type Tx) {u8,u8,u8}
 union GenNamedUnion(type Tx) {x=type}
 union GenMixedUnion(type Tx) {u8,str,x=type}
 
+ex struct ExStru{}
+ex union Exuni{}
+
 let _=3
 let as{}x=3
 ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
