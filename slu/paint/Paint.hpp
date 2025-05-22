@@ -341,7 +341,7 @@ namespace slu::paint
 	inline void paintDestrField(Se& se, const parse::DestrField& itm)
 	{
 		paintKw<Tok::GEN_OP>(se, "|");
-		paintName<Tok::NAME>(se, itm.name);
+		paintName<Tok::NAME_TABLE>(se, itm.name);
 		paintKw<Tok::GEN_OP>(se, "|");
 		paintPat(se, itm.pat);
 	}
