@@ -60,6 +60,7 @@ namespace slu::paint
 
 			case Tok::NAME: return col(0xD8D8D8);
 			case Tok::NAME_TABLE: return col(0x9CA5B2);
+			case Tok::NAME_TRAIT:
 			case Tok::NAME_TYPE: return col(0x36A57E);
 			case Tok::NAME_LIFETIME: return col(0x829167);
 			case Tok::NAME_LABEL: return col(0x72CC82);
