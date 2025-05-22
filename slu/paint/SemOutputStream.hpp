@@ -61,7 +61,7 @@ namespace slu::paint
 		BRACES,// {} (may be combined with some tint, to get a colored brace)
 
 		NAME,// .123 .xxx xxx
-		NAME_TABLE,// xxx inside {xxx=...}
+		NAME_TABLE,// xxx inside {xxx=...} or |xxx| ... patterns
 		NAME_TYPE,// type trait xxx
 		NAME_LABEL,
 		NAME_LIFETIME,
