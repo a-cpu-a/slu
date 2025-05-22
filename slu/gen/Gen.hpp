@@ -229,7 +229,22 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genTraitExpr(Out& out, const TraitExpr& obj)
 	{
-
+		if constexpr(Out::settings() & sluSyn)
+		{
+			for (const TraitExprItem& i : obj.traitCombo)
+			{
+				ezmatch(i)(
+				varcase(const TypeExprDataType::FUNC_CALL&) {
+					genFuncCall(out, var);
+				},
+				varcase(const TypeExprDataType::LIM_PREFIX_EXP&) {
+					genLimPrefixExpr(out, *var);
+				}
+					);
+				if (&i != &obj.traitCombo.back())
+					out.add(" + ");
+			}
+		}
 	}
 	template<AnyOutput Out>
 	inline void genTypeExprData(Out& out, const TypeExprData& obj)
