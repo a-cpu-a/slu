@@ -1,0 +1,386 @@
+let _=3
+let as{}x=3
+ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
+ex safe fn helloWorld2() -> &mut u8 {}
+ex fn helloWorld3() -> &[u8] {}
+unsafe fn helloWorld4() -> &mut[str] {}
+safe fn helloWorld5() -> *mut[str] {}
+fn helloWorld0() -> *const[str] {}
+
+drop helloWorld0
+
+use self::helloWorld0::{self,hello}
+use self::helloWorld0::*
+use crate::helloWorld1::*
+use self::helloWorld0 as hw0
+use crate::helloWorld1 as hw1;
+use helloWorld2 as hw2
+
+--[=[   erwerwer
+tyrty
+]=]
+
+-- herlwerol
+
+const X1 = 4232.54
+const X2 = "Hello string"
+const X3 = true or true
+const X4 = [u8]
+let a{|1|x}=0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+
+
+--type spec
+
+--borrow
+
+		let item1 = 4
+		let item2 = 5
+		
+		let &/item1 u8 myRef = &item1;
+		
+		let &mut u8 myRef2 = &mut item2;-- The annotation is inferred here.
+		
+		drop myRef2;-- Required, because not adding this, will produce a soft-error.
+		
+		let &/item1/item2 u8 z = &item1;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+			
+	x "";
+	
+	(print) [==[Hello World!]==];
+	(print) [=[Hello World!]=];
+	(print) "Hello World!";
+	(print) 'Hello World!'
+	
+	_G["print"] [==[Hello World!]==]
+	_G["print"] [=[Hello World!]=]
+	_G["print"] "Hello World!"
+	_G["print"] 'Hello World!'
+	
+	print [==[Hello World!]==]
+	print [=[Hello World!]=]
+	print "Hello World!"
+	print 'Hello World!'
+--type spec
+
+
+--deref
+
+
+let intX = 4;
+
+let &mut u8.* xAlias = intX;
+xAlias = 3;
+drop xAlias; --Allow use of intX, once again
+
+--assertEq$(intX,3);
+
+unsafe {
+	let *mut u8.* xAliasUnsafe = (*mut intX).*;
+	xAliasUnsafe = 2;
+}
+--assertEq$(intX,2);
+
+
+let intXBorrow = &intX;
+
+let &/intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
+let intXCopy = intXBorrow.*; --The type is just u8, as a trivial copy was possible.
+
+--if!let!ex!in!is!at!i8!10!and!
+
+
+fieldTest = {
+	apple,
+	syn4 = 4,
+	syn3 --[=[]=]= 3,
+	syn2 = --[=[]=]2,
+	syn1 --[=[]=]= --[=[]=]1,
+
+	synW3--[=[]=]= 3,
+	synW2=--[=[]=]2,
+	synW1--[=[]=]=--[=[]=]1,
+
+	
+	sgnl3 --[=[
+	]=]= 3,
+	sgnl2 = --[=[
+	]=]2,
+	sgnl1 --[=[
+	]=]= --[=[
+	]=]1,
+
+	sgnlW3--[=[
+	]=]= 3,
+	sgnlW2=--[=[
+	]=]2,
+	sgnlW1--[=[
+	]=]=--[=[
+	]=]1,
+	
+	
+	sgn3 --comment
+	= 3,
+	sgn2 = --comment
+	2,
+	sgn1 --comment
+	= --comment
+	1,
+
+	sgnW3--comment
+	= 3,
+	sgnW2=--comment
+	2,
+	sgnW1--comment
+	=--comment
+	1,
+	
+	
+	sgnl3Word --comment[=[
+	= 3,
+	sgnl2Word = --comment[=[
+	2,
+	sgnl1Word --comment[=[
+	= --comment[=[
+	1,
+
+	sgnlW3Word--comment[=[
+	= 3,
+	sgnlW2Word=--comment[=[
+	2,
+	sgnlW1Word--comment[=[
+	=--comment[=[
+	1,
+
+	"",
+
+}
+for u8 i in 1..100 {}
+for u8 i in 1..max {}
+for u8 i in getRange() {}
+
+
+--1..100 in steps of 1
+for u8 i = 1,100 {}
+for u8 i = 1,100,1 {}
+--100..1 in steps of -1
+for u8 i = 100,1,-1 {}
+
+for {i,v} in getVec() {}
+for {k,_} in myVec() {}
+for KvPair{k,v} in getIter() {}
+let as{integer,{number}} xp = -0xFFFFFFFFFFFFFFFF,{0xFFFFFFFFFFFFFFFF};
+let as{integer,number} xd = -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+
+
+
+	
+
+let i128x3{|3|xv3,|2|yv2,|1|zv1} = i128x3{11,-0x7FFFFFFFFFFFFFFF,0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF};
+let {|1|xV1,|2|yV2,|3|zV3} = i128x3{11,-0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,11};
+let u128x3{xa0,ya1,za2} = u128x3{0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,11,11};
+let {xA3,yA2,zA1} = i128x3{11,0x7FFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFF};
+
+
+
+const trait BasicMathOps = Add + Sub + Mul + Div + Exp;
+
+const type VecU8 = Vec(u8);
+const type GlobalUnit = {};
+const type TraitTypeAlias = trait;
+const type TypeTypeAlias = type;
+	:::xax:
+	
+goto xax
+
+	:::xax2: :::xax5:
+	
+goto xax2
+
+	:::xax3:
+	
+	
+	:::unsafe:
+
+
+
+
+
+
+--Use it: Option::Some(u8), Option(u8) Some{100} None{} None
+
+let x_test = NoTrivialCopy{4};
+let mut v_test = Vec{};
+
+v_test.add(x_test);
+let mut w_test = x_test.*;
+v_test.add(v_test[0]);
+
+v_test.add(x_test); 	--moves x_test out
+w_test = x_test; --Error, x_test has no value!
+v_test.add(v_test[0]); --Error, self and arg are of the same object/lifetime thing.
+
+--[==[
+ertert
+]===]==]
+
+print("Not inside a comment lol")x=0xFFFFFFFFFFFFFFFF
+let mut &mut _TnTObj{
+	|__t| mut &mut a44__,
+	|n_| b44,
+	|_t2_| mut BTn___{
+		|t__| a221,
+		|n_| b221
+	}  _wrap1,
+	|___n2| mut {
+		|_t| ax2x,
+		|__n| _b2z
+	} _wrap21,
+	..
+} _wrap2 = __getTnT_Obj();
+
+
+
+
+let mut &mut TnT{
+	mut &mut {
+		aa,
+		b3
+	} wrap33,
+	b,
+	mut Tn{
+		a2,
+		b2
+	} wrap334,
+	..
+} wrap331 = getTnT();
+
+
+let &mut TnTArr{
+	&mut {
+		u32 aa44,
+		u64 b344
+	},
+	b222,
+	Tn{
+		|t| [u128] a244,
+		|n| as{u8}**34 b244,
+		..
+	},
+	_,
+	d2444,
+	..
+} = getTnT();
+
+
+
+
+let &mut TnTArr4{
+	mut &mut _aa,
+	{b_4,b3_4,c4_4, ..},
+	Tn_4{
+		|t_4| a2_4,
+		|n4_| b2_4
+	},
+	mut {
+		|t| a2_45,
+		|n| b2_45
+	} cicada,
+	..
+} = getTnT_4();
+const 0..0 x
+const 0 x
+let Z_test = Some{3}; --Option(3)
+
+--Z_test is Option::Some(3);
+
+Z_test = None;
+
+--Z_test is Option::None(3);
+
+
+		fn prefixUpperify(str prefix,mut String s) -> String {
+			if (s.empty()) return s;
+			s[1] = s[1].upper()
+			return prefix++s;
+		}
+
+--type spec
+
+
+--ptr
+		let firstArg = 1
+		let secondArg = 2
+		
+		
+		--Its (mostly) safe to make pointers, but not to use them.
+		--Some hosts dont support pointers. (Most do, like js,java,lua,cpp, ...)
+		
+		let *const u8 myPtr = *const firstArg;
+		
+		let *mut u8 myPtr2 = *mut secondArg;
+		
+		drop myPtr2;--Drops the pointer, not really meaningfull
+		
+		let *mut u8 firstArgPtr = *mut firstArg;
+		
+		
+		firstArgPtr = 4;
+x=1..if false return;
+--range op spec
+
+	let range = 1..4
+	let rangeAbove = 1..
+	let rangeBelow = ..5
+	
+	
+	let 1..2 x = 1
+
+let _ = 3;
+
+
+
+let as{u8}**4 __b__ = {1}**4
+let as{u8}**44 _c = {1}**44;
+let {__a,__,_c_} = {1,2,3}
+let [u8] {_a,_,c_,..} = {1,2,3}
+
+
+let u8x1 bbb = {1};
+let u8 bb = 1;
+let &&mut u8 x3 = &&mut bb
+
+let integer x = 4;
+
+let [u8] {x7,y7,z8,..} = {0,0xF,0xFFFFFFFF};
+
+let {x4,y6} = 1,2.0;
+let {x5,y7} = 1,{2.0};
+
+
+let {xj,yj,zj} = 1
+
+let [u8] {__aa, ..} = {1,2,3};
+
+let {aa_N3,b_N3,c_N3} = {1,2,3};
+
+let u8x3 {aa_U8arr3_,b_U8arr3,c_U8arr3} = {1,2,3};for i in 1..1{}
+
+
+for i=1,1{}
+
+
+for i=1,1,1{}x.1=1
+
+
+let{|1|x}=0
+
+
+
+
+
+x.0xF0=1
+let{|0xF|x}=0
+x.0xF_0=1
+let{|0xF_0|x}=0
+x.1_0=1
+let{|1_0|x}=0
