@@ -23,6 +23,7 @@ namespace slu::parse
 	template<AnyInput In>
 	inline TraitExpr readTraitExpr(In& in)
 	{
+		skipSpace(in);
 		TraitExpr ret;
 		ret.place = in.getLoc();
 
