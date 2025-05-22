@@ -1,3 +1,50 @@
+
+struct GenZstruct(t T) = {}
+union Uxxx {}
+
+struct Zstruct = {}
+struct Wstruct = {u8,u8,u8}
+struct Xstruct {}
+struct Ystruct {u8,u8,u8}
+
+struct NamedStructEq = {x=type}
+struct MixedStructEq = {u8,str,x=type}
+struct NamedStruct {x=type}
+struct MixedStruct {u8,str,x=type}
+
+struct Qstruct = u8;
+struct Tstruct = type;
+
+--unions
+
+union Yunion {u8,u8,u8}
+
+union NamedUnion {x=type}
+union MixedUnion {u8,str,x=type}
+
+
+
+
+struct GenWstruct(type Tx) = {u8,u8,u8}
+struct GenXstruct(type Tx) {}
+struct GenYstruct(type Tx) {u8,u8,u8}
+
+struct GenNamedStructEq(type Tx) = {x=type}
+struct GenMixedStructEq(type Tx) = {u8,str,x=type}
+struct GenNamedStruct(type Tx) {x=type}
+struct GenMixedStruct(type Tx) {u8,str,x=type}
+
+struct GenQstruct(type Tx) = u8;
+struct GenTstruct(type Tx) = type;
+
+--unions
+
+union GenXunion(type Tx) {}
+union GenYunion(type Tx) {u8,u8,u8}
+
+union GenNamedUnion(type Tx) {x=type}
+union GenMixedUnion(type Tx) {u8,str,x=type}
+
 let _=3
 let as{}x=3
 ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
@@ -29,6 +76,8 @@ const X4 = [u8]
 let a{|1|x}=0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
 	drop if x => y else => z
+
+
 
 const x??? rtype = x()????;
 const ? qtype = x();
