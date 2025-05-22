@@ -58,13 +58,14 @@ namespace slu::paint
 			case Tok::MP_IDX:
 			case Tok::MP: return col(0xBFC4CC);
 
+			case Tok::BUILITIN_VAR: return col(0x6582C1);
 			case Tok::NAME: return col(0xD8D8D8);
 			case Tok::NAME_TABLE: return col(0x9CA5B2);
 			case Tok::NAME_TRAIT:
 			case Tok::NAME_TYPE: return col(0x36A57E);
-			case Tok::NAME_LIFETIME: return col(0x829167);
 			case Tok::NAME_LABEL: return col(0x72CC82);
-			case Tok::BUILITIN_VAR: return col(0x6582C1);
+			case Tok::NAME_LIFETIME: return col(0x6a8c72);
+			case Tok::LIFETIME_SEP: return col(0x47644e);
 
 			case Tok::NUMBER: return col(0x539BBD);
 			case Tok::NUMBER_KIND: return col(0x6B73A1);
