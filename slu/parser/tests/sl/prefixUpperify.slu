@@ -1,0 +1,7 @@
+
+
+		fn prefixUpperify(str prefix,mut String s) -> String {
+			if (s.empty()) return s;
+			s[1] = s[1].upper()
+			return prefix++s;
+		}

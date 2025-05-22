@@ -14,12 +14,6 @@ let #u8 wGC = alloc 4;
 --todo spec
 
 
-		fn prefixUpperify(str prefix,mut String s) -> String {
-			if (s.empty()) return s;
-			s[1] = s[1].upper()
-			return prefix++s;
-		}
-
 
 
 struct Qu {
