@@ -1,0 +1,2 @@
+const _ = dyn Add + Mul + Div
+const _ = impl Add + Mul + Div
