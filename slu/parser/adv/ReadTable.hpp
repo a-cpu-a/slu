@@ -65,7 +65,7 @@ namespace slu::parse
 
 	//Will NOT check the first char '{' !!!
 	//But will skip it
-	template<AnyInput In>
+	template<bool skipStart=true,AnyInput In>
 	inline TableConstructor<In> readTableConstructor(In& in, const bool allowVarArg)
 	{
 		/*
@@ -74,6 +74,7 @@ namespace slu::parse
 			fieldsep ::= ‘,’ | ‘;’
 		*/
 
+		if (skipStart)
 		in.skip();//get rid of '{'
 
 		skipSpace(in);

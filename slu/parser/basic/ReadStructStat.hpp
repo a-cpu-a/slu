@@ -49,11 +49,12 @@ namespace slu::parse
 			in.skip();
 
 			res.params = readParamList(in);
+			skipSpace(in);
 		}
 		if constexpr (structOnly)
 		{
 			requireToken(in, "{");
-			res.type = readTableConstructor(in, false);
+			res.type = readTableConstructor<false>(in, false);
 		}
 		else
 		{
