@@ -246,7 +246,7 @@ namespace slu::parse
 			}
 		}
 	}
-	template<AnyOutput Out>
+	template<bool elideStruct,AnyOutput Out>
 	inline void genTypeExprData(Out& out, const TypeExprData& obj)
 	{
 		ezmatch(obj)(
@@ -272,7 +272,8 @@ namespace slu::parse
 			genTableConstructor(out, var.fields);
 		},
 		varcase(const TypeExprDataType::Struct&) {
-			out.add("struct ");
+			if constexpr(!elideStruct)
+				out.add("struct ");
 			genTableConstructor(out, var);
 		},
 		varcase(const TypeExprDataType::FN&) {
@@ -319,7 +320,7 @@ namespace slu::parse
 		);
 	}
 
-	template<AnyOutput Out>
+	template<bool elideStruct=false, AnyOutput Out>
 	inline void genTypeExpr(Out& out, const TypeExpr& obj)
 	{
 		if constexpr (Out::settings() & sluSyn)
@@ -327,7 +328,7 @@ namespace slu::parse
 			if (obj.hasMut)
 				out.add("mut ");
 			genUnOps(out, obj.unOps);
-			genTypeExprData(out, obj.data);
+			genTypeExprData<elideStruct>(out, obj.data);
 			for (const PostUnOpType t : obj.postUnOps)
 				out.add(getPostUnOpAsStr(t));
 		}
@@ -619,7 +620,7 @@ namespace slu::parse
 		ezmatch(obj)(
 		varcase(const DestrSpecType::Type&) {
 			out.add("as ");
-			genTypeExpr(out, var);
+			genTypeExpr<true>(out, var);
 			out.add(' ');
 		},
 		varcase(const DestrSpecType::Spat&) {
@@ -1015,7 +1016,8 @@ namespace slu::parse
 			else
 				out.add(" ");
 
-			genTypeExpr(out, var.type);
+			genTypeExpr<true>(out, var.type);
+			out.newLine();
 		},
 
 		varcase(const StatementType::Union<Out>&) {
@@ -1029,6 +1031,7 @@ namespace slu::parse
 			}
 			out.add(' ');
 			genTableConstructor(out, var.type);
+			out.newLine();
 		},
 
 		varcase(const StatementType::UnsafeBlock<Out>&) {
