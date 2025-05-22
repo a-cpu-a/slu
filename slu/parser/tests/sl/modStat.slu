@@ -1,0 +1,6 @@
+
+mod mod_x
+mod mod_x_as as {}
+
+ex mod ex_mod
+ex mod ex_mod_as as {}
