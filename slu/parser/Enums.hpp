@@ -66,9 +66,14 @@ namespace slu::parse
 		ALLOCATE,		// "alloc"
 
 		TO_REF,			// "&"
+		TO_REF_CONST,	// "&const"
 		TO_REF_MUT,		// "&mut"
+		TO_REF_SHARE,	// "&share"
+
+		TO_PTR,			// "*"
 		TO_PTR_CONST,	// "*const"
 		TO_PTR_MUT,		// "*mut"
+		TO_PTR_SHARE,	// "*share"
 
 
 		//Pseudo, only for type prefixes

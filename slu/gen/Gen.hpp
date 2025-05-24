@@ -98,14 +98,22 @@ namespace slu::parse
 		case UnOpType::ALLOCATE:
 			return " alloc "sv;
 
+		case UnOpType::TO_REF_MUT:
+		case UnOpType::TO_REF_CONST:
+		case UnOpType::TO_REF_SHARE:
+			//mut or whatever missing, as lifetimes need to be added
 		case UnOpType::TO_REF:
 			return "&"sv;
-		case UnOpType::TO_REF_MUT:
-			return "&"sv;//mut missing, as lifetimes need to be added
+
+		case UnOpType::TO_PTR:
+			return "*"sv;
 		case UnOpType::TO_PTR_CONST:
 			return "*const "sv;
+		case UnOpType::TO_PTR_SHARE:
+			return "*share "sv;
 		case UnOpType::TO_PTR_MUT:
 			return "*mut "sv;
+
 		case UnOpType::MUT:
 			return " mut "sv;
 		default:
@@ -349,12 +357,21 @@ namespace slu::parse
 			out.add(getUnOpAsStr<Out>(t.type));
 			if constexpr (out.settings() & sluSyn)
 			{
-				if (t.type == UnOpType::TO_REF_MUT)
+				if (t.type == UnOpType::TO_REF
+					|| t.type == UnOpType::TO_REF_MUT
+					|| t.type == UnOpType::TO_REF_CONST
+					|| t.type == UnOpType::TO_REF_SHARE)
 				{
 					genLifetime(out, t.life);
 					if (!t.life.empty())
 						out.add(' ');
-					out.add("mut ");
+
+					if (t.type == UnOpType::TO_REF_MUT)
+						out.add("mut ");
+					else if (t.type == UnOpType::TO_REF_CONST)
+						out.add("const ");
+					else if (t.type == UnOpType::TO_REF_SHARE)
+						out.add("share ");
 				}
 			}
 		}

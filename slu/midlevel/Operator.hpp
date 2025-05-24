@@ -86,8 +86,12 @@ namespace slu::mlvl
 			return 85;//Between exponent and mul, div, ..
 			//Slu
 		case parse::UnOpType::TO_REF:			// "&"
+		case parse::UnOpType::TO_REF_CONST:		// "&const"
+		case parse::UnOpType::TO_REF_SHARE:		// "&share"
 		case parse::UnOpType::TO_REF_MUT:		// "&mut"
-		case parse::UnOpType::TO_PTR_CONST:	// "*const"
+		case parse::UnOpType::TO_PTR:			// "*"
+		case parse::UnOpType::TO_PTR_CONST:		// "*const"
+		case parse::UnOpType::TO_PTR_SHARE:		// "*share"
 		case parse::UnOpType::TO_PTR_MUT:		// "*mut"
 			//Pseudo, only for type prefixes
 		case parse::UnOpType::MUT:				// "mut"

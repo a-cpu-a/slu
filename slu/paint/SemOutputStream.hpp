@@ -124,7 +124,12 @@ namespace slu::paint
 
 		REF,
 		REF_SHARE,
+		REF_MUT,
+		REF_CONST,
 
+		PTR,
+		PTR_SHARE,
+		PTR_MUT,
 		PTR_CONST,
 
 
