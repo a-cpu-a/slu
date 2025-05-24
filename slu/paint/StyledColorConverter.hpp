@@ -98,11 +98,21 @@ namespace slu::paint
 			case Tok::SPLICER: return col(0xFF00FF);//TODO: maybe some yellow?
 			case Tok::SPLICE_VAR: return col(0xFF00FF);//TODO: maybe some yellow? or maybe cyan/light blue
 
+			// Operators
+
 			case Tok::PTR_CONST:
+			case Tok::REF_CONST: return col(0x8AB6CE);
+
+			case Tok::PTR:
 			case Tok::REF: return col(0x8AB6CE);
 
-			case Tok::MUT: return col(0xFF9647);
+			case Tok::PTR_SHARE:
 			case Tok::REF_SHARE: return col(0xE4C4FF);
+
+			case Tok::PTR_MUT:
+			case Tok::REF_MUT:
+			case Tok::MUT: return col(0xFF9647);
+
 			case Tok::RANGE: return col(0x498CFF);
 			case Tok::DEREF: return col(0xBFC4CC);
 			case Tok::NOT: return col(0xFF4242);

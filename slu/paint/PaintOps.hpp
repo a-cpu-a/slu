@@ -145,22 +145,41 @@ namespace slu::paint
 		case parse::UnOpType::MUT:
 			paintKw<Tok::MUT>(se, "mut");
 			break;
+
+		case parse::UnOpType::TO_PTR:
+			paintKw<Tok::PTR>(se, "*");
+			break;
 		case parse::UnOpType::TO_PTR_CONST:
 			paintKw<Tok::PTR_CONST>(se, "*");
 			paintKw<Tok::PTR_CONST>(se, "const");
 			break;
 		case parse::UnOpType::TO_PTR_MUT:
-			paintKw<Tok::MUT>(se, "*");
-			paintKw<Tok::MUT>(se, "mut");
+			paintKw<Tok::PTR_MUT>(se, "*");
+			paintKw<Tok::PTR_MUT>(se, "mut");
 			break;
+		case parse::UnOpType::TO_PTR_SHARE:
+			paintKw<Tok::PTR_SHARE>(se, "*");
+			paintKw<Tok::PTR_SHARE>(se, "share");
+			break;
+
 		case parse::UnOpType::TO_REF:
 			paintKw<Tok::REF>(se, "&");
 			paintLifetime(se, itm.life);
 			break;
 		case parse::UnOpType::TO_REF_MUT:
-			paintKw<Tok::MUT>(se, "&");
+			paintKw<Tok::REF_MUT>(se, "&");
 			paintLifetime(se, itm.life);
-			paintKw<Tok::MUT>(se, "mut");
+			paintKw<Tok::REF_MUT>(se, "mut");
+			break;
+		case parse::UnOpType::TO_REF_CONST:
+			paintKw<Tok::REF_CONST>(se, "&");
+			paintLifetime(se, itm.life);
+			paintKw<Tok::REF_CONST>(se, "const");
+			break;
+		case parse::UnOpType::TO_REF_SHARE:
+			paintKw<Tok::REF_SHARE>(se, "&");
+			paintLifetime(se, itm.life);
+			paintKw<Tok::REF_SHARE>(se, "share");
 			break;
 		case parse::UnOpType::NONE:
 			break;

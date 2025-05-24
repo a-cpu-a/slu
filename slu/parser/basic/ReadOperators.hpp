@@ -54,6 +54,10 @@ namespace slu::parse
 			in.skip();
 			if (checkReadTextToken(in, "mut"))
 				return UnOpType::TO_REF_MUT;
+			if (checkReadTextToken(in, "const"))
+				return UnOpType::TO_REF_CONST;
+			if (checkReadTextToken(in, "share"))
+				return UnOpType::TO_REF_SHARE;
 			return UnOpType::TO_REF;
 		case '*':
 			if constexpr (!(in.settings() & sluSyn))break;
@@ -63,8 +67,10 @@ namespace slu::parse
 				return UnOpType::TO_PTR_MUT;
 			if (checkReadTextToken(in, "const"))
 				return UnOpType::TO_PTR_CONST;
+			if (checkReadTextToken(in, "share"))
+				return UnOpType::TO_PTR_SHARE;
 
-			break;
+			return UnOpType::TO_PTR;
 		case 'a':
 			if constexpr (!(in.settings() & sluSyn))break;
 			if (typeOnly)break;
