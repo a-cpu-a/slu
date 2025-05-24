@@ -42,4 +42,13 @@ namespace slu::parse
 			"{}"
 			, errorLocStr(in)));
 	}
+	inline void throwExpectedExternable(AnyInput auto& in)
+	{
+		throw UnexpectedKeywordError(std::format(
+			"Expected markable statment after " 
+			LUACC_SINGLE_STRING("extern \"...\"")
+			", at"
+			"{}"
+			, errorLocStr(in)));
+	}
 }

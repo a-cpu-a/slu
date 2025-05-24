@@ -287,6 +287,10 @@ namespace slu::parse
 					in.genData.addStat(place, std::move(res));
 					return true;
 				}
+				case 'e':
+					if (!exported && readEchStat<isLoop>(in, place, OptSafety::UNSAFE, false))
+						return true;
+					break;
 				case 't'://traits?
 				default:
 					break;
@@ -300,13 +304,39 @@ namespace slu::parse
 				readStructStat<StatementType::Union<In>, true>(in, place, exported);
 				return true;
 			}
-			break;
 		default:
 			break;
 		}
 		return false;
 	}
 
+	template<bool isLoop, AnyInput In>
+	inline bool readEchStat(In& in, const Position place, const OptSafety safety, const bool allowVarArg)
+	{
+		if(checkReadTextToken(in,"extern"))
+		{
+			std::string abi = readStringLiteral(in, in.peek());
+			Position abiEnd = in.getLoc();
+			skipSpace(in);
+			if (in.peek() == '{')
+			{
+				in.skip();
+				StatementType::ExternBlock<In> res{};
+
+				res.safety = safety;
+				res.abi = std::move(abi);
+				res.abiEnd = abiEnd;
+				res.bl = readBlockNoStartCheck<isLoop>(in, allowVarArg);
+
+				in.genData.addStat(place, std::move(res));
+				return true;
+			}
+			//TODO: [safety] extern "" fn
+
+			throwExpectedExternable(in);
+		}
+		return false;
+	}
 	template<bool isLoop, AnyInput In>
 	inline bool readFchStat(In& in, const Position place, const ExportData exported,const OptSafety safety, const bool allowVarArg)
 	{
@@ -501,6 +531,10 @@ namespace slu::parse
 				skipSpace(in);
 				switch (in.peek())
 				{
+				case 'e':
+					if(!exported && readEchStat<isLoop>(in,place, OptSafety::SAFE, false))
+						return true;
+					break;
 				case 'f':
 					if (readFchStat<isLoop>(in, place, exported, OptSafety::SAFE, false))
 						return true;
@@ -565,7 +599,7 @@ namespace slu::parse
 
 		return in.genData.addStat(place, std::move(res));
 	}
-	//TODO: handle basic
+	//TODO: handle basic (in basic expressions, if expressions can only have basic expressions)
 	template<bool isLoop,bool forExpr,bool BASIC, AnyInput In>
 	inline auto readIfCond(In& in, const bool allowVarArg)
 	{
@@ -797,6 +831,8 @@ namespace slu::parse
 					}
 					throwExpectedExportable(in);
 				}
+				else if (readEchStat<isLoop>(in, place, OptSafety::DEFAULT, allowVarArg))
+					return;
 			}
 			break;
 		case 's'://safe? struct?

@@ -1051,6 +1051,17 @@ namespace slu::parse
 			out.newLine();
 		},
 
+		varcase(const StatementType::ExternBlock<Out>&) {
+			out.newLine();//Extra spacing
+			genSafety(out, var.safety);
+			out.add("extern ");
+			genLiteral(out, var.abi);
+			out.add(" {").tabUpNewl();
+			genBlock(out, var.bl);
+			out.unTabNewl()
+				.addNewl("}");
+		},
+
 		varcase(const StatementType::UnsafeBlock<Out>&) {
 			out.newLine();//Extra spacing
 			out.add("unsafe {")
