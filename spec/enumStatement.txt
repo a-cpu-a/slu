@@ -40,9 +40,10 @@ Enum Statement {
 	{
 		--Note: T in the following two statements cant refer to the local variable T, because they are global statements.
 		---Nominally unique unit type
-		struct None(type T) {};
+		struct None(type T) --[=[@BuiltinSubTypeOf(Option(T))]=] {
+		};
 		---Nominally different to T
-		struct Some(type T) = T;
+		struct Some(type T) --[=[@BuiltinSubTypeOf(Option(T))]=] = T;
 		
 		return None(T) | Some(T);
 	}
