@@ -36,7 +36,7 @@ namespace slu::parse
 	/* documented */\
 	"it", "to", "as", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
 	"also","case", "drop", "enum", "impl","with", "safe", "const", \
-	"alloc", "macro", "match", "catch", "throw","trait", "union", \
+	"alloc", "macro", "match", "catch", "throw","trans","trait", "union", \
 	"axiom","unsafe","struct", "module", "extern", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
