@@ -908,6 +908,15 @@ namespace slu::parse
 		template<AnyCfgable CfgT> using Union = SelV<CfgT, UnionV>;
 
 		template<bool isSlu>
+		struct ExternBlockV {
+			BlockV<isSlu> bl;
+			std::string abi;
+			Position abiEnd;
+			OptSafety safety = OptSafety::DEFAULT;
+		};
+		template<AnyCfgable CfgT> using ExternBlock = SelV<CfgT, ExternBlockV>;
+
+		template<bool isSlu>
 		struct UnsafeBlockV { BlockV<isSlu> bl; };	// "unsafe {...}"
 		template<AnyCfgable CfgT> using UnsafeBlock = SelV<CfgT, UnsafeBlockV>;
 
@@ -975,6 +984,8 @@ namespace slu::parse
 
 		StatementType::StructV<isSlu>,
 		StatementType::UnionV<isSlu>,
+
+		StatementType::ExternBlockV<isSlu>,
 
 		StatementType::UnsafeBlockV<isSlu>,
 		StatementType::UNSAFE_LABEL,	// ::: unsafe :

@@ -973,6 +973,12 @@ namespace slu::paint
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);
 		},
+		varcase(const parse::StatementType::ExternBlock<Se>&) {
+			paintSafety(se, var.safety);
+			paintKw<Tok::FN_STAT>(se, "extern");
+			paintString(se, var.abi,var.abiEnd,Tok::FN_STAT);
+			paintDoEndBlock(se, var.bl);
+		},
 		varcase(const parse::StatementType::UnsafeBlock<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "unsafe");
 			paintDoEndBlock(se, var.bl);
