@@ -71,9 +71,15 @@ New Syntax {
 }
 
 New Keywords {
+	struct
+	union
 	const
-	mut
 	trait
+	share
+	impl
+	dyn
+	mut
+	fn
 }
 
 New types {
