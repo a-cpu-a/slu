@@ -38,14 +38,22 @@ namespace slu::parse
 		return res;
 	}
 	template<AnyInput In>
-	inline UnOpItem readToRefLifetimes(In& in, const UnOpType uOp)
+	inline UnOpItem readToRefLifetimes(In& in, UnOpType uOp)
 	{
 		skipSpace(in);
 		if (in.peek() == '/')
 		{// lifetime parsing, check for 'mut'
 
 			Lifetime res = readLifetime(in);
-			return { std::move(res),checkReadTextToken(in,"mut") ? UnOpType::TO_REF_MUT : uOp };
+
+			if (checkReadTextToken(in, "mut"))
+				uOp = UnOpType::TO_REF_MUT;
+			else if (checkReadTextToken(in, "const"))
+				uOp = UnOpType::TO_REF_CONST;
+			else if (checkReadTextToken(in, "share"))
+				uOp = UnOpType::TO_REF_SHARE;
+
+			return { std::move(res),uOp };
 		}
 		return { .type = uOp };
 	}
