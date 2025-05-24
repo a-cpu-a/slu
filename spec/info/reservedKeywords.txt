@@ -79,6 +79,7 @@ New Keywords {
 	match		(545k)		(27.4k)		match expr
 	catch		(44k)		(3.3k)		catch stat
 	throw		(92.2k)		(7k)		return a error
+	trans  		(..)		(..)		Transmute types
 	trait  		(63.2k)		(4k)		Define a trait
 	union  		(25k)		(2k)		Define a union
 	axiom		(..)		(..)		Axiom stuff
