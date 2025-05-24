@@ -3,8 +3,10 @@
 #
 
 New Syntax {
-
-	stat @::= | safety "extern" LiteralString "{" block "}"
+	
+	externInfo ::= "extern" LiteralString
+	
+	stat @::= | safety externInfo "{" block "}"
 }
 
 New Keywords {
@@ -20,7 +22,7 @@ New Abis {
 		Compatible with c++ code
 	}
 	"Slu" {
-		By default Slu is equivelant to None.
+		By default Slu is equivelant to Any.
 		However, if dynamic linking is used, and this is exported out of the crate, then will be equivelant to SluLock.
 	}
 	"SluLock" {
@@ -35,7 +37,7 @@ New Abis {
 	"Java" {
 		Compatible with java code
 	}
-	"None" {
+	"Any" {
 		No defined abi, useful in dynamicly linked libraries, where you need a exported thing, with no defined abi.
 		The abi may change at any moment. (even while the program is running... maybe (smc))
 		
