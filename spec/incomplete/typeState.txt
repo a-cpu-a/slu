@@ -1,4 +1,4 @@
-﻿#
+#
 # Dependencies: Lua
 #
 
@@ -15,6 +15,11 @@ Type State {
 	is this a great idea or maybe not such a good idea?
 	
 	Safely mutate types of variables, without redefining them every time.
+	
+	TODO: how would you easily make a enum version of the typestates?
+		currently the system works great, until you need some runtime behaviour.
+		(manualy moving into/out of some enum variants)
+		(2 seperate places that both define what enum states are allowed (enum of state data, enum of state types))
 	
 	instead of:
 	```slu
