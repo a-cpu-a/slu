@@ -1,0 +1,12 @@
+extern "Any" {
+	ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
+	ex safe fn helloWorld2() -> &mut u8 {}
+}
+unsafe extern [=[Hello world]=] {
+	ex fn helloWorld3() -> &[u8] {}
+	unsafe fn helloWorld4() -> &mut[str] {}
+}
+safe extern 'other str kind' {
+	safe fn helloWorld5() -> *mut[str] {}
+	fn helloWorld0() -> *const[str] {}
+}
