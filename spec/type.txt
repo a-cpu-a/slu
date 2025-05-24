@@ -8,7 +8,9 @@ New Syntax {
 	
 	typePrefix ::= ["mut"] {typeunop}
 	
-	typeunop ::= "&" [borrowLifetime] ["mut"] | "*" ("mut" | "const")
+	shMutConst ::= "mut" | "const" | "share"
+	
+	typeunop ::= "&" [borrowLifetime] [shMutConst] | "*" [shMutConst]
 	typepostunop ::= ".*"
 	
 	unop @::= | typeunop | "alloc"
@@ -257,9 +259,15 @@ Type Specifiers {
 		Use the "alloc" unary operator, to create these.
 	}
 	Borrow {
-		Format "&" {borrowLifetime} ["mut"] X
+		Format "&" {borrowLifetime} [shMutConst] X
 		
 		Makes the type borrowing, this means that it is a borrowed value.
+		
+		Const -> only 1 reference, immutable
+		nothing -> many reference, immutable
+		Mut -> only 1 reference, mutable
+		Share -> many reference, mutable
+		
 		
 		```slu
 		let item1 = 4
@@ -305,7 +313,7 @@ Type Specifiers {
 		```
 	}
 	Pointer {
-		Format "*" ("mut" | "const") X
+		Format "*" [shMutConst] X
 		
 		Makes the type a pointer.
 		
