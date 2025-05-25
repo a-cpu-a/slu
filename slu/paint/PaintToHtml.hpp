@@ -149,7 +149,8 @@ namespace slu::paint
 
 			if (parse::isSpaceChar(ch))
 			{
-				res += ch;
+				if(ch!='\r')
+					res += ch;
 				continue;//Dont explicitly paint it!
 			}
 
