@@ -58,6 +58,10 @@ New Keywords {
 
 Match Statement {
 	
+	
+	--TODO: do we even need restrictions?
+	-- the only loss would be '5 or 7 or 11' type of stuff
+	
 	Lets you match on a expressions result.
 	
 	The return type is assigned automatically, if missing.
