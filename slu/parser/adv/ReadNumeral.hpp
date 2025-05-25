@@ -191,7 +191,7 @@ namespace slu::parse
 				{
 					in.skip();
 					continue;
-			}
+				}
 			}
 
 			const bool digit = (hex && !hasExp) ? isHexDigitChar(c) : isDigitChar(c);
@@ -208,6 +208,9 @@ namespace slu::parse
 					if (!in.isOob(1) && in.peekAt(1) == '.')
 						break;
 				}
+				if constexpr (!ALLOW_FLOAT)
+					break;
+
 				hasDot = true;
 				isFloat = true;
 				number += in.get();
