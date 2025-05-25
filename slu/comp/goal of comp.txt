@@ -1,0 +1,4 @@
+manage threads, collect all files & give them to all the threads.
+run mid-level stuff as async as possible.
+pass the result to the output generator.
+return the outputs.
