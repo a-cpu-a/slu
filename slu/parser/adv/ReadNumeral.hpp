@@ -188,7 +188,10 @@ namespace slu::parse
 			if constexpr (in.settings() & numberSpacing)
 			{
 				if (c == '_')
+				{
+					in.skip();
 					continue;
+			}
 			}
 
 			const bool digit = (hex && !hasExp) ? isHexDigitChar(c) : isDigitChar(c);
