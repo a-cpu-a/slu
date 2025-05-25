@@ -1,0 +1,75 @@
+#
+# Dependencies: 
+#
+
+Char Usage {
+	
+	Only used inside strings: # ` \
+	
+	
+	Expressions:
+	+--------+--------+--------+
+	|  SYM	 | PREFIX | SUFFIX |
+	+--------+--------+--------+
+	|   #    |        |        |
+	|   `    |        |        |
+	|   \    |        |        |
+	|   $    |   X    |   X    |
+	|   @    |   X    |   -    |
+	|   _    |   X    |   -    |
+	| a-zA-Z |   X    |   -    |
+	|  0-9   |   X    |   -    |
+	|   ;    |        |   -    |
+	|   ,    |        |   -    |
+	|   .    |   X    |   X    | prefix -> number (.0)
+	|   :    |        |   X    |
+	|   <    |        |   X    |
+	|   (    |   X    |   X    | suffix is used as call
+	|   [    |   X    |   X    |
+	|   {    |   X    |   X    |
+	|   }    |        |   X    |
+	|   ]    |        |   X    |
+	|   )    |        |   X    |
+	|   >=   |        |   X    |
+	|   >    |   -    |   X    | prefix, cuz of '=>' and '->'
+	|   ?    |   X    |   X    |
+	|   '    |   X    |   X    |
+	|   "    |   X    |   X    |
+	|   %    |        |   X    |
+	|   ~    |        |   X    |
+	|   ^    |        |   X    |
+	|   +    |        |   X    |
+	|   ..   |   X    |   X    |
+	|   =    |        |   X    | suffix -> == operator
+	|   .*   |        |   X    |
+	|   or   |        |   X    |
+	|  and   |        |   X    |
+	|   in   |        |   X    |
+	|  mut   |   X    |        |
+	|  dyn   |   X    |        |
+	|  impl  |   X    |   -    |
+	|   if   |   X    |   -    |
+	| trait  |   X    |   -    |
+	| struct |   X    |   -    |
+	|  union |   X    |   -    |
+	| alloc  |   X    |        |
+	|  ---   |   X    |        | doc comments
+	|   --   |   X    |   X    | comments
+	|   -=   |        |   X    |
+	|   -    |   X    |   X    |
+	|  //=   |        |   X    |
+	|   /=   |        |   X    |
+	|   //   |   X    |   X    | result-err or floor-div
+	|   /    |   X    |   X    | lifetime, or division
+	|   *=   |        |   X    |
+	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (x ** y) not (x * *y)
+	|   *    |   X    |   X    |
+	|   !=   |        |        |
+	|   !    |   X    |        |
+	|   &=   |        |   X    |
+	|   &    |   X    |   X    |
+	|   |=   |        |   X    |
+	|   |    |   X    |   X    | prefix -> closures (|x| x*x), also for patterns
+	+--------+--------+--------+
+	
+}
