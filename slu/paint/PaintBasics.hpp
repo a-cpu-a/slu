@@ -34,12 +34,26 @@ namespace slu::paint
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
 		const std::string_view name = se.in.genData.asSv(f);
-		for (size_t i = 0; i < name.size(); i++)
-		{
-			_ASSERT(se.in.peekAt(i) == name[i]);
+		if (!name.empty() && name[0] == '0')//does name contain a hex number?
+		{//It may be any number, so maybe not the same as 'name'
+			while (se.in)
+			{
+				const char ch = se.in.peek();
+				if (!parse::isValidNameChar(ch))
+					break;
+				se.template add<tok, overlayTok>(1);
+				se.in.skip();
+			}
 		}
-		se.template add<tok>(name.size());
-		se.in.skip(name.size());
+		else
+		{
+			for (size_t i = 0; i < name.size(); i++)
+			{
+				_ASSERT(se.in.peekAt(i) == name[i]);
+			}
+			se.template add<tok, overlayTok>(name.size());
+			se.in.skip(name.size());
+		}
 	}
 	template<Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
 	inline void paintName(Se& se, const parse::MpItmId<Se>& f) {

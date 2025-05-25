@@ -82,7 +82,6 @@ namespace slu::parse
 	_Slu_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
 	_Slu_MAKE_SETTING_CVAR(noIntOverflow);
 	_Slu_MAKE_SETTING_CVAR(sluSyn);
-	_Slu_MAKE_SETTING_CVAR(desugarEarly);
 	_Slu_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
 
 	constexpr auto sluCommon = spacedFuncCallStrForm

@@ -112,14 +112,11 @@ namespace slu::parse
 					, errorLocStr(in))
 				);
 			}
-			if constexpr (in.settings() & desugarEarly)
+			if (isDigitChar(firstChar))
 			{
-				if (isDigitChar(firstChar))
-				{
-					TupleName n = readNumeral<TupleName, false, false>(in, firstChar);
-					auto arr = u128ToStr(n.lo, n.hi);
-					return std::string(arr.data(), strnlen_s(arr.data(), arr.size()));
-				}
+				TupleName n = readNumeral<TupleName, false, false>(in, firstChar);
+				auto arr = u128ToStr(n.lo, n.hi);
+				return std::string(arr.data(), strnlen_s(arr.data(), arr.size()));
 			}
 		}
 		else
