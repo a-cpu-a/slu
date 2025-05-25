@@ -1,0 +1,7 @@
+desugar operators `x.*` -> `std::RootDeref::rootDeref(std::Deref::deref(x))`
+`a+b` -> `std::Add::add(a,b)`
+figure out what types are being used, and what traits the member-call funcs are for
+
+infer any types.
+check safety.
+check...
