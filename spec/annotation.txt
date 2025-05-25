@@ -91,12 +91,19 @@ New Annotations {
 	
 	debugPrint("This will only exist if isDebug is true!");
 	```
-
+	
+	@Entrypoint{name="..."}
+	Mark a function as a entry-point, for every entry-point, the compiler will generate a file (they might be combined into 1 in some output forms, (wasm maybe?)).
+	```slu
+	@Entrypoint{"main"}
+	fn main() {}
+	```
+	
 	@EntrypointInit{}
 	Mark a variable, for runtime initialization inside a entrypoint.
 	Only applicable to global variables.
 
-	```
+	```slu
 	@EntrypointInit
 	let Mutex(String) state = Mutex{"Hello"};
 
