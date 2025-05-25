@@ -73,8 +73,8 @@ Modules {
 	│  ├─ module1/
 	│  │  └─ submod.slu
 	│  └─ utils.slu
-	├─ TODO_CHOOSE_NAME.toml
-	├─ TODO_CHOOSE_NAME.lock
+	├─ Slu.toml
+	├─ Slu.lock
 	├─ build/
 	├─ tests/
 	│  └─ test1.slu
@@ -83,7 +83,6 @@ Modules {
 	
 	# Manifests
 	
-	--TODO: choose a name for them, and the system of packaging.
 	
 	Crates are compiled to output-files, this is defined inside the manifests.
 	
