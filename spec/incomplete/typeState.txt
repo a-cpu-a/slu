@@ -21,6 +21,8 @@ Type State {
 		(manualy moving into/out of some enum variants)
 		(2 seperate places that both define what enum states are allowed (enum of state data, enum of state types))
 	
+	TODO: maybe a marker at call sites, to help type inference? `in.trans skipSpace()`
+	
 	instead of:
 	```slu
 	let mut x = Stream{" Input text"}

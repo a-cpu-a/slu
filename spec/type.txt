@@ -5,6 +5,7 @@
 New Syntax {
 	
 	--TODO: make fn types different from fn statements, to allow use of fn statements in expressions maybe?
+	--TODO: allow fixed points `(0..255) * 0.125` or `0..31.875 at 0.125`
 	
 	typePrefix ::= ["mut"] {typeunop}
 	
