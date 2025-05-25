@@ -315,6 +315,7 @@ namespace slu::parse
 	{
 		if(checkReadTextToken(in,"extern"))
 		{
+			skipSpace(in);
 			std::string abi = readStringLiteral(in, in.peek());
 			Position abiEnd = in.getLoc();
 			skipSpace(in);
