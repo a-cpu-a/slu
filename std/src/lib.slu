@@ -1,0 +1,11 @@
+
+--Hello world!
+
+---Test test test !!!
+ex fn _println(&str text)
+{
+	safe extern "Lua" {
+		fn print(&str line);
+	}
+	print(text);
+}

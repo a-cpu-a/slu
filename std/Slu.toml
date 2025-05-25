@@ -1,0 +1,13 @@
+[package]
+name = "std"
+version = [ 0,0,1 ]
+authors = [ "a-cpu-a" ]
+edition = [ 2025 ]
+
+[dependencies]
+
+
+[profile.dev]
+
+[profile.release]
+
