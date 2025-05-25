@@ -1,0 +1,5 @@
+
+@Entrypoint{"main"}
+fn main() {
+	std::_println("Hello world!")
+}
