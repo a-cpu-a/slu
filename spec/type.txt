@@ -120,6 +120,13 @@ New types {
 	u64
 	u128
 	usize
+	
+	n8
+	n16
+	n32
+	n64
+	n128
+	nsize
 }
 
 Official Types {
@@ -153,7 +160,7 @@ Official Types {
 	NumVec {
 		a vector of numbers, ment for vectorial operations
 		```
-		const u8x4 = NumVec{4 of u8};
+		const u8x4 = NumVec(4,u8);
 		--...
 		let mulRes = 100 * u8x4{4,3,2,1};
 		```
@@ -218,11 +225,21 @@ Official Types {
 			u128 is always emulated in lua.
 		}
 	}
-	isize {
-		i32, i48, i54, i64, ... depending on platform.
+	n8,n16,n32,n64,n128 {
+		Optimized 8,16,32,64 or 128 bit unsigned integers with a +1, meaning 0 is not a valid number in these.
+		Implementation {
+			Could be a u___, but adding +1 when necessary.
+			Could also be a u(___+1)
+		}
 	}
 	usize {
 		u32, u48, u54, u64, ... depending on platform.
+	}
+	isize {
+		i___, same bits as usize
+	}
+	nsize {
+		n___, same bits as usize
 	}
 }
 

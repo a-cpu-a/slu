@@ -1,4 +1,5 @@
-manage threads, collect all files & give them to all the threads.
+﻿manage threads, collect all files & give them to all the threads.
+merge the parsed file db's and ast's
 run mid-level stuff as async as possible.
 pass the result to the output generator.
 return the outputs.

@@ -50,7 +50,7 @@ Type State {
 			return self.dropSkipSpace().readNameUncheckedUntrans();
 		}
 		fn readChar(&mut self) trans self=>impl InStream -> char;
-		fn curIdx(&self) -> uidx;
+		fn curIdx(&self) -> nsize;
 	}
 	trait InStreamSkipSpace
 	{
@@ -65,7 +65,7 @@ Type State {
 
 	struct VecInStreamState(InStreamState state)
 	{
-		idx=mut uidx,
+		idx=mut nsize,
 		chars=mut Vec(char)
 	};
 	const VecInStream = VecInStreamState(InStreamState::Default)
@@ -74,7 +74,7 @@ Type State {
 	impl with(InStreamState state) 
 		for VecInStreamState(state)
 	{
-		fn curIdx(&self) -> uidx {
+		fn curIdx(&self) -> nsize {
 			return self.idx;
 		}
 		unsafe fn readNameUncheckedUntrans(&mut self) -> String {
