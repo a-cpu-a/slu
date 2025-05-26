@@ -4,17 +4,21 @@
 
 New Syntax {
 
-	annotations ::= {annotation}
+	annotations ::= annotation {annotation}
+	outerAnnotations ::= outerAnnotation {outerAnnotation}
 	
 	--Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
 	-- INVALID: @Mark {return true}
 	-- VALID: @Mark{} {return true}
-	annotation ::= "@" ["^"] comptimeVar [tableconstructor]
+	annotation ::= "@" comptimeVar [tableconstructor]
 		| "---"LiteralString
 		| "---" LineOfText
+		
+	outerAnnotation ::= "@" "^" comptimeVar [tableconstructor]
 		| "--^"LiteralString
 		| "--^" LineOfText
 	
+	block @::= | outerAnnotations block
 	
 	stat @::= | annotations stat
 	basicExp @::= | annotations basicExp
@@ -31,7 +35,7 @@ Annotation {
 	
 	The constructor arguments to annotations are optional, but in some cases you will need them, as not having them would conflict with other table constructors
 	
-	If there is a '^', then the annotation applies to the container its inside of, not the next item.
+	If there is a '^', then the annotation applies to the container its inside of, not the next item, it must be at the top of the block it is inside.
 	
 	Any type can be used as a annotation, as long as it is marked with @Annotation.
 	Using a type that isnt marked with @Annotation is a soft-error, and @Annotation is added for you.
