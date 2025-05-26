@@ -87,6 +87,7 @@ namespace slu::comp
 
 	struct SluFile
 	{
+		std::string_view crateRootPath;
 		std::string path;
 		std::vector<uint8_t> contents;
 	};
@@ -99,12 +100,13 @@ namespace slu::comp
 			std::vector<std::string> allPaths;
 		};
 	}
+	using CompTaskData = std::variant<
+		CompTaskType::ParseFiles,
+		CompTaskType::ConsensusMergeAsts
+	>;
 	struct CompTask
 	{
-		std::variant<
-			CompTaskType::ParseFiles, 
-			CompTaskType::ConsensusMergeAsts
-		> type;
+		CompTaskData data;
 		size_t threadsLeft : 31 = 0;
 		size_t taskId : 32 = 0;
 		size_t leaveForMain : 1 = false;
@@ -135,17 +137,17 @@ namespace slu::comp
 			taskRef.threadsLeft--;
 			bool isCompleterThread = taskRef.threadsLeft == 0;
 
-			std::optional<CompTask> stackCopy;
+			std::optional<CompTaskData> stackCopy;
 
 			if (isCompleterThread && !taskRef.leaveForMain)
 			{
-				stackCopy = std::move(taskRef);
+				stackCopy = std::move(taskRef.data);
 				tasks.v.pop_back();
 				taskLock.unlock();//only thread with this stuff, so no need to keep a lock!
 			}
-			CompTask& task = stackCopy.has_value() 
+			CompTaskData& task = stackCopy.has_value()
 				? stackCopy.value() 
-				: taskRef;//else, it was not invalidated
+				: taskRef.data;//else, it was not invalidated
 
 			//Complete it...
 
@@ -155,11 +157,8 @@ namespace slu::comp
 			{
 				if (tasksLeft.fetch_sub(1, std::memory_order_relaxed) - 1 == 0)
 				{
+					//wake up, all tasks are done!
 					cvMain.v.notify_all();
-				}
-				else
-				{
-					_ASSERT(!task.leaveForMain);
 				}
 			}
 		}
@@ -196,46 +195,47 @@ namespace slu::comp
 					if (cfg.isFolderPtr(file)) continue;
 					auto content = cfg.getFileContentsPtr(file);
 					if (!content.has_value())continue;
-					SluFile res;
-					sluFiles.emplace_back(std::move(file), std::move(content.value()));
+
+					sluFiles.emplace_back(i,std::move(file), std::move(content.value()));
 				}
 			}
 
-			size_t filesPerThread = sluFiles.size() / cfg.extraThreadCount;
-			if (filesPerThread == 0) filesPerThread = 1;
-
-			size_t total = sluFiles.size();
-			size_t baseSize = total / filesPerThread;
-			size_t remainder = total % filesPerThread;
-
-			auto it = std::make_move_iterator(sluFiles.begin());
-			for (size_t i = 0; i < filesPerThread; ++i)
+			if(cfg.extraThreadCount!=0)
 			{
-				size_t chunkSize = baseSize + (i < remainder ? 1 : 0);
+				size_t filesPerThread = sluFiles.size() / cfg.extraThreadCount;
+				if (filesPerThread == 0) filesPerThread = 1;
 
-				// Move a chunk into a new vector
-				std::vector<SluFile> chunk(
-					it, it + chunkSize
-				);
-				it += chunkSize;
-				//std::move(chunk)
+				size_t total = sluFiles.size();
+				size_t baseSize = total / filesPerThread;
+				size_t remainder = total % filesPerThread;
 
-				CompTask res;
-				res.leaveForMain = false;
-				res.taskId = nextTaskId++;
-				res.threadsLeft = 1;
-				res.type = std::move(chunk);
-
-				tasksLeft++;
+				auto it = std::make_move_iterator(sluFiles.begin());
+				for (size_t i = 0; i < filesPerThread; ++i)
 				{
-					std::unique_lock _(tasks.lock);
-					tasks.v.emplace_back(std::move(res));
+					size_t chunkSize = baseSize + (i < remainder ? 1 : 0);
+
+
+					CompTask res;
+					res.leaveForMain = false;
+					res.taskId = nextTaskId++;
+					res.threadsLeft = 1;
+					// Move a chunk into a new vector
+					res.data = CompTaskType::ParseFiles(it, it + chunkSize);
+					it += chunkSize;
+
+					tasksLeft++;
+					{
+						std::unique_lock _(tasks.lock);
+						tasks.v.emplace_back(std::move(res));
+					}
+					cv.notify_one();
 				}
-				cv.notify_one();
+			}
+			else
+			{
+				// TODO: Parse the files, if extraThreads==0
 			}
 		}
-
-		// Parse the files
 
 
 		shouldExit = true;
