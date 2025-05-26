@@ -85,20 +85,26 @@ namespace slu::comp
 		//TODO: info for lock file appending?
 	};
 
+	struct SluFile
+	{
+		std::string path;
+		std::vector<uint8_t> contents;
+	};
+
 	namespace CompTaskType
 	{
-		struct LoopRoot
-		{
-			std::string_view path;
-		};
-		struct ConsensusMergePaths
+		using ParseFiles = std::vector<SluFile>;
+		struct ConsensusMergeAsts
 		{
 			std::vector<std::string> allPaths;
 		};
 	}
 	struct CompTask
 	{
-		std::variant<> type;
+		std::variant<
+			CompTaskType::ParseFiles, 
+			CompTaskType::ConsensusMergeAsts
+		> type;
 		size_t threadsLeft : 31 = 0;
 		size_t taskId : 32 = 0;
 		size_t leaveForMain : 1 = false;
@@ -161,6 +167,7 @@ namespace slu::comp
 
 	inline CompOutput compile(const CompCfg& cfg)
 	{
+		uint32_t nextTaskId = 1;
 		Mutex<std::vector<CompTask>> tasks;
 		std::atomic_size_t tasksLeft;
 
@@ -177,9 +184,56 @@ namespace slu::comp
 				std::ref(tasksLeft),std::ref(tasks))
 			);
 		}
-		// Create a list of all files to compile
-		
+		{
+			// Create a list of all files to compile
+			std::vector<SluFile> sluFiles;
+			sluFiles.reserve(cfg.rootPaths.size() * 10);
+			for (std::string_view i : cfg.rootPaths)
+			{
+				auto list = cfg.getFileListRecPtr(i);
+				for (auto& file : list)
+				{
+					if (cfg.isFolderPtr(file)) continue;
+					auto content = cfg.getFileContentsPtr(file);
+					if (!content.has_value())continue;
+					SluFile res;
+					sluFiles.emplace_back(std::move(file), std::move(content.value()));
+				}
+			}
 
+			size_t filesPerThread = sluFiles.size() / cfg.extraThreadCount;
+			if (filesPerThread == 0) filesPerThread = 1;
+
+			size_t total = sluFiles.size();
+			size_t baseSize = total / filesPerThread;
+			size_t remainder = total % filesPerThread;
+
+			auto it = std::make_move_iterator(sluFiles.begin());
+			for (size_t i = 0; i < filesPerThread; ++i)
+			{
+				size_t chunkSize = baseSize + (i < remainder ? 1 : 0);
+
+				// Move a chunk into a new vector
+				std::vector<SluFile> chunk(
+					it, it + chunkSize
+				);
+				it += chunkSize;
+				//std::move(chunk)
+
+				CompTask res;
+				res.leaveForMain = false;
+				res.taskId = nextTaskId++;
+				res.threadsLeft = 1;
+				res.type = std::move(chunk);
+
+				tasksLeft++;
+				{
+					std::unique_lock _(tasks.lock);
+					tasks.v.emplace_back(std::move(res));
+				}
+				cv.notify_one();
+			}
+		}
 
 		// Parse the files
 
