@@ -4,7 +4,7 @@
 
 Char Usage {
 	
-	Only used inside strings: # ` \
+	Only used inside strings: # ` \ $
 	
 	
 	Expressions:
@@ -14,7 +14,7 @@ Char Usage {
 	|   #    |        |        |
 	|   `    |        |        |
 	|   \    |        |        |
-	|   $    |   X    |   X    |
+	|   $    |        |        |
 	|   @    |   X    |   -    |
 	|   _    |   X    |   -    |
 	| a-zA-Z |   X    |   -    |
@@ -65,7 +65,7 @@ Char Usage {
 	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (x ** y) not (x * *y)
 	|   *    |   X    |   X    |
 	|   !=   |        |        |
-	|   !    |   X    |        |
+	|   !    |   X    |   ~    | postfix only counts when no whitespace between, also only for for comptime-vars.
 	|   &=   |        |   X    |
 	|   &    |   X    |   X    |
 	|   |=   |        |   X    |

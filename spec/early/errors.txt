@@ -94,9 +94,9 @@ Errors {
 		-- The return type is optional. 
 		-- -> u8?(some variant), the ? and the stuff after it, would be needed since we arent matching every error.
 		
-		Err::Pmsg x => panic$("Error " ++ x.1);-- Pmsg is a tuple, we are indexing into the first element
+		Err::Pmsg x => panic!("Error " ++ x.1);-- Pmsg is a tuple, we are indexing into the first element
 		
-		Err::Oom => panic$("Out of memory!");
+		Err::Oom => panic!("Out of memory!");
 		Err::Msg{v} => do {
 			print(v);
 			
@@ -104,7 +104,7 @@ Errors {
 		}
 		
 		-- If this is was added, "?" suffix wouldnt be needed, cuz Err::Unknown would be caught.
-		--else => panic$("Unknown error"); 
+		--else => panic!("Unknown error"); 
 		
 	}?;-- Try is suffixed with a ?, since "Err::Unknown" isnt handled.
 	```

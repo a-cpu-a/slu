@@ -54,6 +54,7 @@ New Keywords {
 	it			(..)		(..)		also exp/block
 	to			(4m)		(1.1m)		range operator / match range
 	as			(4.6m)		(713k)		cast / use...as...
+	at			(..)		(..)		maybe for ranges, fixed-point precision
 	of			(2.5m)		(87k)		match [...] of ...
 	fn			(563k)		(48.1k)		function def
 	ex			(3.7m)		(573k)		export

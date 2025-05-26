@@ -6,43 +6,37 @@
 	
 	--These types are only available at comptime
 	
-	ex type Block = @Builtin{"base::type/block"}void;
-	ex type Stat = @Builtin{"base::type/stat"}void;
+	ex struct Block = @Builtin{"base::type/block"}void;
+	ex struct Stat = @Builtin{"base::type/stat"}void;
 	
-	ex type Var = @Builtin{"base::type/var"}void;
-	ex type Expr = @Builtin{"base::type/exp"}void;
-	ex type Name = @Builtin{"base::type/Name"}void;
-	ex type TypeExpr = @Builtin{"base::type/typeExp"}void;
-	ex type TraitExpr = @Builtin{"base::type/traitExp"}void;
+	ex struct Var = @Builtin{"base::type/var"}void;
+	ex struct Expr = @Builtin{"base::type/exp"}void;
+	ex struct Name = @Builtin{"base::type/Name"}void;
+	ex struct TypeExpr = @Builtin{"base::type/typeExp"}void;
+	ex struct TraitExpr = @Builtin{"base::type/traitExp"}void;
 	
 	--
 	--wrap around one of the above things, to allow a list of someting
-	--note: only works for: (Name,TypeExpr,TraitExpr,Expr,Var, normal types)
+	--note: only works for: (Name,TypeExpr,TraitExpr,Expr,Var)
 	--
-	ex type CommaList = @Builtin{"base::type/comma_sep"}void;
-	--SemicolList allows Stat
-	ex type SemicolList = @Builtin{"base::type/semicol_sep"}void;
+	ex struct fn CommaList(type T) = @Builtin{"base::type/CommaList"}T;
 	
 	--These return the tokens raw, without splicing them
 	
 	--Do NOT use @Builtin{"base::no_splice"} in your own code, as it is only supported here.
-	--The $ after the name, makes it so it doesnt conflict with the types.
+	--The ! after the name, makes it so it doesnt conflict with the types.
 	--It also means you cant call these in function-form
-	@Builtin{"base::no_splice"} ex macro fn Block${macro Block v}->Block {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Block!{macro Block v}->Block {return v;}
 	
-	--You are not allowed to use semicolon statements with this! (no "Stat${;}")
-	@Builtin{"base::no_splice"} ex macro fn Stat ${macro Stat  v}->Stat {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Stat! {macro Stat  v}->Stat {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn Var  ${macro Var   v}->Var  {return v;}
-	@Builtin{"base::no_splice"} ex macro fn Expr ${macro Expr  v}->Expr {return v;}
-	@Builtin{"base::no_splice"} ex macro fn Name ${macro Name  v}->Name {return v;}
-	@Builtin{"base::no_splice"} ex macro fn TypeExpr ${macro TypeExpr  v}->TypeExpr {return v;}
-	@Builtin{"base::no_splice"} ex macro fn TraitExpr ${macro TraitExpr  v}->TraitExpr {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Var!  {macro Var   v}->Var  {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Expr! {macro Expr  v}->Expr {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Name! {macro Name  v}->Name {return v;}
+	@Builtin{"base::no_splice"} ex macro fn TypeExpr!  {macro TypeExpr  v}->TypeExpr {return v;}
+	@Builtin{"base::no_splice"} ex macro fn TraitExpr! {macro TraitExpr  v}->TraitExpr {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn CommaList(T) ${macro CommaList(T)  v}->CommaList(T) {return v;}
-	
-	--SemicolList allows Stat
-	@Builtin{"base::no_splice"} ex macro fn SemicolList(T)${macro SemicolList(T) v}->SemicolList(T) {return v;}
+	@Builtin{"base::no_splice"} ex macro fn CommaList!{type T,macro CommaList(T)  v}->CommaList(T) {return v;}
 	
 	--[=[
 	--TODO: move this elsewhere, when its needed
@@ -58,12 +52,12 @@
 	--
 	-- This is a example, for how to create a macro that instantly splices what you pass to it
 	--
-	-- (addType${u8}) -> (u8)
+	-- (addType!{u8}) -> (u8)
 	--
-	-- You can also call it like a normal function (semicolon seperators use commas, and you also need to use "()", or the other calling forms),
+	-- You can also call it like a normal function (you also need to use "()"),
 	-- and it will return what you called it with, and nothing will change.
 	--
-	-- assertEq$(addType(TypeExpr${u8}), TypeExpr${u8});
+	-- assertEq!(addType(TypeExpr!{u8}), TypeExpr!{u8});
 	--
 	
 	macro fn implAdd(macro CommaList(Name) ns) -> Vec(Stat) {
@@ -73,8 +67,8 @@
 		for (k,v in ns) {
 			let name = ("add"++(v as str)) as Name;
 			r:push(
-				Stat${
-					ex macro fn $name {macro @(v) val } {
+				Stat!{
+					ex macro fn @(name) {macro @(v) val } {
 						return val
 					}
 				}
@@ -84,7 +78,7 @@
 		return r;
 	}
 	
-	implAdd$(
+	implAdd!(
 		Block,
 		Stat,
 		
@@ -92,14 +86,7 @@
 		Expr,
 		Name,
 		TypeExpr,
-		TraitExpr,
-		
-		CommaList(T),
-		
-		SemicolList(Stat),
-		
-		--you cant splice some of these into code.
-		--SemicolList(T),
+		TraitExpr
 	);
 	]=]
 	
@@ -118,9 +105,8 @@ New Syntax {
 	
 	
 	macroArgs ::= "(" ProgrammableArgs ")" | "{" ProgrammableArgs "}" | "[" ProgrammableArgs "]" | exp | stat | retstat
-	macroInvoke ::= comptimeVar"$" macroArgs
-	macroVar ::= "$"comptimeVar
-	macroInvSpl ::= macroInvoke | macroSplice | macroVar
+	macroInvoke ::= comptimeVar"!" macroArgs
+	macroInvSpl ::= macroInvoke | macroSplice
 	
 	stat @::= | macroInvSpl
 	basicExp @::= | macroInvSpl
@@ -131,14 +117,17 @@ New Syntax {
 	OptExportPrefix @::= | macroInvSpl
 	comptimeVar @::= | macroInvSpl
 	
+	macroParam ::= ["macro"] typedParam
+	macroParamList ::= macroParam {"," macroParam}
+	
 	macroParamsBlock ::= ("(" macroParamList ")")
 		| ("[" macroParamList "]")
 		| ("{" macroParamList "}") 
-		| ("!(" macroParamList ")!")
+		| (">!(" macroParamList ")!<")
 	
 	PreMacro ::=
 	
-	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["$"] macroParamsBlock ["->" typeExp] "{" block "}"
+	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" typeExp] "{" block "}"
 	
 }
 
@@ -156,46 +145,39 @@ Macro {
 	Macro's must return one of the macro types (or a simple container of them), if you need to return something else, use a comptime function.
 	
 	macroSplice -> splices the token sequence(s) resulting from a expresion
-	macroVar -> shortcut for macroSplice, only works for token typed local variables.
 	macroInvoke -> run a macro & splice it.
-	The "!(" ")!" args mean that there is nothing surrounding the args.
-	"macro" functions are implicitly comptime.
+	The ">!(" ")!<" args mean that there is nothing surrounding the args.
+	"macro" functions are ran at comptime.
 	
 	macroInvoke gets turned from 
 	```slu
-	macroWithArgs_Name_Stat$(myNameArg,local x = 44)
+	macroWithArgs_Name_Stat!(myNameArg,local x = 44)
 	```
 	into 
 	```slu
-	@(macroWithArgs_Name_Stat(Name${myNameArg},Stat${local x = 44}))
+	@(macroWithArgs_Name_Stat(Name!{myNameArg},Stat!{local x = 44}))
 	```
-	macroVar gets turned from `$myVar` into `@(myVar)`
 	
 	Adding "macro" before a argument, makes it modify parsing behaviour, when
 		using "macroInvoke", if there is no macro, then you need to pass it by value.
 	
 	You can call macro-functions like normal comptime functions.
-	When doing that, semicolon seperators use commas, and you also need to use "()", or the other calling forms.
+	When doing that, you also need to use "()".
 	
-	When using "!( )!", you cant have more than 1 argument, and it cant be a list.
+	When using ">!( )!<", you cant have more than 1 argument, and it cant be a list.
 	
-	Right after a CommaList, you are not allowed to use a comma seperator.
-	Right after a SemicolList, you are not allowed to use a semicolon seperator.
+	If you have a CommaList in your args, it must be the last argument.
 	
-	Macros cant be overloaded.
-	
-	Stat${} doesnt allow semicolon statements.
-	
-	adding a $ after the name of a macro def, makes it so it doesnt
+	adding a ! after the name of a macro def, makes it so it doesnt
 	conflict with existing symbols,	it also means you cant call them in function-form
 	
-	$$ is converted to $.
 	@@ is converted to @.
 	
 	Error messages from macro code include both the macro splice-stack, and the place where it was spliced from.
 	
 	Implementation {
-		Only exists inside parsing land, so you cant use it at runtime, or some of compile-time.
+		
+		Could be parsed without resolving into syntax elements, and then desugared into the real expression, statement, etc.
 		
 		Could be implemented by wrapping the input stream temporarily, while something needs to be spliced in.
 	}
