@@ -70,7 +70,7 @@ Match Statement {
 	The order inside the patterns is undefined.
 	
 	Match statments must always handle all inputs.
-	If some inputs wouldnt match, then a soft-error occurs, and a " else => panic$(); " is inserted.
+	If some inputs wouldnt match, then a soft-error occurs, and a " else => panic!(); " is inserted.
 	It is an soft-error to have multiple cases that are identical, without any if checks.
 	
 	

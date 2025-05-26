@@ -22,11 +22,6 @@ New Syntax {
 	typedParam ::= uncondDestrPat
 	paramList ::= typedParam {"," typedParam}
 	
-	macroParam ::= ["macro"] typedParam
-	
-	macroParamSep ::= "," | ";"
-	macroParamList ::= macroParam {macroParamSep macroParam}
-	
 	tupleableName ::= Name | Integral
 	
 	
@@ -320,13 +315,13 @@ Type Specifiers {
 		xAlias = 3;
 		drop xAlias; --Allow use of intX, once again
 		
-		assertEq$(intX,3);
+		assertEq!(intX,3);
 		
 		unsafe {
 			let *mut u8.* xAliasUnsafe = (*mut intX).*;
 			xAliasUnsafe = 2;
 		}
-		assertEq$(intX,2);
+		assertEq!(intX,2);
 		
 		
 		let intXBorrow = &intX;
