@@ -203,10 +203,12 @@ namespace slu::comp
 
 			if(cfg.extraThreadCount!=0)
 			{
-				size_t filesPerThread = sluFiles.size() / cfg.extraThreadCount;
+				size_t total = sluFiles.size();
+				size_t filesPerThread = total / cfg.extraThreadCount;
+
+				// If there arent enough files for all the threads, just use 1 thread ig
 				if (filesPerThread == 0) filesPerThread = 1;
 
-				size_t total = sluFiles.size();
 				size_t baseSize = total / filesPerThread;
 				size_t remainder = total % filesPerThread;
 
