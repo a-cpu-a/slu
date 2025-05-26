@@ -115,7 +115,10 @@
 New Syntax {
 
 	macroSplice ::= "@(" comptimeExp ")"
-	macroInvoke ::= comptimeVar"$" ProgrammableArgs
+	
+	
+	macroArgs ::= "(" ProgrammableArgs ")" | "{" ProgrammableArgs "}" | "[" ProgrammableArgs "]" | exp | stat | retstat
+	macroInvoke ::= comptimeVar"$" macroArgs
 	macroVar ::= "$"comptimeVar
 	macroInvSpl ::= macroInvoke | macroSplice | macroVar
 	
