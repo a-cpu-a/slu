@@ -190,9 +190,10 @@ namespace slu::comp
 			for (std::string_view i : cfg.rootPaths)
 			{
 				auto list = cfg.getFileListRecPtr(i);
-				for (auto& file : list)
+				for (std::string& file : list)
 				{
 					if (cfg.isFolderPtr(file)) continue;
+					if (!file.ends_with(".slu")) continue;
 					auto content = cfg.getFileContentsPtr(file);
 					if (!content.has_value())continue;
 
