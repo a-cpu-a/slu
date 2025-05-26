@@ -7,8 +7,10 @@
 #include <vector>
 #include <optional>
 #include <thread>
+#include <variant>
 
 #include <slu/lang/BasicState.hpp>
+#include <slu/ext/Mtx.hpp>
 
 namespace slu::comp
 {
@@ -82,8 +84,109 @@ namespace slu::comp
 		std::vector<CompEntryPoint> entryPoints;
 		//TODO: info for lock file appending?
 	};
+
+	namespace CompTaskType
+	{
+		struct LoopRoot
+		{
+			std::string_view path;
+		};
+		struct ConsensusMergePaths
+		{
+			std::vector<std::string> allPaths;
+		};
+	}
+	struct CompTask
+	{
+		std::variant<> type;
+		size_t threadsLeft : 31 = 0;
+		size_t taskId : 32 = 0;
+		size_t leaveForMain : 1 = false;
+	};
+
+	inline void poolThread(const CompCfg& cfg,
+		std::atomic_bool& shouldExit,
+		std::condition_variable& cv,
+		Mutex<std::condition_variable>& cvMain,
+		std::atomic_size_t& tasksLeft,
+		Mutex<std::vector<CompTask>>& tasks
+	)
+	{
+		uint32_t lastTask = 0;
+		while(true)
+		{
+			std::unique_lock taskLock(tasks.lock);
+			if (shouldExit)return;
+			if (tasks.v.empty())
+				cv.wait(taskLock, [&shouldExit, &tasks]() { return shouldExit || !tasks.v.empty(); });
+			if (shouldExit)return;
+			if (tasks.v.empty())continue;
+
+			CompTask& taskRef = tasks.v.back();
+			if (taskRef.taskId == lastTask)
+				continue;//already did it.
+			lastTask = taskRef.taskId;
+			taskRef.threadsLeft--;
+			bool isCompleterThread = taskRef.threadsLeft == 0;
+
+			std::optional<CompTask> stackCopy;
+
+			if (isCompleterThread && !taskRef.leaveForMain)
+			{
+				stackCopy = std::move(taskRef);
+				tasks.v.pop_back();
+				taskLock.unlock();//only thread with this stuff, so no need to keep a lock!
+			}
+			CompTask& task = stackCopy.has_value() 
+				? stackCopy.value() 
+				: taskRef;//else, it was not invalidated
+
+			//Complete it...
+
+
+
+			if (isCompleterThread)
+			{
+				if (tasksLeft.fetch_sub(1, std::memory_order_relaxed) - 1 == 0)
+				{
+					cvMain.v.notify_all();
+				}
+				else
+				{
+					_ASSERT(!task.leaveForMain);
+				}
+			}
+		}
+	}
+
 	inline CompOutput compile(const CompCfg& cfg)
 	{
+		Mutex<std::vector<CompTask>> tasks;
+		std::atomic_size_t tasksLeft;
 
+		std::condition_variable cv;
+		Mutex<std::condition_variable> cvMain;
+		std::atomic_bool shouldExit = false;
+
+		std::vector<std::thread> pool;
+		for (size_t i = 0; i < cfg.extraThreadCount; i++)
+		{
+			pool.emplace_back(std::thread(poolThread,cfg,
+				std::ref(shouldExit),
+				std::ref(cv),std::ref(cvMain),
+				std::ref(tasksLeft),std::ref(tasks))
+			);
+		}
+		// Create a list of all files to compile
+		
+
+
+		// Parse the files
+
+
+		shouldExit = true;
+		cv.notify_all();
+		for (auto& i : pool)
+			i.join();
 	}
 }
