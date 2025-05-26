@@ -83,6 +83,7 @@ namespace slu::comp
 	{
 		std::vector<CompEntryPoint> entryPoints;
 		//TODO: info for lock file appending?
+		//TODO: info for build cache files?
 	};
 
 	struct SluFile
@@ -115,8 +116,8 @@ namespace slu::comp
 	inline void poolThread(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
 		std::condition_variable& cv,
-		Mutex<std::condition_variable>& cvMain,
-		std::atomic_size_t& tasksLeft,
+		std::condition_variable& cvMain,
+		Mutex<size_t>& tasksLeft,
 		Mutex<std::vector<CompTask>>& tasks
 	)
 	{
@@ -155,10 +156,11 @@ namespace slu::comp
 
 			if (isCompleterThread)
 			{
-				if (tasksLeft.fetch_sub(1, std::memory_order_relaxed) - 1 == 0)
+				std::lock_guard _(tasksLeft.lock);
+				if (--tasksLeft.v == 0)
 				{
 					//wake up, all tasks are done!
-					cvMain.v.notify_all();
+					cvMain.notify_all();
 				}
 			}
 		}
@@ -168,10 +170,10 @@ namespace slu::comp
 	{
 		uint32_t nextTaskId = 1;
 		Mutex<std::vector<CompTask>> tasks;
-		std::atomic_size_t tasksLeft;
+		Mutex<size_t> tasksLeft;
 
 		std::condition_variable cv;
-		Mutex<std::condition_variable> cvMain;
+		std::condition_variable cvMain;//Uses tasksLeft.lock!!
 		std::atomic_bool shouldExit = false;
 
 		std::vector<std::thread> pool;
@@ -226,12 +228,22 @@ namespace slu::comp
 					res.data = CompTaskType::ParseFiles(it, it + chunkSize);
 					it += chunkSize;
 
-					tasksLeft++;
+					{
+						std::lock_guard _(tasksLeft.lock);
+						tasksLeft.v++;
+					}
 					{
 						std::unique_lock _(tasks.lock);
 						tasks.v.emplace_back(std::move(res));
 					}
 					cv.notify_one();
+				}
+
+				{
+					std::unique_lock tasksLeftLock(tasksLeft.lock);
+					if (tasksLeft.v != 0)
+						cvMain.wait(tasksLeftLock, [&tasksLeft] {return tasksLeft.v == 0; });
+					// All files parsed!
 				}
 			}
 			else
