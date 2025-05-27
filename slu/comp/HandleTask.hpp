@@ -28,6 +28,11 @@ namespace slu::comp
 	namespace CompTaskType
 	{
 		using ParseFiles = std::vector<SluFile>;
+		struct ConsensusUnifyAsts
+		{
+			RwLock<parse::BasicMpDbData>* sharedDb;//stored on main thread.
+			bool firstToArive = true; //if true, then you dont need to do any logic, just replace it
+		};
 		struct ConsensusMergeAsts
 		{
 			std::unordered_map<std::string, int> path2Ast;
@@ -35,6 +40,7 @@ namespace slu::comp
 	}
 	using CompTaskData = std::variant<
 		CompTaskType::ParseFiles,
+		CompTaskType::ConsensusUnifyAsts,
 		CompTaskType::ConsensusMergeAsts
 	>;
 	struct CompTask
@@ -54,7 +60,7 @@ namespace slu::comp
 	struct TaskHandleState
 	{
 		std::vector<ParsedFile> parsedFiles;
-		parse::BasicMpDbData mpDb;//TODO: multi-threaded id assignment scheme ORR unification phase
+		parse::BasicMpDbData mpDb;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -106,6 +112,7 @@ namespace slu::comp
 	inline void handleTask(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
 		TaskHandleState& state,
+		std::unique_lock<std::mutex>* taskLock,//if null, then already unlocked
 		CompTaskData& task
 	)
 	{
@@ -123,11 +130,30 @@ namespace slu::comp
 
 				ParsedFile parsed;
 				parsed.parsed = slu::parse::parseFile(in);
+				//TODO: basic desugaring
+				//TODO: operators
+				//TODO: for/while/repeat loop
 				parsed.crateRootPath = file.crateRootPath;
 				parsed.path = std::move(file.path);
 
 				state.parsedFiles.emplace_back(std::move(parsed));
 			}
+		},
+		varcase(CompTaskType::ConsensusUnifyAsts&) {
+			// Handle consensus unification of ASTs
+			auto& sharedDb = *var.sharedDb;
+			if (taskLock != nullptr)
+			{
+				if (var.firstToArive)
+				{//Easy
+					var.sharedDb->v = std::move(state.mpDb);
+					var.firstToArive = false;
+					return;
+				}
+				taskLock->unlock();
+				// var is gone now!!!
+			}
+			throw std::runtime_error("TODO: unify state.mpDb!");
 		},
 		varcase(CompTaskType::ConsensusMergeAsts&) {
 			// Handle consensus merging of ASTs
