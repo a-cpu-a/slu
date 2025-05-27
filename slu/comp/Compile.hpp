@@ -116,10 +116,17 @@ namespace slu::comp
 			}
 		}
 
+		//TODO: collect ast's
+		//TODO: build some kind of dep graph.
+		//TODO: run midlevel / desugar using all the threads.
+		//TODO: codegen on all the threads.
+
 
 		shouldExit = true;
 		cv.notify_all();
 		for (auto& i : pool)
 			i.join();
+
+		//TODO: return
 	}
 }
