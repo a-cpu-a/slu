@@ -67,6 +67,7 @@ namespace slu::comp
 	};
 	struct TaskHandleState
 	{
+		parse::BasicMpDbData* sharedDb=nullptr; // Set after ConsensusUnifyAsts
 		std::vector<ParsedFile> parsedFiles;
 		parse::BasicMpDbData mpDb;
 		GenCodeMap genOut;
@@ -151,6 +152,8 @@ namespace slu::comp
 		varcase(CompTaskType::ConsensusUnifyAsts&) 
 		{ // Handle consensus unification of ASTs
 			auto& sharedDb = *var.sharedDb;
+			state.sharedDb = &sharedDb.v;
+
 			if (taskLock != nullptr)
 			{
 				if (var.firstToArive)
