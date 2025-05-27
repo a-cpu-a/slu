@@ -51,6 +51,9 @@ void _test()
 
 
 	slu::parse::VecInput in2{ slu::parse::sluCommon };
+	slu::parse::BasicMpDbData mpDb;
+	in2.genData.mpDb = { &mpDb };
+	in2.genData.totalMp = {"hello_world"};
 	const auto f2 =slu::parse::parseFile(in2);
 
 	slu::parse::Output out2(slu::parse::sluCommon);
