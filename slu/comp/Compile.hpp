@@ -128,5 +128,6 @@ namespace slu::comp
 			i.join();
 
 		//TODO: return
+		return {};
 	}
 }
