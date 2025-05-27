@@ -54,6 +54,7 @@ namespace slu::comp
 	struct TaskHandleState
 	{
 		std::vector<ParsedFile> parsedFiles;
+		parse::BasicMpDbData mpDb;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -84,6 +85,7 @@ namespace slu::comp
 				pathStart++;
 			}
 		}
+		//TODO: handle crate name & src/tests/... folder
 		return res;
 	}
 
@@ -102,6 +104,7 @@ namespace slu::comp
 				InputType in;
 				in.fName = file.path;
 				in.text = file.contents;
+				in.genData.mpDb = { &state.mpDb };
 				in.genData.totalMp = parsePath(file.crateRootPath,file.path);
 
 				ParsedFile parsed;
@@ -114,7 +117,7 @@ namespace slu::comp
 		},
 		varcase(CompTaskType::ConsensusMergeAsts&) {
 			// Handle consensus merging of ASTs
-			for (const auto& path : var.allPaths)
+			for (const auto& path : var.path2Ast)
 			{
 				//TODO: Implement actual merging logic
 			}
