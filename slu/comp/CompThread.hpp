@@ -47,7 +47,7 @@ namespace slu::comp
 
 			std::optional<CompTaskData> stackCopy;
 
-			if (isCompleterThread && !taskRef.leaveForMain)
+			if (isCompleterThread)
 			{
 				stackCopy = std::move(taskRef.data);
 				tasks.v.pop_back();

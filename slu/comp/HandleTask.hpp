@@ -26,7 +26,7 @@ namespace slu::comp
 		std::string path;
 		std::vector<uint8_t> contents;
 	};
-
+	using GenCodeMap = std::unordered_map<uint32_t, std::vector<std::vector<uint8_t>>>;
 	namespace CompTaskType
 	{
 		using ParseFiles = std::vector<SluFile>;
@@ -39,20 +39,25 @@ namespace slu::comp
 		{
 			std::unordered_map<std::string, int> path2Ast;
 		};
-		using DoCodeGen = std::vector<std::span<const parse::Statement<InputType>>>;
-		using ConsensusMergeGenCode = std::vector<std::vector<uint8_t>>;
+		struct DoCodeGen
+		{
+			std::vector<std::span<const parse::Statement<InputType>>> statements;
+			uint32_t entrypointId;
+		};
+		using ConsensusMergeGenCode = GenCodeMap*;
 	}
 	using CompTaskData = std::variant<
 		CompTaskType::ParseFiles,
 		CompTaskType::ConsensusUnifyAsts,
-		CompTaskType::ConsensusMergeAsts
+		CompTaskType::ConsensusMergeAsts,
+		CompTaskType::DoCodeGen,
+		CompTaskType::ConsensusMergeGenCode
 	>;
 	struct CompTask
 	{
 		CompTaskData data;
-		size_t threadsLeft : 31 = 0;
+		size_t threadsLeft : 32 = 0;
 		size_t taskId : 32 = 0;
-		size_t leaveForMain : 1 = false;
 	};
 	struct ParsedFile
 	{
@@ -64,7 +69,7 @@ namespace slu::comp
 	{
 		std::vector<ParsedFile> parsedFiles;
 		parse::BasicMpDbData mpDb;
-		std::vector<uint8_t> genOut;
+		GenCodeMap genOut;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -169,7 +174,7 @@ namespace slu::comp
 		varcase(CompTaskType::DoCodeGen&) 
 		{ // Handle code gen of all the global statements
 			parse::Output out;
-			for (const auto& i : var)
+			for (const auto& i : var.statements)
 			{
 				for (const auto& j : i)
 				{
@@ -177,10 +182,18 @@ namespace slu::comp
 					//parse::genStat(out, j);
 				}
 			}
-			state.genOut = std::move(out.text);
+			state.genOut[var.entrypointId]
+				.emplace_back(std::move(out.text));
 		},
 		varcase(CompTaskType::ConsensusMergeGenCode&) {
-			var.emplace_back(std::move(state.genOut));
+			for (auto& [epId, i] : state.genOut)
+			{
+				auto& genOut = (*var)[epId];
+				for (auto& j : i)
+				{
+					genOut.emplace_back(std::move(j));
+				}
+			}
 		}
 		);
 	}
