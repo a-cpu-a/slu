@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 #ifndef _HGUARD__A_CPU_A__Mtx_hpp__LIB
-#define
+#define _HGUARD__A_CPU_A__Mtx_hpp__LIB
 /*
 MIT License
 
