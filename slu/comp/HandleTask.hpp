@@ -54,13 +54,27 @@ namespace slu::comp
 	struct TaskHandleState
 	{
 		std::vector<ParsedFile> parsedFiles;
-		parse::BasicMpDbData mpDb;
+		parse::BasicMpDbData mpDb;//TODO: multi-threaded id assignment scheme ORR unification phase
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
 	{
 		lang::ModPath res;
+
+		for (size_t i = crateRootPath.size(); i > 0; i--)
+		{
+			bool slash = crateRootPath[i - 1] == '/';
+			if (slash || i==1)
+			{
+				res.push_back(std::string(crateRootPath.substr(i 
+					+ (slash?0:-1)// if it is not a slash, then also include it too
+				)));
+				break;
+			}
+		}
+
 		size_t pathStart = crateRootPath.size()+1;//+1 for slash
+		bool skipFolder = true;// skip "src", etc
 		for (size_t i = 0; i < path.size(); i++)
 		{
 			if (i < crateRootPath.size())
@@ -79,13 +93,13 @@ namespace slu::comp
 				{
 					if (pathStart == i)// found a '//' ?
 						break;//TODO: error, maybe log it
-
-					res.push_back(std::string(path.substr(pathStart, i-pathStart)));
+					if(!skipFolder)
+						res.push_back(std::string(path.substr(pathStart, i-pathStart)));
+					skipFolder = false;
 				}
 				pathStart++;
 			}
 		}
-		//TODO: handle crate name & src/tests/... folder
 		return res;
 	}
 
