@@ -78,7 +78,7 @@ namespace slu::parse
 
 		//Error output
 
-		{ t.fileName() } -> std::same_as<std::string>;
+		{ t.fileName() } -> std::same_as<std::string_view>;
 		{ t.getLoc() } -> std::same_as<Position>;
 
 		//Management
@@ -91,7 +91,16 @@ namespace slu::parse
 	;
 
 	inline std::string errorLocStr(const AnyInput auto& in,const Position pos) {
-		return " " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
+		return std::format(
+			" {}:" 
+			LUACC_NUM_COL("{}")
+			":" 
+			LUACC_NUM_COL("{}"),
+
+			in.fileName(),
+			pos.line, pos.index
+		);
+			//" " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
 	}
 	inline std::string errorLocStr(const AnyInput auto& in) {
 		return errorLocStr(in,in.getLoc());

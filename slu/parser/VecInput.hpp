@@ -34,7 +34,7 @@ namespace slu::parse
 
 		std::vector<std::string> handledErrors;
 
-		std::string fName;
+		std::string_view fName;
 		size_t curLine = 1;
 		size_t curLinePos = 0;
 
@@ -130,7 +130,7 @@ namespace slu::parse
 
 		//Error output
 
-		std::string fileName() const {
+		std::string_view fileName() const {
 			return fName;
 		}
 		Position getLoc() const {
