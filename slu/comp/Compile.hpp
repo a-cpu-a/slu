@@ -16,11 +16,13 @@
 
 namespace slu::comp
 {
-	//Could repr some js file, some wasm blob, a jar / class, or even some exe / dll.
-	struct CompEntryPoint
+	struct CodeGenEntrypoint
 	{
 		std::string entryPointFile;//path to file that defined this entry-point, or empty
 		std::string fileName;
+	};
+	//Could repr some js file, some wasm blob, a jar / class, or even some exe / dll.
+	struct CompEntryPoint : CodeGenEntrypoint {
 		std::vector<uint8_t> contents;
 	};
 	struct CompOutput
@@ -46,7 +48,6 @@ namespace slu::comp
 	)
 	{
 		CompTask task;
-		task.leaveForMain = false;
 		task.taskId = taskId;
 		task.threadsLeft = cfg.extraThreadCount;
 		// Move a chunk into a new vector
@@ -120,7 +121,6 @@ namespace slu::comp
 
 
 					CompTask res;
-					res.leaveForMain = false;
 					res.taskId = nextTaskId++;
 					res.threadsLeft = 1;
 					// Move a chunk into a new vector
@@ -163,13 +163,44 @@ namespace slu::comp
 		//TODO: run midlevel / optimize using all the threads.
 		//TODO: codegen on all the threads.
 
+		std::vector<CodeGenEntrypoint> eps;
+
+		CompOutput ret;
+
+		{ // Merge code gen outputs
+			GenCodeMap mergeOut;
+			mergeOut.reserve(eps.size());
+
+			submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
+				CompTaskType::ConsensusMergeGenCode(&mergeOut)
+			);
+
+			size_t i = 0;
+			for (auto& epInfo : eps)
+			{
+				auto& mergeOutItem = mergeOut[i++];
+				CompEntryPoint ep{std::move(epInfo)};
+				
+				size_t totalSize = 0;
+				for (auto& j : mergeOutItem)
+					totalSize += j.size();
+				ep.contents.reserve(totalSize);
+				for (auto& j : mergeOutItem)
+				{
+					ep.contents.insert(ep.contents.end(), j.begin(), j.end());
+					j.clear();//dealloc now, to keep mem usage lower
+				}
+				mergeOutItem.clear();//it wont be used anymore
+
+				ret.entryPoints.emplace_back(std::move(ep));
+			}
+		}
 
 		shouldExit = true;
 		cv.notify_all();
 		for (auto& i : pool)
 			i.join();
 
-		//TODO: return
-		return {};
+		return ret;
 	}
 }
