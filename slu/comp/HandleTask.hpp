@@ -17,6 +17,8 @@
 
 namespace slu::comp
 {
+	using SettingsType = decltype(slu::parse::sluCommon);
+	using InputType = slu::parse::VecInput<SettingsType>;
 
 	struct SluFile
 	{
@@ -37,6 +39,8 @@ namespace slu::comp
 		{
 			std::unordered_map<std::string, int> path2Ast;
 		};
+		using DoCodeGen = std::vector<std::span<const parse::Statement<InputType>>>;
+		using ConsensusMergeGenCode = std::vector<std::vector<uint8_t>>;
 	}
 	using CompTaskData = std::variant<
 		CompTaskType::ParseFiles,
@@ -50,7 +54,6 @@ namespace slu::comp
 		size_t taskId : 32 = 0;
 		size_t leaveForMain : 1 = false;
 	};
-	using InputType = slu::parse::VecInput<decltype(slu::parse::sluCommon)>;
 	struct ParsedFile
 	{
 		slu::parse::ParsedFile<InputType> parsed;
@@ -61,6 +64,7 @@ namespace slu::comp
 	{
 		std::vector<ParsedFile> parsedFiles;
 		parse::BasicMpDbData mpDb;
+		std::vector<uint8_t> genOut;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -117,8 +121,8 @@ namespace slu::comp
 	)
 	{
 		ezmatch(task)(
-		varcase(CompTaskType::ParseFiles&) {
-			// Handle parsing files
+		varcase(CompTaskType::ParseFiles&) 
+		{ // Handle parsing files
 			state.parsedFiles.reserve(var.size());
 			for (SluFile& file : var) 
 			{//cfg, file.crateRootPath, file.path, file.contents
@@ -139,8 +143,8 @@ namespace slu::comp
 				state.parsedFiles.emplace_back(std::move(parsed));
 			}
 		},
-		varcase(CompTaskType::ConsensusUnifyAsts&) {
-			// Handle consensus unification of ASTs
+		varcase(CompTaskType::ConsensusUnifyAsts&) 
+		{ // Handle consensus unification of ASTs
 			auto& sharedDb = *var.sharedDb;
 			if (taskLock != nullptr)
 			{
@@ -155,12 +159,28 @@ namespace slu::comp
 			}
 			throw std::runtime_error("TODO: unify state.mpDb!");
 		},
-		varcase(CompTaskType::ConsensusMergeAsts&) {
-			// Handle consensus merging of ASTs
+		varcase(CompTaskType::ConsensusMergeAsts&) 
+		{ // Handle consensus merging of ASTs
 			for (const auto& path : var.path2Ast)
 			{
 				//TODO: Implement actual merging logic
 			}
+		},
+		varcase(CompTaskType::DoCodeGen&) 
+		{ // Handle code gen of all the global statements
+			parse::Output out;
+			for (const auto& i : var)
+			{
+				for (const auto& j : i)
+				{
+					//TODO: convert to lua & then call VVV
+					//parse::genStat(out, j);
+				}
+			}
+			state.genOut = std::move(out.text);
+		},
+		varcase(CompTaskType::ConsensusMergeGenCode&) {
+			var.emplace_back(std::move(state.genOut));
 		}
 		);
 	}
