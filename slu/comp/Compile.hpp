@@ -29,6 +29,41 @@ namespace slu::comp
 		//TODO: info for lock file appending?
 		//TODO: info for build cache files?
 	};
+	inline void waitForTasksToComplete(Mutex<size_t>& tasksLeft, std::condition_variable& cvMain)
+	{
+		std::unique_lock tasksLeftLock(tasksLeft.lock);
+		if (tasksLeft.v != 0)
+			cvMain.wait(tasksLeftLock, [&tasksLeft] {return tasksLeft.v == 0; });
+	}
+	inline void submitConsensusTask(const CompCfg& cfg,
+		uint32_t taskId,
+		Mutex<std::vector<CompTask>>& tasks,
+		Mutex<size_t>& tasksLeft, 
+		std::condition_variable& cv, 
+		std::condition_variable& cvMain,
+
+		CompTaskData&& data
+	)
+	{
+		CompTask task;
+		task.leaveForMain = false;
+		task.taskId = taskId;
+		task.threadsLeft = cfg.extraThreadCount;
+		// Move a chunk into a new vector
+		task.data = std::move(data);
+
+		{
+			std::lock_guard _(tasksLeft.lock);
+			tasksLeft.v++;
+		}
+		{
+			std::unique_lock _(tasks.lock);
+			tasks.v.emplace_back(std::move(task));
+		}
+		cv.notify_all();
+
+		waitForTasksToComplete(tasksLeft, cvMain);
+	}
 
 	inline CompOutput compile(const CompCfg& cfg)
 	{
@@ -103,22 +138,25 @@ namespace slu::comp
 					cv.notify_one();
 				}
 
-				{
-					std::unique_lock tasksLeftLock(tasksLeft.lock);
-					if (tasksLeft.v != 0)
-						cvMain.wait(tasksLeftLock, [&tasksLeft] {return tasksLeft.v == 0; });
-					// All files parsed!
-				}
+				waitForTasksToComplete(tasksLeft, cvMain);
+				// All files parsed!
 			}
 			else
 			{
 				// TODO: Parse the files, if extraThreads==0
 			}
 		}
+		_ASSERT(tasksLeft.v == 0);
 
 		RwLock<parse::BasicMpDbData> sharedDb;
 
-		//TODO: unify asts using sharedDb
+		// unify asts using sharedDb
+		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain, 
+			CompTaskType::ConsensusUnifyAsts{
+				.sharedDb = &sharedDb,
+				.firstToArive = true
+			}
+		);
 		//TODO: collect ast's
 		//TODO: type-inference/checking + comptime eval + basic codegen to lua
 		//TODO: build some kind of dep graph.
