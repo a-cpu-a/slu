@@ -28,6 +28,7 @@ namespace slu::comp
 	)
 	{
 		uint32_t lastTask = 0;
+		TaskHandleState state;
 		while (true)
 		{
 			std::unique_lock taskLock(tasks.lock);
@@ -57,7 +58,7 @@ namespace slu::comp
 				: taskRef.data;//else, it was not invalidated
 
 			//Complete it...
-			handleTask(cfg, shouldExit, task);
+			handleTask(cfg, shouldExit, state, task);
 
 			if (isCompleterThread)
 			{

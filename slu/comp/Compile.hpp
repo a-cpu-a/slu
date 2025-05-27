@@ -70,7 +70,7 @@ namespace slu::comp
 			if(cfg.extraThreadCount!=0)
 			{
 				size_t total = sluFiles.size();
-				size_t filesPerThread = total / cfg.extraThreadCount;
+				size_t filesPerThread = total / (cfg.extraThreadCount*4);// *4, because we want to use the task system a bit more.
 
 				// If there arent enough files for all the threads, just use 1 thread ig
 				if (filesPerThread == 0) filesPerThread = 1;
