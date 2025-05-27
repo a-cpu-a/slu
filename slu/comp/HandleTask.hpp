@@ -30,7 +30,7 @@ namespace slu::comp
 		using ParseFiles = std::vector<SluFile>;
 		struct ConsensusMergeAsts
 		{
-			std::vector<std::string> allPaths;
+			std::unordered_map<std::string, int> path2Ast;
 		};
 	}
 	using CompTaskData = std::variant<
@@ -56,6 +56,37 @@ namespace slu::comp
 		std::vector<ParsedFile> parsedFiles;
 	};
 
+	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
+	{
+		lang::ModPath res;
+		size_t pathStart = crateRootPath.size()+1;//+1 for slash
+		for (size_t i = 0; i < path.size(); i++)
+		{
+			if (i < crateRootPath.size())
+			{
+				if (path[i] != crateRootPath[i])
+					break;//TODO: error, maybe log it
+			}
+			else if (i == crateRootPath.size())
+			{
+				if (path[i] != '/')
+					break;//TODO: error, maybe log it
+			}
+			else
+			{
+				if (path[i] == '/')
+				{
+					if (pathStart == i)// found a '//' ?
+						break;//TODO: error, maybe log it
+
+					res.push_back(std::string(path.substr(pathStart, i-pathStart)));
+				}
+				pathStart++;
+			}
+		}
+		return res;
+	}
+
 	inline void handleTask(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
 		TaskHandleState& state,
@@ -65,11 +96,13 @@ namespace slu::comp
 		ezmatch(task)(
 		varcase(CompTaskType::ParseFiles&) {
 			// Handle parsing files
+			state.parsedFiles.reserve(var.size());
 			for (SluFile& file : var) 
 			{//cfg, file.crateRootPath, file.path, file.contents
 				InputType in;
 				in.fName = file.path;
 				in.text = file.contents;
+				in.genData.totalMp = parsePath(file.crateRootPath,file.path);
 
 				ParsedFile parsed;
 				parsed.parsed = slu::parse::parseFile(in);
