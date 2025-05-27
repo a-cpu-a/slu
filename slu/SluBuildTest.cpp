@@ -29,6 +29,7 @@
 #include <slu/paint/PaintToHtml.hpp>
 #include <slu/gen/Gen.hpp>
 #include <slu/MetaTableUtils.hpp>
+#include <slu/comp/Compile.hpp>
 
 
 void _test()
@@ -60,4 +61,6 @@ void _test()
 
 	slu::paint::paintFile(semOut2, f2);
 	slu::paint::toHtml(semOut2, true);
+
+	slu::comp::compile({});
 }
