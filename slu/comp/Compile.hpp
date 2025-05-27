@@ -116,9 +116,13 @@ namespace slu::comp
 			}
 		}
 
+		RwLock<parse::BasicMpDbData> sharedDb;
+
+		//TODO: unify asts using sharedDb
 		//TODO: collect ast's
+		//TODO: type-inference/checking + comptime eval + basic codegen to lua
 		//TODO: build some kind of dep graph.
-		//TODO: run midlevel / desugar using all the threads.
+		//TODO: run midlevel / optimize using all the threads.
 		//TODO: codegen on all the threads.
 
 

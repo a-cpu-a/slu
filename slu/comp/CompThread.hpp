@@ -58,7 +58,7 @@ namespace slu::comp
 				: taskRef.data;//else, it was not invalidated
 
 			//Complete it...
-			handleTask(cfg, shouldExit, state, task);
+			handleTask(cfg, shouldExit, state, stackCopy.has_value() ? nullptr: &taskLock, task);
 
 			if (isCompleterThread)
 			{
