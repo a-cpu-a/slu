@@ -11,10 +11,12 @@ Naming Conventions {
 	L.O.L. -> Lol
 	
 	One letter acronyms steal the uppercasing of the next letter.
-	J. U.T.F8 -> Jutf8
+	J. U.T.F.8 -> Jutf8
+	U. Int -> Uint
 	
 	Use a module called "details" for implementation details that need to be exported.
 	
+	constant / immutable type variables/arguments use the same casing as normal types (HelloWorld)
 	
 	myVariable
 	MY_CONSTANT_VARIABLE
