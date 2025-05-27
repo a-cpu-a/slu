@@ -13,36 +13,11 @@
 #include <slu/lang/BasicState.hpp>
 
 #include <slu/comp/CompCfg.hpp>
+#include <slu/comp/HandleTask.hpp>
 
 namespace slu::comp
 {
 
-	struct SluFile
-	{
-		std::string_view crateRootPath;
-		std::string path;
-		std::vector<uint8_t> contents;
-	};
-
-	namespace CompTaskType
-	{
-		using ParseFiles = std::vector<SluFile>;
-		struct ConsensusMergeAsts
-		{
-			std::vector<std::string> allPaths;
-		};
-	}
-	using CompTaskData = std::variant<
-		CompTaskType::ParseFiles,
-		CompTaskType::ConsensusMergeAsts
-	>;
-	struct CompTask
-	{
-		CompTaskData data;
-		size_t threadsLeft : 31 = 0;
-		size_t taskId : 32 = 0;
-		size_t leaveForMain : 1 = false;
-	};
 
 	inline void poolThread(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
@@ -82,9 +57,7 @@ namespace slu::comp
 				: taskRef.data;//else, it was not invalidated
 
 			//Complete it...
-
-			//TODO: function to handle the task.
-
+			handleTask(cfg, shouldExit, task);
 
 			if (isCompleterThread)
 			{
