@@ -2,11 +2,11 @@
  
 Wip slu compiler/parser/linter currently written in C++ 20. 
 
-The goal is to make a safe and fast language, that is easy to transpile into other languages, .... 
+The goal is to make a safe and fast language, that is easy to transpile into other languages, ... 
 
 ## Features
 
-Builtin support for transpilation (lua, hopefully: js, llvm ir, java bytecode, ...)
+Builtin support for transpilation (lua, hopefully: js, llvm ir, java bytecode, ...)  
 Types as values (no generics, just functions: `Vec(u8)`)  
 Safety checking  
 Borrow checking (hopefuly easy to understand with lifetimes being just variable names: `&/var1/var2 T`)  
