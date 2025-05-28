@@ -8,7 +8,8 @@ New Syntax {
 	binop @::= | "**"
 }
 
-Array Constructor {
+Array Mul {
+	
 	
 	Multiply a list / array struct N many times
 	
