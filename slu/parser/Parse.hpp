@@ -125,17 +125,15 @@ namespace slu::parse
 		
 		return p;
 	}
-	//Pair{fn, hadErr}
+
 	template<AnyInput In>
-	inline std::pair<Function<In>,bool> readFuncBody(In& in)
+	inline FunctionInfo<In> readFuncInfo(In& in)
 	{
 		/*
 			funcbody ::= ‘(’ [parlist] ‘)’ block end
 			parlist ::= namelist [‘,’ ‘...’] | ‘...’
 		*/
-		Function<In> ret{};
-
-		Position place = in.getLoc();
+		FunctionInfo<In> ret{};
 
 		requireToken(in, "(");
 
@@ -173,8 +171,9 @@ namespace slu::parse
 			if (checkReadToken(in,"->"))
 				ret.retType = readTypeExpr(in,false);
 
-			ret.block = readDoOrStatOrRet<false>(in, ret.hasVarArgParam);
+			//ret.block = readDoOrStatOrRet<false>(in, ret.hasVarArgParam);
 		}
+		/*
 		else
 		{
 			try
@@ -195,9 +194,42 @@ namespace slu::parse
 				));
 			}
 			requireToken(in, "end");
-		}
+		}*/
 
-		return { std::move(ret),false };
+		return ret;
+	}
+	//Pair{fn,hasError}
+	template<AnyInput In>
+	inline std::pair<Function<In>,bool> readFuncBody(In& in)
+	{
+		Position place = in.getLoc();
+
+		Function<In> func = { readFuncInfo(in) };
+
+		if constexpr (In::settings() & sluSyn)
+			func.block = readBlock<false>(in, func.hasVarArgParam);
+		else
+		{
+			try
+			{
+				func.block = readBlock<false>(in, func.hasVarArgParam);
+			}
+			catch (const ParseError& e)
+			{
+				in.handleError(e.m);
+
+				if (recoverErrorTextToken(in, "end"))
+					return { std::move(func),true };// Found it, recovered!
+
+				//End of stream, and no found end's, maybe the error is a missing "end"?
+				throw FailedRecoveryError(std::format(
+					"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
+					errorLocStr(in, place)
+				));
+			}
+			requireToken(in, "end");
+		}
+		return { std::move(func), false };
 	}
 
 	template<bool isLoop,SemicolMode semicolMode = SemicolMode::REQUIRE, AnyInput In>
@@ -351,7 +383,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "fn"))
 				{
-					readFunctionStatement<isLoop, StatementType::FN<In>>(
+					readFunctionStatement<isLoop, StatementType::FN<In>,StatementType::FnDecl<In>>(
 						in, place, allowVarArg, exported, safety
 					);
 					return true;
@@ -361,7 +393,7 @@ namespace slu::parse
 		case 'u':
 			if (checkReadTextToken(in, "function"))
 			{
-				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>>(
+				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>, StatementType::FunctionDecl<In>>(
 					in, place, allowVarArg, exported, safety
 				);
 				return true;
@@ -472,7 +504,8 @@ namespace slu::parse
 				{
 					if (checkReadTextToken(in, "function"))
 					{ // local function Name funcbody
-						readFunctionStatement<isLoop, StatementType::LOCAL_FUNCTION_DEF<In>>(
+						//NOTE: no real function decl, as `local function` is not in slu.
+						readFunctionStatement<isLoop, StatementType::LOCAL_FUNCTION_DEF<In>,StatementType::FunctionDecl<In>>(
 							in, place, allowVarArg, false,OptSafety::DEFAULT
 						);
 						return true;
@@ -560,19 +593,18 @@ namespace slu::parse
 		return false;
 	}
 
-	template<bool isLoop,class StatT, AnyInput In>
+	template<bool isLoop,class StatT,class DeclStatT, AnyInput In>
 	inline void readFunctionStatement(In& in, 
 		const Position place, const bool allowVarArg, 
 		const ExportData exported, const OptSafety safety)
 	{
+		MpItmId<In> name = in.genData.resolveUnknown(readFuncName(in));
+
 		StatT res{};
-
-		res.place = in.getLoc();
-
-		res.name = in.genData.resolveUnknown(readFuncName(in));
 
 		try
 		{
+
 			auto [fun, err] = readFuncBody(in);
 			res.func = std::move(fun);
 			if (err)

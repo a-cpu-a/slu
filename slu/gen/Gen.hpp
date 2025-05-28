@@ -636,10 +636,13 @@ namespace slu::parse
 		genParamList(out, itm.params, itm.hasVarArgParam);
 		out.add(')');
 
-		if (itm.retType.has_value())
+		if constexpr (Out::settings() & sluSyn)
 		{
-			out.add(" -> ");
-			genTypeExpr<true>(out, *itm.retType);
+			if (itm.retType.has_value())
+			{
+				out.add(" -> ");
+				genTypeExpr<true>(out, *itm.retType);
+			}
 		}
 	}
 	template<AnyOutput Out>
