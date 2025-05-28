@@ -635,6 +635,12 @@ namespace slu::parse
 		out.add('(');
 		genParamList(out, itm.params, itm.hasVarArgParam);
 		out.add(')');
+
+		if (itm.retType.has_value())
+		{
+			out.add(" -> ");
+			genTypeExpr<true>(out, *itm.retType);
+		}
 	}
 	template<AnyOutput Out>
 	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
