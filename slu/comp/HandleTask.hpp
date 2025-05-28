@@ -140,9 +140,9 @@ namespace slu::comp
 
 				ParsedFile parsed;
 				parsed.parsed = slu::parse::parseFile(in);
-				//TODO: basic desugaring
+				//TODO: basic desugaring:
 				//TODO: operators
-				//TODO: for/while/repeat loop
+				//TODO: for/while/repeat loops
 				parsed.crateRootPath = file.crateRootPath;
 				parsed.path = std::move(file.path);
 

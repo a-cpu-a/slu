@@ -22,6 +22,7 @@ Char Usage {
 	|   ;    |        |   -    |
 	|   ,    |        |   -    |
 	|   .    |   X    |   X    | prefix -> number (.0)
+	|   :>   |   X    |   -    |
 	|   :    |        |   X    |
 	|   <    |        |   X    |
 	|   (    |   X    |   X    | suffix is used as call
