@@ -805,7 +805,7 @@ namespace slu::parse
 						if (readFchStat<isLoop>(in, place, true, OptSafety::DEFAULT, allowVarArg))
 							return;
 						break;
-					case 't'://type?
+					case 't'://trait?
 						break;
 					case 'l'://let? local?
 						if (readLchStat<isLoop>(in, place, true, allowVarArg))
@@ -857,7 +857,7 @@ namespace slu::parse
 					return;
 			}
 			break;
-		case 't'://type?
+		case 't'://trait?
 			if constexpr (In::settings() & sluSyn)
 			{
 			}
