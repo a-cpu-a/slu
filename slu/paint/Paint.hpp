@@ -710,37 +710,64 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
+	inline void paintFuncDecl(Se& se, const parse::ParamList<Se>& params,const bool hasVarArgParam, const std::optional<parse::TypeExpr>& retType, const parse::MpItmId<Se> name, const lang::ExportData exported,const parse::OptSafety safety, const Position pos = {}, const bool fnKw = false)
 	{
 		if constexpr (Se::settings() & sluSyn)
 		{
 			if (exported)
 				paintKw<Tok::FN_STAT, Tok::EX_TINT>(se, "ex");
 
-			paintSafety(se, func.safety);
+			paintSafety(se, safety);
 		}
-		if(fnKw)
+		if (fnKw)
 			paintKw<Tok::FN_STAT>(se, "fn");
 		else
 			paintKw<Tok::FN_STAT>(se, "function");
 
-		if(!name.empty())
+		if (!name.empty())
 			se.move(pos);
 
 		paintName<Tok::NAME>(se, name);
 		paintKw<Tok::GEN_OP>(se, "(");
-		paintParamList(se, func.params, func.hasVarArgParam);
+		paintParamList(se, params, hasVarArgParam);
 
 		paintKw<Tok::GEN_OP>(se, ")");
+
 		if constexpr (Se::settings() & sluSyn)
 		{
-			if (func.retType.has_value())
+			if (retType.has_value())
 			{
 				paintKw<Tok::GEN_OP>(se, "->");
-				paintTypeExpr(se, *func.retType);
+				paintTypeExpr(se, *retType);
 			}
-			paintKw<Tok::BRACES>(se, "{");
 		}
+	}
+	template<bool isDecl,AnySemOutput Se>
+	inline void paintFunc(Se& se, const auto& itm, const bool fnKw)
+	{
+		if constexpr (isDecl)
+		{
+			if constexpr (Se::settings() & sluSyn)
+				paintFuncDecl(se, itm.params, itm.hasVarArgParam, itm.retType,
+					itm.name, itm.exported, itm.safety, itm.place, fnKw);
+			else
+				paintFuncDecl(se, itm.params, itm.hasVarArgParam, itm.retType,
+					itm.name, false, itm.safety, itm.place, fnKw);
+		} else {
+			if constexpr (Se::settings() & sluSyn)
+				paintFuncDef(se, itm.func, itm.name, itm.exported, itm.place, fnKw);
+			else
+				paintFuncDef(se, itm.func, itm.name, false, itm.place, fnKw);
+		}
+	}
+	//Pos must be valid, unless the name is empty
+	template<AnySemOutput Se>
+	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
+	{
+		paintFuncDecl(se, func.params, func.hasVarArgParam,func.retType, name, false, func.safety, pos, fnKw);
+		if constexpr (Se::settings() & sluSyn)
+			paintKw<Tok::BRACES>(se, "{");
+
 		//No do, for functions in lua
 		paintEndBlock<false>(se, func.block);
 		
@@ -922,22 +949,24 @@ namespace slu::paint
 		varcase(const parse::StatementType::CONST<Se>&) {
 			paintVarStat(se,var, "const");
 		},
+
 		varcase(const parse::StatementType::FN<Se>&) {
-			if constexpr (Se::settings() & sluSyn)
-				paintFuncDef(se, var.func, var.name, var.exported, var.place, true);
-			else
-				paintFuncDef(se, var.func, var.name, false, var.place, true);
+			paintFunc<false>(se, var, true);
+		},
+		varcase(const parse::StatementType::FnDecl<Se>&) {
+			paintFunc<true>(se, var, true);
 		},
 		varcase(const parse::StatementType::FUNCTION_DEF<Se>&) {
-			if constexpr (Se::settings() & sluSyn)
-				paintFuncDef(se, var.func, var.name, var.exported, var.place);
-			else
-				paintFuncDef(se, var.func, var.name, false, var.place);
+			paintFunc<false>(se, var, false);
+		},
+		varcase(const parse::StatementType::FunctionDecl<Se>&) {
+			paintFunc<true>(se, var, false);
 		},
 		varcase(const parse::StatementType::LOCAL_FUNCTION_DEF<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "local");
 			paintFuncDef(se, var.func, var.name, false, var.place);
 		},
+
 		varcase(const parse::StatementType::BREAK) {
 			paintKw<Tok::COND_STAT>(se, "break");
 		},
