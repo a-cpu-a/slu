@@ -6,7 +6,6 @@ New Syntax {
 	
 	exp @::= | [safety] PreFn "|" [paramList] "|" ["->" typeExp "=>"] exp
 	basicExp @::= | [safety] PreFn "|" [paramList] "|" ["->" typeExp "=>"] basicExp
-	basicExp @::= | [safety] PreFn "|" [paramList] "|" "->" typeExp statOrRetNsc
 }
 
 Function Expression {
@@ -15,13 +14,11 @@ Function Expression {
 	
 	Same rules for typing as normal fn statements.
 	
-	Some statement types dont work with `-> typeExp` syntax. (expr func call `(100).xx()`, deref assign `*x = 4`)
-	
 	Examples:
 	```slu
 	let f = unsafe comptime || -> u8 => 42
 	let add = |i32 x, i32 y| -> i32 => x + y
-	let fact = |i32 n| -> i32 {
+	let fact = |i32 n| -> i32 => do {
 		if (n <= 1) {
 			return 1
 		}
@@ -32,7 +29,7 @@ Function Expression {
 	let divide = unsafe |i32 x, i32 y| -> i32 => x / y
 	
 	let genl = || -> i32 => (1..100).len() + 1
-	let typeDoLambda = || -> u8 {
+	let typeDoLambda = || -> u8 => do {
 		return (1..100).len()+1;
 	}
 	
@@ -49,7 +46,7 @@ Function Expression {
 	let l4 = || -> {u8,u8,u8} => {1,2,3};
 	let l5 = || do {do return 100;};
 	let l6 = || -> u8 => do {do return 100;};
-	let l7 = || -> u8 {return 100;};
+	let l7 = || -> u8 => do {return 100;};
 	let l9 = || print("Hello");
 	let l8 = || do {print("Hello");} --Always returns void, cuz ur not returning the print.
 	
