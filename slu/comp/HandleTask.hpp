@@ -179,12 +179,16 @@ namespace slu::comp
 		{ // Handle code gen of all the global statements
 			auto& outVec = state.genOut[var.entrypointId];
 			parse::Output out;
+			parse::LuaMpDb luaDb;
 			out.text = std::move(outVec);
 			for (const auto& i : var.statements)
 			{
 				for (const auto& j : i)
 				{
-					slu::comp::lua::conv(cfg,*state.sharedDb, out,j);
+					slu::comp::lua::conv({
+						CommonConvData{cfg,*state.sharedDb,j},
+						luaDb, out 
+					});
 				}
 			}
 			outVec = std::move(out.text);

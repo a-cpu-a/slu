@@ -175,7 +175,7 @@ namespace slu::comp
 				CompTaskType::ConsensusMergeGenCode(&mergeOut)
 			);
 
-			size_t i = 0;
+			uint32_t i = 0;
 			for (auto& epInfo : eps)
 			{
 				auto& mergeOutItem = mergeOut[i++];
