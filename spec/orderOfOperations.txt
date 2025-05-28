@@ -31,17 +31,65 @@ Order of Operations {
 	+	-
 	% (Not the same as lua, modulus is bellow / * //)
 	*	/	//
-	unary operators (!	-	mut	  &   &const   &share   &mut   *   *const 	*share 	 *mut)
+	unary operators (!	-	mut	  &   &const   &mut   &share   *   *const 	 *mut 	*share)
 	^
 	postfix unary operators (? .*)
 	
 	(pseudo) .	 :	 ::	  function-args
 	(pseudo) (parenthesis) [slicifier]
 	```
-	
 	Everything is left to right, except for <<, >> and ^ which are right to left
-	(unary operators are also right to left)
+	(non-postfix unary operators are also right to left)
 	
+	
+	traits used for every operator
+	```
+	_=		_Assign
+	..		???			(maybe 3 traits? Range + RangeGte + RangeLte)
+	?		???			(likely will be something like Err)
+	!		Not
+	>		???
+	<		???
+	>=		???
+	<=		???
+	==		???
+	!=		???
+	<<		Shl
+	>>		Shr
+	~		Xor
+	&		BitAnd
+	and		And
+	|		BitOr
+	or		Or
+	++		Concat
+	**		Rep
+	+		Add
+	-		Neg
+	-		Sub
+	^		Exp
+	%		Rem
+	/		Div
+	//		FlrDiv
+	*		Mul
+	.*		Deref
+	
+	--internal use:
+	.*		RootDeref	(unstable)
+	*		Ptr			(unstable)
+	*const	PtrConst	(unstable)
+	*mut	PtrMut		(unstable)
+	*share	PtrShare	(unstable)
+	&		Ref			(unstable)
+	&const	RefConst	(unstable)
+	&mut	RefMut		(unstable)
+	&share	RefShare	(unstable)
+	
+	.		----		(will consider lol)
+	dyn		----
+	impl	----
+	alloc	----
+	=		----		(maybe...)
+	```
 	
 	
 	Examples, where no difference exists, if you remove braces
