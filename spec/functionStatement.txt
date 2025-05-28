@@ -5,6 +5,7 @@
 New Syntax {
 	
 	stat @::= | OptExportPrefix [safety] PreFn "function" Name "(" [paramList] ")" ["->" typeExp] [‘{’ block ‘}’]
+	basicExp @::= | [safety] PreFn "function" "(" [paramList] ")" ["->" typeExp] statOrRet
 }
 
 Function Statement {
