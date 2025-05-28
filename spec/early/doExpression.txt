@@ -4,8 +4,7 @@
 
 New Syntax {
 	
-	blockOrRet ::= retstatSemi | ( "{" block "}" )
-
+	basicExp @::= | ["comptime"] "do" ["->" typeExp] statOrRet
 	
 	retstat @::= | "do" retstat
 }
