@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, comptime, modules, safety, arrayConstructor
+# Dependencies: basic, comptime, modules, safety
 #
 
 New Syntax {
