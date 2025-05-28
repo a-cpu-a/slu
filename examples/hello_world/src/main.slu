@@ -1,5 +1,8 @@
 
+use std
+
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside main/lib/`crate`
 fn main() {
-	:>::std::_println("Hello world!")
+	--:>:: --TODO: unhack 'std' namespace
+	std::_println("Hello world!")
 }
