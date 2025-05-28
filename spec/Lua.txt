@@ -27,10 +27,8 @@ New Syntax {
 	retstat ::= return [explist]
 
 
-	basicstatOrRet ::= retstat | basicstat
-	statOrRet ::= (basicstatOrRet ‘;’) | ‘{’ block ‘}’
-	statOrRetNsc ::= basicstatOrRet | ‘{’ block ‘}’
-	statOrRetOsc ::= statOrRet | statOrRetNsc
+	statOrRet ::= (retstat ‘;’) | basicstat | ‘{’ block ‘}’
+	statOrRetOsc ::= statOrRet | retstat
 	
 	
 
