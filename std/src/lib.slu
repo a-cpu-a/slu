@@ -1,11 +1,13 @@
 
 --Hello world!
 
+mod prelude;
+
 ---Test test test !!!
-ex fn _println(&str text)
+ex fn _println(&crate::prelude::str text)
 {
 	safe extern "Lua" {
-		fn print(&str line);
+		fn print(&crate::prelude::str line);
 	}
-	print(text);
+	crate::_println::print(text);
 }
