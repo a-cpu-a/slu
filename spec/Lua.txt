@@ -25,7 +25,7 @@ New Syntax {
 	--TODO: parse break as a retstat
 	retstat ::= ("return" | "break") [explist]
 
-
+	--TODO: be more lenient on the semicolons too
 	statOrRet ::= retstat | basicstat | ‘{’ block ‘}’
 	
 	
