@@ -1,4 +1,4 @@
-#
+﻿#
 # Dependencies:
 #
 
@@ -17,17 +17,16 @@ New Syntax {
 		| label
 		| ‘{’ block ‘}’
 		| ‘while’ basicExp statOrRet
-		| ‘repeat’ statOrRetOsc ‘until’ exp
+		| ‘repeat’ statOrRet ‘until’ exp
 		| ‘for’ uncondDestrPat ‘=’ exp ‘,’ basicExp [‘,’ basicExp] statOrRet
 		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
 
-
+	--TODO: parse break as a retstat
 	retstat ::= ("return" | "break") [explist]
 
 
-	statOrRet ::= (retstat ‘;’) | basicstat | ‘{’ block ‘}’
-	statOrRetOsc ::= statOrRet | retstat
+	statOrRet ::= retstat | basicstat | ‘{’ block ‘}’
 	
 	
 
