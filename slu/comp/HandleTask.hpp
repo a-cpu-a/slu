@@ -14,6 +14,7 @@
 #include <slu/lang/BasicState.hpp>
 
 #include <slu/comp/CompCfg.hpp>
+#include <slu/comp/lua/Conv.hpp>
 
 namespace slu::comp
 {
@@ -67,10 +68,10 @@ namespace slu::comp
 	};
 	struct TaskHandleState
 	{
-		parse::BasicMpDbData* sharedDb=nullptr; // Set after ConsensusUnifyAsts
+		const parse::BasicMpDbData* sharedDb=nullptr; // Set after ConsensusUnifyAsts
 		std::vector<ParsedFile> parsedFiles;
 		parse::BasicMpDbData mpDb;
-		GenCodeMap genOut;
+		std::unordered_map<uint32_t, std::vector<uint8_t>> genOut;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -176,26 +177,22 @@ namespace slu::comp
 		},
 		varcase(CompTaskType::DoCodeGen&) 
 		{ // Handle code gen of all the global statements
+			auto& outVec = state.genOut[var.entrypointId];
 			parse::Output out;
+			out.text = std::move(outVec);
 			for (const auto& i : var.statements)
 			{
 				for (const auto& j : i)
 				{
-					//TODO: convert to lua & then call VVV
-					//parse::genStat(out, j);
+					slu::comp::lua::conv(cfg,*state.sharedDb, out,j);
 				}
 			}
-			state.genOut[var.entrypointId]
-				.emplace_back(std::move(out.text));
+			outVec = std::move(out.text);
 		},
 		varcase(CompTaskType::ConsensusMergeGenCode&) {
 			for (auto& [epId, i] : state.genOut)
 			{
-				auto& genOut = (*var)[epId];
-				for (auto& j : i)
-				{
-					genOut.emplace_back(std::move(j));
-				}
+				(*var)[epId].emplace_back(std::move(i));
 			}
 		}
 		);
