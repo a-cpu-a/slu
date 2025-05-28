@@ -437,23 +437,25 @@ namespace slu::parse
 	template<AnyCfgable CfgT> using ParamList = SelV<CfgT, ParamListV>;
 
 	template<bool isSlu>
-	struct BaseFunctionV
+	struct FunctionInfoV
 	{
 		ParamListV<isSlu> params;
-		BlockV<isSlu> block;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
-
-	template<bool isSlu>
-	struct FunctionV : BaseFunctionV<isSlu>
-	{};
 	template<>
-	struct FunctionV<true> : BaseFunctionV<true>
+	struct FunctionInfoV<true>
 	{
+		ParamListV<true> params;
 		std::optional<TypeExpr> retType;
+		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
 	};
 
+	template<bool isSlu>
+	struct FunctionV : FunctionInfoV<isSlu>
+	{
+		BlockV<isSlu> block;
+	};
 	template<AnyCfgable CfgT>
 	using Function = SelV<CfgT, FunctionV>;
 
