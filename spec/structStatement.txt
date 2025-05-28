@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, annotation
+# Dependencies: basic, annotation
 #
 
 New Syntax {

@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type, comptime, safety
+# Dependencies: basic, type, comptime, safety
 #
 
 New Syntax {

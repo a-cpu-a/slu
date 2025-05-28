@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type
+# Dependencies: basic, type
 #
 
 Unsized {
