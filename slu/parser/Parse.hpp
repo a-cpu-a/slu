@@ -200,11 +200,20 @@ namespace slu::parse
 	}
 	//Pair{fn,hasError}
 	template<AnyInput In>
-	inline std::pair<Function<In>,bool> readFuncBody(In& in)
+	inline std::pair<std::variant<Function<In>, FunctionInfo<In>>,bool> readFuncBody(In& in)
 	{
 		Position place = in.getLoc();
 
-		Function<In> func = { readFuncInfo(in) };
+		FunctionInfo<In> fi = readFuncInfo(in);
+		if constexpr (In::settings()&sluSyn)
+		{
+			skipSpace(in);
+			if (!in || (in.peek() != '{'))//no { found?
+			{
+				return { std::move(fi), false };//No block, just the info
+			}
+		}
+		Function<In> func = { std::move(fi) };
 
 		if constexpr (In::settings() & sluSyn)
 			func.block = readBlock<false>(in, func.hasVarArgParam);
@@ -598,15 +607,31 @@ namespace slu::parse
 		const Position place, const bool allowVarArg, 
 		const ExportData exported, const OptSafety safety)
 	{
-		MpItmId<In> name = in.genData.resolveUnknown(readFuncName(in));
-
 		StatT res{};
+		res.name = in.genData.resolveUnknown(readFuncName(in));
+		res.place = in.getLoc();
 
 		try
 		{
-
 			auto [fun, err] = readFuncBody(in);
-			res.func = std::move(fun);
+			ezmatch(std::move(fun))(
+			varcase(Function<In>&&) {
+				res.func = std::move(var);
+			},
+			varcase(FunctionInfo<In>&&) {
+				DeclStatT declRes{ std::move(var) };
+				declRes.name = res.name;
+				declRes.place = res.place;
+
+				if constexpr (In::settings() & sluSyn)
+				{
+					declRes.exported = exported;
+					declRes.safety = safety;
+				}
+
+				return in.genData.addStat(place, std::move(declRes));
+			}
+			);
 			if (err)
 			{
 				in.handleError(std::format(

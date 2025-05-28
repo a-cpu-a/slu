@@ -227,21 +227,35 @@ namespace slu::parse
 				try
 				{
 					auto [fun, err] = readFuncBody(in);
-					basicRes.data = ExprType::FUNCTION_DEF<In>(std::move(fun));
-					if (err)
+					ezmatch(std::move(fun))(
+					varcase(Function<In>&&)
 					{
+						basicRes.data = ExprType::FUNCTION_DEF<In>(std::move(var));
+						if (err)
+						{
 
-						in.handleError(std::format(
-							"In lambda " LC_function " at {}",
-							errorLocStr(in, place)
+							in.handleError(std::format(
+								"In lambda " LC_function " at {}",
+								errorLocStr(in, place)
+							));
+						}
+					},
+					varcase(FunctionInfo<In>&&)
+					{
+						throw UnexpectedCharacterError(std::format(
+							"Expected a " 
+							LC_function 
+							" block for lambda, at"
+							"{}", errorLocStr(in, place)
 						));
 					}
+					);
 				}
 				catch (const ParseError& e)
 				{
 					in.handleError(e.m);
 					throw ErrorWhileContext(std::format(
-						"In lambda " LC_function " at {}",
+						"In lambda " LC_function " at{}",
 						errorLocStr(in, place)
 					));
 				}
