@@ -4,8 +4,8 @@
 
 New Syntax {
 	
-	statOrBasicExpr ::= (statOrRetOsc | "=>" basicExp)
-	statOrExpr ::= (statOrRetOsc | "=>" exp)
+	statOrBasicExpr ::= (statOrRet | "=>" basicExp)
+	statOrExpr ::= (statOrRet | "=>" exp)
 	
 	ifExpRoot ::= ifcond ["->" typeExp] [statOrExpr {‘else’ ifcond statOrExpr} ‘else’ [ifcond]]
 	
