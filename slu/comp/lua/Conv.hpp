@@ -31,6 +31,7 @@ namespace slu::comp::lua
 	{
 		ezmatch(conv.stat.data)(
 
+		varcase(const auto&) {},
 			//Ignore these
 		varcase(const AnyIgnoredStatement auto&) {}
 		);

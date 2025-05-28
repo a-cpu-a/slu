@@ -751,8 +751,8 @@ namespace slu::paint
 				paintFuncDecl(se, itm.params, itm.hasVarArgParam, itm.retType,
 					itm.name, itm.exported, itm.safety, itm.place, fnKw);
 			else
-				paintFuncDecl(se, itm.params, itm.hasVarArgParam, itm.retType,
-					itm.name, false, itm.safety, itm.place, fnKw);
+				paintFuncDecl(se, itm.params, itm.hasVarArgParam, {},
+					itm.name, false, parse::OptSafety::DEFAULT, itm.place, fnKw);
 		} else {
 			if constexpr (Se::settings() & sluSyn)
 				paintFuncDef(se, itm.func, itm.name, itm.exported, itm.place, fnKw);
@@ -764,7 +764,20 @@ namespace slu::paint
 	template<AnySemOutput Se>
 	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
 	{
-		paintFuncDecl(se, func.params, func.hasVarArgParam,func.retType, name, false, func.safety, pos, fnKw);
+		std::optional<parse::TypeExpr> emptyTy{};
+		const std::optional<parse::TypeExpr>* retType;
+		parse::OptSafety safety;
+		if constexpr (Se::settings()&sluSyn)
+		{
+			retType = &func.retType;
+			safety = func.safety;
+		}
+		else
+		{
+			retType = &emptyTy;
+			safety = parse::OptSafety::DEFAULT;
+		}
+		paintFuncDecl(se, func.params, func.hasVarArgParam,*retType, name, false, safety, pos, fnKw);
 		if constexpr (Se::settings() & sluSyn)
 			paintKw<Tok::BRACES>(se, "{");
 
