@@ -49,10 +49,10 @@ Modules {
 	The keyword self refers to the current module-the one in which the statement appears.
 	It is useful for referring to items (functions, types, etc.) within the same module, particularly in nested contexts.
 	
-	The symbol ':>' refers to the root above all crates, so you can reference a item in std, without any 'use'/local-var conflicts: ` :>::std::Vec(u8) `
-	
 	The keyword crate refers to the root of your project (i.e. the top-level module, represented by the src folder).
 	Its the entry point for your module hierarchy.
+	
+	The symbol ':>' refers to the root above all crates, so you can reference a item in std, without any 'use'/local-var conflicts: ` :>::std::Vec(u8) `
 	
 	
 	When using the module system, global statements are restricted, so side-effects arent allowed.

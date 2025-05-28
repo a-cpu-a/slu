@@ -1,0 +1,17 @@
+
+--@Builtin{"base::type/void"} --TODO: unhack void-ness
+struct void{};
+
+--const type = @Builtin{"base::type/type"}void; --TODO: unhack this from the compiler
+const u8 = 0..0xFF;
+
+---May be u16 in js/java/...
+---Everywhere else, a valid utf 8 string.
+---Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)
+--@Builtin{"base::type/str"} --TODO: unhack string-ness
+struct str = [u8];
+
+---Represents 1 character sized str.
+---Just a newtype of a str.
+--@Builtin{"base::type/char"} --TODO: unhack char-ness
+struct char = str;
