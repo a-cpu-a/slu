@@ -450,14 +450,14 @@ namespace slu::parse
 		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
 	};
+	template<AnyCfgable CfgT> using FunctionInfo = SelV<CfgT, FunctionInfoV>;
 
 	template<bool isSlu>
 	struct FunctionV : FunctionInfoV<isSlu>
 	{
 		BlockV<isSlu> block;
 	};
-	template<AnyCfgable CfgT>
-	using Function = SelV<CfgT, FunctionV>;
+	template<AnyCfgable CfgT> using Function = SelV<CfgT, FunctionV>;
 
 
 
@@ -864,7 +864,6 @@ namespace slu::parse
 		{
 			ExportData exported = false;
 		};
-
 		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
 
 		template<bool isSlu>
@@ -875,6 +874,20 @@ namespace slu::parse
 		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlu> {};
 		template<AnyCfgable CfgT> using LOCAL_FUNCTION_DEF = SelV<CfgT, LOCAL_FUNCTION_DEFv>;
 				// "local function Name funcbody" //n may not ^^^
+
+
+		template<bool isSlu>
+		struct FunctionDeclV : FunctionInfoV<isSlu>
+		{
+			Position place;//Right before func-name
+			MpItmIdV<isSlu> name;
+			ExportData exported = false;
+		};
+		template<AnyCfgable CfgT> using FunctionDecl = SelV<CfgT, FunctionDeclV>;
+
+		template<bool isSlu>
+		struct FnDeclV : FunctionDeclV<isSlu> {};
+		template<AnyCfgable CfgT> using FnDecl = SelV<CfgT, FnDeclV>;
 
 		template<bool isSlu>
 		struct LOCAL_ASSIGNv
@@ -980,9 +993,12 @@ namespace slu::parse
 		StatementType::FOR_LOOP_NUMERICv<isSlu>,	// "for Name = exp , exp [, exp] do block end"
 		StatementType::FOR_LOOP_GENERICv<isSlu>,	// "for namelist in explist do block end"
 
+		StatementType::LOCAL_FUNCTION_DEFv<isSlu>,	// "local function Name funcbody"
 		StatementType::FUNCTION_DEFv<isSlu>,		// "function funcname funcbody"
 		StatementType::FNv<isSlu>,					// "fn funcname funcbody"
-		StatementType::LOCAL_FUNCTION_DEFv<isSlu>,	// "local function Name funcbody"
+
+		StatementType::FunctionDeclV<isSlu>,
+		StatementType::FnDeclV<isSlu>,
 
 		StatementType::StructV<isSlu>,
 		StatementType::UnionV<isSlu>,

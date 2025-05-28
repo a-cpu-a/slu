@@ -235,6 +235,13 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
+	inline void genExSafety(Out& out,const bool exported, const OptSafety& safety)
+	{
+		if (exported)out.add("ex ");
+		genSafety(out, safety);
+	}
+
+	template<AnyOutput Out>
 	inline void genTraitExpr(Out& out, const TraitExpr& obj)
 	{
 		if constexpr(Out::settings() & sluSyn)
@@ -599,15 +606,40 @@ namespace slu::parse
 		if (hasVarArgParam)
 			out.add("...");
 	}
+	template<bool isDecl,AnyOutput Out>
+	inline void genFunc(Out& out, const auto& itm, const std::string_view kw)
+	{
+		if constexpr (isDecl)
+		{
+			if constexpr (Out::settings() & sluSyn)
+				genExSafety(out, itm.exported, itm.safety);
+
+			out.add(kw);
+			genFuncDecl(out, itm, out.db.asSv(itm.name));
+			out.addNewl(";");
+			out.wasSemicolon = true;
+		}
+		else
+		{
+			if constexpr (Out::settings() & sluSyn)
+				genExSafety(out, itm.exported, itm.func.safety);
+
+			out.add(kw);
+			genFuncDef(out, itm.func, out.db.asSv(itm.name));
+		}
+	}
+	template<AnyOutput Out>
+	inline void genFuncDecl(Out& out, const auto& itm, const std::string_view name)
+	{
+		out.add(name);
+		out.add('(');
+		genParamList(out, itm.params, itm.hasVarArgParam);
+		out.add(')');
+	}
 	template<AnyOutput Out>
 	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
 	{
-		out.add(name)
-			.add('(');
-
-		genParamList(out, var.params,var.hasVarArgParam);
-
-		out.add(')');
+		genFuncDecl(out, var, name);
 
 		if constexpr (out.settings() & sluSyn)
 			out.newLine().add('{');
@@ -994,23 +1026,17 @@ namespace slu::parse
 		},
 
 		varcase(const StatementType::FN<Out>&) {
-			if constexpr (Out::settings() & sluSyn)
-			{
-				if (var.exported)out.add("ex ");
-				genSafety(out, var.func.safety);
-			}
-			out.add("fn ");
-			genFuncDef(out, var.func, out.db.asSv(var.name));
+			genFunc<false>(out, var, "fn ");
+		},
+		varcase(const StatementType::FnDecl<Out>&) {
+			genFunc<true>(out, var, "fn ");
 		},
 
 		varcase(const StatementType::FUNCTION_DEF<Out>&) {
-			if constexpr (Out::settings() & sluSyn)
-			{
-				if (var.exported)out.add("ex ");
-				genSafety(out, var.func.safety);
-			}
-			out.add("function ");
-			genFuncDef(out, var.func, out.db.asSv(var.name));
+			genFunc<false>(out, var, "function ");
+		},
+		varcase(const StatementType::FunctionDecl<Out>&) {
+			genFunc<true>(out, var, "function ");
 		},
 		varcase(const StatementType::LOCAL_FUNCTION_DEF<Out>&) {
 			out.add("local function ");
