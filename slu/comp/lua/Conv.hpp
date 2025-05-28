@@ -11,13 +11,31 @@
 #include <slu/lang/BasicState.hpp>
 
 #include <slu/comp/CompCfg.hpp>
+#include <slu/comp/ConvData.hpp>
 
 namespace slu::comp::lua
 {
-	inline void conv(const CompCfg& cfg,
-		const parse::BasicMpDbData& sharedDb,
-		parse::Output<>& out,
-		const parse::StatementV<true>& stat)
+	template<typename T>
+	concept AnyIgnoredStatement = 
+		std::same_as<T,parse::StatementType::GOTOv<true>>
+		|| std::same_as<T,parse::StatementType::UNSAFE_LABEL>
+		|| std::same_as<T,parse::StatementType::SAFE_LABEL>;
+
+	struct ConvData : CommonConvData
+	{
+		parse::LuaMpDb& luaDb;
+		parse::Output<>& out;
+	};
+
+	inline void convStat(const ConvData& conv)
+	{
+		ezmatch(conv.stat.data)(
+
+			//Ignore these
+		varcase(const AnyIgnoredStatement auto&) {}
+		);
+	}
+	inline void conv(const ConvData& conv)
 	{
 		//TODO: Implement the conversion logic here
 	}
