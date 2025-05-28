@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, fnStatement, letStatement, modules
+# Dependencies: basic, fnStatement, letStatement, modules
 # MayModify: letStatementTypes, fnExpression
 #
 

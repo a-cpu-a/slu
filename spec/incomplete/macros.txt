@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type, exportPrefix, comptime, library(TODO), annotation, fnStatement
+# Dependencies: basic, type, exportPrefix, comptime, library(TODO), annotation, fnStatement
 #
 
 "std::macros" Module {

@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, comptime, modules, safety, arrayConstructor
+# Dependencies: basic, comptime, modules, safety, arrayConstructor
 #
 
 New Syntax {

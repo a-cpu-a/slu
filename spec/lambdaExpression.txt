@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, type, exportPrefix, safety
+# Dependencies: basic, type, exportPrefix, safety
 #
 
 New Syntax {

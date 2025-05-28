@@ -1,5 +1,5 @@
 #
-# Dependencies: Lua, annotation, traitStatement, comptime, type 
+# Dependencies: basic, annotation, traitStatement, comptime, type 
 #
 
 New Syntax {
