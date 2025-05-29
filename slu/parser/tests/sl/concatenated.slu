@@ -114,8 +114,8 @@ let a{|1|x}=0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
 const x??? rtype = x()????;
 const ? qtype = x();
-const //Err errtype = getErr();
-const Xxx//Err restype = getErr();
+const ~>Err errtype = getErr();
+const Xxx~>Err restype = getErr();
 
 const _ = dyn Add + Mul + Div
 const _ = impl Add + Mul + Div
