@@ -15,50 +15,50 @@ do {
 -----------------------------
 fn helloOpt() -> :>::std::Option(u8);
 
-let v = helloOpt()?
+let v1 = helloOpt()?
 
 -->
 
-let v = match helloOpt() {
+let v1 = match helloOpt() {
 	:>::std::Option::None => return :>::std::Option::None;
 	:>::std::Option::Some{__value} => __value;
 };
 -----------------------------
 fn hello() -> u8~>String;
 
-let v = hello()?
+let v2 = hello()?
 
 -->
 
-let v = try hello() {};
+let v2 = try hello() {};
 
 -->
 
-let v = match hello() {
+let v2 = match hello() {
 	:>::std::Result::Ok{__value} => __value;
 	:>::std::Result::Err{__err} => do{throw __err};
 };
 -----------------------------
-let v = try hello() {String=>100};
+let v3 = try hello() {String=>100};
 
 -->
 
-let v = match hello() {
+let v3 = match hello() {
 	:>::std::Result::Ok{__value} => __value;
 	:>::std::Result::Err{String} => 100;
 	--Err{__err} => do{throw __err}; --err is always a String
 };
 -----------------------------
-let v = 1+1*1;
+let v4 = 1+1*1;
 
 -->
 
-let v = :>::std::ops::Add::add(1,:>::std::ops::Mul::mul(1,1));
+let v4 = :>::std::ops::Add::add(1,:>::std::ops::Mul::mul(1,1));
 -----------------------------
-let v = x.*;
+let v5 = x.*;
 
 -->
 
-let v = :>::std::ops::RootDeref::rootDeref(--Turns it into a deref-type
+let v5 = :>::std::ops::RootDeref::rootDeref(--Turns it into a deref-type
 	:>::std::ops::Deref::deref(x)--only if x is just 1 level deep
 );
