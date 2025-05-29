@@ -20,6 +20,8 @@ Order of Operations {
 	
 	<	>	<=	 >=
 	
+	~>
+	
 	++
 	**
 	
@@ -27,7 +29,7 @@ Order of Operations {
 	
 	|	~	&	(Not the same as lua! they are all equal)
 	<<	 >>
-	unary operators(dyn impl) --NOTE: "//" is actualy lower, when this operator is used!
+	unary operators(dyn impl) --NOTE: when this operator is used, it will consume all additions after it, no precedences matter!
 	+	-
 	% (Not the same as lua, modulus is bellow / * //)
 	*	/	//
@@ -46,7 +48,7 @@ Order of Operations {
 	```
 	_=		_Assign
 	..		???			(maybe 3 traits? Range + RangeGte + RangeLte)
-	?		???			(likely will be something like Err)
+	?		???			(likely will be something like Try)
 	!		Not
 	>		???
 	<		???
@@ -85,6 +87,7 @@ Order of Operations {
 	&share	RefShare	(unstable)
 	
 	.		----		(will consider lol)
+	~>		----
 	dyn		----
 	impl	----
 	alloc	----

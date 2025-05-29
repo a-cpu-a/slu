@@ -3,7 +3,7 @@
 struct void{};
 
 --const type = @Builtin{"base::type/type"}void; --TODO: unhack this from the compiler
-const u8 = 0..0xFF;
+const type u8 = 0..0xFF;
 
 ---May be u16 in js/java/...
 ---Everywhere else, a valid utf 8 string.
