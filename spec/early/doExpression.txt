@@ -5,8 +5,6 @@
 New Syntax {
 	
 	basicExp @::= | ["comptime"] "do" ["->" typeExp] statOrRet
-	
-	retstat @::= | "do" retstat
 }
 
 New Keywords {
@@ -19,14 +17,15 @@ Do Expression {
 	
 	Using comptime, forces it to run at compile-time.
 	
-	Using "do return" inside do blocks completes them, and returns the result, to be used for the expression outside.
+	Using "break" inside do blocks completes them, and returns the result, to be used for the expression outside.
 	Returning multiple expressions at once automatically produces a tuple, just like let, const, etc...
 	
-	Generate expressions must end with a return or "do return", since all paths must return a value.
+	
+	Do expressions must end with a return or break, since all paths must return a value or exit the function.
 	
 	The return type is inferred, when missing.
 	
-	Generate expressions are not like lambdas, since they arent functions, but a different way to write expressions.
+	Do expressions are not like lambdas, since they arent functions, but a different way to write expressions.
 	
 	Also useful for macros.
 	
