@@ -58,6 +58,7 @@ namespace slu::paint
 		PUNCTUATION,// >= <= > < , ; :::_:
 		MP_IDX,// . : ::
 		MP,// ::
+		MP_ROOT,// :>
 		BRACES,// {} (may be combined with some tint, to get a colored brace)
 
 		NAME,// .123 .xxx xxx

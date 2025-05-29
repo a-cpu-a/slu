@@ -50,6 +50,7 @@ namespace slu::parse
 		return readModPath(in,readName(in)).first;
 	}
 
+	//Returns if skipped after
 	template<AnyInput In>
 	inline bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
@@ -63,12 +64,32 @@ namespace slu::parse
 			varDataNeedsSubThing = true;
 			return false;
 		}
+		if constexpr (In::settings() & sluSyn)
+		{
+			if (firstChar == ':')
+			{
+				requireToken(in, ":>");//Modpath root
+				skipSpace(in);
+				if(checkToken(in, "::") && in.peekAt(2)!=':') //is '::', but not ':::'
+				{
+					in.skip(2);
+					skipSpace(in);
+					varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveRootName(readModPath(in)));
+					return false;
+				}
+				else
+				{
+					varDataOut.base = BaseVarType::Root{};
+					return true;
+				}
+			}
+		}
 		// Must be Name, ... or mod path
 
 		//Lua doesnt reserve mp_start names, so doesnt matter
 		std::string start = readName<true>(in);
 
-		if constexpr (in.settings() & sluSyn)
+		if constexpr (In::settings() & sluSyn)
 		{
 			auto [mp,skipped] = readModPath(in, std::move(start));
 
@@ -188,7 +209,7 @@ namespace slu::parse
 					varData.emplace_back();
 
 					skipSpace(in);
-					skipped =  parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
+					skipped = parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
 			default:
@@ -213,7 +234,7 @@ namespace slu::parse
 			}
 			case ':'://Self funccall
 			{
-				if (in.peekAt(1) == ':') //is label / '::'
+				if (in.peekAt(1) == ':' || in.peekAt(1) == '>') //is label / '::' / ':>'
 					goto exit;
 				in.skip();//skip colon
 				std::string name = readName(in);

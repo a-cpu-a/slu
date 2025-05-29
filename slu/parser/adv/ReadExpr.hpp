@@ -267,7 +267,7 @@ namespace slu::parse
 			}
 			break;
 		case 'n':
-			if constexpr (in.settings() & sluSyn)break;
+			if constexpr (In::settings() & sluSyn)break;
 
 			if (checkReadTextToken(in, "nil"))
 			{
@@ -277,7 +277,7 @@ namespace slu::parse
 			}
 			break;
 		case 't':
-			if constexpr (in.settings() & sluSyn)
+			if constexpr (In::settings() & sluSyn)
 			{
 				if (checkReadTextToken(in, "trait"))
 					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::TRAIT_TY{},basicRes.place });
@@ -287,7 +287,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
 		case '.':
-			if constexpr(!(in.settings() & sluSyn))
+			if constexpr(!(In::settings() & sluSyn))
 			{
 				if (checkReadToken(in, "..."))
 				{
@@ -319,7 +319,7 @@ namespace slu::parse
 		case '"':
 		case '\'':
 		case '[':
-			if constexpr(in.settings()&sluSyn)
+			if constexpr(In::settings()&sluSyn)
 			{
 				if (firstChar!='[' || in.peekAt(1) == '=')// [=....
 					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar),in.getLoc());
@@ -353,12 +353,18 @@ namespace slu::parse
 			&& std::holds_alternative<ExprType::NIL>(basicRes.data))
 		{//Prefix expr! or func-call
 
-			if (firstChar != '(' && !isValidNameStartChar(firstChar))
+			bool maybeRootMp = false;
+			if constexpr (In::settings() & sluSyn)
+			{
+				maybeRootMp = firstChar == ':';
+			}
+
+			if (!maybeRootMp && firstChar != '(' && !isValidNameStartChar(firstChar))
 				throwExpectedExpr(in);
 
 			if constexpr (FOR_PAT)
 			{
-				if (firstChar != '(')
+				if (!maybeRootMp && firstChar != '(')
 				{// check if unops are a type prefix
 					size_t iterIdx = 1;//First was valid
 					

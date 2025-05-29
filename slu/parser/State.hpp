@@ -702,6 +702,8 @@ namespace slu::parse
 
 	namespace BaseVarType
 	{
+		using Root = std::monostate;// ":>" // modpath root
+
 		template<bool isSlu>
 		struct NAMEv
 		{
@@ -720,6 +722,7 @@ namespace slu::parse
 	}
 	template<bool isSlu>
 	using BaseVarV = std::variant<
+		BaseVarType::Root,
 		BaseVarType::NAMEv<isSlu>,
 		BaseVarType::EXPRv<isSlu>
 	>;
