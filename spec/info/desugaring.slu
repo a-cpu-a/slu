@@ -1,0 +1,64 @@
+for i in 1..100 {
+	--[=[CODE HERE]=]
+}
+-->
+
+do {
+	let mut __iter = :>::std::IntoIterator::intoIter(1..100);
+	break:do loop {
+		match :>::std::Iterator::next(&mut __iter) {
+			:>::std::Option::None => break:loop;
+			:>::std::Option::Some{i} => do {--[=[CODE HERE]=]};
+		}
+	}
+}
+-----------------------------
+fn helloOpt() -> :>::std::Option(u8);
+
+let v = helloOpt()?
+
+-->
+
+let v = match helloOpt() {
+	:>::std::Option::None => return :>::std::Option::None;
+	:>::std::Option::Some{__value} => __value;
+};
+-----------------------------
+fn hello() -> u8~>String;
+
+let v = hello()?
+
+-->
+
+let v = try hello() {};
+
+-->
+
+let v = match hello() {
+	:>::std::Result::Ok{__value} => __value;
+	:>::std::Result::Err{__err} => do{throw __err};
+};
+-----------------------------
+let v = try hello() {String=>100};
+
+-->
+
+let v = match hello() {
+	:>::std::Result::Ok{__value} => __value;
+	:>::std::Result::Err{String} => 100;
+	--Err{__err} => do{throw __err}; --err is always a String
+};
+-----------------------------
+let v = 1+1*1;
+
+-->
+
+let v = :>::std::ops::Add::add(1,:>::std::ops::Mul::mul(1,1));
+-----------------------------
+let v = x.*;
+
+-->
+
+let v = :>::std::ops::RootDeref::rootDeref(--Turns it into a deref-type
+	:>::std::ops::Deref::deref(x)--only if x is just 1 level deep
+);
