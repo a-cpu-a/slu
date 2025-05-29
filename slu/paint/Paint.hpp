@@ -269,6 +269,15 @@ namespace slu::paint
 	template<Tok tok, Tok overlayTok=Tok::NONE,AnySemOutput Se>
 	inline void paintMp(Se& se, const parse::MpItmId<Se>& itm)
 	{
+		skipSpace(se);
+		if(parse::checkToken(se.in,":>"))
+		{
+			paintKw<Tok::MP_ROOT,
+				overlayTok == Tok::NONE ? Tok::MP_ROOT : overlayTok>(se, ":>");
+			paintKw<Tok::MP,
+				overlayTok == Tok::NONE ? Tok::MP : overlayTok>(se, "::");
+			return;
+		}
 		const lang::ViewModPath mp = se.in.genData.asVmp(itm);
 		for (auto& i : mp)
 		{
@@ -327,7 +336,7 @@ namespace slu::paint
 			paintKw<Tok::MP_ROOT>(se, ":>");
 		},
 		varcase(const parse::BaseVarType::NAME<Se>&) {
-			paintName<nameTok>(se, var.v);
+			paintMp<nameTok>(se, var.v);
 		},
 		varcase(const parse::BaseVarType::EXPR<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
@@ -848,7 +857,7 @@ namespace slu::paint
 			paintKw<Tok::BRACES>(se, "{");
 			for (const parse::MpItmId<Se>& i : var)
 			{
-				paintName<Tok::NAME>(se, i);
+				paintMp<Tok::NAME>(se, i);
 
 				if (&i != &var.back())
 					paintKw<Tok::PUNCTUATION>(se, ",");
