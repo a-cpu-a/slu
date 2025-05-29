@@ -12,6 +12,7 @@
 #include <slu/ext/CppMatch.hpp>
 
 #include <slu/lang/BasicState.hpp>
+#include <slu/midlevel/BasicDesugar.hpp>
 
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/lua/Conv.hpp>
@@ -141,9 +142,7 @@ namespace slu::comp
 
 				ParsedFile parsed;
 				parsed.parsed = slu::parse::parseFile(in);
-				//TODO: basic desugaring:
-				//TODO: operators
-				//TODO: for/while/repeat loops
+				slu::mlvl::basicDesugar(parsed.parsed);
 				parsed.crateRootPath = file.crateRootPath;
 				parsed.path = std::move(file.path);
 
