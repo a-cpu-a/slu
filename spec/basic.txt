@@ -13,7 +13,9 @@ New Syntax {
 		| functioncall
 		| ‘goto’ Name
 
+	--TODO: loop exprs, also move it to some new spec
 	stat ::=  basicstat
+		| ‘loop’ ‘{’ block ‘}’
 		| label
 		| ‘{’ block ‘}’
 		| ‘while’ basicExp statOrRet
@@ -22,8 +24,9 @@ New Syntax {
 		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
 
+	--TODO: labeled breaks
 	--TODO: parse break as a retstat
-	retstat ::= ("return" | "break") [explist]
+	retstat ::= ("return" | "break" [":" (Name | "do" | "for" | "while" | "repeat" | "loop")]) [explist]
 
 	--TODO: be more lenient on the semicolons too
 	statOrRet ::= retstat | basicstat | ‘{’ block ‘}’
