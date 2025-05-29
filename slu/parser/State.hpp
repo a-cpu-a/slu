@@ -445,6 +445,7 @@ namespace slu::parse
 	template<>
 	struct FunctionInfoV<true>
 	{
+		std::string abi;
 		ParamListV<true> params;
 		std::optional<TypeExpr> retType;
 		bool hasVarArgParam = false;// do params end with '...'
