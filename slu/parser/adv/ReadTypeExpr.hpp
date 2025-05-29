@@ -75,8 +75,8 @@ namespace slu::parse
 			ret.data = TypeExprDataType::ERR_INFERR{};
 			intentionalyErrInferr = true;
 			break;
-		case '/':
-			requireToken(in, "//");
+		case '~':
+			requireToken(in, "~>");
 			ret.data = TypeExprDataType::ERR{std::make_unique<TypeExpr>(readTypeExpr(in,allowMut))};
 			break;
 		case '[':// [exp]

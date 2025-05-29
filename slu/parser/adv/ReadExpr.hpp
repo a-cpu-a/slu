@@ -131,20 +131,24 @@ namespace slu::parse
 		//case '!':
 		case '|'://todo: handle as lambda
 		case '#':
-		case '~':
 			if constexpr (in.settings() & sluSyn)
 			{
 				handleOpenRange(in,basicRes);
 			}
 			break;
-		case '/':
+		case '~':
 			if constexpr (in.settings() & sluSyn)
 			{
-				if (in.peekAt(1) == '/') // '//'
+				if (in.peekAt(1) == '>') // '~>'
 				{
 					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
 					break;
 				}
+			}
+			break;
+		case '/':
+			if constexpr (in.settings() & sluSyn)
+			{
 				basicRes.data = readLifetime(in);
 				break;
 			}

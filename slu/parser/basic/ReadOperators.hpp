@@ -166,7 +166,12 @@ namespace slu::parse
 			break;
 		case '~':
 			in.skip();
-			if constexpr (!(in.settings() & sluSyn))
+			if constexpr (in.settings() & sluSyn)
+			{
+				if (checkReadToken(in, ">"))//~>
+					return BinOpType::MAKE_RESULT;
+			}
+			else
 			{
 				if (checkReadToken(in, "="))//~=
 					return BinOpType::NOT_EQUAL;

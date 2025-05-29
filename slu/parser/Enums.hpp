@@ -48,6 +48,7 @@ namespace slu::parse
 
 		ARRAY_MUL,// "**"
 		RANGE_BETWEEN,	// ".."
+		MAKE_RESULT,	// "~>"
 	};
 
 	enum class UnOpType : uint8_t

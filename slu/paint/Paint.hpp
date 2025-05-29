@@ -568,7 +568,7 @@ namespace slu::paint
 				paintKw<Tok::GEN_OP>(se, "?");
 			},
 			varcase(const parse::TypeExprDataType::ERR&) {
-				paintKw<Tok::GEN_OP>(se, "//");
+				paintKw<Tok::GEN_OP>(se, "~>");
 				paintTypeExpr(se, *var.err, tint);
 			},
 			varcase(const parse::ExprType::NUMERAL_I128) {
