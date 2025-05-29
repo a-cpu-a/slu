@@ -29,7 +29,7 @@ namespace slu::parse
 
 		const char firstChar = in.peek();
 		
-		if (firstChar != '(' && !isValidNameStartChar(firstChar))
+		if (firstChar != ':' &&firstChar != '(' && !isValidNameStartChar(firstChar))
 			throwExpectedTraitExpr(in);
 
 		ret.traitCombo.emplace_back(parsePrefixExprVar<TraitExprItem, true,true>(in, false, firstChar));

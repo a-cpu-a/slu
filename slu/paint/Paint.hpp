@@ -323,6 +323,9 @@ namespace slu::paint
 	inline void paintVar(Se& se, const parse::Var<Se>& itm)
 	{
 		ezmatch(itm.base)(
+		varcase(const parse::BaseVarType::Root) {
+			paintKw<Tok::MP_ROOT>(se, ":>");
+		},
 		varcase(const parse::BaseVarType::NAME<Se>&) {
 			paintName<nameTok>(se, var.v);
 		},

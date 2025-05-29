@@ -129,6 +129,17 @@ namespace slu::parse
 			}
 			return data->mp2Id.find(path)->second;
 		}
+		MpItmIdV<true> getItm(const ModPathView path)
+		{
+			if (path.size() == 1)
+			{
+				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
+			}
+			MpItmIdV<true> res;
+			res.mp = get<false>(path.subspan(0,path.size()-1));
+			res.id = data->mps[res.mp.id].get(path.back());
+			return res;
+		}
 
 		std::string_view asSv(const MpItmIdV<true> v) const {
 			if (v.id.val == SIZE_MAX)
@@ -327,6 +338,9 @@ namespace slu::parse
 				}
 			}
 			return resolveUnknown(name);
+		}
+		constexpr MpItmIdV<isSlu> resolveRootName(const ModPath& name) {
+			return mpDb.getItm(name);// Create if needed, and return it
 		}
 		constexpr MpItmIdV<isSlu> resolveName(const ModPath& name)
 		{

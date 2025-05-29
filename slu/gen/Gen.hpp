@@ -578,6 +578,9 @@ namespace slu::parse
 	inline void genVar(Out& out, const Var<Out>& obj)
 	{
 		ezmatch(obj.base)(
+		varcase(const BaseVarType::Root) {
+			out.add(":>");
+		},
 		varcase(const BaseVarType::NAME<Out>&) {
 			out.add(out.db.asSv(var.v));
 		},

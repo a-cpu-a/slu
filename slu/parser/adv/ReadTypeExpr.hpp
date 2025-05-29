@@ -158,7 +158,7 @@ namespace slu::parse
 		if (!intentionalyErrInferr 
 			&& std::holds_alternative<TypeExprDataType::ERR_INFERR>(ret.data))
 		{
-			if (firstChar != '(' && !isValidNameStartChar(firstChar))
+			if (firstChar!=':' && firstChar != '(' && !isValidNameStartChar(firstChar))
 				throwExpectedTypeExpr(in);
 
 			ret.data = parsePrefixExprVar<TypeExprData, true,true>(in, false, firstChar);
