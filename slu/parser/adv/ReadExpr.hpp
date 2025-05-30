@@ -139,7 +139,7 @@ namespace slu::parse
 		case '~':
 			if constexpr (in.settings() & sluSyn)
 			{
-				if (in.peekAt(1) == '>') // '~>'
+				if (in.peekAt(1) == '~') // '~~'
 				{
 					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
 					break;

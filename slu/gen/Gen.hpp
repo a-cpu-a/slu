@@ -73,7 +73,7 @@ namespace slu::parse
 		case BinOpType::RANGE_BETWEEN:
 			return ".."sv;
 		case BinOpType::MAKE_RESULT:
-			return "~>"sv;
+			return "~~"sv;
 		default:
 			_ASSERT(false);
 			return "<ERROR>"sv;
@@ -276,7 +276,7 @@ namespace slu::parse
 			genTraitExpr(out,var.expr);
 		},
 		varcase(const TypeExprDataType::ERR&) {
-			out.add("~>");
+			out.add("~~");
 			genTypeExpr(out,*var.err);
 		},
 		varcase(const TypeExprDataType::SLICER&) {

@@ -24,7 +24,7 @@ let v1 = match helloOpt() {
 	:>::std::Option::Some{__value} => __value;
 };
 -----------------------------
-fn hello() -> u8~>String;
+fn hello() -> u8~~String;
 
 let v2 = hello()?
 

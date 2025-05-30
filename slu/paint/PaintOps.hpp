@@ -97,7 +97,7 @@ namespace slu::paint
 			paintKw<Tok::RANGE>(se, "..");
 			break;
 		case parse::BinOpType::MAKE_RESULT:
-			paintKw<Tok::GEN_OP>(se, "~>");
+			paintKw<Tok::GEN_OP>(se, "~~");
 			break;
 		case parse::BinOpType::NONE:
 			break;
