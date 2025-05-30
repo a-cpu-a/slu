@@ -14,7 +14,7 @@ New Syntax {
 	typeunop ::= "&" [borrowLifetime] [shMutConst] | "*" [shMutConst]
 	typepostunop ::= ".*"
 	
-	binop @::= | "~>"
+	binop @::= | "~~"
 	unop @::= | typeunop | "alloc"
 	postunp @::= | typepostunop
 	
@@ -42,7 +42,7 @@ New Syntax {
 		| "?"
 		| "struct" basicStruct
 		| "union" basicStruct
-		| "~>" typeExp
+		| "~~" typeExp
 		| typeunop {typeunop} typeExp {typepostunop}
 		| basicTypeExp {typepostunop}
 		| basicTypeExp binop typeExp
@@ -53,7 +53,7 @@ New Syntax {
 	basicTypeExpMutBase ::= "mut" typeExp | basicTypeExp
 	
 	basicTypeExpMut ::= basicTypeExpMutBase
-		| "~>" typeExpMutBase
+		| "~~" typeExpMutBase
 		| basicTypeExpMutBase binop typeExpMutBase
 	
 	typeExp ::= basicTypeExp
@@ -256,11 +256,11 @@ Type Specifiers {
 		}
 	}
 	Result {
-		Format: [X] "~>" X
+		Format: [X] "~~" X
 		Format: [X] "?"
 		
 		Allows both a error, and a value, or just an error, and the value type is inferred.
-		The type specifier '?' is just like unary '~>', except the error type is inferred.
+		The type specifier '?' is just like unary '~~', except the error type is inferred.
 		When '?' is used alone, both the value and error type is inferred.
 		
 		Allows use of the "?" operator, and other error handling tools.

@@ -76,7 +76,7 @@ namespace slu::parse
 			intentionalyErrInferr = true;
 			break;
 		case '~':
-			requireToken(in, "~>");
+			requireToken(in, "~~");
 			ret.data = TypeExprDataType::ERR{std::make_unique<TypeExpr>(readTypeExpr(in,allowMut))};
 			break;
 		case '[':// [exp]

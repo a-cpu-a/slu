@@ -168,7 +168,7 @@ namespace slu::parse
 			in.skip();
 			if constexpr (in.settings() & sluSyn)
 			{
-				if (checkReadToken(in, ">"))//~>
+				if (checkReadToken(in, "~"))//~~
 					return BinOpType::MAKE_RESULT;
 			}
 			else

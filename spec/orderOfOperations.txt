@@ -20,7 +20,7 @@ Order of Operations {
 	
 	<	>	<=	 >=
 	
-	~>
+	~~
 	
 	++
 	**
@@ -87,7 +87,7 @@ Order of Operations {
 	&share	RefShare	(unstable)
 	
 	.		----		(will consider lol)
-	~>		----
+	~~		----
 	dyn		----
 	impl	----
 	alloc	----
