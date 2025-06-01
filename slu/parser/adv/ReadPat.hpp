@@ -71,7 +71,7 @@ namespace slu::parse
 			in.skip();
 			skipSpace(in);
 			if (in.peek() == '|')
-				return readFieldsDestr<DestrPatType::Fields,true>(in,std::move(ty), uncond);
+				return readFieldsDestr<DestrPatType::Fields<In>,true>(in,std::move(ty), uncond);
 
 			return readFieldsDestr<DestrPatType::List, false>(in, std::move(ty), uncond);
 		}
