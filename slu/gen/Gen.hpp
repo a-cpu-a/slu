@@ -696,7 +696,7 @@ namespace slu::parse
 		);
 	}
 	template<AnyOutput Out>
-	inline void genPat(Out& out, const Pat& obj)
+	inline void genPat(Out& out, const Pat<Out>& obj)
 	{
 		ezmatch(obj)(
 		varcase(const PatType::DestrAny) {
