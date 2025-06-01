@@ -350,7 +350,7 @@ namespace slu::paint
 		}
 	}
 	template<Tok nameTok, AnySemOutput Se>
-	inline void paintDestrField(Se& se, const parse::DestrField& itm)
+	inline void paintDestrField(Se& se, const parse::DestrField<Se>& itm)
 	{
 		paintKw<Tok::GEN_OP>(se, "|");
 		paintName<Tok::NAME_TABLE>(se, itm.name);
@@ -383,17 +383,17 @@ namespace slu::paint
 	inline void paintPat(Se& se, const parse::Pat<Se>& itm)
 	{
 		ezmatch(itm)(
-		varcase(const parse::PatType::Simple&) {
+		varcase(const parse::PatType::Simple<Se>&) {
 			paintExpr(se, var);
 		},
 		varcase(const parse::PatType::DestrAny) {
 			paintKw<Tok::GEN_OP>(se, "_");
 		},
-		varcase(const parse::PatType::DestrName&) {
+		varcase(const parse::PatType::DestrName<Se>&) {
 			paintDestrSpec<nameTok>(se, var.spec);
 			paintName<Tok::NAME>(se, var.name);
 		},
-		varcase(const parse::PatType::DestrNameRestrict&) {
+		varcase(const parse::PatType::DestrNameRestrict<Se>&) {
 			paintDestrSpec<nameTok>(se, var.spec);
 			paintName<Tok::NAME>(se, var.name);
 			paintKw<Tok::PAT_RESTRICT>(se, "=");
@@ -407,7 +407,7 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, "{");
 			for (const auto& i : var.items)
 			{
-				if constexpr(std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrField>)
+				if constexpr(std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrFieldV<true>>)
 					paintDestrField<nameTok>(se, i);
 				else
 					paintPat<nameTok>(se, i);

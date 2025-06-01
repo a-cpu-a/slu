@@ -569,7 +569,7 @@ namespace slu::parse
 
 	// match patterns
 
-	template<bool isSlu>
+	template<bool isSlu = true>
 	using NdPatV = ExpressionV<isSlu>;
 	Slu_DEF_CFG(NdPat);
 
@@ -581,7 +581,7 @@ namespace slu::parse
 		using Type = TypeExpr;
 		using Prefix = TypePrefix;
 	}
-	template<bool isSlu>
+	template<bool isSlu=true>
 	using DestrSpecV = std::variant<
 		DestrSpecType::SpatV<isSlu>,
 		DestrSpecType::Type,
@@ -593,75 +593,97 @@ namespace slu::parse
 		using Any = std::monostate;
 		template<bool isSlu> struct FieldsV;
 		Slu_DEF_CFG(Fields);
-		struct List;
+		template<bool isSlu> struct ListV;
+		Slu_DEF_CFG(List);
 
-		struct Name;
-		struct NameRestrict;
+		template<bool isSlu>struct NameV;
+		Slu_DEF_CFG(Name);
+		template<bool isSlu>struct NameRestrictV;
+		Slu_DEF_CFG(NameRestrict);
 	}
-	struct DestrField;
-	struct ___PatHack;
-	namespace DestrPatType
-	{
-		template<bool isSlu>
-		struct FieldsV
-		{
-			DestrSpecV<true> spec;
-			bool extraFields : 1 = false;
-			std::vector<DestrField> items;
-			MpItmIdV<true> name;//May be empty
-		};
-		struct List
-		{
-			DestrSpecV<true> spec;
-			bool extraFields : 1 = false;
-			std::vector<___PatHack> items;
-			MpItmIdV<true> name;//May be empty
-		};
 
-		struct Name
-		{
-			MpItmIdV<true> name;
-			DestrSpecV<true> spec;
-		};
-		struct NameRestrict : Name
-		{
-			NdPatV<true> restriction;
-		};
-	}
 	namespace PatType
 	{
 		//x or y or z
-		using Simple = NdPatV<true>;
+		template<bool isSlu>
+		using SimpleV = NdPatV<isSlu>;
+		Slu_DEF_CFG(Simple);
 
 		using DestrAny = DestrPatType::Any;
 
 		template<bool isSlu>
 		using DestrFieldsV = DestrPatType::FieldsV<isSlu>;
 		Slu_DEF_CFG(DestrFields);
-		using DestrList = DestrPatType::List;
+		template<bool isSlu>
+		using DestrListV = DestrPatType::ListV<isSlu>;
+		Slu_DEF_CFG(DestrList);
 
-		using DestrName = DestrPatType::Name;
-		using DestrNameRestrict = DestrPatType::NameRestrict;
+		template<bool isSlu>
+		using DestrNameV = DestrPatType::NameV<isSlu>;
+		Slu_DEF_CFG(DestrName);
+
+		template<bool isSlu>
+		using DestrNameRestrictV = DestrPatType::NameRestrictV<isSlu>;
+		Slu_DEF_CFG(DestrNameRestrict);
 	}
 	template<typename T>
-	concept AnyCompoundDestr = 
+	concept AnyCompoundDestr =
 		std::same_as<std::remove_cv_t<T>, DestrPatType::FieldsV<true>>
-		|| std::same_as<std::remove_cv_t<T>, DestrPatType::List>;
+		|| std::same_as<std::remove_cv_t<T>, DestrPatType::ListV<true>>;
 
 
 	template<bool isSlu>
 	using PatV = std::variant<
 		PatType::DestrAny,
 
-		PatType::Simple,
+		PatType::SimpleV<isSlu>,
 
 		PatType::DestrFieldsV<isSlu>,
-		PatType::DestrList,
+		PatType::DestrListV<isSlu>,
 
-		PatType::DestrName,
-		PatType::DestrNameRestrict
+		PatType::DestrNameV<isSlu>,
+		PatType::DestrNameRestrictV<isSlu>
 	>;
 	Slu_DEF_CFG(Pat);
+
+	template<bool isSlu>
+	struct DestrFieldV
+	{
+		MpItmIdV<isSlu> name;
+		PatV<isSlu> pat;
+	};
+	Slu_DEF_CFG(DestrField);
+	namespace DestrPatType
+	{
+		template<bool isSlu>
+		struct FieldsV
+		{
+			DestrSpecV<isSlu> spec;
+			bool extraFields : 1 = false;
+			std::vector<DestrFieldV<isSlu>> items;
+			MpItmIdV<isSlu> name;//May be empty
+		};
+		template<bool isSlu>
+		struct ListV
+		{
+			DestrSpecV<isSlu> spec;
+			bool extraFields : 1 = false;
+			std::vector<PatV<isSlu>> items;
+			MpItmIdV<isSlu> name;//May be empty
+		};
+
+		template<bool isSlu>
+		struct NameV
+		{
+			MpItmIdV<isSlu> name;
+			DestrSpecV<isSlu> spec;
+		};
+		template<bool isSlu>
+		struct NameRestrictV : NameV<isSlu>
+		{
+			NdPatV<isSlu> restriction;
+		};
+	}
 
 	template<>
 	struct ParameterV<true>
@@ -669,11 +691,6 @@ namespace slu::parse
 		PatV<true> name;
 	};
 	struct ___PatHack : PatV<true> {};
-	struct DestrField
-	{
-		MpItmIdV<true> name;
-		PatV<true> pat;
-	};
 
 	//Common
 

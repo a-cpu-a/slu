@@ -702,7 +702,7 @@ namespace slu::parse
 		varcase(const PatType::DestrAny) {
 			out.add('_');
 		},
-		varcase(const PatType::Simple&) {
+		varcase(const PatType::Simple<Out>&) {
 			genExpr(out, var);
 		},
 			// Fields / List
@@ -710,7 +710,7 @@ namespace slu::parse
 			genDestrSpec(out, var.spec);
 			out.add('{').tabUpNewl();
 
-			constexpr bool isList = std::is_same_v<decltype(var), const PatType::DestrList&>;
+			constexpr bool isList = std::is_same_v<decltype(var), const PatType::DestrList<Out>&>;
 
 			for (const auto& field : var.items)
 			{
@@ -734,11 +734,11 @@ namespace slu::parse
 			if(!var.name.empty())
 				out.add(' ').add(out.db.asSv(var.name));
 		},
-		varcase(const PatType::DestrName&) {
+		varcase(const PatType::DestrName<Out>&) {
 			genDestrSpec(out, var.spec);
 			out.add(out.db.asSv(var.name));
 		},
-		varcase(const PatType::DestrNameRestrict&) {
+		varcase(const PatType::DestrNameRestrict<Out>&) {
 			genDestrSpec(out, var.spec);
 			out.add(out.db.asSv(var.name));
 			out.add(" = ");
