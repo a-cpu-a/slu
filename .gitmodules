@@ -1,3 +1,6 @@
 [submodule "slu/ext/lua"]
 	path = slu/ext/lua
 	url = https://github.com/a-cpu-a/slu-lua.git
+[submodule "slu/ext/llvm"]
+	path = slu/ext/llvm
+	url = https://github.com/llvm/llvm-project.git
