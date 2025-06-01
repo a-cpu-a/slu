@@ -293,7 +293,7 @@ namespace slu::parse
 	{
 		if (checkReadToken(in, "=>"))
 		{
-			return readExpr<BASIC>(in, allowVarArg);
+			return std::make_unique<Expression<In>>(readExpr<BASIC>(in, allowVarArg));
 		}
 		return readDoOrStatOrRet<isLoop, SemicolMode::NONE>(in, allowVarArg);
 	}

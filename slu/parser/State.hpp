@@ -195,7 +195,7 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(BLOCK);
 
 		template<bool isSlu>
-		using EXPRv = ExpressionV<isSlu>;
+		using EXPRv = std::unique_ptr<ExpressionV<isSlu>>;
 		Slu_DEF_CFG_CAPS(EXPR);
 	}
 	template<bool isSlu>

@@ -804,7 +804,7 @@ namespace slu::parse
 		},
 		varcase(const parse::StatOrExprType::EXPR<Out>&) {
 			out.add(" => ");
-			genExpr(out, var);
+			genExpr(out, *var);
 		}
 		);
 	}

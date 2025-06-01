@@ -700,7 +700,7 @@ namespace slu::paint
 			},
 			varcase(const parse::StatOrExprType::EXPR<Se>&) {
 				paintKw<Tok::GEN_OP>(se, "=>");
-				paintExpr(se, var);
+				paintExpr(se, *var);
 			}
 			);
 		}
