@@ -34,6 +34,9 @@ namespace slu::parse
 	template<bool isSlu, class T,class SlT>
 	using Sel = std::conditional_t<isSlu,SlT,T>;
 
+#define Slu_DEF_CFG(_Name) template<AnyCfgable CfgT> using _Name = SelV<CfgT, _Name ## V>
+#define Slu_DEF_CFG_CAPS(_NAME) template<AnyCfgable CfgT> using _NAME = SelV<CfgT, _NAME ## v>
+
 	template<AnyCfgable Cfg, size_t TOK_SIZE, size_t TOK_SIZE2>
 	consteval const auto& sel(const char(&tok)[TOK_SIZE], const char(&sluTok)[TOK_SIZE2])
 	{
@@ -81,31 +84,31 @@ namespace slu::parse
 	//Forward declare
 
 	template<bool isSlu> struct StatementV;
-	template<AnyCfgable CfgT> using Statement = SelV<CfgT, StatementV>;
+	Slu_DEF_CFG(Statement);
 
 	template<bool isSlu> struct ExpressionV;
-	template<AnyCfgable CfgT> using Expression = SelV<CfgT, ExpressionV>;
+	Slu_DEF_CFG(Expression);
 
 	template<bool isSlu> struct VarV;
-	template<AnyCfgable CfgT> using Var = SelV<CfgT, VarV>;
+	Slu_DEF_CFG(Var);
 
 	namespace FieldType {
 		template<bool isSlu> struct EXPR2EXPRv;
-		template<AnyCfgable CfgT> using EXPR2EXPR = SelV<CfgT, EXPR2EXPRv>;
+		Slu_DEF_CFG_CAPS(EXPR2EXPR);
 
 		template<bool isSlu> struct NAME2EXPRv;
-		template<AnyCfgable CfgT> using NAME2EXPR = SelV<CfgT, NAME2EXPRv>;
+		Slu_DEF_CFG_CAPS(NAME2EXPR);
 
 		template<bool isSlu> struct EXPRv;
-		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+		Slu_DEF_CFG_CAPS(EXPR);
 	}
 	namespace LimPrefixExprType
 	{
 		template<bool isSlu> struct VARv;			// "var"
-		template<AnyCfgable CfgT> using VAR = SelV<CfgT, VARv>;
+		Slu_DEF_CFG_CAPS(VAR);
 
 		template<bool isSlu> struct EXPRv;	// "'(' exp ')'"
-		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+		Slu_DEF_CFG_CAPS(EXPR);
 	}
 	template<bool isSlu>
 	using LimPrefixExprV = std::variant<
@@ -116,14 +119,14 @@ namespace slu::parse
 	using LimPrefixExpr = SelV<CfgT, LimPrefixExprV>;
 
 	template<bool isSlu> struct ArgFuncCallV;
-	template<AnyCfgable CfgT> using ArgFuncCall = SelV<CfgT, ArgFuncCallV>;
+	Slu_DEF_CFG(ArgFuncCall);
 
 	template<bool isSlu> struct FuncCallV;
-	template<AnyCfgable CfgT> using FuncCall = SelV<CfgT, FuncCallV>;
+	Slu_DEF_CFG(FuncCall);
 
 	template<bool isSlu>
 	using ExpListV = std::vector<ExpressionV<isSlu>>;
-	template<AnyCfgable CfgT> using ExpList = SelV<CfgT, ExpListV>;
+	Slu_DEF_CFG(ExpList);
 
 	struct TypeExpr;
 
@@ -195,34 +198,34 @@ namespace slu::parse
 	{
 		template<bool isSlu>
 		using BLOCKv = BlockV<isSlu>;
-		template<AnyCfgable CfgT> using BLOCK = SelV<CfgT, BLOCKv>;
+		Slu_DEF_CFG_CAPS(BLOCK);
 
 		template<bool isSlu>
 		using EXPRv = ExpressionV<isSlu>;
-		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+		Slu_DEF_CFG_CAPS(EXPR);
 	}
 	template<bool isSlu>
 	using StatOrExprV = std::variant<
 		StatOrExprType::BLOCKv<isSlu>,
 		StatOrExprType::EXPRv<isSlu>
 	>;
-	template<AnyCfgable CfgT> using StatOrExpr = SelV<CfgT, StatOrExprV>;
+	Slu_DEF_CFG(StatOrExpr);
 
 	template<bool isSlu> using SoeOrBlockV = Sel<isSlu,BlockV<isSlu>,StatOrExprV<isSlu>>;
-	template<AnyCfgable CfgT> using SoeOrBlock = SelV<CfgT, SoeOrBlockV>;
+	Slu_DEF_CFG(SoeOrBlock);
 
 	template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<StatOrExprV<isSlu>>>;
-	template<AnyCfgable CfgT> using SoeBoxOrBlock = SelV<CfgT, SoeBoxOrBlockV>;
+	Slu_DEF_CFG(SoeBoxOrBlock);
 
 	namespace ArgsType
 	{
 		template<bool isSlu>
 		struct EXPLISTv { ExpListV<isSlu> v; };			// "'(' [explist] ')'"
-		template<AnyCfgable CfgT> using EXPLIST = SelV<CfgT, EXPLISTv>;
+		Slu_DEF_CFG_CAPS(EXPLIST);
 
 		template<bool isSlu>
 		struct TABLEv { TableConstructorV<isSlu> v; };	// "tableconstructor"
-		template<AnyCfgable CfgT> using TABLE = SelV<CfgT, TABLEv>;
+		Slu_DEF_CFG_CAPS(TABLE);
 
 		struct LITERAL { std::string v; Position end; };// "LiteralString"
 	};
@@ -257,11 +260,11 @@ namespace slu::parse
 
 		template<bool isSlu>
 		using LIM_PREFIX_EXPv = std::unique_ptr<LimPrefixExprV<isSlu>>;	// "prefixexp"
-		template<AnyCfgable CfgT> using LIM_PREFIX_EXP = SelV<CfgT, LIM_PREFIX_EXPv>;
+		Slu_DEF_CFG_CAPS(LIM_PREFIX_EXP);
 
 		template<bool isSlu>
 		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
-		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
+		Slu_DEF_CFG_CAPS(FUNC_CALL);
 
 		struct OPEN_RANGE {};					// ".."
 
@@ -434,7 +437,7 @@ namespace slu::parse
 
 	template<bool isSlu>
 	using ParamListV = std::vector<ParameterV<isSlu>>;
-	template<AnyCfgable CfgT> using ParamList = SelV<CfgT, ParamListV>;
+	Slu_DEF_CFG(ParamList);
 
 	template<bool isSlu>
 	struct FunctionInfoV
@@ -451,14 +454,14 @@ namespace slu::parse
 		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
 	};
-	template<AnyCfgable CfgT> using FunctionInfo = SelV<CfgT, FunctionInfoV>;
+	Slu_DEF_CFG(FunctionInfo);
 
 	template<bool isSlu>
 	struct FunctionV : FunctionInfoV<isSlu>
 	{
 		BlockV<isSlu> block;
 	};
-	template<AnyCfgable CfgT> using Function = SelV<CfgT, FunctionV>;
+	Slu_DEF_CFG(Function);
 
 
 
@@ -482,11 +485,11 @@ namespace slu::parse
 
 		template<bool isSlu>
 		struct FUNCTION_DEFv { FunctionV<isSlu> v; };				// "functiondef"
-		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
+		Slu_DEF_CFG_CAPS(FUNCTION_DEF);
 
 		template<bool isSlu>
 		struct TABLE_CONSTRUCTORv { TableConstructorV<isSlu> v; };	// "tableconstructor"
-		template<AnyCfgable CfgT> using TABLE_CONSTRUCTOR = SelV<CfgT, TABLE_CONSTRUCTORv>;
+		Slu_DEF_CFG_CAPS(TABLE_CONSTRUCTOR);
 
 		//unOps is always empty for this type
 		template<bool isSlu>
@@ -495,13 +498,13 @@ namespace slu::parse
 			std::unique_ptr<ExpressionV<isSlu>> first;
 			std::vector<std::pair<BinOpType, ExpressionV<isSlu>>> extra;//size>=1
 		};      // "exp binop exp"
-		template<AnyCfgable CfgT> using MULTI_OPERATION = SelV<CfgT, MULTI_OPERATIONv>;
+		Slu_DEF_CFG_CAPS(MULTI_OPERATION);
 
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlu>>};     // "unop exp"	//Inlined as opt prefix
 
 		template<bool isSlu>
 		using IfCondV = BaseIfCondV<isSlu, true>;
-		template<AnyCfgable CfgT> using IfCond = SelV<CfgT, IfCondV>;
+		Slu_DEF_CFG(IfCond);
 
 
 		using LIFETIME = Lifetime;	// " '/' var" {'/' var"}
@@ -678,11 +681,11 @@ namespace slu::parse
 
 		template<bool isSlu>
 		struct NAMEv { MpItmIdV<isSlu> idx; };	// {funcArgs} ‘.’ Name
-		template<AnyCfgable CfgT> using NAME = SelV<CfgT, NAMEv>;
+		Slu_DEF_CFG_CAPS(NAME);
 
 		template<bool isSlu>
 		struct EXPRv { ExpressionV<isSlu> idx; };	// {funcArgs} ‘[’ exp ‘]’
-		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+		Slu_DEF_CFG_CAPS(EXPR);
 	}
 
 	template<bool isSlu>
@@ -717,7 +720,7 @@ namespace slu::parse
 		{
 			ExpressionV<isSlu> start;
 		};
-		template<AnyCfgable CfgT> using EXPR = SelV<CfgT, EXPRv>;
+		Slu_DEF_CFG_CAPS(EXPR);
 
 	}
 	template<bool isSlu>
@@ -743,7 +746,7 @@ namespace slu::parse
 		MpItmIdV<isSlu> name;
 		std::string attrib;//empty -> no attrib
 	};
-	template<AnyCfgable CfgT> using AttribName = SelV<CfgT, AttribNameV>;
+	Slu_DEF_CFG(AttribName);
 
 	namespace FieldType
 	{
@@ -767,10 +770,10 @@ namespace slu::parse
 
 	template<bool isSlu>
 	using AttribNameListV = std::vector<AttribNameV<isSlu>>;
-	template<AnyCfgable CfgT> using AttribNameList = SelV<CfgT, AttribNameListV>;
+	Slu_DEF_CFG(AttribNameList);
 	template<bool isSlu>
 	using NameListV = std::vector<MpItmIdV<isSlu>>;
-	template<AnyCfgable CfgT> using NameList = SelV<CfgT, NameListV>;
+	Slu_DEF_CFG(NameList);
 
 	namespace UseVariantType
 	{
@@ -801,36 +804,36 @@ namespace slu::parse
 
 		template<bool isSlu>
 		struct ASSIGNv { std::vector<VarV<isSlu>> vars; ExpListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
-		template<AnyCfgable CfgT> using ASSIGN = SelV<CfgT, ASSIGNv>;
+		Slu_DEF_CFG_CAPS(ASSIGN);
 
 		template<bool isSlu>
 		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
-		template<AnyCfgable CfgT> using FUNC_CALL = SelV<CfgT, FUNC_CALLv>;
+		Slu_DEF_CFG_CAPS(FUNC_CALL);
 
 		template<bool isSlu>
 		struct LABELv { MpItmIdV<isSlu> v; };		// "label"
-		template<AnyCfgable CfgT> using LABEL = SelV<CfgT, LABELv>;
+		Slu_DEF_CFG_CAPS(LABEL);
 		struct BREAK { };
 		template<bool isSlu>					// "break"
 		struct GOTOv { MpItmIdV<isSlu> v; };			// "goto Name"
-		template<AnyCfgable CfgT> using GOTO = SelV<CfgT, GOTOv>;
+		Slu_DEF_CFG_CAPS(GOTO);
 
 		template<bool isSlu>
 		struct BLOCKv { BlockV<isSlu> bl; };							// "do block end"
-		template<AnyCfgable CfgT> using BLOCK = SelV<CfgT, BLOCKv>;
+		Slu_DEF_CFG_CAPS(BLOCK);
 
 		template<bool isSlu>
 		struct WHILE_LOOPv { ExpressionV<isSlu> cond; BlockV<isSlu> bl; };		// "while exp do block end"
-		template<AnyCfgable CfgT> using WHILE_LOOP = SelV<CfgT, WHILE_LOOPv>;
+		Slu_DEF_CFG_CAPS(WHILE_LOOP);
 
 		template<bool isSlu>
 		struct REPEAT_UNTILv :WHILE_LOOPv<isSlu> {};						// "repeat block until exp"
-		template<AnyCfgable CfgT> using REPEAT_UNTIL = SelV<CfgT, REPEAT_UNTILv>;
+		Slu_DEF_CFG_CAPS(REPEAT_UNTIL);
 
 		// "if exp then block {elseif exp then block} [else block] end"
 		template<bool isSlu>
 		using IfCondV = BaseIfCondV<isSlu, false>;
-		template<AnyCfgable CfgT> using IfCond = SelV<CfgT, IfCondV>;
+		Slu_DEF_CFG(IfCond);
 
 		// "for Name = exp , exp [, exp] do block end"
 		template<bool isSlu>
@@ -842,7 +845,7 @@ namespace slu::parse
 			std::optional<ExpressionV<isSlu>> step;
 			BlockV<isSlu> bl;
 		};
-		template<AnyCfgable CfgT> using FOR_LOOP_NUMERIC = SelV<CfgT, FOR_LOOP_NUMERICv>;
+		Slu_DEF_CFG_CAPS(FOR_LOOP_NUMERIC);
 
 		// "for namelist in explist do block end"
 		template<bool isSlu>
@@ -852,7 +855,7 @@ namespace slu::parse
 			Sel<isSlu, ExpListV<isSlu>, ExpressionV<isSlu>> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
-		template<AnyCfgable CfgT> using FOR_LOOP_GENERIC = SelV<CfgT, FOR_LOOP_GENERICv>;
+		Slu_DEF_CFG_CAPS(FOR_LOOP_GENERIC);
 
 		template<bool isSlu>
 		struct FuncDefBase
@@ -868,15 +871,15 @@ namespace slu::parse
 		{
 			ExportData exported = false;
 		};
-		template<AnyCfgable CfgT> using FUNCTION_DEF = SelV<CfgT, FUNCTION_DEFv>;
+		Slu_DEF_CFG_CAPS(FUNCTION_DEF);
 
 		template<bool isSlu>
 		struct FNv : FUNCTION_DEFv<isSlu> {};
-		template<AnyCfgable CfgT> using FN = SelV<CfgT, FNv>;
+		Slu_DEF_CFG_CAPS(FN);
 
 		template<bool isSlu>
 		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlu> {};
-		template<AnyCfgable CfgT> using LOCAL_FUNCTION_DEF = SelV<CfgT, LOCAL_FUNCTION_DEFv>;
+		Slu_DEF_CFG_CAPS(LOCAL_FUNCTION_DEF);
 				// "local function Name funcbody" //n may not ^^^
 
 
@@ -887,11 +890,11 @@ namespace slu::parse
 			MpItmIdV<isSlu> name;
 			ExportData exported = false;
 		};
-		template<AnyCfgable CfgT> using FunctionDecl = SelV<CfgT, FunctionDeclV>;
+		Slu_DEF_CFG(FunctionDecl);
 
 		template<bool isSlu>
 		struct FnDeclV : FunctionDeclV<isSlu> {};
-		template<AnyCfgable CfgT> using FnDecl = SelV<CfgT, FnDeclV>;
+		Slu_DEF_CFG(FnDecl);
 
 		template<bool isSlu>
 		struct LOCAL_ASSIGNv
@@ -906,25 +909,25 @@ namespace slu::parse
 			ExpListV<true> exprs;
 			ExportData exported = false;
 		};
-		template<AnyCfgable CfgT> using LOCAL_ASSIGN = SelV<CfgT, LOCAL_ASSIGNv>;
+		Slu_DEF_CFG_CAPS(LOCAL_ASSIGN);
 
 		// Slu
 
 		template<bool isSlu>
 		struct LETv : LOCAL_ASSIGNv<isSlu>	{};
-		template<AnyCfgable CfgT> using LET = SelV<CfgT, LETv>;
+		Slu_DEF_CFG_CAPS(LET);
 
 		template<bool isSlu>
 		struct CONSTv : LOCAL_ASSIGNv<isSlu>	{};
-		template<AnyCfgable CfgT> using CONST = SelV<CfgT, CONSTv>;
+		Slu_DEF_CFG_CAPS(CONST);
 
 		template<bool isSlu>
 		struct StructV : StructBaseV<TypeExpr,isSlu> {};
-		template<AnyCfgable CfgT> using Struct = SelV<CfgT, StructV>;
+		Slu_DEF_CFG(Struct);
 
 		template<bool isSlu>
 		struct UnionV : StructBaseV<TableConstructorV<isSlu>, isSlu> {};
-		template<AnyCfgable CfgT> using Union = SelV<CfgT, UnionV>;
+		Slu_DEF_CFG(Union);
 
 		template<bool isSlu>
 		struct ExternBlockV {
@@ -933,11 +936,11 @@ namespace slu::parse
 			Position abiEnd;
 			OptSafety safety = OptSafety::DEFAULT;
 		};
-		template<AnyCfgable CfgT> using ExternBlock = SelV<CfgT, ExternBlockV>;
+		Slu_DEF_CFG(ExternBlock);
 
 		template<bool isSlu>
 		struct UnsafeBlockV { BlockV<isSlu> bl; };	// "unsafe {...}"
-		template<AnyCfgable CfgT> using UnsafeBlock = SelV<CfgT, UnsafeBlockV>;
+		Slu_DEF_CFG(UnsafeBlock);
 
 		struct UNSAFE_LABEL {};
 		struct SAFE_LABEL {};
@@ -954,7 +957,7 @@ namespace slu::parse
 		{
 			ExpressionV<isSlu> expr;
 		};
-		template<AnyCfgable CfgT> using DROP = SelV<CfgT, DROPv>;
+		Slu_DEF_CFG_CAPS(DROP);
 
 		template<bool isSlu>
 		struct MOD_DEFv
@@ -962,7 +965,7 @@ namespace slu::parse
 			MpItmIdV<isSlu> name;
 			ExportData exported = false;
 		};
-		template<AnyCfgable CfgT> using MOD_DEF = SelV<CfgT, MOD_DEFv>;
+		Slu_DEF_CFG_CAPS(MOD_DEF);
 
 		template<bool isSlu>
 		struct MOD_DEF_INLINEv
@@ -971,7 +974,7 @@ namespace slu::parse
 			BlockV<isSlu> bl;
 			ExportData exported = false;
 		};
-		template<AnyCfgable CfgT> using MOD_DEF_INLINE = SelV<CfgT, MOD_DEF_INLINEv>;
+		Slu_DEF_CFG_CAPS(MOD_DEF_INLINE);
 
 	};
 
