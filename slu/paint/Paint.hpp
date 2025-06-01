@@ -364,10 +364,10 @@ namespace slu::paint
 			paintUnOpItem(se, i);
 	}
 	template<Tok nameTok,AnySemOutput Se>
-	inline void paintDestrSpec(Se& se, const parse::DestrSpec& itm)
+	inline void paintDestrSpec(Se& se, const parse::DestrSpec<Se>& itm)
 	{
 		ezmatch(itm)(
-		varcase(const parse::DestrSpecType::Spat&) {
+		varcase(const parse::DestrSpecType::Spat<Se>&) {
 			paintExpr<nameTok>(se, var);
 		},
 		varcase(const parse::DestrSpecType::Type&) {

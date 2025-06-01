@@ -678,7 +678,7 @@ namespace slu::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genDestrSpec(Out& out, const DestrSpec& obj)
+	inline void genDestrSpec(Out& out, const DestrSpec<Out>& obj)
 	{
 		ezmatch(obj)(
 		varcase(const DestrSpecType::Type&) {
@@ -686,7 +686,7 @@ namespace slu::parse
 			genTypeExpr<true>(out, var);
 			out.add(' ');
 		},
-		varcase(const DestrSpecType::Spat&) {
+		varcase(const DestrSpecType::Spat<Out>&) {
 			genExpr(out, var);
 			out.add(' ');
 		},

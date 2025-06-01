@@ -115,8 +115,7 @@ namespace slu::parse
 		LimPrefixExprType::VARv<isSlu>,
 		LimPrefixExprType::EXPRv<isSlu>
 	>;
-	template<AnyCfgable CfgT>
-	using LimPrefixExpr = SelV<CfgT, LimPrefixExprV>;
+	Slu_DEF_CFG(LimPrefixExpr);
 
 	template<bool isSlu> struct ArgFuncCallV;
 	Slu_DEF_CFG(ArgFuncCall);
@@ -158,15 +157,12 @@ namespace slu::parse
 		FieldType::NAME2EXPRv<isSlu>, // "Name = exp"
 		FieldType::EXPRv<isSlu>       // "exp"
 	>;
-
-	template<AnyCfgable CfgT>
-	using Field = SelV<CfgT, FieldV>;
+	Slu_DEF_CFG(Field);
 
 	// ‘{’ [fieldlist] ‘}’
 	template<bool isSlu>
 	using TableConstructorV = std::vector<FieldV<isSlu>>;
-	template<AnyCfgable CfgT>
-	using TableConstructor = SelV<CfgT, TableConstructorV>;
+	Slu_DEF_CFG(TableConstructor);
 
 
 
@@ -190,9 +186,7 @@ namespace slu::parse
 		BlockV(BlockV&&) = default;
 		BlockV& operator=(BlockV&&) = default;
 	};
-
-	template<AnyCfgable CfgT>
-	using Block = SelV<CfgT, BlockV>;
+	Slu_DEF_CFG(Block);
 
 	namespace StatOrExprType
 	{
@@ -235,9 +229,7 @@ namespace slu::parse
 		ArgsType::TABLEv<isSlu>,
 		ArgsType::LITERAL
 	>;
-
-	template<AnyCfgable CfgT>
-	using Args = SelV<CfgT, ArgsV>;
+	Slu_DEF_CFG(Args);
 
 	template<bool isSlu>
 	struct ArgFuncCallV
@@ -432,8 +424,7 @@ namespace slu::parse
 	{
 		MpItmIdV<isSlu> name;
 	};
-	template<AnyCfgable CfgT>
-	using Parameter = SelV<CfgT, ParameterV>;
+	Slu_DEF_CFG(Parameter);
 
 	template<bool isSlu>
 	using ParamListV = std::vector<ParameterV<isSlu>>;
@@ -547,9 +538,7 @@ namespace slu::parse
 
 		ExprType::PAT_TYPE_PREFIX
 	>;
-
-	template<AnyCfgable CfgT>
-	using ExprData = SelV<CfgT, ExprDataV>;
+	Slu_DEF_CFG(ExprData);
 
 
 	template<bool isSlu>
@@ -580,24 +569,30 @@ namespace slu::parse
 
 	// match patterns
 
-	using NdPat = ExpressionV<true>;
+	template<bool isSlu>
+	using NdPatV = ExpressionV<isSlu>;
+	Slu_DEF_CFG(NdPat);
 
 	namespace DestrSpecType
 	{
-		using Spat = parse::NdPat;
+		template<bool isSlu>
+		using SpatV = parse::NdPatV<isSlu>;
+		Slu_DEF_CFG(Spat);
 		using Type = TypeExpr;
 		using Prefix = TypePrefix;
 	}
-	using DestrSpec = std::variant<
-		DestrSpecType::Spat,
+	template<bool isSlu>
+	using DestrSpecV = std::variant<
+		DestrSpecType::SpatV<isSlu>,
 		DestrSpecType::Type,
 		DestrSpecType::Prefix
-
 	>;
+	Slu_DEF_CFG(DestrSpec);
 	namespace DestrPatType
 	{
 		using Any = std::monostate;
-		struct Fields;
+		template<bool isSlu> struct FieldsV;
+		Slu_DEF_CFG(Fields);
 		struct List;
 
 		struct Name;
@@ -607,16 +602,17 @@ namespace slu::parse
 	struct ___PatHack;
 	namespace DestrPatType
 	{
-		struct Fields
+		template<bool isSlu>
+		struct FieldsV
 		{
-			DestrSpec spec;
+			DestrSpecV<true> spec;
 			bool extraFields : 1 = false;
 			std::vector<DestrField> items;
 			MpItmIdV<true> name;//May be empty
 		};
 		struct List
 		{
-			DestrSpec spec;
+			DestrSpecV<true> spec;
 			bool extraFields : 1 = false;
 			std::vector<___PatHack> items;
 			MpItmIdV<true> name;//May be empty
@@ -625,21 +621,23 @@ namespace slu::parse
 		struct Name
 		{
 			MpItmIdV<true> name;
-			DestrSpec spec;
+			DestrSpecV<true> spec;
 		};
 		struct NameRestrict : Name
 		{
-			NdPat restriction;
+			NdPatV<true> restriction;
 		};
 	}
 	namespace PatType
 	{
 		//x or y or z
-		using Simple = NdPat;
+		using Simple = NdPatV<true>;
 
 		using DestrAny = DestrPatType::Any;
 
-		using DestrFields = DestrPatType::Fields;
+		template<bool isSlu>
+		using DestrFieldsV = DestrPatType::FieldsV<isSlu>;
+		Slu_DEF_CFG(DestrFields);
 		using DestrList = DestrPatType::List;
 
 		using DestrName = DestrPatType::Name;
@@ -647,8 +645,9 @@ namespace slu::parse
 	}
 	template<typename T>
 	concept AnyCompoundDestr = 
-		std::same_as<std::remove_cv_t<T>, DestrPatType::Fields>
+		std::same_as<std::remove_cv_t<T>, DestrPatType::FieldsV<true>>
 		|| std::same_as<std::remove_cv_t<T>, DestrPatType::List>;
+
 
 	template<bool isSlu>
 	using PatV = std::variant<
@@ -656,7 +655,7 @@ namespace slu::parse
 
 		PatType::Simple,
 
-		PatType::DestrFields,
+		PatType::DestrFieldsV<isSlu>,
 		PatType::DestrList,
 
 		PatType::DestrName,
@@ -703,8 +702,7 @@ namespace slu::parse
 		> idx;
 	};
 
-	template<AnyCfgable CfgT>
-	using SubVar = SelV<CfgT, SubVarV>;
+	Slu_DEF_CFG(SubVar);
 
 	namespace BaseVarType
 	{
@@ -715,8 +713,7 @@ namespace slu::parse
 		{
 			MpItmIdV<isSlu> v;
 		};
-		template<AnyCfgable CfgT>
-		using NAME = SelV<CfgT, NAMEv>;
+		Slu_DEF_CFG_CAPS(NAME);
 
 		template<bool isSlu>
 		struct EXPRv
@@ -732,9 +729,7 @@ namespace slu::parse
 		BaseVarType::NAMEv<isSlu>,
 		BaseVarType::EXPRv<isSlu>
 	>;
-
-	template<AnyCfgable CfgT>
-	using BaseVar = SelV<CfgT, BaseVarV>;
+	Slu_DEF_CFG(BaseVar);
 
 	template<bool isSlu>
 	struct VarV
@@ -1023,10 +1018,8 @@ namespace slu::parse
 		StatementType::USE,				// "use" ...
 		StatementType::MOD_DEFv<isSlu>,		// "mod" Name
 		StatementType::MOD_DEF_INLINEv<isSlu>	// "mod" Name "as" "{" block "}"
-	> ;
-
-	template<AnyCfgable CfgT>
-	using StatementData = SelV<CfgT, StatementDataV>;
+	>;
+	Slu_DEF_CFG(StatementData);
 
 	template<bool isSlu>
 	struct StatementV
@@ -1048,6 +1041,5 @@ namespace slu::parse
 		//TypeList types
 		BlockV<isSlu> code;
 	};
-	template<AnyCfgable CfgT>
-	using ParsedFile = SelV<CfgT, ParsedFileV>;
+	Slu_DEF_CFG(ParsedFile);
 }
