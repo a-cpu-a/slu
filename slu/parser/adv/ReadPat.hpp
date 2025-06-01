@@ -73,14 +73,14 @@ namespace slu::parse
 			if (in.peek() == '|')
 				return readFieldsDestr<DestrPatType::Fields<In>,true>(in,std::move(ty), uncond);
 
-			return readFieldsDestr<DestrPatType::List, false>(in, std::move(ty), uncond);
+			return readFieldsDestr<DestrPatType::List<In>, false>(in, std::move(ty), uncond);
 		}
 		else if (firstChar == ')' || firstChar == '}' || firstChar == ',')
 		{
 			if constexpr(IS_EXPR)
 			{
 				if (!uncond)
-					return PatType::Simple{ std::move(ty) };
+					return PatType::Simple<In>{ std::move(ty) };
 			}
 			throwExpectedPatDestr(in);
 		}
@@ -92,10 +92,10 @@ namespace slu::parse
 		{
 			skipSpace(in);
 			if (in.peek() == '=')
-				return PatType::DestrNameRestrict{ {name,std::move(ty)},readExpr(in,false) };
+				return PatType::DestrNameRestrict<In>{ {name,std::move(ty)},readExpr(in,false) };
 		}
 
-		return PatType::DestrName{ name,std::move(ty) };
+		return PatType::DestrName<In>{ name,std::move(ty) };
 	}
 	//Will not skip space!
 	template<AnyInput In>
