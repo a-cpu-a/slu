@@ -650,7 +650,8 @@ namespace slu::parse
 		std::same_as<std::remove_cv_t<T>, DestrPatType::Fields>
 		|| std::same_as<std::remove_cv_t<T>, DestrPatType::List>;
 
-	using Pat = std::variant<
+	template<bool isSlu>
+	using PatV = std::variant<
 		PatType::DestrAny,
 
 		PatType::Simple,
@@ -661,16 +662,18 @@ namespace slu::parse
 		PatType::DestrName,
 		PatType::DestrNameRestrict
 	>;
+	Slu_DEF_CFG(Pat);
+
 	template<>
 	struct ParameterV<true>
 	{
-		Pat name;
+		PatV<true> name;
 	};
-	struct ___PatHack : Pat {};
+	struct ___PatHack : PatV<true> {};
 	struct DestrField
 	{
 		MpItmIdV<true> name;
-		Pat pat;
+		PatV<true> pat;
 	};
 
 	//Common
@@ -839,7 +842,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FOR_LOOP_NUMERICv
 		{
-			Sel<isSlu, MpItmIdV<isSlu>, Pat> varName;
+			Sel<isSlu, MpItmIdV<isSlu>, PatV<true>> varName;
 			ExpressionV<isSlu> start;
 			ExpressionV<isSlu> end;//inclusive
 			std::optional<ExpressionV<isSlu>> step;
@@ -851,7 +854,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FOR_LOOP_GENERICv
 		{
-			Sel<isSlu, NameListV<isSlu>, Pat> varNames;
+			Sel<isSlu, NameListV<isSlu>, PatV<true>> varNames;
 			Sel<isSlu, ExpListV<isSlu>, ExpressionV<isSlu>> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
@@ -905,7 +908,7 @@ namespace slu::parse
 		template<>
 		struct LOCAL_ASSIGNv<true>
 		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			Pat names;
+			PatV<true> names;
 			ExpListV<true> exprs;
 			ExportData exported = false;
 		};

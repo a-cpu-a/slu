@@ -61,7 +61,7 @@ namespace slu::parse
 		return ret;
 	}
 	template<bool IS_EXPR,AnyInput In>
-	inline Pat readPatPastExpr(In& in,auto&& ty,const bool uncond)
+	inline Pat<In> readPatPastExpr(In& in,auto&& ty,const bool uncond)
 	{
 		skipSpace(in);
 
@@ -99,7 +99,7 @@ namespace slu::parse
 	}
 	//Will not skip space!
 	template<AnyInput In>
-	inline Pat readPat(In& in, const bool uncond)
+	inline Pat<In> readPat(In& in, const bool uncond)
 	{
 		const char firstChar = in.peek();
 

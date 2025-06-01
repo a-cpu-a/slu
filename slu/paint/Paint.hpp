@@ -380,7 +380,7 @@ namespace slu::paint
 		);
 	}
 	template<Tok nameTok,AnySemOutput Se>
-	inline void paintPat(Se& se, const parse::Pat& itm)
+	inline void paintPat(Se& se, const parse::Pat<Se>& itm)
 	{
 		ezmatch(itm)(
 		varcase(const parse::PatType::Simple&) {

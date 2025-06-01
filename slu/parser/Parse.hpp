@@ -421,7 +421,7 @@ namespace slu::parse
 				 for namelist in explist do block end |
 				*/
 
-				Sel<In::settings()& sluSyn, NameList<In>, Pat> names;
+				Sel<In::settings()& sluSyn, NameList<In>, PatV<true>> names;
 				if constexpr (In::settings() & sluSyn)
 				{
 					skipSpace(in);
