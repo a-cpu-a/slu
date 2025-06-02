@@ -198,7 +198,19 @@ namespace slu::visit
 	inline void visitExpr(Vi& vi, parse::Expression<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Expr);
+		ezmatch(itm.data)(
 		//TODO
+		varcase(const auto&) {},
+		varcase(const parse::ExprType::FALSE) {
+			Slu_CALL_VISIT_FN_PRE_VAR(False);
+		},
+		varcase(const parse::ExprType::TRUE) {
+			Slu_CALL_VISIT_FN_PRE_VAR(True);
+		},
+		varcase(const parse::ExprType::NIL) {
+			Slu_CALL_VISIT_FN_PRE_VAR(Nil);
+		}
+		);
 		Slu_CALL_VISIT_FN_POST(Expr);
 	}
 	template<AnyVisitor Vi>
