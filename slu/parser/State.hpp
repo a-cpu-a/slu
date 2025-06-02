@@ -147,7 +147,7 @@ namespace slu::parse
 	// Common
 
 
-	namespace FieldType { struct NONE {}; }
+	namespace FieldType { using NONE = std::monostate; }
 
 	template<bool isSlu>
 	using FieldV = std::variant<

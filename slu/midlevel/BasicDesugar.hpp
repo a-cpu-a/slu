@@ -13,6 +13,14 @@
 
 namespace slu::mlvl
 {
+	// Forward declare
+	void desugarTypeExp(parse::TypeExpr& itm);
+	void desugarExpr(parse::ExpressionV<true>& itm);
+	void desugarArgChain(std::span<parse::ArgFuncCallV<true>> itm);
+	void desugarTable(parse::TableConstructorV<true>& itm);
+	void desugarBlock(parse::BlockV<true>& itm);
+	void desugarSoe(parse::SoeV<true>& itm);
+
 	inline void desugerDestrSpec(parse::DestrSpecV<true>& itm)
 	{
 		ezmatch(itm)(
@@ -112,7 +120,10 @@ namespace slu::mlvl
 		for (auto& i : itm)
 		{
 			ezmatch(i)(
-				//TODO Field
+			varcase(parse::FieldType::NONE&) {},
+			varcase(parse::FieldType::EXPRv<true>&) {desugarExpr(var.v);},
+			varcase(parse::FieldType::EXPR2EXPRv<true>&) {desugarExpr(var.idx);desugarExpr(var.v);},
+			varcase(parse::FieldType::NAME2EXPRv<true>&) {desugarExpr(var.v); }
 			);
 		}
 	}
