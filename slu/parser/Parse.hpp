@@ -34,9 +34,7 @@
 
 /*
 
-	TODO:
-
-	[_] EOS handling
+	[X] EOS handling
 
 	[X] chunk ::= block
 
