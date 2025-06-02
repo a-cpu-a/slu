@@ -206,6 +206,17 @@ namespace slu::mlvl
 			desugarParams(var.params);
 			desugarTable(var.type);
 		},
+		varcase(parse::StatementType::FuncDefBase<true>&) {
+			desugarBlock(var.func.block);
+			if(var.func.retType.has_value())
+				desugarTypeExp(*var.func.retType);
+			desugarParams(var.func.params);
+		},
+		varcase(parse::StatementType::FunctionDeclV<true>&) {
+			if(var.retType.has_value())
+				desugarTypeExp(*var.retType);
+			desugarParams(var.params);
+		},
 		varcase(parse::StatementType::ExternBlockV<true>&) {
 			//TODO
 		},
@@ -231,11 +242,11 @@ namespace slu::mlvl
 	inline void desugarSoe(parse::SoeV<true>& itm)
 	{
 		ezmatch(itm)(
-		varcase(parse::BlockV<true>&) {
+		varcase(parse::SoeType::BLOCKv<true>&) {
 			desugarBlock(var);
 		},
-		varcase(parse::ExpressionV<true>&) {
-			desugarExpr(var);
+		varcase(parse::SoeType::EXPRv<true>&) {
+			desugarExpr(*var);
 		}
 		);
 	}
