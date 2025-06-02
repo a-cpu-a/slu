@@ -289,7 +289,7 @@ namespace slu::parse
 	}
 
 	template<bool isLoop,bool BASIC, AnyInput In>
-	inline StatOrExpr<In> readStatOrExpr(In& in, const bool allowVarArg)
+	inline Soe<In> readSoe(In& in, const bool allowVarArg)
 	{
 		if (checkReadToken(in, "=>"))
 		{
@@ -667,20 +667,20 @@ namespace slu::parse
 
 		if constexpr (In::settings() & sluSyn)
 		{
-			res.bl = mayBoxFrom<forExpr>(readStatOrExpr<isLoop, false>(in, allowVarArg));
+			res.bl = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
 
 			while (checkReadTextToken(in, "else"))
 			{
 				if (checkReadTextToken(in, "if"))
 				{
 					Expression<In> elExpr = readBasicExpr(in, allowVarArg);
-					StatOrExpr<In> elBlock = readStatOrExpr<isLoop, false>(in, allowVarArg);
+					Soe<In> elBlock = readSoe<isLoop, false>(in, allowVarArg);
 
 					res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
 					continue;
 				}
 
-				res.elseBlock = mayBoxFrom<forExpr>(readStatOrExpr<isLoop, false>(in, allowVarArg));
+				res.elseBlock = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
 				break;
 			}
 		}

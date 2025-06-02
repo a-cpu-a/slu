@@ -695,10 +695,10 @@ namespace slu::paint
 		if constexpr (Se::settings() & sluSyn)
 		{
 			ezmatch(itm)(
-			varcase(const parse::StatOrExprType::BLOCK<Se>&) {
+			varcase(const parse::SoeType::BLOCK<Se>&) {
 				paintStatOrRet<DO_END>(se, var);
 			},
-			varcase(const parse::StatOrExprType::EXPR<Se>&) {
+			varcase(const parse::SoeType::EXPR<Se>&) {
 				paintKw<Tok::GEN_OP>(se, "=>");
 				paintExpr(se, *var);
 			}

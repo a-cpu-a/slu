@@ -188,7 +188,7 @@ namespace slu::parse
 	};
 	Slu_DEF_CFG(Block);
 
-	namespace StatOrExprType
+	namespace SoeType
 	{
 		template<bool isSlu>
 		using BLOCKv = BlockV<isSlu>;
@@ -199,16 +199,16 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(EXPR);
 	}
 	template<bool isSlu>
-	using StatOrExprV = std::variant<
-		StatOrExprType::BLOCKv<isSlu>,
-		StatOrExprType::EXPRv<isSlu>
+	using SoeV = std::variant<
+		SoeType::BLOCKv<isSlu>,
+		SoeType::EXPRv<isSlu>
 	>;
-	Slu_DEF_CFG(StatOrExpr);
+	Slu_DEF_CFG(Soe);
 
-	template<bool isSlu> using SoeOrBlockV = Sel<isSlu,BlockV<isSlu>,StatOrExprV<isSlu>>;
+	template<bool isSlu> using SoeOrBlockV = Sel<isSlu,BlockV<isSlu>,SoeV<isSlu>>;
 	Slu_DEF_CFG(SoeOrBlock);
 
-	template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<StatOrExprV<isSlu>>>;
+	template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<SoeV<isSlu>>>;
 	Slu_DEF_CFG(SoeBoxOrBlock);
 
 	namespace ArgsType
