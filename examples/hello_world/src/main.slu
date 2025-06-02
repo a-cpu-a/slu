@@ -1,7 +1,5 @@
 
-use std
-
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside main/lib/`crate`
-fn main() {
+fn main() -> void {
 	:>::std::_println("Hello world!")
 }
