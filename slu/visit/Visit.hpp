@@ -10,7 +10,7 @@
 
 #include <slu/parser/State.hpp>
 #include <slu/Settings.hpp>
-#include <slu/visit/AnyVisitor.hpp>
+#include <slu/visit/Visitor.hpp>
 
 namespace slu::visit
 {
@@ -20,14 +20,35 @@ namespace slu::visit
 			return
 
 #define Slu_CALL_VISIT_FN_SEP(_Name,_i,_vec) \
-	if constexpr(requires{vi.sep##_Name(_i);}) \
+	if constexpr(requires{vi.sep##_Name(_vec,_i);}) \
 		if(&_i != &_vec.back()) \
-			vi.sep##_Name(_i)
+			vi.sep##_Name(_vec,_i)
 
 #define Slu_CALL_VISIT_FN_POST(_Name) \
 	if constexpr(requires{vi.post##_Name(itm);}) \
 		vi.post##_Name(itm)
 
+	template<AnyVisitor Vi>
+	inline void visitString(Vi& vi, std::string_view itm)
+	{
+		Slu_CALL_VISIT_FN_PRE(String);
+	}
+	template<AnyVisitor Vi>
+	inline void visitName(Vi& vi, parse::MpItmId<Vi>& itm)
+	{
+		Slu_CALL_VISIT_FN_PRE(Name);
+	}
+	template<AnyVisitor Vi>
+	inline void visitNameList(Vi& vi, parse::NameList<Vi>& itm)
+	{
+		Slu_CALL_VISIT_FN_PRE(NameList);
+		for (auto& i : itm)
+		{
+			visitName(vi, i);
+			Slu_CALL_VISIT_FN_SEP(NameList, i, itm);
+		}
+		Slu_CALL_VISIT_FN_POST(NameList);
+	}
 	template<AnyVisitor Vi>
 	inline void visitDestrSpec(Vi& vi, parse::DestrSpec<Vi>& itm)
 	{
@@ -39,7 +60,9 @@ namespace slu::visit
 		varcase(parse::DestrSpecType::Type&) {
 			visitTypeExp(vi, var);
 		},
-		varcase(parse::DestrSpecType::Prefix&) {}
+		varcase(parse::DestrSpecType::Prefix&) {
+			//TODO
+		}
 		);
 		Slu_CALL_VISIT_FN_POST(DestrSpec);
 	}
@@ -48,29 +71,74 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Pat);
 		ezmatch(itm)(
-		varcase(const parse::PatType::DestrAny) {},
+		varcase(const parse::PatType::DestrAny) {
+			Slu_CALL_VISIT_FN_PRE(DestrAny);
+		},
 
 		varcase(parse::PatType::Simple<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE(DestrSimple);
 			visitExpr(vi, var);
+			Slu_CALL_VISIT_FN_POST(DestrSimple);
 		},
 
 		varcase(parse::PatType::DestrFields<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE(DestrFields);
 			visitDestrSpec(vi, var.spec);
+			Slu_CALL_VISIT_FN_PRE(DestrFieldsFirst);
 			for (auto& i : var.items)
+			{
+				Slu_CALL_VISIT_FN_PRE(DestrField);
+				visitName(vi, i.name);
+				Slu_CALL_VISIT_FN_PRE(DestrFieldPat);
 				visitPat(vi, i.pat);
+				Slu_CALL_VISIT_FN_POST(DestrField);
+				Slu_CALL_VISIT_FN_SEP(DestrFields, i, itm);
+			}
+			if(!var.name.empty())
+			{
+				Slu_CALL_VISIT_FN_PRE(DestrFieldsName);
+				visitName(vi, var.name);
+			}
+			Slu_CALL_VISIT_FN_POST(DestrFields);
 		},
 		varcase(parse::PatType::DestrList<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE(DestrList);
 			visitDestrSpec(vi, var.spec);
+			Slu_CALL_VISIT_FN_PRE(DestrListFirst);
 			for (auto& i : var.items)
+			{
 				visitPat(vi, i);
+				Slu_CALL_VISIT_FN_SEP(DestrList, i, itm);
+			}
+			if (!var.name.empty())
+			{
+				Slu_CALL_VISIT_FN_PRE(DestrListName);
+				visitName(vi, var.name);
+			}
+			Slu_CALL_VISIT_FN_POST(DestrList);
 		},
 
 		varcase(parse::PatType::DestrName<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE(DestrName);
 			visitDestrSpec(vi, var.spec);
+			if (!var.name.empty())
+			{
+				Slu_CALL_VISIT_FN_PRE(DestrNameName);
+				visitName(vi, var.name);
+			}
+			Slu_CALL_VISIT_FN_POST(DestrName);
 		},
 		varcase(parse::PatType::DestrNameRestrict<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE(DestrNameRestrict);
 			visitDestrSpec(vi, var.spec);
+			if (!var.name.empty())
+			{
+				Slu_CALL_VISIT_FN_PRE(DestrNameRestrictName);
+				visitName(vi, var.name);
+			}
+			Slu_CALL_VISIT_FN_PRE(DestrNameRestriction);
 			visitExpr(vi, var.restriction);
+			Slu_CALL_VISIT_FN_POST(DestrNameRestrict);
 		}
 		);
 		Slu_CALL_VISIT_FN_POST(Pat);
@@ -80,13 +148,23 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Var);
 		ezmatch(itm.base)(
-		varcase(parse::BaseVarType::EXPR<Vi>&) { visitExpr(vi, var.start); },
-		varcase(parse::BaseVarType::NAME<Vi>&) {},
-		varcase(const parse::BaseVarType::Root) {}
+		varcase(parse::BaseVarType::EXPR<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE(BaseVarExpr);
+			visitExpr(vi, var.start);
+			Slu_CALL_VISIT_FN_POST(BaseVarExpr);
+		},
+		varcase(parse::BaseVarType::NAME<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE(BaseVarName);
+			visitName(vi, var.v);
+			Slu_CALL_VISIT_FN_POST(BaseVarName);
+		},
+		varcase(const parse::BaseVarType::Root) {
+			Slu_CALL_VISIT_FN_PRE(BaseVarRoot);
+		}
 		);
 		for (auto& i : itm.sub)
 		{
-			visitArgChain(i.funcCalls);
+			visitArgChain(vi,i.funcCalls);
 			ezmatch(i.idx)(
 			varcase(parse::SubVarType::NAME<Vi>&) {},
 			varcase(parse::SubVarType::EXPR<Vi>&) {
@@ -103,8 +181,8 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(VarList);
 		for (auto& i : itm)
 		{
+			visitVar(vi,i);
 			Slu_CALL_VISIT_FN_SEP(VarList,i,itm);
-			visitVar(i);
 		}
 		Slu_CALL_VISIT_FN_POST(VarList);
 	}
@@ -128,8 +206,8 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(ExpList);
 		for (auto& i : itm)
 		{
-			Slu_CALL_VISIT_FN_SEP(ExpList,i,itm);
 			visitExpr(vi, i);
+			Slu_CALL_VISIT_FN_SEP(ExpList,i,itm);
 		}
 		Slu_CALL_VISIT_FN_POST(ExpList);
 	}
@@ -188,8 +266,8 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Params);
 		for (auto& i : itm)
 		{
-			Slu_CALL_VISIT_FN_SEP(Params, i, itm);
 			visitPat(vi, i.name);
+			Slu_CALL_VISIT_FN_SEP(Params, i, itm);
 		}
 		Slu_CALL_VISIT_FN_POST(Params);
 	}
@@ -280,7 +358,7 @@ namespace slu::visit
 			visitParams(vi, var.params);
 			visitTable(vi, var.type);
 		},
-		varcase(parse::StatementType::FuncDefBase<Vi>&) {
+		varcase(parse::StatementType::FuncDefBase<Vi::settings()&parse::sluSyn>&) {
 			visitBlock(vi, var.func.block);
 			if (var.func.retType.has_value())
 				visitTypeExp(vi, *var.func.retType);
@@ -333,14 +411,17 @@ namespace slu::visit
 		for (auto& i : itm.statList)
 			visitStat(vi, i);
 		if (itm.hadReturn)
+		{
+			Slu_CALL_VISIT_FN_PRE(BlockReturn);
 			visitExpList(vi, itm.retExprs);
+		}
 		Slu_CALL_VISIT_FN_POST(Block);
 	}
 	template<AnyVisitor Vi>
 	void visitFile(Vi& vi,parse::ParsedFile<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(File);
-		visitBlock(vi, vi,itm.code);
+		visitBlock(vi, itm.code);
 		Slu_CALL_VISIT_FN_POST(File);
 	}
 }

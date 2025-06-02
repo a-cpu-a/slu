@@ -55,7 +55,7 @@ void _test()
 	slu::parse::BasicMpDbData mpDb;
 	in2.genData.mpDb = { &mpDb };
 	in2.genData.totalMp = {"hello_world"};
-	const auto f2 =slu::parse::parseFile(in2);
+	auto f2 =slu::parse::parseFile(in2);
 
 	slu::parse::Output out2(slu::parse::sluCommon);
 	out2.db = std::move(in2.genData.mpDb);
@@ -67,4 +67,7 @@ void _test()
 	slu::paint::toHtml(semOut2, true);
 
 	slu::comp::compile({});
+
+	auto vi2 = slu::visit::EmptyVisitor{ slu::parse::sluCommon };
+	slu::visit::visitFile(vi2, f2);
 }
