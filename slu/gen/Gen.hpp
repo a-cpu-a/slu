@@ -793,16 +793,16 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genStatOrExpr(Out& out, const parse::StatOrExpr<Out>& obj)
+	inline void genSoe(Out& out, const parse::Soe<Out>& obj)
 
 	{
 		ezmatch(obj)(
-		varcase(const parse::StatOrExprType::BLOCK<Out>&) {
+		varcase(const parse::SoeType::BLOCK<Out>&) {
 			out.newLine().add('{').tabUpNewl();
 			genBlock(out, var);
 			out.unTabNewl().add('}');
 		},
-		varcase(const parse::StatOrExprType::EXPR<Out>&) {
+		varcase(const parse::SoeType::EXPR<Out>&) {
 			out.add(" => ");
 			genExpr(out, *var);
 		}
@@ -817,7 +817,7 @@ namespace slu::parse
 		if constexpr (Out::settings() & sluSyn)
 		{
 			genExpr(out, *itm.cond);
-			genStatOrExpr(out, *itm.bl);
+			genSoe(out, *itm.bl);
 			if constexpr (isExpr)out.add(' ');
 		}
 		else
@@ -838,7 +838,7 @@ namespace slu::parse
 				if constexpr (Out::settings() & sluSyn)
 				{
 					genExpr(out, expr);
-					genStatOrExpr(out, bl);
+					genSoe(out, bl);
 					if constexpr (isExpr)out.add(' ');
 				}
 				else
@@ -857,7 +857,7 @@ namespace slu::parse
 
 			if constexpr (Out::settings() & sluSyn)
 			{
-				genStatOrExpr(out, **itm.elseBlock);
+				genSoe(out, **itm.elseBlock);
 			}
 			else
 			{
