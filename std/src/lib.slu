@@ -4,10 +4,10 @@
 mod prelude;
 
 ---Test test test !!!
-ex fn _println(&crate::prelude::str text)
+ex fn _println(&crate::prelude::str text) -> void
 {
 	safe extern "Lua" {
-		fn print(&crate::prelude::str line);
+		fn print(&crate::prelude::str line) -> void;
 	}
 	crate::_println::print(text);
 }
