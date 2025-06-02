@@ -23,163 +23,50 @@ namespace slu::visit
 		constexpr EmptyVisitor(SettingsT) {}
 		constexpr EmptyVisitor() = default;
 
-		bool preFile(parse::ParsedFile<Cfg>& itm)
-		{
-			return false;
-		}
-		void postFile(parse::ParsedFile<Cfg>& itm)
-		{}
+#define _Slu_DEF_EMPTY_POST(_Name,_Ty) void post##_Name(_Ty& itm){}
+#define _Slu_DEF_EMPTY_POST_UNIT(_Name,_Ty) void post##_Name(const _Ty itm){}
 
-		bool preBlock(parse::Block<Cfg>& itm)
-		{
-			return false;
-		}
-		void postBlock(parse::Block<Cfg>& itm)
-		{}
+#define _Slu_DEF_EMPTY_PRE(_Name,_Ty) bool pre##_Name(_Ty& itm){return false;}
+#define _Slu_DEF_EMPTY_PRE_UNIT(_Name,_Ty) bool pre##_Name(const _Ty itm){return false;}
 
-		bool preVar(parse::Var<Cfg>& itm)
-		{
-			return false;
-		}
-		void postVar(parse::Var<Cfg>& itm)
-		{}
+#define _Slu_DEF_EMPTY_PRE_POST(_Name,_Ty) _Slu_DEF_EMPTY_PRE(_Name,_Ty); _Slu_DEF_EMPTY_POST(_Name,_Ty);
+#define _Slu_DEF_EMPTY_AUTO(_Name)  _Slu_DEF_EMPTY_PRE_POST(_Name,parse:: _Name <Cfg>)
 
-		bool prePat(parse::Pat<Cfg>& itm)
-		{
-			return false;
-		}
-		void postPat(parse::Pat<Cfg>& itm)
-		{}
-
-		bool preDestrSpec(parse::DestrSpec<Cfg>& itm)
-		{
-			return false;
-		}
-		void postDestrSpec(parse::DestrSpec<Cfg>& itm)
-		{}
-
-		bool preSoe(parse::Soe<Cfg>& itm)
-		{
-			return false;
-		}
-		void postSoe(parse::Soe<Cfg>& itm)
-		{}
-
-		bool preExpr(parse::Expression<Cfg>& itm)
-		{
-			return false;
-		}
-		void postExpr(parse::Expression<Cfg>& itm)
-		{}
-
-		bool preTypeExp(parse::TypeExpr& itm)
-		{
-			return false;
-		}
-		void postTypeExp(parse::TypeExpr& itm)
-		{}
-
-		bool preTable(parse::TableConstructor<Cfg>& itm)
-		{
-			return false;
-		}
-		void postTable(parse::TableConstructor<Cfg>& itm)
-		{}
-
-		bool preStat(parse::Statement<Cfg>& itm)
-		{
-			return false;
-		}
-		void postStat(parse::Statement<Cfg>& itm)
-		{}
-
-		bool preLimPrefixExpr(parse::LimPrefixExpr<Cfg>& itm)
-		{
-			return false;
-		}
-		void postLimPrefixExpr(parse::LimPrefixExpr<Cfg>& itm)
-		{}
-
-		bool preDestrSimple(parse::PatType::Simple<Cfg>& itm)
-		{
-			return false;
-		}
-		void postDestrSimple(parse::PatType::Simple<Cfg>& itm)
-		{}
-
-		bool preBaseVarExpr(parse::BaseVarType::EXPR<Cfg>&itm)
-		{
-			return false;
-		}
-		void postBaseVarExpr(parse::BaseVarType::EXPR<Cfg>& itm)
-		{}
-
-		bool preBaseVarName(parse::BaseVarType::NAME<Cfg>&itm)
-		{
-			return false;
-		}
-		void postBaseVarName(parse::BaseVarType::NAME<Cfg>& itm)
-		{}
+		_Slu_DEF_EMPTY_PRE_POST(File, parse::ParsedFile<Cfg>);
+		_Slu_DEF_EMPTY_AUTO(Block);
+		_Slu_DEF_EMPTY_AUTO(Var);
+		_Slu_DEF_EMPTY_AUTO(Pat);
+		_Slu_DEF_EMPTY_AUTO(DestrSpec);
+		_Slu_DEF_EMPTY_AUTO(Soe);
+		_Slu_DEF_EMPTY_AUTO(LimPrefixExpr);
+		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expression<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(TypeExp, parse::TypeExpr);
+		_Slu_DEF_EMPTY_PRE_POST(Table, parse::TableConstructor<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Statement<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(DestrSimple, parse::PatType::Simple<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(BaseVarExpr, parse::BaseVarType::EXPR<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(BaseVarName, parse::BaseVarType::NAME<Cfg>);
 
 		//Edge cases:
-		bool preDestrField(parse::DestrField<Cfg>& itm)
-		{
-			return false;
-		}
-		bool preDestrFieldPat(parse::DestrField<Cfg>& itm)
-		{
-			return false;
-		}
-		void postDestrField(parse::DestrField<Cfg>& itm)
-		{}
+		_Slu_DEF_EMPTY_AUTO(DestrField);
+		_Slu_DEF_EMPTY_PRE(DestrFieldPat, parse::DestrField<Cfg>);
 
-		bool preDestrName(parse::PatType::DestrName<Cfg>& itm)
-		{
-			return false;
-		}
-		bool preDestrNameName(parse::PatType::DestrName<Cfg>& itm)
-		{
-			return false;
-		}
-		void postDestrName(parse::PatType::DestrName<Cfg>& itm)
-		{}
+		_Slu_DEF_EMPTY_PRE_POST(DestrName, parse::PatType::DestrName<Cfg>);
+		_Slu_DEF_EMPTY_PRE(DestrNameName, parse::PatType::DestrName<Cfg>);
 
-		bool preDestrNameRestrict(parse::PatType::DestrNameRestrict<Cfg>& itm)
-		{
-			return false;
-		}
-		bool preDestrNameRestrictName(parse::PatType::DestrNameRestrict<Cfg>& itm)
-		{
-			return false;
-		}
-		bool preDestrNameRestriction(parse::PatType::DestrNameRestrict<Cfg>& itm)
-		{
-			return false;
-		}
-		void postDestrNameRestrict(parse::PatType::DestrNameRestrict<Cfg>& itm)
-		{}
+		_Slu_DEF_EMPTY_PRE_POST(DestrNameRestrict, parse::PatType::DestrNameRestrict<Cfg>);
+		_Slu_DEF_EMPTY_PRE(DestrNameRestrictName, parse::PatType::DestrNameRestrict<Cfg>);
+		_Slu_DEF_EMPTY_PRE(DestrNameRestriction, parse::PatType::DestrNameRestrict<Cfg>);
 
 		//Pre only:
-		bool preBaseVarRoot(const parse::BaseVarType::Root itm)
-		{
-			return false;
-		}
-		bool preBlockReturn(parse::Block<Cfg>& itm)
-		{
-			return false;
-		}
-		bool preDestrAny(const parse::PatType::DestrAny itm)
-		{
-			return false;
-		}
-		bool preName(parse::MpItmId<Cfg>& itm)
-		{
-			return false;
-		}
-		bool preString(std::span<char>&itm)
-		{
-			return false;
-		}
+		_Slu_DEF_EMPTY_PRE_UNIT(BaseVarRoot, parse::BaseVarType::Root);
+		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny);
+		_Slu_DEF_EMPTY_PRE(BlockReturn, parse::Block<Cfg>);
+		_Slu_DEF_EMPTY_PRE(Name, parse::MpItmId<Cfg>);
+		_Slu_DEF_EMPTY_PRE_UNIT(String, std::span<char>);
+		_Slu_DEF_EMPTY_PRE_UNIT(True, parse::ExprType::TRUE);
+		_Slu_DEF_EMPTY_PRE_UNIT(False, parse::ExprType::FALSE);
+		_Slu_DEF_EMPTY_PRE_UNIT(Nil, parse::ExprType::NIL);
 
 		//Lists:
 		bool preDestrList(parse::PatType::DestrList<Cfg>& itm)
