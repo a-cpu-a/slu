@@ -27,6 +27,7 @@
 #include <slu/parser/VecInput.hpp>
 #include <slu/paint/Paint.hpp>
 #include <slu/paint/PaintToHtml.hpp>
+#include <slu/visit/Visit.hpp>
 #include <slu/gen/Gen.hpp>
 #include <slu/MetaTableUtils.hpp>
 #include <slu/comp/Compile.hpp>
