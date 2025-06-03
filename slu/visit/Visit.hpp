@@ -30,7 +30,7 @@ namespace slu::visit
 #define Slu_CALL_VISIT_FN_POST_VAR(_Name) Slu_CALL_VISIT_FN_POST_USER(_Name,var)
 
 	template<AnyVisitor Vi>
-	inline void visitString(Vi& vi, std::string_view itm)
+	inline void visitString(Vi& vi, std::span<char> itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(String);
 	}
@@ -77,8 +77,7 @@ namespace slu::visit
 			visitTypeExp(vi, var);
 		},
 		varcase(parse::DestrSpecType::Prefix&) {
-			for (auto& i : var)
-				visitUnOp(vi, i);
+			visitUnOps(vi, var);
 		}
 		);
 		Slu_CALL_VISIT_FN_POST(DestrSpec);
@@ -207,7 +206,13 @@ namespace slu::visit
 	inline void visitTypeExp(Vi& vi, parse::TypeExpr& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(TypeExp);
+		if (itm.hasMut)
+		{
+			Slu_CALL_VISIT_FN_PRE(TypeExpMut);
+		}
+		visitUnOps(vi, itm.unOps);
 		//TODO
+		visitPostUnOps(vi, std::span<const parse::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
 		Slu_CALL_VISIT_FN_POST(TypeExp);
 	}
 	template<AnyVisitor Vi>
@@ -229,34 +234,39 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(BinOp);
 	}
 	template<AnyVisitor Vi>
-	inline void visitUnOp(Vi& vi, parse::UnOpItem& itm) {
-		Slu_CALL_VISIT_FN_PRE(UnOp);
-		if (itm.type == parse::UnOpType::TO_REF
-			|| itm.type == parse::UnOpType::TO_REF_MUT
-			|| itm.type == parse::UnOpType::TO_REF_CONST
-			|| itm.type == parse::UnOpType::TO_REF_SHARE)
+	inline void visitUnOps(Vi& vi, std::span<parse::UnOpItem> list) 
+	{
+		for (auto& itm :list)
 		{
-			visitLifetime(vi, itm.life);
-			if (itm.type == parse::UnOpType::TO_REF_MUT)
-				Slu_CALL_VISIT_FN_PRE(UnOpMut);
-			else if (itm.type == parse::UnOpType::TO_REF_CONST)
-				Slu_CALL_VISIT_FN_PRE(UnOpConst);
-			else if (itm.type == parse::UnOpType::TO_REF_SHARE)
-				Slu_CALL_VISIT_FN_PRE(UnOpShare);
+			Slu_CALL_VISIT_FN_PRE(UnOp);
+			if (itm.type == parse::UnOpType::TO_REF
+				|| itm.type == parse::UnOpType::TO_REF_MUT
+				|| itm.type == parse::UnOpType::TO_REF_CONST
+				|| itm.type == parse::UnOpType::TO_REF_SHARE)
+			{
+				visitLifetime(vi, itm.life);
+				if (itm.type == parse::UnOpType::TO_REF_MUT)
+					Slu_CALL_VISIT_FN_PRE(UnOpMut);
+				else if (itm.type == parse::UnOpType::TO_REF_CONST)
+					Slu_CALL_VISIT_FN_PRE(UnOpConst);
+				else if (itm.type == parse::UnOpType::TO_REF_SHARE)
+					Slu_CALL_VISIT_FN_PRE(UnOpShare);
+			}
+			Slu_CALL_VISIT_FN_POST(UnOp);
 		}
-		Slu_CALL_VISIT_FN_POST(UnOp);
 	}
 	template<AnyVisitor Vi>
-	inline void visitPostUnOp(Vi& vi, const parse::PostUnOpType itm) {
-		Slu_CALL_VISIT_FN_PRE(PostUnOp);
+	inline void visitPostUnOps(Vi& vi, std::span<const parse::PostUnOpType> list) 
+	{
+		for (auto& itm : list) {
+			Slu_CALL_VISIT_FN_PRE(PostUnOp);
+		}
 	}
 	template<AnyVisitor Vi>
 	inline void visitExpr(Vi& vi, parse::Expression<Vi>& itm)
 	{
-		for (auto& i : itm.unOps)
-			visitUnOp(vi, i);
-
 		Slu_CALL_VISIT_FN_PRE(Expr);
+		visitUnOps(vi, itm.unOps);
 		ezmatch(itm.data)(
 		varcase(const parse::ExprType::FALSE) {
 			Slu_CALL_VISIT_FN_PRE_VAR(False);
@@ -343,8 +353,7 @@ namespace slu::visit
 			Slu_panic("PatTypePrefix is not a valid expression, somehow leaked out of parsing!!!");
 		}
 		);
-		for (auto& i : itm.postUnOps)
-			visitPostUnOp(vi, i);
+		visitPostUnOps(vi, std::span<const parse::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
 
 		Slu_CALL_VISIT_FN_POST(Expr);
 	}
