@@ -131,14 +131,14 @@ namespace slu::mlvl
 		case parse::BinOpType::EXPONENT:
 		case parse::BinOpType::SHIFT_LEFT:
 		case parse::BinOpType::SHIFT_RIGHT:
-		case parse::BinOpType::ARRAY_CONSTRUCT:
+		case parse::BinOpType::ARRAY_MUL:
 			return Assoc::RIGHT;
 		default:
 			return Assoc::LEFT;
 		}
 	}
 
-	enum class OpKind : uint8_t { BinOp, UnOp, PostUnOp };
+	enum class OpKind : uint8_t { BinOp, UnOp, PostUnOp,Expr };
 	struct MultiOpOrderEntry
 	{
 		size_t index;
@@ -149,8 +149,9 @@ namespace slu::mlvl
 	};
 	struct ExprUnOpsEntry
 	{
-		size_t preConsumed=0;
-		size_t sufConsumed=0;
+		size_t preConsumed = 0;
+		size_t sufConsumed : 63 = 0;
+		size_t used = false;
 	};
 
 	template<bool isLua>
@@ -168,7 +169,13 @@ namespace slu::mlvl
 	template<bool isLua>
 	constexpr void consumeUnOps(std::vector<MultiOpOrderEntry>& unOps,const auto& item,const size_t itemIdx, ExprUnOpsEntry& entry,const bool onLeftSide,const uint8_t minPrecedence)
 	{
-		auto pSuf = item.postUnOps.cbegin()+ entry.sufConsumed;
+		if (!entry.used)
+		{
+			unOps.insert(unOps.end(), MultiOpOrderEntry{.index = itemIdx,.kind = OpKind::Expr});
+			entry.used = true;
+		}
+
+		auto pSuf = item.postUnOps.cbegin() + entry.sufConsumed;
 		auto pPre = item.unOps.crbegin() + entry.preConsumed;
 		//Loop pre in reverse, to get it as inner->outter
 
@@ -277,7 +284,7 @@ namespace slu::mlvl
 		std::vector<ExprUnOpsEntry> exprUnOps(ops.size()+1);
 		std::vector<std::vector<MultiOpOrderEntry>> unOps(ops.size());
 		std::vector<MultiOpOrderEntry> unOpsLast;
-		size_t unOpCount = m.first.unOps.size() + m.first.postUnOps.size();
+		size_t unOpCount = m.first->unOps.size() + m.first->postUnOps.size();
 		
 
 		for (size_t i = 0; i < ops.size(); i++)
@@ -286,7 +293,7 @@ namespace slu::mlvl
 			
 			ExprUnOpsEntry& leftEntry = exprUnOps[e.index];
 			const auto& left = (e.index==0)
-				? m.first
+				? *m.first
 				: m.extra[e.index-1].second;
 			ExprUnOpsEntry& rightEntry = exprUnOps[e.index+1];
 			const auto& right = m.extra[e.index].second;
@@ -308,7 +315,7 @@ namespace slu::mlvl
 		}
 		//Consume first, last expr un ops if needed.
 		// min op prec is 0xFF, to mark the opposite sides as not usable.
-		consumeUnOps<isLua>(unOpsLast, m.first,0, exprUnOps.front(), false, 0xFF);
+		consumeUnOps<isLua>(unOpsLast, *m.first,0, exprUnOps.front(), false, 0xFF);
 		consumeUnOps<isLua>(unOpsLast, m.extra.back().second,m.extra.size(), exprUnOps.back(), true, 0xFF);
 
 		/*
