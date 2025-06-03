@@ -40,6 +40,21 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Name);
 	}
 	template<AnyVisitor Vi>
+	inline void visitMp(Vi& vi, parse::MpItmId<Vi>& itm)
+	{
+		//TODO
+	}
+	template<AnyVisitor Vi>
+	inline void visitExported(Vi& vi, const parse::ExportData itm)
+	{
+		//TODO
+	}
+	template<AnyVisitor Vi>
+	inline void visitSafety(Vi& vi, const parse::OptSafety itm)
+	{
+		//TODO
+	}
+	template<AnyVisitor Vi>
 	inline void visitNameList(Vi& vi, parse::NameList<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(NameList);
@@ -62,7 +77,8 @@ namespace slu::visit
 			visitTypeExp(vi, var);
 		},
 		varcase(parse::DestrSpecType::Prefix&) {
-			//TODO
+			for (auto& i : var)
+				visitUnOp(vi, i);
 		}
 		);
 		Slu_CALL_VISIT_FN_POST(DestrSpec);
@@ -156,7 +172,7 @@ namespace slu::visit
 		},
 		varcase(parse::BaseVarType::NAME<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(BaseVarName);
-			visitName(vi, var.v);
+			visitMp(vi, var.v);
 			Slu_CALL_VISIT_FN_POST_VAR(BaseVarName);
 		},
 		varcase(const parse::BaseVarType::Root) {
@@ -306,6 +322,11 @@ namespace slu::visit
 			visitTable(vi,var.v);
 		},
 		varcase(parse::ExprType::FUNCTION_DEF<Vi>&) {
+			visitSafety(vi, var.v.safety);
+			visitParams(vi, var.v.params);
+			if(var.v.retType.has_value())
+				visitTypeExp(vi, *var.v.retType);
+			visitBlock(vi, var.v.block);
 			//TODO
 		},
 		varcase(parse::ExprType::MULTI_OPERATION<Vi>&) {
@@ -388,6 +409,7 @@ namespace slu::visit
 		}
 		Slu_CALL_VISIT_FN_POST(Table);
 	}
+	//TODO: var-args
 	template<AnyVisitor Vi>
 	inline void visitParams(Vi& vi, parse::ParamList<Vi>& itm)
 	{
@@ -410,16 +432,19 @@ namespace slu::visit
 			visitVarList(vi, var.vars);
 		},
 		varcase(parse::StatementType::LOCAL_ASSIGN<Vi>&) {
-			visitExpList(vi, var.exprs);
+			visitExported(vi, var.exported);
 			visitPat(vi, var.names);
+			visitExpList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::LET<Vi>&) {
-			visitExpList(vi, var.exprs);
+			visitExported(vi, var.exported);
 			visitPat(vi, var.names);
+			visitExpList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::CONST<Vi>&) {
-			visitExpList(vi, var.exprs);
+			visitExported(vi, var.exported);
 			visitPat(vi, var.names);
+			visitExpList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::FUNC_CALL<Vi>&) {
 			visitLimPrefixExpr(vi, *var.val);
@@ -440,68 +465,77 @@ namespace slu::visit
 		varcase(parse::StatementType::USE&) {
 			//TODO
 		},
-		varcase(parse::StatementType::MOD_DEF<Vi>&) {
-			//TODO
-		},
 		varcase(parse::StatementType::SEMICOLON&) {
 			//TODO
 		},
 		varcase(parse::StatementType::IfCond<Vi>&) {
-			visitSoe(vi, *var.bl);
-			if (var.elseBlock.has_value())
-				visitSoe(vi, **var.elseBlock);
 			visitExpr(vi, *var.cond);
+			visitSoe(vi, *var.bl);
 			for (auto& [cond, soe] : var.elseIfs)
 			{
 				visitExpr(vi, cond);
 				visitSoe(vi, soe);
 			}
+			if (var.elseBlock.has_value())
+				visitSoe(vi, **var.elseBlock);
 		},
 		varcase(parse::StatementType::WHILE_LOOP<Vi>&) {
-			visitBlock(vi, var.bl);
 			visitExpr(vi, var.cond);
+			visitBlock(vi, var.bl);
 		},
 		varcase(parse::StatementType::REPEAT_UNTIL<Vi>&) {
 			visitBlock(vi, var.bl);
 			visitExpr(vi, var.cond);
 		},
 		varcase(parse::StatementType::FOR_LOOP_NUMERIC<Vi>&) {
-			visitBlock(vi, var.bl);
+			visitPat(vi, var.varName);
 			visitExpr(vi, var.start);
 			visitExpr(vi, var.end);
 			if (var.step.has_value())
 				visitExpr(vi, *var.step);
-			visitPat(vi, var.varName);
+			visitBlock(vi, var.bl);
 		},
 		varcase(parse::StatementType::FOR_LOOP_GENERIC<Vi>&) {
-			visitBlock(vi, var.bl);
-			visitExpr(vi, var.exprs);
 			visitPat(vi, var.varNames);
+			visitExpr(vi, var.exprs);
+			visitBlock(vi, var.bl);
 		},
 		varcase(parse::StatementType::Struct<Vi>&) {
+			visitExported(vi, var.exported);
+			visitName(vi, var.name);
 			visitParams(vi, var.params);
 			visitTypeExp(vi, var.type);
 		},
 		varcase(parse::StatementType::Union<Vi>&) {
+			visitExported(vi, var.exported);
+			visitName(vi, var.name);
 			visitParams(vi, var.params);
 			visitTable(vi, var.type);
 		},
-		varcase(parse::StatementType::FuncDefBase<Vi::settings()&parse::sluSyn>&) {
+		varcase(parse::StatementType::FUNCTION_DEFv<Vi::settings()&parse::sluSyn>&) {
+			visitExported(vi, var.exported);
+			visitSafety(vi, var.func.safety);
+			visitName(vi, var.name);
 			visitBlock(vi, var.func.block);
 			if (var.func.retType.has_value())
 				visitTypeExp(vi, *var.func.retType);
 			visitParams(vi, var.func.params);
 		},
 		varcase(parse::StatementType::FunctionDecl<Vi>&) {
+			visitExported(vi, var.exported);
+			visitSafety(vi, var.safety);
+			visitName(vi, var.name);
 			if (var.retType.has_value())
 				visitTypeExp(vi, *var.retType);
 			visitParams(vi, var.params);
 		},
 		varcase(parse::StatementType::ExternBlock<Vi>&) {
-			//TODO
+			visitSafety(vi, var.safety);
+			visitString(vi, var.abi);
+			visitBlock(vi, var.bl);
 		},
 		varcase(parse::StatementType::UnsafeBlock<Vi>&) {
-			//TODO
+			visitBlock(vi, var.bl);
 		},
 		varcase(const parse::StatementType::UNSAFE_LABEL) {
 			//TODO
@@ -512,7 +546,14 @@ namespace slu::visit
 		varcase(parse::StatementType::DROP<Vi>&) {
 			visitExpr(vi, var.expr);
 		},
+		varcase(parse::StatementType::MOD_DEF<Vi>&) {
+			visitExported(vi, var.exported);
+			visitName(vi, var.name);
+			//TODO
+		},
 		varcase(parse::StatementType::MOD_DEF_INLINE<Vi>&) {
+			visitExported(vi, var.exported);
+			visitName(vi, var.name);
 			visitBlock(vi, var.bl);
 		}
 		);
