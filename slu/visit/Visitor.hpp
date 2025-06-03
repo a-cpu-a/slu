@@ -31,7 +31,10 @@ namespace slu::visit
 #define _Slu_DEF_EMPTY_PRE(_Name,_Ty) _Slu_DEF_EMPTY_PRE_RAW(_Name,_Ty&)
 #define _Slu_DEF_EMPTY_PRE_UNIT(_Name,_Ty) _Slu_DEF_EMPTY_PRE_RAW(_Name,const _Ty)
 
-#define _Slu_DEF_EMPTY_PRE_POST(_Name,_Ty) _Slu_DEF_EMPTY_PRE(_Name,_Ty); _Slu_DEF_EMPTY_POST(_Name,_Ty);
+#define _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,_Ty) _Slu_DEF_EMPTY_PRE_RAW(_Name,_Ty); _Slu_DEF_EMPTY_POST_RAW(_Name,_Ty)
+#define _Slu_DEF_EMPTY_PRE_POST(_Name,_Ty) _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,_Ty&)
+#define _Slu_DEF_EMPTY_PRE_POST_UNIT(_Name,_Ty) _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,const _Ty)
+
 #define _Slu_DEF_EMPTY_AUTO(_Name)  _Slu_DEF_EMPTY_PRE_POST(_Name,parse:: _Name <Cfg>)
 
 #define _Slu_DEF_EMPTY_SEP_RAW(_Name,_Ty,_ElemTy) void sep##_Name(_Ty list,_ElemTy itm){}
@@ -49,8 +52,12 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_AUTO(DestrSpec);
 		_Slu_DEF_EMPTY_AUTO(Soe);
 		_Slu_DEF_EMPTY_AUTO(LimPrefixExpr);
+		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
 		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expression<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::LITERAL_STRING);
+		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MULTI_OPERATION<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TypeExp, parse::TypeExpr);
+		_Slu_DEF_EMPTY_PRE_POST(TraitExp, parse::TraitExpr);
 		_Slu_DEF_EMPTY_PRE_POST(Table, parse::TableConstructor<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Statement<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(DestrSimple, parse::PatType::Simple<Cfg>);
@@ -68,7 +75,13 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE(DestrNameRestrictName, parse::PatType::DestrNameRestrict<Cfg>);
 		_Slu_DEF_EMPTY_PRE(DestrNameRestriction, parse::PatType::DestrNameRestrict<Cfg>);
 
+		_Slu_DEF_EMPTY_PRE_POST(UnOp, parse::UnOpItem);
+		_Slu_DEF_EMPTY_PRE(UnOpMut, parse::UnOpItem);
+		_Slu_DEF_EMPTY_PRE(UnOpConst, parse::UnOpItem);
+		_Slu_DEF_EMPTY_PRE(UnOpShare, parse::UnOpItem);
 		//Pre only:
+		_Slu_DEF_EMPTY_PRE_UNIT(PostUnOp, parse::PostUnOpType);
+		_Slu_DEF_EMPTY_PRE_UNIT(BinOp, parse::BinOpType);
 		_Slu_DEF_EMPTY_PRE_UNIT(BaseVarRoot, parse::BaseVarType::Root);
 		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny);
 		_Slu_DEF_EMPTY_PRE(BlockReturn, parse::Block<Cfg>);

@@ -12,7 +12,7 @@ Order of Operations {
 	(pseudo) = ++= |= ~= &= <<= >>= += -= %= *= /= //= ^= **=
 	(pseudo) ,
 
-	unary operators (alloc)
+	unary operators (mut   alloc) --NOTE: mut is not really a operator, but is still listed here
 	
 	or
 	and
@@ -33,7 +33,7 @@ Order of Operations {
 	+	-
 	% (Not the same as lua, modulus is bellow / * //)
 	*	/	//
-	unary operators (!	-	mut	  &   &const   &mut   &share   *   *const 	 *mut 	*share)
+	unary operators (!	-	&   &const   &mut   &share   *   *const 	 *mut 	*share)
 	^
 	postfix unary operators (? .*)
 	
@@ -90,6 +90,7 @@ Order of Operations {
 	~~		----
 	dyn		----
 	impl	----
+	mut		----
 	alloc	----
 	=		----		(maybe...)
 	```

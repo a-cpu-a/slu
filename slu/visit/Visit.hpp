@@ -195,12 +195,53 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(TypeExp);
 	}
 	template<AnyVisitor Vi>
+	inline void visitTraitExp(Vi& vi, parse::TraitExpr& itm)
+	{
+		Slu_CALL_VISIT_FN_PRE(TraitExp);
+		//TODO
+		Slu_CALL_VISIT_FN_POST(TraitExp);
+	}
+	template<AnyVisitor Vi>
+	inline void visitLifetime(Vi& vi, parse::Lifetime& itm)
+	{
+		Slu_CALL_VISIT_FN_PRE(Lifetime);
+		//TODO
+		Slu_CALL_VISIT_FN_POST(Lifetime);
+	}
+	template<AnyVisitor Vi>
+	inline void visitBinOp(Vi& vi, const parse::BinOpType itm) {
+		Slu_CALL_VISIT_FN_PRE(BinOp);
+	}
+	template<AnyVisitor Vi>
+	inline void visitUnOp(Vi& vi, parse::UnOpItem& itm) {
+		Slu_CALL_VISIT_FN_PRE(UnOp);
+		if (itm.type == parse::UnOpType::TO_REF
+			|| itm.type == parse::UnOpType::TO_REF_MUT
+			|| itm.type == parse::UnOpType::TO_REF_CONST
+			|| itm.type == parse::UnOpType::TO_REF_SHARE)
+		{
+			visitLifetime(vi, itm.life);
+			if (itm.type == parse::UnOpType::TO_REF_MUT)
+				Slu_CALL_VISIT_FN_PRE(UnOpMut);
+			else if (itm.type == parse::UnOpType::TO_REF_CONST)
+				Slu_CALL_VISIT_FN_PRE(UnOpConst);
+			else if (itm.type == parse::UnOpType::TO_REF_SHARE)
+				Slu_CALL_VISIT_FN_PRE(UnOpShare);
+		}
+		Slu_CALL_VISIT_FN_POST(UnOp);
+	}
+	template<AnyVisitor Vi>
+	inline void visitPostUnOp(Vi& vi, const parse::PostUnOpType itm) {
+		Slu_CALL_VISIT_FN_PRE(PostUnOp);
+	}
+	template<AnyVisitor Vi>
 	inline void visitExpr(Vi& vi, parse::Expression<Vi>& itm)
 	{
+		for (auto& i : itm.unOps)
+			visitUnOp(vi, i);
+
 		Slu_CALL_VISIT_FN_PRE(Expr);
 		ezmatch(itm.data)(
-		//TODO
-		varcase(const auto&) {},
 		varcase(const parse::ExprType::FALSE) {
 			Slu_CALL_VISIT_FN_PRE_VAR(False);
 		},
@@ -209,8 +250,81 @@ namespace slu::visit
 		},
 		varcase(const parse::ExprType::NIL) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Nil);
+		},
+		varcase(parse::ExprType::LITERAL_STRING&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(ExprString);
+		},
+		varcase(const parse::ExprType::NUMERAL) {
+			//TODO
+		},
+		varcase(const parse::ExprType::NUMERAL_I64) {
+			//TODO
+		},
+		varcase(const parse::ExprType::NUMERAL_I128) {
+			//TODO
+		},
+		varcase(const parse::ExprType::NUMERAL_U64) {
+			//TODO
+		},
+		varcase(const parse::ExprType::NUMERAL_U128) {
+			//TODO
+		},
+		varcase(const parse::ExprType::OPEN_RANGE) {
+			//TODO
+		},
+		varcase(const parse::ExprType::VARARGS) {
+			//TODO
+		},
+		varcase(parse::ExprType::TYPE_EXPR&) {
+			visitTypeExp(vi, var);
+		},
+		varcase(parse::ExprType::TRAIT_EXPR&) {
+			visitTraitExp(vi, var);
+		},
+		varcase(parse::ExprType::IfCond<Vi>&) {
+			visitSoe(vi, *var.bl);
+			if (var.elseBlock.has_value())
+				visitSoe(vi, **var.elseBlock);
+			visitExpr(vi, *var.cond);
+			for (auto& [cond, soe] : var.elseIfs)
+			{
+				visitExpr(vi, cond);
+				visitSoe(vi, soe);
+			}
+		},
+		varcase(parse::ExprType::LIM_PREFIX_EXP<Vi>&) {
+			visitLimPrefixExpr(vi, *var);
+		},
+		varcase(parse::ExprType::FUNC_CALL<Vi>&) {
+			visitLimPrefixExpr(vi, *var.val);
+			visitArgChain(vi, var.argChain);
+		},
+		varcase(parse::ExprType::LIFETIME&) {
+			visitLifetime(vi,var);
+		},
+		varcase(parse::ExprType::TABLE_CONSTRUCTOR<Vi>&) {
+			visitTable(vi,var.v);
+		},
+		varcase(parse::ExprType::FUNCTION_DEF<Vi>&) {
+			//TODO
+		},
+		varcase(parse::ExprType::MULTI_OPERATION<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(MultiOp);
+			visitExpr(vi, *var.first);
+			for (auto& [op,expr] : var.extra)
+			{
+				visitBinOp(vi, op);
+				visitExpr(vi, expr);
+			}
+			Slu_CALL_VISIT_FN_POST_VAR(MultiOp);
+		},
+		varcase(parse::ExprType::PAT_TYPE_PREFIX&) {
+			Slu_panic("PatTypePrefix is not a valid expression, somehow leaked out of parsing!!!");
 		}
 		);
+		for (auto& i : itm.postUnOps)
+			visitPostUnOp(vi, i);
+
 		Slu_CALL_VISIT_FN_POST(Expr);
 	}
 	template<AnyVisitor Vi>
