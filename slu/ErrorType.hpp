@@ -34,7 +34,7 @@ namespace slu
 #define Slu_panic(...) __builtin_trap()
 #elif defined(_MSC_VER)
 #if defined(_M_X64) || defined(_M_I86) || defined(_M_IX86)
-#define Slu_panic(...) __debugbreak() // Smaller
+#define Slu_panic(...) __debugbreak();std::abort() // Smaller
 #else
 #define Slu_panic(...) __fastfail(0)
 #endif
