@@ -211,7 +211,74 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_PRE(TypeExpMut);
 		}
 		visitUnOps(vi, itm.unOps);
-		//TODO
+		ezmatch(itm.data)(
+		varcase(parse::TypeExprDataType::ERR&) {
+			visitTypeExp(vi, *var.err);
+		},
+		varcase(const parse::TypeExprDataType::ERR_INFERR) {
+			//TODO
+		},
+		varcase(const parse::TypeExprDataType::TRAIT_TY) {
+			//TODO
+		},
+		varcase(parse::TypeExprDataType::DYN&) {
+			visitTraitExp(vi, var.expr);
+		},
+		varcase(parse::TypeExprDataType::IMPL&) {
+			visitTraitExp(vi, var.expr);
+		},
+		varcase(parse::TypeExprDataType::SLICER&) {
+			visitExpr(vi, *var);
+		},
+		varcase(parse::TypeExprDataType::Struct&) {
+			visitTable(vi, var);
+		},
+		varcase(parse::TypeExprDataType::Union&) {
+			visitTable(vi, var.fields);
+		},
+		varcase(parse::TypeExprDataType::FN&) {
+			visitSafety(vi, var.safety);
+			visitTypeExp(vi, *var.argType);
+			visitTypeExp(vi, *var.retType);
+		},
+
+		varcase(const parse::TypeExprDataType::NUMERAL) {
+			//TODO
+		},
+		varcase(const parse::TypeExprDataType::NUMERAL_I64) {
+			//TODO
+		},
+		varcase(const parse::TypeExprDataType::NUMERAL_I128) {
+			//TODO
+		},
+		varcase(const parse::TypeExprDataType::NUMERAL_U64) {
+			//TODO
+		},
+		varcase(const parse::TypeExprDataType::NUMERAL_U128) {
+			//TODO
+		},
+		varcase(parse::TypeExprDataType::LITERAL_STRING&) {
+			visitString(vi, var.v);
+		},
+		varcase(parse::TypeExprDataType::MULTI_OP&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(TypeMultiOp);
+			visitTypeExp(vi, *var.first);
+			for (auto& [op, expr] : var.extra)
+			{
+				visitBinOp(vi, op);
+				visitTypeExp(vi, expr);
+			}
+			Slu_CALL_VISIT_FN_POST_VAR(TypeMultiOp);
+		},
+		varcase(parse::TypeExprDataType::LIM_PREFIX_EXP&) {
+			visitLimPrefixExpr(vi, *var);
+		},
+		varcase(parse::TypeExprDataType::FUNC_CALL&) {
+			visitLimPrefixExpr(vi, *var.val);
+			visitArgChain(vi, var.argChain);
+		}
+
+		);
 		visitPostUnOps(vi, std::span<const parse::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
 		Slu_CALL_VISIT_FN_POST(TypeExp);
 	}
@@ -279,6 +346,7 @@ namespace slu::visit
 		},
 		varcase(parse::ExprType::LITERAL_STRING&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(ExprString);
+			visitString(vi, var.v);
 		},
 		varcase(const parse::ExprType::NUMERAL) {
 			//TODO

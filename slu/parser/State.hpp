@@ -371,10 +371,12 @@ namespace slu::parse
 			std::unique_ptr<TypeExpr> err;
 		};
 
+		using ExprType::NUMERAL;//TODO
 		using ExprType::NUMERAL_U64;
 		using ExprType::NUMERAL_I64;
 		using ExprType::NUMERAL_U128;
 		using ExprType::NUMERAL_I128;
+		using ExprType::LITERAL_STRING;//TODO
 	}
 	using TypeExprData = std::variant<
 		TypeExprDataType::ERR_INFERR,
