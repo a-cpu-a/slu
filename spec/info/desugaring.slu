@@ -55,6 +55,32 @@ let v4 = 1+1*1;
 
 let v4 = :>::std::ops::Add::add(1,:>::std::ops::Mul::mul(1,1));
 -----------------------------
+let vO = a() or b();
+
+-->
+
+let vO = if a() => :>::std::bool::true else => b();
+--2026?
+let vO = do {
+	let __value = a(); 
+	break:do if :>::std::ops::Or::stopOr(&__value)
+		=> __value
+		else => :>::std::ops::Or::boolOr(__value,b())
+}
+-----------------------------
+let vA = a() and b();
+
+-->
+
+let vA = if a() => b() else => :>::std::bool::false;
+--2026?
+let vA = do {
+	let __value = a(); 
+	break:do if :>::std::ops::And::stopAnd(&__value)
+		=> __value
+		else => :>::std::ops::And::boolAnd(__value,b())
+}
+-----------------------------
 let v5 = x.*;
 
 -->
