@@ -59,6 +59,18 @@ namespace slu::parse
 
 			return at(size() - 1)==cmp;
 		}
+		constexpr const T* data() const
+		{
+			if (m_isSmall())
+				return small.first14;
+			return large.ptr;
+		}
+		constexpr T* data()
+		{
+			if (m_isSmall())
+				return small.first14;
+			return large.ptr;
+		}
 		const T& at(const size_t idx) const
 		{
 			if (m_isSmall())
@@ -136,7 +148,8 @@ namespace slu::parse
 		template<bool rev>
 		struct SmallEnumListIterator
 		{
-			using iterator_category = std::forward_iterator_tag;
+			using iterator_category = std::conditional_t<rev, std::forward_iterator_tag, std::contiguous_iterator_tag>;
+			using element_type = const T;
 			using value_type = T;
 			using difference_type = std::ptrdiff_t;
 			using pointer = const T*;

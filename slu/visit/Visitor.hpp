@@ -56,7 +56,6 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expression<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::LITERAL_STRING);
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MULTI_OPERATION<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(TypeExp, parse::TypeExpr);
 		_Slu_DEF_EMPTY_PRE_POST(TraitExp, parse::TraitExpr);
 		_Slu_DEF_EMPTY_PRE_POST(Table, parse::TableConstructor<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Statement<Cfg>);
@@ -65,6 +64,9 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(BaseVarName, parse::BaseVarType::NAME<Cfg>);
 
 		//Edge cases:
+		_Slu_DEF_EMPTY_PRE_POST(TypeExp, parse::TypeExpr);
+		_Slu_DEF_EMPTY_PRE(TypeExpMut, parse::TypeExpr);
+
 		_Slu_DEF_EMPTY_AUTO(DestrField);
 		_Slu_DEF_EMPTY_PRE(DestrFieldPat, parse::DestrField<Cfg>);
 
