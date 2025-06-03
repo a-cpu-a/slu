@@ -187,6 +187,17 @@ namespace slu::parse
 				++(*this);
 				return tmp;
 			}
+			SmallEnumListIterator operator+(const size_t o) {
+				if constexpr (rev)
+				{
+					Slu_require(m_index > (o - 1));
+					m_index -= o;
+					return *this;
+				}
+				m_index += o;
+				Slu_require(m_index <= m_list->size());//allow == size, as that is end()
+				return *this;
+			}
 
 			bool operator==(const SmallEnumListIterator& other) const {
 				return m_list == other.m_list && m_index == other.m_index;
