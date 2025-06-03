@@ -53,7 +53,10 @@ namespace slu::parse
 		constexpr static size_t max_size() {
 			return MAX_LARGE_SIZE;
 		}
-		const bool isBack(const T cmp) const
+		constexpr bool empty() const {
+			return size() == 0;
+		}
+		bool isBack(const T cmp) const
 		{
 			if (size() == 1)return false;
 
