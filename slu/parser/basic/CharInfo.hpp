@@ -15,6 +15,11 @@ namespace slu::parse
 		return c | CAPITAL_BIT;
 	}
 
+	constexpr char toUpperCase(const char c)
+	{
+		return c & (~CAPITAL_BIT);
+	}
+
 	constexpr bool isLowerCaseEqual(const char charToCheck,const char c)
 	{
 		return toLowerCase(charToCheck)==c;

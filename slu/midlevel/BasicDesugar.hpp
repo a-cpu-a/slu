@@ -10,19 +10,37 @@
 #include <variant>
 #include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
+#include <slu/parser/OpTraits.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/Operator.hpp>
 
 namespace slu::mlvl
 {
+	template<typename T>
+	struct LazyCompute
+	{
+		std::optional<T> value;
+
+		T& get(auto&& create)
+		{
+			if (!value.has_value())
+				value = create();
+			return *value;
+		}
+	};
 	using DesugarCfg = decltype(parse::sluCommon);
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
+		parse::BasicGenDataV<true>& genData;
+		LazyCompute<parse::MpItmId<Cfg>> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId<Cfg>> postUnOpFuncs[(size_t)parse::PostUnOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId<Cfg>> binOpFuncs[(size_t)parse::BinOpType::ENUM_SIZE];
+
 		//TODO: Implement the conversion logic here
 		//TODO: basic desugaring:
-		//TODO: operators
-		//TODO: auto-drop?
-		//TODO: for/while/repeat loops
+		//TODO: [50%] operators
+		//TODO: [_0%] auto-drop?
+		//TODO: [_0%] for/while/repeat loops
 
 		bool preExpr(parse::Expression<Cfg>& itm) {
 			using MultiOp = parse::ExprType::MULTI_OPERATION<Cfg>;
@@ -33,12 +51,113 @@ namespace slu::mlvl
 				_ASSERT(itm.postUnOps.empty());
 				auto order = multiOpOrder<false>(ops);
 				
-				parse::Expression<Cfg> newExpr{};
-				newExpr.place = itm.place;
+				std::vector<parse::Expression<Cfg>> expStack;
 				//newExpr.data = ;
 				for (auto& i : order)
 				{
+					switch (i.kind) {
+					case OpKind::Expr:
+					{
+						parse::Expression<Cfg>& parent = i.index == 0 ? *ops.first : ops.extra[i.index - 1].second;
 
+						parse::Expression<Cfg>& newExpr = expStack.emplace_back();
+						newExpr.data = std::move(parent.data);
+						newExpr.place = parent.place;
+						break;
+					}
+					case OpKind::BinOp:
+					{
+						//create a new expression for the binary operator
+
+						//TODO: special handling for 'and', 'or'.
+						//TODO: special handling for '> >= < <=', '==', '!='.
+
+						auto expr2 = std::move(expStack.back());
+						expStack.pop_back();
+						auto& expr1 = expStack.back();
+						parse::Position place = expr1.place;
+
+						parse::ExprType::FUNC_CALL<Cfg> call;
+						parse::ArgsType::EXPLIST<Cfg> list;
+						list.v.emplace_back(std::move(expr1));
+						list.v.emplace_back(std::move(expr2));
+						call.argChain.emplace_back(std::move(list));
+						*call.val = parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
+							.v = {}//TODO: select func name based on the operator
+						}} };
+
+
+						//Turn the first (moved)expr in a function call expression
+						expr1.data = std::move(call);
+						expr1.place = place;
+						break;
+					}
+					case OpKind::UnOp:
+					case OpKind::PostUnOp:
+					{
+						//TODO: special handling for '.*', '?'. -> defer to after type checking / inference
+						//TODO: special handling for ranges
+
+						auto& opSrcExpr = expStack[i.index];
+
+						auto& expr = expStack.back();
+						parse::Position place = expr.place;
+						//Wrap
+						parse::MpItmId<Cfg> name;
+						parse::Lifetime* lifetime = nullptr;
+						{
+							if(i.kind == OpKind::UnOp) {
+								parse::UnOpItem& op = opSrcExpr.unOps[i.opIdx];
+								const size_t traitIdx = (size_t)op.type - 1; //-1 for none
+
+								name = unOpFuncs[traitIdx].get([&] {
+									lang::ModPath name;
+									name.reserve(4);
+									name.emplace_back("std");
+									name.emplace_back("ops");
+									name.emplace_back(parse::unOpTraitNames[traitIdx]);//TODO: select based on the operator
+									name.emplace_back(parse::unOpNames[traitIdx]);
+									return genData.resolveRootName(name);
+								});
+								if (!op.life.empty())
+								{
+									_ASSERT(op.type == parse::UnOpType::TO_REF
+										|| op.type == parse::UnOpType::TO_REF_MUT
+										|| op.type == parse::UnOpType::TO_REF_CONST
+										|| op.type == parse::UnOpType::TO_REF_SHARE);
+									lifetime = &op.life;
+								}
+								//Else: its inferred, or doesnt exist
+							}
+							else if (i.kind == OpKind::PostUnOp) {
+								parse::PostUnOpType op = opSrcExpr.postUnOps.at(i.opIdx);
+								const size_t traitIdx = (size_t)op - 1; //-1 for none
+
+								name = postUnOpFuncs[traitIdx].get([&] {
+									//TODO: implement post-unop func name selection
+								});
+							}
+						}
+						parse::ExprType::FUNC_CALL<Cfg> call;
+						parse::ArgsType::EXPLIST<Cfg> list;
+						list.v.emplace_back(std::move(expr));
+						if (lifetime != nullptr)
+						{
+							list.v.emplace_back(
+								parse::ExprType::LIFETIME{std::move(*lifetime)}
+							);
+						}
+						call.argChain.emplace_back(std::move(list));
+						*call.val = parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
+							.v = name
+						}} };
+
+						//Turn the (moved)expr in a function call expression
+						expr.data = std::move(call);
+						expr.place = place;
+						break;
+					}
+					};
 				}
 
 				//desugar operators into trait func calls!
