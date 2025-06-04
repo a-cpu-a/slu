@@ -82,8 +82,20 @@ namespace slu::mlvl
 						list.v.emplace_back(std::move(expr1));
 						list.v.emplace_back(std::move(expr2));
 						call.argChain.emplace_back(std::move(list));
+
+						parse::BinOpType op = ops.extra[i.index-1].first;
+						const size_t traitIdx = (size_t)op - 1; //-1 for none
+
 						*call.val = parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
-							.v = {}//TODO: select func name based on the operator
+							.v = binOpFuncs[traitIdx].get([&] {
+									lang::ModPath name;
+									name.reserve(4);
+									name.emplace_back("std");
+									name.emplace_back("ops");
+									name.emplace_back(parse::binOpTraitNames[traitIdx]);
+									name.emplace_back(parse::binOpNames[traitIdx]);
+									return genData.resolveRootName(name);
+								})
 						}} };
 
 
@@ -115,7 +127,7 @@ namespace slu::mlvl
 									name.reserve(4);
 									name.emplace_back("std");
 									name.emplace_back("ops");
-									name.emplace_back(parse::unOpTraitNames[traitIdx]);//TODO: select based on the operator
+									name.emplace_back(parse::unOpTraitNames[traitIdx]);
 									name.emplace_back(parse::unOpNames[traitIdx]);
 									return genData.resolveRootName(name);
 								});

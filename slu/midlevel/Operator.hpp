@@ -260,7 +260,7 @@ namespace slu::mlvl
 		for (size_t i = 0; i < m.extra.size(); ++i)
 		{
 			auto& bin = m.extra[i].first;
-			ops.push_back({ i,0, OpKind::BinOp, precedence<isLua>(bin), associativity<isLua>(bin) });
+			ops.push_back({ i+1,0, OpKind::BinOp, precedence<isLua>(bin), associativity<isLua>(bin) });
 			/*j = 0;
 			for (const auto& un : m.extra[i].second.unOps)
 			{
