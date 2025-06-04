@@ -61,6 +61,11 @@ let vO = a() or b();
 
 let vO = if a() => :>::std::bool::true else => b();
 --2026?
+let vO = match :>::std::ops::Or::orShortCircuit(a()) {
+	:>::std::ops::ShortCircuit::Break{__value} => __value
+	:>::std::ops::ShortCircuit::Merge{__value} => :>::std::ops::Or::boolOr(__value,b())
+};
+--or maybe...
 let vO = do {
 	let __value = a(); 
 	break if :>::std::ops::Or::stopOr(&__value)
@@ -74,6 +79,11 @@ let vA = a() and b();
 
 let vA = if a() => b() else => :>::std::bool::false;
 --2026?
+let vA = match :>::std::ops::And::andShortCircuit(a()) {
+	:>::std::ops::ShortCircuit::Break{__value} => __value
+	:>::std::ops::ShortCircuit::Merge{__value} => :>::std::ops::And::boolAnd(__value,b())
+};
+--or maybe...
 let vA = do {
 	let __value = a(); 
 	break if :>::std::ops::And::stopAnd(&__value)

@@ -61,9 +61,9 @@ Order of Operations {
 	>>		Shr
 	~		Xor
 	&		BitAnd
-	and		And
+	and		And ?or? BoolAnd
 	|		BitOr
-	or		Or
+	or		Or ?or? BoolOr
 	++		Concat
 	**		Rep
 	+		Add
