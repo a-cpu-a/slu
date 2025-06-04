@@ -70,7 +70,6 @@ namespace slu::mlvl
 						//create a new expression for the binary operator
 
 						//TODO: special handling for 'and', 'or'.
-						//TODO: special handling for '> >= < <=', '==', '!='.
 
 						auto expr2 = std::move(expStack.back());
 						expStack.pop_back();
@@ -91,8 +90,25 @@ namespace slu::mlvl
 									lang::ModPath name;
 									name.reserve(4);
 									name.emplace_back("std");
-									name.emplace_back("ops");
-									name.emplace_back(parse::binOpTraitNames[traitIdx]);
+									bool isOrd = op == parse::BinOpType::LESS_THAN
+										|| op == parse::BinOpType::LESS_EQUAL
+										|| op == parse::BinOpType::GREATER_THAN
+										|| op == parse::BinOpType::GREATER_EQUAL;
+									bool isEq = op == parse::BinOpType::EQUAL
+										|| op == parse::BinOpType::NOT_EQUAL;
+									if (isOrd || isEq)
+									{
+										name.emplace_back("cmp");
+										if(isOrd)
+											name.emplace_back("PartialOrd");
+										else
+											name.emplace_back("PartialEq");
+									}
+									else
+									{
+										name.emplace_back("ops");
+										name.emplace_back(parse::binOpTraitNames[traitIdx]);
+									}
 									name.emplace_back(parse::binOpNames[traitIdx]);
 									return genData.resolveRootName(name);
 								})
