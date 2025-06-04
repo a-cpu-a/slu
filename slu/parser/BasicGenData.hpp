@@ -400,7 +400,7 @@ namespace slu::parse
 		}
 		constexpr MpItmIdV<isSlu> resolveEmpty()
 		{
-			return MpItmIdV<isSlu>{SIZE_MAX};
+			return MpItmIdV<isSlu>::newEmpty();
 		}
 	};
 }

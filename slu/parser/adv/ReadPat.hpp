@@ -56,7 +56,7 @@ namespace slu::parse
 		if (isValidNameChar(in.peek()) && !checkTextToken(in,"in"))
 			ret.name = in.genData.resolveUnknown(readName(in));
 		else
-			ret.name = { SIZE_MAX };
+			ret.name = MpItmId<In>::newEmpty();
 
 		return ret;
 	}

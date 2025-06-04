@@ -29,6 +29,10 @@ namespace slu::lang
 		LocalObjId id;// Practically a string pool lol
 		//SIZE_MAX -> empty
 
+		static constexpr MpItmIdV newEmpty() {
+			return MpItmIdV{ LocalObjId{SIZE_MAX} };
+		}
+
 		constexpr bool empty() const {
 			return id.val == SIZE_MAX;
 		}
