@@ -142,7 +142,7 @@ namespace slu::comp
 
 				ParsedFile parsed;
 				parsed.parsed = slu::parse::parseFile(in);
-				slu::mlvl::basicDesugar(parsed.parsed);
+				slu::mlvl::basicDesugar(state.mpDb,parsed.parsed);
 				parsed.crateRootPath = file.crateRootPath;
 				parsed.path = std::move(file.path);
 

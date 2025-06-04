@@ -46,6 +46,10 @@ namespace slu::lang
 	template<>
 	struct MpItmIdV<true> : MpItmIdV<false>
 	{
+		static constexpr MpItmIdV newEmpty() {
+			return MpItmIdV{ LocalObjId{SIZE_MAX} };
+		}
+
 		ModPathId mp;
 	};
 

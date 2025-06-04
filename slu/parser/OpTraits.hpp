@@ -21,6 +21,15 @@ namespace slu::parse
 				i[0] = parse::toUpperCase(i[0]);
 		}
 	}
+	constexpr auto nameArraysToSvs(auto& arrays)
+	{
+		std::array<std::string_view, sizeof(arrays)/sizeof(arrays[0])> res;
+		for (size_t i = 0; i < arrays.size(); ++i)
+		{
+			res[i] = std::string_view(arrays[i].data());
+		}
+		return res;
+	}
 	constexpr auto mkUnOpNames(bool forTrait)
 	{
 		std::array<std::array<char,10>, (size_t)UnOpType::ENUM_SIZE> res = {
@@ -62,12 +71,18 @@ namespace slu::parse
 		return res;
 	}
 
-	constexpr auto unOpNames = mkUnOpNames(false);
-	constexpr auto unOpTraitNames = mkUnOpNames(true);
+	constexpr auto storeUnOpNames = mkUnOpNames(false);
+	constexpr auto storeUnOpTraitNames = mkUnOpNames(true);
+	constexpr auto unOpNames = nameArraysToSvs(storeUnOpNames);
+	constexpr auto unOpTraitNames = nameArraysToSvs(storeUnOpTraitNames);
 	
-	constexpr auto postUnOpNames = mkPostUnOpNames(false);
-	constexpr auto postUnOpTraitNames = mkPostUnOpNames(true);
+	constexpr auto storePostUnOpNames = mkPostUnOpNames(false);
+	constexpr auto storePostUnOpTraitNames = mkPostUnOpNames(true);
+	constexpr auto postUnOpNames = nameArraysToSvs(storePostUnOpNames);
+	constexpr auto postUnOpTraitNames = nameArraysToSvs(storePostUnOpTraitNames);
 
-	constexpr auto binOpNames = mkPostBinOpNames(false);
-	constexpr auto binOpTraitNames = mkPostBinOpNames(true);
+	constexpr auto storeBinOpNames = mkPostBinOpNames(false);
+	constexpr auto storeBinOpTraitNames = mkPostBinOpNames(true);
+	constexpr auto binOpNames = nameArraysToSvs(storeBinOpNames);
+	constexpr auto binOpTraitNames = nameArraysToSvs(storeBinOpTraitNames);
 }

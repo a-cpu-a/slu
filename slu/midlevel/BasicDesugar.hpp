@@ -31,7 +31,7 @@ namespace slu::mlvl
 	using DesugarCfg = decltype(parse::sluCommon);
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
-		parse::BasicGenDataV<true>& genData;
+		parse::BasicMpDb mpDb;
 		LazyCompute<parse::MpItmId<Cfg>> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];
 		LazyCompute<parse::MpItmId<Cfg>> postUnOpFuncs[(size_t)parse::PostUnOpType::ENUM_SIZE];
 		LazyCompute<parse::MpItmId<Cfg>> binOpFuncs[(size_t)parse::BinOpType::ENUM_SIZE];
@@ -80,7 +80,7 @@ namespace slu::mlvl
 						parse::ArgsType::EXPLIST<Cfg> list;
 						list.v.emplace_back(std::move(expr1));
 						list.v.emplace_back(std::move(expr2));
-						call.argChain.emplace_back(std::move(list));
+						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
 
 						parse::BinOpType op = ops.extra[i.index-1].first;
 						const size_t traitIdx = (size_t)op - 1; //-1 for none
@@ -113,7 +113,7 @@ namespace slu::mlvl
 										name.emplace_back(parse::binOpTraitNames[traitIdx]);
 									}
 									name.emplace_back(parse::binOpNames[traitIdx]);
-									return genData.resolveRootName(name);
+									return mpDb.getItm(name);
 								})
 						}} };
 
@@ -150,7 +150,7 @@ namespace slu::mlvl
 									else
 									name.emplace_back(parse::unOpTraitNames[traitIdx]);
 									name.emplace_back(parse::unOpNames[traitIdx]);
-									return genData.resolveRootName(name);
+									return mpDb.getItm(name);
 								});
 								if (!op.life.empty())
 								{
@@ -176,8 +176,10 @@ namespace slu::mlvl
 										name.emplace_back("ops");
 										name.emplace_back("Boundable");//TODO: choose the name!
 										name.emplace_back(parse::postUnOpNames[traitIdx]);
-										return genData.resolveRootName(name);
+										return mpDb.getItm(name);
 									}
+									//TODO!!!
+									return parse::MpItmId<Cfg>::newEmpty();
 								});
 							}
 						}
@@ -186,11 +188,12 @@ namespace slu::mlvl
 						list.v.emplace_back(std::move(expr));
 						if (lifetime != nullptr)
 						{
-							list.v.emplace_back(
-								parse::ExprType::LIFETIME{std::move(*lifetime)}
-							);
+							parse::Expression<Cfg> lifetimeExpr;
+							lifetimeExpr.place = place;
+							lifetimeExpr.data = parse::ExprType::LIFETIME{ std::move(*lifetime) };
+							list.v.emplace_back(std::move(lifetimeExpr));
 						}
-						call.argChain.emplace_back(std::move(list));
+						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
 						*call.val = parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
 							.v = name
 						}} };
@@ -210,9 +213,10 @@ namespace slu::mlvl
 		}; 
 	};
 
-	inline void basicDesugar(parse::ParsedFileV<true>& itm)
+	inline void basicDesugar(parse::BasicMpDbData& mpDbData,parse::ParsedFileV<true>& itm)
 	{
-		DesugarVisitor vi{};
+		DesugarVisitor vi{ {},parse::BasicMpDb{ &mpDbData } };
+
 		visit::visitFile(vi, itm);
 	}
 }
