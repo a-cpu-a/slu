@@ -11,7 +11,8 @@
 
 namespace slu::parse
 {
-	// All the names ending with '_' or marked with !!! are special, so these lists are not exactly for them
+	// All the names with '_' or marked with !!! are special, so these lists are not exactly for them
+	// Note: due to how ascii works _ turns to ?
 	constexpr void handleTraitCase(auto& res, bool forTrait)
 	{
 		if (forTrait)
@@ -23,11 +24,11 @@ namespace slu::parse
 	constexpr auto mkUnOpNames(bool forTrait)
 	{
 		std::array<std::array<char,10>, (size_t)UnOpType::ENUM_SIZE> res = {
-			"neg","not", "len_", "bitNot_",
+			"neg","not", "_len", "_bitNot",
 
 			"rangeMax",//!!!
 
-			"alloc_",
+			"_alloc",
 			"ref", "refMut", "refConst","refShare",
 			"ptr", "ptrMut", "ptrConst","ptrShare"
 		};
@@ -38,7 +39,7 @@ namespace slu::parse
 	{
 		std::array<std::array<char,10>, (size_t)PostUnOpType::ENUM_SIZE> res = {
 			"rangeMin",//!!!
-			"deref_", "try_"
+			"_deref", "_try"
 		};
 		handleTraitCase(res,forTrait);
 		return res;
@@ -50,12 +51,12 @@ namespace slu::parse
 			"bitAnd", "bitXor", "bitOr", "shr", "shl",
 			"concat",
 
-			"lt", "le","gt","ge", "eq", "ne",//!!!
+			"lt", "le", "gt", "ge", "eq", "ne",//!!!
 			"and","or",//!!!
 			
 			"rep",
 			"range",//!!!
-			"mkResult_"
+			"_mkResult"
 		};
 		handleTraitCase(res,forTrait);
 		return res;
@@ -67,6 +68,6 @@ namespace slu::parse
 	constexpr auto postUnOpNames = mkPostUnOpNames(false);
 	constexpr auto postUnOpTraitNames = mkPostUnOpNames(true);
 
-	constexpr auto postBinOpNames = mkPostBinOpNames(false);
-	constexpr auto postBinOpTraitNames = mkPostBinOpNames(true);
+	constexpr auto binOpNames = mkPostBinOpNames(false);
+	constexpr auto binOpTraitNames = mkPostBinOpNames(true);
 }
