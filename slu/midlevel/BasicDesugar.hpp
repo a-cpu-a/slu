@@ -69,7 +69,7 @@ namespace slu::mlvl
 					{
 						//create a new expression for the binary operator
 
-						//TODO: special handling for 'and', 'or', '~~'.
+						//TODO: special handling for 'and', 'or', '~~' (maybe turn it special at the ast level?).
 
 						auto expr2 = std::move(expStack.back());
 						expStack.pop_back();
