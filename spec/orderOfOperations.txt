@@ -49,7 +49,7 @@ Order of Operations {
 	()		FnOnce Fn FnMut FnConst FnShare
 	_=		_Assign
 	..		???			(Ranged/Ranging/Bounds/Bound/Boundable/??? .range .rangeMax .rangeMin)
-	?		???			(likely will be something like Try)
+	?		Try.branch
 	!		Not
 	>		(Partial)Ord.gt
 	<		(Partial)Ord.lt
