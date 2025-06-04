@@ -5,10 +5,10 @@ for i in 1..100 {
 
 do {
 	let mut __iter = :>::std::IntoIterator::intoIter(1..100);
-	break:do loop {
+	break loop {
 		match :>::std::Iterator::next(&mut __iter) {
-			:>::std::Option::None => break:loop;
-			:>::std::Option::Some{i} => do {--[=[CODE HERE]=]};
+			:>::std::Option::None => break
+			:>::std::Option::Some{i} => do {--[=[CODE HERE]=]}
 		}
 	}
 }
@@ -20,8 +20,8 @@ let v1 = helloOpt()?
 -->
 
 let v1 = match helloOpt() {
-	:>::std::Option::None => return :>::std::Option::None;
-	:>::std::Option::Some{__value} => __value;
+	:>::std::Option::None => return :>::std::Option::None
+	:>::std::Option::Some{__value} => __value
 };
 -----------------------------
 fn hello() -> u8~~String;
@@ -35,8 +35,8 @@ let v2 = try hello() {};
 -->
 
 let v2 = match hello() {
-	:>::std::Result::Ok{__value} => __value;
-	:>::std::Result::Err{__err} => do{throw __err};
+	:>::std::Result::Ok{__value} => __value
+	:>::std::Result::Err{__err} => throw __err
 };
 -----------------------------
 let v3 = try hello() {String=>100};
@@ -44,8 +44,8 @@ let v3 = try hello() {String=>100};
 -->
 
 let v3 = match hello() {
-	:>::std::Result::Ok{__value} => __value;
-	:>::std::Result::Err{String} => 100;
+	:>::std::Result::Ok{__value} => __value
+	:>::std::Result::Err{String} => 100
 	--Err{__err} => do{throw __err}; --err is always a String
 };
 -----------------------------
@@ -63,7 +63,7 @@ let vO = if a() => :>::std::bool::true else => b();
 --2026?
 let vO = do {
 	let __value = a(); 
-	break:do if :>::std::ops::Or::stopOr(&__value)
+	break if :>::std::ops::Or::stopOr(&__value)
 		=> __value
 		else => :>::std::ops::Or::boolOr(__value,b())
 }
@@ -76,7 +76,7 @@ let vA = if a() => b() else => :>::std::bool::false;
 --2026?
 let vA = do {
 	let __value = a(); 
-	break:do if :>::std::ops::And::stopAnd(&__value)
+	break if :>::std::ops::And::stopAnd(&__value)
 		=> __value
 		else => :>::std::ops::And::boolAnd(__value,b())
 }
