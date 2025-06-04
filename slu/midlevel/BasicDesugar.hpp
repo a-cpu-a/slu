@@ -69,7 +69,7 @@ namespace slu::mlvl
 					{
 						//create a new expression for the binary operator
 
-						//TODO: special handling for 'and', 'or'.
+						//TODO: special handling for 'and', 'or', '~~'.
 
 						auto expr2 = std::move(expStack.back());
 						expStack.pop_back();
@@ -107,6 +107,9 @@ namespace slu::mlvl
 									else
 									{
 										name.emplace_back("ops");
+										if(op==parse::BinOpType::RANGE_BETWEEN)
+											name.emplace_back("Boundable");//TODO: choose the name!
+										else
 										name.emplace_back(parse::binOpTraitNames[traitIdx]);
 									}
 									name.emplace_back(parse::binOpNames[traitIdx]);
@@ -124,7 +127,6 @@ namespace slu::mlvl
 					case OpKind::PostUnOp:
 					{
 						//TODO: special handling for '.*', '?'. -> defer to after type checking / inference
-						//TODO: special handling for ranges
 
 						auto& opSrcExpr = expStack[i.index];
 
@@ -143,6 +145,9 @@ namespace slu::mlvl
 									name.reserve(4);
 									name.emplace_back("std");
 									name.emplace_back("ops");
+									if(op.type==parse::UnOpType::RANGE_BEFORE)
+										name.emplace_back("Boundable");//TODO: choose the name!
+									else
 									name.emplace_back(parse::unOpTraitNames[traitIdx]);
 									name.emplace_back(parse::unOpNames[traitIdx]);
 									return genData.resolveRootName(name);
@@ -163,6 +168,16 @@ namespace slu::mlvl
 
 								name = postUnOpFuncs[traitIdx].get([&] {
 									//TODO: implement post-unop func name selection
+									if (op == parse::PostUnOpType::RANGE_AFTER)
+									{
+										lang::ModPath name;
+										name.reserve(4);
+										name.emplace_back("std");
+										name.emplace_back("ops");
+										name.emplace_back("Boundable");//TODO: choose the name!
+										name.emplace_back(parse::postUnOpNames[traitIdx]);
+										return genData.resolveRootName(name);
+									}
 								});
 							}
 						}
