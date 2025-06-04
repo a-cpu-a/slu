@@ -247,7 +247,7 @@ namespace slu::paint
 			paintLimPrefixExpr<nameTok>(se, *var);
 		},
 		varcase(const parse::ExprType::FUNCTION_DEF<Se>&) {
-			paintFuncDef(se, var.v, parse::MpItmId<Se>({ SIZE_MAX }), false);
+			paintFuncDef(se, var.v, parse::MpItmId<Se>::newEmpty(), false);
 		},
 		varcase(const parse::ExprType::FUNC_CALL<Se>&) {
 			paintLimPrefixExpr<nameTok>(se, *var.val);
