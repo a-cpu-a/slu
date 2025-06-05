@@ -1031,7 +1031,17 @@ namespace slu::paint
 			paintSafety(se, var.safety);
 			paintKw<Tok::FN_STAT>(se, "extern");
 			paintString(se, var.abi,var.abiEnd,Tok::FN_STAT);
-			paintDoEndBlock(se, var.bl);
+			skipSpace(se);
+			bool hadBrace = false;
+			if (se.in.peek() == '{')
+			{
+				hadBrace = true;
+				paintKw<Tok::BRACES>(se, "{");
+			}
+			for (auto& i : var.stats)
+				paintStat(se, i);
+			if (hadBrace)
+				paintKw<Tok::BRACES>(se, "}");
 		},
 		varcase(const parse::StatementType::UnsafeBlock<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "unsafe");

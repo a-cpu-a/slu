@@ -6,8 +6,8 @@ mod prelude;
 ---Test test test !!!
 ex fn _println(&crate::prelude::str text) -> void
 {
-	safe extern "Lua" {
-		fn print(&crate::prelude::str line) -> void;
+	safe extern "C" {
+		fn puts(&crate::prelude::str line) -> i32;
 	}
-	crate::_println::print(text);
+	crate::_println::puts(text);
 }

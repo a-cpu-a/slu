@@ -63,6 +63,8 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(DestrSimple, parse::PatType::Simple<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(BaseVarExpr, parse::BaseVarType::EXPR<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(BaseVarName, parse::BaseVarType::NAME<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(ExternBlock, parse::StatementType::ExternBlock<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 
 		//Edge cases:
 		_Slu_DEF_EMPTY_PRE_POST(TypeExp, parse::TypeExpr);
