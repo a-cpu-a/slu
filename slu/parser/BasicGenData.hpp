@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <ranges>
 #include <unordered_map>
+#include <ranges>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -18,6 +19,10 @@ namespace slu::parse
 {
 	using lang::LocalObjId;
 	using lang::ModPathId;
+
+
+	const size_t NORMAL_SCOPE = SIZE_MAX;
+	const size_t UNSCOPE = SIZE_MAX-1;
 
 	/*
 		Names starting with $ are anonymous, and are followed by 8 raw bytes (representing anon name id)
@@ -33,7 +38,7 @@ namespace slu::parse
 	*/
 	constexpr std::string getAnonName(const size_t anonId)
 	{
-		_ASSERT(anonId != SIZE_MAX);
+		_ASSERT(anonId != NORMAL_SCOPE && anonId != UNSCOPE);
 		std::string name(1 + sizeof(size_t), '$');
 		name[1] = uint8_t((anonId & 0xFF00000000000000) >> 56);
 		name[2] = uint8_t((anonId & 0xFF000000000000) >> 48);
@@ -194,7 +199,7 @@ namespace slu::parse
 
 		constexpr BasicGenDataV()
 		{
-			scopes.emplace_back(SIZE_MAX);//anon id
+			scopes.emplace_back(NORMAL_SCOPE);//anon id
 		}
 
 		/*
@@ -263,7 +268,8 @@ namespace slu::parse
 		}
 
 		//For impl, lambda, scope, doExpr, things named '_'
-		constexpr void pushAnonScope(const Position start){
+		constexpr void pushAnonScope(const Position start)
+		{
 			const size_t id = anonScopeCounts.back()++;
 			const std::string name = getAnonName(id);
 			addLocalObj(name);
@@ -273,12 +279,21 @@ namespace slu::parse
 			scopes.back().res.start = start;
 			anonScopeCounts.push_back(0);
 		}
+		//For extern/unsafe blocks
+		constexpr void pushUnScope(const Position start)
+		{
+			const size_t id = UNSCOPE;
+
+			scopes.push_back({ id });
+			scopes.back().res.start = start;
+			anonScopeCounts.push_back((size_t)anonScopeCounts.back());
+		}
 		//For func, macro, inline_mod, type?, ???
 		constexpr void pushScope(const Position start,const std::string& name) {
 			addLocalObj(name);
 
 			totalMp.push_back(name);
-			scopes.push_back({ SIZE_MAX });
+			scopes.push_back({ NORMAL_SCOPE });
 			scopes.back().res.start = start;
 			anonScopeCounts.push_back(0);
 		}
@@ -288,6 +303,15 @@ namespace slu::parse
 			scopes.pop_back();
 			totalMp.pop_back();
 			anonScopeCounts.pop_back();
+			return res;
+		}
+		BlockV<isSlu> popUnScope(const Position end) {
+			BlockV<isSlu> res = std::move(scopes.back().res);
+			res.end = end;
+			scopes.pop_back();
+			const size_t nextAnonId = anonScopeCounts.back();
+			anonScopeCounts.pop_back();
+			anonScopeCounts.back() = nextAnonId;//Shared counter
 			return res;
 		}
 		void scopeReturn() {
@@ -303,8 +327,16 @@ namespace slu::parse
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}
-		constexpr void addLocalObj(const std::string& name){
-			scopes.back().objs.push_back(name);
+		constexpr void addLocalObj(const std::string& name)
+		{
+			for (auto& i : std::views::reverse(scopes))
+			{
+				if (i.anonId != UNSCOPE)
+				{
+					i.objs.push_back(name);
+					return;
+				}
+			}
 		}
 
 		constexpr std::optional<size_t> resolveLocalOpt(const std::string& name)
