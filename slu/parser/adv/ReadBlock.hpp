@@ -100,6 +100,24 @@ namespace slu::parse
 		}
 		return false;
 	}
+	template<bool isLoop, AnyInput In>
+	inline StatList<In> readStatList(In& in, const bool allowVarArg)
+	{
+		skipSpace(in);
+		in.genData.pushUnScope(in.getLoc());
+
+		while (true)
+		{
+			if (!in)//File ended, so stat-list ended too
+				break;
+
+			const char ch = in.peek();
+
+			readStatement<isLoop>(in, allowVarArg);
+			skipSpace(in);
+		}
+		return in.genData.popUnScope(in.getLoc()).statList;
+	}
 
 	template<bool isLoop, AnyInput In>
 	inline Block<In> readBlock(In& in, const bool allowVarArg)
