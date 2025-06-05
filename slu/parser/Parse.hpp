@@ -366,7 +366,8 @@ namespace slu::parse
 				res.safety = safety;
 				res.abi = std::move(abi);
 				res.abiEnd = abiEnd;
-				res.bl = readBlockNoStartCheck<isLoop>(in, allowVarArg);
+				res.bl = readBlock<isLoop>(in, allowVarArg);//TODO: stat list
+				requireToken(in, "}");
 
 				in.genData.addStat(place, std::move(res));
 				return true;

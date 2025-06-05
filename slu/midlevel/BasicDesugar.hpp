@@ -36,11 +36,65 @@ namespace slu::mlvl
 		LazyCompute<parse::MpItmId<Cfg>> postUnOpFuncs[(size_t)parse::PostUnOpType::ENUM_SIZE];
 		LazyCompute<parse::MpItmId<Cfg>> binOpFuncs[(size_t)parse::BinOpType::ENUM_SIZE];
 
+		// Note: Implicit bottom item: 'Any' or 'Slu'
+		std::vector<std::string> abiStack;
+		std::vector<bool> abiSafetyStack;
+		std::vector<parse::StatList<Cfg>*> statListStack;
+
 		//TODO: Implement the conversion logic here
 		//TODO: basic desugaring:
 		//TODO: [50%] operators
 		//TODO: [_0%] auto-drop?
 		//TODO: [_0%] for/while/repeat loops
+
+		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
+		{
+			if(itm.abi.empty())
+				itm.abi = abiStack.empty() ? "Any" : abiStack.back();
+			return false;
+		}
+		bool preStatList(parse::StatList<Cfg>& itm) 
+		{
+			statListStack.push_back(&itm);
+			return false;
+		}
+		void postStatList(parse::StatList<Cfg>& itm) {
+			statListStack.pop_back();
+		}
+		bool preExternBlock(parse::StatementType::ExternBlock<Cfg>& itm) 
+		{
+			abiStack.push_back(std::move(itm.abi));
+			abiSafetyStack.push_back(itm.safety==parse::OptSafety::SAFE);
+
+			visit::visitStatList(*this,itm.stats);
+
+			abiStack.pop_back();
+			abiSafetyStack.pop_back();
+			return true;//Already visited the statements inside it
+		}
+		void postStat(parse::Statement<Cfg>& itm) 
+		{
+			if (std::holds_alternative<parse::StatementType::ExternBlock<Cfg>>(itm.data))
+			{
+				// Unwrap the extern block
+				auto& block = std::get<parse::StatementType::ExternBlock<Cfg>>(itm.data);
+				if (block.stats.empty())
+				{
+					itm.data = parse::StatementType::SEMICOLON{};
+					return;
+				}
+
+				parse::StatList<Cfg> stats = std::move(block.stats);
+				itm.place = stats.front().place;
+				auto statData = std::move(stats.front().data);
+				itm.data = std::move(statData);
+				if (stats.size() == 1)
+					return;
+				// Insert the rest of the statements
+				auto& statList = *statListStack.back();
+				statList.insert(statList.end(), std::make_move_iterator(std::next(stats.begin()+1)), std::make_move_iterator(stats.end()));
+			}
+		}
 
 		bool preExpr(parse::Expression<Cfg>& itm) {
 			using MultiOp = parse::ExprType::MULTI_OPERATION<Cfg>;

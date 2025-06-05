@@ -203,6 +203,14 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(VarList);
 	}
 	template<AnyVisitor Vi>
+	inline void visitStatList(Vi& vi, parse::StatList<Vi>& itm)
+	{
+		Slu_CALL_VISIT_FN_PRE(StatList);
+		for (auto& i : itm)
+			visitStat(vi, i);
+		Slu_CALL_VISIT_FN_POST(StatList);
+	}
+	template<AnyVisitor Vi>
 	inline void visitTypeExp(Vi& vi, parse::TypeExpr& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(TypeExp);
@@ -607,9 +615,11 @@ namespace slu::visit
 			visitParams(vi, var.params);
 		},
 		varcase(parse::StatementType::ExternBlock<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(ExternBlock);
 			visitSafety(vi, var.safety);
 			visitString(vi, var.abi);
-			visitBlock(vi, var.bl);
+			visitStatList(vi, var.stats);
+			Slu_CALL_VISIT_FN_POST_VAR(ExternBlock);
 		},
 		varcase(parse::StatementType::UnsafeBlock<Vi>&) {
 			visitBlock(vi, var.bl);
@@ -654,8 +664,7 @@ namespace slu::visit
 	inline void visitBlock(Vi& vi, parse::Block<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Block);
-		for (auto& i : itm.statList)
-			visitStat(vi, i);
+		visitStatList(vi, itm.statList);
 		if (itm.hadReturn)
 		{
 			Slu_CALL_VISIT_FN_PRE(BlockReturn);

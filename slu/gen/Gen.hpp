@@ -1097,7 +1097,8 @@ namespace slu::parse
 			out.add("extern ");
 			genLiteral(out, var.abi);
 			out.add(" {").tabUpNewl();
-			genBlock(out, var.bl);
+			for (auto& i : var.stats)
+				genStat(out, i);
 			out.unTabNewl()
 				.addNewl("}");
 		},

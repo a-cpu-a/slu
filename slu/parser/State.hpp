@@ -164,13 +164,16 @@ namespace slu::parse
 	using TableConstructorV = std::vector<FieldV<isSlu>>;
 	Slu_DEF_CFG(TableConstructor);
 
+	template<bool isSlu>
+	using StatListV = std::vector<StatementV<isSlu>>;
+	Slu_DEF_CFG(StatList);
 
 
 
 	template<bool isSlu>
 	struct BlockV
 	{
-		std::vector<StatementV<isSlu>> statList;
+		StatListV<isSlu> statList;
 		ExpListV<isSlu> retExprs;//Special, may contain 0 elements (even with hadReturn)
 
 		//Scope scope;
@@ -180,6 +183,9 @@ namespace slu::parse
 
 		bool hadReturn = false;
 
+		bool empty() const {
+			return !hadReturn && statList.empty();
+		}
 
 		BlockV() = default;
 		BlockV(const BlockV&) = delete;
@@ -948,7 +954,7 @@ namespace slu::parse
 
 		template<bool isSlu>
 		struct ExternBlockV {
-			BlockV<isSlu> bl;
+			StatListV<isSlu> stats;
 			std::string abi;
 			Position abiEnd;
 			OptSafety safety = OptSafety::DEFAULT;
