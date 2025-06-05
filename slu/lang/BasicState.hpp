@@ -6,7 +6,11 @@
 #include <string>
 #include <vector>
 #include <span>
-
+namespace slu::parse
+{
+	struct BasicMpDbData;
+	struct BasicMpDb;
+}
 namespace slu::lang
 {
 	//Mp refs
@@ -38,6 +42,9 @@ namespace slu::lang
 		}
 		std::string_view asSv(const /*AnyNameDbOrGenDataV<isSlu>*/ auto& v) const {
 			return v.asSv(*this);
+		}
+		std::string_view asSv(parse::BasicMpDbData& v) const {
+			return parse::BasicMpDb{&v}.asSv(*this);
 		}
 		ViewModPath asVmp(const /*AnyNameDbOrGenDataV<isSlu>*/ auto& v) const {
 			return v.asVmp(*this);
