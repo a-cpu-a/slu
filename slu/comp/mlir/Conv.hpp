@@ -16,8 +16,11 @@
 #include <mlir/IR/BuiltinTypes.h>
 #include <mlir/IR/Verifier.h>
 #include <mlir/Dialect/Func/IR/FuncOps.h>
+#include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Support/LogicalResult.h>
+#include <llvm/InitializePasses.h>
+#include <llvm/IR/LLVMContext.h>
 
 #include <slu/lang/BasicState.hpp>
 
@@ -43,14 +46,43 @@ namespace slu::comp::mico
 
 	struct ConvData : CommonConvData
 	{
-
+		mlir::MLIRContext& context;
+		llvm::LLVMContext& llvmContext;
 	};
 
 	inline void convStat(const ConvData& conv)
 	{
+		auto* mc = &conv.context;
 		ezmatch(conv.stat.data)(
 
 		varcase(const auto&) {},
+		varcase(const parse::StatementType::FNv<true>&) {
+			// Build a function in mlir
+
+			mlir::OpBuilder builder(mc);
+
+			const char str[] = "Hello world";
+			int64_t strLen = sizeof(str);
+			auto strType = mlir::MemRefType::get({ strLen }, builder.getIntegerType(8), {}, 0);
+			auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
+
+
+			builder.create<mlir::LLVM::GlobalOp>(
+				builder.getUnknownLoc(),
+				strType,
+				/*isConstant=*/true,
+				mlir::LLVM::Linkage::Internal,
+				"hello_str",
+				strAttr
+			);
+
+			auto loc = mlir::FileLineColLoc::get(mc,builder.getStringAttr("myfile.sv"), var.place.line, var.place.index);
+
+			mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
+				loc, var.name.asSv(conv.sharedDb),
+				mlir::FunctionType::get(mc, {}, {})
+			);
+		},
 
 
 			//Ignore these
