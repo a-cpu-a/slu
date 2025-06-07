@@ -1,7 +1,7 @@
 ﻿# CMakeList.txt : CMake project for slu-compiler-api, include source and define
 # project specific logic here.
 #
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -13,6 +13,15 @@ project ("slu-compiler-api")
 
 # Add source to this project's executable.
 add_executable (slu-compiler-api "slu-compiler-api.cpp" "slu-compiler-api.h")
+
+# add slu/
+target_include_directories(slu-compiler-api
+  PRIVATE
+	${PROJECT_SOURCE_DIR}/../../
+)
+
+target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)
+target_link_libraries(slu-compiler-api optimized ${PROJECT_SOURCE_DIR}/../../x64/Release/Slu.lib)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET slu-compiler-api PROPERTY CXX_STANDARD 20)

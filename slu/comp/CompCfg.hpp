@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 #include <optional>
-#include <thread>
-#include <variant>
 
 #include <slu/lang/BasicState.hpp>
 
@@ -61,14 +59,15 @@ namespace slu::comp
 
 		std::span<const CompPlugin> plugins;
 
-		std::span<const std::string_view> rootPaths;//All of them must have some crate.
+		std::span<const std::string> rootPaths;//All of them must have some crate.
 
 		//will use exactly that many threads, not any less, not any more
-		size_t extraThreadCount =
-			(size_t)std::max(//max, so no negative thread counts
+		// (other than the main thread which is not counted here)
+		size_t extraThreadCount = 1;
+			/*(size_t)std::max(//max, so no negative thread counts
 				int64_t(std::thread::hardware_concurrency())
 				- 3,//2 sys threads, 1 for main thread
 				0LL
-			);
+			);*/
 	};
 }

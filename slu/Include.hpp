@@ -55,6 +55,7 @@ extern "C"
 #include <slu/ext/lua/lapi.h>
 
 #ifdef INCLUDE_LUA_C_FILES
+#undef INCLUDE_LUA_C_FILES
 #include <slu/ext/lua/lstrlib.c>
 #include <slu/ext/lua/lmathlib.c>
 #include <slu/ext/lua/lcorolib.c>
