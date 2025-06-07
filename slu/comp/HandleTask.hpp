@@ -13,6 +13,7 @@
 
 #include <slu/lang/BasicState.hpp>
 #include <slu/midlevel/BasicDesugar.hpp>
+#include <slu/parser/SimpleErrors.hpp>
 
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/lua/Conv.hpp>
@@ -141,7 +142,18 @@ namespace slu::comp
 				in.genData.totalMp = parsePath(file.crateRootPath,file.path);
 
 				ParsedFile parsed;
-				parsed.parsed = slu::parse::parseFile(in);
+				try {
+					parsed.parsed = slu::parse::parseFile(in);
+				}
+				catch (const slu::parse::ParseFailError&)
+				{
+					cfg.logPtr("Failed to parse: "+file.path);
+					for (auto& i : in.handledErrors)
+					{
+						cfg.logPtr(i);
+						i.clear(); // Free it faster
+					}
+				}
 				slu::mlvl::basicDesugar(state.mpDb,parsed.parsed);
 				parsed.crateRootPath = file.crateRootPath;
 				parsed.path = std::move(file.path);
