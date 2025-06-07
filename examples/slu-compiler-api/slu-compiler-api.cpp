@@ -6,6 +6,32 @@
 #include <slu/comp/CompInclude.hpp>
 
 #include "slu-compiler-api.h"
+
+std::string canonPath(std::string path)
+{
+	// Convert to a canonical path, removing any trailing slashes
+	try
+	{
+		path = std::filesystem::weakly_canonical(std::filesystem::path(path)).string();
+	}
+	catch (const std::filesystem::filesystem_error& e)
+	{
+		std::cerr << "Error converting path '" << path << "' to canonical form: " << e.what() << "\n";
+		return path; // Return the original path if an error occurs
+	}
+	//Convert to forward slashes
+	for (auto& ch : path)
+	{
+		if(ch=='\\')
+			ch = '/';
+	}
+	// Remove any trailing slashes
+	if (!path.empty() && path.back() == '/')
+		path.pop_back();
+
+	return path;
+}
+
 int main()
 {
 	std::cout << "Hello world!\n";
@@ -67,8 +93,8 @@ int main()
 
 	std::vector<std::string> pathList;
 	//All root paths must not end with a slash
-	pathList.push_back("../hello_world");
-	pathList.push_back("../../std");
+	pathList.push_back(canonPath("../../../../hello_world"));
+	pathList.push_back(canonPath("../../../../../std"));
 	cfg.rootPaths = pathList;
 	auto outs = slu::comp::compile(cfg);
 
