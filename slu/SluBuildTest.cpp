@@ -4,6 +4,7 @@
 
 //Test macro, dont use, doesnt improve performace. (actually hurts it lol)
 //#define Slu_NoConcepts
+#define INCLUDE_LUA_C_FILES
 #include <slu/Include.hpp>
 #include <slu/ErrorType.hpp>
 #include <slu/Context.hpp>
