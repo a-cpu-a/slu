@@ -291,12 +291,12 @@ namespace slu::mlvl
 		{
 			const MultiOpOrderEntry& e = ops[i];
 			
-			ExprUnOpsEntry& leftEntry = exprUnOps[e.index];
-			const auto& left = (e.index==0)
+			ExprUnOpsEntry& leftEntry = exprUnOps[e.index-1];
+			const auto& left = (e.index==1)
 				? *m.first
-				: m.extra[e.index-1].second;
-			ExprUnOpsEntry& rightEntry = exprUnOps[e.index+1];
-			const auto& right = m.extra[e.index].second;
+				: m.extra[e.index-2].second;
+			ExprUnOpsEntry& rightEntry = exprUnOps[e.index];
+			const auto& right = m.extra[e.index-1].second;
 
 			//e.index is unique to every binop.
 			unOpCount += right.unOps.size() + right.postUnOps.size();
@@ -304,9 +304,9 @@ namespace slu::mlvl
 			const bool lAssoc = e.assoc == Assoc::LEFT;
 
 			const auto& item1 = lAssoc ? left : right;
-			const size_t item1Idx = lAssoc ? e.index : e.index + 1; // +1, cuz 1 is first expr
+			const size_t item1Idx = lAssoc ? e.index-1 : e.index ; // -1, cuz 1 is first expr
 			const auto& item2 = lAssoc ? right : left;
-			const size_t item2Idx = lAssoc ? e.index + 1 : e.index;
+			const size_t item2Idx = lAssoc ? e.index : e.index-1;
 			ExprUnOpsEntry& ent1 = lAssoc ? leftEntry : rightEntry;
 			ExprUnOpsEntry& ent2 = lAssoc ? rightEntry : leftEntry;
 
