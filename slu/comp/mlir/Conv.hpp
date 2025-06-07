@@ -17,6 +17,7 @@
 #include <mlir/IR/Verifier.h>
 #include <mlir/Dialect/Func/IR/FuncOps.h>
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
+#include <mlir/Dialect/MemRef/IR/MemRef.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Support/LogicalResult.h>
 #include <llvm/InitializePasses.h>
@@ -48,6 +49,7 @@ namespace slu::comp::mico
 	{
 		mlir::MLIRContext& context;
 		llvm::LLVMContext& llvmContext;
+		mlir::OpBuilder& builder;
 	};
 
 	inline void convStat(const ConvData& conv)
@@ -59,22 +61,31 @@ namespace slu::comp::mico
 		varcase(const parse::StatementType::FNv<true>&) {
 			// Build a function in mlir
 
-			mlir::OpBuilder builder(mc);
+			mlir::OpBuilder& builder = conv.builder;
+
+			auto module = mlir::ModuleOp::create(builder.getUnknownLoc());
+			builder.setInsertionPointToStart(module.getBody());
 
 			const char str[] = "Hello world";
 			int64_t strLen = sizeof(str);
+			auto i8Type = builder.getIntegerType(8);
 			auto strType = mlir::MemRefType::get({ strLen }, builder.getIntegerType(8), {}, 0);
-			auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
+			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
+			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str,strLen });
 
-
-			builder.create<mlir::LLVM::GlobalOp>(
+			builder.create<mlir::memref::GlobalOp>(
 				builder.getUnknownLoc(),
+				"greeting",
+				/*sym_visibility=*/builder.getStringAttr("private"),
 				strType,
-				/*isConstant=*/true,
-				mlir::LLVM::Linkage::Internal,
-				"hello_str",
-				strAttr
+				denseStr,
+				/*constant=*/true
 			);
+
+
+			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
+			auto putsType = builder.getFunctionType({ llvmPtrType }, { builder.getI32Type() });
+			builder.create<mlir::func::FuncOp>(builder.getUnknownLoc(), "puts", putsType).setPrivate();
 
 			auto loc = mlir::FileLineColLoc::get(mc,builder.getStringAttr("myfile.sv"), var.place.line, var.place.index);
 
@@ -82,6 +93,32 @@ namespace slu::comp::mico
 				loc, var.name.asSv(conv.sharedDb),
 				mlir::FunctionType::get(mc, {}, {})
 			);
+			mlir::Block* entry = funcOp.addEntryBlock();
+			builder.setInsertionPointToStart(entry);
+
+			// %str = memref.get_global @greeting : memref<14xi8>
+			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(builder.getUnknownLoc(), strType, "greeting");
+
+			// %ptr = memref.extract_aligned_pointer_as_index %str
+			auto ptrIndex = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
+				builder.getUnknownLoc(), builder.getIndexType(), globalStr
+			);
+
+
+			// %llvm_ptr = llvm.inttoptr %ptr : index to !llvm.ptr<i8>
+			auto llvmPtr = builder.create<mlir::LLVM::IntToPtrOp>(builder.getUnknownLoc(), llvmPtrType, ptrIndex);
+
+
+			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr<i8>) -> i32
+			builder.create<mlir::LLVM::CallOp>(
+				builder.getUnknownLoc(),
+				builder.getI32Type(),
+				mlir::SymbolRefAttr::get(mc, "puts"),
+				llvm::ArrayRef<mlir::Value>{llvmPtr});
+
+			builder.create<mlir::func::ReturnOp>(builder.getUnknownLoc());
+
+			module.print(llvm::outs());
 		},
 
 
