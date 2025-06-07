@@ -16,7 +16,7 @@
 #include <slu/comp/Compile.hpp>
 
 
-static void _test()
+void ____test()
 {
 
 	slu::parse::VecInput in;
