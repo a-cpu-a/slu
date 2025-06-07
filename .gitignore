@@ -12,11 +12,25 @@ ext/lua/testes/time-debug.txt
 ext/lua/testes/libs/all
 
 temp
-/.vs
+
+# https://github.com/github/gitignore/blob/main/CMake.gitignore
+**/CMakeLists.txt.user
+**/CMakeCache.txt
+**/CMakeFiles
+**/CMakeScripts
+**/Testing
+**/Makefile
+**/cmake_install.cmake
+**/install_manifest.txt
+**/compile_commands.json
+**/CTestTestfile.cmake
+**/_deps
+**/CMakeUserPresets.json
 
 
+**/.vs
 *.sln
 *.vcxproj*
 /x64/Debug
-/build/
+**/build/
 **/_TEST_OUT
