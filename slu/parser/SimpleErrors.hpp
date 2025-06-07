@@ -20,7 +20,7 @@ namespace slu::parse
 {
 	struct ParseFailError : std::exception
 	{
-		const char* what() const { return "Failed to parse some (s)lua code."; }
+		const char* what() const { return "Failed to parse some slu/lua code."; }
 	};
 
 	struct BasicParseError : std::exception
