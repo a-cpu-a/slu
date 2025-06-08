@@ -353,7 +353,7 @@ namespace slu::mlvl
 		}
 		std::move(unOpsLast.begin(), unOpsLast.end(), std::back_inserter(opsRes));
 
-		_ASSERT(opsRes.size() == ops.size() + unOpCount);
+		_ASSERT(opsRes.size() == ops.size() + unOpCount+1+m.extra.size());
 
 		return opsRes;
 	}
