@@ -617,24 +617,28 @@ namespace slu::parse
 		try
 		{
 			auto [fun, err] = readFuncBody(in);
-			ezmatch(std::move(fun))(
-			varcase(Function<In>&&) {
-				res.func = std::move(var);
-			},
-			varcase(FunctionInfo<In>&&) {
-				DeclStatT declRes{ std::move(var) };
-				declRes.name = res.name;
-				declRes.place = res.place;
+			if(ezmatch(std::move(fun))(
+				varcase(Function<In>&&) {
+					res.func = std::move(var);
+					return false;
+				},
+				varcase(FunctionInfo<In>&&) {
+					DeclStatT declRes{ std::move(var) };
+					declRes.name = res.name;
+					declRes.place = res.place;
 
-				if constexpr (In::settings() & sluSyn)
-				{
-					declRes.exported = exported;
-					declRes.safety = safety;
+					if constexpr (In::settings() & sluSyn)
+					{
+						declRes.exported = exported;
+						declRes.safety = safety;
+					}
+
+					in.genData.addStat(place, std::move(declRes));
+					return true;
 				}
+			))
+				return;//Staement was added
 
-				return in.genData.addStat(place, std::move(declRes));
-			}
-			);
 			if (err)
 			{
 				in.handleError(std::format(
