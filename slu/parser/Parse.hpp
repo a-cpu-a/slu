@@ -214,7 +214,11 @@ namespace slu::parse
 		Function<In> func = { std::move(fi) };
 
 		if constexpr (In::settings() & sluSyn)
+		{
+			requireToken(in, "{");
 			func.block = readBlock<false>(in, func.hasVarArgParam);
+			requireToken(in, "}");
+		}
 		else
 		{
 			try
