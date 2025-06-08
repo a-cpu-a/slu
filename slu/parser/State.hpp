@@ -883,7 +883,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FuncDefBase
 		{// "function funcname funcbody"    
-			Position place;//Right before func-name
+			Position place;//Right after func-name
 			MpItmIdV<isSlu> name; // name may contain dots, 1 colon if !isSlu
 			FunctionV<isSlu> func;
 		};
