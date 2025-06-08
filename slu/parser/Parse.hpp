@@ -742,7 +742,12 @@ namespace slu::parse
 		case ';':
 			in.skip();
 			return in.genData.addStat(place, StatementType::SEMICOLON{});
-		case ':'://must be label
+		case ':'://may be label
+			if constexpr (In::settings() & sluSyn)
+			{
+				if(in.peekAt(1) == '>')
+					break;//Not a label
+			}
 			return readLabel(in, place);
 
 		case 'f'://for?, function?, fn?
