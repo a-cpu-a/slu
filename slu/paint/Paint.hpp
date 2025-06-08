@@ -792,7 +792,7 @@ namespace slu::paint
 			retType = &emptyTy;
 			safety = parse::OptSafety::DEFAULT;
 		}
-		paintFuncDecl(se, func.params, func.hasVarArgParam,*retType, name, false, safety, pos, fnKw);
+		paintFuncDecl(se, func.params, func.hasVarArgParam,*retType, name, exported, safety, pos, fnKw);
 		if constexpr (Se::settings() & sluSyn)
 			paintKw<Tok::BRACES>(se, "{");
 
