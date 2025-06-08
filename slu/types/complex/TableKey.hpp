@@ -44,7 +44,6 @@ namespace slu
 				return strVal;
 			}
 			Slu_panic("Memory corrupted");
-			std::abort();
 		}
 
 		static int push(lua_State* L, const TableKey& data)
