@@ -111,7 +111,8 @@ namespace slu::parse
 			if (!in)//File ended, so stat-list ended too
 				break;
 
-			const char ch = in.peek();
+			if (in.peek() == '}')
+				break;
 
 			readStatement<isLoop>(in, allowVarArg);
 			skipSpace(in);
