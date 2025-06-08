@@ -56,8 +56,8 @@ namespace slu::comp
 	{
 		uint32_t nextTaskId = 1;
 		Mutex<std::vector<CompTask>> tasks;
-		Mutex<size_t> tasksLeft;
-
+		Mutex<size_t> tasksLeft = 0;
+		
 		std::condition_variable cv;
 		std::condition_variable cvMain;//Uses tasksLeft.lock!!
 		std::atomic_bool shouldExit = false;
