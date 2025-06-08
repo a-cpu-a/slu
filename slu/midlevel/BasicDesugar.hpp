@@ -139,7 +139,8 @@ namespace slu::mlvl
 						parse::BinOpType op = ops.extra[i.index-1].first;
 						const size_t traitIdx = (size_t)op - 1; //-1 for none
 
-						*call.val = parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
+						call.val = std::make_unique<parse::LimPrefixExpr<Cfg>>(
+							parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
 							.v = binOpFuncs[traitIdx].get([&] {
 									lang::ModPath name;
 									name.reserve(4);
@@ -169,7 +170,7 @@ namespace slu::mlvl
 									name.emplace_back(parse::binOpNames[traitIdx]);
 									return mpDb.getItm(name);
 								})
-						}} };
+						}} });
 
 
 						//Turn the first (moved)expr in a function call expression
@@ -248,9 +249,10 @@ namespace slu::mlvl
 							list.v.emplace_back(std::move(lifetimeExpr));
 						}
 						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
-						*call.val = parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
+						call.val = std::make_unique<parse::LimPrefixExpr<Cfg>>(
+							parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
 							.v = name
-						}} };
+						}} });
 
 						//Turn the (moved)expr in a function call expression
 						expr.data = std::move(call);
