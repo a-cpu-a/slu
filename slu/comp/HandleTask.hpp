@@ -166,17 +166,17 @@ namespace slu::comp
 			auto& sharedDb = *var.sharedDb;
 			state.sharedDb = &sharedDb.v;
 
-			if (taskLock != nullptr)
-			{
-				if (var.firstToArive)
-				{//Easy
-					var.sharedDb->v = std::move(state.mpDb);
-					var.firstToArive = false;
-					return;
-				}
-				taskLock->unlock();
-				// var is gone now!!!
+
+			if (var.firstToArive)
+			{//Easy
+				var.sharedDb->v = std::move(state.mpDb);
+				var.firstToArive = false;
+				return;
 			}
+			if (taskLock != nullptr)
+				taskLock->unlock();
+			// var is gone now!!!
+
 			throw std::runtime_error("TODO: unify state.mpDb!");
 		},
 		varcase(CompTaskType::ConsensusMergeAsts&) 

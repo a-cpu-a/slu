@@ -90,7 +90,7 @@ int main()
 		}
 		return files;
 	};
-
+	
 	std::vector<std::string> pathList;
 	//All root paths must not end with a slash
 	pathList.push_back(canonPath("../../../../hello_world"));
