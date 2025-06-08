@@ -63,6 +63,7 @@ namespace slu::comp
 			if (isCompleterThread)
 			{
 				std::lock_guard _(tasksLeft.lock);
+				_ASSERT(tasksLeft.v != 0);
 				if (--tasksLeft.v == 0)
 				{
 					//wake up, all tasks are done!
