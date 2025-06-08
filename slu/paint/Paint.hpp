@@ -736,10 +736,13 @@ namespace slu::paint
 		else
 			paintKw<Tok::FN_STAT>(se, "function");
 
-		if (!name.empty())
-			se.move(pos);
 
-		paintName<Tok::NAME>(se, name);
+		if (!name.empty())
+		{
+			paintName<Tok::NAME>(se, name);
+			se.move(pos);
+		}
+
 		paintKw<Tok::GEN_OP>(se, "(");
 		paintParamList(se, params, hasVarArgParam);
 
