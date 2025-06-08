@@ -43,4 +43,4 @@ namespace slu
 #endif
 
 //Runtime checked!
-#define Slu_require(COND) do{if(!(COND))Slu_panic();}while(false)
+#define Slu_require(COND) do{if(!(COND)){Slu_panic();}}while(false)
