@@ -69,7 +69,7 @@ New Syntax {
 
 	fieldlist ::= field {fieldsep field} [fieldsep]
 
-	field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+	field ::= Name ‘=’ exp | exp
 
 	fieldsep ::= ‘,’ | ‘;’
 

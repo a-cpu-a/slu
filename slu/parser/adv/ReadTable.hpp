@@ -28,18 +28,21 @@ namespace slu::parse
 		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
 		skipSpace(in);
 
-		if (checkReadToken(in, "["))
+		if constexpr (!(In::settings() & sluSyn))
 		{
-			FieldType::EXPR2EXPR<In> res{};
+			if (checkReadToken(in, "["))
+			{
+				FieldType::EXPR2EXPR<In> res{};
 
-			res.idx = readExpr(in,allowVarArg);
+				res.idx = readExpr(in, allowVarArg);
 
-			requireToken(in, "]");
-			requireToken(in, "=");
+				requireToken(in, "]");
+				requireToken(in, "=");
 
-			res.v = readExpr(in,allowVarArg);
+				res.v = readExpr(in, allowVarArg);
 
-			return res;
+				return res;
+			}
 		}
 
 		const size_t nameOffset = peekName(in);
