@@ -23,6 +23,32 @@ namespace slu::comp
 		if (tasksLeft.v != 0)
 			cvMain.wait(tasksLeftLock, [&tasksLeft] {return tasksLeft.v == 0; });
 	}
+	inline void submitTask(const CompCfg& cfg,
+		uint32_t taskId,
+		Mutex<std::vector<CompTask>>& tasks,
+		Mutex<size_t>& tasksLeft, 
+		std::condition_variable& cv, 
+		std::condition_variable& cvMain,
+
+		CompTaskData&& data
+	)
+	{
+		CompTask task;
+		task.taskId = taskId;
+		task.threadsLeft = 1;
+		// Move a chunk into a new vector
+		task.data = std::move(data);
+
+		{
+			std::lock_guard _(tasksLeft.lock);
+			tasksLeft.v++;
+		}
+		{
+			std::unique_lock _(tasks.lock);
+			tasks.v.emplace_back(std::move(task));
+		}
+		cv.notify_one();
+	}
 	inline void submitConsensusTask(const CompCfg& cfg,
 		uint32_t taskId,
 		Mutex<std::vector<CompTask>>& tasks,
@@ -143,13 +169,22 @@ namespace slu::comp
 				.firstToArive = true
 			}
 		);
+		MergeAstsMap astMap;
+		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
+			CompTaskType::ConsensusMergeAsts{ &astMap }
+		);
 		//TODO: collect ast's
-		//TODO: type-inference/checking + comptime eval + basic codegen to lua
+		//TODO: convert into something more? -> seperate global stats from the func code
 		//TODO: build some kind of dep graph.
-		//TODO: run midlevel / optimize using all the threads.
-		//TODO: codegen on all the threads.
+		//TODO: type-inference/checking + comptime eval + basic codegen to lua
 
 		std::vector<CodeGenEntrypoint> eps;
+		eps.push_back({.entryPointFile="???/???/src/main.slu",.fileName="main.exe"});
+
+		//TODO: run midlevel / optimize using all the threads.
+		//TODO: codegen on all the threads.
+		// 
+		// CompTaskType::DoCodeGen{ .entrypointId = 0,.statements = 0 };
 
 		CompOutput ret;
 

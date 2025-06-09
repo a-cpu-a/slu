@@ -40,6 +40,7 @@ Enum Statement {
 	{
 		--Note: T in the following two statements cant refer to the local variable T, because they are global statements.
 		---Nominally unique unit type
+		---None(u8) is not the same as None(u16)
 		struct None(type T) --[=[@BuiltinSubTypeOf(Option(T))]=] {
 		};
 		---Nominally different to T
@@ -47,6 +48,8 @@ Enum Statement {
 		
 		return None(T) | Some(T);
 	}
+	use Option::None;
+	use Option::Some;
 
 	--Use it: Option::Some(u8), Option(u8) Some{100} None{} None
 	```

@@ -29,7 +29,14 @@ namespace slu::comp
 		std::string path;
 		std::vector<uint8_t> contents;
 	};
+	struct ParsedFile
+	{
+		std::string_view crateRootPath;
+		std::string path;
+		parse::ParsedFileV<true> pf;
+	};
 	using GenCodeMap = std::unordered_map<uint32_t, std::vector<std::vector<uint8_t>>>;
+	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile>;
 	namespace CompTaskType
 	{
 		using ParseFiles = std::vector<SluFile>;
@@ -38,10 +45,7 @@ namespace slu::comp
 			RwLock<parse::BasicMpDbData>* sharedDb;//stored on main thread.
 			bool firstToArive = true; //if true, then you dont need to do any logic, just replace it
 		};
-		struct ConsensusMergeAsts
-		{
-			std::unordered_map<std::string, int> path2Ast;
-		};
+		using ConsensusMergeAsts = MergeAstsMap*;
 		struct DoCodeGen
 		{
 			std::vector<std::span<const parse::Statement<InputType>>> statements;
@@ -61,12 +65,6 @@ namespace slu::comp
 		CompTaskData data;
 		size_t threadsLeft : 32 = 0;
 		size_t taskId : 32 = 0;
-	};
-	struct ParsedFile
-	{
-		slu::parse::ParsedFile<InputType> parsed;
-		std::string_view crateRootPath;
-		std::string path;
 	};
 	struct TaskHandleState
 	{
@@ -143,7 +141,7 @@ namespace slu::comp
 
 				ParsedFile parsed;
 				try {
-					parsed.parsed = slu::parse::parseFile(in);
+					parsed.pf = slu::parse::parseFile(in);
 				}
 				catch (const slu::parse::ParseFailError&)
 				{
@@ -154,7 +152,7 @@ namespace slu::comp
 						i.clear(); // Free it faster
 					}
 				}
-				slu::mlvl::basicDesugar(state.mpDb,parsed.parsed);
+				slu::mlvl::basicDesugar(state.mpDb,parsed.pf);
 				parsed.crateRootPath = file.crateRootPath;
 				parsed.path = std::move(file.path);
 
@@ -179,12 +177,15 @@ namespace slu::comp
 
 			throw std::runtime_error("TODO: unify state.mpDb!");
 		},
-		varcase(CompTaskType::ConsensusMergeAsts&) 
+		varcase(CompTaskType::ConsensusMergeAsts) 
 		{ // Handle consensus merging of ASTs
-			for (const auto& path : var.path2Ast)
+			for (auto& i : state.parsedFiles)
 			{
-				//TODO: Implement actual merging logic
+				auto mp = parsePath(i.crateRootPath, i.path);
+				var->emplace(std::move(mp), std::move(i));
+				//TODO: handle inline modules?
 			}
+			state.parsedFiles.clear(); // Unneeded anymore
 		},
 		varcase(CompTaskType::DoCodeGen&) 
 		{ // Handle code gen of all the global statements
