@@ -93,6 +93,7 @@ namespace slu::parse
 	Slu_DEF_CFG(Var);
 
 	namespace FieldType {
+		//For lua only!
 		template<bool isSlu> struct EXPR2EXPRv;
 		Slu_DEF_CFG_CAPS(EXPR2EXPR);
 
