@@ -31,6 +31,6 @@ temp
 **/.vs
 *.sln
 *.vcxproj*
-/x64/Debug
+/x64/*
 **/build/
 **/_TEST_OUT
