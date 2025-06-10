@@ -93,10 +93,13 @@ namespace slu::parse
 		{
 			const UnOpType uOp = readOptUnOp(in);
 			if (uOp == UnOpType::NONE)break;
-			if (uOp == UnOpType::TO_REF)
+			if constexpr (In::settings()&sluSyn)
 			{
-				basicRes.unOps.push_back(readToRefLifetimes(in,uOp));
-				continue;
+				if (uOp == UnOpType::TO_REF)
+				{
+					basicRes.unOps.push_back(readToRefLifetimes(in, uOp));
+					continue;
+				}
 			}
 			basicRes.unOps.push_back({.type= uOp });
 		}

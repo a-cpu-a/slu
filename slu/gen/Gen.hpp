@@ -1129,12 +1129,15 @@ namespace slu::parse
 			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::USE&) {
-			if (var.exported)out.add("ex ");
-			out.add("use ");
-			genModPath(out, out.db.asVmp(var.base));
-			genUseVariant(out, var.useVariant);
-			out.addNewl(";");
-			out.wasSemicolon = true;
+			if constexpr (Out::settings() & sluSyn)
+			{
+				if (var.exported)out.add("ex ");
+				out.add("use ");
+				genModPath(out, out.db.asVmp(var.base));
+				genUseVariant(out, var.useVariant);
+				out.addNewl(";");
+				out.wasSemicolon = true;
+			}
 		},
 		varcase(const StatementType::MOD_DEF<Out>&) {
 			if (var.exported)out.add("ex ");

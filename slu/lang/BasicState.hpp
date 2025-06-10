@@ -28,37 +28,44 @@ namespace slu::lang
 		size_t val;
 	};
 
-	template<class T>
-	concept NotBasicMpDbData = !std::same_as<T, parse::BasicMpDbData>;
-	
+
 	template<bool isSlu>
-	struct MpItmIdV
+	struct MpItmIdV;
+
+	template<bool isSlu>
+	struct MpItmIdCommonV
 	{
 		LocalObjId id;// Practically a string pool lol
 		//SIZE_MAX -> empty
 
-		static constexpr MpItmIdV newEmpty() {
-			return MpItmIdV{ LocalObjId{SIZE_MAX} };
+		static constexpr MpItmIdV<isSlu> newEmpty() {
+			return MpItmIdV<isSlu>{ LocalObjId{SIZE_MAX} };
 		}
 
 		constexpr bool empty() const {
 			return id.val == SIZE_MAX;
 		}
-		std::string_view asSv(const parse::BasicMpDbData& v) const {
-			return parse::BasicMpDb{&v}.asSv(*this);
+		std::string_view asSv(const auto& v) const {
+			return v.asSv({ *this });
 		}
-		std::string_view asSv(const NotBasicMpDbData auto& v) const {
-			return v.asSv(*this);
-		}
-		ViewModPath asVmp(const NotBasicMpDbData auto& v) const {
-			return v.asVmp(*this);
+
+		std::string_view asSv(const parse::BasicMpDbData& v) const requires(isSlu) {
+			return parse::BasicMpDb{ const_cast<parse::BasicMpDbData*>(&v) }.asSv({ *this });
 		}
 	};
-	template<>
-	struct MpItmIdV<true> : MpItmIdV<false>
+	
+	template<bool isSlu>
+	struct MpItmIdV : MpItmIdCommonV<false>
 	{
-		static constexpr MpItmIdV newEmpty() {
-			return MpItmIdV{ LocalObjId{SIZE_MAX} };
+		using MpItmIdCommonV<false>::newEmpty;
+	};
+	template<>
+	struct MpItmIdV<true> : MpItmIdCommonV<true>
+	{
+		using MpItmIdCommonV<true>::newEmpty;
+
+		ViewModPath asVmp(const auto& v) const {
+			return v.asVmp(*this);
 		}
 
 		ModPathId mp;
