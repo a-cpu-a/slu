@@ -27,6 +27,10 @@ namespace slu::lang
 	{
 		size_t val;
 	};
+
+	template<class T>
+	concept NotBasicMpDbData = !std::same_as<T, parse::BasicMpDbData>;
+	
 	template<bool isSlu>
 	struct MpItmIdV
 	{
@@ -40,13 +44,13 @@ namespace slu::lang
 		constexpr bool empty() const {
 			return id.val == SIZE_MAX;
 		}
-		std::string_view asSv(const /*AnyNameDbOrGenDataV<isSlu>*/ auto& v) const {
-			return v.asSv(*this);
-		}
-		std::string_view asSv(parse::BasicMpDbData& v) const {
+		std::string_view asSv(const parse::BasicMpDbData& v) const {
 			return parse::BasicMpDb{&v}.asSv(*this);
 		}
-		ViewModPath asVmp(const /*AnyNameDbOrGenDataV<isSlu>*/ auto& v) const {
+		std::string_view asSv(const NotBasicMpDbData auto& v) const {
+			return v.asSv(*this);
+		}
+		ViewModPath asVmp(const NotBasicMpDbData auto& v) const {
 			return v.asVmp(*this);
 		}
 	};
