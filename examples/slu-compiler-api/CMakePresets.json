@@ -33,9 +33,9 @@
             "name": "x64-release",
             "displayName": "x64 Release",
             "inherits": "x64-debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+          }
         },
         {
             "name": "x86-debug",
@@ -53,9 +53,9 @@
             "name": "x86-release",
             "displayName": "x86 Release",
             "inherits": "x86-debug",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+          }
         }
     ]
 }

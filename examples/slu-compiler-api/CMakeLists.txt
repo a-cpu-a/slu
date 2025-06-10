@@ -27,13 +27,40 @@ target_link_libraries(slu-compiler-api
     MLIRIR
     MLIRParser
     MLIRSupport
+
     MLIRFuncDialect
     MLIRArithDialect
     MLIRLLVMDialect
+    MLIRControlFlowDialect
     MLIRSCFDialect
     MLIRMemRefDialect
     MLIRIndexDialect
+    
+    MLIRSCFToControlFlow
+    MLIRSCFTransforms
+    MLIRControlFlowInterfaces
+    MLIRControlFlowToLLVM
+    MLIRAffineTransforms
+    MLIRAffineToStandard
+    MLIRArithToLLVM
+    MLIRArithTransforms
+    MLIRFuncToLLVM
+    MLIRFuncTransforms
+    MLIRFunctionInterfaces
+    MLIRMathToLLVM
+    MLIRMathTransforms
+    MLIRMemRefToLLVM
+    MLIRMemRefTransforms
+
+    MLIRCallInterfaces
+    MLIRCastInterfaces
     MLIRPass
+    MLIRAnalysis
+    MLIRBuiltinToLLVMIRTranslation
+    MLIRLLVMCommonConversion
+    MLIRLLVMToLLVMIRTranslation
+    MLIRTargetLLVMIRExport
+    MLIRTransforms
 )
 
 target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)

@@ -20,12 +20,25 @@
 #include <mlir/IR/BuiltinOps.h>
 #include <mlir/IR/BuiltinTypes.h>
 #include <mlir/IR/Verifier.h>
+#include <mlir/Target/LLVMIR/ModuleTranslation.h>
 #include <mlir/Dialect/Func/IR/FuncOps.h>
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/Dialect/MemRef/IR/MemRef.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Index/IR/IndexOps.h>
+#include <mlir/Dialect/Index/IR/IndexDialect.h>
 #include <mlir/Support/LogicalResult.h>
+#include <mlir/Conversion/IndexToLLVM/IndexToLLVM.h>
+#include "mlir/Conversion/AffineToStandard/AffineToStandard.h"
+#include "mlir/Conversion/ArithToLLVM/ArithToLLVM.h"
+#include "mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h"
+#include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVM.h"
+#include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVMPass.h"
+#include "mlir/Conversion/LLVMCommon/ConversionTarget.h"
+#include "mlir/Conversion/LLVMCommon/TypeConverter.h"
+#include "mlir/Conversion/MemRefToLLVM/MemRefToLLVM.h"
+#include "mlir/Conversion/SCFToControlFlow/SCFToControlFlow.h"
+#include <mlir/Pass/PassManager.h>
 #include <llvm/InitializePasses.h>
 #include <llvm/IR/LLVMContext.h>
 #pragma warning(pop)
@@ -72,8 +85,6 @@ namespace slu::comp::mico
 
 			mlir::OpBuilder& builder = conv.builder;
 
-			auto module = mlir::ModuleOp::create(builder.getUnknownLoc());
-			builder.setInsertionPointToStart(module.getBody());
 
 			const auto str = "Hello world\0"sv;
 			auto i8Type = builder.getIntegerType(8);
@@ -149,7 +160,6 @@ namespace slu::comp::mico
 
 			builder.create<mlir::func::ReturnOp>(builder.getUnknownLoc());
 
-			module.print(llvm::outs());
 		},
 
 
