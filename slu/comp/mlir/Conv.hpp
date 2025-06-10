@@ -24,6 +24,7 @@
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/Dialect/MemRef/IR/MemRef.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
+#include <mlir/Dialect/Index/IR/IndexOps.h>
 #include <mlir/Support/LogicalResult.h>
 #include <llvm/InitializePasses.h>
 #include <llvm/IR/LLVMContext.h>
@@ -76,23 +77,19 @@ namespace slu::comp::mico
 
 			const auto str = "Hello world\0"sv;
 			auto i8Type = builder.getIntegerType(8);
+			auto i64Type = builder.getIntegerType(64);
 			auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, builder.getIntegerType(8), {}, 0);
 			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
 			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size()});
 
-
-			// ::mlir::StringAttr sym_name, /*optional*/::mlir::StringAttr sym_visibility, ::mlir::TypeAttr type, /*optional*/::mlir::Attribute initial_value, /*optional*/::mlir::UnitAttr constant, /*optional*/::mlir::IntegerAttr alignment);
-			// ::mlir::TypeRange resultTypes, ::mlir::StringAttr sym_name, /*optional*/::mlir::StringAttr sym_visibility, ::mlir::TypeAttr type, /*optional*/::mlir::Attribute initial_value, /*optional*/::mlir::UnitAttr constant, /*optional*/::mlir::IntegerAttr alignment);
-			// ::llvm::StringRef sym_name, /*optional*/::mlir::StringAttr sym_visibility, ::mlir::MemRefType type, /*optional*/::mlir::Attribute initial_value, /*optional*/bool constant, /*optional*/::mlir::IntegerAttr alignment);
-			// ::mlir::TypeRange resultTypes, ::llvm::StringRef sym_name, /*optional*/::mlir::StringAttr sym_visibility, ::mlir::MemRefType type, /*optional*/::mlir::Attribute initial_value, /*optional*/bool constant, /*optional*/::mlir::IntegerAttr alignment);
-
 			builder.create<mlir::memref::GlobalOp>(
 				builder.getUnknownLoc(),
-				"greeting"sv,
+				llvm::StringRef{ "greeting"sv },
 				/*sym_visibility=*/builder.getStringAttr("private"sv),
 				strType,
 				denseStr,
-				/*constant=*/true
+				/*constant=*/true, 
+				/*alignment=*/builder.getIntegerAttr(i8Type, 1)
 			);
 
 
@@ -112,17 +109,38 @@ namespace slu::comp::mico
 			// %str = memref.get_global @greeting : memref<14xi8>
 			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(builder.getUnknownLoc(), strType, "greeting"sv);
 
-			// %ptr = memref.extract_aligned_pointer_as_index %str
+
+			// mlir::Type aligned_pointer, ::mlir::Value source);
+			// mlir::Value source);
+			// mlir::TypeRange resultTypes, ::mlir::Value source);
+			// mlir::TypeRange resultTypes, ::mlir::ValueRange operands, ::llvm::ArrayRef<::mlir::NamedAttribute> attributes = {});
+			// mlir::ValueRange operands, ::llvm::ArrayRef<::mlir::NamedAttribute> attributes = {});
+			// mlir::TypeRange resultTypes, ::mlir::ValueRange operands, const Properties & properties, ::llvm::ArrayRef<::mlir::NamedAttribute> discardableAttributes = {});
+			// mlir::ValueRange operands, const Properties & properties, ::llvm::ArrayRef<::mlir::NamedAttribute> discardableAttributes = {});
+			// 
+			// %ptrIdx = memref.extract_aligned_pointer_as_index %str
 			auto ptrIndex = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
-				builder.getUnknownLoc(), builder.getIndexType(), globalStr
+				builder.getUnknownLoc(), globalStr
+			);
+
+			// %ptrInt = index.castu %ptrIdx : index to i64
+			auto ptrInt = builder.create<mlir::index::CastUOp>(
+				builder.getUnknownLoc(), i64Type,ptrIndex
+			);
+
+			// mlir::Type resultType, ValueRange operands, ArrayRef<NamedAttribute> attributes = {});
+			// mlir::Type res, ::mlir::Value arg, /*optional*/::mlir::LLVM::DereferenceableAttr dereferenceable);
+			// mlir::TypeRange resultTypes, ::mlir::Value arg, /*optional*/::mlir::LLVM::DereferenceableAttr dereferenceable);
+			// mlir::TypeRange resultTypes, ::mlir::ValueRange operands, ::llvm::ArrayRef<::mlir::NamedAttribute> attributes = {});
+			// mlir::TypeRange resultTypes, ::mlir::ValueRange operands, const Properties & properties, ::llvm::ArrayRef<::mlir::NamedAttribute> discardableAttributes = {});
+			// 
+			// %llvm_ptr = llvm.inttoptr %ptrInt : i64 to !llvm.ptr
+			auto llvmPtr = builder.create<mlir::LLVM::IntToPtrOp>(builder.getUnknownLoc(),
+				llvmPtrType, ptrInt, mlir::LLVM::DereferenceableAttr::get(mc,str.size(),false)
 			);
 
 
-			// %llvm_ptr = llvm.inttoptr %ptr : index to !llvm.ptr<i8>
-			auto llvmPtr = builder.create<mlir::LLVM::IntToPtrOp>(builder.getUnknownLoc(), llvmPtrType, ptrIndex);
-
-
-			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr<i8>) -> i32
+			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr) -> i32
 			builder.create<mlir::LLVM::CallOp>(
 				builder.getUnknownLoc(),
 				builder.getI32Type(),
