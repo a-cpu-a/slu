@@ -28,7 +28,33 @@ namespace slu::comp
 	)
 	{
 		uint32_t lastTask = 0;
-		TaskHandleState state;
+		TaskHandleStateMlir mlirState{
+			.mc=mlir::MLIRContext(mlir::MLIRContext::Threading::DISABLED),
+			.llvmCtx=llvm::LLVMContext() 
+		};
+		mlirState.mc.getOrLoadDialect<mlir::memref::MemRefDialect>();
+		mlirState.mc.getOrLoadDialect<mlir::func::FuncDialect>();
+		mlirState.mc.getOrLoadDialect<mlir::LLVM::LLVMDialect>();
+		mlirState.mc.getOrLoadDialect<mlir::arith::ArithDialect>();
+		mlirState.mc.getOrLoadDialect<mlir::index::IndexDialect>();
+		TaskHandleState state{
+			.s = &mlirState,
+			.target = mlir::LLVMConversionTarget{mlirState.mc},
+			.typeConverter = mlir::LLVMTypeConverter{&mlirState.mc}
+		};
+		state.target.addLegalOp<mlir::ModuleOp>();
+
+		mlir::RewritePatternSet patterns{ &mlirState.mc };
+
+		mlir::populateAffineToStdConversionPatterns(patterns);
+		mlir::populateSCFToControlFlowConversionPatterns(patterns);
+		mlir::arith::populateArithToLLVMConversionPatterns(state.typeConverter, patterns);
+		mlir::populateFinalizeMemRefToLLVMConversionPatterns(state.typeConverter, patterns);
+		mlir::cf::populateControlFlowToLLVMConversionPatterns(state.typeConverter, patterns);
+		mlir::populateFuncToLLVMConversionPatterns(state.typeConverter, patterns);
+
+		state.s->patterns = mlir::FrozenRewritePatternSet{ std::move(patterns) };
+
 		while (true)
 		{
 			std::unique_lock taskLock(tasks.lock);

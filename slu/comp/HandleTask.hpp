@@ -66,12 +66,25 @@ namespace slu::comp
 		size_t threadsLeft : 32 = 0;
 		size_t taskId : 32 = 0;
 	};
+	struct TaskHandleStateMlir
+	{
+		mlir::MLIRContext mc;
+		llvm::LLVMContext llvmCtx;
+		mlir::OpBuilder opBuilder{ &mc };
+		mlir::PassManager pm{ &mc };
+		mlir::FrozenRewritePatternSet patterns;
+	};
 	struct TaskHandleState
 	{
-		const parse::BasicMpDbData* sharedDb=nullptr; // Set after ConsensusUnifyAsts
+		TaskHandleStateMlir* s;
+
+		const parse::BasicMpDbData* sharedDb = nullptr; // Set after ConsensusUnifyAsts
 		std::vector<ParsedFile> parsedFiles;
 		parse::BasicMpDbData mpDb;
 		std::unordered_map<uint32_t, std::vector<uint8_t>> genOut;
+
+		mlir::LLVMConversionTarget target;
+		mlir::LLVMTypeConverter typeConverter;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -189,31 +202,48 @@ namespace slu::comp
 		},
 		varcase(CompTaskType::DoCodeGen&) 
 		{ // Handle code gen of all the global statements
-			auto& outVec = state.genOut[var.entrypointId];
 			//parse::Output out;
 			//parse::LuaMpDb luaDb;
 			//out.text = std::move(outVec);
 
-			mlir::MLIRContext mc = mlir::MLIRContext(mlir::MLIRContext::Threading::DISABLED);
-			mlir::OpBuilder opBuilder = mlir::OpBuilder(&mc);
-			llvm::LLVMContext llvmCtx = llvm::LLVMContext();
+
+			auto module = mlir::ModuleOp::create(state.s->opBuilder.getUnknownLoc(),"HelloWorldModule");
+			state.s->opBuilder.setInsertionPointToStart(module.getBody());
 
 			for (const auto& i : var.statements)
 			{
 				for (const auto& j : i)
 				{
-					/*
-					slu::comp::lua::conv({
+					/*slu::comp::lua::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
 						luaDb, out 
 					});*/
-
 					slu::comp::mico::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
-						mc, llvmCtx,opBuilder
+						state.s->mc, state.s->llvmCtx,state.s->opBuilder
 					});
 				}
 			}
+			module.print(llvm::outs());
+
+			if (mlir::failed(mlir::applyFullConversion((mlir::Operation*) & module, state.target, state.s->patterns)))
+			{
+				cfg.logPtr("Failed to apply full conversion for entrypoint: " + std::to_string(var.entrypointId));
+				//todo: filename!
+				return;
+			}
+
+			auto llvmMod = mlir::translateModuleToLLVMIR(module, state.s->llvmCtx,"HelloWorldLlvmModule");
+			if (!llvmMod)
+			{
+				cfg.logPtr("Failed to translate module to Llvm Ir for entrypoint: " + std::to_string(var.entrypointId));
+				//todo: filename!
+				return;
+			}
+			llvmMod->print(llvm::outs(), nullptr);
+
+			//TODO: multiple outputs for each entrypoint
+			auto& outVec = state.genOut[var.entrypointId];
 			//outVec = std::move(out.text);
 		},
 		varcase(CompTaskType::ConsensusMergeGenCode&) {
