@@ -167,21 +167,25 @@ namespace slu::paint
 
 		case parse::UnOpType::TO_REF:
 			paintKw<Tok::REF>(se, "&");
-			paintLifetime(se, itm.life);
+			if constexpr (Se::settings() & ::slu::parse::sluSyn)
+				paintLifetime(se, itm.life);
 			break;
 		case parse::UnOpType::TO_REF_MUT:
 			paintKw<Tok::REF_MUT>(se, "&");
-			paintLifetime(se, itm.life);
+			if constexpr (Se::settings() & ::slu::parse::sluSyn)
+				paintLifetime(se, itm.life);
 			paintKw<Tok::REF_MUT>(se, "mut");
 			break;
 		case parse::UnOpType::TO_REF_CONST:
 			paintKw<Tok::REF_CONST>(se, "&");
-			paintLifetime(se, itm.life);
+			if constexpr (Se::settings() & ::slu::parse::sluSyn)
+				paintLifetime(se, itm.life);
 			paintKw<Tok::REF_CONST>(se, "const");
 			break;
 		case parse::UnOpType::TO_REF_SHARE:
 			paintKw<Tok::REF_SHARE>(se, "&");
-			paintLifetime(se, itm.life);
+			if constexpr (Se::settings() & ::slu::parse::sluSyn)
+				paintLifetime(se, itm.life);
 			paintKw<Tok::REF_SHARE>(se, "share");
 			break;
 		case parse::UnOpType::NONE:
