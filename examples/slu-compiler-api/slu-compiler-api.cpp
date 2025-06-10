@@ -64,7 +64,7 @@ int main()
 		{
 			for (const auto& entry : std::filesystem::directory_iterator(folderName))
 			{
-				files.push_back(entry.path().string());
+				files.push_back(canonPath(entry.path().string()));
 			}
 		}
 		catch (const std::filesystem::filesystem_error& e)
@@ -80,7 +80,7 @@ int main()
 		{
 			for (const auto& entry : std::filesystem::recursive_directory_iterator(folderName))
 			{
-				files.push_back(entry.path().string());
+				files.push_back(canonPath(entry.path().string()));
 			}
 		}
 		catch (const std::filesystem::filesystem_error& e)
