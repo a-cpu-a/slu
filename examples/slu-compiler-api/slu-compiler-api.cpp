@@ -93,8 +93,8 @@ int main()
 	
 	std::vector<std::string> pathList;
 	//All root paths must not end with a slash
-	pathList.push_back(canonPath("../../../../hello_world"));
-	pathList.push_back(canonPath("../../../../../std"));
+	pathList.push_back(canonPath("../hello_world"));
+	pathList.push_back(canonPath("../../std"));
 	cfg.rootPaths = pathList;
 	auto outs = slu::comp::compile(cfg);
 
