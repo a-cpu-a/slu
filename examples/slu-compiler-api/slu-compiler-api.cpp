@@ -98,17 +98,21 @@ int main()
 	cfg.rootPaths = pathList;
 	auto outs = slu::comp::compile(cfg);
 
+	std::filesystem::create_directory("build");
+
 	for (auto& i : outs.entryPoints)
 	{
 		std::cout << "Entry Point: " << i.fileName << "\n";
 		std::cout << "  from: " << i.entryPointFile << "\n";
 		// Write the entry point to a file
-		std::ofstream outFile(i.fileName, std::ios::binary);
+
+		std::string outPath = "build/" + i.fileName;
+		std::ofstream outFile(outPath, std::ios::binary);
 		if (outFile.is_open())
 		{
 			outFile.write(reinterpret_cast<const char*>(i.contents.data()), i.contents.size());
 			outFile.close();
-			std::cout << "Written! : " << i.entryPointFile << "\n";
+			std::cout << "Written to " << outPath << "\n";
 		}
 		else
 		{

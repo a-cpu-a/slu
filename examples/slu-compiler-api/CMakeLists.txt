@@ -20,6 +20,8 @@ target_include_directories(slu-compiler-api
 	${PROJECT_SOURCE_DIR}/../../
 )
 
+#set_property(TARGET slu-compiler-api PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
 target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)
 target_link_libraries(slu-compiler-api optimized ${PROJECT_SOURCE_DIR}/../../x64/Release/Slu.lib)
 
