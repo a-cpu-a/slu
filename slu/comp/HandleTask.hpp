@@ -16,7 +16,7 @@
 #include <slu/parser/SimpleErrors.hpp>
 
 #include <slu/comp/CompCfg.hpp>
-#include <slu/comp/lua/Conv.hpp>
+#include <slu/comp/mlir/Conv.hpp>
 
 namespace slu::comp
 {
@@ -163,7 +163,7 @@ namespace slu::comp
 		{ // Handle consensus unification of ASTs
 			auto& sharedDb = *var.sharedDb;
 			state.sharedDb = &sharedDb.v;
-
+			
 
 			if (var.firstToArive)
 			{//Easy
@@ -190,20 +190,31 @@ namespace slu::comp
 		varcase(CompTaskType::DoCodeGen&) 
 		{ // Handle code gen of all the global statements
 			auto& outVec = state.genOut[var.entrypointId];
-			parse::Output out;
-			parse::LuaMpDb luaDb;
-			out.text = std::move(outVec);
+			//parse::Output out;
+			//parse::LuaMpDb luaDb;
+			//out.text = std::move(outVec);
+
+			mlir::MLIRContext mc = mlir::MLIRContext(mlir::MLIRContext::Threading::DISABLED);
+			mlir::OpBuilder opBuilder = mlir::OpBuilder(&mc);
+			llvm::LLVMContext llvmCtx = llvm::LLVMContext();
+
 			for (const auto& i : var.statements)
 			{
 				for (const auto& j : i)
 				{
+					/*
 					slu::comp::lua::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
 						luaDb, out 
+					});*/
+
+					slu::comp::mico::conv({
+						CommonConvData{cfg,*state.sharedDb,j},
+						mc, llvmCtx,opBuilder
 					});
 				}
 			}
-			outVec = std::move(out.text);
+			//outVec = std::move(out.text);
 		},
 		varcase(CompTaskType::ConsensusMergeGenCode&) {
 			for (auto& [epId, i] : state.genOut)

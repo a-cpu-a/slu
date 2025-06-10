@@ -179,12 +179,21 @@ namespace slu::comp
 		//TODO: type-inference/checking + comptime eval + basic codegen to lua
 
 		std::vector<CodeGenEntrypoint> eps;
-		eps.push_back({.entryPointFile="???/???/src/main.slu",.fileName="main.exe"});
 
 		//TODO: run midlevel / optimize using all the threads.
-		//TODO: codegen on all the threads.
-		// 
-		// CompTaskType::DoCodeGen{ .entrypointId = 0,.statements = 0 };
+		for (auto& [mp,file] : astMap)
+		{// Codegen on all the threads.
+			if (file.path.ends_with("/main.slu"))
+			{
+				eps.push_back({ .entryPointFile = file.path, .fileName = "main.exe" });
+				submitTask(cfg,nextTaskId++,tasks,tasksLeft,cv,cvMain,
+					CompTaskType::DoCodeGen{
+						.statements = {std::span{file.pf.code.statList}},
+						.entrypointId=uint32_t(eps.size() - 1)
+				});
+			}
+		}
+		waitForTasksToComplete(tasksLeft, cvMain);
 
 		CompOutput ret;
 
