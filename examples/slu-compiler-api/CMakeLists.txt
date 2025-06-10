@@ -20,8 +20,26 @@ target_include_directories(slu-compiler-api
 	${PROJECT_SOURCE_DIR}/../../
 )
 
+
+find_package(MLIR REQUIRED CONFIG)
+
+target_link_libraries(slu-compiler-api
+    MLIRIR
+    MLIRParser
+    MLIRSupport
+    MLIRFuncDialect
+    MLIRArithDialect
+    MLIRLLVMDialect
+    MLIRSCFDialect
+    MLIRMemRefDialect
+    MLIRIndexDialect
+    MLIRPass
+)
+
 target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)
 target_link_libraries(slu-compiler-api optimized ${PROJECT_SOURCE_DIR}/../../x64/Release/Slu.lib)
+
+add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET slu-compiler-api PROPERTY CXX_STANDARD 20)
