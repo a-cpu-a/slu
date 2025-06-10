@@ -36,7 +36,7 @@ namespace slu::comp
 		parse::ParsedFileV<true> pf;
 	};
 	using GenCodeMap = std::unordered_map<uint32_t, std::vector<std::vector<uint8_t>>>;
-	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile>;
+	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile,lang::HashModPathView,lang::EqualModPathView>;
 	namespace CompTaskType
 	{
 		using ParseFiles = std::vector<SluFile>;
