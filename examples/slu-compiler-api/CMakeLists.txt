@@ -20,6 +20,10 @@ target_include_directories(slu-compiler-api
 	${PROJECT_SOURCE_DIR}/../../
 )
 
+if(IS_DEBUG)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+endif()
 
 find_package(MLIR REQUIRED CONFIG)
 
