@@ -40,6 +40,7 @@ target_link_libraries(slu-compiler-api
     MLIRMemRefDialect
     MLIRIndexDialect
     
+    MLIRIndexToLLVM
     MLIRSCFToControlFlow
     MLIRSCFTransforms
     MLIRControlFlowInterfaces

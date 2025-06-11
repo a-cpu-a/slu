@@ -29,8 +29,8 @@ namespace slu::comp
 	{
 		uint32_t lastTask = 0;
 		TaskHandleStateMlir mlirState{
-			.mc=mlir::MLIRContext(mlir::MLIRContext::Threading::DISABLED),
-			.llvmCtx=llvm::LLVMContext() 
+			.mc = mlir::MLIRContext(mlir::MLIRContext::Threading::DISABLED),
+			.llvmCtx = llvm::LLVMContext()
 		};
 		mlirState.mc.getOrLoadDialect<mlir::memref::MemRefDialect>();
 		mlirState.mc.getOrLoadDialect<mlir::func::FuncDialect>();
@@ -51,9 +51,37 @@ namespace slu::comp
 		mlir::arith::populateArithToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::populateFinalizeMemRefToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::cf::populateControlFlowToLLVMConversionPatterns(state.typeConverter, patterns);
+		mlir::index::populateIndexToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::populateFuncToLLVMConversionPatterns(state.typeConverter, patterns);
 
+		//mlir::populateFuncToLLVMFuncOpConversionPattern(state.typeConverter, patterns);
+
 		state.s->patterns = mlir::FrozenRewritePatternSet{ std::move(patterns) };
+
+
+		// Optional: enable IR printing/debugging
+		mlirState.pm.enableVerifier(/*verifyPasses=*/true);
+		mlirState.pm.enableIRPrinting();
+
+		// Add passes in order
+		//mlirState.pm.addPass(mlir::memref::createExpandStridedMetadataPass());	// memref → memref + affine + arith
+		//mlirState.pm.addPass(mlir::createFinalizeMemRefToLLVMConversionPass());	// memref → LLVM
+		//mlirState.pm.addPass(mlir::createLowerAffinePass());					// Affine → SCF + arith
+		//mlirState.pm.addPass(mlir::createSCFToControlFlowPass());				// SCF → CF
+		//mlirState.pm.addPass(mlir::createConvertControlFlowToLLVMPass());		// cf → LLVM
+		//mlirState.pm.addPass(mlir::createArithToLLVMConversionPass());			// arith → LLVM
+		//mlirState.pm.addPass(mlir::createConvertIndexToLLVMPass());				// index → LLVM
+		//mlirState.pm.addPass(mlir::createConvertFuncToLLVMPass());				// func → LLVM
+
+		// Optional: cleanup/canonicalization
+		mlirState.pm.addPass(mlir::createCanonicalizerPass());
+		//mlirState.pm.addPass(mlir::createSCCPPass());
+		mlirState.pm.addPass(mlir::createCSEPass());
+		//mlirState.pm.addPass(mlir::createSymbolDCEPass());
+
+
+		mlir::registerBuiltinDialectTranslation(mlirState.mc);
+		mlir::registerLLVMDialectTranslation(mlirState.mc);
 
 		while (true)
 		{
@@ -84,7 +112,7 @@ namespace slu::comp
 				: taskRef.data;//else, it was not invalidated
 
 			//Complete it...
-			handleTask(cfg, shouldExit, state, stackCopy.has_value() ? nullptr: &taskLock, task);
+			handleTask(cfg, shouldExit, state, stackCopy.has_value() ? nullptr : &taskLock, task);
 
 			if (isCompleterThread)
 			{
