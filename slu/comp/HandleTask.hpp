@@ -227,12 +227,20 @@ namespace slu::comp
 			}
 			module.print(llvm::outs());
 
-			if (mlir::failed(mlir::applyFullConversion(module.getOperation(), state.target, state.s->patterns)))
+			if (mlir::failed(mlir::applyFullConversion(module, state.target, state.s->patterns)))
 			{
 				cfg.logPtr("Failed to apply full conversion for entrypoint: " + std::to_string(var.entrypointId));
 				//todo: filename!
 				return;
 			}
+			if (mlir::failed(state.s->pm.run(module)))
+			{
+				cfg.logPtr("Failed to run pass manager for entrypoint: " + std::to_string(var.entrypointId));
+				//todo: filename!
+				return;
+			}
+			cfg.logPtr("===CONVERTED===");
+			module.print(llvm::outs());
 
 			auto llvmMod = mlir::translateModuleToLLVMIR(module, state.s->llvmCtx, "HelloWorldLlvmModule");
 			if (!llvmMod)

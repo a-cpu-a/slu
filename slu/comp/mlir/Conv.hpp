@@ -21,24 +21,29 @@
 #include <mlir/IR/BuiltinTypes.h>
 #include <mlir/IR/Verifier.h>
 #include <mlir/Target/LLVMIR/ModuleTranslation.h>
+#include <mlir/Target/LLVMIR/Dialect/Builtin/BuiltinToLLVMIRTranslation.h>
+#include <mlir/Target/LLVMIR/Dialect/LLVMIR/LLVMToLLVMIRTranslation.h>
 #include <mlir/Dialect/Func/IR/FuncOps.h>
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/Dialect/MemRef/IR/MemRef.h>
+#include <mlir/Dialect/MemRef/Transforms/Passes.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Index/IR/IndexOps.h>
 #include <mlir/Dialect/Index/IR/IndexDialect.h>
 #include <mlir/Support/LogicalResult.h>
 #include <mlir/Conversion/IndexToLLVM/IndexToLLVM.h>
-#include "mlir/Conversion/AffineToStandard/AffineToStandard.h"
-#include "mlir/Conversion/ArithToLLVM/ArithToLLVM.h"
-#include "mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h"
-#include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVM.h"
-#include "mlir/Conversion/FuncToLLVM/ConvertFuncToLLVMPass.h"
-#include "mlir/Conversion/LLVMCommon/ConversionTarget.h"
-#include "mlir/Conversion/LLVMCommon/TypeConverter.h"
-#include "mlir/Conversion/MemRefToLLVM/MemRefToLLVM.h"
-#include "mlir/Conversion/SCFToControlFlow/SCFToControlFlow.h"
+#include <mlir/Conversion/AffineToStandard/AffineToStandard.h>
+#include <mlir/Conversion/ArithToLLVM/ArithToLLVM.h>
+#include <mlir/Conversion/ControlFlowToLLVM/ControlFlowToLLVM.h>
+#include <mlir/Conversion/FuncToLLVM/ConvertFuncToLLVM.h>
+#include <mlir/Conversion/FuncToLLVM/ConvertFuncToLLVMPass.h>
+#include <mlir/Conversion/LLVMCommon/ConversionTarget.h>
+#include <mlir/Conversion/LLVMCommon/TypeConverter.h>
+#include <mlir/Conversion/MemRefToLLVM/MemRefToLLVM.h>
+#include <mlir/Conversion/SCFToControlFlow/SCFToControlFlow.h>
 #include <mlir/Pass/PassManager.h>
+#include <mlir/Transforms/CSE.h>
+#include <mlir/Transforms/Passes.h>
 #include <llvm/InitializePasses.h>
 #include <llvm/IR/LLVMContext.h>
 #pragma warning(pop)
@@ -53,19 +58,19 @@ namespace slu::comp::mico
 	using namespace std::string_view_literals;
 
 	template<typename T>
-	concept AnyIgnoredStatement = 
-		std::same_as<T,parse::StatementType::GOTOv<true>>
-		|| std::same_as<T,parse::StatementType::SEMICOLON>
-		|| std::same_as<T,parse::StatementType::USE>
-		|| std::same_as<T,parse::StatementType::FnDeclV<true>>
-		|| std::same_as<T,parse::StatementType::FunctionDeclV<true>>
-		|| std::same_as<T,parse::StatementType::ExternBlockV<true>>//ignore, as desugaring will remove it
-		|| std::same_as<T,parse::StatementType::UnsafeBlockV<true>>//ignore, as desugaring will remove it
-		|| std::same_as<T,parse::StatementType::DROPv<true>>
-		|| std::same_as<T,parse::StatementType::MOD_DEFv<true>>
-		|| std::same_as<T,parse::StatementType::MOD_DEF_INLINEv<true>>
-		|| std::same_as<T,parse::StatementType::UNSAFE_LABEL>
-		|| std::same_as<T,parse::StatementType::SAFE_LABEL>;
+	concept AnyIgnoredStatement =
+		std::same_as<T, parse::StatementType::GOTOv<true>>
+		|| std::same_as<T, parse::StatementType::SEMICOLON>
+		|| std::same_as<T, parse::StatementType::USE>
+		|| std::same_as<T, parse::StatementType::FnDeclV<true>>
+		|| std::same_as<T, parse::StatementType::FunctionDeclV<true>>
+		|| std::same_as<T, parse::StatementType::ExternBlockV<true>>//ignore, as desugaring will remove it
+		|| std::same_as<T, parse::StatementType::UnsafeBlockV<true>>//ignore, as desugaring will remove it
+		|| std::same_as<T, parse::StatementType::DROPv<true>>
+		|| std::same_as<T, parse::StatementType::MOD_DEFv<true>>
+		|| std::same_as<T, parse::StatementType::MOD_DEF_INLINEv<true>>
+		|| std::same_as<T, parse::StatementType::UNSAFE_LABEL>
+		|| std::same_as<T, parse::StatementType::SAFE_LABEL>;
 
 	struct ConvData : CommonConvData
 	{
@@ -74,13 +79,13 @@ namespace slu::comp::mico
 		mlir::OpBuilder& builder;
 	};
 
-	inline void convStat(const ConvData& conv,const parse::StatementV<true>& itm)
+	inline void convStat(const ConvData& conv, const parse::StatementV<true>& itm)
 	{
 		auto* mc = &conv.context;
 		ezmatch(itm.data)(
 
-		varcase(const auto&) {},
-		varcase(const parse::StatementType::FNv<true>&) {
+			varcase(const auto&) {},
+			varcase(const parse::StatementType::FNv<true>&) {
 			// Build a function in mlir
 
 			mlir::OpBuilder& builder = conv.builder;
@@ -91,7 +96,7 @@ namespace slu::comp::mico
 			auto i64Type = builder.getIntegerType(64);
 			auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, builder.getIntegerType(8), {}, 0);
 			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
-			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size()});
+			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
 
 			builder.create<mlir::memref::GlobalOp>(
 				builder.getUnknownLoc(),
@@ -99,7 +104,7 @@ namespace slu::comp::mico
 				/*sym_visibility=*/builder.getStringAttr("private"sv),
 				strType,
 				denseStr,
-				/*constant=*/true, 
+				/*constant=*/true,
 				/*alignment=*/builder.getIntegerAttr(i8Type, 1)
 			);
 
@@ -108,7 +113,7 @@ namespace slu::comp::mico
 			auto putsType = builder.getFunctionType({ llvmPtrType }, { builder.getI32Type() });
 			builder.create<mlir::func::FuncOp>(builder.getUnknownLoc(), "puts"sv, putsType).setPrivate();
 
-			auto loc = mlir::FileLineColLoc::get(mc,builder.getStringAttr("myfile.sv"sv), (uint32_t)var.place.line, (uint32_t)var.place.index);
+			auto loc = mlir::FileLineColLoc::get(mc, builder.getStringAttr("myfile.sv"sv), (uint32_t)var.place.line, (uint32_t)var.place.index);
 
 			mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
 				loc, var.name.asSv(conv.sharedDb),
@@ -136,8 +141,13 @@ namespace slu::comp::mico
 
 			// %ptrInt = index.castu %ptrIdx : index to i64
 			auto ptrInt = builder.create<mlir::index::CastUOp>(
-				builder.getUnknownLoc(), i64Type,ptrIndex
+				builder.getUnknownLoc(), i64Type, ptrIndex
 			);
+
+			//// %ptrInt = arith.index_cast %ptrIdx : index to i64
+			//auto ptrInt = builder.create<mlir::arith::IndexCastOp>(
+			//	builder.getUnknownLoc(), i64Type, ptrIndex
+			//);
 
 			// mlir::Type resultType, ValueRange operands, ArrayRef<NamedAttribute> attributes = {});
 			// mlir::Type res, ::mlir::Value arg, /*optional*/::mlir::LLVM::DereferenceableAttr dereferenceable);
@@ -147,7 +157,9 @@ namespace slu::comp::mico
 			// 
 			// %llvm_ptr = llvm.inttoptr %ptrInt : i64 to !llvm.ptr
 			auto llvmPtr = builder.create<mlir::LLVM::IntToPtrOp>(builder.getUnknownLoc(),
-				llvmPtrType, ptrInt, mlir::LLVM::DereferenceableAttr::get(mc,str.size(),false)
+				llvmPtrType, ptrInt
+				, nullptr
+				//, mlir::LLVM::DereferenceableAttr::get(mc, str.size(), false)
 			);
 
 
@@ -164,10 +176,10 @@ namespace slu::comp::mico
 
 
 			//Ignore these
-		varcase(const AnyIgnoredStatement auto&) {}
-		);
+			varcase(const AnyIgnoredStatement auto&) {}
+			);
 	}
 	inline void conv(const ConvData& conv) {
-		convStat(conv,conv.stat);
+		convStat(conv, conv.stat);
 	}
 }
