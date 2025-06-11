@@ -36,7 +36,7 @@ namespace slu::comp
 		parse::ParsedFileV<true> pf;
 	};
 	using GenCodeMap = std::unordered_map<uint32_t, std::vector<std::vector<uint8_t>>>;
-	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile,lang::HashModPathView,lang::EqualModPathView>;
+	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile, lang::HashModPathView, lang::EqualModPathView>;
 	namespace CompTaskType
 	{
 		using ParseFiles = std::vector<SluFile>;
@@ -94,16 +94,16 @@ namespace slu::comp
 		for (size_t i = crateRootPath.size(); i > 0; i--)
 		{
 			bool slash = crateRootPath[i - 1] == '/';
-			if (slash || i==1)
+			if (slash || i == 1)
 			{
-				res.push_back(std::string(crateRootPath.substr(i 
-					+ (slash?0:-1)// if it is not a slash, then also include it too
+				res.push_back(std::string(crateRootPath.substr(i
+					+ (slash ? 0 : -1)// if it is not a slash, then also include it too
 				)));
 				break;
 			}
 		}
 
-		size_t pathStart = crateRootPath.size()+1;//+1 for slash
+		size_t pathStart = crateRootPath.size() + 1;//+1 for slash
 		bool skipFolder = true;// skip "src", etc
 		for (size_t i = 0; i < path.size(); i++)
 		{
@@ -123,8 +123,8 @@ namespace slu::comp
 				{
 					if (pathStart == i)// found a '//' ?
 						break;//TODO: error, maybe log it
-					if(!skipFolder)
-						res.push_back(std::string(path.substr(pathStart, i-pathStart)));
+					if (!skipFolder)
+						res.push_back(std::string(path.substr(pathStart, i - pathStart)));
 					skipFolder = false;
 				}
 				pathStart++;
@@ -141,42 +141,43 @@ namespace slu::comp
 	)
 	{
 		ezmatch(task)(
-		varcase(CompTaskType::ParseFiles&) 
+			varcase(CompTaskType::ParseFiles&)
 		{ // Handle parsing files
 			state.parsedFiles.reserve(var.size());
-			for (SluFile& file : var) 
+			for (SluFile& file : var)
 			{//cfg, file.crateRootPath, file.path, file.contents
 				InputType in;
 				in.fName = file.path;
 				in.text = file.contents;
 				in.genData.mpDb = { &state.mpDb };
-				in.genData.totalMp = parsePath(file.crateRootPath,file.path);
+				in.genData.totalMp = parsePath(file.crateRootPath, file.path);
 
 				ParsedFile parsed;
-				try {
+				try
+				{
 					parsed.pf = slu::parse::parseFile(in);
 				}
 				catch (const slu::parse::ParseFailError&)
 				{
-					cfg.logPtr("Failed to parse: "+file.path);
+					cfg.logPtr("Failed to parse: " + file.path);
 					for (auto& i : in.handledErrors)
 					{
 						cfg.logPtr(i);
 						i.clear(); // Free it faster
 					}
 				}
-				slu::mlvl::basicDesugar(state.mpDb,parsed.pf);
+				slu::mlvl::basicDesugar(state.mpDb, parsed.pf);
 				parsed.crateRootPath = file.crateRootPath;
 				parsed.path = std::move(file.path);
 
 				state.parsedFiles.emplace_back(std::move(parsed));
 			}
 		},
-		varcase(CompTaskType::ConsensusUnifyAsts&) 
+			varcase(CompTaskType::ConsensusUnifyAsts&)
 		{ // Handle consensus unification of ASTs
 			auto& sharedDb = *var.sharedDb;
 			state.sharedDb = &sharedDb.v;
-			
+
 
 			if (var.firstToArive)
 			{//Easy
@@ -190,7 +191,7 @@ namespace slu::comp
 
 			throw std::runtime_error("TODO: unify state.mpDb!");
 		},
-		varcase(CompTaskType::ConsensusMergeAsts) 
+			varcase(CompTaskType::ConsensusMergeAsts)
 		{ // Handle consensus merging of ASTs
 			for (auto& i : state.parsedFiles)
 			{
@@ -200,14 +201,14 @@ namespace slu::comp
 			}
 			state.parsedFiles.clear(); // Unneeded anymore
 		},
-		varcase(CompTaskType::DoCodeGen&) 
+			varcase(CompTaskType::DoCodeGen&)
 		{ // Handle code gen of all the global statements
 			//parse::Output out;
 			//parse::LuaMpDb luaDb;
 			//out.text = std::move(outVec);
 
 
-			auto module = mlir::ModuleOp::create(state.s->opBuilder.getUnknownLoc(),"HelloWorldModule");
+			auto module = mlir::ModuleOp::create(state.s->opBuilder.getUnknownLoc(), "HelloWorldModule");
 			state.s->opBuilder.setInsertionPointToStart(module.getBody());
 
 			for (const auto& i : var.statements)
@@ -216,24 +217,24 @@ namespace slu::comp
 				{
 					/*slu::comp::lua::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
-						luaDb, out 
+						luaDb, out
 					});*/
 					slu::comp::mico::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
 						state.s->mc, state.s->llvmCtx,state.s->opBuilder
-					});
+						});
 				}
 			}
 			module.print(llvm::outs());
 
-			if (mlir::failed(mlir::applyFullConversion((mlir::Operation*) & module, state.target, state.s->patterns)))
+			if (mlir::failed(mlir::applyFullConversion(module.getOperation(), state.target, state.s->patterns)))
 			{
 				cfg.logPtr("Failed to apply full conversion for entrypoint: " + std::to_string(var.entrypointId));
 				//todo: filename!
 				return;
 			}
 
-			auto llvmMod = mlir::translateModuleToLLVMIR(module, state.s->llvmCtx,"HelloWorldLlvmModule");
+			auto llvmMod = mlir::translateModuleToLLVMIR(module, state.s->llvmCtx, "HelloWorldLlvmModule");
 			if (!llvmMod)
 			{
 				cfg.logPtr("Failed to translate module to Llvm Ir for entrypoint: " + std::to_string(var.entrypointId));
@@ -246,12 +247,12 @@ namespace slu::comp
 			auto& outVec = state.genOut[var.entrypointId];
 			//outVec = std::move(out.text);
 		},
-		varcase(CompTaskType::ConsensusMergeGenCode&) {
+			varcase(CompTaskType::ConsensusMergeGenCode&) {
 			for (auto& [epId, i] : state.genOut)
 			{
 				(*var)[epId].emplace_back(std::move(i));
 			}
 		}
-		);
+			);
 	}
 }
