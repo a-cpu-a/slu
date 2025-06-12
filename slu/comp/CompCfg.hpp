@@ -37,12 +37,25 @@ namespace slu::comp
 		using ItemBoolFn = bool(*)(const lang::ModPathView& path);
 		ItemBoolFn itemExistsPtr;
 	};
+	struct TmpFile
+	{
+
+		std::string realPath;
+		virtual ~TmpFile() = default;
+
+		constexpr TmpFile(std::string&& path)
+			: realPath(path) {}
+		constexpr TmpFile() = default;
+	};
 	struct CompCfg
 	{
 		//you need to add a newline yourself, if you need to (use println or something)
 		//Note: msg may contain nulls
 		using LogFn = void(*)(const std::string_view msg);
 		LogFn logPtr;
+
+		using MkTmpFileFn = TmpFile(*)(std::span<const uint8_t> contents);
+		MkTmpFileFn mkTmpFilePtr;
 
 		using GetFileContentsFn = std::optional<std::vector<uint8_t>>(*)(const std::string_view path);
 		GetFileContentsFn getFileContentsPtr;
@@ -64,10 +77,10 @@ namespace slu::comp
 		//will use exactly that many threads, not any less, not any more
 		// (other than the main thread which is not counted here)
 		size_t extraThreadCount = 1;
-			/*(size_t)std::max(//max, so no negative thread counts
-				int64_t(std::thread::hardware_concurrency())
-				- 3,//2 sys threads, 1 for main thread
-				0LL
-			);*/
+		/*(size_t)std::max(//max, so no negative thread counts
+			int64_t(std::thread::hardware_concurrency())
+			- 3,//2 sys threads, 1 for main thread
+			0LL
+		);*/
 	};
 }
