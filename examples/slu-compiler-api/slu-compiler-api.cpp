@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <filesystem>
+#include <random>
 #include <slu/comp/CompInclude.hpp>
 
 #include "slu-compiler-api.h"
@@ -22,7 +23,7 @@ std::string canonPath(std::string path)
 	//Convert to forward slashes
 	for (auto& ch : path)
 	{
-		if(ch=='\\')
+		if (ch == '\\')
 			ch = '/';
 	}
 	// Remove any trailing slashes
@@ -32,32 +33,50 @@ std::string canonPath(std::string path)
 	return path;
 }
 
+struct DeletingTmpFile : slu::comp::TmpFile
+{
+	constexpr DeletingTmpFile(std::string&& path)
+		: slu::comp::TmpFile(std::move(path)) {}
+	constexpr DeletingTmpFile() = default;
+	~DeletingTmpFile() override
+	{
+		try
+		{
+			std::filesystem::remove(realPath);
+		}
+		catch (const std::filesystem::filesystem_error& e)
+		{
+			std::cerr << "Error deleting temporary file '" << realPath << "': " << e.what() << "\n";
+		}
+	}
+};
+
 int main()
 {
 	std::cout << "Hello world!\n";
-	
+
 
 	slu::comp::CompCfg cfg;
 
 	cfg.fileExistsPtr = [](const std::string_view fileName) -> bool {
 		return std::filesystem::exists(fileName);
-	};
+		};
 	cfg.getFileContentsPtr = [](const std::string_view fileName) -> std::optional<std::vector<uint8_t>> {
 		std::ifstream file(std::string(fileName), std::ios::binary);
 		if (!file.is_open())
 			return {};
 
 		return std::vector<uint8_t>((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	};
+		};
 	cfg.isFolderPtr = [](const std::string_view fileName) -> bool {
 		return std::filesystem::is_directory(fileName);
-	};
+		};
 	cfg.isSymLinkPtr = [](const std::string_view fileName) -> bool {
 		return std::filesystem::is_symlink(fileName);
-	};
+		};
 	cfg.logPtr = [](const std::string_view msg) {
 		std::cout << msg << "\n";
-	};
+		};
 	cfg.getFileListPtr = [](const std::string_view folderName) -> std::vector<std::string> {
 		std::vector<std::string> files;
 		try
@@ -73,7 +92,7 @@ int main()
 			return {};
 		}
 		return files;
-	};
+		};
 	cfg.getFileListRecPtr = [](const std::string_view folderName) -> std::vector<std::string> {
 		std::vector<std::string> files;
 		try
@@ -89,8 +108,31 @@ int main()
 			return {};
 		}
 		return files;
-	};
-	
+		};
+	cfg.mkTmpFilePtr = [](std::span<const uint8_t> data) -> slu::comp::TmpFile {
+		std::string tmpFileName = "build/_tmp_slu_";
+
+		std::random_device rd;
+		std::uniform_int_distribution<short> dist('A', 'Z');
+		//Random string
+		for (size_t i = 0; i < 28; i++)
+		{
+			tmpFileName += (char)dist(rd);
+		}
+		//Create the tmp directory if it doesn't exist
+		std::filesystem::create_directories("build/");
+
+		std::ofstream tmpFile(tmpFileName, std::ios::binary);
+		if (!tmpFile.is_open())
+		{
+			std::cerr << "Failed to create temporary file: " << tmpFileName << "\n";
+			return {};
+		}
+		tmpFile.write(reinterpret_cast<const char*>(data.data()), data.size());
+		tmpFile.close();
+		return DeletingTmpFile(std::move(tmpFileName));
+		};
+
 	std::vector<std::string> pathList;
 	//All root paths must not end with a slash
 	pathList.push_back(canonPath("../hello_world"));
