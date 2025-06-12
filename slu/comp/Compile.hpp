@@ -233,6 +233,7 @@ namespace slu::comp
 					strArgs.push_back("libucrt.lib");
 					strArgs.push_back("libcmt.lib");
 					strArgs.push_back("/debug");
+					strArgs.push_back("/pdb:" + ep.entryPointFile + ".pdb");
 					strArgs.push_back("/subsystem:console");
 					auto outFile = cfg.mkTmpFilePtr({});
 					strArgs.push_back("/out:" + outFile.realPath);
