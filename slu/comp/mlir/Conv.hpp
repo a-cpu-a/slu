@@ -54,6 +54,11 @@
 #include <llvm/IR/LegacyPassManager.h>
 #include <llvm/MC/TargetRegistry.h>
 #include <lld/Common/Driver.h>
+
+LLD_HAS_DRIVER(elf);
+LLD_HAS_DRIVER(wasm);
+LLD_HAS_DRIVER(coff);
+
 #pragma warning(pop)
 
 #include <slu/lang/BasicState.hpp>
