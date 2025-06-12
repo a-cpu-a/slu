@@ -46,6 +46,14 @@
 #include <mlir/Transforms/Passes.h>
 #include <llvm/InitializePasses.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/Linker/Linker.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/TargetParser/Host.h>
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/MC/TargetRegistry.h>
+#include <lld/Common/Driver.h>
 #pragma warning(pop)
 
 #include <slu/lang/BasicState.hpp>

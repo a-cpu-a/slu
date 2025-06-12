@@ -35,7 +35,7 @@ namespace slu::comp
 		std::string path;
 		parse::ParsedFileV<true> pf;
 	};
-	using GenCodeMap = std::unordered_map<uint32_t, std::vector<std::vector<uint8_t>>>;
+	using GenCodeMap = std::unordered_map<uint32_t, std::vector<llvm::SmallVector<char, 0>>>;
 	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile, lang::HashModPathView, lang::EqualModPathView>;
 	namespace CompTaskType
 	{
@@ -81,7 +81,7 @@ namespace slu::comp
 		const parse::BasicMpDbData* sharedDb = nullptr; // Set after ConsensusUnifyAsts
 		std::vector<ParsedFile> parsedFiles;
 		parse::BasicMpDbData mpDb;
-		std::unordered_map<uint32_t, std::vector<uint8_t>> genOut;
+		std::unordered_map<uint32_t, std::unique_ptr<llvm::Module>> genOut;
 
 		mlir::LLVMConversionTarget target;
 		mlir::LLVMTypeConverter typeConverter;
@@ -239,7 +239,7 @@ namespace slu::comp
 				//todo: filename!
 				return;
 			}
-			cfg.logPtr("===CONVERTED===");
+			cfg.logPtr("=== CONVERTED ===");
 			module.print(llvm::outs());
 
 			auto llvmMod = mlir::translateModuleToLLVMIR(module, state.s->llvmCtx, "HelloWorldLlvmModule");
@@ -251,14 +251,54 @@ namespace slu::comp
 			}
 			llvmMod->print(llvm::outs(), nullptr);
 
-			//TODO: multiple outputs for each entrypoint
-			auto& outVec = state.genOut[var.entrypointId];
-			//outVec = std::move(out.text);
+			auto p = state.genOut.find(var.entrypointId);
+			if (p != state.genOut.end())
+			{
+				llvm::Linker linker(*p->second);
+				if (linker.linkInModule(std::move(llvmMod)))
+				{
+					cfg.logPtr("Failed to link module for entrypoint: " + std::to_string(var.entrypointId));
+					return;
+				}
+				cfg.logPtr("==== LINK ====");
+				p->second->print(llvm::outs(), nullptr);
+			}
+			else
+				state.genOut[var.entrypointId] = std::move(llvmMod);
 		},
 			varcase(CompTaskType::ConsensusMergeGenCode&) {
-			for (auto& [epId, i] : state.genOut)
+			for (auto& [epId, module] : state.genOut)
 			{
-				(*var)[epId].emplace_back(std::move(i));
+				//module to .o file
+				std::string error;
+				llvm::Triple targetTriple{ llvm::sys::getDefaultTargetTriple() };
+				const llvm::Target* target = llvm::TargetRegistry::lookupTarget(targetTriple, error);
+				if (!target)
+				{
+					cfg.logPtr("Failed to find target: " + error);
+					continue;
+				}
+
+				llvm::TargetOptions opt;
+				auto rm = std::optional<llvm::Reloc::Model>();
+				std::unique_ptr<llvm::TargetMachine> targetMachine(
+					target->createTargetMachine(targetTriple, "generic", "", opt, rm));
+
+				module->setDataLayout(targetMachine->createDataLayout());
+				module->setTargetTriple(targetTriple);
+
+				llvm::SmallVector<char, 0> objBuffer;
+				llvm::raw_svector_ostream objStream(objBuffer);
+
+				llvm::legacy::PassManager pass;
+				if (targetMachine->addPassesToEmitFile(pass, objStream, nullptr, llvm::CodeGenFileType::ObjectFile))
+				{
+					throw std::runtime_error("TargetMachine can't emit a file of this type");
+				}
+
+				pass.run(*module);
+
+				(*var)[epId].emplace_back(std::move(objBuffer));
 			}
 		}
 			);

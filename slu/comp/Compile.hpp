@@ -26,8 +26,8 @@ namespace slu::comp
 	inline void submitTask(const CompCfg& cfg,
 		uint32_t taskId,
 		Mutex<std::vector<CompTask>>& tasks,
-		Mutex<size_t>& tasksLeft, 
-		std::condition_variable& cv, 
+		Mutex<size_t>& tasksLeft,
+		std::condition_variable& cv,
 		std::condition_variable& cvMain,
 
 		CompTaskData&& data
@@ -52,8 +52,8 @@ namespace slu::comp
 	inline void submitConsensusTask(const CompCfg& cfg,
 		uint32_t taskId,
 		Mutex<std::vector<CompTask>>& tasks,
-		Mutex<size_t>& tasksLeft, 
-		std::condition_variable& cv, 
+		Mutex<size_t>& tasksLeft,
+		std::condition_variable& cv,
 		std::condition_variable& cvMain,
 
 		CompTaskData&& data
@@ -80,10 +80,15 @@ namespace slu::comp
 
 	inline CompOutput compile(const CompCfg& cfg)
 	{
+		llvm::InitializeAllTargets();
+		llvm::InitializeAllTargetMCs();
+		llvm::InitializeAllAsmParsers();
+		llvm::InitializeAllAsmPrinters();
+
 		uint32_t nextTaskId = 1;
 		Mutex<std::vector<CompTask>> tasks;
 		Mutex<size_t> tasksLeft = 0;
-		
+
 		std::condition_variable cv;
 		std::condition_variable cvMain;//Uses tasksLeft.lock!!
 		std::atomic_bool shouldExit = false;
@@ -91,10 +96,10 @@ namespace slu::comp
 		std::vector<std::thread> pool;
 		for (size_t i = 0; i < cfg.extraThreadCount; i++)
 		{
-			pool.emplace_back(std::thread(poolThread,cfg,
+			pool.emplace_back(std::thread(poolThread, cfg,
 				std::ref(shouldExit),
-				std::ref(cv),std::ref(cvMain),
-				std::ref(tasksLeft),std::ref(tasks))
+				std::ref(cv), std::ref(cvMain),
+				std::ref(tasksLeft), std::ref(tasks))
 			);
 		}
 		{
@@ -111,14 +116,14 @@ namespace slu::comp
 					auto content = cfg.getFileContentsPtr(file);
 					if (!content.has_value())continue;
 
-					sluFiles.emplace_back(i,std::move(file), std::move(content.value()));
+					sluFiles.emplace_back(i, std::move(file), std::move(content.value()));
 				}
 			}
 
-			if(cfg.extraThreadCount!=0)
+			if (cfg.extraThreadCount != 0)
 			{
 				size_t total = sluFiles.size();
-				size_t filesPerThread = total / (cfg.extraThreadCount*4);// *4, because we want to use the task system a bit more.
+				size_t filesPerThread = total / (cfg.extraThreadCount * 4);// *4, because we want to use the task system a bit more.
 
 				// If there arent enough files for all the threads, just use 1 thread ig
 				if (filesPerThread == 0) filesPerThread = 1;
@@ -163,7 +168,7 @@ namespace slu::comp
 		RwLock<parse::BasicMpDbData> sharedDb;
 
 		// unify asts using sharedDb
-		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain, 
+		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 			CompTaskType::ConsensusUnifyAsts{
 				.sharedDb = &sharedDb,
 				.firstToArive = true
@@ -181,16 +186,16 @@ namespace slu::comp
 		std::vector<CodeGenEntrypoint> eps;
 
 		//TODO: run midlevel / optimize using all the threads.
-		for (auto& [mp,file] : astMap)
+		for (auto& [mp, file] : astMap)
 		{// Codegen on all the threads.
 			if (file.path.ends_with("/main.slu"))
 			{
 				eps.push_back({ .entryPointFile = file.path, .fileName = "main.exe" });
-				submitTask(cfg,nextTaskId++,tasks,tasksLeft,cv,cvMain,
+				submitTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 					CompTaskType::DoCodeGen{
 						.statements = {std::span{file.pf.code.statList}},
-						.entrypointId=uint32_t(eps.size() - 1)
-				});
+						.entrypointId = uint32_t(eps.size() - 1)
+					});
 			}
 		}
 		waitForTasksToComplete(tasksLeft, cvMain);
@@ -209,8 +214,8 @@ namespace slu::comp
 			for (auto& epInfo : eps)
 			{
 				auto& mergeOutItem = mergeOut[i++];
-				CompEntryPoint ep{std::move(epInfo)};
-				
+				CompEntryPoint ep{ std::move(epInfo) };
+
 				size_t totalSize = 0;
 				for (auto& j : mergeOutItem)
 					totalSize += j.size();

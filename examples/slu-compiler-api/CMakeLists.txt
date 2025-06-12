@@ -66,6 +66,20 @@ target_link_libraries(slu-compiler-api
     MLIRLLVMToLLVMIRTranslation
     MLIRTargetLLVMIRExport
     MLIRTransforms
+
+    LLVMAArch64AsmParser
+    LLVMAArch64CodeGen
+    LLVMAMDGPUAsmParser
+    LLVMAMDGPUCodeGen
+    LLVMNVPTXCodeGen
+    LLVMWebAssemblyAsmParser
+    LLVMWebAssemblyCodeGen
+    LLVMX86AsmParser
+    LLVMX86CodeGen
+
+    LLVMCodeGen
+    LLVMTarget
+    LLVMPasses
 )
 
 target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)
