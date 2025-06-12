@@ -214,9 +214,9 @@ namespace slu::comp
 			for (auto& epInfo : eps)
 			{
 				auto& mergeOutItem = mergeOut[i++];
+				CompEntryPoint epPdb{ epInfo };
+				epPdb.fileName += ".pdb";
 				CompEntryPoint ep{ std::move(epInfo) };
-				CompEntryPoint ep2{ std::move(epInfo) };
-				ep2.fileName += ".pdb";
 
 				lld::Result res;
 				{
@@ -257,7 +257,7 @@ namespace slu::comp
 					//Read from out files
 					auto optFile = cfg.getFileContentsPtr(pdbFile.realPath);
 					if (optFile.has_value())
-						ep2.contents = std::move(*optFile);
+						epPdb.contents = std::move(*optFile);
 					else
 						cfg.logPtr("Linker didnt generate a pdb!");
 					//
@@ -267,8 +267,8 @@ namespace slu::comp
 					else
 						cfg.logPtr("Linker didnt generate a output!");
 				}
+				ret.entryPoints.emplace_back(std::move(epPdb));
 				ret.entryPoints.emplace_back(std::move(ep));
-				ret.entryPoints.emplace_back(std::move(ep2));
 			}
 		}
 
