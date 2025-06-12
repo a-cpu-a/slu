@@ -215,6 +215,8 @@ namespace slu::comp
 			{
 				auto& mergeOutItem = mergeOut[i++];
 				CompEntryPoint ep{ std::move(epInfo) };
+				CompEntryPoint ep2{ std::move(epInfo) };
+				ep2.fileName += ".pdb";
 
 				lld::Result res;
 				{
@@ -232,8 +234,9 @@ namespace slu::comp
 					strArgs.push_back("kernel32.lib");
 					strArgs.push_back("libucrt.lib");
 					strArgs.push_back("libcmt.lib");
-					strArgs.push_back("/debug");
-					strArgs.push_back("/pdb:" + ep.fileName + ".pdb");
+					strArgs.push_back("/debug");;
+					auto pdbFile = cfg.mkTmpFilePtr({});
+					strArgs.push_back("/pdb:" + pdbFile.realPath);
 					strArgs.push_back("/subsystem:console");
 					auto outFile = cfg.mkTmpFilePtr({});
 					strArgs.push_back("/out:" + outFile.realPath);
@@ -251,14 +254,21 @@ namespace slu::comp
 						cfg.logPtr("Linker failed to run, error: " + std::to_string(res.retCode));
 					if (!res.canRunAgain)
 						return ret;
-					//Read from out file
-					auto optFile = cfg.getFileContentsPtr(outFile.realPath);
+					//Read from out files
+					auto optFile = cfg.getFileContentsPtr(pdbFile.realPath);
+					if (optFile.has_value())
+						ep2.contents = std::move(*optFile);
+					else
+						cfg.logPtr("Linker didnt generate a pdb!");
+					//
+					optFile = cfg.getFileContentsPtr(outFile.realPath);
 					if (optFile.has_value())
 						ep.contents = std::move(*optFile);
 					else
 						cfg.logPtr("Linker didnt generate a output!");
 				}
 				ret.entryPoints.emplace_back(std::move(ep));
+				ret.entryPoints.emplace_back(std::move(ep2));
 			}
 		}
 
