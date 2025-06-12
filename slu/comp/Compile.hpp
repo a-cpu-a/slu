@@ -216,17 +216,47 @@ namespace slu::comp
 				auto& mergeOutItem = mergeOut[i++];
 				CompEntryPoint ep{ std::move(epInfo) };
 
-				size_t totalSize = 0;
-				for (auto& j : mergeOutItem)
-					totalSize += j.size();
-				ep.contents.reserve(totalSize);
-				for (auto& j : mergeOutItem)
+				lld::Result res;
 				{
-					ep.contents.insert(ep.contents.end(), j.begin(), j.end());
-					j.clear();//dealloc now, to keep mem usage lower
-				}
-				mergeOutItem.clear();//it wont be used anymore
+					std::vector<TmpFile> tmpFiles;
+					for (auto& v : mergeOutItem)
+					{
+						auto sp = std::span{ v };
+						tmpFiles.emplace_back(cfg.mkTmpFilePtr(
+							std::bit_cast<std::span<const uint8_t>>(sp) // likely a bit cursed!
+						));
+					}
+					std::vector<std::string> strArgs = { "lld-link" };
+					for (auto& f : tmpFiles)
+						strArgs.push_back(f.realPath);
+					strArgs.push_back("kernel32.lib");
+					strArgs.push_back("libucrt.lib");
+					strArgs.push_back("libcmt.lib");
+					strArgs.push_back("/debug");
+					strArgs.push_back("/subsystem:console");
+					auto outFile = cfg.mkTmpFilePtr({});
+					strArgs.push_back("/out:" + outFile.realPath);
 
+					std::vector<const char*> cstrArgs;
+					cstrArgs.reserve(strArgs.size());
+					for (auto& ij : strArgs)
+						cstrArgs.push_back(ij.c_str());
+
+					const lld::DriverDef driver = { lld::Flavor::WinLink, &lld::coff::link };
+
+					//TODO: custom outs/errs
+					res = lld::lldMain(cstrArgs, llvm::outs(), llvm::errs(), { driver });
+					if (res.retCode != 0)
+						cfg.logPtr("Linker failed to run, error: " + std::to_string(res.retCode));
+					if (!res.canRunAgain)
+						return ret;
+					//Read from out file
+					auto optFile = cfg.getFileContentsPtr(outFile.realPath);
+					if (optFile.has_value())
+						ep.contents = std::move(*optFile);
+					else
+						cfg.logPtr("Linker didnt generate a output!");
+				}
 				ret.entryPoints.emplace_back(std::move(ep));
 			}
 		}

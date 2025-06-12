@@ -26,6 +26,7 @@ if(IS_DEBUG)
 endif()
 
 find_package(MLIR REQUIRED CONFIG)
+find_package(LLD REQUIRED CONFIG)
 
 target_link_libraries(slu-compiler-api
     MLIRIR
@@ -80,6 +81,11 @@ target_link_libraries(slu-compiler-api
     LLVMCodeGen
     LLVMTarget
     LLVMPasses
+
+    lldCommon
+    lldCOFF
+    lldELF
+    lldWasm
 )
 
 target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)

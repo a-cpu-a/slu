@@ -39,13 +39,32 @@ namespace slu::comp
 	};
 	struct TmpFile
 	{
-
 		std::string realPath;
-		virtual ~TmpFile() = default;
+		using DestroyFn = void (*)(TmpFile& thiz);
+		DestroyFn destroy = [](TmpFile& thiz) {};
 
-		constexpr TmpFile(std::string&& path)
-			: realPath(path) {}
+		constexpr TmpFile(std::string&& path, DestroyFn destroy)
+			: realPath(path), destroy(destroy) {}
+		constexpr TmpFile(DestroyFn destroy)
+			: destroy(destroy) {};
 		constexpr TmpFile() = default;
+
+		~TmpFile() { destroy(*this); };
+		//Move only:
+		void release() {
+			realPath.clear();
+		}
+		TmpFile(TmpFile&& o) noexcept {
+			*this = std::move(o);
+		}
+		TmpFile& operator=(TmpFile&& o) noexcept {
+			*this = *&o;
+			o.release();
+			return *this;
+		}
+	private:
+		TmpFile(const TmpFile&) = default;
+		TmpFile& operator=(const TmpFile&) = default;
 	};
 	struct CompCfg
 	{
@@ -54,7 +73,8 @@ namespace slu::comp
 		using LogFn = void(*)(const std::string_view msg);
 		LogFn logPtr;
 
-		using MkTmpFileFn = TmpFile(*)(std::span<const uint8_t> contents);
+		//If empty, then dont create it yet.
+		using MkTmpFileFn = TmpFile(*)(std::optional<std::span<const uint8_t>> contents);
 		MkTmpFileFn mkTmpFilePtr;
 
 		using GetFileContentsFn = std::optional<std::vector<uint8_t>>(*)(const std::string_view path);
