@@ -61,7 +61,7 @@ namespace slu::comp
 
 		// Optional: enable IR printing/debugging
 		mlirState.pm.enableVerifier(/*verifyPasses=*/true);
-		mlirState.pm.enableIRPrinting();
+		//mlirState.pm.enableIRPrinting();
 
 		// Add passes in order
 		//mlirState.pm.addPass(mlir::memref::createExpandStridedMetadataPass());	// memref → memref + affine + arith
