@@ -111,7 +111,7 @@ namespace slu::comp::mico
 
 			// %str = memref.get_global @greeting : memref<14xi8>
 			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(builder.getUnknownLoc(), strType,
-				"greeting"sv);
+				":>::hello_world::greeting"sv);
 
 
 			// mlir::Type aligned_pointer, ::mlir::Value source);
@@ -166,7 +166,7 @@ namespace slu::comp::mico
 
 			builder.create<mlir::memref::GlobalOp>(
 				builder.getUnknownLoc(),
-				llvm::StringRef{ "greeting"sv },
+				llvm::StringRef{ ":>::hello_world::greeting"sv },
 				/*sym_visibility=*/builder.getStringAttr("private"sv),
 				strType,
 				denseStr,
