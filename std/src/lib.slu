@@ -10,5 +10,5 @@ safe extern "C" {
 ---Test test test !!!
 ex fn _println(&crate::prelude::str text) -> void
 {
-	crate::puts(text);
+	--crate::puts(text);
 }
