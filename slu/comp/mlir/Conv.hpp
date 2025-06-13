@@ -95,48 +95,23 @@ namespace slu::comp::mico
 	inline void convStat(const ConvData& conv, const parse::StatementV<true>& itm)
 	{
 		auto* mc = &conv.context;
+		mlir::OpBuilder& builder = conv.builder;
+
+		const auto str = "Hello world\0"sv;
+		auto i8Type = builder.getIntegerType(8);
+		auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, i8Type, {}, 0);
+
 		ezmatch(itm.data)(
 
 			varcase(const auto&) {},
-			varcase(const parse::StatementType::FNv<true>&) {
-			// Build a function in mlir
+			varcase(const parse::StatementType::FUNC_CALLv<true>&) {
 
-			mlir::OpBuilder& builder = conv.builder;
-
-
-			const auto str = "Hello world\0"sv;
-			auto i8Type = builder.getIntegerType(8);
 			auto i64Type = builder.getIntegerType(64);
-			auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, builder.getIntegerType(8), {}, 0);
-			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
-			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
-
-			builder.create<mlir::memref::GlobalOp>(
-				builder.getUnknownLoc(),
-				llvm::StringRef{ "greeting"sv },
-				/*sym_visibility=*/builder.getStringAttr("private"sv),
-				strType,
-				denseStr,
-				/*constant=*/true,
-				/*alignment=*/builder.getIntegerAttr(i8Type, 1)
-			);
-
-
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
-			auto putsType = builder.getFunctionType({ llvmPtrType }, { builder.getI32Type() });
-			builder.create<mlir::func::FuncOp>(builder.getUnknownLoc(), "puts"sv, putsType).setPrivate();
-
-			auto loc = mlir::FileLineColLoc::get(mc, builder.getStringAttr("myfile.sv"sv), (uint32_t)var.place.line, (uint32_t)var.place.index);
-
-			mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
-				loc, var.name.asSv(conv.sharedDb),
-				mlir::FunctionType::get(mc, {}, {})
-			);
-			mlir::Block* entry = funcOp.addEntryBlock();
-			builder.setInsertionPointToStart(entry);
 
 			// %str = memref.get_global @greeting : memref<14xi8>
-			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(builder.getUnknownLoc(), strType, "greeting"sv);
+			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(builder.getUnknownLoc(), strType,
+				"greeting"sv);
 
 
 			// mlir::Type aligned_pointer, ::mlir::Value source);
@@ -182,6 +157,44 @@ namespace slu::comp::mico
 				builder.getI32Type(),
 				mlir::SymbolRefAttr::get(mc, "puts"sv),
 				llvm::ArrayRef<mlir::Value>{llvmPtr});
+
+		},
+			varcase(const parse::StatementType::CONSTv<true>&) {
+
+			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
+			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
+
+			builder.create<mlir::memref::GlobalOp>(
+				builder.getUnknownLoc(),
+				llvm::StringRef{ "greeting"sv },
+				/*sym_visibility=*/builder.getStringAttr("private"sv),
+				strType,
+				denseStr,
+				/*constant=*/true,
+				/*alignment=*/builder.getIntegerAttr(i8Type, 1)
+			);
+
+		},
+			varcase(const parse::StatementType::FnDeclV<true>&) {
+			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
+			auto putsType = builder.getFunctionType({ llvmPtrType }, { builder.getI32Type() });
+			builder.create<mlir::func::FuncOp>(builder.getUnknownLoc(), "puts"sv, putsType).setPrivate();
+
+		},
+			varcase(const parse::StatementType::FNv<true>&) {
+			// Build a function in mlir
+
+			auto loc = mlir::FileLineColLoc::get(mc, builder.getStringAttr("myfile.sv"sv), (uint32_t)var.place.line, (uint32_t)var.place.index);
+
+			mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
+				loc, var.name.asSv(conv.sharedDb),
+				mlir::FunctionType::get(mc, {}, {})
+			);
+			mlir::Block* entry = funcOp.addEntryBlock();
+			builder.setInsertionPointToStart(entry);
+
+			for (auto& i : var.func.block.statList)
+				convStat(conv, i);
 
 			builder.create<mlir::func::ReturnOp>(builder.getUnknownLoc());
 
