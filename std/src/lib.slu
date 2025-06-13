@@ -5,10 +5,10 @@ mod prelude;
 
 --todo-late-desugaring: hoist functions outside of functions?
 safe extern "C" {
-	fn puts(&crate::prelude::str line) -> i32;
+	fn puts(&:>::std::str line) -> i32;
 }
 ---Test test test !!!
---ex fn _println(&crate::prelude::str text) -> void
---{
---	crate::puts(text);
---}
+ex fn _println(&crate::prelude::str text) -> void
+{
+	crate::puts(text);
+}

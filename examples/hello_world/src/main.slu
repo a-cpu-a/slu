@@ -1,5 +1,9 @@
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside main/lib/`crate`
+const &:>::std::str MSG = "Hello world!";
+fn _println(&:>::std::str text) -> void;
+
 fn main() -> void {
-	:>::std::_println("Hello world!")
+	--:>::std::_println(self::MSG)
+	self::_println(self::MSG)
 }
