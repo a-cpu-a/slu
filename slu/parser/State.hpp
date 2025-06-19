@@ -31,8 +31,8 @@ namespace slu::parse
 	template<AnyCfgable CfgT, template<bool> class T>
 	using SelV = T<CfgT::settings()& sluSyn>;
 
-	template<bool isSlu, class T,class SlT>
-	using Sel = std::conditional_t<isSlu,SlT,T>;
+	template<bool isSlu, class T, class SlT>
+	using Sel = std::conditional_t<isSlu, SlT, T>;
 
 #define Slu_DEF_CFG(_Name) template<AnyCfgable CfgT> using _Name = SelV<CfgT, _Name ## V>
 #define Slu_DEF_CFG_CAPS(_NAME) template<AnyCfgable CfgT> using _NAME = SelV<CfgT, _NAME ## v>
@@ -45,7 +45,7 @@ namespace slu::parse
 		else
 			return tok;
 	}
-	template<bool boxed,class T>
+	template<bool boxed, class T>
 	struct MayBox
 	{
 		Sel<boxed, T, std::unique_ptr<T>> v;
@@ -63,7 +63,7 @@ namespace slu::parse
 		T& operator->() { return &get(); }
 		const T* operator->() const { return &get(); }
 	};
-	template<bool boxed,class T>
+	template<bool boxed, class T>
 	constexpr auto mayBoxFrom(T&& v)
 	{
 		if constexpr (boxed)
@@ -72,8 +72,8 @@ namespace slu::parse
 			return MayBox<false, T>(std::move(v));
 	}
 	template<class T>
-	constexpr MayBox<false,T> wontBox(T&& v) {
-		return MayBox<false,T>(std::move(v));
+	constexpr MayBox<false, T> wontBox(T&& v) {
+		return MayBox<false, T>(std::move(v));
 	}
 
 	//Mp ref
@@ -92,7 +92,8 @@ namespace slu::parse
 	template<bool isSlu> struct VarV;
 	Slu_DEF_CFG(Var);
 
-	namespace FieldType {
+	namespace FieldType
+	{
 		//For lua only!
 		template<bool isSlu> struct EXPR2EXPRv;
 		Slu_DEF_CFG_CAPS(EXPR2EXPR);
@@ -212,7 +213,7 @@ namespace slu::parse
 	>;
 	Slu_DEF_CFG(Soe);
 
-	template<bool isSlu> using SoeOrBlockV = Sel<isSlu,BlockV<isSlu>,SoeV<isSlu>>;
+	template<bool isSlu> using SoeOrBlockV = Sel<isSlu, BlockV<isSlu>, SoeV<isSlu>>;
 	Slu_DEF_CFG(SoeOrBlock);
 
 	template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<SoeV<isSlu>>>;
@@ -267,16 +268,17 @@ namespace slu::parse
 
 		struct OPEN_RANGE {};					// ".."
 
-		struct LITERAL_STRING { std::string v; Position end;};	// "LiteralString"
+		struct LITERAL_STRING { std::string v; Position end; };	// "LiteralString"
 		struct NUMERAL { double v; };							// "Numeral"
 
 		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
 
 		//u64,i128,u128, for slu only
 		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
-		struct NUMERAL_U128 { // "Numeral"
-			uint64_t lo = 0; 
-			uint64_t hi = 0; 
+		struct NUMERAL_U128
+		{ // "Numeral"
+			uint64_t lo = 0;
+			uint64_t hi = 0;
 
 			NUMERAL_U128 operator+(NUMERAL_U128 o) const
 			{
@@ -306,13 +308,22 @@ namespace slu::parse
 		constexpr TupleName() = default;
 		constexpr TupleName(ExprType::NUMERAL_I64 v)
 			:lo(v.v) {}
-		constexpr TupleName(ExprType::NUMERAL_U64 v) 
-			:lo(v.v) {}
+		constexpr TupleName(ExprType::NUMERAL_U64 v)
+			: lo(v.v) {}
 		constexpr TupleName(ExprType::NUMERAL_I128 v)
-			:lo(v.lo),hi(v.hi) {}						   
-		constexpr TupleName(ExprType::NUMERAL_U128 v) 
-			:lo(v.lo),hi(v.hi) {}
+			: lo(v.lo), hi(v.hi) {}
+		constexpr TupleName(ExprType::NUMERAL_U128 v)
+			: lo(v.lo), hi(v.hi) {}
 	};
+
+	template<class T>
+	concept Any128BitInt =
+		std::same_as<T, ExprType::NUMERAL_U128>
+		|| std::same_as<T, ExprType::NUMERAL_I128>;
+	template<class T>
+	concept Any64BitInt =
+		std::same_as<T, ExprType::NUMERAL_U64>
+		|| std::same_as<T, ExprType::NUMERAL_I64>;
 
 	using Lifetime = std::vector<MpItmIdV<true>>;
 	struct UnOpItem
@@ -353,7 +364,8 @@ namespace slu::parse
 			std::vector<std::pair<BinOpType, TypeExpr>> extra;
 		};
 		using Struct = TableConstructorV<true>;
-		struct Union {
+		struct Union
+		{
 			TableConstructorV<true> fields;
 		};
 
@@ -465,7 +477,7 @@ namespace slu::parse
 
 
 
-	template<bool isSlu,bool boxIt>
+	template<bool isSlu, bool boxIt>
 	struct BaseIfCondV
 	{
 		std::vector<std::pair<ExpressionV<isSlu>, SoeOrBlockV<isSlu>>> elseIfs;
@@ -473,8 +485,8 @@ namespace slu::parse
 		MayBox<boxIt, SoeOrBlockV<isSlu>> bl;
 		std::optional<MayBox<boxIt, SoeOrBlockV<isSlu>>> elseBlock;
 	};
-	template<AnyCfgable CfgT, bool boxIt> 
-	using BaseIfCond = Sel<CfgT::settings()&sluSyn, BaseIfCondV<false,boxIt>, BaseIfCondV<true,boxIt>>;
+	template<AnyCfgable CfgT, bool boxIt>
+	using BaseIfCond = Sel<CfgT::settings()& sluSyn, BaseIfCondV<false, boxIt>, BaseIfCondV<true, boxIt>>;
 
 	namespace ExprType
 	{
@@ -515,7 +527,7 @@ namespace slu::parse
 	}
 
 	template<bool isSlu>
-	using ExprDataV = std::variant<
+	using ExprDataV = std::variant <
 		ExprType::NIL,                  // "nil"
 		ExprType::FALSE,                // "false"
 		ExprType::TRUE,                 // "true"
@@ -546,7 +558,7 @@ namespace slu::parse
 		ExprType::TRAIT_EXPR,
 
 		ExprType::PAT_TYPE_PREFIX
-	>;
+	> ;
 	Slu_DEF_CFG(ExprData);
 
 
@@ -565,8 +577,7 @@ namespace slu::parse
 
 	template<bool isSlu>
 	struct ExpressionV : BaseExpressionV<isSlu>
-	{
-	};
+	{};
 	template<>
 	struct ExpressionV<true> : BaseExpressionV<true>
 	{
@@ -590,7 +601,7 @@ namespace slu::parse
 		using Type = TypeExpr;
 		using Prefix = TypePrefix;
 	}
-	template<bool isSlu=true>
+	template<bool isSlu = true>
 	using DestrSpecV = std::variant<
 		DestrSpecType::SpatV<isSlu>,
 		DestrSpecType::Type,
@@ -837,7 +848,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct LABELv { MpItmIdV<isSlu> v; };		// "label"
 		Slu_DEF_CFG_CAPS(LABEL);
-		struct BREAK { };
+		struct BREAK {};
 		template<bool isSlu>					// "break"
 		struct GOTOv { MpItmIdV<isSlu> v; };			// "goto Name"
 		Slu_DEF_CFG_CAPS(GOTO);
@@ -891,7 +902,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FUNCTION_DEFv : FuncDefBase<isSlu> {};
 		template<>
-		struct FUNCTION_DEFv<true> : FuncDefBase<true> 
+		struct FUNCTION_DEFv<true> : FuncDefBase<true>
 		{
 			ExportData exported = false;
 		};
@@ -904,7 +915,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlu> {};
 		Slu_DEF_CFG_CAPS(LOCAL_FUNCTION_DEF);
-				// "local function Name funcbody" //n may not ^^^
+		// "local function Name funcbody" //n may not ^^^
 
 
 		template<bool isSlu>
@@ -938,15 +949,15 @@ namespace slu::parse
 		// Slu
 
 		template<bool isSlu>
-		struct LETv : LOCAL_ASSIGNv<isSlu>	{};
+		struct LETv : LOCAL_ASSIGNv<isSlu> {};
 		Slu_DEF_CFG_CAPS(LET);
 
 		template<bool isSlu>
-		struct CONSTv : LOCAL_ASSIGNv<isSlu>	{};
+		struct CONSTv : LOCAL_ASSIGNv<isSlu> {};
 		Slu_DEF_CFG_CAPS(CONST);
 
 		template<bool isSlu>
-		struct StructV : StructBaseV<TypeExpr,isSlu> {};
+		struct StructV : StructBaseV<TypeExpr, isSlu> {};
 		Slu_DEF_CFG(Struct);
 
 		template<bool isSlu>
@@ -954,7 +965,8 @@ namespace slu::parse
 		Slu_DEF_CFG(Union);
 
 		template<bool isSlu>
-		struct ExternBlockV {
+		struct ExternBlockV
+		{
 			StatListV<isSlu> stats;
 			std::string abi;
 			Position abiEnd;
@@ -973,7 +985,7 @@ namespace slu::parse
 		{
 			MpItmIdV<true> base;//the aliased/imported thing, or modpath base
 			UseVariant useVariant;
-			ExportData exported=false;
+			ExportData exported = false;
 		};
 
 		template<bool isSlu>
@@ -993,7 +1005,7 @@ namespace slu::parse
 
 		template<bool isSlu>
 		struct MOD_DEF_INLINEv
-		{ 
+		{
 			MpItmIdV<isSlu> name;
 			BlockV<isSlu> bl;
 			ExportData exported = false;
@@ -1003,7 +1015,7 @@ namespace slu::parse
 	};
 
 	template<bool isSlu>
-	using StatementDataV = std::variant<
+	using StatementDataV = std::variant <
 		StatementType::SEMICOLON,				// ";"
 
 		StatementType::ASSIGNv<isSlu>,			// "varlist = explist"
@@ -1044,7 +1056,7 @@ namespace slu::parse
 		StatementType::USE,				// "use" ...
 		StatementType::MOD_DEFv<isSlu>,		// "mod" Name
 		StatementType::MOD_DEF_INLINEv<isSlu>	// "mod" Name "as" "{" block "}"
-	>;
+	> ;
 	Slu_DEF_CFG(StatementData);
 
 	template<bool isSlu>

@@ -8,7 +8,7 @@ safe extern "C" {
 	fn puts(&:>::std::str line) -> i32;
 }
 ---Test test test !!!
-ex fn _println(&crate::prelude::str text) -> void
+ex fn _println(&:>::std::str text) -> void
 {
-	--crate::puts(text);
+	--self::puts(text);
 }
