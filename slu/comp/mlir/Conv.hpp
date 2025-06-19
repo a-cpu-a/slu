@@ -70,6 +70,126 @@ namespace slu::comp::mico
 {
 	using namespace std::string_view_literals;
 
+	struct ConvData : CommonConvData
+	{
+		mlir::MLIRContext& context;
+		llvm::LLVMContext& llvmContext;
+		mlir::OpBuilder& builder;
+		mlir::ModuleOp module;
+		uint64_t nextPrivTmpId = 0;
+	};
+
+	struct TmpName
+	{
+		std::array<char, 3 + 8> store;
+
+		constexpr std::string_view sref() const {
+			return std::string_view{ store.data(), store.size() };
+		}
+		constexpr operator std::string_view() const {
+			return sref();
+		}
+	};
+	// _C_XXXXXXXX
+	constexpr TmpName mkTmpName(ConvData& conv)
+	{
+		TmpName res;
+		res.store[0] = '_';
+		res.store[1] = 'C';
+		res.store[2] = '_';
+		uint64_t v = conv.nextPrivTmpId++;
+		for (size_t i = 0; i < 8; i++)
+		{
+			res.store[3 + i] = parse::numToHex(v & 0xF);
+			v >>= 4;
+		}
+		return res;
+	}
+
+
+	template<typename T>
+	concept AnyInvalidExpression =
+		std::same_as<T, parse::ExprType::TRUE>
+		|| std::same_as<T, parse::ExprType::FALSE>
+		|| std::same_as<T, parse::ExprType::NIL>
+		|| std::same_as<T, parse::ExprType::MULTI_OPERATIONv<true>>;//already desugared
+
+	inline mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm)
+	{
+		auto* mc = &conv.context;
+		mlir::OpBuilder& builder = conv.builder;
+
+
+		return ezmatch(itm.data)(
+
+		varcase(const auto&)->mlir::Value {
+			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
+		},
+		varcase(const parse::Any64BitInt auto) {
+			auto i64Type = builder.getIntegerType(64);
+			return builder.create<mlir::arith::ConstantOp>(
+				builder.getUnknownLoc(), i64Type, mlir::IntegerAttr::get(i64Type, var.v)
+			);
+		},
+		varcase(const parse::Any128BitInt auto) {
+			auto i128Type = builder.getIntegerType(128);
+			llvm::APInt apVal(128, { var.lo ,var.hi });
+			return builder.create<mlir::arith::ConstantOp>(
+				builder.getUnknownLoc(), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
+			);
+		},
+		varcase(const parse::ExprType::LITERAL_STRING&) {
+		
+			auto i8Type = builder.getIntegerType(8);
+			auto i64Type = builder.getIntegerType(64);
+			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
+			auto strType = mlir::MemRefType::get({ (int64_t)var.v.size() }, i64Type, {}, 0);
+		
+			TmpName strName = mkTmpName(conv);
+			{
+				mlir::OpBuilder::InsertionGuard guard(builder);
+				builder.setInsertionPointToStart(conv.module.getBody());
+		
+				auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ var.v.data(),var.v.size() });
+				builder.create<mlir::memref::GlobalOp>(
+					builder.getUnknownLoc(),
+					strName.sref(),
+					/*sym_visibility=*/builder.getStringAttr("private"sv),
+					strType,
+					denseStr,
+					/*constant=*/true,
+					/*alignment=*/builder.getIntegerAttr(i8Type, 1)
+				);
+			}
+		
+			// %str = memref.get_global @greeting : memref<14xi8>
+			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(builder.getUnknownLoc(), strType,
+				strName.sref());
+			// %ptrIdx = memref.extract_aligned_pointer_as_index %str
+			auto ptrIndex = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
+				builder.getUnknownLoc(), globalStr
+			);
+		
+			// %ptrInt = index.castu %ptrIdx : index to i64
+			auto ptrInt = builder.create<mlir::index::CastUOp>(
+				builder.getUnknownLoc(), i64Type, ptrIndex
+			);
+			// %llvm_ptr = llvm.inttoptr %ptrInt : i64 to !llvm.ptr
+			return builder.create<mlir::LLVM::IntToPtrOp>(builder.getUnknownLoc(),
+				llvmPtrType, ptrInt
+				, nullptr
+				//, mlir::LLVM::DereferenceableAttr::get(mc, str.size(), false)
+			);
+		},
+
+
+			//Ignore these
+		varcase(const AnyInvalidExpression auto&)->mlir::Value {
+			throw std::runtime_error("Invalid expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
+		}
+		);
+	}
+
 	template<typename T>
 	concept AnyIgnoredStatement =
 		std::same_as<T, parse::StatementType::GOTOv<true>>
@@ -85,14 +205,7 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatementType::UNSAFE_LABEL>
 		|| std::same_as<T, parse::StatementType::SAFE_LABEL>;
 
-	struct ConvData : CommonConvData
-	{
-		mlir::MLIRContext& context;
-		llvm::LLVMContext& llvmContext;
-		mlir::OpBuilder& builder;
-	};
-
-	inline void convStat(const ConvData& conv, const parse::StatementV<true>& itm)
+	inline void convStat(ConvData& conv, const parse::StatementV<true>& itm)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -103,11 +216,14 @@ namespace slu::comp::mico
 
 		ezmatch(itm.data)(
 
-			varcase(const auto&) {},
+			varcase(const auto&) {
+			throw std::runtime_error("Unimplemented statement type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
+		},
 			varcase(const parse::StatementType::FUNC_CALLv<true>&) {
 
-			auto i64Type = builder.getIntegerType(64);
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
+#if 0
+			auto i64Type = builder.getIntegerType(64);
 
 			// %str = memref.get_global @greeting : memref<14xi8>
 			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(builder.getUnknownLoc(), strType,
@@ -149,14 +265,21 @@ namespace slu::comp::mico
 				, nullptr
 				//, mlir::LLVM::DereferenceableAttr::get(mc, str.size(), false)
 			);
+			#endif
 
+			//It cant be the other types, as they are alreadt desugared!
+			auto& argList = std::get<parse::ArgsType::EXPLISTv<true>>(var.argChain[0].args).v;
+			std::vector<mlir::Value> args;
+			args.reserve(argList.size());
+			for (const auto& i : argList)
+				args.emplace_back(convExpr(conv, i));
 
 			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr) -> i32
 			builder.create<mlir::LLVM::CallOp>(
 				builder.getUnknownLoc(),
 				builder.getI32Type(),
 				mlir::SymbolRefAttr::get(mc, "puts"sv),
-				llvm::ArrayRef<mlir::Value>{llvmPtr});
+				llvm::ArrayRef<mlir::Value>{args});
 
 		},
 			varcase(const parse::StatementType::CONSTv<true>&) {
@@ -205,7 +328,7 @@ namespace slu::comp::mico
 			varcase(const AnyIgnoredStatement auto&) {}
 			);
 	}
-	inline void conv(const ConvData& conv) {
+	inline void conv(ConvData&& conv) {
 		convStat(conv, conv.stat);
 	}
 }

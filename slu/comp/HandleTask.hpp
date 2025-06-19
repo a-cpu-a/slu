@@ -221,7 +221,7 @@ namespace slu::comp
 					});*/
 					slu::comp::mico::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
-						state.s->mc, state.s->llvmCtx,state.s->opBuilder
+						state.s->mc, state.s->llvmCtx,state.s->opBuilder,module
 						});
 				}
 			}
