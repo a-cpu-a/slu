@@ -10,6 +10,11 @@ namespace slu::parse
 	constexpr uint8_t CAPITAL_BIT = 'x' - 'X';
 	static_assert('x' - 'X' == 32);//is simple bit flip?
 
+	inline char numToHex(const uint8_t v) {
+		if (v <= 9)
+			return ('0' + v);
+		return ('A' + (v - 10));
+	}
 	constexpr char toLowerCase(const char c)
 	{
 		return c | CAPITAL_BIT;

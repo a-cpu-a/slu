@@ -205,10 +205,7 @@ namespace slu::parse
 		for (size_t i = 0; i < 16; i++)
 		{
 			const uint8_t c = (uint64_t(v) >> (60 - 4 * i)) & 0xF;
-			if (c <= 9)
-				out.add('0' + c);
-			else
-				out.add('A' + (c - 10));
+			out.add(numToHex(c));
 		}
 	}
 
