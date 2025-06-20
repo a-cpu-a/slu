@@ -17,17 +17,36 @@ namespace slu::visit
 #define Slu_CALL_VISIT_FN_PRE_USER(_Name,_itm) \
 		if(vi.pre ## _Name (_itm)) \
 			return
+#define Slu_CALL_VISIT_FN_PRE_USER_LG(_Name,_itm) \
+		if constexpr (isLocal) \
+			{Slu_CALL_VISIT_FN_PRE_USER(_Name##Local,_itm);} \
+		else \
+			{Slu_CALL_VISIT_FN_PRE_USER(_Name##Global,_itm);}
 #define Slu_CALL_VISIT_FN_PRE(_Name) Slu_CALL_VISIT_FN_PRE_USER(_Name,itm)
 #define Slu_CALL_VISIT_FN_PRE_VAR(_Name) Slu_CALL_VISIT_FN_PRE_USER(_Name,var)
+#define Slu_CALL_VISIT_FN_PRE_LG(_Name) Slu_CALL_VISIT_FN_PRE_USER_LG(_Name,itm)
+#define Slu_CALL_VISIT_FN_PRE_VAR_LG(_Name) Slu_CALL_VISIT_FN_PRE_USER_LG(_Name,var)
 
 #define Slu_CALL_VISIT_FN_SEP(_Name,_i,_vec) \
 		if(&_i != &_vec.back()) \
 			vi.sep##_Name(_vec,_i)
+#define Slu_CALL_VISIT_FN_SEP_LG(_Name,_i,_itm) \
+		if constexpr (isLocal) \
+			{Slu_CALL_VISIT_FN_SEP(_Name##Local,_i,_itm);} \
+		else \
+			{Slu_CALL_VISIT_FN_SEP(_Name##Global,_i,_itm);}
 
 #define Slu_CALL_VISIT_FN_POST_USER(_Name,_itm) \
 		vi.post##_Name(_itm)
+#define Slu_CALL_VISIT_FN_POST_USER_LG(_Name,_itm) \
+		if constexpr (isLocal) \
+			{Slu_CALL_VISIT_FN_POST_USER(_Name##Local,_itm);} \
+		else \
+			{Slu_CALL_VISIT_FN_POST_USER(_Name##Global,_itm);}
 #define Slu_CALL_VISIT_FN_POST(_Name) Slu_CALL_VISIT_FN_POST_USER(_Name,itm)
 #define Slu_CALL_VISIT_FN_POST_VAR(_Name) Slu_CALL_VISIT_FN_POST_USER(_Name,var)
+#define Slu_CALL_VISIT_FN_POST_LG(_Name) Slu_CALL_VISIT_FN_POST_USER_LG(_Name,itm)
+#define Slu_CALL_VISIT_FN_POST_VAR_LG(_Name) Slu_CALL_VISIT_FN_POST_USER_LG(_Name,var)
 
 	template<AnyVisitor Vi>
 	inline void visitString(Vi& vi, std::span<char> itm)
@@ -38,6 +57,15 @@ namespace slu::visit
 	inline void visitName(Vi& vi, parse::MpItmId<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Name);
+	}
+	template<bool isLocal,AnyVisitor Vi>
+	inline void visitNameOrLocal(Vi& vi, parse::LocalOrName<Vi,isLocal>& itm)
+	{
+		if constexpr (isLocal)
+		{//TODO
+		}
+		else
+			visitName(vi, itm);
 	}
 	template<AnyVisitor Vi>
 	inline void visitMp(Vi& vi, parse::MpItmId<Vi>& itm)
@@ -82,10 +110,10 @@ namespace slu::visit
 		);
 		Slu_CALL_VISIT_FN_POST(DestrSpec);
 	}
-	template<AnyVisitor Vi>
-	inline void visitPat(Vi& vi, parse::Pat<Vi>& itm)
+	template<bool isLocal, AnyVisitor Vi>
+	inline void visitPat(Vi& vi, parse::Pat<Vi,isLocal>& itm)
 	{
-		Slu_CALL_VISIT_FN_PRE(Pat);
+		Slu_CALL_VISIT_FN_PRE_LG(Pat);
 		ezmatch(itm)(
 		varcase(const parse::PatType::DestrAny) {
 			Slu_CALL_VISIT_FN_PRE_VAR(DestrAny);
@@ -97,67 +125,67 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(DestrSimple);
 		},
 
-		varcase(parse::PatType::DestrFields<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(DestrFields);
+		varcase(parse::PatType::DestrFields<Vi,isLocal>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrFields);
 			visitDestrSpec(vi, var.spec);
-			Slu_CALL_VISIT_FN_PRE_VAR(DestrFieldsFirst);
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrFieldsFirst);
 			for (auto& i : var.items)
 			{
-				Slu_CALL_VISIT_FN_PRE_USER(DestrField, i);
+				Slu_CALL_VISIT_FN_PRE_USER_LG(DestrField, i);
 				visitName(vi, i.name);
-				Slu_CALL_VISIT_FN_PRE_USER(DestrFieldPat, i);
-				visitPat(vi, i.pat);
-				Slu_CALL_VISIT_FN_POST_USER(DestrField, i);
-				Slu_CALL_VISIT_FN_SEP(DestrFields, i, var.items);
+				Slu_CALL_VISIT_FN_PRE_USER_LG(DestrFieldPat, i);
+				visitPat<isLocal>(vi, i.pat);
+				Slu_CALL_VISIT_FN_POST_USER_LG(DestrField, i);
+				Slu_CALL_VISIT_FN_SEP_LG(DestrFields, i, var.items);
 			}
 			if(!var.name.empty())
 			{
-				Slu_CALL_VISIT_FN_PRE_VAR(DestrFieldsName);
-				visitName(vi, var.name);
+				Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrFieldsName);
+				visitNameOrLocal<isLocal>(vi, var.name);
 			}
-			Slu_CALL_VISIT_FN_POST_VAR(DestrFields);
+			Slu_CALL_VISIT_FN_POST_VAR_LG(DestrFields);
 		},
-		varcase(parse::PatType::DestrList<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(DestrList);
+		varcase(parse::PatType::DestrList<Vi, isLocal>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrList);
 			visitDestrSpec(vi, var.spec);
-			Slu_CALL_VISIT_FN_PRE_VAR(DestrListFirst);
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrListFirst);
 			for (auto& i : var.items)
 			{
-				visitPat(vi, i);
-				Slu_CALL_VISIT_FN_SEP(DestrList, i, var.items);
+				visitPat<isLocal>(vi, i);
+				Slu_CALL_VISIT_FN_SEP_LG(DestrList, i, var.items);
 			}
 			if (!var.name.empty())
 			{
-				Slu_CALL_VISIT_FN_PRE_VAR(DestrListName);
-				visitName(vi, var.name);
+				Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrListName);
+				visitNameOrLocal<isLocal>(vi, var.name);
 			}
-			Slu_CALL_VISIT_FN_POST_VAR(DestrList);
+			Slu_CALL_VISIT_FN_POST_VAR_LG(DestrList);
 		},
 
-		varcase(parse::PatType::DestrName<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(DestrName);
+		varcase(parse::PatType::DestrName<Vi, isLocal>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrName);
 			visitDestrSpec(vi, var.spec);
 			if (!var.name.empty())
 			{
-				Slu_CALL_VISIT_FN_PRE_VAR(DestrNameName);
-				visitName(vi, var.name);
+				Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrNameName);
+				visitNameOrLocal<isLocal>(vi, var.name);
 			}
-			Slu_CALL_VISIT_FN_POST_VAR(DestrName);
+			Slu_CALL_VISIT_FN_POST_VAR_LG(DestrName);
 		},
-		varcase(parse::PatType::DestrNameRestrict<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(DestrNameRestrict);
+		varcase(parse::PatType::DestrNameRestrict<Vi, isLocal>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrNameRestrict);
 			visitDestrSpec(vi, var.spec);
 			if (!var.name.empty())
 			{
-				Slu_CALL_VISIT_FN_PRE_VAR(DestrNameRestrictName);
-				visitName(vi, var.name);
+				Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrNameRestrictName);
+				visitNameOrLocal<isLocal>(vi, var.name);
 			}
-			Slu_CALL_VISIT_FN_PRE_VAR(DestrNameRestriction);
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrNameRestriction);
 			visitExpr(vi, var.restriction);
-			Slu_CALL_VISIT_FN_POST_VAR(DestrNameRestrict);
+			Slu_CALL_VISIT_FN_POST_VAR_LG(DestrNameRestrict);
 		}
 		);
-		Slu_CALL_VISIT_FN_POST(Pat);
+		Slu_CALL_VISIT_FN_POST_LG(Pat);
 	}
 	template<AnyVisitor Vi>
 	inline void visitVar(Vi& vi, parse::Var<Vi>& itm)
@@ -504,7 +532,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Params);
 		for (auto& i : itm)
 		{
-			visitPat(vi, i.name);
+			visitPat<true>(vi, i.name);
 			Slu_CALL_VISIT_FN_SEP(Params, i, itm);
 		}
 		Slu_CALL_VISIT_FN_POST(Params);
@@ -521,17 +549,17 @@ namespace slu::visit
 		},
 		varcase(parse::StatementType::LOCAL_ASSIGN<Vi>&) {
 			visitExported(vi, var.exported);
-			visitPat(vi, var.names);
+			visitPat<true>(vi, var.names);
 			visitExpList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::LET<Vi>&) {
 			visitExported(vi, var.exported);
-			visitPat(vi, var.names);
+			visitPat<true>(vi, var.names);
 			visitExpList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::CONST<Vi>&) {
 			visitExported(vi, var.exported);
-			visitPat(vi, var.names);
+			visitPat<false>(vi, var.names);
 			visitExpList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::FUNC_CALL<Vi>&) {
@@ -576,7 +604,7 @@ namespace slu::visit
 			visitExpr(vi, var.cond);
 		},
 		varcase(parse::StatementType::FOR_LOOP_NUMERIC<Vi>&) {
-			visitPat(vi, var.varName);
+			visitPat<true>(vi, var.varName);
 			visitExpr(vi, var.start);
 			visitExpr(vi, var.end);
 			if (var.step.has_value())
@@ -584,7 +612,7 @@ namespace slu::visit
 			visitBlock(vi, var.bl);
 		},
 		varcase(parse::StatementType::FOR_LOOP_GENERIC<Vi>&) {
-			visitPat(vi, var.varNames);
+			visitPat<true>(vi, var.varNames);
 			visitExpr(vi, var.exprs);
 			visitBlock(vi, var.bl);
 		},

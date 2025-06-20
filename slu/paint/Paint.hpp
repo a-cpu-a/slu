@@ -353,13 +353,13 @@ namespace slu::paint
 			paintSubVar(se, i);
 		}
 	}
-	template<Tok nameTok, AnySemOutput Se>
-	inline void paintDestrField(Se& se, const parse::DestrField<Se>& itm)
+	template<bool isLocal, Tok nameTok, AnySemOutput Se>
+	inline void paintDestrField(Se& se, const parse::DestrField<Se, isLocal>& itm)
 	{
 		paintKw<Tok::GEN_OP>(se, "|");
 		paintName<Tok::NAME_TABLE>(se, itm.name);
 		paintKw<Tok::GEN_OP>(se, "|");
-		paintPat<nameTok>(se, itm.pat);
+		paintPat<isLocal,nameTok>(se, itm.pat);
 	}
 	template<AnySemOutput Se>
 	inline void paintTypePrefix(Se& se, const parse::TypePrefix& itm)
@@ -383,8 +383,8 @@ namespace slu::paint
 		}
 		);
 	}
-	template<Tok nameTok,AnySemOutput Se>
-	inline void paintPat(Se& se, const parse::Pat<Se>& itm)
+	template<bool isLocal,Tok nameTok,AnySemOutput Se>
+	inline void paintPat(Se& se, const parse::Pat<Se, isLocal>& itm)
 	{
 		ezmatch(itm)(
 		varcase(const parse::PatType::Simple<Se>&) {
@@ -412,9 +412,9 @@ namespace slu::paint
 			for (const auto& i : var.items)
 			{
 				if constexpr(std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrFieldV<true>>)
-					paintDestrField<nameTok>(se, i);
+					paintDestrField<isLocal,nameTok>(se, i);
 				else
-					paintPat<nameTok>(se, i);
+					paintPat<isLocal,nameTok>(se, i);
 
 				if (&i != &var.items.back())
 					paintKw<Tok::PUNCTUATION>(se, ",");
@@ -458,11 +458,11 @@ namespace slu::paint
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
 	}
-	template<Tok nameTok, AnySemOutput Se>
+	template<bool isLocal,Tok nameTok, AnySemOutput Se>
 	inline void paintPatOrNamelist(Se& se, const auto& itm)
 	{
 		if constexpr (Se::settings() & sluSyn)
-			paintPat<nameTok>(se, itm);
+			paintPat<isLocal,nameTok>(se, itm);
 		else
 		{
 			if constexpr (std::same_as<std::remove_cvref_t<decltype(itm)>, parse::MpItmId<Se>>)
@@ -716,7 +716,7 @@ namespace slu::paint
 	{
 		for (const parse::Parameter<Se>& i : itm)
 		{
-			paintPatOrNamelist<Tok::NAME_TYPE>(se, i.name);
+			paintPatOrNamelist<true,Tok::NAME_TYPE>(se, i.name);
 
 			if (&i != &itm.back() || hasVarArgParam)
 				paintKw<Tok::PUNCTUATION>(se, ",");
@@ -873,7 +873,7 @@ namespace slu::paint
 		}
 		);
 	}
-	template<size_t TOK_SIZE,AnySemOutput Se>
+	template<bool isLocal,size_t TOK_SIZE,AnySemOutput Se>
 	inline void paintVarStat(Se& se, const auto& itm, const char(&tokChr)[TOK_SIZE])
 	{
 		if constexpr (Se::settings() & sluSyn)
@@ -884,7 +884,7 @@ namespace slu::paint
 
 		paintKw<Tok::VAR_STAT>(se, tokChr);
 
-		paintPatOrNamelist<Tok::NAME_TYPE>(se, itm.names);
+		paintPatOrNamelist<isLocal,Tok::NAME_TYPE>(se, itm.names);
 
 		if (itm.exprs.empty())return;
 
@@ -921,7 +921,7 @@ namespace slu::paint
 		varcase(const parse::StatementType::FOR_LOOP_NUMERIC<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");
 
-			paintPatOrNamelist<Tok::NAME_TYPE>(se, var.varName);
+			paintPatOrNamelist<true,Tok::NAME_TYPE>(se, var.varName);
 			paintKw<Tok::ASSIGN>(se, "=");
 
 			paintExpr(se, var.start);
@@ -937,7 +937,7 @@ namespace slu::paint
 		varcase(const parse::StatementType::FOR_LOOP_GENERIC<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");
 
-			paintPatOrNamelist<Tok::NAME_TYPE>(se, var.varNames);
+			paintPatOrNamelist<true,Tok::NAME_TYPE>(se, var.varNames);
 			paintKw<Tok::IN>(se, "in");
 
 			paintExprOrList(se, var.exprs);
@@ -973,13 +973,13 @@ namespace slu::paint
 			paintExprList(se, var.exprs);
 		},
 		varcase(const parse::StatementType::LOCAL_ASSIGN<Se>&) {
-			paintVarStat(se,var, "local");
+			paintVarStat<true>(se,var, "local");
 		},
 		varcase(const parse::StatementType::LET<Se>&) {
-			paintVarStat(se,var, "let");
+			paintVarStat<true>(se,var, "let");
 		},
 		varcase(const parse::StatementType::CONST<Se>&) {
-			paintVarStat(se,var, "const");
+			paintVarStat<false>(se,var, "const");
 		},
 
 		varcase(const parse::StatementType::FN<Se>&) {
