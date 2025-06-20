@@ -11,6 +11,8 @@
 #include <slu/parser/State.hpp>
 #include <slu/Settings.hpp>
 
+#define Slu_co ,
+
 namespace slu::visit
 {
 	template<parse::AnySettings _SettingsT = parse::Setting<void>>
@@ -23,17 +25,43 @@ namespace slu::visit
 		constexpr EmptyVisitor(SettingsT) {}
 		constexpr EmptyVisitor() = default;
 
-#define _Slu_DEF_EMPTY_POST_RAW(_Name,_Ty) void post##_Name(_Ty itm){}
+#define _Slu_DEF_EMPTY_POST_RAW(_Name,...) void post##_Name(__VA_ARGS__ itm){}
+#define _Slu_DEF_EMPTY_POST_RAW_LG(_Name,_TY_POST_SYMBOL,...) \
+	_Slu_DEF_EMPTY_POST_RAW(_Name##Local,__VA_ARGS__<Cfg,true> _TY_POST_SYMBOL);\
+	_Slu_DEF_EMPTY_POST_RAW(_Name##Global,__VA_ARGS__<Cfg,false> _TY_POST_SYMBOL)
 #define _Slu_DEF_EMPTY_POST(_Name,_Ty) _Slu_DEF_EMPTY_POST_RAW(_Name,_Ty&)
+#define _Slu_DEF_EMPTY_POST_LG(_Name,_Ty) _Slu_DEF_EMPTY_POST_RAW_LG(_Name,&,_Ty)
 #define _Slu_DEF_EMPTY_POST_UNIT(_Name,_Ty) _Slu_DEF_EMPTY_POST_RAW(_Name,const _Ty)
 
-#define _Slu_DEF_EMPTY_PRE_RAW(_Name,_Ty) bool pre##_Name(_Ty itm){return false;}
-#define _Slu_DEF_EMPTY_PRE(_Name,_Ty) _Slu_DEF_EMPTY_PRE_RAW(_Name,_Ty&)
-#define _Slu_DEF_EMPTY_PRE_UNIT(_Name,_Ty) _Slu_DEF_EMPTY_PRE_RAW(_Name,const _Ty)
+#define _Slu_DEF_EMPTY_PRE_RAW(_Name,...) bool pre##_Name(__VA_ARGS__ itm){return false;}
+#define _Slu_DEF_EMPTY_PRE_RAW_LG(_Name,_TY_POST_SYMBOL,...) \
+	_Slu_DEF_EMPTY_PRE_RAW(_Name##Local,__VA_ARGS__<Cfg,true> _TY_POST_SYMBOL);\
+	_Slu_DEF_EMPTY_PRE_RAW(_Name##Global,__VA_ARGS__<Cfg,false> _TY_POST_SYMBOL)
 
-#define _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,_Ty) _Slu_DEF_EMPTY_PRE_RAW(_Name,_Ty); _Slu_DEF_EMPTY_POST_RAW(_Name,_Ty)
-#define _Slu_DEF_EMPTY_PRE_POST(_Name,_Ty) _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,_Ty&)
-#define _Slu_DEF_EMPTY_PRE_POST_UNIT(_Name,_Ty) _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,const _Ty)
+#define _Slu_DEF_EMPTY_PRE(_Name,...) _Slu_DEF_EMPTY_PRE_RAW(_Name,__VA_ARGS__&)
+#define _Slu_DEF_EMPTY_PRE_LG(_Name,...) _Slu_DEF_EMPTY_PRE_RAW_LG(_Name,&,__VA_ARGS__)
+#define _Slu_DEF_EMPTY_PRE_UNIT(_Name,...) _Slu_DEF_EMPTY_PRE_RAW(_Name,const __VA_ARGS__)
+
+#define _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,...) \
+	_Slu_DEF_EMPTY_PRE_RAW(_Name,__VA_ARGS__); \
+	_Slu_DEF_EMPTY_POST_RAW(_Name,__VA_ARGS__)
+#define _Slu_DEF_EMPTY_PRE_POST_RAW_LG(_Name,_TY_POST_SYMBOL,...) \
+	_Slu_DEF_EMPTY_PRE_RAW_LG(_Name,_TY_POST_SYMBOL,__VA_ARGS__); \
+	_Slu_DEF_EMPTY_POST_RAW_LG(_Name,_TY_POST_SYMBOL,__VA_ARGS__)
+#define _Slu_DEF_EMPTY_PRE_POST(_Name,...) _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,__VA_ARGS__&)
+#define _Slu_DEF_EMPTY_PRE_POST_LG(_Name,...) _Slu_DEF_EMPTY_PRE_POST_RAW_LG(_Name,&,__VA_ARGS__)
+#define _Slu_DEF_EMPTY_PRE_POST_UNIT(_Name,...) _Slu_DEF_EMPTY_PRE_POST_RAW(_Name,const __VA_ARGS__)
+
+#define _Slu_DEF_EMPTY_AUTO(_Name)  _Slu_DEF_EMPTY_PRE_POST(_Name,parse:: _Name <Cfg>)
+#define _Slu_DEF_EMPTY_AUTO_LG(_Name)  _Slu_DEF_EMPTY_PRE_POST_LG(_Name,parse:: _Name)
+
+#define _Slu_DEF_EMPTY_SEP_RAW(_Name,_Ty,_ElemTy) void sep##_Name(_Ty list,_ElemTy itm){}
+#define _Slu_DEF_EMPTY_SEP(_Name,_Ty,_ElemTy) _Slu_DEF_EMPTY_SEP_RAW(_Name,_Ty,_ElemTy&)
+
+#define _Slu_DEF_EMPTY_LIST(_Name,_ElemTy) \
+	_Slu_DEF_EMPTY_PRE_RAW(_Name,std::span<_ElemTy>) \
+	_Slu_DEF_EMPTY_POST_RAW(_Name,std::span<_ElemTy>) \
+	_Slu_DEF_EMPTY_SEP(_Name,std::span<_ElemTy>,_ElemTy)
 
 #define _Slu_DEF_EMPTY_AUTO(_Name)  _Slu_DEF_EMPTY_PRE_POST(_Name,parse:: _Name <Cfg>)
 
@@ -48,7 +76,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(File, parse::ParsedFile<Cfg>);
 		_Slu_DEF_EMPTY_AUTO(Block);
 		_Slu_DEF_EMPTY_AUTO(Var);
-		_Slu_DEF_EMPTY_AUTO(Pat);
+		_Slu_DEF_EMPTY_AUTO_LG(Pat);
 		_Slu_DEF_EMPTY_AUTO(DestrSpec);
 		_Slu_DEF_EMPTY_AUTO(Soe);
 		_Slu_DEF_EMPTY_AUTO(LimPrefixExpr);
@@ -70,15 +98,15 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(TypeExp, parse::TypeExpr);
 		_Slu_DEF_EMPTY_PRE(TypeExpMut, parse::TypeExpr);
 
-		_Slu_DEF_EMPTY_AUTO(DestrField);
-		_Slu_DEF_EMPTY_PRE(DestrFieldPat, parse::DestrField<Cfg>);
+		_Slu_DEF_EMPTY_AUTO_LG(DestrField);
+		_Slu_DEF_EMPTY_PRE_LG(DestrFieldPat, parse::DestrField);
 
-		_Slu_DEF_EMPTY_PRE_POST(DestrName, parse::PatType::DestrName<Cfg>);
-		_Slu_DEF_EMPTY_PRE(DestrNameName, parse::PatType::DestrName<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST_LG(DestrName, parse::PatType::DestrName);
+		_Slu_DEF_EMPTY_PRE_LG(DestrNameName, parse::PatType::DestrName);
 
-		_Slu_DEF_EMPTY_PRE_POST(DestrNameRestrict, parse::PatType::DestrNameRestrict<Cfg>);
-		_Slu_DEF_EMPTY_PRE(DestrNameRestrictName, parse::PatType::DestrNameRestrict<Cfg>);
-		_Slu_DEF_EMPTY_PRE(DestrNameRestriction, parse::PatType::DestrNameRestrict<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST_LG(DestrNameRestrict, parse::PatType::DestrNameRestrict);
+		_Slu_DEF_EMPTY_PRE_LG(DestrNameRestrictName, parse::PatType::DestrNameRestrict);
+		_Slu_DEF_EMPTY_PRE_LG(DestrNameRestriction, parse::PatType::DestrNameRestrict);
 
 		_Slu_DEF_EMPTY_PRE_POST(UnOp, parse::UnOpItem);
 		_Slu_DEF_EMPTY_PRE(UnOpMut, parse::UnOpItem);
@@ -97,24 +125,27 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_UNIT(Nil, parse::ExprType::NIL);
 
 		//Lists:
-		_Slu_DEF_EMPTY_PRE(DestrList, parse::PatType::DestrList<Cfg>);
-		_Slu_DEF_EMPTY_PRE(DestrListFirst, parse::PatType::DestrList<Cfg>);
-		_Slu_DEF_EMPTY_PRE(DestrListName, parse::PatType::DestrList<Cfg>);
-		_Slu_DEF_EMPTY_POST(DestrList, parse::PatType::DestrList<Cfg>);
-		_Slu_DEF_EMPTY_SEP(DestrList, std::span<parse::Pat<Cfg>>, parse::Pat<Cfg>);
-		
-		_Slu_DEF_EMPTY_PRE(DestrFields, parse::PatType::DestrFields<Cfg>);
-		_Slu_DEF_EMPTY_PRE(DestrFieldsFirst, parse::PatType::DestrFields<Cfg>);
-		_Slu_DEF_EMPTY_PRE(DestrFieldsName, parse::PatType::DestrFields<Cfg>);
-		_Slu_DEF_EMPTY_POST(DestrFields, parse::PatType::DestrFields<Cfg>);
-		_Slu_DEF_EMPTY_SEP(DestrFields, std::span<parse::DestrField<Cfg>>, parse::DestrField<Cfg>);
-		
+		_Slu_DEF_EMPTY_PRE_LG(DestrList, parse::PatType::DestrList);
+		_Slu_DEF_EMPTY_PRE_LG(DestrListFirst, parse::PatType::DestrList);
+		_Slu_DEF_EMPTY_PRE_LG(DestrListName, parse::PatType::DestrList);
+		_Slu_DEF_EMPTY_POST_LG(DestrList, parse::PatType::DestrList);
+		_Slu_DEF_EMPTY_SEP(DestrListLocal, std::span<parse::Pat<Cfg Slu_co true>>, parse::Pat<Cfg Slu_co true>);
+		_Slu_DEF_EMPTY_SEP(DestrListGlobal, std::span<parse::Pat<Cfg Slu_co false>>, parse::Pat<Cfg Slu_co false>);
+
+		_Slu_DEF_EMPTY_PRE_LG(DestrFields, parse::PatType::DestrFields);
+		_Slu_DEF_EMPTY_PRE_LG(DestrFieldsFirst, parse::PatType::DestrFields);
+		_Slu_DEF_EMPTY_PRE_LG(DestrFieldsName, parse::PatType::DestrFields);
+		_Slu_DEF_EMPTY_POST_LG(DestrFields, parse::PatType::DestrFields);
+		_Slu_DEF_EMPTY_SEP(DestrFieldsLocal, std::span<parse::DestrField<Cfg Slu_co true>>, parse::DestrField<Cfg Slu_co true>);
+		_Slu_DEF_EMPTY_SEP(DestrFieldsGlobal, std::span<parse::DestrField<Cfg Slu_co false>>, parse::DestrField<Cfg Slu_co false>);
+
 		_Slu_DEF_EMPTY_LIST(VarList, parse::Var<Cfg>);
 		_Slu_DEF_EMPTY_LIST(ArgChain, parse::ArgFuncCall<Cfg>);
 		_Slu_DEF_EMPTY_LIST(ExpList, parse::Expression<Cfg>);
 		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId<Cfg>);
 		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<Cfg>);
 	};
+
 
 	/*
 		(bool"shouldStop" pre_) post_

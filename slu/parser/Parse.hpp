@@ -116,7 +116,7 @@ namespace slu::parse
 		if constexpr (In::settings() & sluSyn)
 		{
 			skipSpace(in);
-			p.name = readPat(in, true);
+			p.name = readPat<true>(in, true);
 		}
 		else
 			p.name = in.genData.resolveUnknown(readName(in));
@@ -433,11 +433,11 @@ namespace slu::parse
 				 for namelist in explist do block end |
 				*/
 
-				Sel<In::settings()& sluSyn, NameList<In>, PatV<true>> names;
+				Sel<In::settings()& sluSyn, NameList<In>, PatV<true,true>> names;
 				if constexpr (In::settings() & sluSyn)
 				{
 					skipSpace(in);
-					names = readPat(in, true);
+					names = readPat<true>(in, true);
 				}
 				else
 					names = readNameList(in);
@@ -509,7 +509,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "let"))
 				{
-					readVarStatement<isLoop, StatementType::LET<In>>(in, place, allowVarArg, exported);
+					readVarStatement<true, isLoop, StatementType::LET<In>>(in, place, allowVarArg, exported);
 					return true;
 				}
 			}
@@ -533,7 +533,7 @@ namespace slu::parse
 					}
 				}
 				// Local Variable
-				readVarStatement<isLoop, StatementType::LOCAL_ASSIGN<In>>(in, place, allowVarArg, exported);
+				readVarStatement<true, isLoop, StatementType::LOCAL_ASSIGN<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;
@@ -560,7 +560,7 @@ namespace slu::parse
 		case 'n':
 			if (checkReadTextToken(in, "const"))
 			{
-				readVarStatement<isLoop, StatementType::CONST<In>>(in, place, allowVarArg, exported);
+				readVarStatement<false,isLoop, StatementType::CONST<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;
@@ -720,14 +720,14 @@ namespace slu::parse
 		}
 		return res;
 	}
-	template<bool isLoop,class StatT, AnyInput In>
+	template<bool isLocal, bool isLoop, class StatT, AnyInput In >
 	inline void readVarStatement(In& in, const Position place, const bool allowVarArg, const ExportData exported)
 	{
 		StatT res;
 		if constexpr (In::settings() & sluSyn)
 		{
 			skipSpace(in);
-			res.names = readPat(in, true);
+			res.names = readPat<isLocal>(in, true);
 			res.exported = exported;
 		}
 		else

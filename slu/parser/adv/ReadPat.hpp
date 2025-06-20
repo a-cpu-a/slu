@@ -22,8 +22,9 @@
 
 namespace slu::parse
 {
-	template<AnyCompoundDestr T,bool NAMED, AnyInput In>
+	template<bool isLocal, class T,bool NAMED, AnyInput In>
 	inline T readFieldsDestr(In& in, auto&& ty, const bool uncond)
+		requires(AnyCompoundDestr<isLocal,T>)
 	{
 		T ret;
 		ret.spec = std::move(ty);
@@ -60,8 +61,8 @@ namespace slu::parse
 
 		return ret;
 	}
-	template<bool IS_EXPR,AnyInput In>
-	inline Pat<In> readPatPastExpr(In& in,auto&& ty,const bool uncond)
+	template<bool isLocal,bool IS_EXPR,AnyInput In>
+	inline Pat<In, isLocal> readPatPastExpr(In& in,auto&& ty,const bool uncond)
 	{
 		skipSpace(in);
 
@@ -71,9 +72,9 @@ namespace slu::parse
 			in.skip();
 			skipSpace(in);
 			if (in.peek() == '|')
-				return readFieldsDestr<DestrPatType::Fields<In>,true>(in,std::move(ty), uncond);
+				return readFieldsDestr<isLocal,DestrPatType::Fields<In, isLocal>,true>(in,std::move(ty), uncond);
 
-			return readFieldsDestr<DestrPatType::List<In>, false>(in, std::move(ty), uncond);
+			return readFieldsDestr<isLocal,DestrPatType::List<In, isLocal>, false>(in, std::move(ty), uncond);
 		}
 		else if (firstChar == ')' || firstChar == '}' || firstChar == ',')
 		{
@@ -92,14 +93,14 @@ namespace slu::parse
 		{
 			skipSpace(in);
 			if (in.peek() == '=')
-				return PatType::DestrNameRestrict<In>{ {name,std::move(ty)},readExpr(in,false) };
+				return PatType::DestrNameRestrict<In, isLocal>{ {name,std::move(ty)},readExpr(in,false) };
 		}
 
-		return PatType::DestrName<In>{ name,std::move(ty) };
+		return PatType::DestrName<In, isLocal>{ name,std::move(ty) };
 	}
 	//Will not skip space!
-	template<AnyInput In>
-	inline Pat<In> readPat(In& in, const bool uncond)
+	template<bool isLocal, AnyInput In>
+	inline Pat<In,isLocal> readPat(In& in, const bool uncond)
 	{
 		const char firstChar = in.peek();
 
@@ -107,7 +108,7 @@ namespace slu::parse
 		{
 			TypeExpr ty = readTypeExpr(in, true);
 
-			return readPatPastExpr<false>(in, std::move(ty), uncond);
+			return readPatPastExpr<isLocal,false>(in, std::move(ty), uncond);
 		}
 		else if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
 		{
@@ -119,9 +120,9 @@ namespace slu::parse
 
 		if (std::holds_alternative<ExprType::PAT_TYPE_PREFIX>(expr.data))
 		{
-			return readPatPastExpr<false>(in, TypePrefix(std::move(expr.unOps)), uncond);
+			return readPatPastExpr<isLocal,false>(in, TypePrefix(std::move(expr.unOps)), uncond);
 		}
 
-		return readPatPastExpr<true>(in,std::move(expr), uncond);
+		return readPatPastExpr<isLocal,true>(in,std::move(expr), uncond);
 	}
 }

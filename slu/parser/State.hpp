@@ -35,6 +35,7 @@ namespace slu::parse
 	using Sel = std::conditional_t<isSlu, SlT, T>;
 
 #define Slu_DEF_CFG(_Name) template<AnyCfgable CfgT> using _Name = SelV<CfgT, _Name ## V>
+#define Slu_DEF_CFG2(_Name,_ArgName) template<AnyCfgable CfgT,bool _ArgName> using _Name =Sel<CfgT::settings()& sluSyn, _Name ## V<false, _ArgName>, _Name ## V<true, _ArgName>>
 #define Slu_DEF_CFG_CAPS(_NAME) template<AnyCfgable CfgT> using _NAME = SelV<CfgT, _NAME ## v>
 
 	template<AnyCfgable Cfg, size_t TOK_SIZE, size_t TOK_SIZE2>
@@ -439,6 +440,14 @@ namespace slu::parse
 
 	//Common
 
+	struct LocalId
+	{
+		size_t v= SIZE_MAX;
+		constexpr bool empty() const { return v == SIZE_MAX; }
+	};
+	template<bool isSlu,bool isLocal>
+	using LocalOrNameV = Sel<isLocal, MpItmIdV<isSlu>, LocalId>;
+	Slu_DEF_CFG2(LocalOrName,isLocal);
 	template<bool isSlu>
 	using LocalsV = std::vector<MpItmIdV<isSlu>>;
 	Slu_DEF_CFG(Locals);
@@ -490,8 +499,7 @@ namespace slu::parse
 		MayBox<boxIt, SoeOrBlockV<isSlu>> bl;
 		std::optional<MayBox<boxIt, SoeOrBlockV<isSlu>>> elseBlock;
 	};
-	template<AnyCfgable CfgT, bool boxIt>
-	using BaseIfCond = Sel<CfgT::settings()& sluSyn, BaseIfCondV<false, boxIt>, BaseIfCondV<true, boxIt>>;
+	Slu_DEF_CFG2(BaseIfCond, boxIt);
 
 	namespace ExprType
 	{
@@ -594,7 +602,7 @@ namespace slu::parse
 
 	// match patterns
 
-	template<bool isSlu = true>
+	template<bool isSlu>
 	using NdPatV = ExpressionV<isSlu>;
 	Slu_DEF_CFG(NdPat);
 
@@ -606,7 +614,7 @@ namespace slu::parse
 		using Type = TypeExpr;
 		using Prefix = TypePrefix;
 	}
-	template<bool isSlu = true>
+	template<bool isSlu>
 	using DestrSpecV = std::variant<
 		DestrSpecType::SpatV<isSlu>,
 		DestrSpecType::Type,
@@ -616,15 +624,15 @@ namespace slu::parse
 	namespace DestrPatType
 	{
 		using Any = std::monostate;
-		template<bool isSlu> struct FieldsV;
-		Slu_DEF_CFG(Fields);
-		template<bool isSlu> struct ListV;
-		Slu_DEF_CFG(List);
+		template<bool isSlu, bool isLocal> struct FieldsV;
+		Slu_DEF_CFG2(Fields, isLocal);
+		template<bool isSlu, bool isLocal> struct ListV;
+		Slu_DEF_CFG2(List, isLocal);
 
-		template<bool isSlu>struct NameV;
-		Slu_DEF_CFG(Name);
-		template<bool isSlu>struct NameRestrictV;
-		Slu_DEF_CFG(NameRestrict);
+		template<bool isSlu, bool isLocal>struct NameV;
+		Slu_DEF_CFG2(Name, isLocal);
+		template<bool isSlu, bool isLocal>struct NameRestrictV;
+		Slu_DEF_CFG2(NameRestrict, isLocal);
 	}
 
 	namespace PatType
@@ -636,75 +644,75 @@ namespace slu::parse
 
 		using DestrAny = DestrPatType::Any;
 
-		template<bool isSlu>
-		using DestrFieldsV = DestrPatType::FieldsV<isSlu>;
-		Slu_DEF_CFG(DestrFields);
-		template<bool isSlu>
-		using DestrListV = DestrPatType::ListV<isSlu>;
-		Slu_DEF_CFG(DestrList);
+		template<bool isSlu,bool isLocal>
+		using DestrFieldsV = DestrPatType::FieldsV<isSlu, isLocal>;
+		Slu_DEF_CFG2(DestrFields, isLocal);
+		template<bool isSlu, bool isLocal>
+		using DestrListV = DestrPatType::ListV<isSlu, isLocal>;
+		Slu_DEF_CFG2(DestrList, isLocal);
 
-		template<bool isSlu>
-		using DestrNameV = DestrPatType::NameV<isSlu>;
-		Slu_DEF_CFG(DestrName);
+		template<bool isSlu, bool isLocal>
+		using DestrNameV = DestrPatType::NameV<isSlu, isLocal>;
+		Slu_DEF_CFG2(DestrName, isLocal);
 
-		template<bool isSlu>
-		using DestrNameRestrictV = DestrPatType::NameRestrictV<isSlu>;
-		Slu_DEF_CFG(DestrNameRestrict);
+		template<bool isSlu, bool isLocal>
+		using DestrNameRestrictV = DestrPatType::NameRestrictV<isSlu, isLocal>;
+		Slu_DEF_CFG2(DestrNameRestrict, isLocal);
 	}
-	template<typename T>
+	template<bool isLocal,typename T>
 	concept AnyCompoundDestr =
-		std::same_as<std::remove_cv_t<T>, DestrPatType::FieldsV<true>>
-		|| std::same_as<std::remove_cv_t<T>, DestrPatType::ListV<true>>;
+		std::same_as<std::remove_cv_t<T>, DestrPatType::FieldsV<true, isLocal>>
+		|| std::same_as<std::remove_cv_t<T>, DestrPatType::ListV<true, isLocal>>;
 
 
-	template<bool isSlu>
+	template<bool isSlu,bool isLocal>
 	using PatV = std::variant<
 		PatType::DestrAny,
 
 		PatType::SimpleV<isSlu>,
 
-		PatType::DestrFieldsV<isSlu>,
-		PatType::DestrListV<isSlu>,
+		PatType::DestrFieldsV<isSlu, isLocal>,
+		PatType::DestrListV<isSlu, isLocal>,
 
-		PatType::DestrNameV<isSlu>,
-		PatType::DestrNameRestrictV<isSlu>
+		PatType::DestrNameV<isSlu, isLocal>,
+		PatType::DestrNameRestrictV<isSlu, isLocal>
 	>;
-	Slu_DEF_CFG(Pat);
+	Slu_DEF_CFG2(Pat, isLocal);
 
-	template<bool isSlu>
+	template<bool isSlu, bool isLocal>
 	struct DestrFieldV
 	{
-		MpItmIdV<isSlu> name;
-		PatV<isSlu> pat;
+		MpItmIdV<isSlu> name;// |(...)| thingy
+		PatV<isSlu,isLocal> pat;//May be any type of pattern
 	};
-	Slu_DEF_CFG(DestrField);
+	Slu_DEF_CFG2(DestrField,isLocal);
 	namespace DestrPatType
 	{
-		template<bool isSlu>
+		template<bool isSlu, bool isLocal>
 		struct FieldsV
 		{
 			DestrSpecV<isSlu> spec;
 			bool extraFields : 1 = false;
-			std::vector<DestrFieldV<isSlu>> items;
-			MpItmIdV<isSlu> name;//May be empty
+			std::vector<DestrFieldV<isSlu, isLocal>> items;
+			LocalOrNameV<isSlu, isLocal> name;//May be empty
 		};
-		template<bool isSlu>
+		template<bool isSlu, bool isLocal>
 		struct ListV
 		{
 			DestrSpecV<isSlu> spec;
 			bool extraFields : 1 = false;
-			std::vector<PatV<isSlu>> items;
-			MpItmIdV<isSlu> name;//May be empty
+			std::vector<PatV<isSlu, isLocal>> items;
+			LocalOrNameV<isSlu,isLocal> name;//May be empty
 		};
 
-		template<bool isSlu>
+		template<bool isSlu, bool isLocal>
 		struct NameV
 		{
-			MpItmIdV<isSlu> name;
+			LocalOrNameV<isSlu, isLocal> name;
 			DestrSpecV<isSlu> spec;
 		};
-		template<bool isSlu>
-		struct NameRestrictV : NameV<isSlu>
+		template<bool isSlu, bool isLocal>
+		struct NameRestrictV : NameV<isSlu, isLocal>
 		{
 			NdPatV<isSlu> restriction;
 		};
@@ -713,9 +721,10 @@ namespace slu::parse
 	template<>
 	struct ParameterV<true>
 	{
-		PatV<true> name;
+		PatV<true,true> name;
 	};
-	struct ___PatHack : PatV<true> {};
+	template<bool isLocal>
+	struct ___PatHack : PatV<true, isLocal> {};
 
 	//Common
 
@@ -749,7 +758,7 @@ namespace slu::parse
 	namespace BaseVarType
 	{
 		using Root = std::monostate;// ":>" // modpath root
-		using Local = size_t;
+		using Local = parse::LocalId;
 
 		template<bool isSlu>
 		struct NAMEv
@@ -839,6 +848,19 @@ namespace slu::parse
 		MpItmIdV<isSlu> name;
 		ExportData exported = false;
 	};
+	template<bool isSlu, bool isLocal>
+	struct VarStatBaseV
+	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+		AttribNameListV<isSlu> names;
+		ExpListV<isSlu> exprs;
+	};
+	template<bool isLocal>
+	struct VarStatBaseV<true, isLocal>
+	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+		PatV<true, isLocal> names;
+		ExpListV<true> exprs;
+		ExportData exported = false;
+	};
 
 	namespace StatementType
 	{
@@ -881,7 +903,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FOR_LOOP_NUMERICv
 		{
-			Sel<isSlu, MpItmIdV<isSlu>, PatV<true>> varName;
+			Sel<isSlu, MpItmIdV<isSlu>, PatV<true,true>> varName;
 			ExpressionV<isSlu> start;
 			ExpressionV<isSlu> end;//inclusive
 			std::optional<ExpressionV<isSlu>> step;
@@ -893,7 +915,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FOR_LOOP_GENERICv
 		{
-			Sel<isSlu, NameListV<isSlu>, PatV<true>> varNames;
+			Sel<isSlu, NameListV<isSlu>, PatV<true, true>> varNames;
 			Sel<isSlu, ExpListV<isSlu>, ExpressionV<isSlu>> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
@@ -939,18 +961,7 @@ namespace slu::parse
 		Slu_DEF_CFG(FnDecl);
 
 		template<bool isSlu>
-		struct LOCAL_ASSIGNv
-		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			AttribNameListV<isSlu> names;
-			ExpListV<isSlu> exprs;
-		};
-		template<>
-		struct LOCAL_ASSIGNv<true>
-		{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-			PatV<true> names;
-			ExpListV<true> exprs;
-			ExportData exported = false;
-		};
+		using LOCAL_ASSIGNv = VarStatBaseV<isSlu,true>;
 		Slu_DEF_CFG_CAPS(LOCAL_ASSIGN);
 
 		// Slu
@@ -960,7 +971,7 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(LET);
 
 		template<bool isSlu>
-		struct CONSTv : LOCAL_ASSIGNv<isSlu> {};
+		using CONSTv = VarStatBaseV<isSlu, false>;
 		Slu_DEF_CFG_CAPS(CONST);
 
 		template<bool isSlu>

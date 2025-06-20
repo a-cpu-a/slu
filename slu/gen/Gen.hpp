@@ -601,7 +601,7 @@ namespace slu::parse
 		for (const Parameter<Out>& par : itm)
 		{
 			if constexpr (out.settings() & sluSyn)
-				genPat(out, par.name);
+				genPat<true>(out, par.name);
 			else
 				out.add(out.db.asSv(par.name));
 
@@ -695,8 +695,18 @@ namespace slu::parse
 		}
 		);
 	}
-	template<AnyOutput Out>
-	inline void genPat(Out& out, const Pat<Out>& obj)
+	template<bool isLocal,AnyOutput Out>
+	inline void genNameOrLocal(Out& out, const LocalOrName<Out, isLocal>& obj)
+	{
+		if constexpr (isLocal)
+		{
+			//TODO
+		}
+		else
+			out.add(out.db.asSv(obj.name));
+	}
+	template<bool isLocal,AnyOutput Out>
+	inline void genPat(Out& out, const Pat<Out, isLocal>& obj)
 	{
 		ezmatch(obj)(
 		varcase(const PatType::DestrAny) {
@@ -706,7 +716,7 @@ namespace slu::parse
 			genExpr(out, var);
 		},
 			// Fields / List
-		varcase(const AnyCompoundDestr auto&) {
+		varcase(const auto&)requires AnyCompoundDestr<isLocal,decltype(var)> {
 			genDestrSpec(out, var.spec);
 			out.add('{').tabUpNewl();
 
@@ -715,14 +725,14 @@ namespace slu::parse
 			for (const auto& field : var.items)
 			{
 				if constexpr(isList)
-					genPat(out, field);
+					genPat<isLocal>(out, field);
 				else
 				{
 					out.add('|')
 						.add(out.db.asSv(field.name))
 						.add("| ");
 
-					genPat(out, field.pat);
+					genPat<isLocal>(out, field.pat);
 				}
 				if (&field != &var.items.back())
 					out.add(",").newLine();
@@ -734,13 +744,13 @@ namespace slu::parse
 			if(!var.name.empty())
 				out.add(' ').add(out.db.asSv(var.name));
 		},
-		varcase(const PatType::DestrName<Out>&) {
+		varcase(const PatType::DestrName<Out,isLocal>&) {
 			genDestrSpec(out, var.spec);
-			out.add(out.db.asSv(var.name));
+			genNameOrLocal<isLocal>(out, var.name);
 		},
-		varcase(const PatType::DestrNameRestrict<Out>&) {
+		varcase(const PatType::DestrNameRestrict<Out, isLocal>&) {
 			genDestrSpec(out, var.spec);
-			out.add(out.db.asSv(var.name));
+			genNameOrLocal<isLocal>(out, var.name);
 			out.add(" = ");
 			genExpr(out, var.restriction);
 		}
@@ -870,7 +880,7 @@ namespace slu::parse
 			out.unTabNewl().addNewl("end");
 	}
 
-	template<size_t N,AnyOutput Out>
+	template<bool isLocal,size_t N,AnyOutput Out>
 	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
 	{
 		if constexpr (Out::settings() & sluSyn)
@@ -881,7 +891,7 @@ namespace slu::parse
 
 		out.add(kw);
 		if constexpr (Out::settings() & sluSyn)
-			genPat(out, obj.names);
+			genPat<isLocal>(out, obj.names);
 		else
 			genAtribNameList(out, obj.names);
 		if (!obj.exprs.empty())
@@ -911,13 +921,13 @@ namespace slu::parse
 			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::LOCAL_ASSIGN<Out>&) {
-			genVarStat(out, var,"local ");
+			genVarStat<true>(out, var,"local ");
 		},
 		varcase(const StatementType::LET<Out>&) {
-			genVarStat(out, var, "let ");
+			genVarStat<true>(out, var, "let ");
 		},
 		varcase(const StatementType::CONST<Out>&) {
-			genVarStat(out, var, "const ");
+			genVarStat<false>(out, var, "const ");
 		},
 
 		varcase(const StatementType::FUNC_CALL<Out>&) {
@@ -993,7 +1003,7 @@ namespace slu::parse
 
 			out.add("for ");
 			if constexpr (Out::settings() & sluSyn)
-				genPat(out, var.varName);
+				genPat<true>(out, var.varName);
 			else
 				out.add(out.db.asSv(var.varName));
 			out.add(" = ");
@@ -1019,7 +1029,7 @@ namespace slu::parse
 		varcase(const StatementType::FOR_LOOP_GENERIC<Out>&) {
 			out.add("for ");
 			if constexpr (Out::settings() & sluSyn)
-				genPat(out, var.varNames);
+				genPat<true>(out, var.varNames);
 			else
 				genNames(out, var.varNames);
 			out.add(" in ");
