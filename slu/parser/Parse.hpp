@@ -212,21 +212,30 @@ namespace slu::parse
 			}
 		}
 		Function<In> func = { std::move(fi) };
+		in.genData.pushLocalScope();
 
 		if constexpr (In::settings() & sluSyn)
 		{
-			requireToken(in, "{");
-			func.block = readBlock<false>(in, func.hasVarArgParam);
-			requireToken(in, "}");
+			try {
+				requireToken(in, "{");
+				func.block = readBlock<false>(in, func.hasVarArgParam);
+				requireToken(in, "}");
+			} catch(const ParseError&)
+			{
+				func.local2Mp = in.genData.popLocalScope();
+				throw;
+			}
 		}
 		else
 		{
 			try
 			{
 				func.block = readBlock<false>(in, func.hasVarArgParam);
+				func.local2Mp = in.genData.popLocalScope();
 			}
 			catch (const ParseError& e)
 			{
+				func.local2Mp = in.genData.popLocalScope();
 				in.handleError(e.m);
 
 				if (recoverErrorTextToken(in, "end"))
