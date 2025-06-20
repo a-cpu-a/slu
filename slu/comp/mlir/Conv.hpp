@@ -125,20 +125,21 @@ namespace slu::comp::mico
 		varcase(const auto&)->mlir::Value {
 			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
-		varcase(const parse::Any64BitInt auto) {
+		varcase(const auto)->mlir::Value requires (parse::Any64BitInt<decltype(var)>) {
 			auto i64Type = builder.getIntegerType(64);
 			return builder.create<mlir::arith::ConstantOp>(
-				builder.getUnknownLoc(), i64Type, mlir::IntegerAttr::get(i64Type, var.v)
+				builder.getUnknownLoc(), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)var.v)
 			);
 		},
-		varcase(const parse::Any128BitInt auto) {
+		varcase(const auto)->mlir::Value requires (parse::Any128BitInt<decltype(var)>) {
 			auto i128Type = builder.getIntegerType(128);
-			llvm::APInt apVal(128, { var.lo ,var.hi });
+			llvm::APInt apVal(128, llvm::ArrayRef{ var.lo ,var.hi });
 			return builder.create<mlir::arith::ConstantOp>(
 				builder.getUnknownLoc(), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
 			);
+			return {};
 		},
-		varcase(const parse::ExprType::LITERAL_STRING&) {
+		varcase(const parse::ExprType::LITERAL_STRING&)->mlir::Value {
 		
 			auto i8Type = builder.getIntegerType(8);
 			auto i64Type = builder.getIntegerType(64);
