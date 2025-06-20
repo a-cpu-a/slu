@@ -140,12 +140,19 @@ namespace slu::comp::mico
 			);
 			return {};
 		},
+		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)->mlir::Value {
+			//TODO: implement this
+			auto i1Type = builder.getIntegerType(1);
+			return builder.create<mlir::arith::ConstantOp>(
+				builder.getUnknownLoc(), i1Type, mlir::IntegerAttr::get(i1Type, 0)
+			);
+		},
 		varcase(const parse::ExprType::LITERAL_STRING&)->mlir::Value {
 		
 			auto i8Type = builder.getIntegerType(8);
 			auto i64Type = builder.getIntegerType(64);
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
-			auto strType = mlir::MemRefType::get({ (int64_t)var.v.size() }, i64Type, {}, 0);
+			auto strType = mlir::MemRefType::get({ (int64_t)var.v.size() }, i8Type, {}, 0);
 		
 			TmpName strName = mkTmpName(conv);
 			{
