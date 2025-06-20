@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
 MIT License
 
@@ -52,8 +52,10 @@ constexpr decltype(auto) _ezMatchVisitHack(Vt&& visitor, T&& variant) {
 
 //Note: you need to add const and &/&& yourself
 
-#define ezcase(_VAR,_TYPE) [&](_TYPE _VAR)
-#define varcase(_TYPE) [&](_TYPE var)
+//... -> type
+#define ezcase(_VAR,...) [&](__VA_ARGS__ _VAR)
+//... -> type
+#define varcase(...) [&](__VA_ARGS__ var)
 
 #endif //Header guard
 
