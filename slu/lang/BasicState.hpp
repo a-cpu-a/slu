@@ -6,10 +6,16 @@
 #include <string>
 #include <vector>
 #include <span>
+namespace slu::lang
+{
+	template<bool isSlu>
+	struct MpItmIdV;
+}
 namespace slu::parse
 {
 	struct BasicMpDbData;
 	struct BasicMpDb;
+	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, lang::MpItmIdV<true> thiz);
 }
 namespace slu::lang
 {
@@ -50,7 +56,7 @@ namespace slu::lang
 		}
 
 		std::string_view asSv(const parse::BasicMpDbData& v) const requires(isSlu) {
-			return parse::BasicMpDb{ const_cast<parse::BasicMpDbData*>(&v) }.asSv({ *this });
+			return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *this });
 		}
 	};
 	

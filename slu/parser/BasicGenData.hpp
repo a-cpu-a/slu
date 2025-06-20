@@ -170,6 +170,10 @@ namespace slu::parse
 		}
 	};
 
+	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, MpItmIdV<true> thiz){
+		return BasicMpDb{ data }.asSv(thiz);
+	}
+
 	struct GenSafety
 	{
 		bool isSafe : 1 = false;
