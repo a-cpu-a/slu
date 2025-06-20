@@ -125,6 +125,7 @@ namespace slu::comp::mico
 		varcase(const auto&)->mlir::Value {
 			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
+			//TODO: are these ignored, or does it actually work?
 		varcase(const auto)->mlir::Value requires (parse::Any64BitInt<decltype(var)>) {
 			auto i64Type = builder.getIntegerType(64);
 			return builder.create<mlir::arith::ConstantOp>(
