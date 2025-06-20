@@ -439,6 +439,10 @@ namespace slu::parse
 
 	//Common
 
+	template<bool isSlu>
+	using LocalsV = std::vector<MpItmIdV<isSlu>>;
+	Slu_DEF_CFG(Locals);
+
 	//NOTE: has overload later!!!
 	template<bool isSlu>
 	struct ParameterV
@@ -471,6 +475,7 @@ namespace slu::parse
 	template<bool isSlu>
 	struct FunctionV : FunctionInfoV<isSlu>
 	{
+		LocalsV<isSlu> local2Mp;
 		BlockV<isSlu> block;
 	};
 	Slu_DEF_CFG(Function);
@@ -744,6 +749,7 @@ namespace slu::parse
 	namespace BaseVarType
 	{
 		using Root = std::monostate;// ":>" // modpath root
+		using Local = size_t;
 
 		template<bool isSlu>
 		struct NAMEv
@@ -763,6 +769,7 @@ namespace slu::parse
 	template<bool isSlu>
 	using BaseVarV = std::variant<
 		BaseVarType::Root,
+		BaseVarType::Local,
 		BaseVarType::NAMEv<isSlu>,
 		BaseVarType::EXPRv<isSlu>
 	>;

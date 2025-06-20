@@ -336,6 +336,9 @@ namespace slu::paint
 		varcase(const parse::BaseVarType::Root) {
 			paintKw<Tok::MP_ROOT>(se, ":>");
 		},
+		varcase(const parse::BaseVarType::Local) {
+			//TODO
+		},
 		varcase(const parse::BaseVarType::NAME<Se>&) {
 			paintMp<nameTok>(se, var.v);
 		},

@@ -174,6 +174,9 @@ namespace slu::visit
 			visitMp(vi, var.v);
 			Slu_CALL_VISIT_FN_POST_VAR(BaseVarName);
 		},
+		varcase(const parse::BaseVarType::Local) {
+			//TODO
+		},
 		varcase(const parse::BaseVarType::Root) {
 			Slu_CALL_VISIT_FN_PRE_VAR(BaseVarRoot);
 		}

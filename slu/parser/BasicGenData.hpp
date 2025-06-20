@@ -195,7 +195,7 @@ namespace slu::parse
 	struct BasicGenDataV
 	{
 		//ParsedFileV<isSlu> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
-		
+		std::vector<LocalsV<isSlu>> localsStack;
 		Sel<isSlu, LuaMpDb, BasicMpDb> mpDb;
 		std::vector<BasicGenScopeV<isSlu>> scopes;
 		std::vector<size_t> anonScopeCounts = {0};
@@ -271,6 +271,10 @@ namespace slu::parse
 			scopes.back().safetyList.emplace_back(true);
 		}
 
+		constexpr void pushLocalScope() {
+			localsStack.emplace_back();
+		}
+
 		//For impl, lambda, scope, doExpr, things named '_'
 		constexpr void pushAnonScope(const Position start)
 		{
@@ -300,6 +304,11 @@ namespace slu::parse
 			scopes.push_back({ NORMAL_SCOPE });
 			scopes.back().res.start = start;
 			anonScopeCounts.push_back(0);
+		}
+		constexpr LocalsV<isSlu> popLocalScope() {
+			auto res = std::move(localsStack.back());
+			localsStack.pop_back();
+			return std::move(res);
 		}
 		BlockV<isSlu> popScope(const Position end) {
 			BlockV<isSlu> res = std::move(scopes.back().res);

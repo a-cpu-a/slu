@@ -578,6 +578,9 @@ namespace slu::parse
 		varcase(const BaseVarType::Root) {
 			out.add(":>");
 		},
+		varcase(const BaseVarType::Local) {
+			//TODO
+		},
 		varcase(const BaseVarType::NAME<Out>&) {
 			out.add(out.db.asSv(var.v));
 		},
