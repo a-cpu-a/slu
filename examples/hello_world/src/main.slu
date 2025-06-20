@@ -9,5 +9,5 @@ safe extern "C" {
 fn main() -> void {
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
-	self::puts("Hello world! x.x");
+	self::puts("Hello world! \u{215F} x.x\x00");
 }
