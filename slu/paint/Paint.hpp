@@ -389,7 +389,7 @@ namespace slu::paint
 		ezmatch(itm)(
 
 			//parse::PatType::DestrFields or parse::PatType::DestrList
-			varcase(const auto&) requires(parse::AnyCompoundDestr<isLocal, decltype(var)>)
+			varcase(const auto&) //requires(parse::AnyCompoundDestr<isLocal, decltype(var)>)
 		{
 			paintDestrSpec<nameTok>(se, var.spec);
 			paintKw<Tok::GEN_OP>(se, "{");
