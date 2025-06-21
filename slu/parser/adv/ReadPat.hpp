@@ -44,10 +44,10 @@ namespace slu::parse
 				requireToken(in, "|");
 				skipSpace(in);
 
-				ret.items.emplace_back(fieldName, readPat(in, uncond));
+				ret.items.emplace_back(fieldName, readPat<isLocal>(in, uncond));
 			}
 			else
-				ret.items.emplace_back(readPat(in, uncond));
+				ret.items.emplace_back(readPat<isLocal>(in, uncond));
 
 		} while (checkReadToken(in,","));
 
@@ -55,9 +55,9 @@ namespace slu::parse
 		skipSpace(in);
 
 		if (isValidNameChar(in.peek()) && !checkTextToken(in,"in"))
-			ret.name = in.genData.resolveUnknown(readName(in));
+			ret.name = in.genData.template resolveNewName<isLocal>(readName(in));
 		else
-			ret.name = MpItmId<In>::newEmpty();
+			ret.name = LocalOrName<In,isLocal>::newEmpty();
 
 		return ret;
 	}
@@ -87,7 +87,7 @@ namespace slu::parse
 		}
 		//Must be Name then
 
-		auto nameOrLocal = in.genData.resolveNewName<isLocal>(readName(in));
+		auto nameOrLocal = in.genData.template resolveNewName<isLocal>(readName(in));
 
 		if(!uncond)
 		{
