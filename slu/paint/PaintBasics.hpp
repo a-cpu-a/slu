@@ -66,7 +66,7 @@ namespace slu::paint
 			//TODO
 		}
 		else
-			paintName<tok, SKIP_SPACE>(se, f.name);
+			paintName<tok, SKIP_SPACE>(se, f);
 	}
 	template<Tok tok, Tok overlayTok, bool SKIP_SPACE = true, size_t TOK_SIZE>
 	inline void paintKw(AnySemOutput auto& se, const char(&tokChr)[TOK_SIZE])
