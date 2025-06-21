@@ -387,6 +387,31 @@ namespace slu::paint
 	inline void paintPat(Se& se, const parse::Pat<Se, isLocal>& itm)
 	{
 		ezmatch(itm)(
+
+			//parse::PatType::DestrFields or parse::PatType::DestrList
+			varcase(const auto&) requires(parse::AnyCompoundDestr<isLocal, decltype(var)>)
+		{
+			paintDestrSpec<nameTok>(se, var.spec);
+			paintKw<Tok::GEN_OP>(se, "{");
+			for (const auto& i : var.items)
+			{
+				if constexpr (std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrFieldV<true, isLocal>>)
+					paintDestrField<isLocal, nameTok>(se, i);
+				else
+					paintPat<isLocal, nameTok>(se, i);
+
+				if (&i != &var.items.back())
+					paintKw<Tok::PUNCTUATION>(se, ",");
+			}
+			if (var.extraFields)
+			{
+				paintKw<Tok::PUNCTUATION>(se, ",");
+				paintKw<Tok::PUNCTUATION>(se, "..");
+			}
+			paintKw<Tok::GEN_OP>(se, "}");
+
+			paintNameOrLocal<isLocal, Tok::NAME>(se, var.name);
+		},
 		varcase(const parse::PatType::Simple<Se>&) {
 			paintExpr(se, var);
 		},
@@ -402,31 +427,6 @@ namespace slu::paint
 			paintNameOrLocal<isLocal,Tok::NAME>(se, var.name);
 			paintKw<Tok::PAT_RESTRICT>(se, "=");
 			paintExpr(se, var.restriction);
-		},
-		
-		//parse::PatType::DestrFields or parse::PatType::DestrList
-		varcase(const auto&) requires(parse::AnyCompoundDestr<isLocal,decltype(var)>)
-		{
-			paintDestrSpec<nameTok>(se, var.spec);
-			paintKw<Tok::GEN_OP>(se, "{");
-			for (const auto& i : var.items)
-			{
-				if constexpr(std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrFieldV<true, isLocal>>)
-					paintDestrField<isLocal,nameTok>(se, i);
-				else
-					paintPat<isLocal,nameTok>(se, i);
-
-				if (&i != &var.items.back())
-					paintKw<Tok::PUNCTUATION>(se, ",");
-			}
-			if (var.extraFields)
-			{
-				paintKw<Tok::PUNCTUATION>(se, ",");
-				paintKw<Tok::PUNCTUATION>(se, "..");
-			}
-			paintKw<Tok::GEN_OP>(se, "}");
-
-			paintNameOrLocal<isLocal, Tok::NAME>(se, var.name);
 		}
 		);
 	}
