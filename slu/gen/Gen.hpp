@@ -703,7 +703,7 @@ namespace slu::parse
 			//TODO
 		}
 		else
-			out.add(out.db.asSv(obj.name));
+			out.add(out.db.asSv(obj));
 	}
 	template<bool isLocal,AnyOutput Out>
 	inline void genPat(Out& out, const Pat<Out, isLocal>& obj)
@@ -716,11 +716,11 @@ namespace slu::parse
 			genExpr(out, var);
 		},
 			// Fields / List
-		varcase(const auto&)requires AnyCompoundDestr<isLocal,decltype(var)> {
+		varcase(const auto&)requires AnyCompoundDestr<isLocal,std::remove_cvref_t<decltype(var)>> {
 			genDestrSpec(out, var.spec);
 			out.add('{').tabUpNewl();
 
-			constexpr bool isList = std::is_same_v<decltype(var), const PatType::DestrList<Out>&>;
+			constexpr bool isList = std::is_same_v<decltype(var), const PatType::DestrList<Out,isLocal>&>;
 
 			for (const auto& field : var.items)
 			{
@@ -742,7 +742,10 @@ namespace slu::parse
 				out.add(", ..");
 			out.unTabNewl().add('}');
 			if(!var.name.empty())
-				out.add(' ').add(out.db.asSv(var.name));
+			{
+				out.add(' ');
+				genNameOrLocal<isLocal>(out, var.name);
+			}
 		},
 		varcase(const PatType::DestrName<Out,isLocal>&) {
 			genDestrSpec(out, var.spec);
