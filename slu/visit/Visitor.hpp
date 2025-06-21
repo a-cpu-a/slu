@@ -15,6 +15,8 @@
 
 namespace slu::visit
 {
+#define Slu_esc(...) __VA_ARGS__
+
 	template<parse::AnySettings _SettingsT = parse::Setting<void>>
 	struct EmptyVisitor
 	{
@@ -66,7 +68,7 @@ namespace slu::visit
 #define _Slu_DEF_EMPTY_AUTO(_Name)  _Slu_DEF_EMPTY_PRE_POST(_Name,parse:: _Name <Cfg>)
 
 #define _Slu_DEF_EMPTY_SEP_RAW(_Name,_Ty,_ElemTy) void sep##_Name(_Ty list,_ElemTy itm){}
-#define _Slu_DEF_EMPTY_SEP(_Name,_Ty,_ElemTy) _Slu_DEF_EMPTY_SEP_RAW(_Name,_Ty,_ElemTy&)
+#define _Slu_DEF_EMPTY_SEP(_Name,_Ty,_ElemTy) _Slu_DEF_EMPTY_SEP_RAW(_Name,Slu_esc(_Ty),Slu_esc(_ElemTy&))
 
 #define _Slu_DEF_EMPTY_LIST(_Name,_ElemTy) \
 	_Slu_DEF_EMPTY_PRE_RAW(_Name,std::span<_ElemTy>) \
