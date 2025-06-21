@@ -59,6 +59,15 @@ namespace slu::paint
 	inline void paintName(Se& se, const parse::MpItmId<Se>& f) {
 		paintName<tok, tok, SKIP_SPACE>(se, f);
 	}
+	template<bool isLocal,Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
+	inline void paintNameOrLocal(Se& se, const parse::LocalOrName<Se,isLocal>& f) {
+		if constexpr(isLocal)
+		{
+			//TODO
+		}
+		else
+			paintName<tok, SKIP_SPACE>(se, f.name);
+	}
 	template<Tok tok, Tok overlayTok, bool SKIP_SPACE = true, size_t TOK_SIZE>
 	inline void paintKw(AnySemOutput auto& se, const char(&tokChr)[TOK_SIZE])
 	{

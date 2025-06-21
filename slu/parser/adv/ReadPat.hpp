@@ -87,16 +87,16 @@ namespace slu::parse
 		}
 		//Must be Name then
 
-		MpItmId<In> name = in.genData.resolveUnknown(readName(in));
+		auto nameOrLocal = in.genData.resolveNewName<isLocal>(readName(in));
 
 		if(!uncond)
 		{
 			skipSpace(in);
 			if (in.peek() == '=')
-				return PatType::DestrNameRestrict<In, isLocal>{ {name,std::move(ty)},readExpr(in,false) };
+				return PatType::DestrNameRestrict<In, isLocal>{ {nameOrLocal,std::move(ty)},readExpr(in,false) };
 		}
 
-		return PatType::DestrName<In, isLocal>{ name,std::move(ty) };
+		return PatType::DestrName<In, isLocal>{ nameOrLocal,std::move(ty) };
 	}
 	//Will not skip space!
 	template<bool isLocal, AnyInput In>

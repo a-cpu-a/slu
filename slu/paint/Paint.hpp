@@ -393,25 +393,25 @@ namespace slu::paint
 		varcase(const parse::PatType::DestrAny) {
 			paintKw<Tok::GEN_OP>(se, "_");
 		},
-		varcase(const parse::PatType::DestrName<Se>&) {
+		varcase(const parse::PatType::DestrName<Se,isLocal>&) {
 			paintDestrSpec<nameTok>(se, var.spec);
-			paintName<Tok::NAME>(se, var.name);
+			paintNameOrLocal<isLocal,Tok::NAME>(se, var.name);
 		},
-		varcase(const parse::PatType::DestrNameRestrict<Se>&) {
+		varcase(const parse::PatType::DestrNameRestrict<Se, isLocal>&) {
 			paintDestrSpec<nameTok>(se, var.spec);
-			paintName<Tok::NAME>(se, var.name);
+			paintNameOrLocal<isLocal,Tok::NAME>(se, var.name);
 			paintKw<Tok::PAT_RESTRICT>(se, "=");
 			paintExpr(se, var.restriction);
 		},
 		
 		//parse::PatType::DestrFields or parse::PatType::DestrList
-		varcase(const parse::AnyCompoundDestr auto&) 
+		varcase(const auto&) requires(parse::AnyCompoundDestr<isLocal,decltype(var)>)
 		{
 			paintDestrSpec<nameTok>(se, var.spec);
 			paintKw<Tok::GEN_OP>(se, "{");
 			for (const auto& i : var.items)
 			{
-				if constexpr(std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrFieldV<true>>)
+				if constexpr(std::same_as<std::remove_cvref_t<decltype(i)>, parse::DestrFieldV<true, isLocal>>)
 					paintDestrField<isLocal,nameTok>(se, i);
 				else
 					paintPat<isLocal,nameTok>(se, i);
@@ -426,7 +426,7 @@ namespace slu::paint
 			}
 			paintKw<Tok::GEN_OP>(se, "}");
 
-			paintName<Tok::NAME>(se, var.name);
+			paintNameOrLocal<isLocal, Tok::NAME>(se, var.name);
 		}
 		);
 	}
