@@ -31,6 +31,8 @@ namespace slu::mlvl
 	using DesugarCfg = decltype(parse::sluCommon);
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
+		using Cfg = visit::EmptyVisitor<DesugarCfg>::Cfg;
+
 		parse::BasicMpDb mpDb;
 		LazyCompute<parse::MpItmId<Cfg>> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];
 		LazyCompute<parse::MpItmId<Cfg>> postUnOpFuncs[(size_t)parse::PostUnOpType::ENUM_SIZE];

@@ -444,6 +444,7 @@ namespace slu::parse
 	{
 		size_t v= SIZE_MAX;
 		constexpr bool empty() const { return v == SIZE_MAX; }
+		constexpr static LocalId newEmpty() { return LocalId(); }
 	};
 	template<bool isSlu,bool isLocal>
 	using LocalOrNameV = Sel<isLocal, MpItmIdV<isSlu>, LocalId>;
