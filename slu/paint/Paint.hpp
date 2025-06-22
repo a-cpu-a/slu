@@ -767,8 +767,12 @@ namespace slu::paint
 		if constexpr (isDecl)
 		{
 			if constexpr (Se::settings() & sluSyn)
+			{
+				se.pushLocals(itm.local2Mp);
 				paintFuncDecl(se, itm.params, itm.hasVarArgParam, itm.retType,
 					itm.name, itm.exported, itm.safety, itm.place, fnKw);
+				se.popLocals();
+			}
 			else
 				paintFuncDecl(se, itm.params, itm.hasVarArgParam, {},
 					itm.name, false, parse::OptSafety::DEFAULT, itm.place, fnKw);

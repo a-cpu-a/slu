@@ -475,6 +475,7 @@ namespace slu::parse
 	struct FunctionInfoV<true>
 	{
 		std::string abi;
+		LocalsV<true> local2Mp;
 		ParamListV<true> params;
 		std::optional<TypeExpr> retType;
 		bool hasVarArgParam = false;// do params end with '...'
@@ -486,12 +487,6 @@ namespace slu::parse
 	struct FunctionV : FunctionInfoV<isSlu>
 	{
 		BlockV<isSlu> block;
-	};
-	template<>
-	struct FunctionV<true> : FunctionInfoV<true>
-	{
-		LocalsV<true> local2Mp;
-		BlockV<true> block;
 	};
 	Slu_DEF_CFG(Function);
 
