@@ -62,10 +62,7 @@ namespace slu::paint
 	template<bool isLocal,Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
 	inline void paintNameOrLocal(Se& se, const parse::LocalOrName<Se,isLocal>& f) {
 		if constexpr(isLocal)
-		{
-			//TODO
 			paintName<tok, SKIP_SPACE>(se, se.resolveLocal(f));
-		}
 		else
 			paintName<tok, SKIP_SPACE>(se, f);
 	}
