@@ -1,9 +1,9 @@
 
 --range op spec
 
-	let range = 1..4
-	let rangeAbove = 1..
-	let rangeBelow = ..5
+	const range = 1..4
+	const rangeAbove = 1..
+	const rangeBelow = ..5
 	
 	
-	let 1..2 x = 1
+	const 1..2 x = 1

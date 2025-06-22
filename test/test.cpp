@@ -58,6 +58,10 @@ inline void saveBin(const std::string& path, const std::vector<uint8_t>& data)
 template<bool slu>
 inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool invert)
 {
+	const bool wrapItInFn = path.stem().string().ends_with(".$block");
+	//fn _(){...}
+	if (wrapItInFn)
+		return 2;//TODO: implement it
 	std::string pathStr = path.string();
 	std::vector<uint8_t> srcCode = getBin(pathStr);
 
