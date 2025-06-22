@@ -277,9 +277,9 @@ namespace slu::parse
 			genTypeExpr(out,*var.err);
 		},
 		varcase(const TypeExprDataType::SLICER&) {
-			out.add("[");
+			out.add('[');
 			genExpr(out,*var);
-			out.add("]");
+			out.add(']');
 		},
 		varcase(const TypeExprDataType::Union&) {
 			out.add("union ");
@@ -298,7 +298,7 @@ namespace slu::parse
 			genTypeExpr(out, *var.retType);
 		},
 		varcase(const TypeExprDataType::ERR_INFERR) {
-			out.add("?");
+			out.add('?');
 		},
 		varcase(const TypeExprDataType::TRAIT_TY) {
 			out.add("trait");
@@ -744,7 +744,7 @@ namespace slu::parse
 					genPat<isLocal>(out, field.pat);
 				}
 				if (&field != &var.items.back())
-					out.add(",").newLine();
+					out.add(',').newLine();
 			}
 
 			if(var.extraFields)
@@ -1093,7 +1093,7 @@ namespace slu::parse
 			if (!var.type.isBasicStruct())
 				out.add(" = ");
 			else
-				out.add(" ");
+				out.add(' ');
 
 			genTypeExpr<true>(out, var.type);
 			out.newLine();
@@ -1122,7 +1122,7 @@ namespace slu::parse
 			for (auto& i : var.stats)
 				genStat(out, i);
 			out.unTabNewl()
-				.addNewl("}");
+				.addNewl(';');
 		},
 
 		varcase(const StatementType::UnsafeBlock<Out>&) {
@@ -1131,7 +1131,7 @@ namespace slu::parse
 				.tabUpNewl();
 			genBlock(out, var.bl);
 			out.unTabNewl()
-				.addNewl("}");
+				.addNewl(';');
 		},
 		varcase(const StatementType::UNSAFE_LABEL) {
 			out.unTabTemp()
@@ -1147,7 +1147,7 @@ namespace slu::parse
 		varcase(const StatementType::DROP<Out>&) {
 			out.add("drop ");;
 			genExpr(out, var.expr); 
-			out.addNewl(";");
+			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::USE&) {
@@ -1157,13 +1157,13 @@ namespace slu::parse
 				out.add("use ");
 				genModPath(out, out.db.asVmp(var.base));
 				genUseVariant(out, var.useVariant);
-				out.addNewl(";");
+				out.addNewl(';');
 				out.wasSemicolon = true;
 			}
 		},
 		varcase(const StatementType::MOD_DEF<Out>&) {
 			if (var.exported)out.add("ex ");
-			out.add("mod ").add(out.db.asSv(var.name)).addNewl(";");
+			out.add("mod ").add(out.db.asSv(var.name)).addNewl(';');
 			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::MOD_DEF_INLINE<Out>&) {
@@ -1172,7 +1172,7 @@ namespace slu::parse
 			out.tabUpNewl().newLine();
 
 			genBlock(out,var.bl);
-			out.unTabNewl().add("}");
+			out.unTabNewl().add('}');
 		}
 
 		);
@@ -1191,10 +1191,10 @@ namespace slu::parse
 			out.add("return");
 			if (!obj.retExprs.empty())
 			{
-				out.add(" ");
+				out.add(' ');
 				genExpList(out, obj.retExprs);
 			}
-			out.add(";");
+			out.add(';');
 			out.wasSemicolon = true;
 		}
 	}
