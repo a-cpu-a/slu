@@ -70,13 +70,25 @@ namespace slu::comp::mico
 {
 	using namespace std::string_view_literals;
 
+	struct LocalStackItm
+	{
+		size_t itemCount;
+		std::vector<mlir::Value> values;
+	};
+
 	struct ConvData : CommonConvData
 	{
+		std::vector<LocalStackItm> localsStack;
 		mlir::MLIRContext& context;
 		llvm::LLVMContext& llvmContext;
 		mlir::OpBuilder& builder;
 		mlir::ModuleOp module;
 		uint64_t nextPrivTmpId = 0;
+
+		void addLocalStackItem(const size_t itmCount) {
+			localsStack.emplace_back(itmCount);
+			localsStack.back().values.reserve(itmCount);
+		}
 	};
 
 	struct TmpName
@@ -291,7 +303,9 @@ namespace slu::comp::mico
 				llvm::ArrayRef<mlir::Value>{args});
 
 		},
-			varcase(const parse::StatementType::CONSTv<true>&) {
+		varcase(const parse::StatementType::CONSTv<true>&) {
+
+			conv.addLocalStackItem(var.local2Mp.size());
 
 			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
 			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
@@ -306,6 +320,8 @@ namespace slu::comp::mico
 				/*alignment=*/builder.getIntegerAttr(i8Type, 1)
 			);
 
+			conv.localsStack.pop_back();
+
 		},
 			varcase(const parse::StatementType::FnDeclV<true>&) {
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
@@ -315,6 +331,7 @@ namespace slu::comp::mico
 		},
 			varcase(const parse::StatementType::FNv<true>&) {
 			// Build a function in mlir
+			conv.addLocalStackItem(var.func.local2Mp.size());
 
 			auto loc = mlir::FileLineColLoc::get(mc, builder.getStringAttr("myfile.sv"sv), (uint32_t)var.place.line, (uint32_t)var.place.index);
 
@@ -330,6 +347,7 @@ namespace slu::comp::mico
 
 			builder.create<mlir::func::ReturnOp>(builder.getUnknownLoc());
 
+			conv.localsStack.pop_back();
 		},
 
 
