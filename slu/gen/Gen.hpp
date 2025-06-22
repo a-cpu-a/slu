@@ -617,12 +617,17 @@ namespace slu::parse
 		if constexpr (isDecl)
 		{
 			if constexpr (Out::settings() & sluSyn)
+			{
 				genExSafety(out, itm.exported, itm.safety);
+				out.pushLocals(itm.local2Mp);
+			}
 
 			out.add(kw);
 			genFuncDecl(out, itm, out.db.asSv(itm.name));
 			out.addNewl(";");
 			out.wasSemicolon = true;
+			if constexpr (Out::settings() & sluSyn)
+				out.popLocals();
 		}
 		else
 		{
@@ -653,6 +658,9 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
 	{
+		if constexpr (Out::settings() & sluSyn)
+			out.pushLocals(var.local2Mp);
+
 		genFuncDecl(out, var, name);
 
 		if constexpr (out.settings() & sluSyn)
@@ -665,6 +673,9 @@ namespace slu::parse
 			.addNewl(sel<Out>("end","}"));
 
 		out.newLine();//Extra spacing
+
+		if constexpr (Out::settings() & sluSyn)
+			out.popLocals();
 	}
 
 	template<AnyOutput Out>
@@ -699,9 +710,7 @@ namespace slu::parse
 	inline void genNameOrLocal(Out& out, const LocalOrName<Out, isLocal>& obj)
 	{
 		if constexpr (isLocal)
-		{
-			//TODO
-		}
+			out.add(out.db.asSv(out.resolveLocal(obj)));
 		else
 			out.add(out.db.asSv(obj));
 	}
@@ -1193,6 +1202,10 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genFile(Out& out,const ParsedFile<Out>& obj)
 	{
+		if constexpr (!(Out::settings() & sluSyn))
+			out.pushLocals(obj.local2Mp);
 		genBlock(out, obj.code);
+		if constexpr (!(Out::settings() & sluSyn))
+			out.popLocals();
 	}
 }
