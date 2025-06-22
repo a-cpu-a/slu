@@ -1,4 +1,4 @@
-
+fn _(){
 ex unsafe fn decl_helloWorld1() -> {u8,u8,u8}
 ex safe fn decl_helloWorld2() -> &mut u8;
 ex fn decl_helloWorld3() -> &[u8];
@@ -529,3 +529,4 @@ x.0xF_0=1
 let{|0xF_0|x}=0
 x.1_0=1
 let{|1_0|x}=0
+}

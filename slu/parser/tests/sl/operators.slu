@@ -1,53 +1,53 @@
 
-let allocOp = alloc 100;
+const allocOp = alloc 100;
 
-let orOp = true or false;
-let andOp = true and false;
+const orOp = true or false;
+const andOp = true and false;
 
-let eqOp = orOp==andOp;
-let neOp = eqOp!=andOp;
+const eqOp = orOp==andOp;
+const neOp = eqOp!=andOp;
 
-let ltOp = 1 < 100;
-let gtOp = 1 > 100;
-let leOp = 1 <= 100;
-let geOp = 1 >= 100;
+const ltOp = 1 < 100;
+const gtOp = 1 > 100;
+const leOp = 1 <= 100;
+const geOp = 1 >= 100;
 
-let arrAddOp = {}++{};
-let arrMulOp = {}**100;
+const arrAddOp = {}++{};
+const arrMulOp = {}**100;
 
-let rangeAllOp = 1..1;
-let rangeMaxOp = ..1;
-let rangeMinOp = 1..;
+const rangeAllOp = 1..1;
+const rangeMaxOp = ..1;
+const rangeMinOp = 1..;
 
-let bitOrOp = 1|1;
-let bitXorOp = 1~1;
-let bitAndOp = 1&1;
+const bitOrOp = 1|1;
+const bitXorOp = 1~1;
+const bitAndOp = 1&1;
 
-let shlOp = 1<<1;
-let shrOp = 1>>1;
+const shlOp = 1<<1;
+const shrOp = 1>>1;
 
-let PseudoDynOp = dyn Add;
-let PseudoImplOp = impl Add;
+const PseudoDynOp = dyn Add;
+const PseudoImplOp = impl Add;
 
-let addOp = 1+1;
-let subOp = 1-1;
+const addOp = 1+1;
+const subOp = 1-1;
 
-let modOp = 1%1;
+const modOp = 1%1;
 
-let mulOp = 1*1;
-let divOp = 1/1;
-let floorDivOp = 1//1;
+const mulOp = 1*1;
+const divOp = 1/1;
+const floorDivOp = 1//1;
 
-let notOp = !true;
-let negOp = -1;
-let mutOp = mut PseudoDynOp;
+const notOp = !true;
+const negOp = -1;
+const mutOp = mut PseudoDynOp;
 
-let refOp = &mutOp;
-let refMutOp = &mut mutOp;
-let ptrMutOp = *mut mutOp;
-let ptrConstOp = *const mutOp;
+const refOp = &mutOp;
+const refMutOp = &mut mutOp;
+const ptrMutOp = *mut mutOp;
+const ptrConstOp = *const mutOp;
 
-let expOp = 2^addOp;
-let errOp = x?;
-let derefOp = x.*;
+const expOp = 2^addOp;
+const errOp = x?;
+const derefOp = x.*;
 	

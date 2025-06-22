@@ -1,5 +1,5 @@
 
-let mut &mut _TnTObj{
+const mut &mut _TnTObj{
 	|__t| mut &mut a44__,
 	|n_| b44,
 	|_t2_| mut BTn___{
@@ -16,7 +16,7 @@ let mut &mut _TnTObj{
 
 
 
-let mut &mut TnT{
+const mut &mut TnT{
 	mut &mut {
 		aa,
 		b3
@@ -30,7 +30,7 @@ let mut &mut TnT{
 } wrap331 = getTnT();
 
 
-let &mut TnTArr{
+const &mut TnTArr{
 	&mut {
 		u32 aa44,
 		u64 b344
@@ -49,7 +49,7 @@ let &mut TnTArr{
 
 
 
-let &mut TnTArr4{
+const &mut TnTArr4{
 	mut &mut _aa,
 	{b_4,b3_4,c4_4, ..},
 	Tn_4{

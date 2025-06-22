@@ -429,6 +429,9 @@ namespace slu::parse
 			}
 			return resolveUnknown(name);
 		}
+		constexpr bool inGlobalLand() const {
+			return localsStack.empty();
+		}
 		template<bool isLocal>
 		constexpr LocalOrNameV<isSlu,isLocal> resolveNewName(const std::string& name)
 		{
