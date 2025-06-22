@@ -372,6 +372,14 @@ namespace slu::parse
 			if constexpr (isSlu)
 			{
 				//either known local being indexed ORR unknown(potentially from a `use ::*`)
+				if (!localsStack.empty())
+				{
+					for (auto& i : localsStack.back())
+					{
+						if(mpDb.data->mps[i.mp.id].id2Name[i.id.val]==name)
+							return i;
+					}
+				}
 				const std::optional<size_t> v = resolveLocalOpt(name);
 				if (v.has_value())
 				{
