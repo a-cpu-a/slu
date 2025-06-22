@@ -64,6 +64,7 @@ namespace slu::paint
 		if constexpr(isLocal)
 		{
 			//TODO
+			paintName<tok, SKIP_SPACE>(se, se.resolveLocal(f));
 		}
 		else
 			paintName<tok, SKIP_SPACE>(se, f);

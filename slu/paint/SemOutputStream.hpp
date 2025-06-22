@@ -150,6 +150,10 @@ namespace slu::paint
 			{ t.in } -> AnyInput;
 			{ t.out } -> std::same_as<std::vector<std::vector<typename T::SemPair>>&>;
 
+			//{ t.resolveLocal(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>&>;
+			//{ t.pushL(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>>;
+			{ t.popLocals() } -> std::same_as<void>;
+
 			{ t.move(Position()) } -> std::same_as<T&>;
 			{ t.template move<Tok::WHITESPACE>(Position()) } -> std::same_as<T&>;
 
@@ -232,6 +236,17 @@ namespace slu::paint
 
 		In& in;
 		std::vector<std::vector<SemPair>> out;
+		std::vector<const parse::Locals<In>*> localStack;
+
+		auto resolveLocal(parse::LocalId local) {
+			return localStack.back()->at(local.v);
+		}
+		void pushLocals(const parse::Locals<In>& locals) {
+			localStack.push_back(&locals);
+		}
+		void popLocals() {
+			localStack.pop_back();
+		}
 
 		SemOutput& addRaw(const SemPair p, size_t count = 1)
 		{
