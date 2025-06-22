@@ -485,8 +485,13 @@ namespace slu::parse
 	template<bool isSlu>
 	struct FunctionV : FunctionInfoV<isSlu>
 	{
-		LocalsV<isSlu> local2Mp;
 		BlockV<isSlu> block;
+	};
+	template<>
+	struct FunctionV<true> : FunctionInfoV<true>
+	{
+		LocalsV<true> local2Mp;
+		BlockV<true> block;
 	};
 	Slu_DEF_CFG(Function);
 
@@ -1095,8 +1100,13 @@ namespace slu::parse
 	template<bool isSlu>
 	struct ParsedFileV
 	{
-		//TypeList types
 		BlockV<isSlu> code;
+	};
+	template<>
+	struct ParsedFileV<false>
+	{
+		BlockV<false> code;
+		LocalsV<false> local2Mp;
 	};
 	Slu_DEF_CFG(ParsedFile);
 }
