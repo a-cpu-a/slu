@@ -1128,7 +1128,7 @@ namespace slu::parse
 			for (auto& i : var.stats)
 				genStat(out, i);
 			out.unTabNewl()
-				.addNewl(';');
+				.addNewl('}');
 		},
 
 		varcase(const StatementType::UnsafeBlock<Out>&) {
@@ -1137,7 +1137,7 @@ namespace slu::parse
 				.tabUpNewl();
 			genBlock(out, var.bl);
 			out.unTabNewl()
-				.addNewl(';');
+				.addNewl('}');
 		},
 		varcase(const StatementType::UNSAFE_LABEL) {
 			out.unTabTemp()
