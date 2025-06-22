@@ -730,6 +730,8 @@ namespace slu::parse
 			skipSpace(in);
 			res.names = readPat<isLocal>(in, true);
 			res.exported = exported;
+			if constexpr (!isLocal)
+				in.genData.pushLocalScope();
 		}
 		else
 			res.names = readAttNameList(in);
@@ -738,6 +740,8 @@ namespace slu::parse
 		{// [‘=’ explist]
 			res.exprs = readExpList(in, allowVarArg);
 		}
+		if constexpr (!isLocal)
+			res.local2Mp = in.genData.popLocalScope();
 		return in.genData.addStat(place, std::move(res));
 	}
 
