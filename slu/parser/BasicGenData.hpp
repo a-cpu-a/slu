@@ -439,7 +439,7 @@ namespace slu::parse
 			if constexpr (isLocal)
 			{
 				auto n = resolveName(name);
-				auto stack = localsStack.back();
+				auto& stack = localsStack.back();
 				stack.push_back(n);
 				return LocalId(stack.size() - 1);
 			}
