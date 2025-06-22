@@ -790,19 +790,23 @@ namespace slu::paint
 		{
 			retType = &func.retType;
 			safety = func.safety;
+			se.pushLocals(func.local2Mp);
 		}
 		else
 		{
 			retType = &emptyTy;
 			safety = parse::OptSafety::DEFAULT;
 		}
+
 		paintFuncDecl(se, func.params, func.hasVarArgParam,*retType, name, exported, safety, pos, fnKw);
 		if constexpr (Se::settings() & sluSyn)
 			paintKw<Tok::BRACES>(se, "{");
 
 		//No do, for functions in lua
 		paintEndBlock<false>(se, func.block);
-		
+
+		if constexpr (Se::settings() & sluSyn)
+			se.popLocals();
 	}
 	template<bool isExpr,AnySemOutput Se>
 	inline void paintIfCond(Se& se,
@@ -1144,7 +1148,11 @@ namespace slu::paint
 	*/
 	template<AnySemOutput Se>
 	inline void paintFile(Se& se, const parse::ParsedFile<Se>& f) {
+		if constexpr (!(Se::settings() & sluSyn))
+			se.pushLocals(f.local2Mp);
 		paintBlock(se, f.code);
 		skipSpace(se);
+		if constexpr (!(Se::settings() & sluSyn))
+			se.popLocals();
 	}
 }
