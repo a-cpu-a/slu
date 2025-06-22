@@ -25,6 +25,10 @@ namespace slu::parse
 		AnyCfgable<T> && requires(T t) {
 
 		//{ t.db } -> std::same_as<LuaMpDb>;
+		
+		//{ t.resolveLocal(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>&>;
+		//{ t.pushL(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>>;
+		{ t.popLocals() } -> std::same_as<void>;
 
 		{ t.add(char(1)) } -> std::same_as<T&>;
 		{ t.add("aa") } -> std::same_as<T&>;
@@ -75,6 +79,7 @@ namespace slu::parse
 	{
 		constexpr Output(SettingsT) {}
 		constexpr Output() = default;
+		constexpr static bool SLU_SYN = SettingsT() & sluSyn;
 
 		constexpr static SettingsT settings()
 		{
@@ -82,13 +87,25 @@ namespace slu::parse
 		}
 
 
-		Sel<SettingsT()&sluSyn, LuaMpDb, BasicMpDb> db;
+		Sel<SLU_SYN, LuaMpDb, BasicMpDb> db;
+		std::vector<const parse::LocalsV<SLU_SYN>*> localStack;
 
 		std::vector<uint8_t> text;
 		uint64_t tabs=0;
 		size_t curLinePos = 0;
 		bool tempDownTab = false;
 		bool wasSemicolon = false;
+
+
+		auto resolveLocal(parse::LocalId local) {
+			return localStack.back()->at(local.v);
+		}
+		void pushLocals(const parse::LocalsV<SLU_SYN>& locals) {
+			localStack.push_back(&locals);
+		}
+		void popLocals() {
+			localStack.pop_back();
+		}
 
 		Output& add(const char ch) 
 		{
