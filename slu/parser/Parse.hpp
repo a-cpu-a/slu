@@ -201,6 +201,8 @@ namespace slu::parse
 	inline std::pair<std::variant<Function<In>, FunctionInfo<In>>,bool> readFuncBody(In& in)
 	{
 		Position place = in.getLoc();
+		if constexpr (In::settings() & sluSyn)
+			in.genData.pushLocalScope();
 
 		FunctionInfo<In> fi = readFuncInfo(in);
 		if constexpr (In::settings()&sluSyn)
@@ -208,6 +210,7 @@ namespace slu::parse
 			skipSpace(in);
 			if (!in || (in.peek() != '{'))//no { found?
 			{
+				fi.local2Mp = in.genData.popLocalScope();
 				return { std::move(fi), false };//No block, just the info
 			}
 		}
@@ -215,11 +218,11 @@ namespace slu::parse
 
 		if constexpr (In::settings() & sluSyn)
 		{
-			in.genData.pushLocalScope();
 			try {
 				requireToken(in, "{");
 				func.block = readBlock<false>(in, func.hasVarArgParam);
 				requireToken(in, "}");
+				func.local2Mp = in.genData.popLocalScope();
 			} catch(const ParseError&)
 			{
 				func.local2Mp = in.genData.popLocalScope();

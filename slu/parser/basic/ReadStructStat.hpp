@@ -38,6 +38,7 @@ namespace slu::parse
 	template<class T,bool structOnly,AnyInput In>
 	inline void readStructStat(In& in, const Position place, const ExportData exported)
 	{
+		in.genData.pushLocalScope();
 		T res{};
 		res.exported = exported;
 
@@ -71,6 +72,7 @@ namespace slu::parse
 				throwExpectedStructOrAssign(in);
 			}
 		}
+		res.local2Mp = in.genData.popLocalScope();
 
 		in.genData.addStat(place, std::move(res));
 	}

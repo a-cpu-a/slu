@@ -845,6 +845,7 @@ namespace slu::parse
 	struct StructBaseV
 	{
 		ParamListV<isSlu> params;
+		LocalsV<isSlu> local2Mp;
 		TyTy type;
 		MpItmIdV<isSlu> name;
 		ExportData exported = false;

@@ -1082,6 +1082,7 @@ namespace slu::parse
 		//Slu!
 
 		varcase(const StatementType::Struct<Out>&) {
+			out.pushLocals(var.local2Mp);
 			if (var.exported)out.add("ex ");
 			out.add("struct ").add(out.db.asSv(var.name));
 			if (!var.params.empty())
@@ -1097,9 +1098,11 @@ namespace slu::parse
 
 			genTypeExpr<true>(out, var.type);
 			out.newLine();
+			out.popLocals();
 		},
 
 		varcase(const StatementType::Union<Out>&) {
+			out.pushLocals(var.local2Mp);
 			if (var.exported)out.add("ex ");
 			out.add("union ").add(out.db.asSv(var.name));
 			if (!var.params.empty())
@@ -1111,6 +1114,7 @@ namespace slu::parse
 			out.add(' ');
 			genTableConstructor(out, var.type);
 			out.newLine();
+			out.popLocals();
 		},
 
 		varcase(const StatementType::ExternBlock<Out>&) {
