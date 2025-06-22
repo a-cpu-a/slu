@@ -212,10 +212,10 @@ namespace slu::parse
 			}
 		}
 		Function<In> func = { std::move(fi) };
-		in.genData.pushLocalScope();
 
 		if constexpr (In::settings() & sluSyn)
 		{
+			in.genData.pushLocalScope();
 			try {
 				requireToken(in, "{");
 				func.block = readBlock<false>(in, func.hasVarArgParam);
@@ -231,11 +231,9 @@ namespace slu::parse
 			try
 			{
 				func.block = readBlock<false>(in, func.hasVarArgParam);
-				func.local2Mp = in.genData.popLocalScope();
 			}
 			catch (const ParseError& e)
 			{
-				func.local2Mp = in.genData.popLocalScope();
 				in.handleError(e.m);
 
 				if (recoverErrorTextToken(in, "end"))
@@ -956,6 +954,8 @@ namespace slu::parse
 	template<AnyInput In>
 	inline ParsedFile<In> parseFile(In& in)
 	{
+		if constexpr (!(In::settings() & sluSyn))
+			in.genData.pushLocalScope();
 		try
 		{
 			Block<In> bl = readBlock<false>(in, true);
@@ -974,7 +974,10 @@ namespace slu::parse
 					"{}"
 					, in.peek(), errorLocStr(in)));
 			}
-			return { std::move(bl) };
+			if constexpr (In::settings() & sluSyn)
+				return { std::move(bl) };
+			else
+				return { std::move(bl),in.genData.popLocalScope() };
 		}
 		catch (const BasicParseError& e)
 		{
