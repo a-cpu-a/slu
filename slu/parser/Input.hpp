@@ -13,6 +13,7 @@
 
 #include <slu/Settings.hpp>
 #include <slu/lang/BasicState.hpp>
+#include <slu/Ansi.hpp>
 #include "Position.hpp"
 
 namespace slu::parse
