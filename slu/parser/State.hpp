@@ -851,13 +851,19 @@ namespace slu::parse
 		ExportData exported = false;
 	};
 	template<bool isSlu, bool isLocal>
-	struct VarStatBaseV
+	struct MaybeLocalsV {
+		LocalsV<isSlu> local2Mp;
+	};
+	template<bool isSlu>
+	struct MaybeLocalsV<isSlu,true> {};
+	template<bool isSlu, bool isLocal>
+	struct VarStatBaseV : MaybeLocalsV<isSlu, isLocal>
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		AttribNameListV<isSlu> names;
 		ExpListV<isSlu> exprs;
 	};
 	template<bool isLocal>
-	struct VarStatBaseV<true, isLocal>
+	struct VarStatBaseV<true, isLocal> : MaybeLocalsV<true,isLocal>
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		PatV<true, isLocal> names;
 		ExpListV<true> exprs;

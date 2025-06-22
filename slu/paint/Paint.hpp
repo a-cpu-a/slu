@@ -987,7 +987,9 @@ namespace slu::paint
 			paintVarStat<true>(se,var, "let");
 		},
 		varcase(const parse::StatementType::CONST<Se>&) {
+			se.pushLocals(var.local2Mp);
 			paintVarStat<false>(se,var, "const");
+			se.popLocals();
 		},
 
 		varcase(const parse::StatementType::FN<Se>&) {

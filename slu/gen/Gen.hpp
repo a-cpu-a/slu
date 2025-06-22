@@ -939,7 +939,9 @@ namespace slu::parse
 			genVarStat<true>(out, var, "let ");
 		},
 		varcase(const StatementType::CONST<Out>&) {
+			out.pushLocals(var.local2Mp);
 			genVarStat<false>(out, var, "const ");
+			out.popLocals();
 		},
 
 		varcase(const StatementType::FUNC_CALL<Out>&) {
