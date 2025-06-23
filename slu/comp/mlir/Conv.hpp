@@ -78,11 +78,12 @@ namespace slu::comp::mico
 
 	struct ConvData : CommonConvData
 	{
-		std::vector<LocalStackItm> localsStack;
 		mlir::MLIRContext& context;
 		llvm::LLVMContext& llvmContext;
 		mlir::OpBuilder& builder;
 		mlir::ModuleOp module;
+		mlir::StringAttr privVis;
+		std::vector<LocalStackItm> localsStack;
 		uint64_t nextPrivTmpId = 0;
 
 		void addLocalStackItem(const size_t itmCount) {
@@ -90,6 +91,9 @@ namespace slu::comp::mico
 			localsStack.back().values.reserve(itmCount);
 		}
 	};
+	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
+		return exported ? mlir::StringAttr() : conv.privVis;
+	}
 
 	struct TmpName
 	{
@@ -118,6 +122,49 @@ namespace slu::comp::mico
 		return res;
 	}
 
+	mlir::Type tryConvBuiltinType(ConvData& conv, const std::string_view abi, const parse::LimPrefixExprV<true>& itm,const bool reffed)
+	{
+		const auto& var = std::get<parse::LimPrefixExprType::VARv<true>>(itm).v;
+		if(!var.sub.empty())
+			throw std::runtime_error("Unimplemented type expression (has subvar's) (mlir conversion)");
+		const auto& name = std::get<parse::BaseVarType::NAMEv<true>>(var.base).v;
+		
+		if (name == conv.sharedDb.getItm({ "std","str" }))
+		{
+			if(!reffed)
+				throw std::runtime_error("Unimplemented type expression: std::str, without ref (mlir conversion, reffed expected)");
+
+			if(abi=="C")
+				return mlir::LLVM::LLVMPointerType::get(&conv.context);
+
+			auto i8Type = conv.builder.getIntegerType(8);
+			return mlir::MemRefType::get({ -1 }, i8Type, {}, 0);
+		}
+		if (name == conv.sharedDb.getItm({ "std","i32" }))
+		{
+			auto i32Type = conv.builder.getIntegerType(32);
+			if (reffed)
+				return mlir::MemRefType::get({ 1 }, i32Type, {}, 0);
+			return i32Type;
+		}
+		if (name == conv.sharedDb.getItm({ "std","void" }))
+			return mlir::NoneType::get(&conv.context);
+
+		throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
+	}
+	mlir::Type convTypeHack(ConvData& conv,const std::string_view abi,const parse::TypeExpr& expr)
+	{
+		return ezmatch(expr.data)(
+		varcase(const auto&)->mlir::Type
+		{
+			throw std::runtime_error("Unimplemented type expression idx(" + std::to_string(expr.data.index()) + ") (mlir conversion)");
+		},
+		varcase(const parse::TypeExprDataType::LIM_PREFIX_EXP&)
+		{
+			return tryConvBuiltinType(conv, abi, *var,expr.unOps[0].type==parse::UnOpType::TO_REF);
+		}
+		);
+	}
 
 	template<typename T>
 	concept AnyInvalidExpression =
@@ -175,7 +222,7 @@ namespace slu::comp::mico
 				builder.create<mlir::memref::GlobalOp>(
 					builder.getUnknownLoc(),
 					strName.sref(),
-					/*sym_visibility=*/builder.getStringAttr("private"sv),
+					/*sym_visibility=*/conv.privVis,
 					strType,
 					denseStr,
 					/*constant=*/true,
@@ -307,13 +354,15 @@ namespace slu::comp::mico
 
 			conv.addLocalStackItem(var.local2Mp.size());
 
+			//var.exported
+
 			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
 			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
 
 			builder.create<mlir::memref::GlobalOp>(
 				builder.getUnknownLoc(),
 				llvm::StringRef{ ":>::hello_world::greeting"sv },
-				/*sym_visibility=*/builder.getStringAttr("private"sv),
+				/*sym_visibility=*/getExportAttr(conv, var.exported),
 				strType,
 				denseStr,
 				/*constant=*/true,
@@ -326,8 +375,10 @@ namespace slu::comp::mico
 			varcase(const parse::StatementType::FnDeclV<true>&) {
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			auto putsType = builder.getFunctionType({ llvmPtrType }, { builder.getI32Type() });
-			builder.create<mlir::func::FuncOp>(builder.getUnknownLoc(), "puts"sv, putsType).setPrivate();
-
+			//StringRef  name, FunctionType type, ArrayRef<NamedAttribute> attrs = {}, ArrayRef<DictionaryAttr> argAttrs = {});
+			//StringRef  sym_name, ::mlir::FunctionType function_type, /*optional*/::mlir::StringAttr sym_visibility, /*optional*/::mlir::ArrayAttr arg_attrs, /*optional*/::mlir::ArrayAttr res_attrs, /*optional*/bool no_inline = false);
+			auto decl = builder.create<mlir::func::FuncOp>(builder.getUnknownLoc(), 
+				var.name.asSv(conv.sharedDb), putsType, getExportAttr(conv, var.exported),nullptr,nullptr,false);
 		},
 			varcase(const parse::StatementType::FNv<true>&) {
 			// Build a function in mlir
@@ -337,7 +388,9 @@ namespace slu::comp::mico
 
 			mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
 				loc, var.name.asSv(conv.sharedDb),
-				mlir::FunctionType::get(mc, {}, {})
+				mlir::FunctionType::get(mc, {}, {}),
+				getExportAttr(conv, var.exported),
+				nullptr, nullptr, false
 			);
 			mlir::Block* entry = funcOp.addEntryBlock();
 			builder.setInsertionPointToStart(entry);

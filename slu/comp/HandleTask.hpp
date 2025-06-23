@@ -211,6 +211,11 @@ namespace slu::comp
 			auto module = mlir::ModuleOp::create(state.s->opBuilder.getUnknownLoc(), "HelloWorldModule");
 			state.s->opBuilder.setInsertionPointToStart(module.getBody());
 
+			using namespace std::literals::string_view_literals;
+			auto privVis = state.s->opBuilder.getStringAttr("private"sv);
+			//auto publVis = state.s->opBuilder.getStringAttr("nested"sv);
+			//auto nestVis = state.s->opBuilder.getStringAttr("nested"sv);
+
 			for (const auto& i : var.statements)
 			{
 				for (const auto& j : i)
@@ -221,7 +226,8 @@ namespace slu::comp
 					});*/
 					slu::comp::mico::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
-						state.s->mc, state.s->llvmCtx,state.s->opBuilder,module
+						state.s->mc, state.s->llvmCtx,state.s->opBuilder,module,
+						privVis
 						});
 				}
 			}
