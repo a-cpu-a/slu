@@ -127,3 +127,9 @@ let xD = __value.1;
 let __value2 = __value.2;
 let yD = __value2.1;
 let zD = __value2.2;
+-----------------------------
+fn _(WrapperX{WrappedY hi}) {}
+-->
+fn _(WrapperX __value) {
+	let hi = __value.1;
+}
