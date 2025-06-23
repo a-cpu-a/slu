@@ -19,6 +19,7 @@ namespace slu::parse
 {
 	using lang::LocalObjId;
 	using lang::ModPathId;
+	using lang::AnyMp;
 
 
 	const size_t NORMAL_SCOPE = SIZE_MAX;
@@ -51,24 +52,47 @@ namespace slu::parse
 		return name;
 	}
 
+	struct _ew_string_haah:std::hash<std::string>, std::hash<std::string_view> {
+		using is_transparent = void;
+	};
+	struct _ew_string_eq {
+		using is_transparent = void;
+		constexpr bool operator()(const std::string& a, const std::string& b) const {
+			return a == b;
+		}
+		constexpr bool operator()(const std::string_view a, const std::string_view b) const {
+			return a == b;
+		}
+		constexpr bool operator()(const std::string& a, const std::string_view b) const {
+			return a == b;
+		}
+		constexpr bool operator()(const std::string_view a, const std::string& b) const {
+			return a == b;
+		}
+	};
+
 	struct BasicModPathData
 	{
 		ModPath path;
-		std::unordered_map<std::string, LocalObjId> name2Id;
+		std::unordered_map<std::string, LocalObjId,_ew_string_haah,_ew_string_eq> name2Id;
 		std::unordered_map<size_t, std::string> id2Name;
 
-		LocalObjId get(const std::string& name)
+		LocalObjId at(const std::string_view name) const {
+			return name2Id.find(name)->second;
+		}
+		LocalObjId get(const std::string_view name)
 		{
-			if (!name2Id.contains(name))
+			auto p = name2Id.find(name);
+			if (p == name2Id.end())
 			{
 				const size_t res = name2Id.size();
 
-				name2Id[name] = { res };
-				id2Name[res] = name;
+				name2Id[std::string(name)] = { res };
+				id2Name[res] = std::string(name);
 
 				return { res };
 			}
-			return name2Id[name];
+			return p->second;
 		}
 	};
 	struct LuaMpDb
@@ -105,6 +129,21 @@ namespace slu::parse
 	{
 		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
 		std::vector<BasicModPathData> mps = { {} };//Add 0, the unknown one
+
+		MpItmIdV<true> getItm(const AnyMp auto& path) const
+		{
+			if (path.size() == 1)
+			{
+				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
+			}
+			MpItmIdV<true> res;
+			res.mp = mp2Id.find(path.subspan(0, path.size() - 1))->second;
+			res.id = mps[res.mp.id].at(path.back());
+			return res;
+		}
+		MpItmIdV<true> getItm(const std::initializer_list<std::string_view>& path) const {
+			return getItm((lang::ViewModPathView)path);
+		}
 	};
 	struct BasicMpDb
 	{
