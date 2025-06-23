@@ -104,3 +104,26 @@ let v5 = x.*;
 let v5 = :>::std::ops::RootDeref::rootDeref(--Turns it into a deref-type
 	:>::std::ops::Deref::deref(x)--only if x is just 1 level deep
 );
+-----------------------------
+let _ = 4;
+-->
+let __value = 4;
+-----------------------------
+let {val} = {1};
+-->
+let __value = {1};
+let val = __value.1;
+-----------------------------
+let {_,xA} = {1,1};
+-->
+let __value = {1,1};
+let __value2 = __value.1;
+let xA = __value.2;
+-----------------------------
+let {xD,{yD,zD}} = {1,{1,1}};
+-->
+let __value = {1,{1,1}};
+let xD = __value.1;
+let __value2 = __value.2;
+let yD = __value2.1;
+let zD = __value2.2;
