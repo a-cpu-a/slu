@@ -115,6 +115,14 @@ let ? __value = {1};
 let ? val = __value.1;
 drop __value;--Drop it, as it isnt named (not even with _)
 -----------------------------
+let &refVar = &val;
+-->
+let &? refVar = &val;
+-----------------------------
+let assignList = 1,2;
+-->
+let assignList = {1,2};
+-----------------------------
 let {_,xA} = {1,1};
 -->
 let ? __value = {1,1};
