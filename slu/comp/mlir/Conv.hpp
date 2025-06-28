@@ -161,7 +161,25 @@ namespace slu::comp::mico
 		},
 		varcase(const parse::TypeExprDataType::LIM_PREFIX_EXP&)
 		{
-			return tryConvBuiltinType(conv, abi, *var,expr.unOps[0].type==parse::UnOpType::TO_REF);
+			return tryConvBuiltinType(conv, abi, *var, false);
+		},
+		varcase(const parse::TypeExprDataType::FUNC_CALL&)
+		{
+			if(var.argChain.size()!=1)
+				throw std::runtime_error("Unimplemented type expression: function call with multiple layers (mlir conversion)");
+			
+			const auto& func = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v;
+			if (!func.sub.empty())
+				throw std::runtime_error("Unimplemented type expression (has subvar's) (mlir conversion)");
+			const auto& name = std::get<parse::BaseVarType::NAMEv<true>>(func.base).v;
+			if(name!= conv.sharedDb.getItm({ "std","ops","Ref","ref"}))
+				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
+			
+			const auto& expArgs = std::get<parse::ArgsType::EXPLISTv<true>>(var.argChain[0].args).v;
+			const auto& firstArgExpr = expArgs.front();
+			const auto& firstArg = std::get<parse::ExprType::LIM_PREFIX_EXPv<true>>(firstArgExpr.data);
+			
+			return tryConvBuiltinType(conv, abi, *firstArg, true);
 		}
 		);
 	}
