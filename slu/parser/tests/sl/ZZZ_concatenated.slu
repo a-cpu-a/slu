@@ -79,7 +79,7 @@ ex mod ex_mod
 ex mod ex_mod_as as {}
 
 let _=3
-let as{}x=3
+let({})x=3
 ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
 ex safe fn helloWorld2() -> &mut u8 {}
 ex fn helloWorld3() -> &[u8] {}
@@ -313,8 +313,8 @@ for u8 i = 100,1,-1 {}
 for {i,v} in getVec() {}
 for {k,_} in myVec() {}
 for KvPair{k,v} in getIter() {}
-let as{integer,{number}} xp = -0xFFFFFFFFFFFFFFFF,{0xFFFFFFFFFFFFFFFF};
-let as{integer,number} xd = -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
+let({integer,{number}}) xp = -0xFFFFFFFFFFFFFFFF,{0xFFFFFFFFFFFFFFFF};
+let({integer,number}) xd = -0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF,0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
 
 
@@ -408,7 +408,7 @@ let &mut TnTArr{
 	b222,
 	Tn{
 		|t| [u128] a244,
-		|n| as{u8}**34 b244,
+		|n| 34**{u8} b244,
 		..
 	},
 	_,
@@ -484,8 +484,8 @@ let _ = 3;
 
 
 
-let as{u8}**4 __b__ = {1}**4
-let as{u8}**44 _c = {1}**44;
+let 4**{u8} __b__ = 4**{1}
+let 44**{u8} _c = 44**{1};
 let {__a,__,_c_} = {1,2,3}
 let [u8] {_a,_,c_,..} = {1,2,3}
 
