@@ -914,12 +914,21 @@ namespace slu::paint
 			paintKw<Tok::PUNCTUATION>(se, ")");
 		}
 	}
+	template<class T>
+	concept NonPaintableStat = std::same_as<T,parse::StatementType::CanonicLocal>
+		|| std::same_as<T, parse::StatementType::CanonicGlobal>;
+
 	template<AnySemOutput Se>
 	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
 	{
 		skipSpace(se);
 		se.move(itm.place);
 		ezmatch(itm.data)(
+		varcase(const NonPaintableStat auto&) {
+			throw std::runtime_error(
+				"Non-paintable statement type found in paintStat: " + std::to_string(itm.data.index())
+			);
+		},
 		varcase(const parse::StatementType::BLOCK<Se>&) {
 			paintDoEndBlock(se, var.bl);
 		},

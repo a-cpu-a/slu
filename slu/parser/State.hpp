@@ -980,6 +980,23 @@ namespace slu::parse
 		using CONSTv = VarStatBaseV<isSlu, false>;
 		Slu_DEF_CFG_CAPS(CONST);
 
+		struct CanonicLocal
+		{
+			TypeExpr type;
+			LocalId name;
+			ExpressionV<true> value;
+			ExportData exported = false;
+		};
+		struct CanonicGlobal
+		{
+			TypeExpr type;
+			LocalsV<true> local2Mp;
+			MpItmIdV<true> name;
+			ExpressionV<true> value;
+			ExportData exported = false;
+		};
+
+
 		template<bool isSlu>
 		struct StructV : StructBaseV<TypeExpr, isSlu> {};
 		Slu_DEF_CFG(Struct);
@@ -1046,6 +1063,8 @@ namespace slu::parse
 		StatementType::LOCAL_ASSIGNv<isSlu>,	// "local attnamelist [= explist]"
 		StatementType::LETv<isSlu>,	// "let pat [= explist]"
 		StatementType::CONSTv<isSlu>,	// "const pat [= explist]"
+		StatementType::CanonicLocal,
+		StatementType::CanonicGlobal,
 
 		StatementType::FUNC_CALLv<isSlu>,		// "functioncall"
 		StatementType::LABELv<isSlu>,			// "label"
