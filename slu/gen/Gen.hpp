@@ -692,11 +692,6 @@ namespace slu::parse
 	inline void genDestrSpec(Out& out, const DestrSpec<Out>& obj)
 	{
 		ezmatch(obj)(
-		varcase(const DestrSpecType::Type&) {
-			out.add("as ");
-			genTypeExpr<true>(out, var);
-			out.add(' ');
-		},
 		varcase(const DestrSpecType::Spat<Out>&) {
 			genExpr(out, var);
 			out.add(' ');

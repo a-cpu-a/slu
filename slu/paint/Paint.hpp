@@ -374,10 +374,6 @@ namespace slu::paint
 		varcase(const parse::DestrSpecType::Spat<Se>&) {
 			paintExpr<nameTok>(se, var);
 		},
-		varcase(const parse::DestrSpecType::Type&) {
-			paintKw<Tok::VAR_STAT>(se, "as");
-			paintTypeExpr(se, var);
-		},
 		varcase(const parse::DestrSpecType::Prefix&) {
 			paintTypePrefix(se, var);
 		}
