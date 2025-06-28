@@ -17,7 +17,6 @@ New Keywords {
 	reloc  		(6.1k)		(470)		Relocate a value
 	loop   		(288k)		(12.8k)		Force loop again
 	raw    		(766k)		(176k)		?
-	ref    		(1.1m)		(82.4k)		?
 	
 
 	--Future proofing
@@ -99,6 +98,7 @@ Data {
 	a			(6.1m)		(3.6m)		advanced types
 	is			(4.8m)		(1m)		postfix types?
 	new 		(1.8m)		(303k)		?
+	ref    		(1.1m)		(82.4k)		?
 	type		(1.9m)		(78.3k)		type alias
 	newtype		(..)		(..)		newtype tag
 }
