@@ -48,6 +48,8 @@ namespace slu::mlvl
 		//TODO: [50%] operators
 		//TODO: [_0%] auto-drop?
 		//TODO: [_0%] for/while/repeat loops
+		//TODO: apply op stuff for type-exprs too
+		//TODO: destructuring (also apply op stuff after too)
 
 		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
 		{
