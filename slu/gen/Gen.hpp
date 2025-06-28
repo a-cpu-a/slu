@@ -938,6 +938,17 @@ namespace slu::parse
 			genVarStat<false>(out, var, "const ");
 			out.popLocals();
 		},
+		varcase(const StatementType::CanonicLocal&) {
+			//TODO
+		},
+		varcase(const StatementType::CanonicGlobal&) {
+			if constexpr (Out::settings() & sluSyn)
+			{
+				out.pushLocals(var.local2Mp);
+				//TODO
+				out.popLocals();
+			}
+		},
 
 		varcase(const StatementType::FUNC_CALL<Out>&) {
 			genFuncCall(out, var);

@@ -549,6 +549,18 @@ namespace slu::visit
 			visitPat<true>(vi, var.names);
 			visitExpList(vi, var.exprs);
 		},
+		varcase(parse::StatementType::CanonicLocal&) {
+			visitExported(vi, var.exported);
+			visitTypeExp(vi, var.type);
+			visitNameOrLocal<true>(vi, var.name);
+			visitExpr(vi, var.value);
+		},
+		varcase(parse::StatementType::CanonicGlobal&) {
+			visitExported(vi, var.exported);
+			visitTypeExp(vi, var.type);
+			visitName(vi, var.name);
+			visitExpr(vi, var.value);
+		},
 		varcase(parse::StatementType::LET<Vi>&) {
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
