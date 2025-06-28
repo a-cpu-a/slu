@@ -101,9 +101,6 @@ namespace slu::visit
 		varcase(parse::DestrSpecType::Spat<Vi>&) {
 			visitExpr(vi, var);
 		},
-		varcase(parse::DestrSpecType::Type&) {
-			visitTypeExp(vi, var);
-		},
 		varcase(parse::DestrSpecType::Prefix&) {
 			visitUnOps(vi, var);
 		}

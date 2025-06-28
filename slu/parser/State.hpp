@@ -612,13 +612,11 @@ namespace slu::parse
 		template<bool isSlu>
 		using SpatV = parse::NdPatV<isSlu>;
 		Slu_DEF_CFG(Spat);
-		using Type = TypeExpr;
 		using Prefix = TypePrefix;
 	}
 	template<bool isSlu>
 	using DestrSpecV = std::variant<
 		DestrSpecType::SpatV<isSlu>,
-		DestrSpecType::Type,
 		DestrSpecType::Prefix
 	>;
 	Slu_DEF_CFG(DestrSpec);

@@ -104,13 +104,7 @@ namespace slu::parse
 	{
 		const char firstChar = in.peek();
 
-		if (firstChar == 'a' && checkReadTextToken(in,"as"))
-		{
-			TypeExpr ty = readTypeExpr(in, true);
-
-			return readPatPastExpr<isLocal,false>(in, std::move(ty), uncond);
-		}
-		else if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
+		if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
 		{
 			in.skip();
 			return PatType::DestrAny{};
