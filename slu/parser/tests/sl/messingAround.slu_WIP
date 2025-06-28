@@ -17,22 +17,22 @@ let #u8 wGC = alloc 4;
 
 
 struct Qu {
-	ex x = mut u32;
-	ex y = mut u32;
-	ex z = mut u32;
+	x = ex mut u32;
+	y = ex mut u32;
+	z = ex mut u32;
 };
 struct Qu2 {
 	ex mut u32,
 	ex mut u32,
 	ex mut u32;
-	ex x = mut u32;
-	ex y = mut u32;
-	ex z = mut u32;
+	x = ex mut u32;
+	y = ex mut u32;
+	z = ex mut u32;
 };
 const Qu3 = struct{
-	ex x = mut u32;
-	ex y = mut u32;
-	ex z = mut u32;
+	x = ex mut u32;
+	y = ex mut u32;
+	z = ex mut u32;
 }
 
 
