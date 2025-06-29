@@ -10,13 +10,18 @@ New Keywords {
 	--kw		content		symbol		meaning
 	
 	
-	--Maybe...
+	--Only partialy reserved, so is allowed if inside mp's `a::drop`, or function names `fn drop()`, but you cant call it like `drop()`, only like `self::drop()`
+	--TODO: impl those allowed exceptions, as it is fully reserved rn
+	drop   		(377k)		(40.3k)		Drop a value explicitly
+
+	--Maybe eventualy used...
 
 	continue 	(162k)		(4.1k)		Try looping again.
 	where  		(299k)		(1.8k)		?
 	reloc  		(6.1k)		(470)		Relocate a value
 	loop   		(288k)		(12.8k)		Force loop again
 	raw    		(766k)		(176k)		?
+	has    		(..)		(..)		maybe for trait impl check?
 	
 
 	--Future proofing
@@ -65,7 +70,6 @@ New Keywords {
 	mod			(..)		(..)		module
 	also		(..)		(..)		also expressions / blocks
 	case		(352k)		(8.2k)		match case
-	drop   		(377k)		(40.3k)		Drop a value explicitly
 	enum   		(129k)		(8.5k)		Define a enum
 	impl   		(594k)		(23.8k)		Implement a trait
 	with		(..)		(..)		Impl with args

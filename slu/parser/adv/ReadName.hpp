@@ -22,11 +22,11 @@ namespace slu::parse
 {
 #define _Slu_COMMON_KWS \
 	"and", "break", "do", "else", "elseif", "end", "for", "function", \
-	"goto", "if", "in", "local", "not", "or", "repeat", "return", \
+	"goto", "if", "in", "local", "or", "repeat", "return", \
 	"then", "until", "while"
 #define _Slu_KWS \
 	/* freedom */\
-	"continue", "where", "reloc", "loop", "raw", \
+	"continue", "where", "reloc", "loop", "raw","has", \
 	/* future */\
 	"share", "only", "box", "abstract", "become", "final", \
 	"override", "typeof", "virtual", "unsized","global", \
@@ -40,7 +40,7 @@ namespace slu::parse
 	"axiom","unsafe","struct", "module", "extern", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
-		"false", "nil", _Slu_COMMON_KWS, "true"
+		"false", "nil", "not", _Slu_COMMON_KWS, "true"
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU = {
 		_Slu_COMMON_KWS,
