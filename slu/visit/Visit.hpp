@@ -239,17 +239,17 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(StatList);
 	}
 	template<AnyVisitor Vi>
-	inline void visitTypeExp(Vi& vi, parse::TypeExpr& itm)
+	inline void visitTypeExpr(Vi& vi, parse::TypeExpr& itm)
 	{
-		Slu_CALL_VISIT_FN_PRE(TypeExp);
+		Slu_CALL_VISIT_FN_PRE(TypeExpr);
 		if (itm.hasMut)
 		{
-			Slu_CALL_VISIT_FN_PRE(TypeExpMut);
+			Slu_CALL_VISIT_FN_PRE(TypeExprMut);
 		}
 		visitUnOps(vi, itm.unOps);
 		ezmatch(itm.data)(
 		varcase(parse::TypeExprDataType::ERR&) {
-			visitTypeExp(vi, *var.err);
+			visitTypeExpr(vi, *var.err);
 		},
 		varcase(const parse::TypeExprDataType::ERR_INFERR) {
 			//TODO
@@ -258,10 +258,10 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(parse::TypeExprDataType::DYN&) {
-			visitTraitExp(vi, var.expr);
+			visitTraitExpr(vi, var.expr);
 		},
 		varcase(parse::TypeExprDataType::IMPL&) {
-			visitTraitExp(vi, var.expr);
+			visitTraitExpr(vi, var.expr);
 		},
 		varcase(parse::TypeExprDataType::SLICER&) {
 			visitExpr(vi, *var);
@@ -274,8 +274,8 @@ namespace slu::visit
 		},
 		varcase(parse::TypeExprDataType::FN&) {
 			visitSafety(vi, var.safety);
-			visitTypeExp(vi, *var.argType);
-			visitTypeExp(vi, *var.retType);
+			visitTypeExpr(vi, *var.argType);
+			visitTypeExpr(vi, *var.retType);
 		},
 
 		varcase(const parse::TypeExprDataType::NUMERAL) {
@@ -298,11 +298,11 @@ namespace slu::visit
 		},
 		varcase(parse::TypeExprDataType::MULTI_OP&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(TypeMultiOp);
-			visitTypeExp(vi, *var.first);
+			visitTypeExpr(vi, *var.first);
 			for (auto& [op, expr] : var.extra)
 			{
 				visitBinOp(vi, op);
-				visitTypeExp(vi, expr);
+				visitTypeExpr(vi, expr);
 			}
 			Slu_CALL_VISIT_FN_POST_VAR(TypeMultiOp);
 		},
@@ -316,14 +316,14 @@ namespace slu::visit
 
 		);
 		visitPostUnOps(vi, std::span<const parse::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
-		Slu_CALL_VISIT_FN_POST(TypeExp);
+		Slu_CALL_VISIT_FN_POST(TypeExpr);
 	}
 	template<AnyVisitor Vi>
-	inline void visitTraitExp(Vi& vi, parse::TraitExpr& itm)
+	inline void visitTraitExpr(Vi& vi, parse::TraitExpr& itm)
 	{
-		Slu_CALL_VISIT_FN_PRE(TraitExp);
+		Slu_CALL_VISIT_FN_PRE(TraitExpr);
 		//TODO
-		Slu_CALL_VISIT_FN_POST(TraitExp);
+		Slu_CALL_VISIT_FN_POST(TraitExpr);
 	}
 	template<AnyVisitor Vi>
 	inline void visitLifetime(Vi& vi, parse::Lifetime& itm)
@@ -406,10 +406,10 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(parse::ExprType::TYPE_EXPR&) {
-			visitTypeExp(vi, var);
+			visitTypeExpr(vi, var);
 		},
 		varcase(parse::ExprType::TRAIT_EXPR&) {
-			visitTraitExp(vi, var);
+			visitTraitExpr(vi, var);
 		},
 		varcase(parse::ExprType::IfCond<Vi>&) {
 			visitSoe(vi, *var.bl);
@@ -439,7 +439,7 @@ namespace slu::visit
 			visitSafety(vi, var.v.safety);
 			visitParams(vi, var.v.params);
 			if(var.v.retType.has_value())
-				visitTypeExp(vi, *var.v.retType);
+				visitTypeExpr(vi, *var.v.retType);
 			visitBlock(vi, var.v.block);
 			//TODO
 		},
@@ -462,15 +462,15 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(Expr);
 	}
 	template<AnyVisitor Vi>
-	inline void visitExpList(Vi& vi, parse::ExpList<Vi>& itm)
+	inline void visitExprList(Vi& vi, parse::ExpList<Vi>& itm)
 	{
-		Slu_CALL_VISIT_FN_PRE(ExpList);
+		Slu_CALL_VISIT_FN_PRE(ExprList);
 		for (auto& i : itm)
 		{
 			visitExpr(vi, i);
-			Slu_CALL_VISIT_FN_SEP(ExpList,i,itm);
+			Slu_CALL_VISIT_FN_SEP(ExprList,i,itm);
 		}
-		Slu_CALL_VISIT_FN_POST(ExpList);
+		Slu_CALL_VISIT_FN_POST(ExprList);
 	}
 	template<AnyVisitor Vi>
 	inline void visitLimPrefixExpr(Vi& vi, parse::LimPrefixExpr<Vi>& itm)
@@ -491,7 +491,7 @@ namespace slu::visit
 		for (auto& i : itm)
 		{
 			ezmatch(i.args)(
-			varcase(parse::ArgsType::EXPLIST<Vi>&) { visitExpList(vi, var.v); },
+			varcase(parse::ArgsType::EXPLIST<Vi>&) { visitExprList(vi, var.v); },
 			varcase(parse::ArgsType::TABLE<Vi>&) {
 				visitTable(vi, var.v);
 			},
@@ -541,35 +541,35 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Stat);
 		ezmatch(itm.data)(
 		varcase(parse::StatementType::ASSIGN<Vi>&) {
-			visitExpList(vi, var.exprs);
+			visitExprList(vi, var.exprs);
 			visitVarList(vi, var.vars);
 		},
 		varcase(parse::StatementType::LOCAL_ASSIGN<Vi>&) {
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
-			visitExpList(vi, var.exprs);
+			visitExprList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::CanonicLocal&) {
 			visitExported(vi, var.exported);
-			visitTypeExp(vi, var.type);
+			visitTypeExpr(vi, var.type);
 			visitNameOrLocal<true>(vi, var.name);
 			visitExpr(vi, var.value);
 		},
 		varcase(parse::StatementType::CanonicGlobal&) {
 			visitExported(vi, var.exported);
-			visitTypeExp(vi, var.type);
+			visitTypeExpr(vi, var.type);
 			visitName(vi, var.name);
 			visitExpr(vi, var.value);
 		},
 		varcase(parse::StatementType::LET<Vi>&) {
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
-			visitExpList(vi, var.exprs);
+			visitExprList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::CONST<Vi>&) {
 			visitExported(vi, var.exported);
 			visitPat<false>(vi, var.names);
-			visitExpList(vi, var.exprs);
+			visitExprList(vi, var.exprs);
 		},
 		varcase(parse::StatementType::FUNC_CALL<Vi>&) {
 			visitLimPrefixExpr(vi, *var.val);
@@ -629,7 +629,7 @@ namespace slu::visit
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			visitParams(vi, var.params);
-			visitTypeExp(vi, var.type);
+			visitTypeExpr(vi, var.type);
 		},
 		varcase(parse::StatementType::Union<Vi>&) {
 			visitExported(vi, var.exported);
@@ -643,7 +643,7 @@ namespace slu::visit
 			visitName(vi, var.name);
 			visitBlock(vi, var.func.block);
 			if (var.func.retType.has_value())
-				visitTypeExp(vi, *var.func.retType);
+				visitTypeExpr(vi, *var.func.retType);
 			visitParams(vi, var.func.params);
 		},
 		varcase(parse::StatementType::FunctionDecl<Vi>&) {
@@ -651,7 +651,7 @@ namespace slu::visit
 			visitSafety(vi, var.safety);
 			visitName(vi, var.name);
 			if (var.retType.has_value())
-				visitTypeExp(vi, *var.retType);
+				visitTypeExpr(vi, *var.retType);
 			visitParams(vi, var.params);
 		},
 		varcase(parse::StatementType::ExternBlock<Vi>&) {
@@ -708,7 +708,7 @@ namespace slu::visit
 		if (itm.hadReturn)
 		{
 			Slu_CALL_VISIT_FN_PRE(BlockReturn);
-			visitExpList(vi, itm.retExprs);
+			visitExprList(vi, itm.retExprs);
 		}
 		Slu_CALL_VISIT_FN_POST(Block);
 	}

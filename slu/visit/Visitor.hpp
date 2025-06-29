@@ -85,7 +85,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::LITERAL_STRING);
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MULTI_OPERATION<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TypeMultiOp, parse::TypeExprDataType::MULTI_OP);
-		_Slu_DEF_EMPTY_PRE_POST(TraitExp, parse::TraitExpr);
+		_Slu_DEF_EMPTY_PRE_POST(TraitExpr, parse::TraitExpr);
 		_Slu_DEF_EMPTY_PRE_POST(Table, parse::TableConstructor<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Statement<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(DestrSimple, parse::PatType::Simple<Cfg>);
@@ -95,8 +95,8 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 
 		//Edge cases:
-		_Slu_DEF_EMPTY_PRE_POST(TypeExp, parse::TypeExpr);
-		_Slu_DEF_EMPTY_PRE(TypeExpMut, parse::TypeExpr);
+		_Slu_DEF_EMPTY_PRE_POST(TypeExpr, parse::TypeExpr);
+		_Slu_DEF_EMPTY_PRE(TypeExprMut, parse::TypeExpr);
 
 		_Slu_DEF_EMPTY_AUTO_LG(DestrField);
 		_Slu_DEF_EMPTY_PRE_LG(DestrFieldPat, parse::DestrField);
@@ -141,7 +141,7 @@ namespace slu::visit
 
 		_Slu_DEF_EMPTY_LIST(VarList, parse::Var<Cfg>);
 		_Slu_DEF_EMPTY_LIST(ArgChain, parse::ArgFuncCall<Cfg>);
-		_Slu_DEF_EMPTY_LIST(ExpList, parse::Expression<Cfg>);
+		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expression<Cfg>);
 		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId<Cfg>);
 		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<Cfg>);
 	};
