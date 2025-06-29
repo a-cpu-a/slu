@@ -131,6 +131,7 @@ namespace slu::parse
 	Slu_DEF_CFG(ExpList);
 
 	struct TypeExpr;
+	using TypeExprList = std::vector<TypeExpr>;
 
 	// Slu
 
@@ -432,7 +433,6 @@ namespace slu::parse
 				&& std::holds_alternative<TypeExprDataType::Struct>(data);
 		}
 	};
-
 	using TypePrefix = std::vector<UnOpItem>;
 
 
