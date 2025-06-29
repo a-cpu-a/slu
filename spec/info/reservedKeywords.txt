@@ -13,7 +13,7 @@ New Keywords {
 	--Only partialy reserved, so is allowed if inside mp's `a::drop`, or function names `fn drop()`, but you cant call it like `drop()`, only like `self::drop()`
 	--TODO: impl those allowed exceptions, as it is fully reserved rn
 	drop   		(377k)		(40.3k)		Drop a value explicitly
-
+	
 	--Maybe eventualy used...
 
 	continue 	(162k)		(4.1k)		Try looping again.
@@ -93,6 +93,26 @@ New Keywords {
 	extern		(..)		(..)		extern blocks, extern spec
 	comptime	(256)		(4)			comptime marker / expr
 	
+	--Common with lua
+	
+	do
+	if
+	in
+	or
+	and
+	end
+	for
+	else
+	goto
+	then
+	break
+	local
+	until
+	while
+	elseif
+	repeat
+	return
+	function
 	
 }
 Data {
