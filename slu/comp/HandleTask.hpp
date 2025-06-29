@@ -85,6 +85,8 @@ namespace slu::comp
 
 		mlir::LLVMConversionTarget target;
 		mlir::LLVMTypeConverter typeConverter;
+
+		std::vector<mico::MpElementInfo> mp2Elements;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -226,6 +228,7 @@ namespace slu::comp
 					});*/
 					slu::comp::mico::conv({
 						CommonConvData{cfg,*state.sharedDb,j},
+						state.mp2Elements,
 						state.s->mc, state.s->llvmCtx,state.s->opBuilder,module,
 						privVis
 						});
