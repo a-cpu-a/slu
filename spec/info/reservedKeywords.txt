@@ -26,7 +26,6 @@ New Keywords {
 
 	--Future proofing
 
-	share		(424k)		(7.6k)		Extended ref system
 	only		(745k)		(5.2k)		Different ref system
 	box    		(451k)		(42.2k)		?
 	abstract	(14k)		(358)		?
@@ -87,6 +86,7 @@ New Keywords {
 	trait  		(63.2k)		(4k)		Define a trait
 	union  		(25k)		(2k)		Define a union
 	axiom		(..)		(..)		Axiom stuff
+	share		(424k)		(7.6k)		Extended ref system
 	unsafe 		(6.4k)		(372)		Mark as unsafe
 	struct 		(506k)		(62.2k)		Define a struct
 	module		(651k)		(40.2k)		module def
