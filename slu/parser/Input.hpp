@@ -99,7 +99,7 @@ namespace slu::parse
 			LUACC_NUM_COL("{}"),
 
 			in.fileName(),
-			pos.line, pos.index
+			pos.line, pos.index+1
 		);
 			//" " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
 	}
