@@ -59,6 +59,7 @@ namespace slu::mlvl
 		//TODO: [_0%] auto-drop?
 		//TODO: [_0%] for/while/repeat loops
 		//TODO: destructuring (also apply op stuff after too)
+		//TODO: destructuring but for fn args
 
 		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
 		{
