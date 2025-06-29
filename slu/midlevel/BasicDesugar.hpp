@@ -28,6 +28,8 @@ namespace slu::mlvl
 			return *value;
 		}
 	};
+
+
 	using DesugarCfg = decltype(parse::sluCommon);
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
@@ -43,12 +45,19 @@ namespace slu::mlvl
 		std::vector<bool> abiSafetyStack;
 		std::vector<parse::StatList<Cfg>*> statListStack;
 
+		static parse::Expression<Cfg> wrapTypeExpr(parse::TypeExpr&& t)
+		{
+			parse::Expression<Cfg> res;
+			res.place = t.place;
+			res.data = std::move(t);
+			return res;
+		}
+
 		//TODO: Implement the conversion logic here
 		//TODO: basic desugaring:
 		//TODO: [50%] operators
 		//TODO: [_0%] auto-drop?
 		//TODO: [_0%] for/while/repeat loops
-		//TODO: apply op stuff for type-exprs too
 		//TODO: destructuring (also apply op stuff after too)
 
 		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
@@ -100,28 +109,27 @@ namespace slu::mlvl
 			}
 		}
 
-		bool preTypeExpr(parse::TypeExpr& itm) {
-			return false;
-		}
-		bool preExpr(parse::Expression<Cfg>& itm) {
-			using MultiOp = parse::ExprType::MULTI_OPERATION<Cfg>;
+		template<bool forType,class MultiOp,class ExprT>
+		bool desugarExpr(ExprT& itm)
+		{
 			if (std::holds_alternative<MultiOp>(itm.data))
 			{
 				_ASSERT(itm.unOps.empty());
 				_ASSERT(itm.postUnOps.empty());
 				MultiOp& ops = std::get<MultiOp>(itm.data);
 				auto order = multiOpOrder<false>(ops);
-				
-				std::vector<parse::Expression<Cfg>> expStack;
+
+				std::vector<ExprT> expStack;
 				//newExpr.data = ;
 				for (auto& i : order)
 				{
-					switch (i.kind) {
+					switch (i.kind)
+					{
 					case OpKind::Expr:
 					{
-						parse::Expression<Cfg>& parent = i.index == 0 ? *ops.first : ops.extra[i.index - 1].second;
+						ExprT& parent = i.index == 0 ? *ops.first : ops.extra[i.index - 1].second;
 
-						parse::Expression<Cfg>& newExpr = expStack.emplace_back();
+						ExprT& newExpr = expStack.emplace_back();
 						newExpr.data = std::move(parent.data);
 						newExpr.place = parent.place;
 						break;
@@ -139,15 +147,21 @@ namespace slu::mlvl
 
 						parse::ExprType::FUNC_CALL<Cfg> call;
 						parse::ArgsType::EXPLIST<Cfg> list;
-						list.v.emplace_back(std::move(expr1));
-						list.v.emplace_back(std::move(expr2));
+						if constexpr (forType)
+						{
+							list.v.emplace_back(wrapTypeExpr(std::move(expr1)));
+							list.v.emplace_back(wrapTypeExpr(std::move(expr2)));
+						} else {
+							list.v.emplace_back(std::move(expr1));
+							list.v.emplace_back(std::move(expr2));
+						}
 						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
 
-						parse::BinOpType op = ops.extra[i.index-1].first;
+						parse::BinOpType op = ops.extra[i.index - 1].first;
 						const size_t traitIdx = (size_t)op - 1; //-1 for none
 
 						call.val = std::make_unique<parse::LimPrefixExpr<Cfg>>(
-							parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
+							parse::LimPrefixExprType::VAR<Cfg>{.v = parse::Var<Cfg>{ .base = parse::BaseVarType::NAME<Cfg>{
 							.v = binOpFuncs[traitIdx].get([&] {
 									lang::ModPath name;
 									name.reserve(4);
@@ -161,7 +175,7 @@ namespace slu::mlvl
 									if (isOrd || isEq)
 									{
 										name.emplace_back("cmp");
-										if(isOrd)
+										if (isOrd)
 											name.emplace_back("PartialOrd");
 										else
 											name.emplace_back("PartialEq");
@@ -169,7 +183,7 @@ namespace slu::mlvl
 									else
 									{
 										name.emplace_back("ops");
-										if(op==parse::BinOpType::RANGE_BETWEEN)
+										if (op == parse::BinOpType::RANGE_BETWEEN)
 											name.emplace_back("Boundable");//TODO: choose the name!
 										else
 										name.emplace_back(parse::binOpTraitNames[traitIdx]);
@@ -177,7 +191,7 @@ namespace slu::mlvl
 									name.emplace_back(parse::binOpNames[traitIdx]);
 									return mpDb.getItm(name);
 								})
-						}} });
+						} } });
 
 
 						//Turn the first (moved)expr in a function call expression
@@ -198,7 +212,8 @@ namespace slu::mlvl
 						parse::MpItmId<Cfg> name;
 						parse::Lifetime* lifetime = nullptr;
 						{
-							if(i.kind == OpKind::UnOp) {
+							if (i.kind == OpKind::UnOp)
+							{
 								parse::UnOpItem& op = opSrcExpr.unOps[i.opIdx];
 								const size_t traitIdx = (size_t)op.type - 1; //-1 for none
 
@@ -207,13 +222,13 @@ namespace slu::mlvl
 									name.reserve(4);
 									name.emplace_back("std");
 									name.emplace_back("ops");
-									if(op.type==parse::UnOpType::RANGE_BEFORE)
+									if (op.type == parse::UnOpType::RANGE_BEFORE)
 										name.emplace_back("Boundable");//TODO: choose the name!
 									else
-									name.emplace_back(parse::unOpTraitNames[traitIdx]);
+										name.emplace_back(parse::unOpTraitNames[traitIdx]);
 									name.emplace_back(parse::unOpNames[traitIdx]);
 									return mpDb.getItm(name);
-								});
+									});
 								if (!op.life.empty())
 								{
 									_ASSERT(op.type == parse::UnOpType::TO_REF
@@ -224,7 +239,8 @@ namespace slu::mlvl
 								}
 								//Else: its inferred, or doesnt exist
 							}
-							else if (i.kind == OpKind::PostUnOp) {
+							else if (i.kind == OpKind::PostUnOp)
+							{
 								parse::PostUnOpType op = opSrcExpr.postUnOps.at(i.opIdx);
 								const size_t traitIdx = (size_t)op - 1; //-1 for none
 
@@ -242,12 +258,16 @@ namespace slu::mlvl
 									}
 									//TODO!!!
 									return parse::MpItmId<Cfg>::newEmpty();
-								});
+									});
 							}
 						}
 						parse::ExprType::FUNC_CALL<Cfg> call;
 						parse::ArgsType::EXPLIST<Cfg> list;
-						list.v.emplace_back(std::move(expr));
+						if constexpr (forType)
+							list.v.emplace_back(wrapTypeExpr(std::move(expr)));
+						else
+							list.v.emplace_back(std::move(expr));
+
 						if (lifetime != nullptr)
 						{
 							parse::Expression<Cfg> lifetimeExpr;
@@ -257,9 +277,9 @@ namespace slu::mlvl
 						}
 						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
 						call.val = std::make_unique<parse::LimPrefixExpr<Cfg>>(
-							parse::LimPrefixExprType::VAR<Cfg>{ .v = parse::Var<Cfg>{.base = parse::BaseVarType::NAME<Cfg>{
+							parse::LimPrefixExprType::VAR<Cfg>{.v = parse::Var<Cfg>{ .base = parse::BaseVarType::NAME<Cfg>{
 							.v = name
-						}} });
+						} } });
 
 						//Turn the (moved)expr in a function call expression
 						expr.data = std::move(call);
@@ -268,11 +288,21 @@ namespace slu::mlvl
 					}
 					};
 				}
-
 				//desugar operators into trait func calls!
 				return true;
 			}
 			return false;
+		}
+
+		bool preTypeExpr(parse::TypeExpr& itm) 
+		{
+			using MultiOp = parse::TypeExprDataType::MULTI_OP;
+			return desugarExpr<true,MultiOp>(itm);
+		}
+		bool preExpr(parse::Expression<Cfg>& itm) 
+		{
+			using MultiOp = parse::ExprType::MULTI_OPERATION<Cfg>;
+			return desugarExpr<false,MultiOp>(itm);
 		}; 
 	};
 
