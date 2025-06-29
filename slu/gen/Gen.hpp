@@ -939,13 +939,30 @@ namespace slu::parse
 			out.popLocals();
 		},
 		varcase(const StatementType::CanonicLocal&) {
-			//TODO
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			out.add("let ");
+			genTypeExpr<false>(out, var.type);
+			out.add(' ');
+			genNameOrLocal<true>(out, var.name);
+			out.add(" = ");
+			if constexpr (Out::settings() & sluSyn)
+				genExpr(out, var.value);
+			out.addNewl(';');
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::CanonicGlobal&) {
 			if constexpr (Out::settings() & sluSyn)
 			{
 				out.pushLocals(var.local2Mp);
-				//TODO
+				genExSafety(out, var.exported, OptSafety::DEFAULT);
+				out.add("let ");
+				genTypeExpr<false>(out, var.type);
+				out.add(' ');
+				genNameOrLocal<false>(out, var.name);
+				out.add(" = ");
+				genExpr(out, var.value);
+				out.addNewl(';');
+				out.wasSemicolon = true;
 				out.popLocals();
 			}
 		},
