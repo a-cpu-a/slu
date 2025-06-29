@@ -28,7 +28,7 @@ namespace slu::parse
 	/* freedom */\
 	"continue", "where", "reloc", "loop", "raw","has", \
 	/* future */\
-	"share", "only", "box", "abstract", "become", "final", \
+	"only", "box", "abstract", "become", "final", \
 	"override", "typeof", "virtual", "unsized","global", \
 	/* todos */\
 	"copy", "move", "super",   \
@@ -37,7 +37,7 @@ namespace slu::parse
 	"it", "to", "as", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
 	"also","case", "drop", "enum", "impl","with", "safe", "const", \
 	"alloc", "macro", "match", "catch", "throw","trans","trait", "union", \
-	"axiom","unsafe","struct", "module", "extern", "comptime"
+	"axiom","share", "unsafe","struct", "module", "extern", "comptime"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
 		"false", "nil", "not", _Slu_COMMON_KWS, "true"
