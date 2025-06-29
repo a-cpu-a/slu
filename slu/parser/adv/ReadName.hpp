@@ -31,10 +31,10 @@ namespace slu::parse
 	"only", "box", "abstract", "become", "final", \
 	"override", "typeof", "virtual", "unsized","global", \
 	/* todos */\
-	"copy", "move", "super",   \
+	"copy", "move",   \
 	"generator", "gen",	"yield", "async", "await", "static", \
 	/* documented */\
-	"it", "to", "as", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
+	"it", "to", "as","at", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
 	"also","case", "drop", "enum", "impl","with", "safe", "const", \
 	"alloc", "macro", "match", "catch", "throw","trans","trait", "union", \
 	"axiom","share", "unsafe","struct", "module", "extern", "comptime"
@@ -47,7 +47,7 @@ namespace slu::parse
 		_Slu_KWS,
 
 		//Conditional
-		"self", "Self", "crate",
+		"self", "Self", "crate", "super",
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
 		_Slu_COMMON_KWS,
