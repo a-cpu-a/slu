@@ -100,13 +100,16 @@ namespace slu::mlvl
 			}
 		}
 
+		bool preTypeExpr(parse::TypeExpr& itm) {
+			return false;
+		}
 		bool preExpr(parse::Expression<Cfg>& itm) {
 			using MultiOp = parse::ExprType::MULTI_OPERATION<Cfg>;
 			if (std::holds_alternative<MultiOp>(itm.data))
 			{
-				MultiOp& ops = std::get<MultiOp>(itm.data);
 				_ASSERT(itm.unOps.empty());
 				_ASSERT(itm.postUnOps.empty());
+				MultiOp& ops = std::get<MultiOp>(itm.data);
 				auto order = multiOpOrder<false>(ops);
 				
 				std::vector<parse::Expression<Cfg>> expStack;
