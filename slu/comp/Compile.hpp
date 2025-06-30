@@ -197,7 +197,7 @@ namespace slu::comp
 			//{
 			submitTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 				CompTaskType::DoCodeGen{
-					.statements = {std::span{file.pf.code.statList}},
+					.statements = {std::span{file.pf.code}},
 					.entrypointId = uint32_t(eps.size() - 1)
 				});
 			//}
