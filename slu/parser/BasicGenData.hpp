@@ -379,16 +379,27 @@ namespace slu::parse
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}
-		constexpr void addLocalObj(const std::string& name)
+		constexpr MpItmIdV<isSlu> addLocalObj(const std::string& name)
 		{
+			size_t mpPopCount = 0;
 			for (auto& i : std::views::reverse(scopes))
 			{
 				if (i.anonId != UNSCOPE)
 				{
 					i.objs.push_back(name);
-					return;
+					if constexpr (isSlu)
+					{
+						auto mpView = ModPathView(totalMp).subspan(0, totalMp.size() - mpPopCount);
+						ModPathId mp = mpDb.template get<false>(mpView);
+						LocalObjId id = mpDb.data->mps[mp.id].get(name);
+						return MpItmIdV<true>{id, mp};
+					}
+					else
+						return resolveUnknown(name);
+					mpPopCount++;
 				}
 			}
+			throw std::runtime_error("No scope to add local object to");
 		}
 
 		constexpr std::optional<size_t> resolveLocalOpt(const std::string& name)
