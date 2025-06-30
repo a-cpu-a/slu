@@ -18,7 +18,8 @@ namespace slu::parse
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
-			const MpItmId<In> modName = in.genData.addLocalObj(readName(in));
+			std::string name = readName(in);
+			const MpItmId<In> modName = in.genData.addLocalObj(name);
 
 			if (checkReadTextToken(in, "as"))
 			{
@@ -27,7 +28,8 @@ namespace slu::parse
 				res.name = modName;
 
 				requireToken(in, "{");
-				res.bl = readBlockNoStartCheck<false>(in, false);
+				in.genData.pushScope(in.getLoc(), std::move(name));
+				res.bl = readBlockNoStartCheck<false>(in, false,false);
 
 				in.genData.addStat(place, std::move(res));
 			}

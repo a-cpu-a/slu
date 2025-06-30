@@ -120,8 +120,9 @@ namespace slu::parse
 		return in.genData.popUnScope(in.getLoc()).statList;
 	}
 
+	//if not pushScoep, then you will need to push it yourself!
 	template<bool isLoop, AnyInput In>
-	inline Block<In> readBlock(In& in, const bool allowVarArg)
+	inline Block<In> readBlock(In& in, const bool allowVarArg,const bool pushScope)
 	{
 		/*
 			block ::= {stat} [retstat]
@@ -130,7 +131,8 @@ namespace slu::parse
 
 		skipSpace(in);
 
-		in.genData.pushAnonScope(in.getLoc());
+		if(pushScope)
+			in.genData.pushAnonScope(in.getLoc());
 
 		while (true)
 		{
@@ -158,9 +160,9 @@ namespace slu::parse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg)
+	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg,const bool pushScope)
 	{
-		Block<In> bl = readBlock<isLoop>(in, allowVarArg);
+		Block<In> bl = readBlock<isLoop>(in, allowVarArg, pushScope);
 		requireToken(in, sel<In>("end", "}"));
 
 		return bl;
