@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+	<Type Name="slu::lang::MpItmIdV&lt;*&gt;">
+		<DisplayString Condition="id.val!=0xffffffffffffffffu &amp;&amp; $T1">{{ mp={mp.id}, loc={id.val} }}</DisplayString>
+		<DisplayString Condition="id.val!=0xffffffffffffffffu &amp;&amp; !$T1">{{ loc={id.val} }}</DisplayString>
+		<DisplayString Condition="id.val==0xffffffffffffffffu">empty</DisplayString>
+		<Expand>
+			<Item Condition="$T1" Name="[mp]" ExcludeView="simple">mp.id</Item>
+			<Item Name="[local]" ExcludeView="simple">id.val</Item>
+		</Expand>
+	</Type>
+	<Type Name="slu::parse::LocalId">
+		<DisplayString Condition="v==0xffffffffffffffffu">empty</DisplayString>
+		<DisplayString Condition="v!=0xffffffffffffffffu">{{ id={v} }}</DisplayString>
+		<Expand>
+			<Item Name="[id]" ExcludeView="simple">v</Item>
+		</Expand>
+	</Type>
+	<Type Name="slu::parse::Position">
+		<!-- TODO: once 1-ification complete, remove +1-->
+		<DisplayString>{{ l:i ?:{line}:{index+1} }}</DisplayString>
+		<Expand>
+			<Item Name="[line]" ExcludeView="simple">line</Item>
+			<Item Name="[index]" ExcludeView="simple">index+1</Item>
+		</Expand>
+	</Type>
+	<Type Name="slu::parse::SmallEnumList&lt;*&gt;">
+		<DisplayString Condition="small.isBig == 0 &amp;&amp; small.size == 0">{{ size=0 }}</DisplayString>
+		<DisplayString Condition="small.isBig == 0 &amp;&amp; small.size &lt;= 3">{{ {($T1*)small.first14,[small.size]} }}</DisplayString>
+		<DisplayString Condition="small.isBig == 0 &amp;&amp; small.size &gt; 3">{{ size={small.size} }}</DisplayString>
+		<DisplayString Condition="small.isBig == 1">{large.size} elements</DisplayString>
+
+		<Expand>
+			<Item Condition="small.isBig == 0" Name="[size]">small.size</Item>
+			<Item Condition="small.isBig == 1" Name="[size]">large.size</Item>
+			<Item Condition="small.isBig == 0" Name="[capacity]">small.size</Item>
+			<Item Condition="small.isBig == 1" Name="[capacity]">large.size+large.reserve-1</Item>
+			<ArrayItems Condition="small.isBig == 0">
+				<Size>small.size</Size>
+				<ValuePointer>($T1*)small.first14</ValuePointer>
+			</ArrayItems>
+			<ArrayItems Condition="small.isBig == 1">
+				<Size>large.size</Size>
+				<ValuePointer>large.ptr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+</AutoVisualizer>
