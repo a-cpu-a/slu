@@ -88,19 +88,15 @@ New Keywords {
 	break
 	do
 	else
-	false
 	for
 	function
 	goto
 	if
 	in
 	local
-	nil
-	not
 	or
 	repeat
 	return
-	true
 	until
 	while
 }
