@@ -722,7 +722,7 @@ namespace slu::visit
 	void visitFile(Vi& vi,parse::ParsedFile<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(File);
-		visitBlock(vi, itm.code);
+		visitStatList(vi, itm.code);
 		Slu_CALL_VISIT_FN_POST(File);
 	}
 }

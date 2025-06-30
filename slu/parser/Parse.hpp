@@ -970,7 +970,11 @@ namespace slu::parse
 			in.genData.pushLocalScope();
 		try
 		{
-			Block<In> bl = readBlock<false>(in, true);
+			ParsedFile<In> res;
+			if constexpr (In::settings() & sluSyn)
+				res.code = readStatList<false>(in, true);
+			else
+				res.code = readBlock<false>(in, true);
 
 			if (in.hasError())
 			{// Skip eof, as one of the errors might have caused that.
@@ -986,10 +990,9 @@ namespace slu::parse
 					"{}"
 					, in.peek(), errorLocStr(in)));
 			}
-			if constexpr (In::settings() & sluSyn)
-				return { std::move(bl) };
-			else
-				return { std::move(bl),in.genData.popLocalScope() };
+			if constexpr (!(In::settings() & sluSyn))
+				res.local2Mp = in.genData.popLocalScope();
+			return  std::move(res);
 		}
 		catch (const BasicParseError& e)
 		{

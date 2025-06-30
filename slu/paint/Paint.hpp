@@ -1164,11 +1164,18 @@ namespace slu::paint
 	*/
 	template<AnySemOutput Se>
 	inline void paintFile(Se& se, const parse::ParsedFile<Se>& f) {
-		if constexpr (!(Se::settings() & sluSyn))
+		if constexpr (Se::settings() & sluSyn)
+		{
+			for (auto& i : f.code)
+				paintStat(se, i);
+			skipSpace(se);
+		}
+		else
+		{
 			se.pushLocals(f.local2Mp);
-		paintBlock(se, f.code);
-		skipSpace(se);
-		if constexpr (!(Se::settings() & sluSyn))
+			paintBlock(se, f.code);
+			skipSpace(se);
 			se.popLocals();
+		}
 	}
 }

@@ -1233,10 +1233,16 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genFile(Out& out,const ParsedFile<Out>& obj)
 	{
-		if constexpr (!(Out::settings() & sluSyn))
+		if constexpr (Out::settings() & sluSyn)
+		{
+			for (const auto& i : obj.code)
+				genStat(out, i);
+		}
+		else
+		{
 			out.pushLocals(obj.local2Mp);
-		genBlock(out, obj.code);
-		if constexpr (!(Out::settings() & sluSyn))
+			genBlock(out, obj.code);
 			out.popLocals();
+		}
 	}
 }

@@ -1119,7 +1119,7 @@ namespace slu::parse
 	template<bool isSlu>
 	struct ParsedFileV
 	{
-		BlockV<isSlu> code;
+		StatListV<isSlu> code;
 	};
 	template<>
 	struct ParsedFileV<false>
