@@ -621,7 +621,12 @@ namespace slu::parse
 		const ExportData exported, const OptSafety safety)
 	{
 		StatT res{};
-		res.name = in.genData.resolveUnknown(readFuncName(in));
+		std::string name;
+		if constexpr (In::settings() & sluSyn)
+			name = readName(in);
+		else
+			name = readFuncName(in);
+		res.name = in.genData.resolveUnknown(name);
 		res.place = in.getLoc();
 
 		try
