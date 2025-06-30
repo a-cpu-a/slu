@@ -332,9 +332,6 @@ namespace slu::comp::mico
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
 
-		const auto str = "Hello world\0"sv;
-		auto i8Type = builder.getIntegerType(8);
-		auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, i8Type, {}, 0);
 
 		ezmatch(itm.data)(
 
@@ -367,9 +364,10 @@ namespace slu::comp::mico
 
 			conv.addLocalStackItem(var.local2Mp.size());
 
-			//var.exported
-
-			//auto strAttr = builder.getStringAttr(llvm::Twine{ std::string_view{str,strLen} });
+			const auto str = "Hello world\0"sv;
+			auto i8Type = builder.getIntegerType(8);
+			auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, i8Type, {}, 0);
+			
 			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
 
 			builder.create<mlir::memref::GlobalOp>(
@@ -389,7 +387,7 @@ namespace slu::comp::mico
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//TODO: use type converter!
-			auto putsType = builder.getFunctionType({ llvmPtrType }, { builder.getI32Type() });
+			auto putsType = builder.getFunctionType({ llvmPtrType }, { convTypeHack(conv, var.abi, var.retType.value()) });
 			//StringRef  name, FunctionType type, ArrayRef<NamedAttribute> attrs = {}, ArrayRef<DictionaryAttr> argAttrs = {});
 			//StringRef  sym_name, ::mlir::FunctionType function_type, /*optional*/::mlir::StringAttr sym_visibility, /*optional*/::mlir::ArrayAttr arg_attrs, /*optional*/::mlir::ArrayAttr res_attrs, /*optional*/bool no_inline = false);
 			auto decl = builder.create<mlir::func::FuncOp>(convPos(conv, itm.place),
