@@ -42,7 +42,7 @@ namespace slu::parse
 			}
 		}
 
-		const MpItmId<In> res = in.genData.resolveUnknown(readName(in));
+		const MpItmId<In> res = in.genData.addLocalObj(readName(in));
 
 		requireToken(in, sel<In>("::", ":"));
 

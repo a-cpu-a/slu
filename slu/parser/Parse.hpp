@@ -626,7 +626,7 @@ namespace slu::parse
 			name = readName(in);
 		else
 			name = readFuncName(in);
-		res.name = in.genData.resolveUnknown(name);
+		res.name = in.genData.addLocalObj(name);
 		res.place = in.getLoc();
 
 		try

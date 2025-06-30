@@ -18,7 +18,7 @@ namespace slu::parse
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
-			const MpItmId<In> modName = in.genData.resolveUnknown(readName(in));
+			const MpItmId<In> modName = in.genData.addLocalObj(readName(in));
 
 			if (checkReadTextToken(in, "as"))
 			{
