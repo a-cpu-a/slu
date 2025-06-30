@@ -168,37 +168,12 @@ namespace slu::parse
 		{
 			if (checkReadToken(in,"->"))
 				ret.retType = readTypeExpr(in,false);
-
-			//ret.block = readDoOrStatOrRet<false>(in, ret.hasVarArgParam);
 		}
-		/*
-		else
-		{
-			try
-			{
-				ret.block = readBlock<false>(in, ret.hasVarArgParam);
-			}
-			catch (const ParseError& e)
-			{
-				in.handleError(e.m);
-
-				if (recoverErrorTextToken(in, "end"))
-					return { std::move(ret),true };// Found it, recovered!
-
-				//End of stream, and no found end's, maybe the error is a missing "end"?
-				throw FailedRecoveryError(std::format(
-					"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
-					errorLocStr(in, place)
-				));
-			}
-			requireToken(in, "end");
-		}*/
-
 		return ret;
 	}
 	//Pair{fn,hasError}
 	template<AnyInput In>
-	inline std::pair<std::variant<Function<In>, FunctionInfo<In>>,bool> readFuncBody(In& in)
+	inline std::pair<std::variant<Function<In>, FunctionInfo<In>>,bool> readFuncBody(In& in,std::optional<std::string> funcName)
 	{
 		Position place = in.getLoc();
 		if constexpr (In::settings() & sluSyn)
@@ -220,7 +195,9 @@ namespace slu::parse
 		{
 			try {
 				requireToken(in, "{");
-				func.block = readBlock<false>(in, func.hasVarArgParam);
+				if(funcName.has_value())
+					in.genData.pushScope(in.getLoc(),*funcName);
+				func.block = readBlock<false>(in, func.hasVarArgParam, !funcName.has_value());
 				requireToken(in, "}");
 				func.local2Mp = in.genData.popLocalScope();
 			} catch(const ParseError&)
@@ -233,7 +210,9 @@ namespace slu::parse
 		{
 			try
 			{
-				func.block = readBlock<false>(in, func.hasVarArgParam);
+				if (funcName.has_value())
+					in.genData.pushScope(in.getLoc(), *funcName);
+				func.block = readBlock<false>(in, func.hasVarArgParam, !funcName.has_value());
 			}
 			catch (const ParseError& e)
 			{
@@ -262,10 +241,10 @@ namespace slu::parse
 			if (in.peek() == '{')
 			{
 				in.skip();
-				return readBlockNoStartCheck<isLoop>(in,allowVarArg);
+				return readBlockNoStartCheck<isLoop>(in,allowVarArg,true);
 			}
 
-			in.genData.pushAnonScope(in.getLoc());
+			in.genData.pushAnonScope(in.getLoc());//readBlock also pushes!
 
 			if (readReturn<semicolMode>(in, allowVarArg))
 				return in.genData.popScope(in.getLoc());
@@ -294,7 +273,7 @@ namespace slu::parse
 			return bl;
 		}
 		requireToken(in, "do");
-		Block<In> bl = readBlock<isLoop>(in,allowVarArg);
+		Block<In> bl = readBlock<isLoop>(in,allowVarArg, true);
 		requireToken(in, "end");
 
 		return bl;
@@ -335,7 +314,7 @@ namespace slu::parse
 				{
 					in.skip();
 					in.genData.pushUnsafe();
-					StatementType::UnsafeBlock<In> res = { readBlockNoStartCheck<isLoop>(in, false) };
+					StatementType::UnsafeBlock<In> res = { readBlockNoStartCheck<isLoop>(in, false,true) };
 					in.genData.popSafety();
 					in.genData.addStat(place, std::move(res));
 					return true;
@@ -621,7 +600,7 @@ namespace slu::parse
 		const ExportData exported, const OptSafety safety)
 	{
 		StatT res{};
-		std::string name;
+		std::string name;//moved @ readFuncBody
 		if constexpr (In::settings() & sluSyn)
 			name = readName(in);
 		else
@@ -631,7 +610,7 @@ namespace slu::parse
 
 		try
 		{
-			auto [fun, err] = readFuncBody(in);
+			auto [fun, err] = readFuncBody(in,std::move(name));
 			if(ezmatch(std::move(fun))(
 				varcase(Function<In>&&) {
 					res.func = std::move(var);
@@ -709,18 +688,18 @@ namespace slu::parse
 		else
 		{
 			requireToken(in, "then");
-			res.bl = wontBox(readBlock<isLoop>(in, allowVarArg));
+			res.bl = wontBox(readBlock<isLoop>(in, allowVarArg,true));
 			while (checkReadTextToken(in, "elseif"))
 			{
 				Expression<In> elExpr = readExpr(in, allowVarArg);
 				requireToken(in, "then");
-				Block<In> elBlock = readBlock<isLoop>(in, allowVarArg);
+				Block<In> elBlock = readBlock<isLoop>(in, allowVarArg, true);
 
 				res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
 			}
 
 			if (checkReadTextToken(in, "else"))
-				res.elseBlock = wontBox(readBlock<isLoop>(in, allowVarArg));
+				res.elseBlock = wontBox(readBlock<isLoop>(in, allowVarArg, true));
 
 			requireToken(in, "end");
 		}
@@ -798,7 +777,7 @@ namespace slu::parse
 			{
 				in.skip();//Skip ‘{’
 				return in.genData.addStat(place,
-					StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg))
+					StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
 				);
 			}
 			break;
@@ -817,7 +796,7 @@ namespace slu::parse
 				if (checkReadTextToken(in, "do")) // ‘do’ block ‘end’
 				{
 					return in.genData.addStat(place,
-						StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg))
+						StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
 					);
 				}
 			}
@@ -861,7 +840,7 @@ namespace slu::parse
 				if constexpr (In::settings() & sluSyn)
 					bl = readDoOrStatOrRet<true, SemicolMode::NONE>(in, allowVarArg);
 				else
-					bl = readBlock<true>(in, allowVarArg);
+					bl = readBlock<true>(in, allowVarArg, true);
 				requireToken(in, "until");
 				Expression<In> expr = readExpr(in,allowVarArg);
 
@@ -974,7 +953,7 @@ namespace slu::parse
 			if constexpr (In::settings() & sluSyn)
 				res.code = readStatList<false>(in, true);
 			else
-				res.code = readBlock<false>(in, true);
+				res.code = readBlock<false>(in, true, true);
 
 			if (in.hasError())
 			{// Skip eof, as one of the errors might have caused that.

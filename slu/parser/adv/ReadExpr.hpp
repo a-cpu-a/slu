@@ -233,7 +233,7 @@ namespace slu::parse
 
 				try
 				{
-					auto [fun, err] = readFuncBody(in);
+					auto [fun, err] = readFuncBody(in,std::nullopt);
 					ezmatch(std::move(fun))(
 					varcase(Function<In>&&)
 					{

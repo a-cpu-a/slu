@@ -337,7 +337,7 @@ namespace slu::parse
 		}
 		//For func, macro, inline_mod, type?, ???
 		constexpr void pushScope(const Position start,const std::string& name) {
-			addLocalObj(name);
+			//addLocalObj(name);
 
 			totalMp.push_back(name);
 			scopes.push_back({ NORMAL_SCOPE });
