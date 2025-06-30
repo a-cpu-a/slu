@@ -436,10 +436,12 @@ namespace slu::visit
 			visitTable(vi,var.v);
 		},
 		varcase(parse::ExprType::FUNCTION_DEF<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo, var.v);
 			visitSafety(vi, var.v.safety);
 			visitParams(vi, var.v.params);
 			if(var.v.retType.has_value())
 				visitTypeExpr(vi, *var.v.retType);
+			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var.v);
 			visitBlock(vi, var.v.block);
 			//TODO
 		},
@@ -638,21 +640,25 @@ namespace slu::visit
 			visitTable(vi, var.type);
 		},
 		varcase(parse::StatementType::FUNCTION_DEFv<Vi::settings()&parse::sluSyn>&) {
+			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo,var.func);
 			visitExported(vi, var.exported);
 			visitSafety(vi, var.func.safety);
 			visitName(vi, var.name);
-			visitBlock(vi, var.func.block);
 			if (var.func.retType.has_value())
 				visitTypeExpr(vi, *var.func.retType);
 			visitParams(vi, var.func.params);
+			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var.func);
+			visitBlock(vi, var.func.block);
 		},
 		varcase(parse::StatementType::FunctionDecl<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(FunctionInfo);
 			visitExported(vi, var.exported);
 			visitSafety(vi, var.safety);
 			visitName(vi, var.name);
 			if (var.retType.has_value())
 				visitTypeExpr(vi, *var.retType);
 			visitParams(vi, var.params);
+			Slu_CALL_VISIT_FN_POST_VAR(FunctionInfo);
 		},
 		varcase(parse::StatementType::ExternBlock<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(ExternBlock);
