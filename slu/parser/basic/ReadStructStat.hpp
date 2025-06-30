@@ -42,7 +42,7 @@ namespace slu::parse
 		T res{};
 		res.exported = exported;
 
-		res.name = in.genData.resolveUnknown(readName(in));
+		res.name = in.genData.addLocalObj(readName(in));
 
 		skipSpace(in);
 		if (in.peek() == '(')

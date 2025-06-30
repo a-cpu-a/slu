@@ -51,7 +51,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "as"))
 				{
-					res.useVariant = UseVariantType::AS_NAME{ in.genData.resolveUnknown(readName(in))};
+					res.useVariant = UseVariantType::AS_NAME{ in.genData.addLocalObj(readName(in))};
 				}
 				else
 				{// Prob just no semicol
