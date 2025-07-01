@@ -246,7 +246,7 @@ namespace slu::comp
 					//TODO: custom outs/errs
 					res = lld::lldMain(cstrArgs, llvm::outs(), llvm::errs(), { driver });
 					if (res.retCode != 0)
-						cfg.logPtr("Linker failed to run, error: " + std::to_string(res.retCode));
+						cfg.errPtr("Linker failed to run, error: " + std::to_string(res.retCode));
 					if (!res.canRunAgain)
 						return ret;
 					//Read from out files
@@ -260,7 +260,7 @@ namespace slu::comp
 					if (optFile.has_value())
 						ep.contents = std::move(*optFile);
 					else
-						cfg.logPtr("Linker didnt generate a output!");
+						cfg.errPtr("Linker didnt generate a output!");
 				}
 				ret.entryPoints.emplace_back(std::move(epPdb));
 				ret.entryPoints.emplace_back(std::move(ep));

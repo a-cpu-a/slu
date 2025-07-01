@@ -71,7 +71,8 @@ namespace slu::comp
 		//you need to add a newline yourself, if you need to (use println or something)
 		//Note: msg may contain nulls
 		using LogFn = void(*)(const std::string_view msg);
-		LogFn logPtr;
+		LogFn logPtr;//Warnings, info, dbg.
+		LogFn errPtr;
 
 		//If empty, then dont create it yet.
 		using MkTmpFileFn = TmpFile(*)(std::optional<std::span<const uint8_t>> contents);
