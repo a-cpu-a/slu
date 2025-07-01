@@ -1,6 +1,10 @@
 ﻿// slu-compiler-api.cpp : Defines the entry point for the application.
 //
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <fstream>
 #include <filesystem>
 #include <random>
@@ -56,8 +60,35 @@ struct DeletingTmpFile : slu::comp::TmpFile
 	}
 };
 
+static void(*ctrlCFunc)() = nullptr;
+#ifdef _WIN32
+static BOOL winCtrlHandler(DWORD)
+{
+	if (ctrlCFunc != nullptr)
+		ctrlCFunc();
+	return true;
+}
+#endif
+
 int main()
 {
+#ifdef _WIN32
+
+	SetConsoleCtrlHandler(winCtrlHandler, true);
+
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE)
+		return 111;
+	DWORD dwOriginalOutMode = 0;
+	if (!GetConsoleMode(hOut, &dwOriginalOutMode))
+		return 104;
+	SetConsoleMode(hOut, dwOriginalOutMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+
+	SetConsoleOutputCP(CP_UTF8);
+#endif
+
+	std::cout << "\x1B[0m";//reset formatting
+
 	std::cout << "Hello world!\n";
 
 
@@ -81,6 +112,10 @@ int main()
 		};
 	cfg.logPtr = [](const std::string_view msg) {
 		std::cout << msg << "\n";
+		};
+	cfg.errPtr = [](const std::string_view msg) {
+		//RED_COLOR_FG ... RESET
+		std::cerr <<"\x1B[38;5;220m" << msg << "\x1B[0m\n";
 		};
 	cfg.getFileListPtr = [](const std::string_view folderName) -> std::vector<std::string> {
 		std::vector<std::string> files;
