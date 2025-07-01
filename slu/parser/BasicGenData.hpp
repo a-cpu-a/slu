@@ -244,11 +244,6 @@ namespace slu::parse
 		std::vector<size_t> anonScopeCounts = {0};
 		ModPath totalMp;
 
-		constexpr BasicGenDataV()
-		{
-			scopes.emplace_back(NORMAL_SCOPE);//anon id
-		}
-
 		/*
 		All local names (no ::'s) are defined in THIS file, or from a `use ::*` (potentialy std::prelude::*)
 		This means any 'use' things that reference ??? stuff, can only be other global crates OR a sub-path of a `use ::*`
