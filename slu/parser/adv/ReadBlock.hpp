@@ -101,10 +101,10 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline StatList<In> readStatList(In& in, const bool allowVarArg)
+	inline StatList<In> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
 	{
 		skipSpace(in);
-		in.genData.pushUnScope(in.getLoc());
+		in.genData.pushUnScope(in.getLoc(), isGlobal);
 
 		while (true)
 		{
