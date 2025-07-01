@@ -58,11 +58,11 @@ namespace slu::lang
 			return id.val == SIZE_MAX;
 		}
 		std::string_view asSv(const auto& v) const {
-			return v.asSv({ *this });
+			return v.asSv({ *(const MpItmIdV<isSlu>*)this });
 		}
 
 		std::string_view asSv(const parse::BasicMpDbData& v) const requires(isSlu) {
-			return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *this });
+			return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *(const MpItmIdV<true>*)this });
 		}
 
 		constexpr auto operator<=>(const MpItmIdCommonV&)const = default;
