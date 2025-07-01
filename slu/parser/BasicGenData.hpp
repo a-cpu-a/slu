@@ -131,6 +131,16 @@ namespace slu::parse
 		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
 		std::vector<BasicModPathData> mps = { {} };//Add 0, the unknown one
 
+		ModPath getMp(const MpItmIdV<true> name)const 
+		{
+			const BasicModPathData& data = mps[name.mp.id];
+			ModPath res;
+			res.reserve(data.path.size() + 1);
+			res.insert(res.end(), data.path.begin(), data.path.end());
+			res.push_back(data.id2Name.at(name.id.val));
+			return res;
+		}
+
 		MpItmIdV<true> getItm(const AnyMp auto& path) const
 		{
 			if (path.size() == 1)
