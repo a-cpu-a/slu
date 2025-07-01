@@ -213,6 +213,10 @@ namespace slu::parse
 		return BasicMpDb{ data }.asSv(thiz);
 	}
 
+	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, MpItmIdV<true> thiz){
+		return BasicMpDb{ data }.asVmp(thiz);
+	}
+
 	struct GenSafety
 	{
 		bool isSafe : 1 = false;
