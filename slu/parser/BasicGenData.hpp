@@ -463,6 +463,7 @@ namespace slu::parse
 			//either known local being indexed, super, crate, self ORR unknown(potentially from a `use ::*`)
 
 			std::optional<size_t> v;
+			bool remFirst = true;
 			if (name[0] == "self")
 				v = countScopes();
 			else if (name[0] == "super")
@@ -470,16 +471,19 @@ namespace slu::parse
 			else if (name[0] == "crate")
 				v = totalMp.size() - 1;//All but last
 			else
+			{
+				remFirst = false;
 				v = resolveLocalOpt(name[0]);
+			}
 
 			if (v.has_value())
 			{
 				ModPath mpSum;
-				mpSum.reserve((totalMp.size() - *v) + (name.size() - 1));
+				mpSum.reserve((totalMp.size() - *v) + (name.size() - 2));
 
 				for (size_t i = 0; i < totalMp.size() - *v; i++)
 					mpSum.push_back(totalMp[i]);
-				for (size_t i = 1; i < name.size(); i++)
+				for (size_t i = remFirst?1:0; i < name.size()-1; i++)
 					mpSum.push_back(name[i]);
 
 				ModPathId mp = mpDb.template get<false>(ModPathView(mpSum));
