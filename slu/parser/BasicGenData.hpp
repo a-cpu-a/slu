@@ -485,16 +485,15 @@ namespace slu::parse
 		template<bool isLocal>
 		constexpr LocalOrNameV<isSlu,isLocal> resolveNewName(const std::string& name)
 		{
+			auto n = addLocalObj(name);
 			if constexpr (isLocal)
 			{
-				addLocalObj(name);
-				auto n = resolveName(name);
 				auto& stack = localsStack.back();
 				stack.push_back(n);
 				return LocalId(stack.size() - 1);
 			}
 			else
-				return addLocalObj(name);
+				return n;
 		}
 		// .XXX, XXX, :XXX
 		constexpr MpItmIdV<isSlu> resolveUnknown(const std::string& name)
