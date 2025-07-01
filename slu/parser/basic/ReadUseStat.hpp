@@ -21,7 +21,8 @@ namespace slu::parse
 			StatementType::USE res{};
 			res.exported = exported;
 
-			res.base = in.genData.resolveName(readModPath(in));
+			ModPath mp = readModPath(in);//Moved @ IMPORT
+			res.base = in.genData.resolveName(mp);
 
 			if (in.peek() == ':')
 			{
@@ -34,17 +35,17 @@ namespace slu::parse
 				{
 					in.skip(3);
 					UseVariantType::LIST_OF_STUFF list;
-					list.push_back(in.genData.resolveUnknown(readName<true>(in)));
+					list.push_back(in.genData.addLocalObj(readName<true>(in)));
 					while (checkReadToken(in, ","))
 					{
-						list.push_back(in.genData.resolveUnknown(readName<true>(in)));
+						list.push_back(in.genData.addLocalObj(readName<true>(in)));
 					}
 					requireToken(in, "}");
 					res.useVariant = std::move(list);
 				}
 				else
 				{// Neither, prob just no semicol
-					res.useVariant = UseVariantType::IMPORT{};
+					res.useVariant = UseVariantType::IMPORT{in.genData.addLocalObj(std::move(mp.back()))};
 				}
 			}
 			else
@@ -55,7 +56,7 @@ namespace slu::parse
 				}
 				else
 				{// Prob just no semicol
-					res.useVariant = UseVariantType::IMPORT{};
+					res.useVariant = UseVariantType::IMPORT{ in.genData.addLocalObj(std::move(mp.back())) };
 				}
 			}
 			in.genData.addStat(place, std::move(res));
