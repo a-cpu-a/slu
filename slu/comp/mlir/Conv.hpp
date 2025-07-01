@@ -169,6 +169,10 @@ namespace slu::comp::mico
 		if(abi=="C")
 			return { name.asSv(conv.sharedDb) };
 		auto vmp = name.asVmp(conv.sharedDb);
+
+		if (vmp.back() == "main")
+			return { "main"sv };
+
 		//Construct a mangled name.
 		std::string res;
 		size_t totalChCount = 0;
