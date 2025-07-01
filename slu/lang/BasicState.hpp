@@ -10,21 +10,22 @@ namespace slu::lang
 {
 	template<bool isSlu>
 	struct MpItmIdV;
+
+	//Mp's
+	using ModPath = std::vector<std::string>;
+	using ModPathView = std::span<const std::string>;
+	using ViewModPath = std::vector<std::string_view>;
+	using ViewModPathView = std::span<const std::string_view>;
 }
 namespace slu::parse
 {
 	struct BasicMpDbData;
 	struct BasicMpDb;
 	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, lang::MpItmIdV<true> thiz);
+	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, lang::MpItmIdV<true> thiz);
 }
 namespace slu::lang
 {
-	//Mp refs
-
-	using ModPath = std::vector<std::string>;
-	using ModPathView = std::span<const std::string>;
-	using ViewModPath = std::vector<std::string_view>;
-	using ViewModPathView = std::span<const std::string_view>;
 
 	struct ModPathId
 	{
@@ -81,6 +82,9 @@ namespace slu::lang
 
 		ViewModPath asVmp(const auto& v) const {
 			return v.asVmp(*this);
+		}
+		ViewModPath asVmp(const parse::BasicMpDbData& v) const {
+			return parse::_fwdConstructBasicMpDbAsVmp(const_cast<parse::BasicMpDbData*>(&v), { *this });
 		}
 		ModPathId mp;
 
