@@ -31,7 +31,7 @@ namespace slu::comp
 	};
 	struct ParsedFile
 	{
-		lang::ModPath mp;
+		lang::ModPath mp;//Only valid before MergeAstsMap!!!
 		std::string_view crateRootPath;
 		std::string path;
 		parse::ParsedFileV<true> pf;
@@ -194,7 +194,6 @@ namespace slu::comp
 			auto& sharedDb = *var.sharedDb;
 			state.sharedDb = &sharedDb.v;
 
-
 			if (var.firstToArive)
 			{//Easy
 				var.sharedDb->v = std::move(state.mpDb);
@@ -211,7 +210,10 @@ namespace slu::comp
 		{ // Handle consensus merging of ASTs
 			for (auto& i : state.parsedFiles)
 			{
-				var->emplace(std::move(i.mp), std::move(i));
+				var->emplace(
+					std::move(i.mp), 
+					std::move(i)//mp was moved, so it is now invalid.
+				);
 			}
 			state.parsedFiles.clear(); // Not needed anymore
 		},
@@ -220,7 +222,6 @@ namespace slu::comp
 			//parse::Output out;
 			//parse::LuaMpDb luaDb;
 			//out.text = std::move(outVec);
-
 
 			auto module = mlir::ModuleOp::create(state.s->opBuilder.getUnknownLoc(), "HelloWorldModule");
 			state.s->opBuilder.setInsertionPointToStart(module.getBody());
