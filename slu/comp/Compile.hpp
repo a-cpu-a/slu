@@ -178,10 +178,8 @@ namespace slu::comp
 		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 			CompTaskType::ConsensusMergeAsts{ &astMap }
 		);
-		//TODO: collect ast's
-		//TODO: convert into something more? -> seperate global stats from the func code
 		//TODO: build some kind of dep graph.
-		//TODO: type-inference/checking + comptime eval + basic codegen to lua
+		//TODO: type-inference/checking + comptime eval
 
 		std::vector<CodeGenEntrypoint> eps;
 		for (auto& [mp, file] : astMap)
@@ -189,23 +187,17 @@ namespace slu::comp
 			if (file.path.ends_with("/main.slu"))
 				eps.push_back({ .entryPointFile = file.path, .fileName = "main.exe" });
 		}
-
-		//TODO: run midlevel / optimize using all the threads.
 		for (auto& [mp, file] : astMap)
 		{// Codegen on all the threads.
-			//if (file.path.ends_with("/main.slu"))
-			//{
 			submitTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 				CompTaskType::DoCodeGen{
 					.statements = {std::span{file.pf.code}},
 					.entrypointId = uint32_t(eps.size() - 1)
 				});
-			//}
 		}
 		waitForTasksToComplete(tasksLeft, cvMain);
 
 		CompOutput ret;
-
 		{ // Merge code gen outputs
 			GenCodeMap mergeOut;
 			mergeOut.reserve(eps.size());
@@ -213,7 +205,6 @@ namespace slu::comp
 			submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 				CompTaskType::ConsensusMergeGenCode(&mergeOut)
 			);
-
 			uint32_t i = 0;
 			for (auto& epInfo : eps)
 			{
