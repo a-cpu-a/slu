@@ -359,7 +359,7 @@ namespace slu::parse
 				res.safety = safety;
 				res.abi = std::move(abi);
 				res.abiEnd = abiEnd;
-				res.stats = readStatList<isLoop>(in, allowVarArg);
+				res.stats = readStatList<isLoop>(in, allowVarArg,false);
 				requireToken(in, "}");
 
 				in.genData.addStat(place, std::move(res));
@@ -951,7 +951,7 @@ namespace slu::parse
 		{
 			ParsedFile<In> res;
 			if constexpr (In::settings() & sluSyn)
-				res.code = readStatList<false>(in, true);
+				res.code = readStatList<false>(in, true,true);
 			else
 				res.code = readBlock<false>(in, true, true);
 

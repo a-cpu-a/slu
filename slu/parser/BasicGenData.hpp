@@ -24,6 +24,7 @@ namespace slu::parse
 
 	const size_t NORMAL_SCOPE = SIZE_MAX;
 	const size_t UNSCOPE = SIZE_MAX-1;
+	const size_t GLOBAL_SCOPE = SIZE_MAX-2;
 
 	/*
 		Names starting with $ are anonymous, and are followed by 8 raw bytes (representing anon name id)
@@ -39,7 +40,7 @@ namespace slu::parse
 	*/
 	constexpr std::string getAnonName(const size_t anonId)
 	{
-		_ASSERT(anonId != NORMAL_SCOPE && anonId != UNSCOPE);
+		_ASSERT(anonId != NORMAL_SCOPE && anonId != UNSCOPE && anonId != GLOBAL_SCOPE);
 		std::string name(1 + sizeof(size_t), '$');
 		name[1] = uint8_t((anonId & 0xFF00000000000000) >> 56);
 		name[2] = uint8_t((anonId & 0xFF000000000000) >> 48);
@@ -326,9 +327,9 @@ namespace slu::parse
 			anonScopeCounts.push_back(0);
 		}
 		//For extern/unsafe blocks
-		constexpr void pushUnScope(const Position start)
+		constexpr void pushUnScope(const Position start,const bool isGlobal)
 		{
-			const size_t id = UNSCOPE;
+			const size_t id = isGlobal ? GLOBAL_SCOPE : UNSCOPE;
 
 			scopes.push_back({ id });
 			scopes.back().res.start = start;
@@ -449,7 +450,7 @@ namespace slu::parse
 			size_t val=0;
 			for (const auto& i : scopes)
 			{
-				if (i.anonId != UNSCOPE)
+				if (i.anonId != UNSCOPE && i.anonId!= GLOBAL_SCOPE)
 					val++;
 			}
 			return val;
