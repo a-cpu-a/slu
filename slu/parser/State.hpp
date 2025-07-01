@@ -828,7 +828,7 @@ namespace slu::parse
 	namespace UseVariantType
 	{
 		using EVERYTHING_INSIDE = std::monostate;//use x::*;
-		struct IMPORT {};// use x::y;
+		struct IMPORT { MpItmIdV<true> name; };// use x::y; //name is inside this mp, base is the imported path.
 		using AS_NAME = MpItmIdV<true>;//use x as y;
 		using LIST_OF_STUFF = std::vector<MpItmIdV<true>>;//use x::{self, ...}
 	}
