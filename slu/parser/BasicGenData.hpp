@@ -451,7 +451,7 @@ namespace slu::parse
 		}
 		constexpr size_t countScopes() const
 		{
-			size_t val;
+			size_t val=0;
 			for (const auto& i : scopes)
 			{
 				if (i.anonId != UNSCOPE)
