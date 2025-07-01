@@ -955,6 +955,8 @@ namespace slu::parse
 			else
 				res.code = readBlock<false>(in, true, true);
 
+			_ASSERT(in.genData.scopes.empty());
+
 			if (in.hasError())
 			{// Skip eof, as one of the errors might have caused that.
 				throw ParseFailError();
@@ -976,6 +978,7 @@ namespace slu::parse
 		catch (const BasicParseError& e)
 		{
 			in.handleError(e.m);
+			in.genData.scopes.clear();
 			throw ParseFailError();
 		}
 	}
