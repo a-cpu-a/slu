@@ -157,6 +157,35 @@ namespace slu::comp::mico
 		}
 		return res;
 	}
+	struct ViewOrStr
+	{
+		std::variant<std::string, std::string_view> val;
+		constexpr std::string_view sv()const {
+			return std::visit([](const auto& v) { return std::string_view{ v }; }, val);
+		}
+	};
+	ViewOrStr mangleFuncName(ConvData& conv, const std::string_view abi,lang::MpItmIdV<true> name)
+	{
+		if(abi=="C")
+			return { name.asSv(conv.sharedDb) };
+		auto vmp = name.asVmp(conv.sharedDb);
+		//Construct a mangled name.
+		std::string res;
+		size_t totalChCount = 0;
+		for (auto& i : vmp)
+			totalChCount += i.size();
+		res.reserve(2+2* vmp.size()+totalChCount); // :>::aaa::bbb::ccc
+
+		res.push_back(':');
+		res.push_back('>');
+		for (auto& i : vmp)
+		{
+			res.push_back(':');
+			res.push_back(':');
+			res.append(i);
+		}
+		return { std::move(res)};
+	}
 
 	mlir::Type tryConvBuiltinType(ConvData& conv, const std::string_view abi, const parse::LimPrefixExprV<true>& itm,const bool reffed)
 	{
@@ -390,8 +419,13 @@ namespace slu::comp::mico
 			auto putsType = builder.getFunctionType({ llvmPtrType }, { convTypeHack(conv, var.abi, var.retType.value()) });
 			//StringRef  name, FunctionType type, ArrayRef<NamedAttribute> attrs = {}, ArrayRef<DictionaryAttr> argAttrs = {});
 			//StringRef  sym_name, ::mlir::FunctionType function_type, /*optional*/::mlir::StringAttr sym_visibility, /*optional*/::mlir::ArrayAttr arg_attrs, /*optional*/::mlir::ArrayAttr res_attrs, /*optional*/bool no_inline = false);
+
+			auto mangledName = mangleFuncName(conv, var.abi, var.name); 
 			auto decl = builder.create<mlir::func::FuncOp>(convPos(conv, itm.place),
-				var.name.asSv(conv.sharedDb), putsType, getExportAttr(conv, var.exported),nullptr,nullptr,false);
+				mangledName.sv(),
+				putsType, getExportAttr(conv, var.exported),
+				nullptr, nullptr, false
+			);
 			conv.addElement(var.name,decl);
 		},
 			varcase(const parse::StatementType::FNv<true>&) {
@@ -399,10 +433,10 @@ namespace slu::comp::mico
 			mlir::func::FuncOp* func = conv.getElement(var.name);
 			if (func == nullptr)
 			{
-				auto loc = convPos(conv, var.place);
+				auto mangledName = mangleFuncName(conv, var.func.abi, var.name);
 
 				mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
-					loc, var.name.asSv(conv.sharedDb),
+					convPos(conv, var.place), mangledName.sv(),
 					mlir::FunctionType::get(mc, {}, {}),
 					getExportAttr(conv, var.exported),
 					nullptr, nullptr, false
