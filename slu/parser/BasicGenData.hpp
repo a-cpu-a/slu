@@ -449,6 +449,16 @@ namespace slu::parse
 		constexpr MpItmIdV<isSlu> resolveRootName(const ModPath& name) {
 			return mpDb.getItm(name);// Create if needed, and return it
 		}
+		constexpr size_t countScopes() const
+		{
+			size_t val;
+			for (const auto& i : scopes)
+			{
+				if (i.anonId != UNSCOPE)
+					val++;
+			}
+			return val;
+		}
 		constexpr MpItmIdV<isSlu> resolveName(const ModPath& name)
 		{
 			if (name.size() == 1)
@@ -458,9 +468,9 @@ namespace slu::parse
 
 			std::optional<size_t> v;
 			if (name[0] == "self")
-				v = scopes.size() - 1;//Pop all new ones
+				v = countScopes();
 			else if (name[0] == "super")
-				v = scopes.size();//Pop all new ones + self
+				v = countScopes()+1;//Pop all new ones + self
 			else if (name[0] == "crate")
 				v = totalMp.size() - 1;//All but last
 			else
@@ -473,7 +483,7 @@ namespace slu::parse
 
 				for (size_t i = 0; i < totalMp.size() - *v; i++)
 					mpSum.push_back(totalMp[i]);
-				for (size_t i = 0; i < name.size() - 1; i++)
+				for (size_t i = 1; i < name.size(); i++)
 					mpSum.push_back(name[i]);
 
 				ModPathId mp = mpDb.template get<false>(ModPathView(mpSum));
