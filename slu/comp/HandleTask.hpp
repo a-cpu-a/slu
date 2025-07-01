@@ -31,6 +31,7 @@ namespace slu::comp
 	};
 	struct ParsedFile
 	{
+		lang::ModPath mp;
 		std::string_view crateRootPath;
 		std::string path;
 		parse::ParsedFileV<true> pf;
@@ -168,11 +169,24 @@ namespace slu::comp
 						i.clear(); // Free it faster
 					}
 				}
-				slu::mlvl::basicDesugar(state.mpDb, parsed.pf);
-				parsed.crateRootPath = file.crateRootPath;
-				parsed.path = std::move(file.path);
+				std::vector<mlvl::InlineModule> 
+					inlineModules = slu::mlvl::basicDesugar(state.mpDb, parsed.pf);
 
+				parsed.crateRootPath = file.crateRootPath;
+				parsed.path = file.path;
+				parsed.mp = parsePath(file.crateRootPath, file.path);
 				state.parsedFiles.emplace_back(std::move(parsed));
+
+				for (mlvl::InlineModule& i : inlineModules)
+				{
+					parsed.pf.code = std::move(i.code);
+					parsed.crateRootPath = file.crateRootPath;
+					parsed.path = file.path;
+					parsed.mp = state.sharedDb->getMp(i.name);
+					// ^ Will be correct, as name is the name of the local obj inside of the root module.
+					//a::b, b is the local obj (also the modules name), and its still included in getMp's result.
+					state.parsedFiles.emplace_back(std::move(parsed));
+				}
 			}
 		},
 			varcase(CompTaskType::ConsensusUnifyAsts&)
@@ -197,11 +211,9 @@ namespace slu::comp
 		{ // Handle consensus merging of ASTs
 			for (auto& i : state.parsedFiles)
 			{
-				auto mp = parsePath(i.crateRootPath, i.path);
-				var->emplace(std::move(mp), std::move(i));
-				//TODO: handle inline modules?
+				var->emplace(std::move(i.mp), std::move(i));
 			}
-			state.parsedFiles.clear(); // Unneeded anymore
+			state.parsedFiles.clear(); // Not needed anymore
 		},
 			varcase(CompTaskType::DoCodeGen&)
 		{ // Handle code gen of all the global statements

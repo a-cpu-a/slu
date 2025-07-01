@@ -29,8 +29,14 @@ namespace slu::mlvl
 		}
 	};
 
-
 	using DesugarCfg = decltype(parse::sluCommon);
+
+	struct InlineModule
+	{
+		lang::MpItmIdV<true> name;
+		parse::StatListV<true> code;
+	};
+
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
 		using Cfg = visit::EmptyVisitor<DesugarCfg>::Cfg;
@@ -44,6 +50,9 @@ namespace slu::mlvl
 		std::vector<std::string> abiStack;
 		std::vector<bool> abiSafetyStack;
 		std::vector<parse::StatList<Cfg>*> statListStack;
+
+		//Output!!
+		std::vector<InlineModule> inlineModules;
 
 		static parse::Expression<Cfg> wrapTypeExpr(parse::TypeExpr&& t)
 		{
@@ -107,6 +116,14 @@ namespace slu::mlvl
 				// Insert the rest of the statements
 				auto& statList = *statListStack.back();
 				statList.insert(statList.end(), std::make_move_iterator(std::next(stats.begin()+1)), std::make_move_iterator(stats.end()));
+			}
+			else if(std::holds_alternative<parse::StatementType::MOD_DEF_INLINE<Cfg>>(itm.data))
+			{
+				// Unwrap the inline module
+				//TODO: modules shouldnt use Block!
+				auto& module = std::get<parse::StatementType::MOD_DEF_INLINE<Cfg>>(itm.data);
+				inlineModules.push_back(InlineModule{ module.name, std::move(module.bl.statList) });
+				itm.data = parse::StatementType::MOD_DEF<Cfg>{module.name,module.exported};
 			}
 		}
 
@@ -307,10 +324,12 @@ namespace slu::mlvl
 		}; 
 	};
 
-	inline void basicDesugar(parse::BasicMpDbData& mpDbData,parse::ParsedFileV<true>& itm)
+	inline std::vector<InlineModule> basicDesugar(parse::BasicMpDbData& mpDbData,parse::ParsedFileV<true>& itm)
 	{
 		DesugarVisitor vi{ {},parse::BasicMpDb{ &mpDbData } };
 
 		visit::visitFile(vi, itm);
+
+		return std::move(vi.inlineModules);
 	}
 }
