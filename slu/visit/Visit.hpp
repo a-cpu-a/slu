@@ -547,9 +547,11 @@ namespace slu::visit
 			visitVarList(vi, var.vars);
 		},
 		varcase(parse::StatementType::LOCAL_ASSIGN<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(LocalVar);
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
 			visitExprList(vi, var.exprs);
+			Slu_CALL_VISIT_FN_POST_VAR(LocalVar);
 		},
 		varcase(parse::StatementType::CanonicLocal&) {
 			visitExported(vi, var.exported);
@@ -564,14 +566,18 @@ namespace slu::visit
 			visitExpr(vi, var.value);
 		},
 		varcase(parse::StatementType::LET<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(LetVar);
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
 			visitExprList(vi, var.exprs);
+			Slu_CALL_VISIT_FN_POST_VAR(LetVar);
 		},
 		varcase(parse::StatementType::CONST<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(ConstVar);
 			visitExported(vi, var.exported);
 			visitPat<false>(vi, var.names);
 			visitExprList(vi, var.exprs);
+			Slu_CALL_VISIT_FN_POST_VAR(ConstVar);
 		},
 		varcase(parse::StatementType::FUNC_CALL<Vi>&) {
 			visitLimPrefixExpr(vi, *var.val);

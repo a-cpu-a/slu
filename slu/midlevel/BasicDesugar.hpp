@@ -70,6 +70,16 @@ namespace slu::mlvl
 		//TODO: destructuring (also apply op stuff after too)
 		//TODO: destructuring but for fn args
 
+		bool preLetVar(parse::StatementType::LET<Cfg>& itm) {
+			return false;
+		}
+		bool preConstVar(parse::StatementType::CONST<Cfg>& itm) {
+			return false;
+		}
+		bool preLocalVar(parse::StatementType::LOCAL_ASSIGN<Cfg>& itm) {
+			return false;
+		}
+
 		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
 		{
 			if(itm.abi.empty())
