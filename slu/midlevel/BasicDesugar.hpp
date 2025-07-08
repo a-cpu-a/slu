@@ -70,14 +70,10 @@ namespace slu::mlvl
 		//TODO: destructuring (also apply op stuff after too)
 		//TODO: destructuring but for fn args
 
-		bool preLetVar(parse::StatementType::LET<Cfg>& itm) {
-			return false;
-		}
-		bool preConstVar(parse::StatementType::CONST<Cfg>& itm) {
-			return false;
-		}
-		bool preLocalVar(parse::StatementType::LOCAL_ASSIGN<Cfg>& itm) {
-			return false;
+		template<bool isLocal,class VarT>
+		void convVar(parse::Statement<Cfg>& stat,VarT& itm)
+		{
+
 		}
 
 		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
@@ -135,6 +131,12 @@ namespace slu::mlvl
 				inlineModules.push_back(InlineModule{ module.name, std::move(module.bl.statList) });
 				itm.data = parse::StatementType::MOD_DEF<Cfg>{module.name,module.exported};
 			}
+			else if (std::holds_alternative<parse::StatementType::LOCAL_ASSIGN<Cfg>>(itm.data))
+				convVar<true>(itm, std::get<parse::StatementType::LOCAL_ASSIGN<Cfg>>(itm.data));
+			else if (std::holds_alternative<parse::StatementType::LET<Cfg>>(itm.data))
+				convVar<true>(itm, std::get<parse::StatementType::LET<Cfg>>(itm.data));
+			else if (std::holds_alternative<parse::StatementType::CONST<Cfg>>(itm.data))
+				convVar<false>(itm, std::get<parse::StatementType::CONST<Cfg>>(itm.data));
 		}
 
 		template<bool forType,class MultiOp,class ExprT>
