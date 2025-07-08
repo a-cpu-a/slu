@@ -9,7 +9,7 @@ namespace slu::parse
 {
 	template<bool isSlu>
 	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpe(::slu::parse::LimPrefixExprV<isSlu>&& v) {
-		return std::make_unique<::slu::parse::LimPrefixExprV<isSlu>>(v);
+		return std::make_unique<::slu::parse::LimPrefixExprV<isSlu>>(std::move(v));
 	}
 	template<bool isSlu>
 	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpeVar(::slu::parse::MpItmIdV<isSlu> name)
