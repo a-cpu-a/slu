@@ -52,6 +52,7 @@ namespace slu::mlvl
 		std::vector<std::string> abiStack;
 		std::vector<bool> abiSafetyStack;
 		std::vector<parse::StatList<Cfg>*> statListStack;
+		std::vector<parse::Locals<Cfg>*> localsStack;
 
 		//Output!!
 		std::vector<InlineModule> inlineModules;
@@ -69,18 +70,29 @@ namespace slu::mlvl
 		//TODO: [50%] operators
 		//TODO: [_0%] auto-drop?
 		//TODO: [_0%] for/while/repeat loops
-		//TODO: [14%] destructuring (also apply op stuff after too)
+		//TODO: [20%] destructuring (also apply op stuff after too)
 		//TODO: destructuring but for fn args
 
 		template<bool isLocal>
-		parse::LocalOrName<Cfg, isLocal> getSynVarName() {
-
+		parse::LocalOrName<Cfg, isLocal> getSynVarName()
+		{
+			//mpDb.data->mps
+			parse::MpItmId<Cfg> synName;//TODO
+			if constexpr (isLocal)
+			{
+				auto& localSpace = *localsStack.back();
+				parse::LocalId id = localSpace.size();
+				localSpace.push_back(synName);
+				return id;
+			}
+			else
+				return synName;
 		}
 		template<bool isLocal>
 		void addCanonicVarStat(std::vector<parse::Sel<isLocal,
 			parse::StatementType::CanonicGlobal,
 			parse::StatementType::CanonicLocal>>& out,
-			const std::vector<parse::LocalId>& localStack,
+			const bool isFirstVar,
 			auto& itm,
 			bool exported,
 			parse::TypeExpr&& type,
@@ -97,7 +109,7 @@ namespace slu::mlvl
 			} else {
 				out.emplace_back(
 					std::move(type),
-					localStack.empty() ? std::move(itm.local2Mp) : parse::Locals<Cfg>(),
+					isFirstVar ? std::move(itm.local2Mp) : parse::Locals<Cfg>(),
 					name,
 					std::move(expr),
 					exported);
@@ -112,7 +124,7 @@ namespace slu::mlvl
 				parse::StatementType::CanonicLocal>;
 
 			std::vector<parse::PatV<true, isLocal>*> patStack;
-			std::vector<parse::LocalId> localStack;
+			std::vector<parse::LocalOrName<Cfg,isLocal>> localStack;
 			std::vector<Canonic> out;
 			patStack.push_back(&itm.names);
 			const bool exported = itm.exported;
@@ -140,14 +152,19 @@ namespace slu::mlvl
 					throw std::runtime_error("Invalid destructuring pattern type, idx(" + std::to_string(pat.index()) + ") (basic desugar)");
 				},
 				varcase(const parse::PatType::DestrAny) {
-					addCanonicVarStat<isLocal>(out, localStack, itm,
+					addCanonicVarStat<isLocal>(out, localStack.empty(), itm,
 						exported, 
 						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
 						getSynVarName<isLocal>(),
 						std::move(expr));
 				},
 				varcase(parse::PatType::DestrName<Cfg, isLocal>&) {
-					//TODO
+					//TODO: var.spec
+					addCanonicVarStat<isLocal>(out, localStack.empty(), itm,
+						exported,
+						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
+						var.name,
+						std::move(expr));
 				},
 				varcase(parse::PatType::DestrFields<Cfg, isLocal>&) {
 					//TODO
@@ -172,7 +189,11 @@ namespace slu::mlvl
 		{
 			if(itm.abi.empty())
 				itm.abi = abiStack.empty() ? "Any" : abiStack.back();
+			localsStack.push_back(&itm.local2Mp);
 			return false;
+		}
+		void postFunctionInfo(parse::FunctionInfo<Cfg>& itm) {
+			localsStack.pop_back();
 		}
 		bool preStatList(parse::StatList<Cfg>& itm) 
 		{
