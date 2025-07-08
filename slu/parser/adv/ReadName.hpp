@@ -26,7 +26,7 @@ namespace slu::parse
 	"then", "until", "while"
 #define _Slu_KWS \
 	/* freedom */\
-	"continue", "where", "reloc", "loop", "raw","has", \
+	"continue", "where", "reloc", "loop", "raw","has","glob", \
 	/* future */\
 	"only", "box", "abstract", "become", "final", \
 	"override", "typeof", "virtual", "unsized","global", \

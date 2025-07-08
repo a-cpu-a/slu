@@ -22,6 +22,7 @@ New Keywords {
 	loop   		(288k)		(12.8k)		Force loop again
 	raw    		(766k)		(176k)		?
 	has    		(..)		(..)		maybe for trait impl check?
+	glob   		(..)		(..)		alternative form for global vars, instead of 'const'? or maybe a global var that is not stored in const-memory / is memrefed?
 	
 
 	--Future proofing
