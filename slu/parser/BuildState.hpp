@@ -7,17 +7,40 @@
 
 namespace slu::parse
 {
-	template<AnyCfgable Cfg>
-	inline std::unique_ptr<::slu::parse::LimPrefixExpr<Cfg>> mkLpe(::slu::parse::LimPrefixExpr<Cfg>&& v) {
-		return std::make_unique<::slu::parse::LimPrefixExpr<Cfg>>(v);
+	template<bool isSlu>
+	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpe(::slu::parse::LimPrefixExprV<isSlu>&& v) {
+		return std::make_unique<::slu::parse::LimPrefixExprV<isSlu>>(v);
 	}
-	template<AnyCfgable Cfg>
-	inline std::unique_ptr<::slu::parse::LimPrefixExpr<Cfg>> mkLpeVar(::slu::parse::MpItmId<Cfg> name) {
-		return ::slu::parse::mkLpe(
-			::slu::parse::LimPrefixExprType::VAR<Cfg>{
-			.v = ::slu::parse::Var<Cfg>{
-				.base = ::slu::parse::BaseVarType::NAME<Cfg>{
+	template<bool isSlu>
+	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpeVar(::slu::parse::MpItmIdV<isSlu> name)
+	{
+		return ::slu::parse::mkLpe<isSlu>(
+			::slu::parse::LimPrefixExprType::VARv<isSlu>{
+			.v = ::slu::parse::VarV<isSlu>{
+				.base = ::slu::parse::BaseVarType::NAMEv<isSlu>{
 					.v = name
 		} } });
+	}
+	template<bool isSlu>
+	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpeVar(::slu::parse::LocalId locId)
+	{
+		return ::slu::parse::mkLpe<isSlu>(
+			::slu::parse::LimPrefixExprType::VARv<isSlu>{
+			.v = ::slu::parse::VarV<isSlu>{
+				.base = locId
+			} });
+	}
+	template<bool isSlu>
+	inline ::slu::parse::TableConstructorV<isSlu> mkTbl(::slu::parse::ExpListV<isSlu>&& exprs)
+	{
+		::slu::parse::TableConstructorV<isSlu> tc;
+		tc.reserve(exprs.size());
+		for (auto& i : exprs)
+		{
+			tc.emplace_back(::slu::parse::FieldType::EXPRv<isSlu>{
+				.v = std::move(i)
+			});
+		}
+		return tc;
 	}
 }
