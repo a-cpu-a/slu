@@ -72,22 +72,6 @@ namespace slu::mlvl
 		//TODO: [_0%] for/while/repeat loops
 		//TODO: [20%] destructuring (also apply op stuff after too)
 		//TODO: destructuring but for fn args
-
-		template<bool isLocal>
-		parse::LocalOrName<Cfg, isLocal> getSynVarName()
-		{
-			//mpDb.data->mps
-			parse::MpItmId<Cfg> synName;//TODO
-			if constexpr (isLocal)
-			{
-				auto& localSpace = *localsStack.back();
-				parse::LocalId id = localSpace.size();
-				localSpace.push_back(synName);
-				return id;
-			}
-			else
-				return synName;
-		}
 		template<bool isLocal>
 		void addCanonicVarStat(std::vector<parse::Sel<isLocal,
 			parse::StatementType::CanonicGlobal,
@@ -115,6 +99,46 @@ namespace slu::mlvl
 					exported);
 			}
 		}
+		template<bool isLocal>
+		parse::LocalOrName<Cfg, isLocal> getSynVarName()
+		{
+			//mpDb.data->mps
+			parse::MpItmId<Cfg> synName;//TODO
+			if constexpr (isLocal)
+			{
+				auto& localSpace = *localsStack.back();
+				parse::LocalId id = { localSpace.size() };
+				localSpace.push_back(synName);
+				return id;
+			}
+			else
+				return synName;
+		}
+		parse::TypeExpr destrSpec2TypeExpr(parse::Position place,parse::DestrSpec<Cfg>&& spec)
+		{
+			parse::TypeExpr te= ezmatch(spec)(
+			varcase(parse::DestrSpecType::Prefix&) 
+			{
+				auto res = parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},place };
+				if (!var.empty() && var[0].type == parse::UnOpType::MUT)
+				{
+					var.erase(var.begin());
+					res.hasMut = true;
+				}
+				res.unOps = std::move(var);
+
+				return res;
+			},
+			varcase(parse::DestrSpecType::Spat<Cfg>&) 
+			{
+				return parse::TypeExpr{ parse::mkLpe<isSlu>(
+					parse::LimPrefixExprType::EXPR<Cfg>{std::move(var)}
+				),place };
+			}
+			);
+			visit::visitTypeExpr(*this, te);
+			return te;
+		}
 
 		template<bool isLocal,class VarT>
 		void convVar(parse::Statement<Cfg>& stat,VarT& itm)
@@ -129,7 +153,7 @@ namespace slu::mlvl
 			const bool exported = itm.exported;
 			patStack.push_back(&itm.names);
 			if (itm.exprs.size() == 1)
-				exprStack.emplace_back(std::move(itm.exprs[0]));
+				exprStack.emplace_back(std::move(itm.exprs[0].data));
 			else
 			{
 				exprStack.emplace_back(parse::ExprType::TABLE_CONSTRUCTOR<Cfg>{
@@ -157,10 +181,9 @@ namespace slu::mlvl
 						std::move(expr));
 				},
 				varcase(parse::PatType::DestrName<Cfg, isLocal>&) {
-					//TODO: var.spec
 					addCanonicVarStat<isLocal>(out, first, itm,
 						exported,
-						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
+						destrSpec2TypeExpr(stat.place,std::move(var.spec)),
 						var.name,
 						std::move(expr));
 				},
