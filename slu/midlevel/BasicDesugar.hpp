@@ -123,28 +123,26 @@ namespace slu::mlvl
 				parse::StatementType::CanonicGlobal, 
 				parse::StatementType::CanonicLocal>;
 
-			std::vector<parse::PatV<true, isLocal>*> patStack;
-			std::vector<parse::LocalOrName<Cfg,isLocal>> localStack;
 			std::vector<Canonic> out;
-			patStack.push_back(&itm.names);
+			std::vector<parse::PatV<true, isLocal>*> patStack;
+			std::vector<parse::ExprData<Cfg>> exprStack;
 			const bool exported = itm.exported;
+			patStack.push_back(&itm.names);
+			if (itm.exprs.size() == 1)
+				exprStack.emplace_back(std::move(itm.exprs[0]));
+			else
+			{
+				exprStack.emplace_back(parse::ExprType::TABLE_CONSTRUCTOR<Cfg>{
+					.v = parse::mkTbl(std::move(itm.exprs))
+				});
+			}
 
+			bool first = true;
 			do {
 				parse::Expression<Cfg> expr;
 				expr.place = stat.place;
-				if (localStack.empty())
-				{
-					if (itm.exprs.size() == 1)
-						expr = std::move(itm.exprs[0]);
-					else
-					{
-						expr.data = parse::ExprType::TABLE_CONSTRUCTOR<Cfg>{
-							.v = parse::mkTbl(std::move(itm.exprs))
-						};
-					}
-				}
-				else
-					expr.data = parse::mkLpeVar<isSlu>(localStack.back());
+				expr.data = std::move(exprStack.back());
+				exprStack.pop_back();
 
 				auto& pat = *patStack.back();
 				ezmatch(pat)(
@@ -152,7 +150,7 @@ namespace slu::mlvl
 					throw std::runtime_error("Invalid destructuring pattern type, idx(" + std::to_string(pat.index()) + ") (basic desugar)");
 				},
 				varcase(const parse::PatType::DestrAny) {
-					addCanonicVarStat<isLocal>(out, localStack.empty(), itm,
+					addCanonicVarStat<isLocal>(out, first, itm,
 						exported, 
 						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
 						getSynVarName<isLocal>(),
@@ -160,7 +158,7 @@ namespace slu::mlvl
 				},
 				varcase(parse::PatType::DestrName<Cfg, isLocal>&) {
 					//TODO: var.spec
-					addCanonicVarStat<isLocal>(out, localStack.empty(), itm,
+					addCanonicVarStat<isLocal>(out, first, itm,
 						exported,
 						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
 						var.name,
@@ -173,6 +171,7 @@ namespace slu::mlvl
 					//TODO
 				}
 				);
+				first = false;
 			} while (!patStack.empty());
 
 			stat.data = std::move(out[0]);
