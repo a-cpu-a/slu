@@ -10,6 +10,7 @@
 #include <variant>
 #include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
+#include <slu/parser/BuildState.hpp>
 #include <slu/parser/OpTraits.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/Operator.hpp>
@@ -40,6 +41,7 @@ namespace slu::mlvl
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
 		using Cfg = visit::EmptyVisitor<DesugarCfg>::Cfg;
+		static constexpr bool isSlu = Cfg::settings() & ::slu::parse::sluSyn;
 
 		parse::BasicMpDb mpDb;
 		LazyCompute<parse::MpItmId<Cfg>> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];
@@ -67,13 +69,103 @@ namespace slu::mlvl
 		//TODO: [50%] operators
 		//TODO: [_0%] auto-drop?
 		//TODO: [_0%] for/while/repeat loops
-		//TODO: destructuring (also apply op stuff after too)
+		//TODO: [14%] destructuring (also apply op stuff after too)
 		//TODO: destructuring but for fn args
+
+		template<bool isLocal>
+		parse::LocalOrName<Cfg, isLocal> getSynVarName() {
+
+		}
+		template<bool isLocal>
+		void addCanonicVarStat(std::vector<parse::Sel<isLocal,
+			parse::StatementType::CanonicGlobal,
+			parse::StatementType::CanonicLocal>>& out,
+			const std::vector<parse::LocalId>& localStack,
+			auto& itm,
+			bool exported,
+			parse::TypeExpr&& type,
+			parse::LocalOrName<Cfg, isLocal> name,
+			parse::Expression<Cfg>&& expr)
+		{
+			if constexpr (isLocal)
+			{
+				out.emplace_back(
+					std::move(type),
+					name,
+					std::move(expr),
+					exported);
+			} else {
+				out.emplace_back(
+					std::move(type),
+					localStack.empty() ? std::move(itm.local2Mp) : parse::Locals<Cfg>(),
+					name,
+					std::move(expr),
+					exported);
+			}
+		}
 
 		template<bool isLocal,class VarT>
 		void convVar(parse::Statement<Cfg>& stat,VarT& itm)
 		{
+			using Canonic = parse::Sel<isLocal,
+				parse::StatementType::CanonicGlobal, 
+				parse::StatementType::CanonicLocal>;
 
+			std::vector<parse::PatV<true, isLocal>*> patStack;
+			std::vector<parse::LocalId> localStack;
+			std::vector<Canonic> out;
+			patStack.push_back(&itm.names);
+			const bool exported = itm.exported;
+
+			do {
+				parse::Expression<Cfg> expr;
+				expr.place = stat.place;
+				if (localStack.empty())
+				{
+					if (itm.exprs.size() == 1)
+						expr = std::move(itm.exprs[0]);
+					else
+					{
+						expr.data = parse::ExprType::TABLE_CONSTRUCTOR<Cfg>{
+							.v = parse::mkTbl(std::move(itm.exprs))
+						};
+					}
+				}
+				else
+					expr.data = parse::mkLpeVar<isSlu>(localStack.back());
+
+				auto& pat = *patStack.back();
+				ezmatch(pat)(
+				varcase(const auto&) {
+					throw std::runtime_error("Invalid destructuring pattern type, idx(" + std::to_string(pat.index()) + ") (basic desugar)");
+				},
+				varcase(const parse::PatType::DestrAny) {
+					addCanonicVarStat<isLocal>(out, localStack, itm,
+						exported, 
+						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
+						getSynVarName<isLocal>(),
+						std::move(expr));
+				},
+				varcase(parse::PatType::DestrName<Cfg, isLocal>&) {
+					//TODO
+				},
+				varcase(parse::PatType::DestrFields<Cfg, isLocal>&) {
+					//TODO
+				},
+				varcase(parse::PatType::DestrList<Cfg, isLocal>&) {
+					//TODO
+				}
+				);
+			} while (!patStack.empty());
+
+			stat.data = std::move(out[0]);
+
+			if (out.size() == 1)
+				return;
+
+			// Insert the rest of the statements
+			auto& statList = *statListStack.back();
+			statList.insert(statList.end(), std::make_move_iterator(std::next(out.begin() + 1)), std::make_move_iterator(out.end()));
 		}
 
 		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
@@ -191,34 +283,34 @@ namespace slu::mlvl
 						const size_t traitIdx = (size_t)op - 1; //-1 for none
 
 						call.val = parse::mkLpeVar(binOpFuncs[traitIdx].get([&] {
-									lang::ModPath name;
-									name.reserve(4);
-									name.emplace_back("std");
-									bool isOrd = op == parse::BinOpType::LESS_THAN
-										|| op == parse::BinOpType::LESS_EQUAL
-										|| op == parse::BinOpType::GREATER_THAN
-										|| op == parse::BinOpType::GREATER_EQUAL;
-									bool isEq = op == parse::BinOpType::EQUAL
-										|| op == parse::BinOpType::NOT_EQUAL;
-									if (isOrd || isEq)
-									{
-										name.emplace_back("cmp");
-										if (isOrd)
-											name.emplace_back("PartialOrd");
-										else
-											name.emplace_back("PartialEq");
-									}
-									else
-									{
-										name.emplace_back("ops");
-										if (op == parse::BinOpType::RANGE_BETWEEN)
-											name.emplace_back("Boundable");//TODO: choose the name!
-										else
-										name.emplace_back(parse::binOpTraitNames[traitIdx]);
-									}
-									name.emplace_back(parse::binOpNames[traitIdx]);
-									return mpDb.getItm(name);
-								})
+							lang::ModPath name;
+							name.reserve(4);
+							name.emplace_back("std");
+							bool isOrd = op == parse::BinOpType::LESS_THAN
+								|| op == parse::BinOpType::LESS_EQUAL
+								|| op == parse::BinOpType::GREATER_THAN
+								|| op == parse::BinOpType::GREATER_EQUAL;
+							bool isEq = op == parse::BinOpType::EQUAL
+								|| op == parse::BinOpType::NOT_EQUAL;
+							if (isOrd || isEq)
+							{
+								name.emplace_back("cmp");
+								if (isOrd)
+									name.emplace_back("PartialOrd");
+								else
+									name.emplace_back("PartialEq");
+							}
+							else
+							{
+								name.emplace_back("ops");
+								if (op == parse::BinOpType::RANGE_BETWEEN)
+									name.emplace_back("Boundable");//TODO: choose the name!
+								else
+									name.emplace_back(parse::binOpTraitNames[traitIdx]);
+							}
+							name.emplace_back(parse::binOpNames[traitIdx]);
+							return mpDb.getItm(name);
+							})
 						);
 
 
