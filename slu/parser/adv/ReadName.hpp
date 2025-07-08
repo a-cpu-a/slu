@@ -34,7 +34,7 @@ namespace slu::parse
 	"copy", "move",   \
 	"generator", "gen",	"yield", "async", "await", "static", \
 	/* documented */\
-	"it", "to", "as","at", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
+	"it", "as","at", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
 	"also","case", "drop", "enum", "impl","with", "safe", "const", \
 	"alloc", "macro", "match", "catch", "throw","trans","trait", "union", \
 	"axiom","share", "unsafe","struct", "module", "extern", "comptime"
