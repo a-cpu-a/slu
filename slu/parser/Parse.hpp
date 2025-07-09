@@ -952,9 +952,9 @@ namespace slu::parse
 			ParsedFile<In> res;
 			if constexpr (In::settings() & sluSyn)
 			{
-				auto [sl,syn] = readStatList<false>(in, true, true);
+				auto [sl, mp] = readStatList<false>(in, true, true);
 				res.code = std::move(sl);
-				res.nextSynName = syn;
+				res.mp = mp;
 			}
 			else
 				res.code = readBlock<false>(in, true, true);

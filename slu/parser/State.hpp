@@ -193,7 +193,7 @@ namespace slu::parse
 		StatListV<isSlu> statList;
 		ExpListV<isSlu> retExprs;//Special, may contain 0 elements (even with hadReturn)
 
-		LocalId nextSynName = { 0 };
+		lang::ModPathId mp;
 
 		Position start;
 		Position end;
@@ -1120,7 +1120,7 @@ namespace slu::parse
 	struct ParsedFileV
 	{
 		StatListV<isSlu> code;
-		LocalId nextSynName = {0};
+		lang::ModPathId mp;
 	};
 	template<>
 	struct ParsedFileV<false>
