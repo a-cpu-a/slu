@@ -160,6 +160,8 @@ namespace slu::parse
 	{
 		BasicMpDbData* data;
 
+		
+
 		template<bool unknown>
 		ModPathId get(const ModPathView path)
 		{
@@ -365,7 +367,7 @@ namespace slu::parse
 		BlockV<isSlu> popScope(const Position end) {
 			BlockV<isSlu> res = std::move(scopes.back().res);
 			res.end = end;
-			res.nextSynName = anonScopeCounts.back();
+			res.mp = mpDb.get<false>(totalMp);
 			scopes.pop_back();
 			totalMp.pop_back();
 			anonScopeCounts.pop_back();
@@ -379,10 +381,9 @@ namespace slu::parse
 			const LocalId nextAnonId = anonScopeCounts.back();
 			anonScopeCounts.pop_back();
 			if (isGlobal)
-				res.nextSynName = nextAnonId;
+				res.mp = mpDb.get<false>(totalMp);
 			else
 			{
-				res.nextSynName = { SIZE_MAX };//there can be no items in it
 				anonScopeCounts.back() = nextAnonId;//Shared counter
 			}
 			return res;
