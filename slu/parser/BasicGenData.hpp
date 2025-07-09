@@ -186,6 +186,7 @@ namespace slu::parse
 			}
 			return data->mp2Id.find(path)->second;
 		}
+
 		MpItmIdV<true> getItm(const ModPathView path)
 		{
 			if (path.size() == 1)
@@ -367,7 +368,8 @@ namespace slu::parse
 		BlockV<isSlu> popScope(const Position end) {
 			BlockV<isSlu> res = std::move(scopes.back().res);
 			res.end = end;
-			res.mp = mpDb.get<false>(totalMp);
+			if constexpr(isSlu)
+				res.mp = mpDb.template get<false>(totalMp);
 			scopes.pop_back();
 			totalMp.pop_back();
 			anonScopeCounts.pop_back();
@@ -381,7 +383,10 @@ namespace slu::parse
 			const LocalId nextAnonId = anonScopeCounts.back();
 			anonScopeCounts.pop_back();
 			if (isGlobal)
-				res.mp = mpDb.get<false>(totalMp);
+			{
+				if constexpr (isSlu)
+					res.mp = mpDb.template get<false>(totalMp);
+			}
 			else
 			{
 				anonScopeCounts.back() = nextAnonId;//Shared counter
