@@ -103,7 +103,7 @@ namespace slu::parse
 
 	//second -> nextSynName, only for isGlobal=true
 	template<bool isLoop, AnyInput In>
-	inline std::pair<StatList<In>,LocalId> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
+	inline std::pair<StatList<In>,lang::ModPathId> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
 	{
 		skipSpace(in);
 		in.genData.pushUnScope(in.getLoc(), isGlobal);
@@ -120,7 +120,7 @@ namespace slu::parse
 			skipSpace(in);
 		}
 		Block<In> bl = in.genData.popUnScope(in.getLoc());
-		return { std::move(bl.statList), bl.nextSynName };
+		return { std::move(bl.statList), bl.mp };
 	}
 
 	//if not pushScoep, then you will need to push it yourself!
