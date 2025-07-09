@@ -173,6 +173,19 @@ namespace slu::parse
 	Slu_DEF_CFG(StatList);
 
 
+	struct LocalId
+	{
+		size_t v = SIZE_MAX;
+		constexpr bool empty() const { return v == SIZE_MAX; }
+		constexpr static LocalId newEmpty() { return LocalId(); }
+	};
+	template<bool isSlu, bool isLocal>
+	using LocalOrNameV = Sel<isLocal, MpItmIdV<isSlu>, LocalId>;
+	Slu_DEF_CFG2(LocalOrName, isLocal);
+	template<bool isSlu>
+	using LocalsV = std::vector<MpItmIdV<isSlu>>;
+	Slu_DEF_CFG(Locals);
+
 
 	template<bool isSlu>
 	struct BlockV
@@ -180,7 +193,7 @@ namespace slu::parse
 		StatListV<isSlu> statList;
 		ExpListV<isSlu> retExprs;//Special, may contain 0 elements (even with hadReturn)
 
-		//Scope scope;
+		LocalId nextSynName = { 0 };
 
 		Position start;
 		Position end;
@@ -439,19 +452,6 @@ namespace slu::parse
 
 
 	//Common
-
-	struct LocalId
-	{
-		size_t v= SIZE_MAX;
-		constexpr bool empty() const { return v == SIZE_MAX; }
-		constexpr static LocalId newEmpty() { return LocalId(); }
-	};
-	template<bool isSlu,bool isLocal>
-	using LocalOrNameV = Sel<isLocal, MpItmIdV<isSlu>, LocalId>;
-	Slu_DEF_CFG2(LocalOrName,isLocal);
-	template<bool isSlu>
-	using LocalsV = std::vector<MpItmIdV<isSlu>>;
-	Slu_DEF_CFG(Locals);
 
 	//NOTE: has overload later!!!
 	template<bool isSlu>
@@ -1120,6 +1120,7 @@ namespace slu::parse
 	struct ParsedFileV
 	{
 		StatListV<isSlu> code;
+		LocalId nextSynName = {0};
 	};
 	template<>
 	struct ParsedFileV<false>
