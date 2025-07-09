@@ -103,17 +103,25 @@ namespace slu::mlvl
 		template<bool isLocal>
 		parse::LocalOrName<Cfg, isLocal> getSynVarName()
 		{
-			lang::LocalObjId obj = { nextSynIdStack.back()->v++ };//TODO
-			parse::MpItmId<Cfg> synName = {.id=obj,.mp= mpStack.back()};
+			lang::ModPathId mp = mpStack.back();
+			auto& mpData = mpDb.data->mps[mp.id];
+			lang::LocalObjId obj = { mpData.id2Name.size() };
+			parse::MpItmId<Cfg> name = {obj, mp};
+
+			std::string synName = parse::getAnonName(obj.val);
+
+			mpData.name2Id[synName] = obj;
+			mpData.id2Name[obj.val] = std::move(synName);
+
 			if constexpr (isLocal)
 			{
 				auto& localSpace = *localsStack.back();
 				parse::LocalId id = { localSpace.size() };
-				localSpace.push_back(synName);
+				localSpace.push_back(name);
 				return id;
 			}
 			else
-				return synName;
+				return name;
 		}
 		parse::TypeExpr destrSpec2TypeExpr(parse::Position place,parse::DestrSpec<Cfg>&& spec)
 		{
