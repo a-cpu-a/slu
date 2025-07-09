@@ -252,7 +252,7 @@ namespace slu::parse
 		std::vector<LocalsV<isSlu>> localsStack;
 		Sel<isSlu, LuaMpDb, BasicMpDb> mpDb;
 		std::vector<BasicGenScopeV<isSlu>> scopes;
-		std::vector<size_t> anonScopeCounts = {0};
+		std::vector<LocalId> anonScopeCounts;
 		ModPath totalMp;
 
 		/*
@@ -327,14 +327,14 @@ namespace slu::parse
 		//For impl, lambda, scope, doExpr, things named '_'
 		constexpr void pushAnonScope(const Position start)
 		{
-			const size_t id = anonScopeCounts.back()++;
+			const size_t id = anonScopeCounts.back().v++;
 			const std::string name = getAnonName(id);
 			addLocalObj(name);
 
 			totalMp.push_back(name);
 			scopes.push_back({id});
 			scopes.back().res.start = start;
-			anonScopeCounts.push_back(0);
+			anonScopeCounts.emplace_back(0);
 		}
 		//For extern/unsafe blocks
 		constexpr void pushUnScope(const Position start,const bool isGlobal)
@@ -343,7 +343,10 @@ namespace slu::parse
 
 			scopes.push_back({ id });
 			scopes.back().res.start = start;
-			anonScopeCounts.push_back((size_t)anonScopeCounts.back());
+			if (isGlobal)
+				anonScopeCounts.emplace_back(0);
+			else
+				anonScopeCounts.push_back(anonScopeCounts.back());
 		}
 		//For func, macro, inline_mod, type?, ???
 		constexpr void pushScope(const Position start,const std::string& name) {
@@ -352,7 +355,7 @@ namespace slu::parse
 			totalMp.push_back(name);
 			scopes.push_back({ NORMAL_SCOPE });
 			scopes.back().res.start = start;
-			anonScopeCounts.push_back(0);
+			anonScopeCounts.emplace_back(0);
 		}
 		constexpr LocalsV<isSlu> popLocalScope() {
 			auto res = std::move(localsStack.back());
@@ -362,6 +365,7 @@ namespace slu::parse
 		BlockV<isSlu> popScope(const Position end) {
 			BlockV<isSlu> res = std::move(scopes.back().res);
 			res.end = end;
+			res.nextSynName = anonScopeCounts.back();
 			scopes.pop_back();
 			totalMp.pop_back();
 			anonScopeCounts.pop_back();
@@ -370,10 +374,17 @@ namespace slu::parse
 		BlockV<isSlu> popUnScope(const Position end) {
 			BlockV<isSlu> res = std::move(scopes.back().res);
 			res.end = end;
+			bool isGlobal = scopes.back().anonId == GLOBAL_SCOPE;
 			scopes.pop_back();
-			const size_t nextAnonId = anonScopeCounts.back();
+			const LocalId nextAnonId = anonScopeCounts.back();
 			anonScopeCounts.pop_back();
-			anonScopeCounts.back() = nextAnonId;//Shared counter
+			if (isGlobal)
+				res.nextSynName = nextAnonId;
+			else
+			{
+				res.nextSynName = { SIZE_MAX };//there can be no items in it
+				anonScopeCounts.back() = nextAnonId;//Shared counter
+			}
 			return res;
 		}
 		void scopeReturn() {

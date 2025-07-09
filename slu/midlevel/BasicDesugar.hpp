@@ -53,6 +53,7 @@ namespace slu::mlvl
 		std::vector<bool> abiSafetyStack;
 		std::vector<parse::StatList<Cfg>*> statListStack;
 		std::vector<parse::Locals<Cfg>*> localsStack;
+		std::vector<parse::LocalId*> nextSynIdStack;
 
 		//Output!!
 		std::vector<InlineModule> inlineModules;
@@ -102,6 +103,7 @@ namespace slu::mlvl
 		template<bool isLocal>
 		parse::LocalOrName<Cfg, isLocal> getSynVarName()
 		{
+			lang::LocalObjId obj = { nextSynIdStack.back()->v++ };
 			//mpDb.data->mps
 			parse::MpItmId<Cfg> synName;//TODO
 			if constexpr (isLocal)
@@ -224,6 +226,22 @@ namespace slu::mlvl
 		}
 		void postStatList(parse::StatList<Cfg>& itm) {
 			statListStack.pop_back();
+		}
+		bool preBlock(parse::Block<Cfg>& itm) 
+		{
+			nextSynIdStack.push_back(&itm.nextSynName);
+			return false;
+		}
+		void postBlock(parse::Block<Cfg>& itm) {
+			nextSynIdStack.pop_back();
+		}
+		bool preFile(parse::ParsedFile<Cfg>& itm)
+		{
+			nextSynIdStack.push_back(&itm.nextSynName);
+			return false;
+		}
+		void postFile(parse::ParsedFile<Cfg>& itm) {
+			nextSynIdStack.pop_back();
 		}
 		bool preExternBlock(parse::StatementType::ExternBlock<Cfg>& itm) 
 		{
