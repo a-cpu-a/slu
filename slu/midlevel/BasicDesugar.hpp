@@ -204,6 +204,7 @@ namespace slu::mlvl
 				}
 				);
 				first = false;
+				patStack.pop_back();//consume one
 			} while (!patStack.empty());
 
 			stat.data = std::move(out[0]);
