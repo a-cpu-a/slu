@@ -78,7 +78,7 @@ namespace slu::mlvl
 			parse::StatementType::CanonicGlobal,
 			parse::StatementType::CanonicLocal>>& out,
 			const bool isFirstVar,
-			auto& itm,
+			auto& localHolder,
 			bool exported,
 			parse::TypeExpr&& type,
 			parse::LocalOrName<Cfg, isLocal> name,
@@ -94,7 +94,7 @@ namespace slu::mlvl
 			} else {
 				out.emplace_back(
 					std::move(type),
-					isFirstVar ? std::move(itm.local2Mp) : parse::Locals<Cfg>(),
+					isFirstVar ? std::move(localHolder.local2Mp) : parse::Locals<Cfg>(),
 					name,
 					std::move(expr),
 					exported);
@@ -148,6 +148,48 @@ namespace slu::mlvl
 			visit::visitTypeExpr(*this, te);
 			return te;
 		}
+		template<bool isLocal,bool isFields,class T>
+		void convDestrLists(parse::Position place,
+			auto& out,
+			std::vector<parse::PatV<true, isLocal>*>& patStack,
+			std::vector<parse::ExprData<Cfg>>& exprStack,
+			const bool first,
+			auto& localHolder,
+			parse::Expression<Cfg>&& expr,
+			bool exported,
+			T& itm) requires(parse::AnyCompoundDestr<isLocal,T>)
+		{
+			parse::LocalOrNameV<isSlu, isLocal> name;
+			if (itm.name.empty())
+			{
+				name = getSynVarName<isLocal>();
+				exported = false;
+			}
+			else
+				name = itm.name;
+			addCanonicVarStat<isLocal>(out, first, localHolder,
+				exported,
+				destrSpec2TypeExpr(place, std::move(itm.spec)),
+				name,
+				std::move(expr));
+			if constexpr (isFields)
+			{
+				for (auto& i : std::views::reverse(itm.items))
+					patStack.push_back(&i.pat);
+				for (auto& i : itm.items)
+					exprStack.emplace_back(parse::mkLpeVar(name, i.name));
+			}
+			else
+			{
+				for (auto& i : std::views::reverse(itm.items))
+					patStack.push_back(&i);
+				for (size_t i = 0; i < itm.items.size(); i++)
+				{
+					parse::MpItmId<Cfg> index = mpDb.resolveUnknown("0x" + parse::u64ToStr(i));
+					exprStack.emplace_back(parse::mkLpeVar(name, index));
+				}
+			}
+		}
 
 		template<bool isLocal,class VarT>
 		void convVar(parse::Statement<Cfg>& stat,VarT& itm)
@@ -159,7 +201,6 @@ namespace slu::mlvl
 			std::vector<Canonic> out;
 			std::vector<parse::PatV<true, isLocal>*> patStack;
 			std::vector<parse::ExprData<Cfg>> exprStack;
-			const bool exported = itm.exported;
 			patStack.push_back(&itm.names);
 			if (itm.exprs.size() == 1)
 				exprStack.emplace_back(std::move(itm.exprs[0].data));
@@ -177,6 +218,8 @@ namespace slu::mlvl
 				expr.data = std::move(exprStack.back());
 				exprStack.pop_back();
 
+				bool exported = itm.exported;//Synthetic ones are not exported anyway
+
 				auto& pat = *patStack.back();
 				ezmatch(pat)(
 				varcase(const auto&) {
@@ -184,7 +227,7 @@ namespace slu::mlvl
 				},
 				varcase(const parse::PatType::DestrAny) {
 					addCanonicVarStat<isLocal>(out, first, itm,
-						exported, 
+						false, 
 						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
 						getSynVarName<isLocal>(),
 						std::move(expr));
@@ -197,10 +240,10 @@ namespace slu::mlvl
 						std::move(expr));
 				},
 				varcase(parse::PatType::DestrFields<Cfg, isLocal>&) {
-					//TODO
+					convDestrLists<isLocal, true>(stat.place, out, patStack, exprStack, first, itm, std::move(expr), exported, var);
 				},
 				varcase(parse::PatType::DestrList<Cfg, isLocal>&) {
-					//TODO
+					convDestrLists<isLocal, false>(stat.place, out, patStack, exprStack, first, itm, std::move(expr), exported, var);
 				}
 				);
 				first = false;

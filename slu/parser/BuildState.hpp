@@ -22,6 +22,26 @@ namespace slu::parse
 		} } });
 	}
 	template<bool isSlu>
+	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpeVar(::slu::parse::MpItmIdV<isSlu> name, ::slu::parse::MpItmIdV<isSlu> sub)
+	{
+		::slu::parse::VarV<isSlu> tmp{
+			.base = ::slu::parse::BaseVarType::NAMEv<isSlu>{.v = name}
+		};
+		tmp.sub.emplace_back(::slu::parse::SubVarV<isSlu>{.idx = ::slu::parse::SubVarType::NAMEv<isSlu>{ .idx = sub }});
+		return ::slu::parse::mkLpe<isSlu>(
+			::slu::parse::LimPrefixExprType::VARv<isSlu>{
+			.v = std::move(tmp) });
+	}
+	template<bool isSlu>
+	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpeVar(::slu::parse::LocalId locId, ::slu::parse::MpItmIdV<isSlu> sub)
+	{
+		::slu::parse::VarV<isSlu> tmp{.base = locId};
+		tmp.sub.emplace_back(::slu::parse::SubVarV<isSlu>{.idx = ::slu::parse::SubVarType::NAMEv<isSlu>{ .idx = sub }});
+		return ::slu::parse::mkLpe<isSlu>(
+			::slu::parse::LimPrefixExprType::VARv<isSlu>{
+			.v = std::move(tmp) });
+	}
+	template<bool isSlu>
 	inline std::unique_ptr<::slu::parse::LimPrefixExprV<isSlu>> mkLpeVar(::slu::parse::LocalId locId)
 	{
 		return ::slu::parse::mkLpe<isSlu>(
