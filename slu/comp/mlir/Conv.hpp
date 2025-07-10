@@ -80,6 +80,7 @@ namespace slu::comp::mico
 	{
 		//TODO: mlir::Value, type, function, etc
 		mlir::func::FuncOp func;
+		std::string_view abi;
 	};
 	//localObj2CachedData
 	using MpElementInfo = std::unordered_map<size_t, GlobalElement>;
@@ -99,7 +100,7 @@ namespace slu::comp::mico
 			localsStack.emplace_back(itmCount);
 			localsStack.back().values.resize(itmCount);
 		}
-		mlir::func::FuncOp* getElement(const lang::MpItmIdV<true> name)
+		GlobalElement* getElement(const lang::MpItmIdV<true> name)
 		{
 			if(name.mp.id>= mp2Elements.size())
 				return nullptr;//not found
@@ -107,19 +108,19 @@ namespace slu::comp::mico
 			auto it = mp.find(name.id.val);
 			if (it == mp.end())
 				return nullptr;//not found
-			return &it->second.func;
+			return &it->second;
 		}
-		mlir::func::FuncOp* addElement(const lang::MpItmIdV<true> name, mlir::func::FuncOp func)
+		GlobalElement* addElement(const lang::MpItmIdV<true> name, mlir::func::FuncOp func, std::string_view abi)
 		{
 			if (name.mp.id >= mp2Elements.size())
 				mp2Elements.resize(name.mp.id + 1);
 			auto& mp = mp2Elements[name.mp.id];
-			mp[name.id.val] = { func };
-			return &mp[name.id.val].func;
+			mp[name.id.val] = {.func= func,.abi=abi};
+			return &mp[name.id.val];
 		}
 	};
 	//Forward declare!
-	mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm);
+	mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm, const std::string_view abi = ""sv);
 	//
 
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
@@ -256,7 +257,7 @@ namespace slu::comp::mico
 		}
 		);
 	}
-	inline mlir::Value convVarBase(ConvData& conv, parse::Position place, const parse::BaseVarV<true>& itm)
+	inline mlir::Value convVarBase(ConvData& conv, parse::Position place, const parse::BaseVarV<true>& itm, const std::string_view abi)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -268,6 +269,23 @@ namespace slu::comp::mico
 			const mlir::Location loc = convPos(conv, place);
 			mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
 			mlir::Value loaded = builder.create<mlir::memref::LoadOp>(loc, alloc, mlir::ValueRange{ index0 });
+
+			if (abi == "C"sv && loaded.getType().isIndex())
+			{
+				auto i64Type = builder.getIntegerType(64);
+				auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
+
+				// %ptrInt = index.castu %ptrIdx : index to i64
+				auto ptrInt = builder.create<mlir::index::CastUOp>(
+					convPos(conv, place), i64Type, loaded
+				);
+				// %llvm_ptr = llvm.inttoptr %ptrInt : i64 to !llvm.ptr
+				return (mlir::Value)builder.create<mlir::LLVM::IntToPtrOp>(convPos(conv, place),
+					llvmPtrType, ptrInt
+					, nullptr
+					//, mlir::LLVM::DereferenceableAttr::get(mc, str.size(), false)
+				);
+			}
 
 			return loaded;
 		},
@@ -287,14 +305,14 @@ namespace slu::comp::mico
 		}
 		);
 	}
-	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm)
+	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm, const std::string_view abi)
 	{
 		return ezmatch(itm)(
 		varcase(const parse::LimPrefixExprType::EXPRv<true>&){
-			return convExpr(conv, var.v);
+			return convExpr(conv, var.v,abi);
 		},
 		varcase(const parse::LimPrefixExprType::VARv<true>&){
-			return convVarBase(conv, place, var.v.base);
+			return convVarBase(conv, place, var.v.base,abi);
 				//TODO sub;
 			//basicly (.x == memref subview?) (.y.x().x == multiple stuff)
 		}
@@ -324,7 +342,7 @@ namespace slu::comp::mico
 			convPos(conv, place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
 		);
 	}
-	inline mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm)
+	inline mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm, const std::string_view abi)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -342,7 +360,7 @@ namespace slu::comp::mico
 		varcase(const parse::ExprType::NUMERAL_U128) {return convAny128(conv,itm.place,var); },
 
 		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)->mlir::Value {
-			return convLimPrefixExpr(conv,itm.place,*var);
+			return convLimPrefixExpr(conv,itm.place,*var,abi);
 		},
 		varcase(const parse::ExprType::LITERAL_STRING&)->mlir::Value {
 		
@@ -375,6 +393,9 @@ namespace slu::comp::mico
 			auto ptrIndex = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
 				convPos(conv, itm.place), globalStr
 			);
+
+			if (abi != "C"sv)
+				return ptrIndex;
 		
 			// %ptrInt = index.castu %ptrIdx : index to i64
 			auto ptrInt = builder.create<mlir::index::CastUOp>(
@@ -439,7 +460,7 @@ namespace slu::comp::mico
 
 			auto& varInfo = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v.base;
 			auto name = std::get<parse::BaseVarType::NAMEv<true>>(varInfo);
-			mlir::func::FuncOp* func = conv.getElement(name.v);
+			GlobalElement* funcInfo = conv.getElement(name.v);
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//It cant be the other types, as they are alreadt desugared!
@@ -447,13 +468,13 @@ namespace slu::comp::mico
 			std::vector<mlir::Value> args;
 			args.reserve(argList.size());
 			for (const auto& i : argList)
-				args.emplace_back(convExpr(conv, i));
+				args.emplace_back(convExpr(conv, i,funcInfo->abi));
 			
 			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr) -> i32
 			builder.create<mlir::LLVM::CallOp>(
 				convPos(conv, itm.place),
-				func->getResultTypes(),
-				mlir::SymbolRefAttr::get(mc, func->getSymName()),
+				funcInfo->func.getResultTypes(),
+				mlir::SymbolRefAttr::get(mc, funcInfo->func.getSymName()),
 				llvm::ArrayRef<mlir::Value>{args});
 
 		},
@@ -489,17 +510,17 @@ namespace slu::comp::mico
 			//StringRef  sym_name, ::mlir::FunctionType function_type, /*optional*/::mlir::StringAttr sym_visibility, /*optional*/::mlir::ArrayAttr arg_attrs, /*optional*/::mlir::ArrayAttr res_attrs, /*optional*/bool no_inline = false);
 
 			auto mangledName = mangleFuncName(conv, var.abi, var.name); 
-			auto decl = builder.create<mlir::func::FuncOp>(convPos(conv, itm.place),
+			mlir::func::FuncOp decl = builder.create<mlir::func::FuncOp>(convPos(conv, itm.place),
 				mangledName.sv(),
 				putsType, getExportAttr(conv, var.exported),
 				nullptr, nullptr, false
 			);
-			conv.addElement(var.name,decl);
+			conv.addElement(var.name, decl, var.abi);
 		},
 			varcase(const parse::StatementType::FNv<true>&) {
 
-			mlir::func::FuncOp* func = conv.getElement(var.name);
-			if (func == nullptr)
+			GlobalElement* funcInfo = conv.getElement(var.name);
+			if (funcInfo == nullptr)
 			{
 				auto mangledName = mangleFuncName(conv, var.func.abi, var.name);
 
@@ -509,13 +530,14 @@ namespace slu::comp::mico
 					getExportAttr(conv, var.exported),
 					nullptr, nullptr, false
 				);
-				func = conv.addElement(var.name, funcOp);
+				funcInfo = conv.addElement(var.name, funcOp, var.func.abi);
 			}
 
 			// Build a function in mlir
 			conv.addLocalStackItem(var.func.local2Mp.size());
 
-			mlir::Block* entry = func->addEntryBlock();
+
+			mlir::Block* entry = funcInfo->func.addEntryBlock();
 			builder.setInsertionPointToStart(entry);
 
 			for (auto& i : var.func.block.statList)
