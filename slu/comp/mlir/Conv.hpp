@@ -259,7 +259,23 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::ExprType::FALSE>
 		|| std::same_as<T, parse::ExprType::NIL>
 		|| std::same_as<T, parse::ExprType::MULTI_OPERATIONv<true>>;//already desugared
-
+	inline mlir::Value convAny64(ConvData& conv, parse::Position place, const parse::Any64BitInt auto itm)
+	{
+		mlir::OpBuilder& builder = conv.builder;
+		auto i64Type = builder.getIntegerType(64);
+		return builder.create<mlir::arith::ConstantOp>(
+			convPos(conv, place), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)itm.v)
+		);
+	}
+	inline mlir::Value convAny128(ConvData& conv, parse::Position place, const parse::Any128BitInt auto itm)
+	{
+		mlir::OpBuilder& builder = conv.builder;
+		auto i128Type = builder.getIntegerType(128);
+		llvm::APInt apVal(128, llvm::ArrayRef{ itm.lo ,itm.hi });
+		return builder.create<mlir::arith::ConstantOp>(
+			convPos(conv, place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
+		);
+	}
 	inline mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm)
 	{
 		auto* mc = &conv.context;
@@ -271,21 +287,11 @@ namespace slu::comp::mico
 		varcase(const auto&)->mlir::Value {
 			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
-			//TODO: are these ignored, or does it actually work?
-		varcase(const auto)->mlir::Value requires (parse::Any64BitInt<decltype(var)>) {
-			auto i64Type = builder.getIntegerType(64);
-			return builder.create<mlir::arith::ConstantOp>(
-				convPos(conv, itm.place), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)var.v)
-			);
-		},
-		varcase(const auto)->mlir::Value requires (parse::Any128BitInt<decltype(var)>) {
-			auto i128Type = builder.getIntegerType(128);
-			llvm::APInt apVal(128, llvm::ArrayRef{ var.lo ,var.hi });
-			return builder.create<mlir::arith::ConstantOp>(
-				convPos(conv, itm.place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
-			);
-			return {};
-		},
+		varcase(const parse::ExprType::NUMERAL_I64) {return convAny64(conv,itm.place,var); },
+		varcase(const parse::ExprType::NUMERAL_U64) {return convAny64(conv,itm.place,var); },
+		varcase(const parse::ExprType::NUMERAL_I128) {return convAny128(conv,itm.place,var); },
+		varcase(const parse::ExprType::NUMERAL_U128) {return convAny128(conv,itm.place,var); },
+
 		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)->mlir::Value {
 			//TODO: implement this
 			auto i1Type = builder.getIntegerType(1);
