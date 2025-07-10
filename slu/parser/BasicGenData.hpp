@@ -160,7 +160,12 @@ namespace slu::parse
 	{
 		BasicMpDbData* data;
 
-		
+
+		MpItmIdV<true> resolveUnknown(const std::string& name)
+		{
+			LocalObjId id = data->mps[0].get(name);
+			return MpItmIdV<true>{id, { 0 }};
+		}
 
 		template<bool unknown>
 		ModPathId get(const ModPathView path)
@@ -554,10 +559,7 @@ namespace slu::parse
 		constexpr MpItmIdV<isSlu> resolveUnknown(const std::string& name)
 		{
 			if constexpr(isSlu)
-			{
-				LocalObjId id = mpDb.data->mps[0].get(name);
-				return MpItmIdV<true>{id, { 0 }};
-			}
+				return mpDb.resolveUnknown(name);
 			else
 			{
 				LocalObjId id = mpDb.get(name);
