@@ -97,7 +97,7 @@ namespace slu::comp::mico
 
 		void addLocalStackItem(const size_t itmCount) {
 			localsStack.emplace_back(itmCount);
-			localsStack.back().values.reserve(itmCount);
+			localsStack.back().values.resize(itmCount);
 		}
 		mlir::func::FuncOp* getElement(const lang::MpItmIdV<true> name)
 		{
@@ -118,6 +118,10 @@ namespace slu::comp::mico
 			return &mp[name.id.val].func;
 		}
 	};
+	//Forward declare!
+	mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm);
+	//
+
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
 		return exported ? mlir::StringAttr() : conv.privVis;
 	}
@@ -252,6 +256,50 @@ namespace slu::comp::mico
 		}
 		);
 	}
+	inline mlir::Value convVarBase(ConvData& conv, parse::Position place, const parse::BaseVarV<true>& itm)
+	{
+		auto* mc = &conv.context;
+		mlir::OpBuilder& builder = conv.builder;
+
+		return ezmatch(itm)(
+		varcase(const parse::BaseVarType::Local) {
+			mlir::Value alloc = conv.localsStack.back().values[var.v];
+
+			const mlir::Location loc = convPos(conv, place);
+			mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+			mlir::Value loaded = builder.create<mlir::memref::LoadOp>(loc, alloc, mlir::ValueRange{ index0 });
+
+			return loaded;
+		},
+		varcase(const parse::BaseVarType::NAMEv<true>&) {
+			//TODO
+			return (mlir::Value)nullptr;
+		},
+		varcase(const parse::BaseVarType::EXPRv<true>&) {
+			return convExpr(conv,var.start);
+		},
+		varcase(const parse::BaseVarType::Root) {
+			//TODO: builtin root-mp reflection value
+			auto i1Type = builder.getIntegerType(1);
+			return (mlir::Value)builder.create<mlir::arith::ConstantOp>(
+				convPos(conv, place), i1Type, mlir::IntegerAttr::get(i1Type, 0)
+			);
+		}
+		);
+	}
+	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm)
+	{
+		return ezmatch(itm)(
+		varcase(const parse::LimPrefixExprType::EXPRv<true>&){
+			return convExpr(conv, var.v);
+		},
+		varcase(const parse::LimPrefixExprType::VARv<true>&){
+			return convVarBase(conv, place, var.v.base);
+				//TODO sub;
+			//basicly (.x == memref subview?) (.y.x().x == multiple stuff)
+		}
+		);
+	}
 
 	template<typename T>
 	concept AnyInvalidExpression =
@@ -285,6 +333,7 @@ namespace slu::comp::mico
 		return ezmatch(itm.data)(
 
 		varcase(const auto&)->mlir::Value {
+			conv.cfg.errPtr(std::to_string(itm.data.index()));
 			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
 		varcase(const parse::ExprType::NUMERAL_I64) {return convAny64(conv,itm.place,var); },
@@ -293,11 +342,7 @@ namespace slu::comp::mico
 		varcase(const parse::ExprType::NUMERAL_U128) {return convAny128(conv,itm.place,var); },
 
 		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)->mlir::Value {
-			//TODO: implement this
-			auto i1Type = builder.getIntegerType(1);
-			return builder.create<mlir::arith::ConstantOp>(
-				convPos(conv, itm.place), i1Type, mlir::IntegerAttr::get(i1Type, 0)
-			);
+			return convLimPrefixExpr(conv,itm.place,*var);
 		},
 		varcase(const parse::ExprType::LITERAL_STRING&)->mlir::Value {
 		
@@ -376,6 +421,19 @@ namespace slu::comp::mico
 
 			varcase(const auto&) {
 			throw std::runtime_error("Unimplemented statement type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
+		},
+			varcase(const parse::StatementType::CanonicLocal&) {
+			mlir::Value val = convExpr(conv, var.value);
+
+			const mlir::Location loc = convPos(conv, itm.place);
+			auto memrefType = mlir::MemRefType::get({ 1 }, val.getType()); // memref<1x_>
+			mlir::Value alloc = builder.create<mlir::memref::AllocaOp>(loc, memrefType);
+
+
+			mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+			builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
+
+			conv.localsStack.back().values[var.name.v] = alloc;
 		},
 			varcase(const parse::StatementType::FUNC_CALLv<true>&) {
 
