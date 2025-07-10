@@ -93,7 +93,20 @@ namespace slu::parse
 		{
 			auto [mp,skipped] = readModPath(in, std::move(start));
 
-			varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp));
+			if(mp.size()==1)
+			{
+				ezmatch(in.genData.resolveNameOrLocal(mp[0]))(
+					varcase(const LocalId) {
+					varDataOut.base = BaseVarType::Local(var);
+				},
+					varcase(const MpItmId<In>) {
+					varDataOut.base = BaseVarType::NAME<In>(var);
+				}
+					);
+			}
+			else
+				varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp));
+
 			return skipped;
 		}
 		//Check, cuz 'excess elements in struct initializer' happens in normal lua

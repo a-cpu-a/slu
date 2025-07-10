@@ -444,17 +444,19 @@ namespace slu::parse
 			}
 			return {};
 		}
-		constexpr MpItmIdV<isSlu> resolveName(const std::string& name)
+
+		constexpr DynLocalOrNameV<isSlu> resolveNameOrLocal(const std::string& name)
 		{// Check if its local
 			if constexpr (isSlu)
 			{
 				//either known local being indexed ORR unknown(potentially from a `use ::*`)
 				if (!localsStack.empty())
 				{
+					size_t id = 0;
 					for (auto& i : localsStack.back())
 					{
 						if(mpDb.data->mps[i.mp.id].id2Name[i.id.val]==name)
-							return i;
+							return LocalId{ id };
 					}
 				}
 				const std::optional<size_t> v = resolveLocalOpt(name);
@@ -468,6 +470,18 @@ namespace slu::parse
 				}
 			}
 			return resolveUnknown(name);
+		}
+		constexpr MpItmIdV<isSlu> resolveName(const std::string& name)
+		{
+			if constexpr (isSlu)
+			{
+				return ezmatch(resolveNameOrLocal(name))(
+					varcase(const LocalId) { return localsStack.back()[var.v]; },
+					varcase(const MpItmIdV<isSlu>) {return var;	}
+					);
+			}
+			else
+				return resolveNameOrLocal(name);
 		}
 		constexpr MpItmIdV<isSlu> resolveRootName(const ModPath& name) {
 			return mpDb.getItm(name);// Create if needed, and return it

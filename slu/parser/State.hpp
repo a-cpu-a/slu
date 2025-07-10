@@ -186,6 +186,8 @@ namespace slu::parse
 	using LocalsV = std::vector<MpItmIdV<isSlu>>;
 	Slu_DEF_CFG(Locals);
 
+	template<bool isSlu>
+	using DynLocalOrNameV = Sel<isSlu, MpItmIdV<false>, std::variant<MpItmIdV<true>, LocalId>>;
 
 	template<bool isSlu>
 	struct BlockV
