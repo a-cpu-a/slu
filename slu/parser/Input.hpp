@@ -30,6 +30,7 @@ namespace slu::parse
 			{ t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
 			{ t.resolveUnknown(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
 
+			//{ t.resolveNameOrLocal(std::string()) } -> std::same_as<parse::DynLocalOrNameV<isSlu>>;
 			{ t.resolveName(std::string()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
 			{ t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
 	}
