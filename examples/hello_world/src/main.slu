@@ -10,5 +10,8 @@ ex fn main() -> :>::std::void {
 	let s = "Hello world! \u{215F} x.x\x00";
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
+	
+	s = "I have stolen the show!\x00";
+	
 	self::puts(s);
 }
