@@ -523,6 +523,7 @@ namespace slu::comp::mico
 		},
 		varcase(const parse::StatementType::FnDeclV<true>&) {
 
+			mlir::OpBuilder::InsertionGuard guard(builder);
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//TODO: use type converter!
 			auto putsType = builder.getFunctionType({ llvmPtrType }, { convTypeHack(conv, var.abi, var.retType.value()) });
@@ -538,6 +539,8 @@ namespace slu::comp::mico
 			conv.addElement(var.name, decl, var.abi);
 		},
 			varcase(const parse::StatementType::FNv<true>&) {
+
+			mlir::OpBuilder::InsertionGuard guard(builder);
 
 			GlobalElement* funcInfo = conv.getElement(var.name);
 			if (funcInfo == nullptr)
