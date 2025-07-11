@@ -464,18 +464,38 @@ namespace slu::comp::mico
 
 			conv.localsStack.back().values[var.name.v] = alloc;
 		},
+			varcase(const parse::StatementType::WHILE_LOOPv<true>&) {
+			auto whileOp = builder.create<mlir::scf::WhileOp>(convPos(conv,itm.place), mlir::TypeRange{}, mlir::ValueRange{});
+
+			builder.setInsertionPointToStart(whileOp.getBeforeBody());
+			builder.create<mlir::scf::ConditionOp>(convPos(conv, var.cond.place), convExpr(conv,var.cond), mlir::ValueRange{});
+
+			builder.setInsertionPointToStart(whileOp.getAfterBody());
+			for (const auto& i : var.bl.statList)
+				convStat(conv, i);
+			if (var.bl.hadReturn && !var.bl.retExprs.empty())
+			{
+				//maybe return something
+				//TODO
+			}
+			builder.create<mlir::scf::YieldOp>(convPos(conv,var.bl.end));
+		},
 			varcase(const parse::StatementType::IfCondV<true>&) {
 			
+			std::vector<mlir::Block*> yieldBlocks;
+			yieldBlocks.reserve(var.elseIfs.size() + (var.elseBlock.has_value() ? 1 : 0));
 			size_t elIfIdx = 0;
 			mlir::scf::IfOp firstOp;
 			do {
 				const parse::ExpressionV<true>* cond;
+				const parse::SoeOrBlockV<true>* bl;
 				mlir::Location loc = nullptr;
 				bool hasMore = false;
 
 				if (elIfIdx == 0)
 				{
 					cond = &*var.cond;
+					bl = &var.bl.get();
 					loc = convPos(conv, itm.place);
 					hasMore = var.elseBlock.has_value() || !var.elseIfs.empty();
 				}
@@ -483,6 +503,7 @@ namespace slu::comp::mico
 				{
 					const auto& elIf = var.elseIfs[elIfIdx - 1];
 					cond = &elIf.first;
+					bl = &elIf.second;
 					loc = convPos(conv, elIf.first.place);
 					hasMore = var.elseBlock.has_value() || (var.elseIfs.size() > elIfIdx);
 				}
@@ -494,13 +515,23 @@ namespace slu::comp::mico
 					firstOp = op;
 
 				builder.setInsertionPointToStart(op.thenBlock());
-				convSoeOrBlock(conv, var.bl.get());
+				convSoeOrBlock(conv, *bl);
+				builder.create<mlir::scf::YieldOp>(convPos(conv, itm.place));
 				if(hasMore)
+				{
 					builder.setInsertionPointToStart(op.elseBlock());
+					yieldBlocks.push_back(op.elseBlock());
+				}
 			} while (elIfIdx++ < var.elseIfs.size());
 
 			if (var.elseBlock.has_value())
 				convSoeOrBlock(conv, var.elseBlock.value().get());
+
+			for (const auto i : yieldBlocks)
+			{
+				builder.setInsertionPointToStart(i);
+				builder.create<mlir::scf::YieldOp>(convPos(conv, itm.place));
+			}
 
 			builder.setInsertionPointAfter(firstOp);
 		},
