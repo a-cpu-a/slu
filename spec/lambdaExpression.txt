@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, type, exportPrefix, safety
+# Dependencies: basic, type, exportPrefix, safety, comptime
 #
 
 New Syntax {
@@ -16,7 +16,7 @@ Function Expression {
 	
 	Examples:
 	```slu
-	let f = unsafe comptime || -> u8 => 42
+	let f = unsafe const || -> u8 => 42
 	let add = |i32 x, i32 y| -> i32 => x + y
 	let fact = |i32 n| -> i32 => do {
 		if (n <= 1) {

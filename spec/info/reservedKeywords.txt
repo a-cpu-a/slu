@@ -37,6 +37,7 @@ New Keywords {
 	virtual		(82.9k)		(3.2k)		?
 	unsized		(120)		(0)			?
 	global		(578k)		(16.1k)		Easier to undestand than static?
+	comptime	(256)		(4)			comptime marker / expr
 
 
 	--TODO, planned
@@ -91,7 +92,6 @@ New Keywords {
 	struct 		(506k)		(62.2k)		Define a struct
 	module		(651k)		(40.2k)		module def
 	extern		(..)		(..)		extern blocks, extern spec
-	comptime	(256)		(4)			comptime marker / expr
 	
 	--Common with lua
 	
