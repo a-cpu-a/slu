@@ -26,6 +26,7 @@
 #include <mlir/Dialect/Func/IR/FuncOps.h>
 #include <mlir/Dialect/LLVMIR/LLVMDialect.h>
 #include <mlir/Dialect/MemRef/IR/MemRef.h>
+#include <mlir/Dialect/SCF/IR/SCF.h>
 #include <mlir/Dialect/MemRef/Transforms/Passes.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Index/IR/IndexOps.h>
@@ -435,6 +436,10 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatementType::UNSAFE_LABEL>
 		|| std::same_as<T, parse::StatementType::SAFE_LABEL>;
 
+	inline void convSoeOrBlock(ConvData& conv, const parse::SoeOrBlockV<true>& itm)
+	{
+
+	}
 	inline void convStat(ConvData& conv, const parse::StatementV<true>& itm)
 	{
 		auto* mc = &conv.context;
@@ -458,6 +463,46 @@ namespace slu::comp::mico
 			builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
 
 			conv.localsStack.back().values[var.name.v] = alloc;
+		},
+			varcase(const parse::StatementType::IfCondV<true>&) {
+			
+			size_t elIfIdx = 0;
+			mlir::scf::IfOp firstOp;
+			do {
+				const parse::ExpressionV<true>* cond;
+				mlir::Location loc = nullptr;
+				bool hasMore = false;
+
+				if (elIfIdx == 0)
+				{
+					cond = &*var.cond;
+					loc = convPos(conv, itm.place);
+					hasMore = var.elseBlock.has_value() || !var.elseIfs.empty();
+				}
+				else
+				{
+					const auto& elIf = var.elseIfs[elIfIdx - 1];
+					cond = &elIf.first;
+					loc = convPos(conv, elIf.first.place);
+					hasMore = var.elseBlock.has_value() || (var.elseIfs.size() > elIfIdx);
+				}
+
+				auto op = builder.create<mlir::scf::IfOp>(loc, mlir::TypeRange{},
+					convExpr(conv,*cond), hasMore);
+
+				if (elIfIdx == 0)
+					firstOp = op;
+
+				builder.setInsertionPointToStart(op.thenBlock());
+				convSoeOrBlock(conv, var.bl.get());
+				if(hasMore)
+					builder.setInsertionPointToStart(op.elseBlock());
+			} while (elIfIdx++ < var.elseIfs.size());
+
+			if (var.elseBlock.has_value())
+				convSoeOrBlock(conv, var.elseBlock.value().get());
+
+			builder.setInsertionPointAfter(firstOp);
 		},
 			varcase(const parse::StatementType::ASSIGNv<true>&) {
 			if (var.vars.size() != 1 || var.exprs.size() != 1)
@@ -538,7 +583,7 @@ namespace slu::comp::mico
 			);
 			conv.addElement(var.name, decl, var.abi);
 		},
-			varcase(const parse::StatementType::FNv<true>&) {
+		varcase(const parse::StatementType::FNv<true>&) {
 
 			mlir::OpBuilder::InsertionGuard guard(builder);
 
