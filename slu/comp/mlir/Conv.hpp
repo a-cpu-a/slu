@@ -257,6 +257,7 @@ namespace slu::comp::mico
 		}
 		);
 	}
+	template<bool forStore>
 	inline mlir::Value convVarBase(ConvData& conv, parse::Position place, const parse::BaseVarV<true>& itm, const std::string_view abi)
 	{
 		auto* mc = &conv.context;
@@ -265,6 +266,8 @@ namespace slu::comp::mico
 		return ezmatch(itm)(
 		varcase(const parse::BaseVarType::Local) {
 			mlir::Value alloc = conv.localsStack.back().values[var.v];
+
+			if constexpr (forStore)return alloc;
 
 			const mlir::Location loc = convPos(conv, place);
 			mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
@@ -312,7 +315,7 @@ namespace slu::comp::mico
 			return convExpr(conv, var.v,abi);
 		},
 		varcase(const parse::LimPrefixExprType::VARv<true>&){
-			return convVarBase(conv, place, var.v.base,abi);
+			return convVarBase<false>(conv, place, var.v.base,abi);
 				//TODO sub;
 			//basicly (.x == memref subview?) (.y.x().x == multiple stuff)
 		}
@@ -455,6 +458,23 @@ namespace slu::comp::mico
 			builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
 
 			conv.localsStack.back().values[var.name.v] = alloc;
+		},
+			varcase(const parse::StatementType::ASSIGNv<true>&) {
+			if (var.vars.size() != 1 || var.exprs.size() != 1)
+				throw std::runtime_error("Unimplemented assign conv, vers.size or var.exprs != 1");
+
+			if(!var.vars[0].sub.empty())
+				throw std::runtime_error("Unimplemented assign conv, var sub !empty");
+
+			mlir::Value memRef = convVarBase<true>(conv, itm.place,
+				var.vars[0].base,
+				""sv
+			);
+			const mlir::Location loc = convPos(conv, itm.place);
+			auto zeroIndex = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+
+			builder.create<mlir::memref::StoreOp>(loc, convExpr(conv, var.exprs[0], ""sv), memRef, mlir::ValueRange{ zeroIndex }, false);
+
 		},
 			varcase(const parse::StatementType::FUNC_CALLv<true>&) {
 
