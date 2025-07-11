@@ -137,12 +137,12 @@ New Keywords {
 
 Macro {
 	
-	--TODO: a way to splice out basic keywords, like "mut", "ex" and "comptime"
+	--TODO: a way to splice out basic keywords, like "mut", "ex" and "const"
 	-- maybe token sequences?
 	
 	Creates a new global or local macro with a name 'Name', that cant be modified.
 	
-	Macro's must return one of the macro types (or a simple container of them), if you need to return something else, use a comptime function.
+	Macro's must return one of the macro types (or a simple container of them), if you need to return something else, use a const function.
 	
 	macroSplice -> splices the token sequence(s) resulting from a expresion
 	macroInvoke -> run a macro & splice it.
@@ -161,7 +161,7 @@ Macro {
 	Adding "macro" before a argument, makes it modify parsing behaviour, when
 		using "macroInvoke", if there is no macro, then you need to pass it by value.
 	
-	You can call macro-functions like normal comptime functions.
+	You can call macro-functions like normal const functions.
 	When doing that, you also need to use "()".
 	
 	When using ">!( )!<", you cant have more than 1 argument, and it cant be a list.

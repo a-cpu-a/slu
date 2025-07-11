@@ -29,8 +29,6 @@ If Statement {
 	
 	Lets you check a bool value.
 	
-	TODO: should comptime be implicitly added where possible, or not?
-	
 	The return type is assigned automatically, if missing.
 	When in expressions, the return type is not decayed into a value, unless explicitly set as such, or if one of the cases would return a value.
 	```slu

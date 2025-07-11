@@ -1,27 +1,25 @@
 #
-# Dependencies: basic, fnStatement, letStatement, modules
-# MayModify: letStatementTypes, fnExpression
+# Dependencies: basic, fnStatement, modules
+# MayModify: fnExpression
 #
 
 New Syntax {
 
-	PreFn @::= ["comptime"]
-	PreLet @::= ["comptime"]
-	PreConst @::= ["comptime"]
+	PreFn @::= ["const"]
 	
 	comptimeExp ::= exp
 	comptimeVar ::= modpath {"." tupleableName}
 	comptimeVarType ::= modpath
 	comptimeFunccall ::= comptimeVar [":" tupleableName] args
 	
-	basicExp @::= | comptime(exp)
+	basicExp @::= | "const" "(" exp ")"
 }
 
 New Keywords {
-	comptime
+	const
 }
 
-Comptime Keyword {
+Const Keyword {
 	
 	This can mark something to only run at compile-time.
 	
@@ -34,7 +32,6 @@ Comptime Keyword {
 	Using comptime on global variables lets you initialize the values at compile-time.
 	On functions, it means that they must be executed at compile-time.
 	
-	Using comptime on a "let" local variable, forces the initial value to be stored in some private global state.
 	When using it on "const" local variables, the variables might be moved over to some private global state.
 	
 	
@@ -42,19 +39,17 @@ Comptime Keyword {
 	comptimeVar -> value must be known at compile-time
 	comptimeVarType -> only basic type paths allowed
 	
-	(comptime(exp)) can be used to force a expression to be run at compile-time
+	(const(exp)) can be used to force a expression to be run at compile-time
 	
 	
-	When there is a panic, or a error is propagated outside of comptime, a compiler error must be issued.
-	
-	For now, comptime code isnt allowed to write to comptime global variables.
+	When there is a panic, or a error is propagated outside of compile-time const evaluation, a compiler error must be issued.
 	
 	Implementation {
-		Likely just compile the needed functions, variables, constants, types into some lua_state, then run it.
+		Likely just compile the needed functions, variables, constants, types into some lua_state/mlir context, then run/jit it.
 		And then cache the results, until something changes.
 		
-		Dangerous libraries like "debug", "io", "os" are disabled inside comptime.
+		Dangerous libraries like "debug", "io", "os" are disabled inside const.
 		
-		note: (All normal functions can be evaluated at compile-time and run-time)
+		note: (All normal functions can be evaluated at compile-time and runtime)
 	}
 }

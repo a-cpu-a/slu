@@ -81,19 +81,19 @@ New Annotations {
 	
 	Example:
 	```slu
-	comptime let isDebug = true;
+	const IS_DEBUG = true;
 	
-	@Cfg{onlyIf=isDebug}
+	@Cfg{onlyIf=IS_DEBUG}
 	function debugPrint(msg) {
 		print("[DEBUG] " ++ msg);
 	}
 	
-	@Cfg{not isDebug}
+	@Cfg{!IS_DEBUG}
 	function debugPrint(msg) {
 		-- Debugging disabled, function is omitted at compile time
 	}
 	
-	debugPrint("This will only exist if isDebug is true!");
+	debugPrint("This will only exist if IS_DEBUG is true!");
 	```
 	
 	@Entrypoint{name="..."}

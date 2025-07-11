@@ -71,7 +71,7 @@ Char Usage {
 	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (x ** y) not (x * *y)
 	|   *    |   X    |   X    |
 	|   !=   |        |        |
-	|   !    |   X    |   ~    | postfix only counts when no whitespace between, also only for for comptime-vars.
+	|   !    |   X    |   ~    | postfix only counts when no whitespace between, also only for for const-vars.
 	|   &=   |        |   X    |
 	|   &    |   X    |   X    |
 	|   |=   |        |   X    |

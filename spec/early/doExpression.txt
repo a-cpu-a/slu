@@ -4,18 +4,20 @@
 
 New Syntax {
 	
-	basicExp @::= | ["comptime"] "do" ["->" typeExp] statOrRet
+	basicExp @::= | "do" ["->" typeExp] statOrRet
+	basicExp @::= | "const" ["->" typeExp] statOrRet
 }
 
 New Keywords {
 	do
+	const
 }
 
 Do Expression {
 	
 	Lets you compute a value inside in a expression, while being able to use statments, and more complex code.
 	
-	Using comptime, forces it to run at compile-time.
+	Using const, forces it to run at compile-time.
 	
 	Using "break" inside do blocks completes them, and returns the result, to be used for the expression outside.
 	Returning multiple expressions at once automatically produces a tuple, just like let, const, etc...

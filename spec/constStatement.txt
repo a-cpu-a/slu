@@ -13,11 +13,9 @@ New Keywords {
 
 Const Statement {
 	
-	Creates new global variable(s) with names, that cant be modified (not even its contents).
-	
+	Creates new global variable(s), that cant be modified.
 	Types are assigned automatically, when needed.
-
-	These variables are automatically marked with comptime, using comptime is an parse error.
+	The expressions are evaluated at compile time.
 	
 	
 	Unlike 'let', 'const' variables are available in any order, and dont have to be in top-to-bottom order.

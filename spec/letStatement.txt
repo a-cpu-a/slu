@@ -15,11 +15,9 @@ New Keywords {
 
 Let Statement {
 	
-	Creates new global or local variable(s) with names, that cant be modified (not even its contents), unless mut is added.
+	Creates new local variable(s), that cant be modified, unless mut is added.
 	
 	Types are assigned automatically, when needed.
-
-	Global variables are automatically marked with comptime, unless marked with @EntrypointInit, using comptime on globals is an soft-error.
 	
 	
 	Implementation {
