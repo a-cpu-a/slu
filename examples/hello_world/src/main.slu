@@ -6,8 +6,10 @@ safe extern "C" {
 }
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
-ex fn main() -> :>::std::void {
+ex fn main() -> :>::std::void 
+{
 	let s = "Hello world! \u{215F} x.x\x00";
+	let unused = 4;
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
 	
