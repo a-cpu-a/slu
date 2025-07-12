@@ -72,10 +72,11 @@ namespace slu::parse
 		}
 	};
 
+	using MpItmName2Obj = std::unordered_map<std::string, LocalObjId, _ew_string_haah, _ew_string_eq>;
 	struct BasicModPathData
 	{
 		ModPath path;
-		std::unordered_map<std::string, LocalObjId,_ew_string_haah,_ew_string_eq> name2Id;
+		MpItmName2Obj name2Id;
 		std::unordered_map<size_t, std::string> id2Name;
 
 		LocalObjId at(const std::string_view name) const {
@@ -161,6 +162,13 @@ namespace slu::parse
 		BasicMpDbData* data;
 
 
+		bool isUnknown(MpItmIdV<true> n) const
+		{
+			if (n.mp.id == 0)
+				return true;//Hardcoded as always unknown.
+			//Else: check if first part is empty
+			return data->mps[n.mp.id].path[0].empty();
+		}
 		MpItmIdV<true> resolveUnknown(const std::string& name)
 		{
 			LocalObjId id = data->mps[0].get(name);

@@ -54,6 +54,7 @@ namespace slu::mlvl
 		std::vector<parse::StatList<Cfg>*> statListStack;
 		std::vector<parse::Locals<Cfg>*> localsStack;
 		std::vector<lang::ModPathId> mpStack;
+		std::vector<parse::MpItmName2Obj*> mpItmsStack;
 
 		//Output!!
 		std::vector<InlineModule> inlineModules;
@@ -66,13 +67,47 @@ namespace slu::mlvl
 			return res;
 		}
 
-		//TODO: Implement the conversion logic here
-		//TODO: basic desugaring:
 		//TODO: [50%] operators
 		//TODO: [_0%] auto-drop?
-		//TODO: [_0%] for/while/repeat loops
-		//TODO: [20%] destructuring (also apply op stuff after too)
-		//TODO: destructuring but for fn args
+		//TODO: [_0%] for/while/repeat loops? maybe unnececary?
+		//TODO: destructuring for fn args
+		//TODO: consider adding a splice statement, instead of inserting statements (OR FIX THE UB FOR THAT!)
+
+
+		bool preBaseVarName(parse::BaseVarType::NAME<Cfg>& itm) {
+			if (mpDb.isUnknown(itm.v))
+			{
+				parse::BasicModPathData& mp = mpDb.data->mps[itm.v.mp.id];
+				std::string_view item = mp.id2Name.at(itm.v.id.val);
+
+				std::string_view start = item;
+				if (mp.path.size() > 1)
+					start = mp.path[1];
+
+				for (const auto& i : mpStack)
+				{
+					parse::BasicModPathData& testMp = mpDb.data->mps[i.id];
+					for (auto& [k,v] : testMp.id2Name)
+					{
+						if (v == start)
+						{
+							if (mp.path.size() > 1)
+							{
+								std::cerr << "TODO: handle preBaseVarName, when subpathing! (" << start << ") \n";
+								return false;
+							}
+							itm.v.mp = i;
+							itm.v.id.val = k;
+							return false;
+						}
+					}
+				}
+				//???? not found!
+				std::cerr << "TODO: handle preBaseVarName, not found! ("<<start <<") \n";
+			}
+			return false;
+		}
+
 		template<bool isLocal>
 		void addCanonicVarStat(std::vector<parse::Sel<isLocal,
 			parse::StatementType::CanonicGlobal,
@@ -281,18 +316,22 @@ namespace slu::mlvl
 		bool preBlock(parse::Block<Cfg>& itm) 
 		{
 			mpStack.push_back(itm.mp);
+			mpItmsStack.push_back(&mpDb.data->mps[itm.mp.id].name2Id);
 			return false;
 		}
 		void postBlock(parse::Block<Cfg>& itm) {
 			mpStack.pop_back();
+			mpItmsStack.pop_back();
 		}
 		bool preFile(parse::ParsedFile<Cfg>& itm)
 		{
 			mpStack.push_back(itm.mp);
+			mpItmsStack.push_back(&mpDb.data->mps[itm.mp.id].name2Id);
 			return false;
 		}
 		void postFile(parse::ParsedFile<Cfg>& itm) {
 			mpStack.pop_back();
+			mpItmsStack.pop_back();
 		}
 		bool preExternBlock(parse::StatementType::ExternBlock<Cfg>& itm) 
 		{
@@ -331,6 +370,7 @@ namespace slu::mlvl
 			{
 				// Unwrap the inline module
 				//TODO: modules shouldnt use Block!
+				//TODO: state shouldnt leak from lower mp's:
 				auto& module = std::get<parse::StatementType::MOD_DEF_INLINE<Cfg>>(itm.data);
 				inlineModules.push_back(InlineModule{ module.name, std::move(module.bl.statList) });
 				itm.data = parse::StatementType::MOD_DEF<Cfg>{module.name,module.exported};
