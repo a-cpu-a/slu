@@ -89,21 +89,28 @@ namespace slu::mlvl
 					parse::BasicModPathData& testMp = mpDb.data->mps[i.id];
 					for (auto& [k,v] : testMp.id2Name)
 					{
-						if (v == start)
+						if (v != start)
+							continue;
+
+						if (mp.path.size() > 1)
 						{
-							if (mp.path.size() > 1)
-							{
-								std::cerr << "TODO: handle preBaseVarName, when subpathing! (" << start << ") \n";
-								return false;
-							}
-							itm.v.mp = i;
-							itm.v.id.val = k;
+							lang::ModPath tmpMp;
+							tmpMp.reserve(testMp.path.size() + mp.path.size() - 1 + 1);
+							tmpMp.insert(tmpMp.end(), testMp.path.begin(), testMp.path.end());
+							tmpMp.insert(tmpMp.end(), mp.path.begin() + 1, mp.path.end());
+							tmpMp.emplace_back(item);
+
+							itm.v.mp = mpDb.get<false>(tmpMp);
+							itm.v.id = mpDb.data->mps[itm.v.mp.id].get(item);
 							return false;
 						}
+						itm.v.mp = i;
+						itm.v.id.val = k;
+						return false;
 					}
 				}
 				//???? not found!
-				std::cerr << "TODO: handle preBaseVarName, not found! ("<<start <<") \n";
+				std::cerr << "TODO: handle preBaseVarName, not found! (" << start << ") \n";
 			}
 			return false;
 		}
