@@ -507,7 +507,7 @@ namespace slu::parse
 		constexpr size_t countScopes() const
 		{
 			size_t val=0;
-			for (const auto& i : scopes)
+			for (const auto& i : std::views::reverse(scopes))
 			{
 				if (i.anonId == GLOBAL_SCOPE)
 					break;
