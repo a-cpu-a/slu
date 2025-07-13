@@ -1,19 +1,20 @@
 
 --const &:>::std::str MSG = "Hello world!";
 --fn _println(&:>::std::str text) -> void;
-safe extern "C" {
-	fn puts(&:>::std::str line) -> :>::std::i32;
-}
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
 ex fn main() -> :>::std::void 
 {
+	safe extern "C" {
+		fn puts(&:>::std::str line) -> :>::std::i32;
+	}
+	
 	let s = "Hello world! \u{215F} x.x\x00";
 	let unused = 4;
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
-	
 	s = "I have stolen the show!\x00";
 	
-	self::puts(s);
+	self::main::puts(s);
+	puts("Hello world v2.");
 }

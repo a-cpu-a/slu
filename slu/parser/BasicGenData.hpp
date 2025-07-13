@@ -454,6 +454,8 @@ namespace slu::parse
 					if (var == name)
 						return scopeRevId;
 				}
+				if (scope.anonId == GLOBAL_SCOPE)
+					break;//Dont look into other modules
 			}
 			return {};
 		}
@@ -475,8 +477,9 @@ namespace slu::parse
 				const std::optional<size_t> v = resolveLocalOpt(name);
 				if (v.has_value())
 				{
+					size_t startMpSize = totalMp.size() - (countScopes() - 1);
 					ModPathId mp = mpDb.template get<false>(
-						ModPathView(totalMp).subspan(0, totalMp.size() - *v)
+						ModPathView(totalMp).subspan(0, *v + startMpSize)// totalMp.size() - 
 					);
 					LocalObjId id = mpDb.data->mps[mp.id].get(name);
 					return MpItmIdV<true>{id, mp};
@@ -504,7 +507,9 @@ namespace slu::parse
 			size_t val=0;
 			for (const auto& i : scopes)
 			{
-				if (i.anonId != UNSCOPE && i.anonId!= GLOBAL_SCOPE)
+				if (i.anonId == GLOBAL_SCOPE)
+					break;
+				if (i.anonId != UNSCOPE)
 					val++;
 			}
 			return val;
