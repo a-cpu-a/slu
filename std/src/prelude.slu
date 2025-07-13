@@ -15,4 +15,4 @@ struct str = [self::u8];
 ---Represents 1 character sized str.
 ---Just a newtype of a str.
 --@Builtin{"base::type/char"} --TODO: unhack char-ness
-struct char = self::str;
+struct char = str;

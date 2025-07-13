@@ -7,6 +7,10 @@ safe extern "C" {
 	fn puts(&:>::std::str line) -> :>::std::i32;
 }
 
+fn helloWorld() -> :>::std::void {
+	puts("called helloWorld()\x00")
+}
+
 ex fn main() -> :>::std::void 
 {
 	
@@ -17,4 +21,6 @@ ex fn main() -> :>::std::void
 	s = "I have stolen the show!\x00";
 	
 	puts(s);
+	
+	helloWorld();
 }
