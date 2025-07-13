@@ -449,7 +449,6 @@ namespace slu::parse
 			{
 				if (scope.anonId == UNSCOPE)
 					continue;
-				scopeRevId++;
 
 				for (const std::string& var : scope.objs)
 				{
@@ -458,6 +457,8 @@ namespace slu::parse
 				}
 				if (scope.anonId == GLOBAL_SCOPE)
 					break;//Dont look into other modules
+
+				scopeRevId++;
 			}
 			return {};
 		}
