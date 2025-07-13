@@ -179,6 +179,11 @@ namespace slu::parse
 		if constexpr (In::settings() & sluSyn)
 			in.genData.pushLocalScope();
 
+		if (funcName.has_value())
+			in.genData.pushScope(in.getLoc(), *funcName);
+		else
+			in.genData.pushAnonScope(in.getLoc());
+
 		FunctionInfo<In> fi = readFuncInfo(in);
 		if constexpr (In::settings()&sluSyn)
 		{
@@ -186,6 +191,7 @@ namespace slu::parse
 			if (!in || (in.peek() != '{'))//no { found?
 			{
 				fi.local2Mp = in.genData.popLocalScope();
+				in.genData.popScope(in.getLoc());//TODO: maybe add it to the func info?
 				return { std::move(fi), false };//No block, just the info
 			}
 		}
@@ -195,9 +201,7 @@ namespace slu::parse
 		{
 			try {
 				requireToken(in, "{");
-				if(funcName.has_value())
-					in.genData.pushScope(in.getLoc(),*funcName);
-				func.block = readBlock<false>(in, func.hasVarArgParam, !funcName.has_value());
+				func.block = readBlock<false>(in, func.hasVarArgParam, false);
 				requireToken(in, "}");
 				func.local2Mp = in.genData.popLocalScope();
 			} catch(const ParseError&)
@@ -210,9 +214,7 @@ namespace slu::parse
 		{
 			try
 			{
-				if (funcName.has_value())
-					in.genData.pushScope(in.getLoc(), *funcName);
-				func.block = readBlock<false>(in, func.hasVarArgParam, !funcName.has_value());
+				func.block = readBlock<false>(in, func.hasVarArgParam, false);
 			}
 			catch (const ParseError& e)
 			{
