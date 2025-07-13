@@ -447,6 +447,8 @@ namespace slu::parse
 			size_t scopeRevId = 0;
 			for (const BasicGenScopeV<isSlu>& scope : std::views::reverse(scopes))
 			{
+				if (scope.anonId == UNSCOPE)
+					continue;
 				scopeRevId++;
 
 				for (const std::string& var : scope.objs)
@@ -477,9 +479,8 @@ namespace slu::parse
 				const std::optional<size_t> v = resolveLocalOpt(name);
 				if (v.has_value())
 				{
-					size_t startMpSize = totalMp.size() - (countScopes() - 1);
 					ModPathId mp = mpDb.template get<false>(
-						ModPathView(totalMp).subspan(0, *v + startMpSize)// totalMp.size() - 
+						ModPathView(totalMp).subspan(0, totalMp.size() -  *v)
 					);
 					LocalObjId id = mpDb.data->mps[mp.id].get(name);
 					return MpItmIdV<true>{id, mp};
