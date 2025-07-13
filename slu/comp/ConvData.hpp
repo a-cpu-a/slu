@@ -15,6 +15,6 @@ namespace slu::comp
 	{
 		const CompCfg& cfg;
 		const parse::BasicMpDbData& sharedDb;
-		const parse::StatementV<true>& stat;
+		const parse::StatementV<true>* stat;
 	};
 }

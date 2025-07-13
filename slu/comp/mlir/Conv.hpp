@@ -690,7 +690,7 @@ namespace slu::comp::mico
 			varcase(const AnyIgnoredStatement auto&) {}
 			);
 	}
-	inline void conv(ConvData&& conv) {
-		convStat(conv, conv.stat);
+	inline void conv(ConvData& conv) {
+		convStat(conv, *conv.stat);
 	}
 }

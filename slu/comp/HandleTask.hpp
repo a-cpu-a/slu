@@ -231,6 +231,13 @@ namespace slu::comp
 			//auto publVis = state.s->opBuilder.getStringAttr("nested"sv);
 			//auto nestVis = state.s->opBuilder.getStringAttr("nested"sv);
 
+			auto data = mico::ConvData{
+						CommonConvData{cfg,*state.sharedDb},
+						state.mp2Elements,
+						state.s->mc, state.s->llvmCtx,state.s->opBuilder,module,
+						privVis
+			};
+
 			for (const auto& i : var.statements)
 			{
 				for (const auto& j : i)
@@ -239,12 +246,8 @@ namespace slu::comp
 						CommonConvData{cfg,*state.sharedDb,j},
 						luaDb, out
 					});*/
-					slu::comp::mico::conv({
-						CommonConvData{cfg,*state.sharedDb,j},
-						state.mp2Elements,
-						state.s->mc, state.s->llvmCtx,state.s->opBuilder,module,
-						privVis
-						});
+					data.stat = &j;
+					slu::comp::mico::conv(data);
 				}
 			}
 			module.print(llvm::outs());
