@@ -78,7 +78,7 @@ namespace slu::mlvl
 			if (mpDb.isUnknown(itm.v))
 			{
 				parse::BasicModPathData& mp = mpDb.data->mps[itm.v.mp.id];
-				std::string_view item = mp.id2Name.at(itm.v.id.val);
+				std::string_view item = mp.id2Name[itm.v.id.val];
 
 				std::string_view start = item;
 				if (mp.path.size() > 1)
@@ -87,8 +87,11 @@ namespace slu::mlvl
 				for (const auto& i : mpStack)
 				{
 					parse::BasicModPathData& testMp = mpDb.data->mps[i.id];
-					for (auto& [k,v] : testMp.id2Name)
+					//Stored with +1 !!!
+					size_t k = 0;
+					for (std::string_view v : testMp.id2Name)
 					{
+						k++;
 						if (v != start)
 							continue;
 
@@ -105,7 +108,7 @@ namespace slu::mlvl
 							return false;
 						}
 						itm.v.mp = i;
-						itm.v.id.val = k;
+						itm.v.id.val = k-1;
 						return false;
 					}
 				}

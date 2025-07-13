@@ -77,7 +77,8 @@ namespace slu::parse
 	{
 		ModPath path;
 		MpItmName2Obj name2Id;
-		std::unordered_map<size_t, std::string> id2Name;
+		std::vector<std::string> id2Name;
+
 
 		LocalObjId at(const std::string_view name) const {
 			return name2Id.find(name)->second;
@@ -87,10 +88,10 @@ namespace slu::parse
 			auto p = name2Id.find(name);
 			if (p == name2Id.end())
 			{
-				const size_t res = name2Id.size();
+				const size_t res = id2Name.size();
 
 				name2Id[std::string(name)] = { res };
-				id2Name[res] = std::string(name);
+				id2Name.emplace_back(name);
 
 				return { res };
 			}
@@ -100,16 +101,16 @@ namespace slu::parse
 	struct LuaMpDb
 	{
 		std::unordered_map<std::string, LocalObjId> name2Id;
-		std::unordered_map<size_t, std::string> id2Name;
+		std::vector<std::string> id2Name;
 
 		LocalObjId get(const std::string& v)
 		{
 			if (!name2Id.contains(v))
 			{
-				const size_t res = name2Id.size();
+				const size_t res = id2Name.size();
 
 				name2Id[v] = { res };
-				id2Name[res] = v;
+				id2Name.emplace_back(v);
 
 				return { res };
 			}
@@ -119,12 +120,12 @@ namespace slu::parse
 		std::string_view asSv(const MpItmIdV<false> v) const {
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
-			return id2Name.at(v.id.val);
+			return id2Name[v.id.val];
 		}
 		lang::ViewModPath asVmp(const MpItmIdV<false> v) const {
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
-			return { id2Name.at(v.id.val) };
+			return { id2Name[v.id.val]};
 		}
 	};
 	struct BasicMpDbData
@@ -138,7 +139,7 @@ namespace slu::parse
 			ModPath res;
 			res.reserve(data.path.size() + 1);
 			res.insert(res.end(), data.path.begin(), data.path.end());
-			res.push_back(data.id2Name.at(name.id.val));
+			res.push_back(data.id2Name[name.id.val]);
 			return res;
 		}
 
@@ -215,7 +216,7 @@ namespace slu::parse
 		std::string_view asSv(const MpItmIdV<true> v) const {
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
-			return data->mps[v.mp.id].id2Name.at(v.id.val);
+			return data->mps[v.mp.id].id2Name[v.id.val];
 		}
 		lang::ViewModPath asVmp(const MpItmIdV<true> v) const {
 			if (v.id.val == SIZE_MAX)
@@ -230,7 +231,7 @@ namespace slu::parse
 				if(s.front()!='$')
 					res.push_back(s);
 			}
-			res.push_back(mp.id2Name.at(v.id.val));
+			res.push_back(mp.id2Name[v.id.val]);
 
 			return res;
 		}
