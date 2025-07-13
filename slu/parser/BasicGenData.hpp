@@ -71,6 +71,98 @@ namespace slu::parse
 			return a == b;
 		}
 	};
+	namespace RawTypeKind
+	{
+		using Void = std::monostate;
+		struct Uint128
+		{
+			uint64_t lo;
+			uint64_t hi;
+		};
+		struct Int128 : Uint128 {};
+		struct Range128Uu
+		{
+			Uint128 lo;
+			Uint128 hi;
+		};
+		struct Range128Su :Range128Uu {};
+		struct Range128Ss :Range128Uu {};
+		struct Range128Us :Range128Uu {};
+
+		using Int64 = int64_t;
+		using Uint64 = uint64_t;
+		struct Range64
+		{
+			Int64 lo;
+			Int64 hi;
+		};
+		struct Struct
+		{
+			std::vector<struct ResolvedType> fields;
+			std::vector<std::string> fieldNames;//may be hex ints, like "0x0"
+			lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
+		};
+		using Unresolved = parse::TypeExpr;
+	}
+	using RawType = std::variant<
+		RawTypeKind::Void,
+		RawTypeKind::Int128,
+		RawTypeKind::Uint128,
+		RawTypeKind::Range128Uu,
+		RawTypeKind::Range128Su,
+		RawTypeKind::Range128Ss,
+		RawTypeKind::Range128Us,
+		RawTypeKind::Int64,
+		RawTypeKind::Uint64,
+		RawTypeKind::Range64,
+		RawTypeKind::Struct,
+		RawTypeKind::Unresolved
+	>;
+	struct TySigil
+	{
+		lang::MpItmIdV<true> life;
+		uint8_t type;//slice,&,&mut,&const,&share
+	};
+	struct ResolvedType
+	{
+		RawType base;
+		std::vector<TySigil> sigils;
+	};
+	namespace ItmType
+	{
+		//Applied to anon/synthetic/private? stuff
+		using Unknown = std::monostate;
+
+		struct Fn
+		{
+			std::string abi;
+			ResolvedType ret;
+			std::vector<ResolvedType> args;
+			bool isStruct=false;//if true, then auto wraps returned thing in named tuple of 1 elem
+		};
+		struct GlobVar
+		{
+			ResolvedType ty;
+		};
+		struct ConstVar//Also for structs/unions/parts-of-enums without params
+		{
+			ResolvedType ty;
+			//TODO: computable value? how: thread safety? lazy? ???
+		};
+		struct UseAs
+		{
+			lang::MpItmIdV<true> usedThing;
+		};
+		struct Module {};
+	}
+	using Itm = std::variant<
+		ItmType::Unknown,
+		ItmType::Fn,
+		ItmType::GlobVar,
+		ItmType::ConstVar,
+		ItmType::UseAs,
+		ItmType::Module
+	>;
 
 	using MpItmName2Obj = std::unordered_map<std::string, LocalObjId, _ew_string_haah, _ew_string_eq>;
 	struct BasicModPathData
@@ -78,7 +170,7 @@ namespace slu::parse
 		ModPath path;
 		MpItmName2Obj name2Id;
 		std::vector<std::string> id2Name;
-
+		std::vector<Itm> id2Itm;
 
 		LocalObjId at(const std::string_view name) const {
 			return name2Id.find(name)->second;

@@ -2,7 +2,6 @@
 --const &:>::std::str MSG = "Hello world!";
 --fn _println(&:>::std::str text) -> void;
 
---@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
 safe extern "C" {
 	fn puts(&:>::std::str line) -> :>::std::i32;
 }
@@ -11,15 +10,17 @@ fn helloWorld() -> :>::std::void {
 	puts("called helloWorld()\x00")
 }
 
+--@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
 ex fn main() -> :>::std::void 
 {
-	
 	let mut s = "Hello world! \u{1F600} x.x\x00";
 	let unused = 4;
+	
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
-	s = "I have stolen the show! 😈\x00";
 	
+	puts(s);
+	s = "I have stolen the show! 😈\x00";
 	puts(s);
 	
 	helloWorld();
