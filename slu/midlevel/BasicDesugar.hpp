@@ -54,7 +54,7 @@ namespace slu::mlvl
 		std::vector<parse::StatList<Cfg>*> statListStack;
 		std::vector<parse::Locals<Cfg>*> localsStack;
 		std::vector<lang::ModPathId> mpStack;
-		std::vector<parse::MpItmName2Obj*> mpItmsStack;
+		std::vector<parse::BasicModPathData*> mpDataStack;
 
 		//Output!!
 		std::vector<InlineModule> inlineModules;
@@ -73,6 +73,53 @@ namespace slu::mlvl
 		//TODO: destructuring for fn args
 		//TODO: consider adding a splice statement, instead of inserting statements (OR FIX THE UB FOR THAT!)
 
+
+		void postUse(parse::StatementType::USE& itm)
+		{
+			ezmatch(itm.useVariant)(
+			varcase(parse::UseVariantType::EVERYTHING_INSIDE&) {
+				//TODO
+			},
+			varcase(parse::UseVariantType::AS_NAME&) {
+				auto& localMp = mpDb.data->mps[var.mp.id];
+				localMp.addItm(var.id, parse::ItmType::Alias{ itm.base });
+			},
+			varcase(parse::UseVariantType::IMPORT&) {
+				//var.name -> local
+				auto& localMp = mpDb.data->mps[var.name.mp.id];
+				localMp.addItm(var.name.id, parse::ItmType::Alias{itm.base});
+			},
+			varcase(parse::UseVariantType::LIST_OF_STUFF&) {
+				auto& localMp = *mpDataStack.back();
+				auto p = mpDb.data->mp2Id.find(itm.base.asVmp(mpDb));
+				if (p == mpDb.data->mp2Id.end())
+				{
+					//TODO error
+					return;
+				}
+				auto& baseMp = mpDb.data->mps[p->second.id];
+				for (auto& i : var)
+				{
+					std::string_view name =i.asSv(mpDb);
+					/*
+					if (name == "self")
+					{
+						std::string_view selfName = itm.base.asSv(mpDb);
+						localMp.
+						//TODO
+						localMp.addItm(itm.base.id, parse::ItmType::Alias{ itm.base });
+						continue;
+					}*/
+					lang::MpItmIdV<true> nonLocal;
+					nonLocal.mp = p->second;
+					nonLocal.id= baseMp.get(name);
+					
+					localMp.addItm(i.id, parse::ItmType::Alias{ nonLocal });
+
+				}
+			}
+			);
+		}
 
 		bool preBaseVarName(parse::BaseVarType::NAME<Cfg>& itm) {
 			if (mpDb.isUnknown(itm.v))
@@ -325,22 +372,22 @@ namespace slu::mlvl
 		bool preBlock(parse::Block<Cfg>& itm) 
 		{
 			mpStack.push_back(itm.mp);
-			mpItmsStack.push_back(&mpDb.data->mps[itm.mp.id].name2Id);
+			mpDataStack.push_back(&mpDb.data->mps[itm.mp.id]);
 			return false;
 		}
 		void postBlock(parse::Block<Cfg>& itm) {
 			mpStack.pop_back();
-			mpItmsStack.pop_back();
+			mpDataStack.pop_back();
 		}
 		bool preFile(parse::ParsedFile<Cfg>& itm)
 		{
 			mpStack.push_back(itm.mp);
-			mpItmsStack.push_back(&mpDb.data->mps[itm.mp.id].name2Id);
+			mpDataStack.push_back(&mpDb.data->mps[itm.mp.id]);
 			return false;
 		}
 		void postFile(parse::ParsedFile<Cfg>& itm) {
 			mpStack.pop_back();
-			mpItmsStack.pop_back();
+			mpDataStack.pop_back();
 		}
 		bool preExternBlock(parse::StatementType::ExternBlock<Cfg>& itm) 
 		{

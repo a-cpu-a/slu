@@ -210,6 +210,13 @@ namespace slu::parse
 		std::vector<std::string> id2Name;
 		std::vector<Itm> id2Itm;
 
+		void addItm(LocalObjId obj,Itm&& v)
+		{
+			if (id2Itm.size() <= obj.val)
+				id2Itm.resize(obj.val + 1);
+			id2Itm[obj.val] = std::move(v);
+		}
+
 		LocalObjId at(const std::string_view name) const {
 			return name2Id.find(name)->second;
 		}

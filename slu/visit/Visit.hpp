@@ -596,7 +596,11 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(parse::StatementType::USE&) {
-			//TODO
+			Slu_CALL_VISIT_FN_PRE_VAR(Use);
+			visitExported(vi, var.exported);
+			visitMp(vi, var.base);
+			//TODO var.useVariant
+			Slu_CALL_VISIT_FN_POST_VAR(Use);
 		},
 		varcase(parse::StatementType::SEMICOLON&) {
 			//TODO
