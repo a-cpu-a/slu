@@ -98,7 +98,7 @@ template<class T>
 	concept AnyMp = 
 		std::same_as<T, ModPathView>
 		|| std::same_as<T, ViewModPathView>
-		|| std::same_as<T, ModPathView>
+		|| std::same_as<T, ViewModPath>
 		|| std::same_as<T, ModPath>;
 
 
