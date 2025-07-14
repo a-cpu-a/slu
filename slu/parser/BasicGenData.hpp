@@ -71,9 +71,18 @@ namespace slu::parse
 			return a == b;
 		}
 	};
+	struct DelStructRawType
+	{
+		void operator()(struct StructRawType* it) const noexcept;
+	};
+	struct DelVariantRawType
+	{
+		void operator()(struct VariantRawType* it) const noexcept;
+	};
 	namespace RawTypeKind
 	{
-		using Void = std::monostate;
+		using TypeError = std::monostate;
+		using Unresolved = std::unique_ptr<parse::TypeExpr>;
 		struct Uint128
 		{
 			uint64_t lo;
@@ -96,16 +105,11 @@ namespace slu::parse
 			Int64 lo;
 			Int64 hi;
 		};
-		struct Struct
-		{
-			std::vector<struct ResolvedType> fields;
-			std::vector<std::string> fieldNames;//may be hex ints, like "0x0"
-			lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
-		};
-		using Unresolved = parse::TypeExpr;
+		using Variant = std::unique_ptr<struct VariantRawType, DelVariantRawType>;
+		using Struct = std::unique_ptr<struct StructRawType, DelStructRawType>;
 	}
 	using RawType = std::variant<
-		RawTypeKind::Void,
+		RawTypeKind::TypeError,
 		RawTypeKind::Int128,
 		RawTypeKind::Uint128,
 		RawTypeKind::Range128Uu,
@@ -115,6 +119,7 @@ namespace slu::parse
 		RawTypeKind::Int64,
 		RawTypeKind::Uint64,
 		RawTypeKind::Range64,
+		RawTypeKind::Variant,
 		RawTypeKind::Struct,
 		RawTypeKind::Unresolved
 	>;
@@ -127,7 +132,32 @@ namespace slu::parse
 	{
 		RawType base;
 		std::vector<TySigil> sigils;
+		size_t size : 63;
+		size_t sizeInBits : 1;
 	};
+	struct StructRawType
+	{
+		std::vector<ResolvedType> fields;
+		std::vector<std::string> fieldNames;//may be hex ints, like "0x0"
+		std::vector<size_t> fieldOffsets;//Only defined for fields that have a size>0
+		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
+		~StructRawType() {
+			fields.~vector();
+			fieldNames.~vector();
+			fieldOffsets.~vector();
+		}
+	};
+	struct VariantRawType
+	{
+		std::vector<ResolvedType> options;
+	};
+	void ::slu::parse::DelStructRawType::operator()(StructRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
+		delete it;
+	}
+
 	namespace ItmType
 	{
 		//Applied to anon/synthetic/private? stuff
@@ -144,12 +174,19 @@ namespace slu::parse
 		{
 			ResolvedType ty;
 		};
-		struct ConstVar//Also for structs/unions/parts-of-enums without params
+		//No precomputation for now, instead make them act as macros
+		struct ConstVar
+		{
+			ResolvedType ty;
+			parse::ExpressionV<true> value;
+		};
+		struct TypeVar//Also for structs/unions/parts-of-enums without params
 		{
 			ResolvedType ty;
 			//TODO: computable value? how: thread safety? lazy? ???
+			ResolvedType computedResolvedType;//hack, only supports simple stuff that doesnt need jit
 		};
-		struct UseAs
+		struct Alias
 		{
 			lang::MpItmIdV<true> usedThing;
 		};
@@ -160,7 +197,8 @@ namespace slu::parse
 		ItmType::Fn,
 		ItmType::GlobVar,
 		ItmType::ConstVar,
-		ItmType::UseAs,
+		ItmType::TypeVar,
+		ItmType::Alias,
 		ItmType::Module
 	>;
 
@@ -189,6 +227,12 @@ namespace slu::parse
 			}
 			return p->second;
 		}
+
+		BasicModPathData() = default;
+		BasicModPathData(ModPath&& path) :path(std::move(path)) {}
+		BasicModPathData(const BasicModPathData&) = delete;
+		BasicModPathData(BasicModPathData&&) = default;
+		BasicModPathData& operator=(BasicModPathData&&) = default;
 	};
 	struct LuaMpDb
 	{
@@ -223,7 +267,8 @@ namespace slu::parse
 	struct BasicMpDbData
 	{
 		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
-		std::vector<BasicModPathData> mps = { {} };//Add 0, the unknown one
+		std::vector<BasicModPathData> mps{1};
+
 
 		ModPath getMp(const MpItmIdV<true> name)const 
 		{

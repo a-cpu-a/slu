@@ -112,8 +112,7 @@ namespace slu::mlvl
 						return false;
 					}
 				}
-				//???? not found!
-				std::cerr << "TODO: handle preBaseVarName, not found! (" << start << ") \n";
+				//Must be a error or something from a `use ::*`
 			}
 			return false;
 		}
