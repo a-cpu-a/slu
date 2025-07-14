@@ -14,6 +14,7 @@
 #include <slu/parser/OpTraits.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/Operator.hpp>
+#include <slu/midlevel/ResolveType.hpp>
 
 namespace slu::mlvl
 {
@@ -115,10 +116,40 @@ namespace slu::mlvl
 					nonLocal.id= baseMp.get(name);
 					
 					localMp.addItm(i.id, parse::ItmType::Alias{ nonLocal });
-
 				}
 			}
 			);
+		}
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<parse::TypeExpr>&& ret,std::span<parse::Parameter<Cfg>> params)
+		{
+
+			auto& localMp = *mpDataStack.back();
+
+			parse::ItmType::Fn res;
+			res.abi = std::move(abi);
+			res.isStruct = false;
+			if (ret.has_value())
+				res.ret = resolveTypeExpr(mpDb, std::move(*ret));
+			else
+				res.ret = parse::ResolvedType{ .base = parse::RawTypeKind::Struct{},.size = 0 };
+
+			res.args.reserve(params.size());
+			for (auto& i : params)
+			{
+				auto& spec = std::get<parse::PatType::DestrName<Cfg, true>>(i.name).spec;
+				parse::Expression<Cfg>& type = std::get<parse::DestrSpecType::Spat<Cfg>>(spec);
+				res.args.emplace_back(resolveTypeExpr(mpDb, parse::TypeExpr{ parse::mkLpe<isSlu>(
+					parse::LimPrefixExprType::EXPR<Cfg>{std::move(type)}
+				),type.place }));
+			}
+
+			localMp.addItm(obj, std::move(res));
+		}
+		void postAnyFuncDeclStat(parse::StatementType::FunctionDecl<Cfg>& itm) {
+			mkFuncStatItm(itm.name.id, std::move(itm.abi), std::move(itm.retType), itm.params);
+		}
+		void postAnyFuncDefStat(parse::StatementType::FUNCTION_DEF<Cfg>& itm) {
+			mkFuncStatItm(itm.name.id, std::move(itm.func.abi), std::move(itm.func.retType), itm.func.params);
 		}
 
 		bool preBaseVarName(parse::BaseVarType::NAME<Cfg>& itm) {
