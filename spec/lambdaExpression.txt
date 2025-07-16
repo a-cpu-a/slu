@@ -4,8 +4,8 @@
 
 New Syntax {
 	
-	exp @::= | [safety] PreFn "|" [paramList] "|" ["->" typeExp "=>"] exp
-	basicExp @::= | [safety] PreFn "|" [paramList] "|" ["->" typeExp "=>"] basicExp
+	exp @::= | [safety] PreFn "|" [paramList] "|" ["->" basicExp "=>"] exp
+	basicExp @::= | [safety] PreFn "|" [paramList] "|" ["->" basicExp "=>"] basicExp
 }
 
 Function Expression {

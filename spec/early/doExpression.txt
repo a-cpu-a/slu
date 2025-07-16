@@ -4,8 +4,8 @@
 
 New Syntax {
 	
-	basicExp @::= | "do" ["->" typeExp] statOrRet
-	basicExp @::= | "const" ["->" typeExp] statOrRet
+	basicExp @::= | "do" ["->" basicExp] statOrRet
+	basicExp @::= | "const" ["->" basicExp] statOrRet
 }
 
 New Keywords {

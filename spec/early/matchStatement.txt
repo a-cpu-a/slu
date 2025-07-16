@@ -44,7 +44,7 @@ New Syntax {
 	matchElseItem ::= "else" ["if" exp] "=>" explist
 	matchStat ::= matchItem | matchElseItem | ";"
 	
-	matchExp ::= "match" basicExp ["->" typeExp] "{" {matchStat} "}"
+	matchExp ::= "match" basicExp ["->" basicExp] "{" {matchStat} "}"
 	
 	basicExp @::= | matchExp
 	stat @::= | matchExp

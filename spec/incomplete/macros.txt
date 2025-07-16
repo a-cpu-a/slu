@@ -12,12 +12,11 @@
 	ex struct Var = @Builtin{"base::type/var"}void;
 	ex struct Expr = @Builtin{"base::type/exp"}void;
 	ex struct Name = @Builtin{"base::type/Name"}void;
-	ex struct TypeExpr = @Builtin{"base::type/typeExp"}void;
 	ex struct TraitExpr = @Builtin{"base::type/traitExp"}void;
 	
 	--
 	--wrap around one of the above things, to allow a list of someting
-	--note: only works for: (Name,TypeExpr,TraitExpr,Expr,Var)
+	--note: only works for: (Name,TraitExpr,Expr,Var)
 	--
 	ex struct fn CommaList(type T) = @Builtin{"base::type/CommaList"}T;
 	
@@ -33,7 +32,6 @@
 	@Builtin{"base::no_splice"} ex macro fn Var!  {macro Var   v}->Var  {return v;}
 	@Builtin{"base::no_splice"} ex macro fn Expr! {macro Expr  v}->Expr {return v;}
 	@Builtin{"base::no_splice"} ex macro fn Name! {macro Name  v}->Name {return v;}
-	@Builtin{"base::no_splice"} ex macro fn TypeExpr!  {macro TypeExpr  v}->TypeExpr {return v;}
 	@Builtin{"base::no_splice"} ex macro fn TraitExpr! {macro TraitExpr  v}->TraitExpr {return v;}
 	
 	@Builtin{"base::no_splice"} ex macro fn CommaList!{type T,macro CommaList(T)  v}->CommaList(T) {return v;}
@@ -57,7 +55,7 @@
 	-- You can also call it like a normal function (you also need to use "()"),
 	-- and it will return what you called it with, and nothing will change.
 	--
-	-- assertEq!(addType(TypeExpr!{u8}), TypeExpr!{u8});
+	-- assertEq!(addType(Expr!{u8}), Expr!{u8});
 	--
 	
 	macro fn implAdd(macro CommaList(Name) ns) -> Vec(Stat) {
@@ -85,7 +83,6 @@
 		Var,
 		Expr,
 		Name,
-		TypeExpr,
 		TraitExpr
 	);
 	]=]
@@ -112,7 +109,6 @@ New Syntax {
 	basicExp @::= | macroInvSpl
 	var @::= | macroInvSpl
 	Name @::= | macroInvSpl
-	basicTypeExp @::= | macroInvSpl
 	traitExp @::= | macroInvSpl
 	OptExportPrefix @::= | macroInvSpl
 	comptimeVar @::= | macroInvSpl
@@ -127,7 +123,7 @@ New Syntax {
 	
 	PreMacro ::=
 	
-	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" typeExp] "{" block "}"
+	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
 	
 }
 

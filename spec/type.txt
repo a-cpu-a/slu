@@ -15,7 +15,7 @@ New Syntax {
 	typepostunop ::= ".*"
 	
 	binop @::= | "~~"
-	unop @::= | typeunop | "alloc"
+	unop @::= | typeunop | "alloc" | "mut"
 	postunp @::= | typepostunop
 	
 	borrowLifetime ::= "/" Name {"/" Name}
@@ -25,46 +25,23 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	
-	structField ::= annotations OptExportPrefix [Name "="] typeExpMut
-	structConstructor ::= structField {fieldsep structField} [fieldsep]
-	basicStruct ::= "{" [structConstructor] "}"
-	
-	
 	traitExp ::= basicExp
 		| traitExp "+" traitExp
 	
-	basicTypeExp ::= basicExp
-		| "trait"
-		| "dyn" traitExp
+	--TODO: remove 'struct {}' expression parsing
+	basicExp @::= | "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
 		| "?"
-		| "struct" basicStruct
 		| "union" basicStruct
-		| "~~" typeExp
-		| typeunop {typeunop} typeExp {typepostunop}
-		| basicTypeExp {typepostunop}
-		| basicTypeExp binop typeExp
-		| ["-"] Numeral
-		| [safety] "fn" typeExp "->" typeExp
+		| "~~" basicExp
+		| [safety] "fn" exp "->" basicExp
 	
-	typeExpMutBase ::= ["mut"] typeExp
-	basicTypeExpMutBase ::= "mut" typeExp | basicTypeExp
+	exp @::= | "~~" exp
+		| [safety] "fn" exp "->" exp
 	
-	basicTypeExpMut ::= basicTypeExpMutBase
-		| "~~" typeExpMutBase
-		| basicTypeExpMutBase binop typeExpMutBase
 	
-	typeExp ::= basicTypeExp
-		| typeExp binop typeExp
-		| basicStruct
-		
-	typeExpMut ::= typeExpMutBase
-		| basicTypeExpMut
-		| typeExpMut binop typeExpMut
-	
-	basicExp @::= | borrowLifetime | typeExpMut | traitExp
+	basicExp @::= | borrowLifetime | traitExp
 }
 
 New Keywords {

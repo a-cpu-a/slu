@@ -9,7 +9,7 @@ New Syntax {
 	tryItem ::= pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | matchElseItem | ";"
 	
-	tryExp ::= "try" (‘{’ block ‘}’ ‘catch’ | basicExp) ["->" typeExp] "{" {tryStat} "}"
+	tryExp ::= "try" (‘{’ block ‘}’ ‘catch’ | basicExp) ["->" basicExp] "{" {tryStat} "}"
 	
 	basicExp @::= | tryExp
 	stat @::= | tryExp

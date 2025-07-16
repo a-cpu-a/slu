@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	structInit ::= basicStruct | "=" typeExp
+	structInit ::= tableconstructor | "=" exp
 	
 	stat @::= | OptExportPrefix "struct" Name ["(" [paramList] ")"] structInit
 }
