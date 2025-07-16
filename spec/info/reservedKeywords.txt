@@ -36,7 +36,6 @@ New Keywords {
 	typeof 		(44k)		(616)		?
 	virtual		(82.9k)		(3.2k)		?
 	unsized		(120)		(0)			?
-	global		(578k)		(16.1k)		Easier to undestand than static?
 	comptime	(256)		(4)			comptime marker / expr
 
 
@@ -110,6 +109,7 @@ New Keywords {
 	until
 	while
 	elseif
+	global		(578k)		(16.1k)		Easier to undestand than static?
 	repeat
 	return
 	function

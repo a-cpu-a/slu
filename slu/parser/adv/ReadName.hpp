@@ -22,14 +22,14 @@ namespace slu::parse
 {
 #define _Slu_COMMON_KWS \
 	"and", "break", "do", "else", "elseif", "end", "for", "function", \
-	"goto", "if", "in", "local", "or", "repeat", "return", \
+	"global", "goto", "if", "in", "local", "or", "repeat", "return", \
 	"then", "until", "while"
 #define _Slu_KWS \
 	/* freedom */\
 	"continue", "where", "reloc", "loop", "raw","has","glob", \
 	/* future */\
 	"only", "box", "abstract", "become", "final", \
-	"override", "typeof", "virtual", "unsized","global", \
+	"override", "typeof", "virtual", "unsized", \
 	/* todos */\
 	"copy", "move",   \
 	"generator", "gen",	"yield", "async", "await", "static", \
