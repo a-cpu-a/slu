@@ -71,18 +71,25 @@ namespace slu::parse
 			return a == b;
 		}
 	};
-	struct DelStructRawType
-	{
-		void operator()(struct StructRawType* it) const noexcept;
+	struct StructRawType;
+	struct UnionRawType;
+	struct VariantRawType;
+	struct DelStructRawType {
+		void operator()(StructRawType* it) const noexcept;
 	};
-	struct DelVariantRawType
-	{
-		void operator()(struct VariantRawType* it) const noexcept;
+	struct DelUnionRawType {
+		void operator()(UnionRawType* it) const noexcept;
+	};
+	struct DelVariantRawType {
+		void operator()(VariantRawType* it) const noexcept;
 	};
 	namespace RawTypeKind
 	{
-		using TypeError = std::monostate;
+		using Inferred = std::monostate;
+		struct TypeError { };
 		using Unresolved = std::unique_ptr<parse::TypeExpr>;
+
+		using String = std::string;
 		struct Uint128
 		{
 			uint64_t lo;
@@ -105,11 +112,16 @@ namespace slu::parse
 			Int64 lo;
 			Int64 hi;
 		};
-		using Variant = std::unique_ptr<struct VariantRawType, DelVariantRawType>;
-		using Struct = std::unique_ptr<struct StructRawType, DelStructRawType>;
+		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
+		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
+		using Struct = std::unique_ptr<StructRawType, DelStructRawType>;
 	}
 	using RawType = std::variant<
 		RawTypeKind::TypeError,
+		RawTypeKind::Inferred,
+		RawTypeKind::Unresolved,
+
+		RawTypeKind::String,
 		RawTypeKind::Int128,
 		RawTypeKind::Uint128,
 		RawTypeKind::Range128Uu,
@@ -120,8 +132,8 @@ namespace slu::parse
 		RawTypeKind::Uint64,
 		RawTypeKind::Range64,
 		RawTypeKind::Variant,
-		RawTypeKind::Struct,
-		RawTypeKind::Unresolved
+		RawTypeKind::Union,
+		RawTypeKind::Struct
 	>;
 	struct TySigil
 	{
@@ -130,28 +142,57 @@ namespace slu::parse
 	};
 	struct ResolvedType
 	{
+		constexpr static size_t INCOMPLETE_MARK = SIZE_MAX >> 2;
+
 		RawType base;
 		std::vector<TySigil> sigils;
-		size_t size : 63;
-		size_t sizeInBits : 1;
+		size_t size : 62;
+		size_t sizeInBits : 1 = false;
+		size_t hasMut : 1 = false;
+
+		constexpr bool isComplete() const {
+			return size != INCOMPLETE_MARK;
+		}
+
+		constexpr size_t bitSizeByteCeil() const {
+			if (sizeInBits)
+				return ((size + 7) / 8) * 8;
+			return size*8;
+		}
+
+		static ResolvedType getInferred() {
+			return { .base = parse::RawTypeKind::Inferred{},.size = INCOMPLETE_MARK };
+		}
+		static ResolvedType getConstType(RawType&& v) {
+			return { .base = std::move(v),.size = 0/*Known value, not stored*/ };
+		}
 	};
 	struct StructRawType
 	{
 		std::vector<ResolvedType> fields;
-		std::vector<std::string> fieldNames;//may be hex ints, like "0x0"
-		std::vector<size_t> fieldOffsets;//Only defined for fields that have a size>0
+		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
+		std::vector<size_t> fieldOffsets;//Only defined for fields that have a size>0, also its in bits.
 		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
-		~StructRawType() {
-			fields.~vector();
-			fieldNames.~vector();
-			fieldOffsets.~vector();
-		}
+		//~StructRawType() {
+		//	fields.~vector();
+		//	fieldNames.~vector();
+		//	fieldOffsets.~vector();
+		//}
+	};
+	struct UnionRawType
+	{
+		std::vector<ResolvedType> fields;
+		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
+		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
 	};
 	struct VariantRawType
 	{
 		std::vector<ResolvedType> options;
 	};
 	void ::slu::parse::DelStructRawType::operator()(StructRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelUnionRawType::operator()(UnionRawType* it) const noexcept {
 		delete it;
 	}
 	void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
