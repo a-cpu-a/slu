@@ -6,13 +6,15 @@ The goal is to make a safe and fast language, that is easy to transpile into oth
 
 ## Features
 
-Builtin support for transpilation (lua, hopefully: js, llvm ir, java bytecode, ...)  
+Builtin support for transpilation (todo: maybe make a mlir dialect for each?) (lua, hopefully: js, jvm bytecode, ...)  
 Types as values (no generics, just functions: `Vec(u8)`)  
 Safety checking  
 Borrow checking (hopefuly easy to understand with lifetimes being just variable names: `&/var1/var2 T`)  
 Structural and nominal types  
-Ranged integers `const u8 = 0..0xFF`, currently out of range stuff is (planned to be) handled at runtime, unless they dont overlap  
-Builtin result type `throw MyErr{"oh no"}`  
-Compile-time code execution (Must be safe to execute. might output ur personal files tho... maybe?)  
+Trait, impl pattern  
+Ranged integers `const u8 = 0..0xFF`, currently out of range stuff is (planned to be) a
+warning + handled at runtime, unless the ranges dont overlap, then it would be a error  
+Builtin support for a result type `throw MyErr{"oh no"}`  
+Compile-time code execution (todo: sandbox it to make it safe & deterministic: mlir->wasm?)  
 
 [Spec is located here](/spec/)
