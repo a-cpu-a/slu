@@ -280,14 +280,14 @@ namespace slu::parse
 			}
 			break;
 		case 't':
-			if constexpr (In::settings() & sluSyn)
+			if constexpr (!(In::settings() & sluSyn))
 			{
-				if (checkReadTextToken(in, "trait"))
-					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::TRAIT_TY{},basicRes.place });
-				break;
+				if (checkReadTextToken(in, "true")) 
+				{
+					basicRes.data = ExprType::TRUE(); 
+					break; 
+				}
 			}
-
-			if (checkReadTextToken(in, "true")) { basicRes.data = ExprType::TRUE(); break; }
 			break;
 		case '.':
 			if constexpr(!(In::settings() & sluSyn))

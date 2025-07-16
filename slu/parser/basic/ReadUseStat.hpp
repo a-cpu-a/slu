@@ -35,10 +35,10 @@ namespace slu::parse
 				{
 					in.skip(3);
 					UseVariantType::LIST_OF_STUFF list;
-					list.push_back(in.genData.addLocalObj(readName<true>(in)));
+					list.push_back(in.genData.addLocalObj(readName<NameCatagory::MP_START>(in)));
 					while (checkReadToken(in, ","))
 					{
-						list.push_back(in.genData.addLocalObj(readName<true>(in)));
+						list.push_back(in.genData.addLocalObj(readName<NameCatagory::MP_START>(in)));
 					}
 					requireToken(in, "}");
 					res.useVariant = std::move(list);

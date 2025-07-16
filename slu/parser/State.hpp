@@ -370,8 +370,6 @@ namespace slu::parse
 	{
 		using ERR_INFERR = std::monostate;
 
-		struct TRAIT_TY {};
-
 		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExprV<true>>;
 		using FUNC_CALL = FuncCallV<true>;
 
@@ -416,7 +414,6 @@ namespace slu::parse
 	}
 	using TypeExprData = std::variant<
 		TypeExprDataType::ERR_INFERR,
-		TypeExprDataType::TRAIT_TY,
 
 		TypeExprDataType::LIM_PREFIX_EXP,
 		TypeExprDataType::FUNC_CALL,

@@ -633,9 +633,6 @@ namespace slu::paint
 				paintKw<Tok::GEN_OP>(se, "->");
 				paintTypeExpr(se, *var.retType);
 			},
-			varcase(const parse::TypeExprDataType::TRAIT_TY&) {
-				paintKw<Tok::NAME_TYPE>(se, "trait");
-			},
 			varcase(const parse::TypeExprDataType::MULTI_OP&) {
 				paintTypeExpr(se, *var.first);
 				for (const auto& [op, expr] : var.extra)

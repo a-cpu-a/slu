@@ -35,14 +35,14 @@ namespace slu::parse
 
 			in.skip(2);//skip '::'
 			skipSpace(in);
-			mp.push_back(readName(in));
+			mp.push_back(readName<NameCatagory::MP>(in));
 			skipped = skipSpace(in);
 		}
 		return { mp, skipped };
 	}
 	template<AnyInput In>
 	inline ModPath readModPath(In& in) {
-		return readModPath(in, readName<true>(in)).first;
+		return readModPath(in, readName<NameCatagory::MP_START>(in)).first;
 	}
 	//Unlike readModPath, doesnt have the ability to do things like `self::xyz`
 	template<AnyInput In>
@@ -87,7 +87,7 @@ namespace slu::parse
 		// Must be Name, ... or mod path
 
 		//Lua doesnt reserve mp_start names, so doesnt matter
-		std::string start = readName<true>(in);
+		std::string start = readName<NameCatagory::MP_START>(in);
 
 		if constexpr (In::settings() & sluSyn)
 		{

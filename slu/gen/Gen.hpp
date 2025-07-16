@@ -300,9 +300,6 @@ namespace slu::parse
 		varcase(const TypeExprDataType::ERR_INFERR) {
 			out.add('?');
 		},
-		varcase(const TypeExprDataType::TRAIT_TY) {
-			out.add("trait");
-		},
 		varcase(const TypeExprDataType::FUNC_CALL&) {
 			genFuncCall(out, var);
 		},

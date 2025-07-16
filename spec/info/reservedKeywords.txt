@@ -10,9 +10,11 @@ New Keywords {
 	--kw		content		symbol		meaning
 	
 	
-	--Only partialy reserved, so is allowed if inside mp's `a::drop`, or function names `fn drop()`, but you cant call it like `drop()`, only like `self::drop()`
+	--Only partially reserved, so is allowed if inside mp's `a::drop`, or function names `fn drop()`, but you cant call it like `drop()`, only like `self::drop()`
 	--TODO: impl those allowed exceptions, as it is fully reserved rn
 	drop   		(377k)		(40.3k)		Drop a value explicitly
+	--Partially reserved, but only allowed in var path, like: `x = trait` `std::trait::hello`, still reserved in var/struct/module names
+	trait  		(63.2k)		(4k)		Define a trait
 	
 	--Maybe eventualy used...
 
@@ -83,7 +85,6 @@ New Keywords {
 	catch		(44k)		(3.3k)		catch stat
 	throw		(92.2k)		(7k)		return a error
 	trans  		(..)		(..)		Transmute types
-	trait  		(63.2k)		(4k)		Define a trait
 	union  		(25k)		(2k)		Define a union
 	axiom		(..)		(..)		Axiom stuff
 	share		(424k)		(7.6k)		Extended ref system

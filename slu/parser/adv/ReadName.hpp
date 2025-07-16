@@ -24,6 +24,7 @@ namespace slu::parse
 	"and", "break", "do", "else", "elseif", "end", "for", "function", \
 	"global", "goto", "if", "in", "local", "or", "repeat", "return", \
 	"then", "until", "while"
+
 #define _Slu_KWS \
 	/* freedom */\
 	"continue", "where", "reloc", "loop", "raw","has","glob", \
@@ -36,8 +37,9 @@ namespace slu::parse
 	/* documented */\
 	"it", "as","at", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
 	"also","case", "drop", "enum", "impl","with", "safe", "const", \
-	"alloc", "macro", "match", "catch", "throw","trans","trait", "union", \
+	"alloc", "macro", "match", "catch", "throw","trans", "union", \
 	"axiom","share", "unsafe","struct", "module", "extern", "comptime"
+#define _Slu_MOSTLY_KWS "self", "Self", "crate", "super"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
 		"false", "nil", "not", _Slu_COMMON_KWS, "true"
@@ -47,24 +49,37 @@ namespace slu::parse
 		_Slu_KWS,
 
 		//Conditional
-		"self", "Self", "crate", "super",
+		_Slu_MOSTLY_KWS, "trait",
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
 		_Slu_COMMON_KWS,
 		_Slu_KWS
 	};
+	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP = {
+		_Slu_COMMON_KWS,
+		_Slu_KWS,
+		_Slu_MOSTLY_KWS
+	};
 #undef _LUA_KWS
+#undef _Slu_MOSTLY_KWS
 #undef _Slu_COMMON_KWS
-
-	template<bool forMpStart>
+	enum class NameCatagory
+	{
+		DEFAULT,
+		MP_START,
+		MP
+	};
+	template<NameCatagory cata>
 	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
 		const std::unordered_set<std::string>* checkSet = &RESERVED_KEYWORDS;
 
 		if constexpr (in.settings() & sluSyn)
 		{
-			if constexpr (forMpStart)
+			if constexpr (cata== NameCatagory::MP_START)
 				checkSet = &RESERVED_KEYWORDS_SLU_MP_START;
+			else if constexpr (cata== NameCatagory::MP)
+				checkSet = &RESERVED_KEYWORDS_SLU_MP;
 			else
 				checkSet = &RESERVED_KEYWORDS_SLU;
 		}
@@ -75,7 +90,7 @@ namespace slu::parse
 		return false;
 	}
 
-	template<bool forMpStart=false,bool sluTuplable=false>
+	template<NameCatagory cata =NameCatagory::DEFAULT,bool sluTuplable=false>
 	inline std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
@@ -146,7 +161,7 @@ namespace slu::parse
 		}
 
 		// Check if the resulting string is a reserved keyword
-		if (isNameInvalid<forMpStart>(in, res))
+		if (isNameInvalid<cata>(in, res))
 		{
 			if (allowError)
 				return "";
@@ -155,15 +170,15 @@ namespace slu::parse
 
 		return res;
 	}
-	template<bool forMpStart = false>
+	template<NameCatagory cata = NameCatagory::DEFAULT>
 	inline std::string readSluTuplableName(AnyInput auto& in, const bool allowError = false) {
-		return readName<forMpStart,true>(in, allowError);
+		return readName<cata,true>(in, allowError);
 	}
 
 	//No space skip!
 	//Returns SIZE_MAX, on non name inputs
 	//Otherwise, returns last peek() idx that returns a part of the name
-	template<bool forMpStart = false>
+	template<NameCatagory cata = NameCatagory::DEFAULT>
 	inline size_t peekName(AnyInput auto& in,const size_t at = 0)
 	{
 		if (!in)
@@ -194,7 +209,7 @@ namespace slu::parse
 			continue;
 		}
 		// Check if the resulting string is a reserved keyword
-		if (isNameInvalid<forMpStart>(in, res))
+		if (isNameInvalid<cata>(in, res))
 			return SIZE_MAX;
 
 		return i;
