@@ -543,7 +543,7 @@ namespace slu::mlvl
 							{
 								name.emplace_back("ops");
 								if (op == parse::BinOpType::RANGE_BETWEEN)
-									name.emplace_back("Boundable");//TODO: choose the name!
+									name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
 								else
 									name.emplace_back(parse::binOpTraitNames[traitIdx]);
 							}
@@ -582,7 +582,7 @@ namespace slu::mlvl
 									name.emplace_back("std");
 									name.emplace_back("ops");
 									if (op.type == parse::UnOpType::RANGE_BEFORE)
-										name.emplace_back("Boundable");//TODO: choose the name!
+										name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
 									else
 										name.emplace_back(parse::unOpTraitNames[traitIdx]);
 									name.emplace_back(parse::unOpNames[traitIdx]);
@@ -611,7 +611,7 @@ namespace slu::mlvl
 										name.reserve(4);
 										name.emplace_back("std");
 										name.emplace_back("ops");
-										name.emplace_back("Boundable");//TODO: choose the name!
+										name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
 										name.emplace_back(parse::postUnOpNames[traitIdx]);
 										return mpDb.getItm(name);
 									}

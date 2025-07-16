@@ -85,4 +85,7 @@ namespace slu::parse
 	constexpr auto storeBinOpTraitNames = mkPostBinOpNames(true);
 	constexpr auto binOpNames = nameArraysToSvs(storeBinOpNames);
 	constexpr auto binOpTraitNames = nameArraysToSvs(storeBinOpTraitNames);
+
+
+	constexpr char RANGE_OP_TRAIT_NAME[] = "Boundable";
 }
