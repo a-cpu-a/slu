@@ -39,25 +39,27 @@ namespace slu::mlvl
 		varcase(parse::TypeExprDataType::FN&&) {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve FN type expressions resolution.");
+			throw std::runtime_error("TODO: resolve FN type expressions.");
 		},
 		varcase(parse::TypeExprDataType::DYN&&) {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve DYN type expressions resolution.");
+			throw std::runtime_error("TODO: resolve DYN type expressions.");
 		},
 		varcase(parse::TypeExprDataType::IMPL&&) {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve IMPL type expressions resolution.");
+			throw std::runtime_error("TODO: resolve IMPL type expressions.");
 		},
 		varcase(parse::TypeExprDataType::ERR&&) {
 			//TODO replace with ?~~var equivelant.
-			throw std::runtime_error("TODO: resolve ERR type expressions resolution.");
+			throw std::runtime_error("TODO: resolve ERR type expressions.");
 		},
 
 		varcase(parse::TypeExprDataType::FUNC_CALL&&) {
 			//TODO: resolve basic ops, jit all else.
+			if(var.argChain.size() != 1)
+				throw std::runtime_error("TODO: resolve complex FUNC_CALL type expressions.");
 		},
 		varcase(parse::TypeExprDataType::LIM_PREFIX_EXP&&) {
 			//TODO
@@ -136,7 +138,7 @@ namespace slu::mlvl
 		varcase(parse::TypeExprDataType::Union&&) {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve Union type expression resolution.");
+			throw std::runtime_error("TODO: resolve Union type expressions.");
 		},
 
 
