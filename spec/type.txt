@@ -28,7 +28,6 @@ New Syntax {
 	traitExp ::= basicExp
 		| traitExp "+" traitExp
 	
-	--TODO: remove 'struct {}' expression parsing
 	basicExp @::= | "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"

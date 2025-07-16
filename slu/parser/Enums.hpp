@@ -80,14 +80,11 @@ namespace slu::parse
 		TO_PTR_CONST,	// "*const"
 		TO_PTR_SHARE,	// "*share"
 
-
-		//Pseudo, only for type prefixes
 		MUT,			// "mut"
 
 		//Not a real op, just the amount of unops
-		//equal to mut, cuz 'mut' isnt a real unop
-		// -1 because NONE
-		ENUM_SIZE = MUT-1
+		//== MUT because NONE inst a real op.
+		ENUM_SIZE = MUT
 	};
 
 	enum class PostUnOpType : uint8_t

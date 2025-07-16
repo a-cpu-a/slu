@@ -84,6 +84,12 @@ namespace slu::parse
 			if (checkReadToken(in, ".."))
 				return UnOpType::RANGE_BEFORE;
 			break;
+		case 'm':
+			if  constexpr (!(in.settings() & sluSyn))break;
+
+			if (checkReadTextToken(in, "mut"))
+				return UnOpType::MUT;
+			break;
 		default:
 			break;
 		}

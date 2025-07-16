@@ -83,11 +83,6 @@ namespace slu::parse
 		Expression<In> basicRes;
 		basicRes.place = startPos;
 
-		if constexpr (FOR_PAT)
-		{// This allows mut as a type prefix, not just type expression.
-			if (checkReadTextToken(in, "mut"))
-				basicRes.unOps.push_back({ .type = UnOpType::MUT });
-		}
 
 		while (true)
 		{
@@ -114,7 +109,7 @@ namespace slu::parse
 			if constexpr (in.settings() & sluSyn)
 			{
 				in.skip();
-				basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::ERR_INFERR{},basicRes.place });
+				basicRes.data = ExprType::Inferr{};
 				break;
 			}
 			[[fallthrough]];
@@ -144,7 +139,8 @@ namespace slu::parse
 			{
 				if (in.peekAt(1) == '~') // '~~'
 				{
-					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
+					requireToken(in, "~~");
+					basicRes.data = ExprType::Err{ std::make_unique<ExpressionV<true>>(readExpr<IS_BASIC>(in,allowVarArg)) };
 					break;
 				}
 			}
@@ -156,22 +152,12 @@ namespace slu::parse
 				break;
 			}
 			break;
-		case 'm':
-			if constexpr (in.settings() & sluSyn)
-			{
-				if (checkTextToken(in, "mut"))
-				{
-					basicRes.data = ExprType::TYPE_EXPR(readTypeExpr(in, true));
-					break;
-				}
-			}
-			break;
 		case 'd':
 			if constexpr (in.settings() & sluSyn)
 			{
 				if (checkReadTextToken(in, "dyn"))
 				{
-					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::DYN{readTraitExpr(in)},basicRes.place });
+					basicRes.data = ExprType::Dyn{readTraitExpr(in)};
 					break;
 				}
 			}
@@ -181,7 +167,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "impl"))
 				{
-					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::IMPL{readTraitExpr(in)} ,basicRes.place });
+					basicRes.data = ExprType::Impl{readTraitExpr(in)};
 					break;
 				}
 				if (checkReadTextToken(in, "if"))
@@ -200,16 +186,23 @@ namespace slu::parse
 				if (!checkReadTextToken(in, "safe"))
 					break;
 				requireToken(in, "fn");
-				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::SAFE),basicRes.place });
+				basicRes.data = readFnType<IS_BASIC>(in, OptSafety::SAFE);
 			}
 			break;
 		case 'u'://unsafe fn
 			if constexpr (in.settings() & sluSyn)
 			{
 				if (!checkReadTextToken(in, "unsafe"))
+				{
+					if (checkReadTextToken(in, "union"))
+					{
+						requireToken(in, "{");
+						basicRes.data = ExprType::Union(readTableConstructor<false>(in, false));
+					}
 					break;
+				}
 				requireToken(in, "fn");
-				basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::UNSAFE),basicRes.place });
+				basicRes.data = readFnType<IS_BASIC>(in, OptSafety::UNSAFE);
 			}
 			break;
 		case 'f':
@@ -217,7 +210,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "fn"))
 				{
-					basicRes.data = ExprType::TYPE_EXPR({ readFnType(in, OptSafety::DEFAULT),basicRes.place });
+					basicRes.data = readFnType<IS_BASIC>(in, OptSafety::DEFAULT);
 					break;
 				}
 			} else {
@@ -330,10 +323,10 @@ namespace slu::parse
 				{// must be a slicer [x]
 					in.skip();
 
-					basicRes.data = ExprType::TYPE_EXPR({ TypeExprDataType::SLICER{
-						std::make_unique<Expression<In>>(
+					basicRes.data = ExprType::Slice{
+						std::make_unique<ExpressionV<true>>(
 							readExpr(in, allowVarArg)
-					)},basicRes.place });
+					)};
 					requireToken(in, "]");
 				}
 			}

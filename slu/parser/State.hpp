@@ -130,9 +130,6 @@ namespace slu::parse
 	using ExpListV = std::vector<ExpressionV<isSlu>>;
 	Slu_DEF_CFG(ExpList);
 
-	struct TypeExpr;
-	using TypeExprList = std::vector<TypeExpr>;
-
 	// Slu
 
 	//Possible future optimization:
@@ -366,85 +363,6 @@ namespace slu::parse
 		Position place;
 	};
 
-	namespace TypeExprDataType
-	{
-		using ERR_INFERR = std::monostate;
-
-		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExprV<true>>;
-		using FUNC_CALL = FuncCallV<true>;
-
-		struct MULTI_OP
-		{
-			std::unique_ptr<TypeExpr> first;
-			std::vector<std::pair<BinOpType, TypeExpr>> extra;
-		};
-		using Struct = TableConstructorV<true>;
-		struct Union
-		{
-			TableConstructorV<true> fields;
-		};
-
-		struct FN
-		{
-			std::unique_ptr<TypeExpr> argType;
-			std::unique_ptr<TypeExpr> retType;
-			OptSafety safety = OptSafety::DEFAULT;
-		};
-
-		struct DYN
-		{
-			TraitExpr expr;
-		};
-		struct IMPL
-		{
-			TraitExpr expr;
-		};
-		using SLICER = std::unique_ptr<ExpressionV<true>>;
-		struct ERR
-		{
-			std::unique_ptr<TypeExpr> err;
-		};
-
-		using ExprType::NUMERAL;//TODO
-		using ExprType::NUMERAL_U64;
-		using ExprType::NUMERAL_I64;
-		using ExprType::NUMERAL_U128;
-		using ExprType::NUMERAL_I128;
-		using ExprType::LITERAL_STRING;//TODO
-	}
-	using TypeExprData = std::variant<
-		TypeExprDataType::ERR_INFERR,
-
-		TypeExprDataType::LIM_PREFIX_EXP,
-		TypeExprDataType::FUNC_CALL,
-		TypeExprDataType::MULTI_OP,
-		TypeExprDataType::Struct,
-		TypeExprDataType::Union,
-		TypeExprDataType::DYN,
-		TypeExprDataType::IMPL,
-		TypeExprDataType::SLICER,
-		TypeExprDataType::ERR,
-		TypeExprDataType::FN,
-
-		TypeExprDataType::NUMERAL_U64,
-		TypeExprDataType::NUMERAL_I64,
-		TypeExprDataType::NUMERAL_U128,
-		TypeExprDataType::NUMERAL_I128
-	>;
-	struct TypeExpr
-	{
-		TypeExprData data;
-		Position place;
-		std::vector<UnOpItem> unOps;
-		SmallEnumList<PostUnOpType> postUnOps;//TODO: parse this!
-		bool hasMut : 1 = false;
-
-		bool isBasicStruct() const
-		{
-			return !hasMut && unOps.empty()
-				&& std::holds_alternative<TypeExprDataType::Struct>(data);
-		}
-	};
 	using TypePrefix = std::vector<UnOpItem>;
 
 
@@ -476,7 +394,7 @@ namespace slu::parse
 		std::string abi;
 		LocalsV<true> local2Mp;
 		ParamListV<true> params;
-		std::optional<TypeExpr> retType;
+		std::optional<std::unique_ptr<ExpressionV<true>>> retType;
 		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
 	};
@@ -533,10 +451,35 @@ namespace slu::parse
 
 
 		using LIFETIME = Lifetime;	// " '/' var" {'/' var"}
-		using TYPE_EXPR = TypeExpr;
 		using TRAIT_EXPR = TraitExpr;
 
 		struct PAT_TYPE_PREFIX {};
+
+
+		struct Inferr {};
+		struct Union
+		{
+			TableConstructorV<true> fields;
+		};
+		struct FnType
+		{
+			std::unique_ptr<ExpressionV<true>> argType;
+			std::unique_ptr<ExpressionV<true>> retType;
+			OptSafety safety = OptSafety::DEFAULT;
+		};
+		struct Dyn
+		{
+			TraitExpr expr;
+		};
+		struct Impl
+		{
+			TraitExpr expr;
+		};
+		using Slice = std::unique_ptr<ExpressionV<true>>;
+		struct Err
+		{
+			std::unique_ptr<ExpressionV<true>> err;
+		};
 	}
 
 	template<bool isSlu>
@@ -567,10 +510,19 @@ namespace slu::parse
 		ExprType::NUMERAL_U128,			// "Numeral"
 
 		ExprType::LIFETIME,
-		ExprType::TYPE_EXPR,
 		ExprType::TRAIT_EXPR,
 
-		ExprType::PAT_TYPE_PREFIX
+		ExprType::PAT_TYPE_PREFIX,
+
+		// types
+
+		ExprType::Inferr,
+		ExprType::Union,
+		ExprType::Dyn,
+		ExprType::Impl,
+		ExprType::Slice,
+		ExprType::Err,
+		ExprType::FnType
 	> ;
 	Slu_DEF_CFG(ExprData);
 
@@ -583,6 +535,9 @@ namespace slu::parse
 		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 
 		BaseExpressionV() = default;
+		BaseExpressionV(ExprDataV<isSlu>&& data):data(std::move(data)) {}
+		BaseExpressionV(ExprDataV<isSlu>&& data,Position place):data(std::move(data)),place(place) {}
+
 		BaseExpressionV(const BaseExpressionV&) = delete;
 		BaseExpressionV(BaseExpressionV&&) = default;
 		BaseExpressionV& operator=(BaseExpressionV&&) = default;
@@ -981,14 +936,14 @@ namespace slu::parse
 
 		struct CanonicLocal
 		{
-			TypeExpr type;
+			ExpressionV<true> type;
 			LocalId name;
 			ExpressionV<true> value;
 			ExportData exported = false;
 		};
 		struct CanonicGlobal
 		{
-			TypeExpr type;
+			ExpressionV<true> type;
 			LocalsV<true> local2Mp;
 			MpItmIdV<true> name;
 			ExpressionV<true> value;
@@ -997,7 +952,7 @@ namespace slu::parse
 
 
 		template<bool isSlu>
-		struct StructV : StructBaseV<TypeExpr, isSlu> {};
+		struct StructV : StructBaseV<ExpressionV<true>, isSlu> {};
 		Slu_DEF_CFG(Struct);
 
 		template<bool isSlu>

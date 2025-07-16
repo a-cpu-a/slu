@@ -60,13 +60,6 @@ namespace slu::mlvl
 		//Output!!
 		std::vector<InlineModule> inlineModules;
 
-		static parse::Expression<Cfg> wrapTypeExpr(parse::TypeExpr&& t)
-		{
-			parse::Expression<Cfg> res;
-			res.place = t.place;
-			res.data = std::move(t);
-			return res;
-		}
 
 		//TODO: [50%] operators
 		//TODO: [_0%] auto-drop?
@@ -120,7 +113,7 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<parse::TypeExpr>&& ret,std::span<parse::Parameter<Cfg>> params)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExpressionV<true>>>&& ret,std::span<parse::Parameter<Cfg>> params)
 		{
 
 			auto& localMp = *mpDataStack.back();
@@ -129,7 +122,7 @@ namespace slu::mlvl
 			res.abi = std::move(abi);
 			res.isStruct = false;
 			if (ret.has_value())
-				res.ret = resolveTypeExpr(mpDb, std::move(*ret));
+				res.ret = resolveTypeExpr(mpDb, std::move(**ret));
 			else
 				res.ret = parse::ResolvedType{ .base = parse::RawTypeKind::Struct{},.size = 0 };
 
@@ -138,9 +131,7 @@ namespace slu::mlvl
 			{
 				auto& spec = std::get<parse::PatType::DestrName<Cfg, true>>(i.name).spec;
 				parse::Expression<Cfg>& type = std::get<parse::DestrSpecType::Spat<Cfg>>(spec);
-				res.args.emplace_back(resolveTypeExpr(mpDb, parse::TypeExpr{ parse::mkLpe<isSlu>(
-					parse::LimPrefixExprType::EXPR<Cfg>{std::move(type)}
-				),type.place }));
+				res.args.emplace_back(resolveTypeExpr(mpDb, std::move(type)));
 			}
 
 			localMp.addItm(obj, std::move(res));
@@ -202,7 +193,7 @@ namespace slu::mlvl
 			const bool isFirstVar,
 			auto& localHolder,
 			bool exported,
-			parse::TypeExpr&& type,
+			parse::ExpressionV<true>&& type,
 			parse::LocalOrName<Cfg, isLocal> name,
 			parse::Expression<Cfg>&& expr)
 		{
@@ -245,26 +236,18 @@ namespace slu::mlvl
 			else
 				return name;
 		}
-		parse::TypeExpr destrSpec2TypeExpr(parse::Position place,parse::DestrSpec<Cfg>&& spec)
+		parse::ExpressionV<true> destrSpec2TypeExpr(parse::Position place,parse::DestrSpec<Cfg>&& spec)
 		{
-			parse::TypeExpr te= ezmatch(spec)(
+			parse::ExpressionV<true> te= ezmatch(spec)(
 			varcase(parse::DestrSpecType::Prefix&) 
 			{
-				auto res = parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},place };
-				if (!var.empty() && var[0].type == parse::UnOpType::MUT)
-				{
-					var.erase(var.begin());
-					res.hasMut = true;
-				}
+				auto res = parse::BaseExpressionV<true>{ parse::ExprType::Inferr{},place};
 				res.unOps = std::move(var);
 
 				return res;
 			},
-			varcase(parse::DestrSpecType::Spat<Cfg>&) 
-			{
-				return parse::TypeExpr{ parse::mkLpe<isSlu>(
-					parse::LimPrefixExprType::EXPR<Cfg>{std::move(var)}
-				),place };
+			varcase(parse::DestrSpecType::Spat<Cfg>&)  {
+				return std::move(var);
 			}
 			);
 			visit::visitTypeExpr(*this, te);
@@ -350,7 +333,7 @@ namespace slu::mlvl
 				varcase(const parse::PatType::DestrAny) {
 					addCanonicVarStat<isLocal>(out, first, itm,
 						false, 
-						parse::TypeExpr{ parse::TypeExprDataType::ERR_INFERR{},stat.place },
+						parse::BaseExpressionV<true>{ parse::ExprType::Inferr{},stat.place },
 						getSynVarName<isLocal>(),
 						std::move(expr));
 				},
@@ -650,11 +633,6 @@ namespace slu::mlvl
 			return false;
 		}
 
-		bool preTypeExpr(parse::TypeExpr& itm) 
-		{
-			using MultiOp = parse::TypeExprDataType::MULTI_OP;
-			return desugarExpr<true,MultiOp>(itm);
-		}
 		bool preExpr(parse::Expression<Cfg>& itm) 
 		{
 			using MultiOp = parse::ExprType::MULTI_OPERATION<Cfg>;

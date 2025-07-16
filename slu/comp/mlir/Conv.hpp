@@ -227,18 +227,18 @@ namespace slu::comp::mico
 
 		throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
 	}
-	mlir::Type convTypeHack(ConvData& conv,const std::string_view abi,const parse::TypeExpr& expr)
+	mlir::Type convTypeHack(ConvData& conv,const std::string_view abi,const parse::ExpressionV<true>& expr)
 	{
 		return ezmatch(expr.data)(
 		varcase(const auto&)->mlir::Type
 		{
 			throw std::runtime_error("Unimplemented type expression idx(" + std::to_string(expr.data.index()) + ") (mlir conversion)");
 		},
-		varcase(const parse::TypeExprDataType::LIM_PREFIX_EXP&)
+		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)
 		{
 			return tryConvBuiltinType(conv, abi, *var, false);
 		},
-		varcase(const parse::TypeExprDataType::FUNC_CALL&)
+		varcase(const parse::ExprType::FUNC_CALLv<true>&)
 		{
 			if(var.argChain.size()!=1)
 				throw std::runtime_error("Unimplemented type expression: function call with multiple layers (mlir conversion)");
@@ -632,7 +632,7 @@ namespace slu::comp::mico
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//TODO: use type converter!
-			auto putsType = builder.getFunctionType({ llvmPtrType }, { convTypeHack(conv, var.abi, var.retType.value()) });
+			auto putsType = builder.getFunctionType({ llvmPtrType }, { convTypeHack(conv, var.abi, *var.retType.value()) });
 			//StringRef  name, FunctionType type, ArrayRef<NamedAttribute> attrs = {}, ArrayRef<DictionaryAttr> argAttrs = {});
 			//StringRef  sym_name, ::mlir::FunctionType function_type, /*optional*/::mlir::StringAttr sym_visibility, /*optional*/::mlir::ArrayAttr arg_attrs, /*optional*/::mlir::ArrayAttr res_attrs, /*optional*/bool no_inline = false);
 

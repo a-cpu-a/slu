@@ -39,7 +39,8 @@ namespace slu::parse
 
 			"_alloc",
 			"ref", "refMut", "refConst","refShare",
-			"ptr", "ptrMut", "ptrConst","ptrShare"
+			"ptr", "ptrMut", "ptrConst","ptrShare",
+			"markMut"
 		};
 		handleTraitCase(res,forTrait);
 		return res;

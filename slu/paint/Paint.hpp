@@ -171,6 +171,10 @@ namespace slu::paint
 		}
 		paintKw<Tok::GEN_OP>(se, "}");
 	}
+	template<AnySemOutput Se>
+	inline void paintTypeExpr(Se& se, const parse::Expression<Se>& itm, const Tok tint = Tok::NONE, const bool unOps = true) {
+		paintExpr<Tok::NAME_TYPE>(se, itm, tint, unOps);
+	}
 	template<Tok nameTok=Tok::NAME,AnySemOutput Se>
 	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
 	{
@@ -234,9 +238,6 @@ namespace slu::paint
 			if constexpr (Se::settings() & sluSyn)
 				paintLifetime(se, var);
 		},
-		varcase(const parse::ExprType::TYPE_EXPR&) {
-			paintTypeExpr(se, var);
-		},
 		varcase(const parse::ExprType::TRAIT_EXPR&) {
 			if constexpr (Se::settings() & sluSyn)
 				paintTraitExpr(se, var);
@@ -256,6 +257,38 @@ namespace slu::paint
 		},
 		varcase(const parse::ExprType::PAT_TYPE_PREFIX&) {
 			Slu_panic("Pat type prefix leaked outside of pattern parsing!");
+		},
+
+		varcase(const parse::ExprType::Inferr) {
+			paintKw<Tok::GEN_OP>(se, "?");
+		},
+		varcase(const parse::ExprType::Err&) {
+			paintKw<Tok::GEN_OP>(se, "~~");
+			paintTypeExpr(se, *var.err, tint);
+		},
+		varcase(const parse::ExprType::Slice&) {
+			paintKw<Tok::GEN_OP>(se, "[");
+			paintTypeExpr<Tok::NAME_TYPE>(se, *var);
+			paintKw<Tok::GEN_OP>(se, "]");
+		},
+		varcase(const parse::ExprType::Union&) {
+			paintKw<Tok::CON_STAT>(se, "union");
+			paintTable<Tok::NAME_TYPE>(se, var.fields);
+		},
+		varcase(const parse::ExprType::Dyn&) {
+			paintKw<Tok::DYN>(se, "dyn");
+			paintTraitExpr(se, var.expr);
+		},
+		varcase(const parse::ExprType::Impl&) {
+			paintKw<Tok::IMPL>(se, "impl");
+			paintTraitExpr(se, var.expr);
+		},
+		varcase(const parse::ExprType::FnType&) {
+			paintSafety(se, var.safety);
+			paintKw<Tok::FN_STAT>(se, "fn");
+			paintTypeExpr(se, *var.argType);
+			paintKw<Tok::GEN_OP>(se, "->");
+			paintTypeExpr(se, *var.retType);
 		}
 		);
 		if constexpr (Se::settings() & sluSyn)
@@ -565,89 +598,6 @@ namespace slu::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintTypeExpr(Se& se, const parse::TypeExpr& itm, const Tok tint = Tok::NONE)
-	{
-		if constexpr (Se::settings() & sluSyn)
-		{
-			//skipSpace(se);
-			se.move(itm.place);
-			if(itm.hasMut)
-				paintKw<Tok::MUT>(se, "mut");
-			for (const parse::UnOpItem& i : itm.unOps)
-				paintUnOpItem(se, i);
-
-			ezmatch(itm.data)(
-			varcase(const parse::TypeExprDataType::ERR_INFERR&) {
-				paintKw<Tok::GEN_OP>(se, "?");
-			},
-			varcase(const parse::TypeExprDataType::ERR&) {
-				paintKw<Tok::GEN_OP>(se, "~~");
-				paintTypeExpr(se, *var.err, tint);
-			},
-			varcase(const parse::ExprType::NUMERAL_I128) {
-				paintNumber(se, tint);
-			},
-			varcase(const parse::ExprType::NUMERAL_U128) {
-				paintNumber(se, tint);
-			},
-			varcase(const parse::ExprType::NUMERAL_I64) {
-				paintNumber(se, tint);
-			},
-			varcase(const parse::ExprType::NUMERAL_U64) {
-				paintNumber(se, tint);
-			},
-			varcase(const parse::TypeExprDataType::FUNC_CALL&) {
-				paintLimPrefixExpr<Tok::NAME_TYPE>(se, *var.val);
-				paintArgChain(se, var.argChain);
-			},
-			varcase(const parse::TypeExprDataType::LIM_PREFIX_EXP&) {
-				paintLimPrefixExpr<Tok::NAME_TYPE>(se, *var);
-			},
-			varcase(const parse::TypeExprDataType::SLICER&) {
-				paintKw<Tok::GEN_OP>(se, "[");
-				paintExpr<Tok::NAME_TYPE>(se, *var);
-				paintKw<Tok::GEN_OP>(se, "]");
-			},
-			varcase(const parse::TypeExprDataType::Struct&) {
-				skipSpace(se);
-				if(se.in.peek()=='s')
-					paintKw<Tok::CON_STAT>(se, "struct");
-				paintTable<Tok::NAME_TYPE>(se, var);
-			},
-			varcase(const parse::TypeExprDataType::Union&) {
-				paintKw<Tok::CON_STAT>(se, "union");
-				paintTable<Tok::NAME_TYPE>(se, var.fields);
-			},
-			varcase(const parse::TypeExprDataType::DYN&) {
-				paintKw<Tok::DYN>(se, "dyn");
-				paintTraitExpr(se, var.expr);
-			},
-			varcase(const parse::TypeExprDataType::IMPL&) {
-				paintKw<Tok::IMPL>(se, "impl");
-				paintTraitExpr(se, var.expr);
-			},
-			varcase(const parse::TypeExprDataType::FN&) {
-				paintSafety(se, var.safety);
-				paintKw<Tok::FN_STAT>(se, "fn");
-				paintTypeExpr(se, *var.argType);
-				paintKw<Tok::GEN_OP>(se, "->");
-				paintTypeExpr(se, *var.retType);
-			},
-			varcase(const parse::TypeExprDataType::MULTI_OP&) {
-				paintTypeExpr(se, *var.first);
-				for (const auto& [op, expr] : var.extra)
-				{
-					paintBinOp(se, op);
-					paintTypeExpr(se, expr);
-				}
-			}
-			);
-
-			for (const parse::PostUnOpType i : itm.postUnOps)
-				paintPostUnOp(se, i);
-		}
-	}
-	template<AnySemOutput Se>
 	inline void paintSafety(Se& se, const parse::OptSafety itm)
 	{
 		switch (itm)
@@ -720,7 +670,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDecl(Se& se, const parse::ParamList<Se>& params,const bool hasVarArgParam, const std::optional<parse::TypeExpr>& retType, const parse::MpItmId<Se> name, const lang::ExportData exported,const parse::OptSafety safety, const Position pos = {}, const bool fnKw = false)
+	inline void paintFuncDecl(Se& se, const parse::ParamList<Se>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::ExpressionV<true>>>& retType, const parse::MpItmId<Se> name, const lang::ExportData exported,const parse::OptSafety safety, const Position pos = {}, const bool fnKw = false)
 	{
 		if constexpr (Se::settings() & sluSyn)
 		{
@@ -751,7 +701,7 @@ namespace slu::paint
 			if (retType.has_value())
 			{
 				paintKw<Tok::GEN_OP>(se, "->");
-				paintTypeExpr(se, *retType);
+				paintTypeExpr(se, **retType);
 			}
 		}
 	}
@@ -781,8 +731,8 @@ namespace slu::paint
 	template<AnySemOutput Se>
 	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
 	{
-		std::optional<parse::TypeExpr> emptyTy{};
-		const std::optional<parse::TypeExpr>* retType;
+		std::optional<std::unique_ptr<parse::ExpressionV<true>>> emptyTy{};
+		const std::optional<std::unique_ptr<parse::ExpressionV<true>>>* retType;
 		parse::OptSafety safety;
 		if constexpr (Se::settings()&sluSyn)
 		{
