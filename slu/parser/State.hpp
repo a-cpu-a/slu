@@ -984,11 +984,9 @@ namespace slu::parse
 		Slu_DEF_CFG(Mod);
 
 		template<bool isSlu>
-		struct ModAsV
+		struct ModAsV : ModV<isSlu>
 		{
-			MpItmIdV<isSlu> name;
 			BlockV<isSlu> bl;
-			ExportData exported = false;
 		};
 		Slu_DEF_CFG(ModAs);
 
