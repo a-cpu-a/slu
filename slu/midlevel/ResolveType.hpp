@@ -79,12 +79,12 @@ namespace slu::mlvl
 		varcase(parse::ExprType::TableV<true>&&) {
 			parse::StructRawType& res = *(new parse::StructRawType());
 			res.name = lang::MpItmIdV<true>::newEmpty();
-			res.fieldNames.reserve(var.v.size());
-			res.fields.reserve(var.v.size());
-			res.fieldOffsets.reserve(var.v.size());
+			res.fieldNames.reserve(var.size());
+			res.fields.reserve(var.size());
+			res.fieldOffsets.reserve(var.size());
 			size_t idx = 1;
 			size_t fieldOffset = 0;
-			for (parse::FieldV<true>& field : var.v)
+			for (parse::FieldV<true>& field : var)
 			{
 				ezmatch(std::move(field))(
 				ezcase(parse::FieldType::EXPRv<true>&& fi) {

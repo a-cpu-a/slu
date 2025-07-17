@@ -310,11 +310,7 @@ namespace slu::mlvl
 			if (itm.exprs.size() == 1)
 				exprStack.emplace_back(std::move(itm.exprs[0].data));
 			else
-			{
-				exprStack.emplace_back(parse::ExprType::Table<Cfg>{
-					.v = parse::mkTbl(std::move(itm.exprs))
-				});
-			}
+				exprStack.emplace_back(parse::mkTbl(std::move(itm.exprs)));
 
 			bool first = true;
 			do {

@@ -355,7 +355,7 @@ namespace slu::visit
 			visitLifetime(vi,var);
 		},
 		varcase(parse::ExprType::Table<Vi>&) {
-			visitTable(vi,var.v);
+			visitTable(vi,var);
 		},
 		varcase(parse::ExprType::Function<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo, var);
@@ -451,7 +451,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(ArgChain);
 	}
 	template<AnyVisitor Vi>
-	inline void visitTable(Vi& vi, parse::TableConstructor<Vi>& itm)
+	inline void visitTable(Vi& vi, parse::Table<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Table);
 		for (auto& i : itm)

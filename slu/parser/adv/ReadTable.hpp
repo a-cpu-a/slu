@@ -69,7 +69,7 @@ namespace slu::parse
 	//Will NOT check the first char '{' !!!
 	//But will skip it
 	template<bool skipStart=true,AnyInput In>
-	inline TableConstructor<In> readTableConstructor(In& in, const bool allowVarArg)
+	inline Table<In> readTable(In& in, const bool allowVarArg)
 	{
 		/*
 			tableconstructor ::= ‘{’ [fieldlist] ‘}’
@@ -82,7 +82,7 @@ namespace slu::parse
 
 		skipSpace(in);
 
-		TableConstructor<In> tbl{};
+		Table<In> tbl{};
 
 		if (in.peek() == '}')
 		{

@@ -51,9 +51,9 @@ namespace slu::parse
 			} });
 	}
 	template<bool isSlu>
-	inline ::slu::parse::TableConstructorV<isSlu> mkTbl(::slu::parse::ExpListV<isSlu>&& exprs)
+	inline ::slu::parse::TableV<isSlu> mkTbl(::slu::parse::ExpListV<isSlu>&& exprs)
 	{
-		::slu::parse::TableConstructorV<isSlu> tc;
+		::slu::parse::TableV<isSlu> tc;
 		tc.reserve(exprs.size());
 		for (auto& i : exprs)
 		{

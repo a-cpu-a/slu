@@ -38,7 +38,7 @@ namespace slu::parse
 		}
 		else if (ch == '{')
 		{
-			return ArgsType::TABLE<In>(readTableConstructor(in, allowVarArg));
+			return ArgsType::TABLE<In>(readTable(in, allowVarArg));
 		}
 		throw UnexpectedCharacterError(std::format(
 			"Expected function arguments ("

@@ -143,7 +143,7 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genTableConstructor(Out& out, const TableConstructor<Out>& obj)
+	inline void genTable(Out& out, const Table<Out>& obj)
 	{
 		out.add('{')
 			.template tabUpNewl<false>();
@@ -346,7 +346,7 @@ namespace slu::parse
 			genLimPrefixExpr(out, *var);
 		},
 		varcase(const ExprType::Table<Out>&) {
-			genTableConstructor(out, var.v);
+			genTable(out, var);
 		},
 		varcase(const ExprType::MULTI_OPERATION<Out>&) {
 			genExpr(out, *var.first);
@@ -412,7 +412,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 			{
 				out.add("union ");
-				genTableConstructor(out, var.fields);
+				genTable(out, var.fields);
 			}
 		},
 		varcase(const ExprType::FnType&) {
@@ -482,7 +482,7 @@ namespace slu::parse
 			out.add(')');
 		},
 		varcase(const ArgsType::TABLE<Out>&) {
-			genTableConstructor(out, var.v);
+			genTable(out, var.v);
 		},
 		varcase(const ArgsType::LITERAL&) {
 			out.add(' '); genLiteral(out, var.v);
@@ -1096,7 +1096,7 @@ namespace slu::parse
 				out.add(')');
 			}
 			out.add(' ');
-			genTableConstructor(out, var.type);
+			genTable(out, var.type);
 			out.newLine();
 			out.popLocals();
 		},

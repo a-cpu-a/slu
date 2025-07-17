@@ -157,7 +157,7 @@ namespace slu::paint
 		);
 	}
 	template<Tok nameTok,AnySemOutput Se>
-	inline void paintTable(Se& se, const parse::TableConstructor<Se>& itm)
+	inline void paintTable(Se& se, const parse::Table<Se>& itm)
 	{
 		paintKw<Tok::GEN_OP>(se, "{");
 		for (const parse::Field<Se>& f : itm)
@@ -243,7 +243,7 @@ namespace slu::paint
 				paintTraitExpr(se, var);
 		},
 		varcase(const parse::ExprType::Table<Se>&) {
-			paintTable<nameTok>(se, var.v);
+			paintTable<nameTok>(se, var);
 		},
 		varcase(const parse::ExprType::LimPrefixExpr<Se>&) {
 			paintLimPrefixExpr<nameTok>(se, *var);

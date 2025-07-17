@@ -197,7 +197,7 @@ namespace slu::parse
 					if (checkReadTextToken(in, "union"))
 					{
 						requireToken(in, "{");
-						basicRes.data = ExprType::Union(readTableConstructor<false>(in, false));
+						basicRes.data = ExprType::Union(readTable<false>(in, false));
 					}
 					break;
 				}
@@ -342,7 +342,7 @@ namespace slu::parse
 				return basicRes;
 			}
 			else
-				basicRes.data = ExprType::Table<In>(readTableConstructor(in,allowVarArg));
+				basicRes.data = ExprType::Table<In>(readTable(in,allowVarArg));
 			break;
 		}
 		if (!isNilIntentional

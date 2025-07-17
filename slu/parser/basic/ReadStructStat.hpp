@@ -55,7 +55,7 @@ namespace slu::parse
 		if constexpr (structOnly)
 		{
 			requireToken(in, "{");
-			res.type = readTableConstructor<false>(in, false);
+			res.type = readTable<false>(in, false);
 		}
 		else
 		{

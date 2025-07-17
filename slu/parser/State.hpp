@@ -160,8 +160,8 @@ namespace slu::parse
 
 	// ‘{’ [fieldlist] ‘}’
 	template<bool isSlu>
-	using TableConstructorV = std::vector<FieldV<isSlu>>;
-	Slu_DEF_CFG(TableConstructor);
+	using TableV = std::vector<FieldV<isSlu>>;
+	Slu_DEF_CFG(Table);
 
 	template<bool isSlu>
 	using StatListV = std::vector<StatementV<isSlu>>;
@@ -238,7 +238,7 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(EXPLIST);
 
 		template<bool isSlu>
-		struct TABLEv { TableConstructorV<isSlu> v; };	// "tableconstructor"
+		struct TABLEv { TableV<isSlu> v; };	// "tableconstructor"
 		Slu_DEF_CFG_CAPS(TABLE);
 
 		struct LITERAL { std::string v; Position end; };// "LiteralString"
@@ -424,10 +424,9 @@ namespace slu::parse
 
 		using parse::FunctionV;
 		using parse::Function;
-
-		template<bool isSlu>
-		struct TableV { TableConstructorV<isSlu> v; };	// "tableconstructor"
-		Slu_DEF_CFG(Table);
+		
+		using parse::TableV;
+		using parse::Table;
 
 		//unOps is always empty for this type
 		template<bool isSlu>
@@ -454,7 +453,7 @@ namespace slu::parse
 		struct Inferr {};
 		struct Union
 		{
-			TableConstructorV<true> fields;
+			TableV<true> fields;
 		};
 		struct FnType
 		{
@@ -957,7 +956,7 @@ namespace slu::parse
 		Slu_DEF_CFG(Struct);
 
 		template<bool isSlu>
-		struct UnionV : StructBaseV<TableConstructorV<isSlu>, isSlu> {};
+		struct UnionV : StructBaseV<TableV<isSlu>, isSlu> {};
 		Slu_DEF_CFG(Union);
 
 		template<bool isSlu>
