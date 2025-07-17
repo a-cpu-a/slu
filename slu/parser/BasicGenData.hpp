@@ -90,12 +90,8 @@ namespace slu::parse
 		using Unresolved = std::unique_ptr<parse::ExpressionV<true>>;
 
 		using String = std::string;
-		struct Uint128
-		{
-			uint64_t lo;
-			uint64_t hi;
-		};
-		struct Int128 : Uint128 {};
+		using Uint128 = ExprType::U128;
+		using Int128 = ExprType::I128;
 		struct Range128Uu
 		{
 			Uint128 lo;
@@ -105,8 +101,8 @@ namespace slu::parse
 		struct Range128Ss :Range128Uu {};
 		struct Range128Us :Range128Uu {};
 
-		using Int64 = int64_t;
-		using Uint64 = uint64_t;
+		using Uint64 = ExprType::U64;
+		using Int64 = ExprType::I64;
 		struct Range64
 		{
 			Int64 lo;
