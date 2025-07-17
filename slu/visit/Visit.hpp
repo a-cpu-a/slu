@@ -533,7 +533,7 @@ namespace slu::visit
 		varcase(parse::StatementType::BLOCK<Vi>&) {
 			visitBlock(vi, var);
 		},
-		varcase(parse::StatementType::GOTO<Vi>&) {
+		varcase(parse::StatementType::Goto<Vi>&) {
 			//TODO
 		},
 		varcase(parse::StatementType::BREAK&) {

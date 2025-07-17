@@ -939,7 +939,7 @@ namespace slu::parse
 			out.addNewl("break;");
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::GOTO<Out>&) {
+		varcase(const StatementType::Goto<Out>&) {
 			out.add("goto ")
 				.add(out.db.asSv(var.v))
 				.addNewl(';');

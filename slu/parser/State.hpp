@@ -837,10 +837,10 @@ namespace slu::parse
 		template<bool isSlu>
 		struct LABELv { MpItmIdV<isSlu> v; };		// "label"
 		Slu_DEF_CFG_CAPS(LABEL);
-		struct BREAK {};
-		template<bool isSlu>					// "break"
-		struct GOTOv { MpItmIdV<isSlu> v; };			// "goto Name"
-		Slu_DEF_CFG_CAPS(GOTO);
+		struct BREAK {};					// "break"
+		template<bool isSlu>
+		struct GotoV { MpItmIdV<isSlu> v; };			// "goto Name"
+		Slu_DEF_CFG(Goto);
 
 		template<bool isSlu>
 		using BLOCKv = BlockV<isSlu>;							// "do block end"
@@ -1023,7 +1023,7 @@ namespace slu::parse
 		StatementType::FuncCallV<isSlu>,		// "functioncall"
 		StatementType::LABELv<isSlu>,			// "label"
 		StatementType::BREAK,					// "break"
-		StatementType::GOTOv<isSlu>,			// "goto Name"
+		StatementType::GotoV<isSlu>,			// "goto Name"
 		StatementType::BLOCKv<isSlu>,			// "do block end"
 		StatementType::WhileV<isSlu>,		// "while exp do block end"
 		StatementType::RepeatUntilV<isSlu>,	// "repeat block until exp"

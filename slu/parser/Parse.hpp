@@ -819,7 +819,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "goto"))//goto Name
 			{
 				return in.genData.addStat(place,
-					StatementType::GOTO<In>(in.genData.resolveName(readName(in)))
+					StatementType::Goto<In>(in.genData.resolveName(readName(in)))
 				);
 			}
 			break;

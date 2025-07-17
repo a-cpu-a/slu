@@ -991,7 +991,7 @@ namespace slu::paint
 			paintName<Tok::NAME_LABEL>(se, var.v);
 			paintKw<Tok::PUNCTUATION>(se, parse::sel<Se>("::", ":"));
 		},
-		varcase(const parse::StatementType::GOTO<Se>&) {
+		varcase(const parse::StatementType::Goto<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "goto");
 			paintName<Tok::NAME_LABEL>(se, var.v);
 		},

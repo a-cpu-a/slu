@@ -17,7 +17,7 @@ namespace slu::comp::lua
 {
 	template<typename T>
 	concept AnyIgnoredStatement = 
-		std::same_as<T,parse::StatementType::GOTOv<true>>
+		std::same_as<T,parse::StatementType::GotoV<true>>
 		|| std::same_as<T,parse::StatementType::SEMICOLON>
 		|| std::same_as<T,parse::StatementType::USE>
 		|| std::same_as<T,parse::StatementType::FnDeclV<true>>
