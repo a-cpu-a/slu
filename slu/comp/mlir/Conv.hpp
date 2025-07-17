@@ -121,7 +121,7 @@ namespace slu::comp::mico
 		}
 	};
 	//Forward declare!
-	mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm, const std::string_view abi = ""sv);
+	mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm, const std::string_view abi = ""sv);
 	//
 
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
@@ -227,7 +227,7 @@ namespace slu::comp::mico
 
 		throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
 	}
-	mlir::Type convTypeHack(ConvData& conv,const std::string_view abi,const parse::ExpressionV<true>& expr)
+	mlir::Type convTypeHack(ConvData& conv,const std::string_view abi,const parse::ExprV<true>& expr)
 	{
 		return ezmatch(expr.data)(
 		varcase(const auto&)->mlir::Type
@@ -346,7 +346,7 @@ namespace slu::comp::mico
 			convPos(conv, place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
 		);
 	}
-	inline mlir::Value convExpr(ConvData& conv, const parse::ExpressionV<true>& itm, const std::string_view abi)
+	inline mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm, const std::string_view abi)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -515,7 +515,7 @@ namespace slu::comp::mico
 			size_t elIfIdx = 0;
 			mlir::scf::IfOp firstOp;
 			do {
-				const parse::ExpressionV<true>* cond;
+				const parse::ExprV<true>* cond;
 				const parse::SoeOrBlockV<true>* bl;
 				mlir::Location loc = nullptr;
 				bool hasMore = false;

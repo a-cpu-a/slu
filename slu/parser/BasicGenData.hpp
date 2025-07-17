@@ -87,7 +87,7 @@ namespace slu::parse
 	{
 		using Inferred = std::monostate;
 		struct TypeError { };
-		using Unresolved = std::unique_ptr<parse::ExpressionV<true>>;
+		using Unresolved = std::unique_ptr<parse::ExprV<true>>;
 
 		using String = std::string;
 		using Uint128 = ExprType::U128;
@@ -215,7 +215,7 @@ namespace slu::parse
 		struct ConstVar
 		{
 			ResolvedType ty;
-			parse::ExpressionV<true> value;
+			parse::ExprV<true> value;
 		};
 		struct TypeVar//Also for structs/unions/parts-of-enums without params
 		{

@@ -113,7 +113,7 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExpressionV<true>>>&& ret,std::span<parse::Parameter<Cfg>> params)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret,std::span<parse::Parameter<Cfg>> params)
 		{
 
 			auto& localMp = *mpDataStack.back();
@@ -130,7 +130,7 @@ namespace slu::mlvl
 			for (auto& i : params)
 			{
 				auto& spec = std::get<parse::PatType::DestrName<Cfg, true>>(i.name).spec;
-				parse::Expression<Cfg>& type = std::get<parse::DestrSpecType::Spat<Cfg>>(spec);
+				parse::Expr<Cfg>& type = std::get<parse::DestrSpecType::Spat<Cfg>>(spec);
 				res.args.emplace_back(resolveTypeExpr(mpDb, std::move(type)));
 			}
 
@@ -193,9 +193,9 @@ namespace slu::mlvl
 			const bool isFirstVar,
 			auto& localHolder,
 			bool exported,
-			parse::ExpressionV<true>&& type,
+			parse::ExprV<true>&& type,
 			parse::LocalOrName<Cfg, isLocal> name,
-			parse::Expression<Cfg>&& expr)
+			parse::Expr<Cfg>&& expr)
 		{
 			if constexpr (isLocal)
 			{
@@ -236,15 +236,15 @@ namespace slu::mlvl
 			else
 				return name;
 		}
-		parse::ExpressionV<true> destrSpec2TypeExpr(parse::Position place,parse::DestrSpec<Cfg>&& spec)
+		parse::ExprV<true> destrSpec2TypeExpr(parse::Position place,parse::DestrSpec<Cfg>&& spec)
 		{
-			parse::ExpressionV<true> te= ezmatch(spec)(
+			parse::ExprV<true> te= ezmatch(spec)(
 			varcase(parse::DestrSpecType::Prefix&) 
 			{
 				auto res = parse::BaseExprV<true>{ parse::ExprType::Inferr{},place};
 				res.unOps = std::move(var);
 
-				return parse::ExpressionV<true>{std::move(res)};
+				return parse::ExprV<true>{std::move(res)};
 			},
 			varcase(parse::DestrSpecType::Spat<Cfg>&)  {
 				return std::move(var);
@@ -260,7 +260,7 @@ namespace slu::mlvl
 			std::vector<parse::ExprData<Cfg>>& exprStack,
 			const bool first,
 			auto& localHolder,
-			parse::Expression<Cfg>&& expr,
+			parse::Expr<Cfg>&& expr,
 			bool exported,
 			T& itm) requires(parse::AnyCompoundDestr<isLocal,T>)
 		{
@@ -314,7 +314,7 @@ namespace slu::mlvl
 
 			bool first = true;
 			do {
-				parse::Expression<Cfg> expr;
+				parse::Expr<Cfg> expr;
 				expr.place = stat.place;
 				expr.data = std::move(exprStack.back());
 				exprStack.pop_back();
@@ -608,7 +608,7 @@ namespace slu::mlvl
 
 						if (lifetime != nullptr)
 						{
-							parse::Expression<Cfg> lifetimeExpr;
+							parse::Expr<Cfg> lifetimeExpr;
 							lifetimeExpr.place = place;
 							lifetimeExpr.data = parse::ExprType::Lifetime{ std::move(*lifetime) };
 							list.v.emplace_back(std::move(lifetimeExpr));
@@ -629,7 +629,7 @@ namespace slu::mlvl
 			return false;
 		}
 
-		bool preExpr(parse::Expression<Cfg>& itm) 
+		bool preExpr(parse::Expr<Cfg>& itm)
 		{
 			using MultiOp = parse::ExprType::MultiOp<Cfg>;
 			return desugarExpr<false,MultiOp>(itm);

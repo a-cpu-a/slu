@@ -10,7 +10,7 @@ namespace slu::mlvl
 	inline const size_t TYPE_RES_SIZE_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
 	inline const size_t TYPE_RES_PTR_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
 
-	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExpressionV<true>&& type)
+	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type)
 	{
 		//TODO: change mlir conv code to use global itm's.
 		parse::ResolvedType resTy = ezmatch(std::move(type.data))(

@@ -32,9 +32,9 @@ namespace slu::parse
 		ExprType::FnType res{};
 		res.safety = safety;
 
-		res.argType = std::make_unique<parse::ExpressionV<true>>(readExpr(in, false));
+		res.argType = std::make_unique<parse::ExprV<true>>(readExpr(in, false));
 		requireToken(in, "->");
-		res.retType = std::make_unique<parse::ExpressionV<true>>(readExpr<isBasic>(in, false));
+		res.retType = std::make_unique<parse::ExprV<true>>(readExpr<isBasic>(in, false));
 
 		return res;
 	}

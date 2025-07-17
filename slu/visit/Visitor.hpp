@@ -82,7 +82,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_AUTO(LimPrefixExpr);
 		_Slu_DEF_EMPTY_AUTO(FunctionInfo);
 		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
-		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expression<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::String);
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MultiOp<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TraitExpr, parse::TraitExpr);
@@ -144,7 +144,7 @@ namespace slu::visit
 
 		_Slu_DEF_EMPTY_LIST(VarList, parse::Var<Cfg>);
 		_Slu_DEF_EMPTY_LIST(ArgChain, parse::ArgFuncCall<Cfg>);
-		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expression<Cfg>);
+		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId<Cfg>);
 		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<Cfg>);
 	};

@@ -57,7 +57,7 @@ namespace slu::parse
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			Expression<In> res = readExpr(in,allowVarArg);
+			Expr<In> res = readExpr(in,allowVarArg);
 			requireToken(in, ")");
 
 			varDataOut.base = BaseVarType::Expr<In>(std::move(res));
@@ -346,10 +346,10 @@ namespace slu::parse
 	}
 
 	template<AnyInput In>
-	inline Expression<In> readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
+	inline Expr<In> readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
 		if constexpr (in.settings() & sluSyn)
 		{
-			Expression<In> ex = readExpr<true>(in, allowVarArg, readBiOp);
+			Expr<In> ex = readExpr<true>(in, allowVarArg, readBiOp);
 			return ex;
 		}
 		else

@@ -239,7 +239,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(StatList);
 	}
 	template<AnyVisitor Vi>
-	inline void visitTypeExpr(Vi& vi, parse::Expression<Vi>& itm)
+	inline void visitTypeExpr(Vi& vi, parse::Expr<Vi>& itm)
 	{
 		visitExpr(vi, itm);
 	}
@@ -291,7 +291,7 @@ namespace slu::visit
 		}
 	}
 	template<AnyVisitor Vi>
-	inline void visitExpr(Vi& vi, parse::Expression<Vi>& itm)
+	inline void visitExpr(Vi& vi, parse::Expr<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Expr);
 		visitUnOps(vi, itm.unOps);

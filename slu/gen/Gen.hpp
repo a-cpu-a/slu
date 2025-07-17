@@ -210,7 +210,7 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genExprParens(Out& out, const Expression<Out>& obj)
+	inline void genExprParens(Out& out, const Expr<Out>& obj)
 	{
 		if constexpr (out.settings() & sluSyn) out.add('(');
 		genExpr(out, obj);
@@ -296,7 +296,7 @@ namespace slu::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genExpr(Out& out, const Expression<Out>& obj)
+	inline void genExpr(Out& out, const Expr<Out>& obj)
 	{
 		genUnOps(out,obj.unOps);
 
@@ -435,7 +435,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genExprList(Out& out, const ExprList<Out>& obj)
 	{
-		for (const Expression<Out>& e : obj)
+		for (const Expr<Out>& e : obj)
 		{
 			genExpr(out, e);
 			if (&e != &obj.back())

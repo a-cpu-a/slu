@@ -172,11 +172,11 @@ namespace slu::paint
 		paintKw<Tok::GEN_OP>(se, "}");
 	}
 	template<AnySemOutput Se>
-	inline void paintTypeExpr(Se& se, const parse::Expression<Se>& itm, const Tok tint = Tok::NONE, const bool unOps = true) {
+	inline void paintTypeExpr(Se& se, const parse::Expr<Se>& itm, const Tok tint = Tok::NONE, const bool unOps = true) {
 		paintExpr<Tok::NAME_TYPE>(se, itm, tint, unOps);
 	}
 	template<Tok nameTok=Tok::NAME,AnySemOutput Se>
-	inline void paintExpr(Se& se, const parse::Expression<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
+	inline void paintExpr(Se& se, const parse::Expr<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
 	{
 		//skipSpace(se);
 		se.move(itm.place);
@@ -688,7 +688,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDecl(Se& se, const parse::ParamList<Se>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::ExpressionV<true>>>& retType, const parse::MpItmId<Se> name, const lang::ExportData exported,const parse::OptSafety safety, const Position pos = {}, const bool fnKw = false)
+	inline void paintFuncDecl(Se& se, const parse::ParamList<Se>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::ExprV<true>>>& retType, const parse::MpItmId<Se> name, const lang::ExportData exported,const parse::OptSafety safety, const Position pos = {}, const bool fnKw = false)
 	{
 		if constexpr (Se::settings() & sluSyn)
 		{
@@ -749,8 +749,8 @@ namespace slu::paint
 	template<AnySemOutput Se>
 	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId<Se> name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
 	{
-		std::optional<std::unique_ptr<parse::ExpressionV<true>>> emptyTy{};
-		const std::optional<std::unique_ptr<parse::ExpressionV<true>>>* retType;
+		std::optional<std::unique_ptr<parse::ExprV<true>>> emptyTy{};
+		const std::optional<std::unique_ptr<parse::ExprV<true>>>* retType;
 		parse::OptSafety safety;
 		if constexpr (Se::settings()&sluSyn)
 		{
@@ -1086,7 +1086,7 @@ namespace slu::paint
 	template<AnySemOutput Se>
 	inline void paintExprList(Se& se, const parse::ExprList<Se>& itm)
 	{
-		for (const parse::Expression<Se>& i : itm)
+		for (const parse::Expr<Se>& i : itm)
 		{
 			paintExpr(se, i);
 
@@ -1099,7 +1099,7 @@ namespace slu::paint
 		return paintExprList(se, itm);
 	}
 	template<AnySemOutput Se>
-	inline void paintExprOrList(Se& se, const parse::Expression<Se>& itm) {
+	inline void paintExprOrList(Se& se, const parse::Expr<Se>& itm) {
 		return paintExpr(se, itm);
 	}
 	template<AnySemOutput Se>

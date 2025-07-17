@@ -85,8 +85,10 @@ namespace slu::parse
 	template<bool isSlu> struct StatementV;
 	Slu_DEF_CFG(Statement);
 
-	template<bool isSlu> struct ExpressionV;
-	Slu_DEF_CFG(Expression);
+	template<bool isSlu> struct ExprV;
+	Slu_DEF_CFG(Expr);
+	template<bool isSlu>
+	using BoxExprV = std::unique_ptr<ExprV<isSlu>>;
 
 	template<bool isSlu> struct VarV;
 	Slu_DEF_CFG(Var);
@@ -125,7 +127,7 @@ namespace slu::parse
 	Slu_DEF_CFG(FuncCall);
 
 	template<bool isSlu>
-	using ExprListV = std::vector<ExpressionV<isSlu>>;
+	using ExprListV = std::vector<ExprV<isSlu>>;
 	Slu_DEF_CFG(ExprList);
 
 	// Slu
@@ -408,8 +410,8 @@ namespace slu::parse
 	template<bool isSlu, bool boxIt>
 	struct BaseIfCondV
 	{
-		std::vector<std::pair<ExpressionV<isSlu>, SoeOrBlockV<isSlu>>> elseIfs;
-		MayBox<boxIt, ExpressionV<isSlu>> cond;
+		std::vector<std::pair<ExprV<isSlu>, SoeOrBlockV<isSlu>>> elseIfs;
+		MayBox<boxIt, ExprV<isSlu>> cond;
 		MayBox<boxIt, SoeOrBlockV<isSlu>> bl;
 		std::optional<MayBox<boxIt, SoeOrBlockV<isSlu>>> elseBlock;
 	};
@@ -433,7 +435,7 @@ namespace slu::parse
 		struct MultiOpV
 		{
 			BoxExprV<isSlu> first;
-			std::vector<std::pair<BinOpType, ExpressionV<isSlu>>> extra;//size>=1
+			std::vector<std::pair<BinOpType, ExprV<isSlu>>> extra;//size>=1
 		};      // "exp binop exp"
 		Slu_DEF_CFG(MultiOp);
 
@@ -536,10 +538,10 @@ namespace slu::parse
 	};
 
 	template<bool isSlu>
-	struct ExpressionV : BaseExprV<isSlu>
+	struct ExprV : BaseExprV<isSlu>
 	{};
 	template<>
-	struct ExpressionV<true> : BaseExprV<true>
+	struct ExprV<true> : BaseExprV<true>
 	{
 		SmallEnumList<PostUnOpType> postUnOps;
 
@@ -549,8 +551,6 @@ namespace slu::parse
 			return std::holds_alternative<ExprType::TableV<true>>(this->data);
 		}
 	};
-	template<bool isSlu>
-	using BoxExprV = std::unique_ptr<ExpressionV<isSlu>>;
 
 	//Slu
 
@@ -558,7 +558,7 @@ namespace slu::parse
 	// match patterns
 
 	template<bool isSlu>
-	using NdPatV = ExpressionV<isSlu>;
+	using NdPatV = ExprV<isSlu>;
 	Slu_DEF_CFG(NdPat);
 
 	namespace DestrSpecType
@@ -690,7 +690,7 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(NAME);
 
 		template<bool isSlu>
-		struct ExprV { ExpressionV<isSlu> idx; };	// {funcArgs} ‘[’ exp ‘]’
+		struct ExprV { parse::ExprV<isSlu> idx; };	// {funcArgs} ‘[’ exp ‘]’
 		Slu_DEF_CFG(Expr);
 	}
 
@@ -723,7 +723,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct ExprV
 		{
-			ExpressionV<isSlu> start;
+			parse::ExprV<isSlu> start;
 		};
 		Slu_DEF_CFG(Expr);
 
@@ -755,13 +755,13 @@ namespace slu::parse
 	namespace FieldType
 	{
 		template<bool isSlu>
-		struct EXPR2EXPRv { ExpressionV<isSlu> idx; ExpressionV<isSlu> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		struct EXPR2EXPRv { parse::ExprV<isSlu> idx; parse::ExprV<isSlu> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
 
 		template<bool isSlu>
-		struct NAME2EXPRv { MpItmIdV<isSlu> idx; ExpressionV<isSlu> v; };	// "Name ‘=’ exp"
+		struct NAME2EXPRv { MpItmIdV<isSlu> idx; parse::ExprV<isSlu> v; };	// "Name ‘=’ exp"
 
 		template<bool isSlu>
-		struct ExprV { ExpressionV<isSlu> v; };							// "exp"
+		struct ExprV { parse::ExprV<isSlu> v; };							// "exp"
 	}
 	namespace LimPrefixExprType
 	{
@@ -769,7 +769,7 @@ namespace slu::parse
 		struct VARv { VarV<isSlu> v; };			// "var"
 
 		template<bool isSlu>
-		struct ExprV { ExpressionV<isSlu> v; };	// "'(' exp ')'"
+		struct ExprV { parse::ExprV<isSlu> v; };	// "'(' exp ')'"
 	}
 
 	template<bool isSlu>
@@ -846,7 +846,7 @@ namespace slu::parse
 		using parse::Block;
 
 		template<bool isSlu>
-		struct WhileV { ExpressionV<isSlu> cond; BlockV<isSlu> bl; };		// "while exp do block end"
+		struct WhileV { ExprV<isSlu> cond; BlockV<isSlu> bl; };		// "while exp do block end"
 		Slu_DEF_CFG(While);
 
 		template<bool isSlu>
@@ -863,9 +863,9 @@ namespace slu::parse
 		struct FOR_LOOP_NUMERICv
 		{
 			Sel<isSlu, MpItmIdV<isSlu>, PatV<true,true>> varName;
-			ExpressionV<isSlu> start;
-			ExpressionV<isSlu> end;//inclusive
-			std::optional<ExpressionV<isSlu>> step;
+			ExprV<isSlu> start;
+			ExprV<isSlu> end;//inclusive
+			std::optional<ExprV<isSlu>> step;
 			BlockV<isSlu> bl;
 		};
 		Slu_DEF_CFG_CAPS(FOR_LOOP_NUMERIC);
@@ -875,7 +875,7 @@ namespace slu::parse
 		struct FOR_LOOP_GENERICv
 		{
 			Sel<isSlu, NameListV<isSlu>, PatV<true, true>> varNames;
-			Sel<isSlu, ExprListV<isSlu>, ExpressionV<isSlu>> exprs;//size must be > 0
+			Sel<isSlu, ExprListV<isSlu>, ExprV<isSlu>> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
 		Slu_DEF_CFG_CAPS(FOR_LOOP_GENERIC);
@@ -935,23 +935,23 @@ namespace slu::parse
 
 		struct CanonicLocal
 		{
-			ExpressionV<true> type;
+			ExprV<true> type;
 			LocalId name;
-			ExpressionV<true> value;
+			ExprV<true> value;
 			ExportData exported = false;
 		};
 		struct CanonicGlobal
 		{
-			ExpressionV<true> type;
+			ExprV<true> type;
 			LocalsV<true> local2Mp;
 			MpItmIdV<true> name;
-			ExpressionV<true> value;
+			ExprV<true> value;
 			ExportData exported = false;
 		};
 
 
 		template<bool isSlu>
-		struct StructV : StructBaseV<ExpressionV<true>, isSlu> {};
+		struct StructV : StructBaseV<ExprV<true>, isSlu> {};
 		Slu_DEF_CFG(Struct);
 
 		template<bool isSlu>
@@ -985,7 +985,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct DROPv
 		{
-			ExpressionV<isSlu> expr;
+			ExprV<isSlu> expr;
 		};
 		Slu_DEF_CFG_CAPS(DROP);
 
