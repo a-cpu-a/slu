@@ -362,7 +362,7 @@ namespace slu::visit
 			visitSafety(vi, var.v.safety);
 			visitParams(vi, var.v.params);
 			if(var.v.retType.has_value())
-				visitTypeExpr(vi, *var.v.retType);
+				visitTypeExpr(vi, **var.v.retType);
 			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var.v);
 			visitBlock(vi, var.v.block);
 			//TODO
@@ -603,7 +603,7 @@ namespace slu::visit
 			visitSafety(vi, var.func.safety);
 			visitName(vi, var.name);
 			if (var.func.retType.has_value())
-				visitTypeExpr(vi, *var.func.retType);
+				visitTypeExpr(vi, **var.func.retType);
 			visitParams(vi, var.func.params);
 			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var.func);
 			visitBlock(vi, var.func.block);
@@ -616,7 +616,7 @@ namespace slu::visit
 			visitSafety(vi, var.safety);
 			visitName(vi, var.name);
 			if (var.retType.has_value())
-				visitTypeExpr(vi, *var.retType);
+				visitTypeExpr(vi, **var.retType);
 			visitParams(vi, var.params);
 			Slu_CALL_VISIT_FN_POST_VAR(FunctionInfo);
 			Slu_CALL_VISIT_FN_POST_VAR(AnyFuncDeclStat);

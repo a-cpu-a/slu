@@ -550,6 +550,12 @@ namespace slu::parse
 	struct ExpressionV<true> : BaseExpressionV<true>
 	{
 		SmallEnumList<PostUnOpType> postUnOps;
+
+		bool isBasicStruct() const {
+			if(!this->unOps.empty() || !this->postUnOps.empty())
+				return false;
+			return std::holds_alternative<ExprType::TABLE_CONSTRUCTORv<true>>(this->data);
+		}
 	};
 
 	//Slu

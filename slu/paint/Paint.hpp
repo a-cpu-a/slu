@@ -263,17 +263,26 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, "?");
 		},
 		varcase(const parse::ExprType::Err&) {
-			paintKw<Tok::GEN_OP>(se, "~~");
-			paintTypeExpr(se, *var.err, tint);
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintKw<Tok::GEN_OP>(se, "~~");
+				paintTypeExpr(se, *var.err, tint);
+			}
 		},
 		varcase(const parse::ExprType::Slice&) {
-			paintKw<Tok::GEN_OP>(se, "[");
-			paintTypeExpr<Tok::NAME_TYPE>(se, *var);
-			paintKw<Tok::GEN_OP>(se, "]");
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintKw<Tok::GEN_OP>(se, "[");
+				paintTypeExpr(se, *var);
+				paintKw<Tok::GEN_OP>(se, "]");
+			}
 		},
 		varcase(const parse::ExprType::Union&) {
-			paintKw<Tok::CON_STAT>(se, "union");
-			paintTable<Tok::NAME_TYPE>(se, var.fields);
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintKw<Tok::CON_STAT>(se, "union");
+				paintTable<Tok::NAME_TYPE>(se, var.fields);
+			}
 		},
 		varcase(const parse::ExprType::Dyn&) {
 			paintKw<Tok::DYN>(se, "dyn");
@@ -284,11 +293,14 @@ namespace slu::paint
 			paintTraitExpr(se, var.expr);
 		},
 		varcase(const parse::ExprType::FnType&) {
-			paintSafety(se, var.safety);
-			paintKw<Tok::FN_STAT>(se, "fn");
-			paintTypeExpr(se, *var.argType);
-			paintKw<Tok::GEN_OP>(se, "->");
-			paintTypeExpr(se, *var.retType);
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintSafety(se, var.safety);
+				paintKw<Tok::FN_STAT>(se, "fn");
+				paintTypeExpr(se, *var.argType);
+				paintKw<Tok::GEN_OP>(se, "->");
+				paintTypeExpr(se, *var.retType);
+			}
 		}
 		);
 		if constexpr (Se::settings() & sluSyn)
@@ -981,14 +993,17 @@ namespace slu::paint
 		// Slu
 
 		varcase(const parse::StatementType::Struct<Se>&) {
-			se.pushLocals(var.local2Mp);
-			paintStructBasic(se, var, "struct");
+			if constexpr (Se::settings() & sluSyn)
+			{
+				se.pushLocals(var.local2Mp);
+				paintStructBasic(se, var, "struct");
 
-			skipSpace(se);
-			if(se.in.peek()=='=')
-				paintKw<Tok::ASSIGN>(se, "=");
-			paintTypeExpr(se, var.type);
-			se.popLocals();
+				skipSpace(se);
+				if (se.in.peek() == '=')
+					paintKw<Tok::ASSIGN>(se, "=");
+				paintTypeExpr(se, var.type);
+				se.popLocals();
+			}
 		},
 		varcase(const parse::StatementType::Union<Se>&) {
 			se.pushLocals(var.local2Mp);

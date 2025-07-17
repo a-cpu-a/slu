@@ -362,7 +362,7 @@ namespace slu::parse
 			out.add("..");
 		},
 		varcase(const ExprType::LIFETIME&) {
-			if constexpr (out.settings() & sluSyn)
+			if constexpr (Out::settings() & sluSyn)
 				genLifetime(out, var);
 		},
 		varcase(const ExprType::TRAIT_EXPR&) {
@@ -382,6 +382,9 @@ namespace slu::parse
 			out.add(parse::u128ToStr(var.lo, var.hi));
 		},
 
+		varcase(const ExprType::Inferr) {
+			out.add("?");
+		},
 		varcase(const ExprType::Dyn&) {
 			out.add("dyn ");
 			genTraitExpr(out, var.expr);
@@ -391,27 +394,39 @@ namespace slu::parse
 			genTraitExpr(out, var.expr);
 		},
 		varcase(const ExprType::Err&) {
-			out.add("~~");
-			genExpr(out, *var.err);
+			if constexpr (Out::settings() & sluSyn)
+			{
+				out.add("~~");
+				genExpr(out, *var.err);
+			}
 		},
 		varcase(const ExprType::Slice&) {
-			out.add('[');
-			genExpr(out, *var);
-			out.add(']');
+			if constexpr (Out::settings() & sluSyn)
+			{
+				out.add('[');
+				genExpr(out, *var);
+				out.add(']');
+			}
 		},
 		varcase(const ExprType::Union&) {
-			out.add("union ");
-			genTableConstructor(out, var.fields);
+			if constexpr (Out::settings() & sluSyn)
+			{
+				out.add("union ");
+				genTableConstructor(out, var.fields);
+			}
 		},
 		varcase(const ExprType::FnType&) {
-			genSafety(out, var.safety);
-			out.add("fn ");
-			genExpr(out, *var.argType);
-			out.add(" -> ");
-			genExpr(out, *var.retType);
+			if constexpr (Out::settings() & sluSyn)
+			{
+				genSafety(out, var.safety);
+				out.add("fn ");
+				genExpr(out, *var.argType);
+				out.add(" -> ");
+				genExpr(out, *var.retType);
+			}
 		}
 		);
-		if constexpr(out.settings()&sluSyn)
+		if constexpr(Out::settings()&sluSyn)
 		{
 			for (const PostUnOpType t : obj.postUnOps)
 				out.add(getPostUnOpAsStr(t));
@@ -590,7 +605,7 @@ namespace slu::parse
 			if (itm.retType.has_value())
 			{
 				out.add(" -> ");
-				genTypeExpr<true>(out, *itm.retType);
+				genExpr(out, **itm.retType);
 			}
 		}
 	}
@@ -882,7 +897,7 @@ namespace slu::parse
 			{
 				genExSafety(out, var.exported, OptSafety::DEFAULT);
 				out.add("let ");
-				genTypeExpr<false>(out, var.type);
+				genExpr(out, var.type);
 				out.add(' ');
 				genNameOrLocal<true>(out, var.name);
 				out.add(" = ");
@@ -897,7 +912,7 @@ namespace slu::parse
 				out.pushLocals(var.local2Mp);
 				genExSafety(out, var.exported, OptSafety::DEFAULT);
 				out.add("let ");
-				genTypeExpr<false>(out, var.type);
+				genExpr(out, var.type);
 				out.add(' ');
 				genNameOrLocal<false>(out, var.name);
 				out.add(" = ");
@@ -1048,23 +1063,26 @@ namespace slu::parse
 		//Slu!
 
 		varcase(const StatementType::Struct<Out>&) {
-			out.pushLocals(var.local2Mp);
-			if (var.exported)out.add("ex ");
-			out.add("struct ").add(out.db.asSv(var.name));
-			if (!var.params.empty())
+			if constexpr (Out::settings() & sluSyn)
 			{
-				out.add('(');
-				genParamList(out, var.params,false);
-				out.add(')');
-			}
-			if (!var.type.isBasicStruct())
-				out.add(" = ");
-			else
-				out.add(' ');
+				out.pushLocals(var.local2Mp);
+				if (var.exported)out.add("ex ");
+				out.add("struct ").add(out.db.asSv(var.name));
+				if (!var.params.empty())
+				{
+					out.add('(');
+					genParamList(out, var.params, false);
+					out.add(')');
+				}
+				if (!var.type.isBasicStruct())
+					out.add(" = ");
+				else
+					out.add(' ');
 
-			genTypeExpr<true>(out, var.type);
-			out.newLine();
-			out.popLocals();
+				genExpr(out, var.type);
+				out.newLine();
+				out.popLocals();
+			}
 		},
 
 		varcase(const StatementType::Union<Out>&) {

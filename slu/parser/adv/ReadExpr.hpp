@@ -414,7 +414,7 @@ namespace slu::parse
 					(nextChr >= 'a' && nextChr <= 'z')
 					|| (nextChr >= 'A' && nextChr <= 'Z'))
 				{
-					if (peekName<true>(in, nextCh) == SIZE_MAX)
+					if (peekName<NameCatagory::MP_START>(in, nextCh) == SIZE_MAX)
 					{//Its reserved
 						in.skip(2);
 						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);

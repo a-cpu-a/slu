@@ -244,7 +244,7 @@ namespace slu::mlvl
 				auto res = parse::BaseExpressionV<true>{ parse::ExprType::Inferr{},place};
 				res.unOps = std::move(var);
 
-				return res;
+				return parse::ExpressionV<true>{std::move(res)};
 			},
 			varcase(parse::DestrSpecType::Spat<Cfg>&)  {
 				return std::move(var);
@@ -333,7 +333,7 @@ namespace slu::mlvl
 				varcase(const parse::PatType::DestrAny) {
 					addCanonicVarStat<isLocal>(out, first, itm,
 						false, 
-						parse::BaseExpressionV<true>{ parse::ExprType::Inferr{},stat.place },
+						{ parse::BaseExpressionV<true>{ parse::ExprType::Inferr{},stat.place } },
 						getSynVarName<isLocal>(),
 						std::move(expr));
 				},
