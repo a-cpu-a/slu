@@ -17,6 +17,11 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::Inferr) {
 			return parse::ResolvedType::getInferred();
 		},
+		varcase(const parse::ExprType::OPEN_RANGE)->parse::ResolvedType {
+			//TODO
+			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
+			throw std::runtime_error("TODO: resolve open range type expressions.");
+		},
 		varcase(parse::ExprType::LITERAL_STRING&&){
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::String{std::move(var.v)});
 		},
@@ -32,37 +37,44 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::NUMERAL_U128) {
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 		},
-		varcase(parse::ExprType::FnType&&) {
+		varcase(const parse::ExprType::NUMERAL)->parse::ResolvedType {
+			throw std::runtime_error("TODO: resolve numeral type expressions.");
+		},
+		varcase(parse::ExprType::FnType&&)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve FN type expressions.");
 		},
-		varcase(parse::ExprType::Dyn&&) {
+		varcase(parse::ExprType::Dyn&&)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve DYN type expressions.");
 		},
-		varcase(parse::ExprType::Impl&&) {
+		varcase(parse::ExprType::Impl&&)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve IMPL type expressions.");
 		},
-		varcase(parse::ExprType::Err&&) {
+		varcase(parse::ExprType::Err&&)->parse::ResolvedType {
 			//TODO replace with ?~~var equivelant.
 			throw std::runtime_error("TODO: resolve ERR type expressions.");
 		},
 
-		varcase(parse::ExprType::FUNC_CALLv<true>&&) {
+		varcase(parse::ExprType::FUNC_CALLv<true>&&)->parse::ResolvedType {
 			//TODO: resolve basic ops, jit all else.
 			if(var.argChain.size() != 1)
 				throw std::runtime_error("TODO: resolve complex FUNC_CALL type expressions.");
+
+			throw std::runtime_error("TODO: resolve func-call type expressions.");
 		},
-		varcase(parse::ExprType::LIM_PREFIX_EXPv<true>&&) {
+		varcase(parse::ExprType::LIM_PREFIX_EXPv<true>&&)->parse::ResolvedType {
 			//TODO
+			throw std::runtime_error("TODO: resolve lim-prefix-expr type expressions.");
 		},
-		varcase(parse::ExprType::Slice&&) {
+		varcase(parse::ExprType::Slice&&)->parse::ResolvedType {
 			//size = {usize ptr}+ {usize len,usize stride}*sliceDims.
 			//TODO
+			throw std::runtime_error("TODO: resolve slice type expressions.");
 		},
 		varcase(parse::ExprType::TABLE_CONSTRUCTORv<true>&&) {
 			parse::StructRawType& res = *(new parse::StructRawType());
@@ -131,17 +143,37 @@ namespace slu::mlvl
 				.sizeInBits = resSizeInBits
 			};
 		},
-		varcase(parse::ExprType::Union&&) {
+		varcase(parse::ExprType::Union&&)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve Union type expressions.");
 		},
 
 
+		varcase(parse::ExprType::IfCondV<true>&&) ->parse::ResolvedType {
+			//TODO
+			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
+			throw std::runtime_error("TODO: resolve if type expressions.");
+		},
 
-		varcase(parse::ExprType::MULTI_OPERATIONv<true>&&) {
+
+#define Slu_INVALID_EXPR_CASE(_MSG,...) varcase(__VA_ARGS__ &&)->parse::ResolvedType { \
+		throw std::runtime_error("Invalid slu " _MSG ", index:" #__VA_ARGS__ "."); \
+	}
+
+		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::TRUE),
+		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::FALSE),
+		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::NIL),
+		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::VARARGS),
+		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::PAT_TYPE_PREFIX),
+		Slu_INVALID_EXPR_CASE("type", parse::ExprType::TRAIT_EXPR),
+		Slu_INVALID_EXPR_CASE("type", parse::ExprType::FUNCTION_DEFv<true>),
+		Slu_INVALID_EXPR_CASE("type", parse::ExprType::LIFETIME),
+		varcase(parse::ExprType::MULTI_OPERATIONv<true>&&)->parse::ResolvedType {
 			throw std::runtime_error("Multi-op type expressions are ment to be desuagared before type resolution.");
 		});
-		//resTy.hasMut = type.hasMut;//TODO
+#undef Slu_INVALID_EXPR_CASE
+
+		return resTy;
 	}
 }
