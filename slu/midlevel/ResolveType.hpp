@@ -89,21 +89,24 @@ namespace slu::mlvl
 
 			if (rt.outerSliceDims != 0)
 			{
-				for (size_t i = 0; i < rt.outerSliceDims; i++)
-				{
-					rt.sigils.push_back(
-						parse::TySigil{ .type = parse::TySigil::SLICE }
-					);
-				}
-				rt.size = TYPE_RES_PTR_SIZE + TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims;
-				rt.outerSliceDims = 0;//reset, as we already added the sigils.
+				size_t sz = TYPE_RES_PTR_SIZE + TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims;
+
+				return parse::ResolvedType{
+					.base = parse::RawTypeKind::RefSlice{new parse::RefSliceRawType{
+						.elem=std::move(rt),
+						.refType= parse::UnOpType::TO_REF
+					}},
+					.size = sz
+				};
 			}
 			else
+			{
 				rt.size = TYPE_RES_PTR_SIZE;
 
-			rt.sigils.emplace_back(
-				parse::TySigil{.type= parse::TySigil::REF }
-			);
+				rt.sigils.emplace_back(
+					parse::TySigil{ .refType = parse::UnOpType::TO_REF }
+				);
+			}
 
 			return rt;
 		},
@@ -118,7 +121,7 @@ namespace slu::mlvl
 			{
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},
-					.size = parse::ResolvedType::UNSIZED_MARK,
+					.size = 8,
 					.outerSliceDims=1
 				};
 			}
@@ -198,11 +201,13 @@ namespace slu::mlvl
 					res.fieldOffsets.push_back(SIZE_MAX);//Only known at runtime.
 					continue;
 				}
-
 				fieldOffset = (fieldOffset + 7) & (~0b111);//ceil to byte boundary.
 
 				res.fieldOffsets.push_back(fieldOffset);
 				fieldOffset += resField.size;
+
+				if(!resField.isSized())
+					fieldOffset = parse::ResolvedType::UNSIZED_MARK;//Following fields will only have offsets known at runtime.
 			}
 
 			return parse::ResolvedType{

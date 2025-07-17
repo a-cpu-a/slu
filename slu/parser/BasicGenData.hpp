@@ -74,6 +74,7 @@ namespace slu::parse
 	struct StructRawType;
 	struct UnionRawType;
 	struct VariantRawType;
+	struct RefSliceRawType;
 	struct DelStructRawType {
 		void operator()(StructRawType* it) const noexcept;
 	};
@@ -82,6 +83,9 @@ namespace slu::parse
 	};
 	struct DelVariantRawType {
 		void operator()(VariantRawType* it) const noexcept;
+	};
+	struct DelRefSliceRawType {
+		void operator()(RefSliceRawType* it) const noexcept;
 	};
 	namespace RawTypeKind
 	{
@@ -111,6 +115,7 @@ namespace slu::parse
 		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
 		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
 		using Struct = std::unique_ptr<StructRawType, DelStructRawType>;
+		using RefSlice = std::unique_ptr<RefSliceRawType, DelRefSliceRawType>;
 	}
 	using RawType = std::variant<
 		RawTypeKind::TypeError,
@@ -129,27 +134,22 @@ namespace slu::parse
 		RawTypeKind::Range64,
 		RawTypeKind::Variant,
 		RawTypeKind::Union,
-		RawTypeKind::Struct
+		RawTypeKind::Struct,
+		RawTypeKind::RefSlice
 	>;
 	struct TySigil
 	{
-		constexpr static uint8_t SLICE = 0;
-		constexpr static uint8_t REF = 1;
-		constexpr static uint8_t REF_MUT = 2;
-		constexpr static uint8_t REF_CONST = 3;
-		constexpr static uint8_t REF_SHARE = 4;
-
 		lang::MpItmIdV<true> life;
-		uint8_t type;//slice,&,&mut,&const,&share
+		UnOpType refType;
 	};
 	struct ResolvedType
 	{
 		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50)-1;
-		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK-1;
+		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK -1;
 
 		RawType base;
-		std::vector<TySigil> sigils;//In application order, so {SLICE,REF} -> &[...].
-		size_t size : 50;//in bits. ignoring outerSliceDims.
+		std::vector<TySigil> sigils;//In application order, so {&share,&mut} -> &mut &share T
+		size_t size : 50;//in bits. element type size, ignoring outerSliceDims.
 		size_t outerSliceDims : 13 = 0;
 		size_t hasMut : 1 = false;
 
@@ -157,7 +157,7 @@ namespace slu::parse
 			return size != INCOMPLETE_MARK;
 		}
 		constexpr bool isSized() const {
-			return size != UNSIZED_MARK;
+			return outerSliceDims == 0 && size!= UNSIZED_MARK;
 		}
 
 		static ResolvedType getInferred() {
@@ -189,6 +189,11 @@ namespace slu::parse
 	{
 		std::vector<ResolvedType> options;
 	};
+	struct RefSliceRawType
+	{
+		ResolvedType elem;//dims stored in here.
+		UnOpType refType;
+	};
 	void ::slu::parse::DelStructRawType::operator()(StructRawType* it) const noexcept {
 		delete it;
 	}
@@ -196,6 +201,9 @@ namespace slu::parse
 		delete it;
 	}
 	void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelRefSliceRawType::operator()(RefSliceRawType* it) const noexcept {
 		delete it;
 	}
 
