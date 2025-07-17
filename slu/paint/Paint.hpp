@@ -285,12 +285,18 @@ namespace slu::paint
 			}
 		},
 		varcase(const parse::ExprType::Dyn&) {
-			paintKw<Tok::DYN>(se, "dyn");
-			paintTraitExpr(se, var.expr);
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintKw<Tok::DYN>(se, "dyn");
+				paintTraitExpr(se, var.expr);
+			}
 		},
 		varcase(const parse::ExprType::Impl&) {
-			paintKw<Tok::IMPL>(se, "impl");
-			paintTraitExpr(se, var.expr);
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintKw<Tok::IMPL>(se, "impl");
+				paintTraitExpr(se, var.expr);
+			}
 		},
 		varcase(const parse::ExprType::FnType&) {
 			if constexpr (Se::settings() & sluSyn)
