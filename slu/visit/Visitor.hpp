@@ -96,7 +96,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(ConstVar, parse::StatementType::CONST<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Use, parse::StatementType::USE);
 		_Slu_DEF_EMPTY_PRE_POST(ExternBlock, parse::StatementType::ExternBlock<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(AnyFuncDefStat, parse::StatementType::FUNCTION_DEF<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(AnyFuncDefStat, parse::StatementType::Function<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(AnyFuncDeclStat, parse::StatementType::FunctionDecl<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 

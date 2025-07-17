@@ -139,7 +139,7 @@ namespace slu::mlvl
 		void postAnyFuncDeclStat(parse::StatementType::FunctionDecl<Cfg>& itm) {
 			mkFuncStatItm(itm.name.id, std::move(itm.abi), std::move(itm.retType), itm.params);
 		}
-		void postAnyFuncDefStat(parse::StatementType::FUNCTION_DEF<Cfg>& itm) {
+		void postAnyFuncDefStat(parse::StatementType::Function<Cfg>& itm) {
 			mkFuncStatItm(itm.name.id, std::move(itm.func.abi), std::move(itm.func.retType), itm.func.params);
 		}
 

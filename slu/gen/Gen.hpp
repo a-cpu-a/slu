@@ -335,9 +335,9 @@ namespace slu::parse
 		varcase(const ExprType::String&) {
 			genLiteral(out,var.v);
 		},
-		varcase(const ExprType::FUNCTION_DEF<Out>&) {
+		varcase(const ExprType::Function<Out>&) {
 			out.add("function ");
-			genFuncDef(out, var.v,""sv);
+			genFuncDef(out, var,""sv);
 		},
 		varcase(const ExprType::FuncCall<Out>&) {
 			genFuncCall(out, var);
@@ -1049,7 +1049,7 @@ namespace slu::parse
 			genFunc<true>(out, var, "fn ");
 		},
 
-		varcase(const StatementType::FUNCTION_DEF<Out>&) {
+		varcase(const StatementType::Function<Out>&) {
 			genFunc<false>(out, var, "function ");
 		},
 		varcase(const StatementType::FunctionDecl<Out>&) {

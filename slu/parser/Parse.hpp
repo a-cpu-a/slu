@@ -396,7 +396,7 @@ namespace slu::parse
 		case 'u':
 			if (checkReadTextToken(in, "function"))
 			{
-				readFunctionStatement<isLoop, StatementType::FUNCTION_DEF<In>, StatementType::FunctionDecl<In>>(
+				readFunctionStatement<isLoop, StatementType::Function<In>, StatementType::FunctionDecl<In>>(
 					in, place, allowVarArg, exported, safety
 				);
 				return true;

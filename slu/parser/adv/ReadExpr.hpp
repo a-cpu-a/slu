@@ -230,7 +230,7 @@ namespace slu::parse
 					ezmatch(std::move(fun))(
 					varcase(Function<In>&&)
 					{
-						basicRes.data = ExprType::FUNCTION_DEF<In>(std::move(var));
+						basicRes.data = ExprType::Function<In>(std::move(var));
 						if (err)
 						{
 

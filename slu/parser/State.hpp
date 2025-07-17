@@ -422,9 +422,8 @@ namespace slu::parse
 		struct True {};											// "true"
 		struct VarArgs {};										// "..."
 
-		template<bool isSlu>
-		struct FUNCTION_DEFv { FunctionV<isSlu> v; };				// "functiondef"
-		Slu_DEF_CFG_CAPS(FUNCTION_DEF);
+		using parse::FunctionV;
+		using parse::Function;
 
 		template<bool isSlu>
 		struct TABLE_CONSTRUCTORv { TableConstructorV<isSlu> v; };	// "tableconstructor"
@@ -488,7 +487,7 @@ namespace slu::parse
 
 		ExprType::String,		// "LiteralString"
 		ExprType::VarArgs,              // "..." (varargs)
-		ExprType::FUNCTION_DEFv<isSlu>,			// "functiondef"
+		ExprType::FunctionV<isSlu>,			// "functiondef"
 		ExprType::LimPrefixExprV<isSlu>,		// "prefixexp"
 		ExprType::FuncCallV<isSlu>,			// "prefixexp argsThing {argsThing}"
 		ExprType::TABLE_CONSTRUCTORv<isSlu>,	// "tableconstructor"
@@ -891,20 +890,20 @@ namespace slu::parse
 			FunctionV<isSlu> func;
 		};
 		template<bool isSlu>
-		struct FUNCTION_DEFv : FuncDefBase<isSlu> {};
+		struct FunctionV : FuncDefBase<isSlu> {};
 		template<>
-		struct FUNCTION_DEFv<true> : FuncDefBase<true>
+		struct FunctionV<true> : FuncDefBase<true>
 		{
 			ExportData exported = false;
 		};
-		Slu_DEF_CFG_CAPS(FUNCTION_DEF);
+		Slu_DEF_CFG(Function);
 
 		template<bool isSlu>
-		struct FNv : FUNCTION_DEFv<isSlu> {};
+		struct FNv : FunctionV<isSlu> {};
 		Slu_DEF_CFG_CAPS(FN);
 
 		template<bool isSlu>
-		struct LOCAL_FUNCTION_DEFv :FUNCTION_DEFv<isSlu> {};
+		struct LOCAL_FUNCTION_DEFv :FunctionV<isSlu> {};
 		Slu_DEF_CFG_CAPS(LOCAL_FUNCTION_DEF);
 		// "local function Name funcbody" //n may not ^^^
 
@@ -1036,7 +1035,7 @@ namespace slu::parse
 		StatementType::FOR_LOOP_GENERICv<isSlu>,	// "for namelist in explist do block end"
 
 		StatementType::LOCAL_FUNCTION_DEFv<isSlu>,	// "local function Name funcbody"
-		StatementType::FUNCTION_DEFv<isSlu>,		// "function funcname funcbody"
+		StatementType::FunctionV<isSlu>,		// "function funcname funcbody"
 		StatementType::FNv<isSlu>,					// "fn funcname funcbody"
 
 		StatementType::FunctionDeclV<isSlu>,

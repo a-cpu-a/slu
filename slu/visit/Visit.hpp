@@ -357,14 +357,14 @@ namespace slu::visit
 		varcase(parse::ExprType::TABLE_CONSTRUCTOR<Vi>&) {
 			visitTable(vi,var.v);
 		},
-		varcase(parse::ExprType::FUNCTION_DEF<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo, var.v);
-			visitSafety(vi, var.v.safety);
-			visitParams(vi, var.v.params);
-			if(var.v.retType.has_value())
-				visitTypeExpr(vi, **var.v.retType);
-			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var.v);
-			visitBlock(vi, var.v.block);
+		varcase(parse::ExprType::Function<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo, var);
+			visitSafety(vi, var.safety);
+			visitParams(vi, var.params);
+			if(var.retType.has_value())
+				visitTypeExpr(vi, **var.retType);
+			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var);
+			visitBlock(vi, var.block);
 			//TODO
 		},
 		varcase(parse::ExprType::MULTI_OPERATION<Vi>&) {
@@ -596,7 +596,7 @@ namespace slu::visit
 			visitParams(vi, var.params);
 			visitTable(vi, var.type);
 		},
-		varcase(parse::StatementType::FUNCTION_DEF<Vi>&) {
+		varcase(parse::StatementType::Function<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(AnyFuncDefStat);
 			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo,var.func);
 			visitExported(vi, var.exported);
