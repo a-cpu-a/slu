@@ -365,7 +365,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 				genLifetime(out, var);
 		},
-		varcase(const ExprType::TRAIT_EXPR&) {
+		varcase(const ExprType::TraitExpr&) {
 			genTraitExpr(out, var);
 		},
 		varcase(const ExprType::IfCond<Out>&) {

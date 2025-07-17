@@ -238,7 +238,7 @@ namespace slu::paint
 			if constexpr (Se::settings() & sluSyn)
 				paintLifetime(se, var);
 		},
-		varcase(const parse::ExprType::TRAIT_EXPR&) {
+		varcase(const parse::ExprType::TraitExpr&) {
 			if constexpr (Se::settings() & sluSyn)
 				paintTraitExpr(se, var);
 		},

@@ -330,7 +330,7 @@ namespace slu::visit
 		varcase(const parse::ExprType::VarArgs) {
 			//TODO
 		},
-		varcase(parse::ExprType::TRAIT_EXPR&) {
+		varcase(parse::ExprType::TraitExpr&) {
 			visitTraitExpr(vi, var);
 		},
 		varcase(parse::ExprType::IfCond<Vi>&) {

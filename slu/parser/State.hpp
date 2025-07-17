@@ -447,7 +447,7 @@ namespace slu::parse
 
 
 		using parse::Lifetime;	// " '/' var" {'/' var"}
-		using TRAIT_EXPR = TraitExpr;
+		using parse::TraitExpr;
 
 		struct PAT_TYPE_PREFIX {};
 
@@ -506,7 +506,7 @@ namespace slu::parse
 		ExprType::U128,			// "Numeral"
 
 		ExprType::Lifetime,
-		ExprType::TRAIT_EXPR,
+		ExprType::TraitExpr,
 
 		ExprType::PAT_TYPE_PREFIX,
 
