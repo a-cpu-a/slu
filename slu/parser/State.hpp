@@ -843,7 +843,7 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(GOTO);
 
 		template<bool isSlu>
-		struct BLOCKv { BlockV<isSlu> bl; };							// "do block end"
+		using BLOCKv = BlockV<isSlu>;							// "do block end"
 		Slu_DEF_CFG_CAPS(BLOCK);
 
 		template<bool isSlu>

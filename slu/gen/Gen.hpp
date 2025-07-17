@@ -949,7 +949,7 @@ namespace slu::parse
 			out.newLine();//Extra spacing
 			out.add(sel<Out>("do","{"))
 				.tabUpNewl();
-			genBlock(out, var.bl);
+			genBlock(out, var);
 			out.unTabNewl()
 				.addNewl(sel<Out>("end", "}"));
 		},

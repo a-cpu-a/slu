@@ -895,7 +895,7 @@ namespace slu::paint
 			);
 		},
 		varcase(const parse::StatementType::BLOCK<Se>&) {
-			paintDoEndBlock(se, var.bl);
+			paintDoEndBlock(se, var);
 		},
 		varcase(const parse::StatementType::FOR_LOOP_NUMERIC<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");

@@ -531,7 +531,7 @@ namespace slu::visit
 			visitArgChain(vi, var.argChain);
 		},
 		varcase(parse::StatementType::BLOCK<Vi>&) {
-			visitBlock(vi, var.bl);
+			visitBlock(vi, var);
 		},
 		varcase(parse::StatementType::GOTO<Vi>&) {
 			//TODO
