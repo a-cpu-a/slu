@@ -7,20 +7,20 @@ safe extern "C" {
 }
 
 fn helloWorld() -> {} {
-	puts("called helloWorld()\x00")
+	puts(--[=[Implicit conversion from "c...0" to &str]=] "called helloWorld()\x00")
 }
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
 ex fn main() -> {}
 {
-	let mut s = "Hello world! \u{1F600} x.x\x00";
-	let unused = 4;
+	let mut &:>::std::str s = --[=[Implicit conv]=] "Hello world! \u{1F600} x.x\x00";
+	let unused = 4;--type == 4
 	
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
 	
 	puts(s);
-	s = "I have stolen the show! 😈\x00";
+	s = --[=[Implicit conv]=] "I have stolen the show! 😈\x00";
 	puts(s);
 	
 	helloWorld();

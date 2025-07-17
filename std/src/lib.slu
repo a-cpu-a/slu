@@ -8,7 +8,7 @@ safe extern "C" {
 	fn puts(&:>::std::str line) -> :>::std::i32;
 }
 ---Test test test !!!
-ex fn _println(&:>::std::str text) -> :>::std::void
+ex fn _println(&:>::std::str text) -> {}
 {
 	--self::puts(text);
 }
