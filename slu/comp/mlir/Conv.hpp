@@ -425,7 +425,7 @@ namespace slu::comp::mico
 	concept AnyIgnoredStatement =
 		std::same_as<T, parse::StatementType::GotoV<true>>
 		|| std::same_as<T, parse::StatementType::SEMICOLON>
-		|| std::same_as<T, parse::StatementType::USE>
+		|| std::same_as<T, parse::StatementType::Use>
 		|| std::same_as<T, parse::StatementType::FnDeclV<true>>
 		|| std::same_as<T, parse::StatementType::FunctionDeclV<true>>
 		|| std::same_as<T, parse::StatementType::ExternBlockV<true>>//ignore, as desugaring will remove it

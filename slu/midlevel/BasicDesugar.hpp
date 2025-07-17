@@ -68,7 +68,7 @@ namespace slu::mlvl
 		//TODO: consider adding a splice statement, instead of inserting statements (OR FIX THE UB FOR THAT!)
 
 
-		void postUse(parse::StatementType::USE& itm)
+		void postUse(parse::StatementType::Use& itm)
 		{
 			ezmatch(itm.useVariant)(
 			varcase(parse::UseVariantType::EVERYTHING_INSIDE&) {

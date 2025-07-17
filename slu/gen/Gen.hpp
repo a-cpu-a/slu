@@ -1138,7 +1138,7 @@ namespace slu::parse
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::USE&) {
+		varcase(const StatementType::Use&) {
 			if constexpr (Out::settings() & sluSyn)
 			{
 				if (var.exported)out.add("ex ");

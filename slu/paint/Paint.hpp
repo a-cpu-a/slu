@@ -1058,7 +1058,7 @@ namespace slu::paint
 			paintKw<Tok::CON_STAT>(se, "mod");
 			paintName<Tok::NAME>(se, var.name);
 		},
-		varcase(const parse::StatementType::USE&) {
+		varcase(const parse::StatementType::Use&) {
 			if constexpr (Se::settings() & sluSyn)
 			{
 				if (var.exported)

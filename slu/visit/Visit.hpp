@@ -542,7 +542,7 @@ namespace slu::visit
 		varcase(parse::StatementType::LABEL<Vi>&) {
 			//TODO
 		},
-		varcase(parse::StatementType::USE&) {
+		varcase(parse::StatementType::Use&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Use);
 			visitExported(vi, var.exported);
 			visitMp(vi, var.base);

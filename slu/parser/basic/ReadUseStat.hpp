@@ -18,7 +18,7 @@ namespace slu::parse
 	{
 		if (checkReadTextToken(in, "use"))
 		{
-			StatementType::USE res{};
+			StatementType::Use res{};
 			res.exported = exported;
 
 			ModPath mp = readModPath(in);//Moved @ IMPORT

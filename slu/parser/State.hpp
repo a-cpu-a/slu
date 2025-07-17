@@ -961,7 +961,7 @@ namespace slu::parse
 		struct UnsafeLabel {};
 		struct SafeLabel {};
 
-		struct USE
+		struct Use
 		{
 			MpItmIdV<true> base;//the aliased/imported thing, or modpath base
 			UseVariant useVariant;
@@ -1033,7 +1033,7 @@ namespace slu::parse
 		StatementType::SafeLabel,		// ::: safe :
 
 		StatementType::DropV<isSlu>,	// "drop" Name
-		StatementType::USE,				// "use" ...
+		StatementType::Use,				// "use" ...
 		StatementType::ModV<isSlu>,		// "mod" Name
 		StatementType::ModAsV<isSlu>	// "mod" Name "as" "{" block "}"
 	> ;
