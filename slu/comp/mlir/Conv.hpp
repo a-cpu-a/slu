@@ -327,7 +327,7 @@ namespace slu::comp::mico
 	concept AnyInvalidExpression =
 		std::same_as<T, parse::ExprType::TRUE>
 		|| std::same_as<T, parse::ExprType::FALSE>
-		|| std::same_as<T, parse::ExprType::NIL>
+		|| std::same_as<T, parse::ExprType::Nil>
 		|| std::same_as<T, parse::ExprType::MULTI_OPERATIONv<true>>;//already desugared
 	inline mlir::Value convAny64(ConvData& conv, parse::Position place, const parse::Any64BitInt auto itm)
 	{

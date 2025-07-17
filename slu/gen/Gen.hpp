@@ -302,7 +302,7 @@ namespace slu::parse
 
 		using namespace std::literals;
 		ezmatch(obj.data)(
-		varcase(const ExprType::NIL) {
+		varcase(const ExprType::Nil) {
 			out.add("nil"sv);
 		},
 		varcase(const ExprType::FALSE) {

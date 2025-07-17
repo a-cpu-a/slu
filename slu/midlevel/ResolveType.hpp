@@ -163,7 +163,7 @@ namespace slu::mlvl
 
 		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::TRUE),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::FALSE),
-		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::NIL),
+		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::Nil),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::VARARGS),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::PAT_TYPE_PREFIX),
 		Slu_INVALID_EXPR_CASE("type", parse::ExprType::TRAIT_EXPR),

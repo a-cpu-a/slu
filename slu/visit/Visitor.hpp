@@ -125,7 +125,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_UNIT(String, std::span<char>);
 		_Slu_DEF_EMPTY_PRE_UNIT(True, parse::ExprType::TRUE);
 		_Slu_DEF_EMPTY_PRE_UNIT(False, parse::ExprType::FALSE);
-		_Slu_DEF_EMPTY_PRE_UNIT(Nil, parse::ExprType::NIL);
+		_Slu_DEF_EMPTY_PRE_UNIT(Nil, parse::ExprType::Nil);
 
 		//Lists:
 		_Slu_DEF_EMPTY_PRE_LG(DestrList, parse::PatType::DestrList);

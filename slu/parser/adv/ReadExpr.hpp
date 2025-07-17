@@ -267,7 +267,7 @@ namespace slu::parse
 
 			if (checkReadTextToken(in, "nil"))
 			{
-				basicRes.data = ExprType::NIL();
+				basicRes.data = ExprType::Nil{};
 				isNilIntentional = true;
 				break;
 			}
@@ -346,7 +346,7 @@ namespace slu::parse
 			break;
 		}
 		if (!isNilIntentional
-			&& std::holds_alternative<ExprType::NIL>(basicRes.data))
+			&& std::holds_alternative<ExprType::Nil>(basicRes.data))
 		{//Prefix expr! or func-call
 
 			bool maybeRootMp = false;

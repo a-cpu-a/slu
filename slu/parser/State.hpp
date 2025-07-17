@@ -268,10 +268,8 @@ namespace slu::parse
 		std::vector<ArgFuncCallV<isSlu>> argChain;
 	};
 
-
 	namespace ExprType
 	{
-
 		template<bool isSlu>
 		using LimPrefixExprV = std::unique_ptr<parse::LimPrefixExprV<isSlu>>;	// "prefixexp"
 		Slu_DEF_CFG(LimPrefixExpr);
@@ -421,7 +419,7 @@ namespace slu::parse
 
 	namespace ExprType
 	{
-		using NIL = std::monostate;								// "nil"
+		using Nil = std::monostate;								// "nil"
 		struct FALSE {};										// "false"
 		struct TRUE {};											// "true"
 		struct VARARGS {};										// "..."
@@ -484,7 +482,7 @@ namespace slu::parse
 
 	template<bool isSlu>
 	using ExprDataV = std::variant <
-		ExprType::NIL,                  // "nil"
+		ExprType::Nil,                  // "nil"
 		ExprType::FALSE,                // "false"
 		ExprType::TRUE,                 // "true"
 		ExprType::F64,				// "Numeral" (e.g., a floating-point number)

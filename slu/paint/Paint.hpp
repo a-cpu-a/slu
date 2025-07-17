@@ -204,7 +204,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::TRUE) {
 			paintKw<Tok::BUILITIN_VAR>(se, "true");
 		},
-		varcase(const parse::ExprType::NIL) {
+		varcase(const parse::ExprType::Nil) {
 			paintKw<Tok::BUILITIN_VAR>(se, "nil");
 		},
 		varcase(const parse::ExprType::VARARGS) {
