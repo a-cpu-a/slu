@@ -1018,7 +1018,7 @@ namespace slu::paint
 			se.popLocals();
 		},
 
-		varcase(const parse::StatementType::DROP<Se>&) {
+		varcase(const parse::StatementType::Drop<Se>&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);
 		},

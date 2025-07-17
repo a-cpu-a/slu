@@ -969,11 +969,11 @@ namespace slu::parse
 		};
 
 		template<bool isSlu>
-		struct DROPv
+		struct DropV
 		{
 			ExprV<isSlu> expr;
 		};
-		Slu_DEF_CFG_CAPS(DROP);
+		Slu_DEF_CFG(Drop);
 
 		template<bool isSlu>
 		struct ModV
@@ -1032,7 +1032,7 @@ namespace slu::parse
 		StatementType::UnsafeLabel,	// ::: unsafe :
 		StatementType::SafeLabel,		// ::: safe :
 
-		StatementType::DROPv<isSlu>,	// "drop" Name
+		StatementType::DropV<isSlu>,	// "drop" Name
 		StatementType::USE,				// "use" ...
 		StatementType::ModV<isSlu>,		// "mod" Name
 		StatementType::ModAsV<isSlu>	// "mod" Name "as" "{" block "}"

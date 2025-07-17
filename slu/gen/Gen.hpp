@@ -1132,7 +1132,7 @@ namespace slu::parse
 				.tabUpTemp();
 		},
 
-		varcase(const StatementType::DROP<Out>&) {
+		varcase(const StatementType::Drop<Out>&) {
 			out.add("drop ");;
 			genExpr(out, var.expr); 
 			out.addNewl(';');

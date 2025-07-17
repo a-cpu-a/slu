@@ -789,7 +789,7 @@ namespace slu::parse
 				if (checkReadTextToken(in, "drop"))
 				{
 					return in.genData.addStat(place,
-						StatementType::DROP<In>(readExpr(in,allowVarArg))
+						StatementType::Drop<In>(readExpr(in,allowVarArg))
 					);
 				}
 			}

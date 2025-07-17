@@ -637,7 +637,7 @@ namespace slu::visit
 		varcase(const parse::StatementType::SafeLabel) {
 			//TODO
 		},
-		varcase(parse::StatementType::DROP<Vi>&) {
+		varcase(parse::StatementType::Drop<Vi>&) {
 			visitExpr(vi, var.expr);
 		},
 		varcase(parse::StatementType::Mod<Vi>&) {
