@@ -768,7 +768,7 @@ namespace slu::parse
 
 	{
 		ezmatch(obj)(
-		varcase(const parse::SoeType::BLOCK<Out>&) {
+		varcase(const parse::SoeType::Block<Out>&) {
 			out.newLine().add('{').tabUpNewl();
 			genBlock(out, var);
 			out.unTabNewl().add('}');
@@ -945,7 +945,7 @@ namespace slu::parse
 				.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::BLOCK<Out>&) {
+		varcase(const StatementType::Block<Out>&) {
 			out.newLine();//Extra spacing
 			out.add(sel<Out>("do","{"))
 				.tabUpNewl();

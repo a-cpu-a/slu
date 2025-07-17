@@ -211,8 +211,8 @@ namespace slu::parse
 	namespace SoeType
 	{
 		template<bool isSlu>
-		using BLOCKv = BlockV<isSlu>;
-		Slu_DEF_CFG_CAPS(BLOCK);
+		using BlockV = BlockV<isSlu>;
+		Slu_DEF_CFG(Block);
 
 		template<bool isSlu>
 		using EXPRv = std::unique_ptr<ExpressionV<isSlu>>;
@@ -220,7 +220,7 @@ namespace slu::parse
 	}
 	template<bool isSlu>
 	using SoeV = std::variant<
-		SoeType::BLOCKv<isSlu>,
+		SoeType::BlockV<isSlu>,
 		SoeType::EXPRv<isSlu>
 	>;
 	Slu_DEF_CFG(Soe);
@@ -842,9 +842,8 @@ namespace slu::parse
 		struct GotoV { MpItmIdV<isSlu> v; };			// "goto Name"
 		Slu_DEF_CFG(Goto);
 
-		template<bool isSlu>
-		using BLOCKv = BlockV<isSlu>;							// "do block end"
-		Slu_DEF_CFG_CAPS(BLOCK);
+		using parse::BlockV;// "do block end"
+		using parse::Block;
 
 		template<bool isSlu>
 		struct WhileV { ExpressionV<isSlu> cond; BlockV<isSlu> bl; };		// "while exp do block end"
@@ -1024,7 +1023,7 @@ namespace slu::parse
 		StatementType::LABELv<isSlu>,			// "label"
 		StatementType::BREAK,					// "break"
 		StatementType::GotoV<isSlu>,			// "goto Name"
-		StatementType::BLOCKv<isSlu>,			// "do block end"
+		StatementType::BlockV<isSlu>,			// "do block end"
 		StatementType::WhileV<isSlu>,		// "while exp do block end"
 		StatementType::RepeatUntilV<isSlu>,	// "repeat block until exp"
 

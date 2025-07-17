@@ -779,7 +779,7 @@ namespace slu::parse
 			{
 				in.skip();//Skip ‘{’
 				return in.genData.addStat(place,
-					StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
+					StatementType::Block<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
 				);
 			}
 			break;
@@ -798,7 +798,7 @@ namespace slu::parse
 				if (checkReadTextToken(in, "do")) // ‘do’ block ‘end’
 				{
 					return in.genData.addStat(place,
-						StatementType::BLOCK<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
+						StatementType::Block<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
 					);
 				}
 			}

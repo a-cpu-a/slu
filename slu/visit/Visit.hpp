@@ -530,7 +530,7 @@ namespace slu::visit
 			visitLimPrefixExpr(vi, *var.val);
 			visitArgChain(vi, var.argChain);
 		},
-		varcase(parse::StatementType::BLOCK<Vi>&) {
+		varcase(parse::StatementType::Block<Vi>&) {
 			visitBlock(vi, var);
 		},
 		varcase(parse::StatementType::Goto<Vi>&) {
@@ -658,7 +658,7 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Soe);
 		ezmatch(itm)(
-		varcase(parse::SoeType::BLOCK<Vi>&) {
+		varcase(parse::SoeType::Block<Vi>&) {
 			visitBlock(vi, var);
 		},
 		varcase(parse::SoeType::EXPR<Vi>&) {

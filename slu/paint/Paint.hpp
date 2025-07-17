@@ -661,7 +661,7 @@ namespace slu::paint
 		if constexpr (Se::settings() & sluSyn)
 		{
 			ezmatch(itm)(
-			varcase(const parse::SoeType::BLOCK<Se>&) {
+			varcase(const parse::SoeType::Block<Se>&) {
 				paintStatOrRet<DO_END>(se, var);
 			},
 			varcase(const parse::SoeType::EXPR<Se>&) {
@@ -894,7 +894,7 @@ namespace slu::paint
 				"Non-paintable statement type found in paintStat: " + std::to_string(itm.data.index())
 			);
 		},
-		varcase(const parse::StatementType::BLOCK<Se>&) {
+		varcase(const parse::StatementType::Block<Se>&) {
 			paintDoEndBlock(se, var);
 		},
 		varcase(const parse::StatementType::FOR_LOOP_NUMERIC<Se>&) {
