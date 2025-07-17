@@ -536,7 +536,7 @@ namespace slu::visit
 		varcase(parse::StatementType::Goto<Vi>&) {
 			//TODO
 		},
-		varcase(parse::StatementType::BREAK&) {
+		varcase(parse::StatementType::Break&) {
 			//TODO
 		},
 		varcase(parse::StatementType::LABEL<Vi>&) {

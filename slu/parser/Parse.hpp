@@ -812,7 +812,7 @@ namespace slu::parse
 						"Break used outside of loop{}"
 						, errorLocStr(in)));
 				}
-				return in.genData.addStat(place, StatementType::BREAK{});
+				return in.genData.addStat(place, StatementType::Break{});
 			}
 			break;
 		case 'g'://goto?

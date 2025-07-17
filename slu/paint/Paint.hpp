@@ -980,7 +980,7 @@ namespace slu::paint
 			paintFuncDef(se, var.func, var.name, false, var.place);
 		},
 
-		varcase(const parse::StatementType::BREAK) {
+		varcase(const parse::StatementType::Break) {
 			paintKw<Tok::COND_STAT>(se, "break");
 		},
 		varcase(const parse::StatementType::SEMICOLON) {

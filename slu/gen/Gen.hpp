@@ -935,7 +935,7 @@ namespace slu::parse
 				.addNewl(sel<Out>("::", ":"))
 				.tabUpTemp();
 		},
-		varcase(const StatementType::BREAK) {
+		varcase(const StatementType::Break) {
 			out.addNewl("break;");
 			out.wasSemicolon = true;
 		},
