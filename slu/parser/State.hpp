@@ -273,8 +273,8 @@ namespace slu::parse
 	{
 
 		template<bool isSlu>
-		using LIM_PREFIX_EXPv = std::unique_ptr<LimPrefixExprV<isSlu>>;	// "prefixexp"
-		Slu_DEF_CFG_CAPS(LIM_PREFIX_EXP);
+		using LimPrefixExprV = std::unique_ptr<parse::LimPrefixExprV<isSlu>>;	// "prefixexp"
+		Slu_DEF_CFG(LimPrefixExpr);
 
 		template<bool isSlu>
 		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
@@ -351,11 +351,11 @@ namespace slu::parse
 
 	namespace TraitExprItemType
 	{
-		using LIM_PREFIX_EXP = std::unique_ptr<LimPrefixExprV<true>>;
+		using LimPrefixExpr = std::unique_ptr<LimPrefixExprV<true>>;
 		using FUNC_CALL = FuncCallV<true>;
 	}
 	using TraitExprItem = std::variant<
-		TraitExprItemType::LIM_PREFIX_EXP,
+		TraitExprItemType::LimPrefixExpr,
 		TraitExprItemType::FUNC_CALL
 	>;
 	struct TraitExpr
@@ -494,7 +494,7 @@ namespace slu::parse
 		ExprType::String,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
 		ExprType::FUNCTION_DEFv<isSlu>,			// "functiondef"
-		ExprType::LIM_PREFIX_EXPv<isSlu>,		// "prefixexp"
+		ExprType::LimPrefixExprV<isSlu>,		// "prefixexp"
 		ExprType::FUNC_CALLv<isSlu>,			// "prefixexp argsThing {argsThing}"
 		ExprType::TABLE_CONSTRUCTORv<isSlu>,	// "tableconstructor"
 

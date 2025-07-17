@@ -234,7 +234,7 @@ namespace slu::comp::mico
 		{
 			throw std::runtime_error("Unimplemented type expression idx(" + std::to_string(expr.data.index()) + ") (mlir conversion)");
 		},
-		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)
+		varcase(const parse::ExprType::LimPrefixExprV<true>&)
 		{
 			return tryConvBuiltinType(conv, abi, *var, false);
 		},
@@ -252,7 +252,7 @@ namespace slu::comp::mico
 			
 			const auto& expArgs = std::get<parse::ArgsType::EXPLISTv<true>>(var.argChain[0].args).v;
 			const auto& firstArgExpr = expArgs.front();
-			const auto& firstArg = std::get<parse::ExprType::LIM_PREFIX_EXPv<true>>(firstArgExpr.data);
+			const auto& firstArg = std::get<parse::ExprType::LimPrefixExprV<true>>(firstArgExpr.data);
 			
 			return tryConvBuiltinType(conv, abi, *firstArg, true);
 		}
@@ -363,7 +363,7 @@ namespace slu::comp::mico
 		varcase(const parse::ExprType::I128) {return convAny128(conv,itm.place,var); },
 		varcase(const parse::ExprType::U128) {return convAny128(conv,itm.place,var); },
 
-		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)->mlir::Value {
+		varcase(const parse::ExprType::LimPrefixExprV<true>&)->mlir::Value {
 			return convLimPrefixExpr(conv,itm.place,*var,abi);
 		},
 		varcase(const parse::ExprType::String&)->mlir::Value {

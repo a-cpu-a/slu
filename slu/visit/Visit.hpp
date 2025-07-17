@@ -344,7 +344,7 @@ namespace slu::visit
 				visitSoe(vi, soe);
 			}
 		},
-		varcase(parse::ExprType::LIM_PREFIX_EXP<Vi>&) {
+		varcase(parse::ExprType::LimPrefixExpr<Vi>&) {
 			visitLimPrefixExpr(vi, *var);
 		},
 		varcase(parse::ExprType::FUNC_CALL<Vi>&) {

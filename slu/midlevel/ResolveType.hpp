@@ -67,7 +67,7 @@ namespace slu::mlvl
 
 			throw std::runtime_error("TODO: resolve func-call type expressions.");
 		},
-		varcase(parse::ExprType::LIM_PREFIX_EXPv<true>&&)->parse::ResolvedType {
+		varcase(parse::ExprType::LimPrefixExprV<true>&&)->parse::ResolvedType {
 			//TODO
 			throw std::runtime_error("TODO: resolve lim-prefix-expr type expressions.");
 		},

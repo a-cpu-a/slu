@@ -251,7 +251,7 @@ namespace slu::parse
 				varcase(const TraitExprItemType::FUNC_CALL&) {
 					genFuncCall(out, var);
 				},
-				varcase(const TraitExprItemType::LIM_PREFIX_EXP&) {
+				varcase(const TraitExprItemType::LimPrefixExpr&) {
 					genLimPrefixExpr(out, *var);
 				}
 					);
@@ -342,7 +342,7 @@ namespace slu::parse
 		varcase(const ExprType::FUNC_CALL<Out>&) {
 			genFuncCall(out, var);
 		},
-		varcase(const ExprType::LIM_PREFIX_EXP<Out>&) {
+		varcase(const ExprType::LimPrefixExpr<Out>&) {
 			genLimPrefixExpr(out, *var);
 		},
 		varcase(const ExprType::TABLE_CONSTRUCTOR<Out>&) {

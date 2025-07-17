@@ -245,7 +245,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::TABLE_CONSTRUCTOR<Se>&) {
 			paintTable<nameTok>(se, var.v);
 		},
-		varcase(const parse::ExprType::LIM_PREFIX_EXP<Se>&) {
+		varcase(const parse::ExprType::LimPrefixExpr<Se>&) {
 			paintLimPrefixExpr<nameTok>(se, *var);
 		},
 		varcase(const parse::ExprType::FUNCTION_DEF<Se>&) {
@@ -607,7 +607,7 @@ namespace slu::paint
 				paintLimPrefixExpr<Tok::NAME_TRAIT>(se, *var.val);
 				paintArgChain(se, var.argChain);
 			},
-			varcase(const parse::TraitExprItemType::LIM_PREFIX_EXP&) {
+			varcase(const parse::TraitExprItemType::LimPrefixExpr&) {
 				paintLimPrefixExpr<Tok::NAME_TRAIT>(se, *var);
 			}
 			);
