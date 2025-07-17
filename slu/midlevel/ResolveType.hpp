@@ -65,7 +65,47 @@ namespace slu::mlvl
 			if(var.argChain.size() != 1)
 				throw std::runtime_error("TODO: resolve complex FuncCall type expressions.");
 
-			throw std::runtime_error("TODO: resolve func-call type expressions.");
+			auto& func = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v;
+			if (!func.sub.empty())
+				throw std::runtime_error("Unimplemented type expression (has subvar's) (type resolution)");
+			auto name = std::get<parse::BaseVarType::NAMEv<true>>(func.base).v;
+
+			auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.argChain[0].args);
+			auto& firstArgExpr = expArgs.front();
+
+			parse::ResolvedType rt= resolveTypeExpr(mpDb, std::move(firstArgExpr));
+
+			if (name == mpDb.data->getItm({ "std","ops","MarkMut","markMut" }))
+			{
+				if(rt.hasMut)
+					throw std::runtime_error("Invalid type expression: used 'mut' on already marked as mutable type.");
+				rt.hasMut = true;
+				return rt;
+			}
+			if (name != mpDb.data->getItm({ "std","ops","Ref","ref" }))
+				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(mpDb)) + " (type resolution)");
+
+			//TODO apply lifetime.
+
+			if (rt.outerSliceDims != 0)
+			{
+				for (size_t i = 0; i < rt.outerSliceDims; i++)
+				{
+					rt.sigils.push_back(
+						parse::TySigil{ .type = parse::TySigil::SLICE }
+					);
+				}
+				rt.size = TYPE_RES_PTR_SIZE + TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims;
+				rt.outerSliceDims = 0;//reset, as we already added the sigils.
+			}
+			else
+				rt.size = TYPE_RES_PTR_SIZE;
+
+			rt.sigils.emplace_back(
+				parse::TySigil{.type= parse::TySigil::REF }
+			);
+
+			return rt;
 		},
 		varcase(parse::ExprType::LimPrefixExprV<true>&&)->parse::ResolvedType {
 			//TODO
