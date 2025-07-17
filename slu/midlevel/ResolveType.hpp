@@ -150,9 +150,9 @@ namespace slu::mlvl
 			throw std::runtime_error("TODO: resolve complex lim-prefix-expr type expressions.");
 		},
 		varcase(parse::ExprType::Slice&&)->parse::ResolvedType {
-			//size = {usize ptr}+ {usize len,usize stride}*sliceDims.
-			//TODO
-			throw std::runtime_error("TODO: resolve slice type expressions.");
+			parse::ResolvedType rt = resolveTypeExpr(mpDb, std::move(*var));
+			rt.outerSliceDims++;
+			return rt;
 		},
 		varcase(parse::ExprType::TableV<true>&&) {
 			parse::StructRawType& res = *(new parse::StructRawType());
