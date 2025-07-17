@@ -241,7 +241,7 @@ namespace slu::parse
 					in.skip();//skip eq
 					StatementType::ASSIGN<In> res{};
 					res.vars = std::move(varData);
-					res.exprs = readExpList(in,allowVarArg);
+					res.exprs = readExprList(in,allowVarArg);
 					return res;
 				}
 			}
@@ -357,12 +357,12 @@ namespace slu::parse
 	}
 
 	template<AnyInput In>
-	inline ExpList<In> readExpList(In& in, const bool allowVarArg)
+	inline ExprList<In> readExprList(In& in, const bool allowVarArg)
 	{
 		/*
 			explist ::= exp {‘,’ exp}
 		*/
-		ExpList<In> ret{};
+		ExprList<In> ret{};
 		ret.emplace_back(readExpr(in, allowVarArg));
 
 		while (checkReadToken(in, ","))

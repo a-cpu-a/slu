@@ -411,7 +411,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(Expr);
 	}
 	template<AnyVisitor Vi>
-	inline void visitExprList(Vi& vi, parse::ExpList<Vi>& itm)
+	inline void visitExprList(Vi& vi, parse::ExprList<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(ExprList);
 		for (auto& i : itm)

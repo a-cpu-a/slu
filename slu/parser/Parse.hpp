@@ -463,7 +463,7 @@ namespace slu::parse
 				if constexpr (In::settings() & sluSyn)
 					res.exprs = readExpr<true>(in, allowVarArg);
 				else
-					res.exprs = readExpList(in, allowVarArg);
+					res.exprs = readExprList(in, allowVarArg);
 
 
 				res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
@@ -724,7 +724,7 @@ namespace slu::parse
 
 		if (checkReadToken(in, "="))
 		{// [‘=’ explist]
-			res.exprs = readExpList(in, allowVarArg);
+			res.exprs = readExprList(in, allowVarArg);
 		}
 		if constexpr (!isLocal)
 			res.local2Mp = in.genData.popLocalScope();

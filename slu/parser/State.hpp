@@ -125,8 +125,8 @@ namespace slu::parse
 	Slu_DEF_CFG(FuncCall);
 
 	template<bool isSlu>
-	using ExpListV = std::vector<ExpressionV<isSlu>>;
-	Slu_DEF_CFG(ExpList);
+	using ExprListV = std::vector<ExpressionV<isSlu>>;
+	Slu_DEF_CFG(ExprList);
 
 	// Slu
 
@@ -188,7 +188,7 @@ namespace slu::parse
 	struct BlockV
 	{
 		StatListV<isSlu> statList;
-		ExpListV<isSlu> retExprs;//Special, may contain 0 elements (even with hadReturn)
+		ExprListV<isSlu> retExprs;//Special, may contain 0 elements (even with hadReturn)
 
 		lang::ModPathId mp;
 
@@ -234,7 +234,7 @@ namespace slu::parse
 	namespace ArgsType
 	{
 		template<bool isSlu>
-		struct EXPLISTv { ExpListV<isSlu> v; };			// "'(' [explist] ')'"
+		struct EXPLISTv { ExprListV<isSlu> v; };			// "'(' [explist] ')'"
 		Slu_DEF_CFG_CAPS(EXPLIST);
 
 		template<bool isSlu>
@@ -812,13 +812,13 @@ namespace slu::parse
 	struct VarStatBaseV : MaybeLocalsV<isSlu, isLocal>
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		AttribNameListV<isSlu> names;
-		ExpListV<isSlu> exprs;
+		ExprListV<isSlu> exprs;
 	};
 	template<bool isLocal>
 	struct VarStatBaseV<true, isLocal> : MaybeLocalsV<true,isLocal>
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		PatV<true, isLocal> names;
-		ExpListV<true> exprs;
+		ExprListV<true> exprs;
 		ExportData exported = false;
 	};
 
@@ -827,7 +827,7 @@ namespace slu::parse
 		using SEMICOLON = std::monostate;	// ";"
 
 		template<bool isSlu>
-		struct ASSIGNv { std::vector<VarV<isSlu>> vars; ExpListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
+		struct ASSIGNv { std::vector<VarV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG_CAPS(ASSIGN);
 
 		using parse::FuncCallV;
@@ -876,7 +876,7 @@ namespace slu::parse
 		struct FOR_LOOP_GENERICv
 		{
 			Sel<isSlu, NameListV<isSlu>, PatV<true, true>> varNames;
-			Sel<isSlu, ExpListV<isSlu>, ExpressionV<isSlu>> exprs;//size must be > 0
+			Sel<isSlu, ExprListV<isSlu>, ExpressionV<isSlu>> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
 		Slu_DEF_CFG_CAPS(FOR_LOOP_GENERIC);

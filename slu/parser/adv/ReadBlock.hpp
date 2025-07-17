@@ -89,7 +89,7 @@ namespace slu::parse
 			}
 			else
 			{
-				in.genData.scopeReturn(readExpList(in, allowVarArg));
+				in.genData.scopeReturn(readExprList(in, allowVarArg));
 
 				if constexpr (semicolReq != SemicolMode::NONE)
 					requireToken(in, ";");

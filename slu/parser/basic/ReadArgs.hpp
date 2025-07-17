@@ -32,7 +32,7 @@ namespace slu::parse
 				in.skip();
 				return res;
 			}
-			res.v = readExpList(in, allowVarArg);
+			res.v = readExprList(in, allowVarArg);
 			requireToken(in, ")");
 			return res;
 		}

@@ -103,7 +103,7 @@ namespace slu::mlvl
 	struct Var : BasicData
 	{
 		// TODO: destructuring
-		parse::ExpListV<true> vals;//TODO: same as func
+		parse::ExprListV<true> vals;//TODO: same as func
 	};
 	struct Type : BasicData
 	{

@@ -433,7 +433,7 @@ namespace slu::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genExpList(Out& out, const ExpList<Out>& obj)
+	inline void genExprList(Out& out, const ExprList<Out>& obj)
 	{
 		for (const Expression<Out>& e : obj)
 		{
@@ -478,7 +478,7 @@ namespace slu::parse
 		ezmatch(arg.args)(
 		varcase(const ArgsType::EXPLIST<Out>&) {
 			out.add('(');
-			genExpList(out, var.v);
+			genExprList(out, var.v);
 			out.add(')');
 		},
 		varcase(const ArgsType::TABLE<Out>&) {
@@ -858,7 +858,7 @@ namespace slu::parse
 		if (!obj.exprs.empty())
 		{
 			out.add(" = ");
-			genExpList(out, obj.exprs);
+			genExprList(out, obj.exprs);
 		}
 		out.addNewl(';');
 		out.wasSemicolon = true;
@@ -877,7 +877,7 @@ namespace slu::parse
 		varcase(const StatementType::ASSIGN<Out>&) {
 			genVarList(out, var.vars);
 			out.add(" = ");
-			genExpList(out, var.exprs);
+			genExprList(out, var.exprs);
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
@@ -1029,7 +1029,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 				genExpr(out, var.exprs);
 			else
-				genExpList(out, var.exprs);
+				genExprList(out, var.exprs);
 
 			if constexpr (Out::settings() & sluSyn)
 				out.newLine().add('{');
@@ -1180,7 +1180,7 @@ namespace slu::parse
 			if (!obj.retExprs.empty())
 			{
 				out.add(' ');
-				genExpList(out, obj.retExprs);
+				genExprList(out, obj.retExprs);
 			}
 			out.add(';');
 			out.wasSemicolon = true;

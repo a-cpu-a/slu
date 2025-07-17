@@ -1084,7 +1084,7 @@ namespace slu::paint
 		);
 	}
 	template<AnySemOutput Se>
-	inline void paintExprList(Se& se, const parse::ExpList<Se>& itm)
+	inline void paintExprList(Se& se, const parse::ExprList<Se>& itm)
 	{
 		for (const parse::Expression<Se>& i : itm)
 		{
@@ -1095,7 +1095,7 @@ namespace slu::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintExprOrList(Se& se, const parse::ExpList<Se>& itm) {
+	inline void paintExprOrList(Se& se, const parse::ExprList<Se>& itm) {
 		return paintExprList(se, itm);
 	}
 	template<AnySemOutput Se>
