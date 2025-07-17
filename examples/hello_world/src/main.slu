@@ -6,12 +6,12 @@ safe extern "C" {
 	fn puts(&:>::std::str line) -> :>::std::i32;
 }
 
-fn helloWorld() -> :>::std::void {
+fn helloWorld() -> {} {
 	puts("called helloWorld()\x00")
 }
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
-ex fn main() -> :>::std::void 
+ex fn main() -> {}
 {
 	let mut s = "Hello world! \u{1F600} x.x\x00";
 	let unused = 4;

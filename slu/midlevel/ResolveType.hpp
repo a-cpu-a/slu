@@ -108,8 +108,43 @@ namespace slu::mlvl
 			return rt;
 		},
 		varcase(parse::ExprType::LimPrefixExprV<true>&&)->parse::ResolvedType {
-			//TODO
-			throw std::runtime_error("TODO: resolve lim-prefix-expr type expressions.");
+
+			auto& val = std::get<parse::LimPrefixExprType::VARv<true>>(*var).v;
+			if (!val.sub.empty())
+				throw std::runtime_error("Unimplemented type expression (has subvar's) (type resolution)");
+			auto& name = std::get<parse::BaseVarType::NAMEv<true>>(val.base).v;
+
+			if (name == mpDb.data->getItm({ "std","str" }))
+			{
+				return parse::ResolvedType{
+					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},
+					.size = parse::ResolvedType::UNSIZED_MARK,
+					.outerSliceDims=1
+				};
+			}
+			if (name == mpDb.data->getItm({ "std","i32" }))
+			{
+				return parse::ResolvedType{
+					.base = parse::RawTypeKind::Range64{INT32_MIN,INT32_MAX},
+					.size = 32,
+				};
+			}
+			if (name == mpDb.data->getItm({ "std","i8" }))
+			{
+				return parse::ResolvedType{
+					.base = parse::RawTypeKind::Range64{INT8_MIN,INT8_MAX},
+					.size = 8,
+				};
+			}
+			if (name == mpDb.data->getItm({ "std","u8" }))
+			{
+				return parse::ResolvedType{
+					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},
+					.size = 8,
+				};
+			}
+
+			throw std::runtime_error("TODO: resolve complex lim-prefix-expr type expressions.");
 		},
 		varcase(parse::ExprType::Slice&&)->parse::ResolvedType {
 			//size = {usize ptr}+ {usize len,usize stride}*sliceDims.
