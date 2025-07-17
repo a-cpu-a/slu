@@ -951,13 +951,13 @@ namespace slu::paint
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExprList(se, var.exprs);
 		},
-		varcase(const parse::StatementType::LOCAL_ASSIGN<Se>&) {
+		varcase(const parse::StatementType::Local<Se>&) {
 			paintVarStat<true>(se,var, "local");
 		},
-		varcase(const parse::StatementType::LET<Se>&) {
+		varcase(const parse::StatementType::Let<Se>&) {
 			paintVarStat<true>(se,var, "let");
 		},
-		varcase(const parse::StatementType::CONST<Se>&) {
+		varcase(const parse::StatementType::Const<Se>&) {
 			se.pushLocals(var.local2Mp);
 			paintVarStat<false>(se,var, "const");
 			se.popLocals();

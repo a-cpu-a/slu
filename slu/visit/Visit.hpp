@@ -493,7 +493,7 @@ namespace slu::visit
 			visitExprList(vi, var.exprs);
 			visitVarList(vi, var.vars);
 		},
-		varcase(parse::StatementType::LOCAL_ASSIGN<Vi>&) {
+		varcase(parse::StatementType::Local<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(LocalVar);
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
@@ -512,14 +512,14 @@ namespace slu::visit
 			visitName(vi, var.name);
 			visitExpr(vi, var.value);
 		},
-		varcase(parse::StatementType::LET<Vi>&) {
+		varcase(parse::StatementType::Let<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(LetVar);
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
 			visitExprList(vi, var.exprs);
 			Slu_CALL_VISIT_FN_POST_VAR(LetVar);
 		},
-		varcase(parse::StatementType::CONST<Vi>&) {
+		varcase(parse::StatementType::Const<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(ConstVar);
 			visitExported(vi, var.exported);
 			visitPat<false>(vi, var.names);

@@ -20,9 +20,6 @@
 #include "SmallEnumList.hpp"
 #include "Input.hpp"
 
-//for enums...
-#undef CONST
-
 namespace slu::parse
 {
 
@@ -909,18 +906,18 @@ namespace slu::parse
 		Slu_DEF_CFG(FnDecl);
 
 		template<bool isSlu>
-		using LOCAL_ASSIGNv = VarStatBaseV<isSlu,true>;
-		Slu_DEF_CFG_CAPS(LOCAL_ASSIGN);
+		using LocalV = VarStatBaseV<isSlu,true>;
+		Slu_DEF_CFG(Local);
 
 		// Slu
 
 		template<bool isSlu>
-		struct LETv : LOCAL_ASSIGNv<isSlu> {};
-		Slu_DEF_CFG_CAPS(LET);
+		struct LetV : LocalV<isSlu> {};
+		Slu_DEF_CFG(Let);
 
 		template<bool isSlu>
-		using CONSTv = VarStatBaseV<isSlu, false>;
-		Slu_DEF_CFG_CAPS(CONST);
+		using ConstV = VarStatBaseV<isSlu, false>;
+		Slu_DEF_CFG(Const);
 
 		struct CanonicLocal
 		{
@@ -1002,9 +999,9 @@ namespace slu::parse
 		StatementType::SEMICOLON,				// ";"
 
 		StatementType::ASSIGNv<isSlu>,			// "varlist = explist"
-		StatementType::LOCAL_ASSIGNv<isSlu>,	// "local attnamelist [= explist]"
-		StatementType::LETv<isSlu>,	// "let pat [= explist]"
-		StatementType::CONSTv<isSlu>,	// "const pat [= explist]"
+		StatementType::LocalV<isSlu>,	// "local attnamelist [= explist]"
+		StatementType::LetV<isSlu>,	// "let pat [= explist]"
+		StatementType::ConstV<isSlu>,	// "const pat [= explist]"
 		StatementType::CanonicLocal,
 		StatementType::CanonicGlobal,
 

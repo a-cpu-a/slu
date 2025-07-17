@@ -491,7 +491,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "let"))
 				{
-					readVarStatement<true, isLoop, StatementType::LET<In>>(in, place, allowVarArg, exported);
+					readVarStatement<true, isLoop, StatementType::Let<In>>(in, place, allowVarArg, exported);
 					return true;
 				}
 			}
@@ -515,7 +515,7 @@ namespace slu::parse
 					}
 				}
 				// Local Variable
-				readVarStatement<true, isLoop, StatementType::LOCAL_ASSIGN<In>>(in, place, allowVarArg, exported);
+				readVarStatement<true, isLoop, StatementType::Local<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;
@@ -542,7 +542,7 @@ namespace slu::parse
 		case 'n':
 			if (checkReadTextToken(in, "const"))
 			{
-				readVarStatement<false,isLoop, StatementType::CONST<In>>(in, place, allowVarArg, exported);
+				readVarStatement<false,isLoop, StatementType::Const<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;

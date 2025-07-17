@@ -881,13 +881,13 @@ namespace slu::parse
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::LOCAL_ASSIGN<Out>&) {
+		varcase(const StatementType::Local<Out>&) {
 			genVarStat<true>(out, var,"local ");
 		},
-		varcase(const StatementType::LET<Out>&) {
+		varcase(const StatementType::Let<Out>&) {
 			genVarStat<true>(out, var, "let ");
 		},
-		varcase(const StatementType::CONST<Out>&) {
+		varcase(const StatementType::Const<Out>&) {
 			out.pushLocals(var.local2Mp);
 			genVarStat<false>(out, var, "const ");
 			out.popLocals();

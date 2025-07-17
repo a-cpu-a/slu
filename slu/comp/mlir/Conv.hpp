@@ -602,7 +602,7 @@ namespace slu::comp::mico
 				llvm::ArrayRef<mlir::Value>{args});
 
 		},
-		varcase(const parse::StatementType::CONSTv<true>&) {
+		varcase(const parse::StatementType::ConstV<true>&) {
 
 			conv.addLocalStackItem(var.local2Mp.size());
 
