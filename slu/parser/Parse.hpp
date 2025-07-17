@@ -167,7 +167,7 @@ namespace slu::parse
 		if constexpr (In::settings() & sluSyn)
 		{
 			if (checkReadToken(in,"->"))
-				ret.retType = readTypeExpr(in,false);
+				ret.retType = std::make_unique<Expression<In>>(readExpr<true>(in,false));
 		}
 		return ret;
 	}

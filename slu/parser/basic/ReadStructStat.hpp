@@ -62,11 +62,11 @@ namespace slu::parse
 			switch (in.peek())
 			{
 			case '{':
-				res.type = readTypeExpr(in, false);
+				res.type = readExpr(in,false);
 				break;
 			case '=':
 				in.skip();
-				res.type = readTypeExpr(in, false);
+				res.type = readExpr(in, false);
 				break;
 			default:
 				throwExpectedStructOrAssign(in);
