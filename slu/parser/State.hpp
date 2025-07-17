@@ -100,21 +100,21 @@ namespace slu::parse
 		template<bool isSlu> struct NAME2EXPRv;
 		Slu_DEF_CFG_CAPS(NAME2EXPR);
 
-		template<bool isSlu> struct EXPRv;
-		Slu_DEF_CFG_CAPS(EXPR);
+		template<bool isSlu> struct ExprV;
+		Slu_DEF_CFG(Expr);
 	}
 	namespace LimPrefixExprType
 	{
 		template<bool isSlu> struct VARv;			// "var"
 		Slu_DEF_CFG_CAPS(VAR);
 
-		template<bool isSlu> struct EXPRv;	// "'(' exp ')'"
-		Slu_DEF_CFG_CAPS(EXPR);
+		template<bool isSlu> struct ExprV;	// "'(' exp ')'"
+		Slu_DEF_CFG(Expr);
 	}
 	template<bool isSlu>
 	using LimPrefixExprV = std::variant<
 		LimPrefixExprType::VARv<isSlu>,
-		LimPrefixExprType::EXPRv<isSlu>
+		LimPrefixExprType::ExprV<isSlu>
 	>;
 	Slu_DEF_CFG(LimPrefixExpr);
 
@@ -154,7 +154,7 @@ namespace slu::parse
 
 		FieldType::EXPR2EXPRv<isSlu>, // "'[' exp ']' = exp"
 		FieldType::NAME2EXPRv<isSlu>, // "Name = exp"
-		FieldType::EXPRv<isSlu>       // "exp"
+		FieldType::ExprV<isSlu>       // "exp"
 	>;
 	Slu_DEF_CFG(Field);
 
@@ -215,13 +215,13 @@ namespace slu::parse
 		Slu_DEF_CFG(Block);
 
 		template<bool isSlu>
-		using EXPRv = std::unique_ptr<ExpressionV<isSlu>>;
-		Slu_DEF_CFG_CAPS(EXPR);
+		using ExprV = BoxExprV<isSlu>;
+		Slu_DEF_CFG(Expr);
 	}
 	template<bool isSlu>
 	using SoeV = std::variant<
 		SoeType::BlockV<isSlu>,
-		SoeType::EXPRv<isSlu>
+		SoeType::ExprV<isSlu>
 	>;
 	Slu_DEF_CFG(Soe);
 
@@ -390,7 +390,7 @@ namespace slu::parse
 		std::string abi;
 		LocalsV<true> local2Mp;
 		ParamListV<true> params;
-		std::optional<std::unique_ptr<ExpressionV<true>>> retType;
+		std::optional<BoxExprV<true>> retType;
 		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
 	};
@@ -432,12 +432,10 @@ namespace slu::parse
 		template<bool isSlu>
 		struct MultiOpV
 		{
-			std::unique_ptr<ExpressionV<isSlu>> first;
+			BoxExprV<isSlu> first;
 			std::vector<std::pair<BinOpType, ExpressionV<isSlu>>> extra;//size>=1
 		};      // "exp binop exp"
 		Slu_DEF_CFG(MultiOp);
-
-		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlu>>};     // "unop exp"	//Inlined as opt prefix
 
 		template<bool isSlu>
 		using IfCondV = BaseIfCondV<isSlu, true>;
@@ -457,8 +455,8 @@ namespace slu::parse
 		};
 		struct FnType
 		{
-			std::unique_ptr<ExpressionV<true>> argType;
-			std::unique_ptr<ExpressionV<true>> retType;
+			BoxExprV<true> argType;
+			BoxExprV<true> retType;
 			OptSafety safety = OptSafety::DEFAULT;
 		};
 		struct Dyn
@@ -469,10 +467,10 @@ namespace slu::parse
 		{
 			TraitExpr expr;
 		};
-		using Slice = std::unique_ptr<ExpressionV<true>>;
+		using Slice = BoxExprV<true>;
 		struct Err
 		{
-			std::unique_ptr<ExpressionV<true>> err;
+			BoxExprV<true> err;
 		};
 	}
 
@@ -551,6 +549,8 @@ namespace slu::parse
 			return std::holds_alternative<ExprType::TableV<true>>(this->data);
 		}
 	};
+	template<bool isSlu>
+	using BoxExprV = std::unique_ptr<ExpressionV<isSlu>>;
 
 	//Slu
 
@@ -690,8 +690,8 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(NAME);
 
 		template<bool isSlu>
-		struct EXPRv { ExpressionV<isSlu> idx; };	// {funcArgs} ‘[’ exp ‘]’
-		Slu_DEF_CFG_CAPS(EXPR);
+		struct ExprV { ExpressionV<isSlu> idx; };	// {funcArgs} ‘[’ exp ‘]’
+		Slu_DEF_CFG(Expr);
 	}
 
 	template<bool isSlu>
@@ -702,7 +702,7 @@ namespace slu::parse
 		std::variant<
 			SubVarType::DEREF,
 			SubVarType::NAMEv<isSlu>,
-			SubVarType::EXPRv<isSlu>
+			SubVarType::ExprV<isSlu>
 		> idx;
 	};
 
@@ -721,11 +721,11 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(NAME);
 
 		template<bool isSlu>
-		struct EXPRv
+		struct ExprV
 		{
 			ExpressionV<isSlu> start;
 		};
-		Slu_DEF_CFG_CAPS(EXPR);
+		Slu_DEF_CFG(Expr);
 
 	}
 	template<bool isSlu>
@@ -733,7 +733,7 @@ namespace slu::parse
 		BaseVarType::Root,
 		BaseVarType::Local,
 		BaseVarType::NAMEv<isSlu>,
-		BaseVarType::EXPRv<isSlu>
+		BaseVarType::ExprV<isSlu>
 	>;
 	Slu_DEF_CFG(BaseVar);
 
@@ -761,7 +761,7 @@ namespace slu::parse
 		struct NAME2EXPRv { MpItmIdV<isSlu> idx; ExpressionV<isSlu> v; };	// "Name ‘=’ exp"
 
 		template<bool isSlu>
-		struct EXPRv { ExpressionV<isSlu> v; };							// "exp"
+		struct ExprV { ExpressionV<isSlu> v; };							// "exp"
 	}
 	namespace LimPrefixExprType
 	{
@@ -769,7 +769,7 @@ namespace slu::parse
 		struct VARv { VarV<isSlu> v; };			// "var"
 
 		template<bool isSlu>
-		struct EXPRv { ExpressionV<isSlu> v; };	// "'(' exp ')'"
+		struct ExprV { ExpressionV<isSlu> v; };	// "'(' exp ')'"
 	}
 
 	template<bool isSlu>

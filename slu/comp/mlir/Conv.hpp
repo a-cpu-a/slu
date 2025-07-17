@@ -297,7 +297,7 @@ namespace slu::comp::mico
 			//TODO
 			return (mlir::Value)nullptr;
 		},
-		varcase(const parse::BaseVarType::EXPRv<true>&) {
+		varcase(const parse::BaseVarType::ExprV<true>&) {
 			return convExpr(conv,var.start);
 		},
 		varcase(const parse::BaseVarType::Root) {
@@ -312,7 +312,7 @@ namespace slu::comp::mico
 	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm, const std::string_view abi)
 	{
 		return ezmatch(itm)(
-		varcase(const parse::LimPrefixExprType::EXPRv<true>&){
+		varcase(const parse::LimPrefixExprType::ExprV<true>&){
 			return convExpr(conv, var.v,abi);
 		},
 		varcase(const parse::LimPrefixExprType::VARv<true>&){

@@ -148,7 +148,7 @@ namespace slu::paint
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExpr<nameTok>(se, var.v);
 		},
-		varcase(const parse::FieldType::EXPR<Se>&) {
+		varcase(const parse::FieldType::Expr<Se>&) {
 			paintExpr<nameTok>(se, var.v);
 		},
 		varcase(const parse::FieldType::NONE) {
@@ -366,7 +366,7 @@ namespace slu::paint
 		paintArgChain(se, itm.funcCalls);
 
 		ezmatch(itm.idx)(
-		varcase(const parse::SubVarType::EXPR<Se>&) {
+		varcase(const parse::SubVarType::Expr<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "[");
 			paintExpr(se, var.idx);
 			paintKw<Tok::GEN_OP>(se, "]");
@@ -393,7 +393,7 @@ namespace slu::paint
 		varcase(const parse::BaseVarType::NAME<Se>&) {
 			paintMp<nameTok>(se, var.v);
 		},
-		varcase(const parse::BaseVarType::EXPR<Se>&) {
+		varcase(const parse::BaseVarType::Expr<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
 			paintExpr<nameTok>(se, var.start);
 			paintKw<Tok::GEN_OP>(se, ")");
@@ -539,7 +539,7 @@ namespace slu::paint
 		varcase(const parse::LimPrefixExprType::VAR<Se>&) {
 			paintVar<nameTok>(se, var.v);
 		},
-		varcase(const parse::LimPrefixExprType::EXPR<Se>&) {
+		varcase(const parse::LimPrefixExprType::Expr<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
 			paintExpr<nameTok>(se, var.v);
 			paintKw<Tok::GEN_OP>(se, ")");
@@ -664,7 +664,7 @@ namespace slu::paint
 			varcase(const parse::SoeType::Block<Se>&) {
 				paintStatOrRet<DO_END>(se, var);
 			},
-			varcase(const parse::SoeType::EXPR<Se>&) {
+			varcase(const parse::SoeType::Expr<Se>&) {
 				paintKw<Tok::GEN_OP>(se, "=>");
 				paintExpr(se, *var);
 			}

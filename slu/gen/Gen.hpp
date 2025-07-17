@@ -166,7 +166,7 @@ namespace slu::parse
 					.add(" = ");
 				genExpr(out, var.v);
 			},
-			varcase(const FieldType::EXPR<Out>&) {
+			varcase(const FieldType::Expr<Out>&) {
 				out.addIndent();
 				genExpr(out, var.v);
 			}
@@ -184,7 +184,7 @@ namespace slu::parse
 		varcase(const LimPrefixExprType::VAR<Out>&) {
 			genVar(out, var.v);
 		},
-		varcase(const LimPrefixExprType::EXPR<Out>&) {
+		varcase(const LimPrefixExprType::Expr<Out>&) {
 			out.add('(');
 			genExpr(out, var.v);
 			out.add(')');
@@ -498,7 +498,7 @@ namespace slu::parse
 			genArgFuncCall(out, arg);
 		}
 		ezmatch(obj.idx)(
-		varcase(const SubVarType::EXPR<Out>&) {
+		varcase(const SubVarType::Expr<Out>&) {
 			out.add('[');
 			genExpr(out, var.idx);
 			out.add(']');
@@ -538,7 +538,7 @@ namespace slu::parse
 		varcase(const BaseVarType::NAME<Out>&) {
 			out.add(out.db.asSv(var.v));
 		},
-		varcase(const BaseVarType::EXPR<Out>&) {
+		varcase(const BaseVarType::Expr<Out>&) {
 			out.add('(');
 			genExpr(out, var.start);
 			out.add(')');
@@ -773,7 +773,7 @@ namespace slu::parse
 			genBlock(out, var);
 			out.unTabNewl().add('}');
 		},
-		varcase(const parse::SoeType::EXPR<Out>&) {
+		varcase(const parse::SoeType::Expr<Out>&) {
 			out.add(" => ");
 			genExpr(out, *var);
 		}

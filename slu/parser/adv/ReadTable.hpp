@@ -63,7 +63,7 @@ namespace slu::parse
 			}
 		}
 
-		return FieldType::EXPR<In>(readExpr(in,allowVarArg));
+		return FieldType::Expr<In>(readExpr(in,allowVarArg));
 	}
 
 	//Will NOT check the first char '{' !!!

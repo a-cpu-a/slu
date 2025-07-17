@@ -189,7 +189,7 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Var);
 		ezmatch(itm.base)(
-		varcase(parse::BaseVarType::EXPR<Vi>&) {
+		varcase(parse::BaseVarType::Expr<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(BaseVarExpr);
 			visitExpr(vi, var.start);
 			Slu_CALL_VISIT_FN_POST_VAR(BaseVarExpr);
@@ -211,7 +211,7 @@ namespace slu::visit
 			visitArgChain(vi,i.funcCalls);
 			ezmatch(i.idx)(
 			varcase(parse::SubVarType::NAME<Vi>&) {},
-			varcase(parse::SubVarType::EXPR<Vi>&) {
+			varcase(parse::SubVarType::Expr<Vi>&) {
 				visitExpr(vi, var.idx);
 			},
 			varcase(parse::SubVarType::DEREF) {}
@@ -426,7 +426,7 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(LimPrefixExpr);
 		ezmatch(itm)(
-		varcase(parse::LimPrefixExprType::EXPR<Vi>&) { visitExpr(vi, var.v); },
+		varcase(parse::LimPrefixExprType::Expr<Vi>&) { visitExpr(vi, var.v); },
 		varcase(parse::LimPrefixExprType::VAR<Vi>&) {
 			visitVar(vi, var.v);
 		}
@@ -458,7 +458,7 @@ namespace slu::visit
 		{
 			ezmatch(i)(
 			varcase(parse::FieldType::NONE&) {},
-			varcase(parse::FieldType::EXPR<Vi>&) {
+			varcase(parse::FieldType::Expr<Vi>&) {
 				visitExpr(vi, var.v);
 			},
 			varcase(parse::FieldType::EXPR2EXPR<Vi>&) {
@@ -661,7 +661,7 @@ namespace slu::visit
 		varcase(parse::SoeType::Block<Vi>&) {
 			visitBlock(vi, var);
 		},
-		varcase(parse::SoeType::EXPR<Vi>&) {
+		varcase(parse::SoeType::Expr<Vi>&) {
 			visitExpr(vi, *var);
 		}
 		);
