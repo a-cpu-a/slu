@@ -315,10 +315,10 @@ namespace slu::parse
 			out.add("..."sv);
 		},
 		varcase(const ExprType::F64) {
-			if (isinf(var.v) && var.v>0.0f)
+			if (isinf(var) && var>0.0f)
 				out.add("1e999");
 			else
-				out.add(std::to_string(var.v));
+				out.add(std::to_string(var));
 		},
 
 		varcase(const ExprType::I64) {

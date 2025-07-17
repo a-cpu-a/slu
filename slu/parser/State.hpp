@@ -282,10 +282,10 @@ namespace slu::parse
 
 		struct OpenRange {};					// ".."
 
-		struct String { std::string v; Position end; };	// "LiteralString"
-		struct F64 { double v; };							// "Numeral"
+		struct String { std::string v; Position end; };	// "LiteralString"	
 
 		// "Numeral"
+		using F64 = double;
 		using I64 = int64_t;
 
 		//u64,i128,u128, for slu only
