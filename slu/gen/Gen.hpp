@@ -375,7 +375,7 @@ namespace slu::parse
 		varcase(const ExprType::U64) {
 			out.add(std::to_string(var.v));
 		},
-		varcase(const ExprType::NUMERAL_I128) {
+		varcase(const ExprType::I128) {
 			out.add(parse::u128ToStr(var.lo, var.hi));
 		},
 		varcase(const ExprType::U128) {

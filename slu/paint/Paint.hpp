@@ -219,7 +219,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::NUMERAL) {
 			paintNumber(se, tint);
 		},
-		varcase(const parse::ExprType::NUMERAL_I128) {
+		varcase(const parse::ExprType::I128) {
 			paintNumber(se, tint);
 		},
 		varcase(const parse::ExprType::U128) {

@@ -278,7 +278,7 @@ namespace slu::parse
 					return n128;//I128 would be negative
 
 				if (n128.hi != 0)
-					return ExprType::NUMERAL_I128(n128);
+					return ExprType::I128(n128);
 
 				if (n128.lo >> 63)//I64 would be negative
 					return ExprType::U64(n128.lo);

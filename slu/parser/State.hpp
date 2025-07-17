@@ -313,7 +313,7 @@ namespace slu::parse
 			}
 
 		};
-		struct NUMERAL_I128 :U128 {};					// "Numeral"
+		struct I128 :U128 {};					// "Numeral"
 	}
 
 	struct TupleName
@@ -324,7 +324,7 @@ namespace slu::parse
 			:lo(v.v) {}
 		constexpr TupleName(ExprType::U64 v)
 			: lo(v.v) {}
-		constexpr TupleName(ExprType::NUMERAL_I128 v)
+		constexpr TupleName(ExprType::I128 v)
 			: lo(v.lo), hi(v.hi) {}
 		constexpr TupleName(ExprType::U128 v)
 			: lo(v.lo), hi(v.hi) {}
@@ -333,7 +333,7 @@ namespace slu::parse
 	template<class T>
 	concept Any128BitInt =
 		std::same_as<T, ExprType::U128>
-		|| std::same_as<T, ExprType::NUMERAL_I128>;
+		|| std::same_as<T, ExprType::I128>;
 	template<class T>
 	concept Any64BitInt =
 		std::same_as<T, ExprType::U64>
@@ -506,7 +506,7 @@ namespace slu::parse
 		ExprType::OPEN_RANGE,			// ".."
 
 		ExprType::U64,			// "Numeral"
-		ExprType::NUMERAL_I128,			// "Numeral"
+		ExprType::I128,			// "Numeral"
 		ExprType::U128,			// "Numeral"
 
 		ExprType::LIFETIME,
