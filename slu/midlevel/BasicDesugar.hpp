@@ -449,9 +449,11 @@ namespace slu::mlvl
 				convVar<false>(itm, std::get<parse::StatementType::Const<Cfg>>(itm.data));
 		}
 
-		template<bool forType,class MultiOp,class ExprT>
-		bool desugarExpr(ExprT& itm)
+		using ExprT = parse::Expr<Cfg>;
+		bool preExpr(ExprT& itm)
 		{
+			using MultiOp = parse::ExprType::MultiOp<Cfg>;
+
 			if (std::holds_alternative<MultiOp>(itm.data))
 			{
 				_ASSERT(itm.unOps.empty());
@@ -618,12 +620,6 @@ namespace slu::mlvl
 				return true;
 			}
 			return false;
-		}
-
-		bool preExpr(parse::Expr<Cfg>& itm)
-		{
-			using MultiOp = parse::ExprType::MultiOp<Cfg>;
-			return desugarExpr<false,MultiOp>(itm);
 		}; 
 	};
 
