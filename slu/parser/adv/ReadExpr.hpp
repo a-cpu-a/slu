@@ -295,7 +295,7 @@ namespace slu::parse
 							"{}"
 							, errorLocStr(in)));
 					}
-					basicRes.data = ExprType::VARARGS();
+					basicRes.data = ExprType::VarArgs();
 					break;
 				}
 			}

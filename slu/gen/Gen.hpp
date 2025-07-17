@@ -311,7 +311,7 @@ namespace slu::parse
 		varcase(const ExprType::True) {
 			out.add("true"sv);
 		},
-		varcase(const ExprType::VARARGS) {
+		varcase(const ExprType::VarArgs) {
 			out.add("..."sv);
 		},
 		varcase(const ExprType::F64) {

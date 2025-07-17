@@ -420,7 +420,7 @@ namespace slu::parse
 		using Nil = std::monostate;								// "nil"
 		struct False {};										// "false"
 		struct True {};											// "true"
-		struct VARARGS {};										// "..."
+		struct VarArgs {};										// "..."
 
 		template<bool isSlu>
 		struct FUNCTION_DEFv { FunctionV<isSlu> v; };				// "functiondef"
@@ -487,7 +487,7 @@ namespace slu::parse
 		ExprType::I64,			// "Numeral"
 
 		ExprType::String,		// "LiteralString"
-		ExprType::VARARGS,              // "..." (varargs)
+		ExprType::VarArgs,              // "..." (varargs)
 		ExprType::FUNCTION_DEFv<isSlu>,			// "functiondef"
 		ExprType::LimPrefixExprV<isSlu>,		// "prefixexp"
 		ExprType::FuncCallV<isSlu>,			// "prefixexp argsThing {argsThing}"
