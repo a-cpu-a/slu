@@ -963,7 +963,7 @@ namespace slu::paint
 			se.popLocals();
 		},
 
-		varcase(const parse::StatementType::FN<Se>&) {
+		varcase(const parse::StatementType::Fn<Se>&) {
 			paintFunc<false>(se, var, true);
 		},
 		varcase(const parse::StatementType::FnDecl<Se>&) {
@@ -975,7 +975,7 @@ namespace slu::paint
 		varcase(const parse::StatementType::FunctionDecl<Se>&) {
 			paintFunc<true>(se, var, false);
 		},
-		varcase(const parse::StatementType::LOCAL_FUNCTION_DEF<Se>&) {
+		varcase(const parse::StatementType::LocalFunctionDef<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "local");
 			paintFuncDef(se, var.func, var.name, false, var.place);
 		},

@@ -644,7 +644,7 @@ namespace slu::comp::mico
 			);
 			conv.addElement(var.name, decl, var.abi);
 		},
-		varcase(const parse::StatementType::FNv<true>&) {
+		varcase(const parse::StatementType::FnV<true>&) {
 
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());

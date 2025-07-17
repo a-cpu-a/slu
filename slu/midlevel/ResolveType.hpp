@@ -38,26 +38,26 @@ namespace slu::mlvl
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 		},
 		varcase(const parse::ExprType::F64)->parse::ResolvedType {
-			throw std::runtime_error("TODO: resolve numeral type expressions.");
+			throw std::runtime_error("TODO: resolve F64 type expressions.");
 		},
 		varcase(parse::ExprType::FnType&&)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve FN type expressions.");
+			throw std::runtime_error("TODO: resolve Fn type expressions.");
 		},
 		varcase(parse::ExprType::Dyn&&)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve DYN type expressions.");
+			throw std::runtime_error("TODO: resolve Dyn type expressions.");
 		},
 		varcase(parse::ExprType::Impl&&)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve IMPL type expressions.");
+			throw std::runtime_error("TODO: resolve Impl type expressions.");
 		},
 		varcase(parse::ExprType::Err&&)->parse::ResolvedType {
 			//TODO replace with ?~~var equivelant.
-			throw std::runtime_error("TODO: resolve ERR type expressions.");
+			throw std::runtime_error("TODO: resolve Err type expressions.");
 		},
 
 		varcase(parse::ExprType::FuncCallV<true>&&)->parse::ResolvedType {

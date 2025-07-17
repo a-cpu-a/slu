@@ -1042,7 +1042,7 @@ namespace slu::parse
 				.addNewl(sel<Out>("end", "}"));
 		},
 
-		varcase(const StatementType::FN<Out>&) {
+		varcase(const StatementType::Fn<Out>&) {
 			genFunc<false>(out, var, "fn ");
 		},
 		varcase(const StatementType::FnDecl<Out>&) {
@@ -1055,7 +1055,7 @@ namespace slu::parse
 		varcase(const StatementType::FunctionDecl<Out>&) {
 			genFunc<true>(out, var, "function ");
 		},
-		varcase(const StatementType::LOCAL_FUNCTION_DEF<Out>&) {
+		varcase(const StatementType::LocalFunctionDef<Out>&) {
 			out.add("local function ");
 			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},

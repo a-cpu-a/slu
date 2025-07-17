@@ -386,7 +386,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "fn"))
 				{
-					readFunctionStatement<isLoop, StatementType::FN<In>,StatementType::FnDecl<In>>(
+					readFunctionStatement<isLoop, StatementType::Fn<In>,StatementType::FnDecl<In>>(
 						in, place, allowVarArg, exported, safety
 					);
 					return true;
@@ -508,7 +508,7 @@ namespace slu::parse
 					if (checkReadTextToken(in, "function"))
 					{ // local function Name funcbody
 						//NOTE: no real function decl, as `local function` is not in slu.
-						readFunctionStatement<isLoop, StatementType::LOCAL_FUNCTION_DEF<In>,StatementType::FunctionDecl<In>>(
+						readFunctionStatement<isLoop, StatementType::LocalFunctionDef<In>,StatementType::FunctionDecl<In>>(
 							in, place, allowVarArg, false,OptSafety::DEFAULT
 						);
 						return true;

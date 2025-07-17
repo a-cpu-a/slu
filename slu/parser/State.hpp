@@ -867,7 +867,7 @@ namespace slu::parse
 			Sel<isSlu, ExprListV<isSlu>, ExprV<isSlu>> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
-		Slu_DEF_CFG_CAPS(ForIn);
+		Slu_DEF_CFG(ForIn);
 
 		template<bool isSlu>
 		struct FuncDefBase
@@ -886,13 +886,13 @@ namespace slu::parse
 		Slu_DEF_CFG(Function);
 
 		template<bool isSlu>
-		struct FNv : FunctionV<isSlu> {};
-		Slu_DEF_CFG_CAPS(FN);
+		struct FnV : FunctionV<isSlu> {};
+		Slu_DEF_CFG(Fn);
 
 		template<bool isSlu>
-		struct LOCAL_FUNCTION_DEFv :FunctionV<isSlu> {};
-		Slu_DEF_CFG_CAPS(LOCAL_FUNCTION_DEF);
-		// "local function Name funcbody" //n may not ^^^
+		struct LocalFunctionDefV :FunctionV<isSlu> {};
+		Slu_DEF_CFG(LocalFunctionDef);
+		// "local function Name funcbody"
 
 
 		template<bool isSlu>
@@ -1021,9 +1021,9 @@ namespace slu::parse
 		StatementType::ForNumV<isSlu>,	// "for Name = exp , exp [, exp] do block end"
 		StatementType::ForInV<isSlu>,	// "for namelist in explist do block end"
 
-		StatementType::LOCAL_FUNCTION_DEFv<isSlu>,	// "local function Name funcbody"
+		StatementType::LocalFunctionDefV<isSlu>,	// "local function Name funcbody"
 		StatementType::FunctionV<isSlu>,		// "function funcname funcbody"
-		StatementType::FNv<isSlu>,					// "fn funcname funcbody"
+		StatementType::FnV<isSlu>,					// "fn funcname funcbody"
 
 		StatementType::FunctionDeclV<isSlu>,
 		StatementType::FnDeclV<isSlu>,
