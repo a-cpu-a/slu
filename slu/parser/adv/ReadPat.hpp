@@ -112,7 +112,7 @@ namespace slu::parse
 
 		Expression<In> expr = readExpr<true,true>(in, false);
 
-		if (std::holds_alternative<ExprType::PAT_TYPE_PREFIX>(expr.data))
+		if (std::holds_alternative<ExprType::PatTypePrefix>(expr.data))
 		{
 			return readPatPastExpr<isLocal,false>(in, TypePrefix(std::move(expr.unOps)), uncond);
 		}

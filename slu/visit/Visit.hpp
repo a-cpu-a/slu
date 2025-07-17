@@ -377,7 +377,7 @@ namespace slu::visit
 			}
 			Slu_CALL_VISIT_FN_POST_VAR(MultiOp);
 		},
-		varcase(parse::ExprType::PAT_TYPE_PREFIX&) {
+		varcase(parse::ExprType::PatTypePrefix&) {
 			Slu_panic("PatTypePrefix is not a valid expression, somehow leaked out of parsing!!!");
 		},
 

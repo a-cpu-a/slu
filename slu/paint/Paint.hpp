@@ -255,7 +255,7 @@ namespace slu::paint
 			paintLimPrefixExpr<nameTok>(se, *var.val);
 			paintArgChain(se, var.argChain);
 		},
-		varcase(const parse::ExprType::PAT_TYPE_PREFIX&) {
+		varcase(const parse::ExprType::PatTypePrefix&) {
 			Slu_panic("Pat type prefix leaked outside of pattern parsing!");
 		},
 

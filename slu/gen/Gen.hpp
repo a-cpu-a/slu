@@ -371,7 +371,7 @@ namespace slu::parse
 		varcase(const ExprType::IfCond<Out>&) {
 			genIfCond<true>(out, var);
 		},
-		varcase(const ExprType::PAT_TYPE_PREFIX&) {},//Yes, nothing
+		varcase(const ExprType::PatTypePrefix&) {},//Yes, nothing
 		varcase(const ExprType::U64) {
 			out.add(std::to_string(var));
 		},

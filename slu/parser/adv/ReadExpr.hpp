@@ -338,7 +338,7 @@ namespace slu::parse
 			if constexpr (FOR_PAT)
 			{
 				handleOpenRange(in, basicRes);
-				basicRes.data = ExprType::PAT_TYPE_PREFIX{};
+				basicRes.data = ExprType::PatTypePrefix{};
 				return basicRes;
 			}
 			else
@@ -376,7 +376,7 @@ namespace slu::parse
 						|| nextChar=='i'&&(in.peekAt(iterIdx + 1)=='n' && !isValidNameChar(in.peekAt(iterIdx + 2)))
 						)
 					{
-						basicRes.data = ExprType::PAT_TYPE_PREFIX{};
+						basicRes.data = ExprType::PatTypePrefix{};
 						return basicRes;
 					}
 				}
