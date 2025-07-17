@@ -986,7 +986,7 @@ namespace slu::paint
 		varcase(const parse::StatementType::Semicol) {
 			paintKw<Tok::PUNCTUATION>(se, ";");
 		},
-		varcase(const parse::StatementType::LABEL<Se>&) {
+		varcase(const parse::StatementType::Label<Se>&) {
 			paintKw<Tok::PUNCTUATION>(se, parse::sel<Se>("::", ":::"));
 			paintName<Tok::NAME_LABEL>(se, var.v);
 			paintKw<Tok::PUNCTUATION>(se, parse::sel<Se>("::", ":"));

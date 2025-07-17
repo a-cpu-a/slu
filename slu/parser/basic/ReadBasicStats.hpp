@@ -46,6 +46,6 @@ namespace slu::parse
 
 		requireToken(in, sel<In>("::", ":"));
 
-		return in.genData.addStat(place, StatementType::LABEL<In>{res});
+		return in.genData.addStat(place, StatementType::Label<In>{res});
 	}
 }

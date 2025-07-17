@@ -821,8 +821,8 @@ namespace slu::parse
 
 
 		template<bool isSlu>
-		struct LABELv { MpItmIdV<isSlu> v; };		// "label"
-		Slu_DEF_CFG_CAPS(LABEL);
+		struct LabelV { MpItmIdV<isSlu> v; };		// "label"
+		Slu_DEF_CFG(Label);
 		struct Break {};					// "break"
 		template<bool isSlu>
 		struct GotoV { MpItmIdV<isSlu> v; };			// "goto Name"
@@ -1004,7 +1004,7 @@ namespace slu::parse
 		StatementType::CanonicGlobal,
 
 		StatementType::FuncCallV<isSlu>,		// "functioncall"
-		StatementType::LABELv<isSlu>,			// "label"
+		StatementType::LabelV<isSlu>,			// "label"
 		StatementType::Break,					// "break"
 		StatementType::GotoV<isSlu>,			// "goto Name"
 		StatementType::BlockV<isSlu>,			// "do block end"

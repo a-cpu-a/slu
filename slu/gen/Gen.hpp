@@ -928,7 +928,7 @@ namespace slu::parse
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::LABEL<Out>&) {
+		varcase(const StatementType::Label<Out>&) {
 			out.unTabTemp()
 				.add(sel<Out>("::", ":::"))
 				.add(out.db.asSv(var.v))
