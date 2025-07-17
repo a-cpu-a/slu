@@ -293,7 +293,7 @@ namespace slu::parse
 
 						varDataNeedsSubThing = false;
 						// Move auto-clears funcCallData
-						varData.back().sub.emplace_back(std::move(funcCallData), SubVarType::DEREF{});
+						varData.back().sub.emplace_back(std::move(funcCallData), SubVarType::Deref{});
 						funcCallData.clear();
 
 						break;

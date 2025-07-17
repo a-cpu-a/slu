@@ -214,7 +214,7 @@ namespace slu::visit
 			varcase(parse::SubVarType::Expr<Vi>&) {
 				visitExpr(vi, var.idx);
 			},
-			varcase(parse::SubVarType::DEREF) {}
+			varcase(parse::SubVarType::Deref) {}
 			);
 		}
 		Slu_CALL_VISIT_FN_POST(Var);

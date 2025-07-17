@@ -375,7 +375,7 @@ namespace slu::paint
 			paintKw<Tok::MP_IDX>(se, ".");
 			paintName<Tok::NAME>(se, var.idx);
 		},
-		varcase(const parse::SubVarType::DEREF) {
+		varcase(const parse::SubVarType::Deref) {
 			paintKw<Tok::DEREF>(se, ".*");
 		}
 		);

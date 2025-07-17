@@ -509,7 +509,7 @@ namespace slu::parse
 			out.add('.')
 				.add(txt);
 		},
-		varcase(const SubVarType::DEREF) {
+		varcase(const SubVarType::Deref) {
 			out.add(".*");
 		}
 		);

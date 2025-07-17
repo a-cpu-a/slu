@@ -683,7 +683,7 @@ namespace slu::parse
 
 	namespace SubVarType
 	{
-		using DEREF = std::monostate;
+		using Deref = std::monostate;
 
 		template<bool isSlu>
 		struct NAMEv { MpItmIdV<isSlu> idx; };	// {funcArgs} ‘.’ Name
@@ -700,7 +700,7 @@ namespace slu::parse
 		std::vector<ArgFuncCallV<isSlu>> funcCalls;
 
 		std::variant<
-			SubVarType::DEREF,
+			SubVarType::Deref,
 			SubVarType::NAMEv<isSlu>,
 			SubVarType::ExprV<isSlu>
 		> idx;
