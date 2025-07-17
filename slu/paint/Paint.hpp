@@ -946,7 +946,7 @@ namespace slu::paint
 			paintLimPrefixExpr<Tok::NAME>(se, *var.val);
 			paintArgChain(se, var.argChain);
 		},
-		varcase(const parse::StatementType::ASSIGN<Se>&) {
+		varcase(const parse::StatementType::Assign<Se>&) {
 			paintVarList<Tok::NAME>(se, var.vars);
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExprList(se, var.exprs);

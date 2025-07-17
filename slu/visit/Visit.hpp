@@ -489,7 +489,7 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Stat);
 		ezmatch(itm.data)(
-		varcase(parse::StatementType::ASSIGN<Vi>&) {
+		varcase(parse::StatementType::Assign<Vi>&) {
 			visitExprList(vi, var.exprs);
 			visitVarList(vi, var.vars);
 		},

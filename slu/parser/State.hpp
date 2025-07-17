@@ -813,8 +813,8 @@ namespace slu::parse
 		using Semicol = std::monostate;	// ";"
 
 		template<bool isSlu>
-		struct ASSIGNv { std::vector<VarV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
-		Slu_DEF_CFG_CAPS(ASSIGN);
+		struct AssignV { std::vector<VarV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
+		Slu_DEF_CFG(Assign);
 
 		using parse::FuncCallV;
 		using parse::FuncCall;
@@ -996,7 +996,7 @@ namespace slu::parse
 	using StatementDataV = std::variant <
 		StatementType::Semicol,				// ";"
 
-		StatementType::ASSIGNv<isSlu>,			// "varlist = explist"
+		StatementType::AssignV<isSlu>,			// "varlist = explist"
 		StatementType::LocalV<isSlu>,	// "local attnamelist [= explist]"
 		StatementType::LetV<isSlu>,	// "let pat [= explist]"
 		StatementType::ConstV<isSlu>,	// "const pat [= explist]"

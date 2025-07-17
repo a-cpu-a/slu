@@ -874,7 +874,7 @@ namespace slu::parse
 			out.wasSemicolon = true;
 		},
 
-		varcase(const StatementType::ASSIGN<Out>&) {
+		varcase(const StatementType::Assign<Out>&) {
 			genVarList(out, var.vars);
 			out.add(" = ");
 			genExprList(out, var.exprs);

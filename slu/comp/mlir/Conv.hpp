@@ -563,7 +563,7 @@ namespace slu::comp::mico
 
 			builder.setInsertionPointAfter(firstOp);
 		},
-			varcase(const parse::StatementType::ASSIGNv<true>&) {
+			varcase(const parse::StatementType::AssignV<true>&) {
 			if (var.vars.size() != 1 || var.exprs.size() != 1)
 				throw std::runtime_error("Unimplemented assign conv, vers.size or var.exprs != 1");
 

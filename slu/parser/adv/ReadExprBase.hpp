@@ -238,7 +238,7 @@ namespace slu::parse
 						throwExprAssignment(in);
 
 					in.skip();//skip eq
-					StatementType::ASSIGN<In> res{};
+					StatementType::Assign<In> res{};
 					res.vars = std::move(varData);
 					res.exprs = readExprList(in,allowVarArg);
 					return res;
