@@ -424,7 +424,7 @@ namespace slu::comp::mico
 	template<typename T>
 	concept AnyIgnoredStatement =
 		std::same_as<T, parse::StatementType::GotoV<true>>
-		|| std::same_as<T, parse::StatementType::SEMICOLON>
+		|| std::same_as<T, parse::StatementType::Semicol>
 		|| std::same_as<T, parse::StatementType::Use>
 		|| std::same_as<T, parse::StatementType::FnDeclV<true>>
 		|| std::same_as<T, parse::StatementType::FunctionDeclV<true>>

@@ -549,7 +549,7 @@ namespace slu::visit
 			//TODO var.useVariant
 			Slu_CALL_VISIT_FN_POST_VAR(Use);
 		},
-		varcase(parse::StatementType::SEMICOLON&) {
+		varcase(parse::StatementType::Semicol&) {
 			//TODO
 		},
 		varcase(parse::StatementType::IfCond<Vi>&) {

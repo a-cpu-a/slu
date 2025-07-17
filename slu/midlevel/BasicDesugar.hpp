@@ -418,7 +418,7 @@ namespace slu::mlvl
 				auto& block = std::get<parse::StatementType::ExternBlock<Cfg>>(itm.data);
 				if (block.stats.empty())
 				{
-					itm.data = parse::StatementType::SEMICOLON{};
+					itm.data = parse::StatementType::Semicol{};
 					return;
 				}
 

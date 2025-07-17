@@ -810,7 +810,7 @@ namespace slu::parse
 
 	namespace StatementType
 	{
-		using SEMICOLON = std::monostate;	// ";"
+		using Semicol = std::monostate;	// ";"
 
 		template<bool isSlu>
 		struct ASSIGNv { std::vector<VarV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
@@ -994,7 +994,7 @@ namespace slu::parse
 
 	template<bool isSlu>
 	using StatementDataV = std::variant <
-		StatementType::SEMICOLON,				// ";"
+		StatementType::Semicol,				// ";"
 
 		StatementType::ASSIGNv<isSlu>,			// "varlist = explist"
 		StatementType::LocalV<isSlu>,	// "local attnamelist [= explist]"

@@ -868,7 +868,7 @@ namespace slu::parse
 	{
 		ezmatch(obj.data)(
 
-		varcase(const StatementType::SEMICOLON) {
+		varcase(const StatementType::Semicol) {
 			if(!out.wasSemicolon)
 				out.add(';');
 			out.wasSemicolon = true;

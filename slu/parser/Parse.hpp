@@ -749,7 +749,7 @@ namespace slu::parse
 		{
 		case ';':
 			in.skip();
-			return in.genData.addStat(place, StatementType::SEMICOLON{});
+			return in.genData.addStat(place, StatementType::Semicol{});
 		case ':'://may be label
 			if constexpr (In::settings() & sluSyn)
 			{

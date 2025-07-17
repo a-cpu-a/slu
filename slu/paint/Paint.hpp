@@ -983,7 +983,7 @@ namespace slu::paint
 		varcase(const parse::StatementType::Break) {
 			paintKw<Tok::COND_STAT>(se, "break");
 		},
-		varcase(const parse::StatementType::SEMICOLON) {
+		varcase(const parse::StatementType::Semicol) {
 			paintKw<Tok::PUNCTUATION>(se, ";");
 		},
 		varcase(const parse::StatementType::LABEL<Se>&) {
