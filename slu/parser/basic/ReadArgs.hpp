@@ -26,19 +26,19 @@ namespace slu::parse
 		{
 			in.skip();//skip start
 			skipSpace(in);
-			ArgsType::EXPLIST<In> res{};
+			ArgsType::ExprList<In> res{};
 			if (in.peek() == ')')// Check if 0 args
 			{
 				in.skip();
 				return res;
 			}
-			res.v = readExprList(in, allowVarArg);
+			res = readExprList(in, allowVarArg);
 			requireToken(in, ")");
 			return res;
 		}
 		else if (ch == '{')
 		{
-			return ArgsType::TABLE<In>(readTable(in, allowVarArg));
+			return ArgsType::Table<In>(readTable(in, allowVarArg));
 		}
 		throw UnexpectedCharacterError(std::format(
 			"Expected function arguments ("

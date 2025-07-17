@@ -440,9 +440,9 @@ namespace slu::visit
 		for (auto& i : itm)
 		{
 			ezmatch(i.args)(
-			varcase(parse::ArgsType::EXPLIST<Vi>&) { visitExprList(vi, var.v); },
-			varcase(parse::ArgsType::TABLE<Vi>&) {
-				visitTable(vi, var.v);
+			varcase(parse::ArgsType::ExprList<Vi>&) { visitExprList(vi, var); },
+			varcase(parse::ArgsType::Table<Vi>&) {
+				visitTable(vi, var);
 			},
 			varcase(const parse::ArgsType::LITERAL&) {}
 			);

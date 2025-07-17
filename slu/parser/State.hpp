@@ -232,20 +232,18 @@ namespace slu::parse
 
 	namespace ArgsType
 	{
-		template<bool isSlu>
-		struct EXPLISTv { ExprListV<isSlu> v; };			// "'(' [explist] ')'"
-		Slu_DEF_CFG_CAPS(EXPLIST);
+		using parse::ExprListV;
+		using parse::ExprList;
 
-		template<bool isSlu>
-		struct TABLEv { TableV<isSlu> v; };	// "tableconstructor"
-		Slu_DEF_CFG_CAPS(TABLE);
+		using parse::TableV;
+		using parse::Table;
 
 		struct LITERAL { std::string v; Position end; };// "LiteralString"
 	};
 	template<bool isSlu>
 	using ArgsV = std::variant<
-		ArgsType::EXPLISTv<isSlu>,
-		ArgsType::TABLEv<isSlu>,
+		ArgsType::ExprListV<isSlu>,
+		ArgsType::TableV<isSlu>,
 		ArgsType::LITERAL
 	>;
 	Slu_DEF_CFG(Args);

@@ -557,13 +557,13 @@ namespace slu::paint
 				paintName<Tok::NAME>(se, i.funcName);
 			}
 			ezmatch(i.args)(
-			varcase(const parse::ArgsType::EXPLIST<Se>&) {
+			varcase(const parse::ArgsType::ExprList<Se>&) {
 				paintKw<Tok::GEN_OP>(se, "(");
-				paintExprList(se, var.v);
+				paintExprList(se, var);
 				paintKw<Tok::GEN_OP>(se, ")");
 			},
-			varcase(const parse::ArgsType::TABLE<Se>&) {
-				paintTable<Tok::NAME>(se, var.v);
+			varcase(const parse::ArgsType::Table<Se>&) {
+				paintTable<Tok::NAME>(se, var);
 			},
 			varcase(const parse::ArgsType::LITERAL&) {
 				paintString(se, var.v, var.end, Tok::NONE);

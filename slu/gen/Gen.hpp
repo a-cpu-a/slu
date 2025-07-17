@@ -476,13 +476,13 @@ namespace slu::parse
 				.add(out.db.asSv(arg.funcName));
 		}
 		ezmatch(arg.args)(
-		varcase(const ArgsType::EXPLIST<Out>&) {
+		varcase(const ArgsType::ExprList<Out>&) {
 			out.add('(');
-			genExprList(out, var.v);
+			genExprList(out, var);
 			out.add(')');
 		},
-		varcase(const ArgsType::TABLE<Out>&) {
-			genTable(out, var.v);
+		varcase(const ArgsType::Table<Out>&) {
+			genTable(out, var);
 		},
 		varcase(const ArgsType::LITERAL&) {
 			out.add(' '); genLiteral(out, var.v);

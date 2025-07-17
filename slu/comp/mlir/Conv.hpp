@@ -250,7 +250,7 @@ namespace slu::comp::mico
 			if(name!= conv.sharedDb.getItm({ "std","ops","Ref","ref"}))
 				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
 			
-			const auto& expArgs = std::get<parse::ArgsType::EXPLISTv<true>>(var.argChain[0].args).v;
+			const auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.argChain[0].args);
 			const auto& firstArgExpr = expArgs.front();
 			const auto& firstArg = std::get<parse::ExprType::LimPrefixExprV<true>>(firstArgExpr.data);
 			
@@ -588,7 +588,7 @@ namespace slu::comp::mico
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//It cant be the other types, as they are alreadt desugared!
-			auto& argList = std::get<parse::ArgsType::EXPLISTv<true>>(var.argChain[0].args).v;
+			auto& argList = std::get<parse::ArgsType::ExprListV<true>>(var.argChain[0].args);
 			std::vector<mlir::Value> args;
 			args.reserve(argList.size());
 			for (const auto& i : argList)

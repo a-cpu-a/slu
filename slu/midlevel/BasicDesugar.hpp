@@ -486,15 +486,9 @@ namespace slu::mlvl
 						parse::Position place = expr1.place;
 
 						parse::ExprType::FuncCall<Cfg> call;
-						parse::ArgsType::EXPLIST<Cfg> list;
-						if constexpr (forType)
-						{
-							list.v.emplace_back(wrapTypeExpr(std::move(expr1)));
-							list.v.emplace_back(wrapTypeExpr(std::move(expr2)));
-						} else {
-							list.v.emplace_back(std::move(expr1));
-							list.v.emplace_back(std::move(expr2));
-						}
+						parse::ArgsType::ExprList<Cfg> list;
+						list.emplace_back(std::move(expr1));
+						list.emplace_back(std::move(expr2));
 						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
 
 						parse::BinOpType op = ops.extra[i.index - 1].first;
@@ -600,18 +594,15 @@ namespace slu::mlvl
 							}
 						}
 						parse::ExprType::FuncCall<Cfg> call;
-						parse::ArgsType::EXPLIST<Cfg> list;
-						if constexpr (forType)
-							list.v.emplace_back(wrapTypeExpr(std::move(expr)));
-						else
-							list.v.emplace_back(std::move(expr));
+						parse::ArgsType::ExprList<Cfg> list;
+						list.emplace_back(std::move(expr));
 
 						if (lifetime != nullptr)
 						{
 							parse::Expr<Cfg> lifetimeExpr;
 							lifetimeExpr.place = place;
 							lifetimeExpr.data = parse::ExprType::Lifetime{ std::move(*lifetime) };
-							list.v.emplace_back(std::move(lifetimeExpr));
+							list.emplace_back(std::move(lifetimeExpr));
 						}
 						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
 						call.val = parse::mkLpeVar(name);
