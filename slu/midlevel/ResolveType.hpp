@@ -34,7 +34,7 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::NUMERAL_I128) {
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Int128{ var.lo,var.hi });
 		},
-		varcase(const parse::ExprType::NUMERAL_U128) {
+		varcase(const parse::ExprType::U128) {
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 		},
 		varcase(const parse::ExprType::NUMERAL)->parse::ResolvedType {

@@ -289,23 +289,23 @@ namespace slu::parse
 
 		//u64,i128,u128, for slu only
 		struct U64 { uint64_t v; };						// "Numeral"
-		struct NUMERAL_U128
+		struct U128
 		{ // "Numeral"
 			uint64_t lo = 0;
 			uint64_t hi = 0;
 
-			NUMERAL_U128 operator+(NUMERAL_U128 o) const
+			U128 operator+(U128 o) const
 			{
-				NUMERAL_U128 res = *this;
+				U128 res = *this;
 				res.lo += o.lo;
 				res.hi += o.hi;
 				if (res.lo < lo)//overflow check
 					res.hi++;
 				return res;
 			}
-			NUMERAL_U128 shift(uint8_t count) const
+			U128 shift(uint8_t count) const
 			{
-				NUMERAL_U128 res = *this;
+				U128 res = *this;
 				res.hi <<= count;
 				res.hi |= lo >> (64 - count);
 				res.lo <<= count;
@@ -313,7 +313,7 @@ namespace slu::parse
 			}
 
 		};
-		struct NUMERAL_I128 :NUMERAL_U128 {};					// "Numeral"
+		struct NUMERAL_I128 :U128 {};					// "Numeral"
 	}
 
 	struct TupleName
@@ -326,13 +326,13 @@ namespace slu::parse
 			: lo(v.v) {}
 		constexpr TupleName(ExprType::NUMERAL_I128 v)
 			: lo(v.lo), hi(v.hi) {}
-		constexpr TupleName(ExprType::NUMERAL_U128 v)
+		constexpr TupleName(ExprType::U128 v)
 			: lo(v.lo), hi(v.hi) {}
 	};
 
 	template<class T>
 	concept Any128BitInt =
-		std::same_as<T, ExprType::NUMERAL_U128>
+		std::same_as<T, ExprType::U128>
 		|| std::same_as<T, ExprType::NUMERAL_I128>;
 	template<class T>
 	concept Any64BitInt =
@@ -507,7 +507,7 @@ namespace slu::parse
 
 		ExprType::U64,			// "Numeral"
 		ExprType::NUMERAL_I128,			// "Numeral"
-		ExprType::NUMERAL_U128,			// "Numeral"
+		ExprType::U128,			// "Numeral"
 
 		ExprType::LIFETIME,
 		ExprType::TRAIT_EXPR,
