@@ -57,9 +57,7 @@ namespace slu::parse
 		tc.reserve(exprs.size());
 		for (auto& i : exprs)
 		{
-			tc.emplace_back(::slu::parse::FieldType::ExprV<isSlu>{
-				.v = std::move(i)
-			});
+			tc.emplace_back(std::move(i));
 		}
 		return tc;
 	}

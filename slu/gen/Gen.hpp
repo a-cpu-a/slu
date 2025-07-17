@@ -168,7 +168,7 @@ namespace slu::parse
 			},
 			varcase(const FieldType::Expr<Out>&) {
 				out.addIndent();
-				genExpr(out, var.v);
+				genExpr(out, var);
 			}
 			);
 			out.template addNewl<false>(',');
@@ -186,7 +186,7 @@ namespace slu::parse
 		},
 		varcase(const LimPrefixExprType::Expr<Out>&) {
 			out.add('(');
-			genExpr(out, var.v);
+			genExpr(out, var);
 			out.add(')');
 		}
 		);
@@ -500,7 +500,7 @@ namespace slu::parse
 		ezmatch(obj.idx)(
 		varcase(const SubVarType::Expr<Out>&) {
 			out.add('[');
-			genExpr(out, var.idx);
+			genExpr(out, var);
 			out.add(']');
 		},
 		varcase(const SubVarType::NAME<Out>&) {
@@ -540,7 +540,7 @@ namespace slu::parse
 		},
 		varcase(const BaseVarType::Expr<Out>&) {
 			out.add('(');
-			genExpr(out, var.start);
+			genExpr(out, var);
 			out.add(')');
 		}
 		);

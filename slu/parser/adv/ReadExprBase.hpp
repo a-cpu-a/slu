@@ -144,9 +144,9 @@ namespace slu::parse
 			{
 				if (varDataNeedsSubThing)
 				{
-					LimPrefixExprType::Expr<In> res;
-					res.v = std::move(std::get<BaseVarType::Expr<In>>(varData.back().base).start);
-					return std::make_unique<LimPrefixExpr<In>>(std::move(res));
+					return std::make_unique<LimPrefixExpr<In>>(
+						std::move(std::get<BaseVarType::Expr<In>>(varData.back().base))
+					);
 				}
 				return std::make_unique<LimPrefixExpr<In>>(LimPrefixExprType::VAR<In>(std::move(varData.back())));
 			}
@@ -165,8 +165,7 @@ namespace slu::parse
 		if (varDataNeedsSubThing)
 		{
 			BaseVarType::Expr<In>& bVarExpr = std::get<BaseVarType::Expr<In>>(varData.back().base);
-			auto limP = LimPrefixExprType::Expr<In>(std::move(bVarExpr.start));
-			return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
+			return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(bVarExpr)), std::move(funcCallData));
 		}
 		auto limP = LimPrefixExprType::VAR<In>(std::move(varData.back()));
 		return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
@@ -328,7 +327,7 @@ namespace slu::parse
 				SubVarType::Expr<In> res{};
 
 				in.skip();//skip first char
-				res.idx = readExpr(in,allowVarArg);
+				res = readExpr(in,allowVarArg);
 				requireToken(in, "]");
 
 				varDataNeedsSubThing = false;

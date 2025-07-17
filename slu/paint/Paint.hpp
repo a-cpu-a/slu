@@ -149,7 +149,7 @@ namespace slu::paint
 			paintExpr<nameTok>(se, var.v);
 		},
 		varcase(const parse::FieldType::Expr<Se>&) {
-			paintExpr<nameTok>(se, var.v);
+			paintExpr<nameTok>(se, var);
 		},
 		varcase(const parse::FieldType::NONE) {
 			Slu_panic("field shouldnt be FieldType::NONE, found while painting.");
@@ -368,7 +368,7 @@ namespace slu::paint
 		ezmatch(itm.idx)(
 		varcase(const parse::SubVarType::Expr<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "[");
-			paintExpr(se, var.idx);
+			paintExpr(se, var);
 			paintKw<Tok::GEN_OP>(se, "]");
 		},
 		varcase(const parse::SubVarType::NAME<Se>&) {
@@ -395,7 +395,7 @@ namespace slu::paint
 		},
 		varcase(const parse::BaseVarType::Expr<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
-			paintExpr<nameTok>(se, var.start);
+			paintExpr<nameTok>(se, var);
 			paintKw<Tok::GEN_OP>(se, ")");
 		}
 		);
@@ -541,7 +541,7 @@ namespace slu::paint
 		},
 		varcase(const parse::LimPrefixExprType::Expr<Se>&) {
 			paintKw<Tok::GEN_OP>(se, "(");
-			paintExpr<nameTok>(se, var.v);
+			paintExpr<nameTok>(se, var);
 			paintKw<Tok::GEN_OP>(se, ")");
 		}
 		);

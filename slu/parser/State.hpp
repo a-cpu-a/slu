@@ -102,16 +102,16 @@ namespace slu::parse
 		template<bool isSlu> struct NAME2EXPRv;
 		Slu_DEF_CFG_CAPS(NAME2EXPR);
 
-		template<bool isSlu> struct ExprV;
-		Slu_DEF_CFG(Expr);
+		using parse::ExprV;
+		using parse::Expr;
 	}
 	namespace LimPrefixExprType
 	{
-		template<bool isSlu> struct VARv;			// "var"
+		template<bool isSlu> struct VARv;
 		Slu_DEF_CFG_CAPS(VAR);
 
-		template<bool isSlu> struct ExprV;	// "'(' exp ')'"
-		Slu_DEF_CFG(Expr);
+		using parse::ExprV;
+		using parse::Expr;
 	}
 	template<bool isSlu>
 	using LimPrefixExprV = std::variant<
@@ -689,9 +689,8 @@ namespace slu::parse
 		struct NAMEv { MpItmIdV<isSlu> idx; };	// {funcArgs} ‘.’ Name
 		Slu_DEF_CFG_CAPS(NAME);
 
-		template<bool isSlu>
-		struct ExprV { parse::ExprV<isSlu> idx; };	// {funcArgs} ‘[’ exp ‘]’
-		Slu_DEF_CFG(Expr);
+		using parse::ExprV;
+		using parse::Expr;
 	}
 
 	template<bool isSlu>
@@ -720,12 +719,8 @@ namespace slu::parse
 		};
 		Slu_DEF_CFG_CAPS(NAME);
 
-		template<bool isSlu>
-		struct ExprV
-		{
-			parse::ExprV<isSlu> start;
-		};
-		Slu_DEF_CFG(Expr);
+		using parse::ExprV;
+		using parse::Expr;
 
 	}
 	template<bool isSlu>
@@ -759,17 +754,11 @@ namespace slu::parse
 
 		template<bool isSlu>
 		struct NAME2EXPRv { MpItmIdV<isSlu> idx; parse::ExprV<isSlu> v; };	// "Name ‘=’ exp"
-
-		template<bool isSlu>
-		struct ExprV { parse::ExprV<isSlu> v; };							// "exp"
 	}
 	namespace LimPrefixExprType
 	{
 		template<bool isSlu>
 		struct VARv { VarV<isSlu> v; };			// "var"
-
-		template<bool isSlu>
-		struct ExprV { parse::ExprV<isSlu> v; };	// "'(' exp ')'"
 	}
 
 	template<bool isSlu>

@@ -298,7 +298,7 @@ namespace slu::comp::mico
 			return (mlir::Value)nullptr;
 		},
 		varcase(const parse::BaseVarType::ExprV<true>&) {
-			return convExpr(conv,var.start);
+			return convExpr(conv,var);
 		},
 		varcase(const parse::BaseVarType::Root) {
 			//TODO: builtin root-mp reflection value
@@ -313,7 +313,7 @@ namespace slu::comp::mico
 	{
 		return ezmatch(itm)(
 		varcase(const parse::LimPrefixExprType::ExprV<true>&){
-			return convExpr(conv, var.v,abi);
+			return convExpr(conv, var,abi);
 		},
 		varcase(const parse::LimPrefixExprType::VARv<true>&){
 			return convVarBase<false>(conv, place, var.v.base,abi);
