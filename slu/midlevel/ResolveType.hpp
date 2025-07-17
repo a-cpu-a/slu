@@ -143,34 +143,36 @@ namespace slu::mlvl
 				}
 				);
 				//TODO: fix field offsets changing depending on named field order, and tuple field order between them too.
-				if (fieldOffset!=SIZE_MAX)
+				if (fieldOffset!= parse::ResolvedType::INCOMPLETE_MARK)
 					continue;
 
 				const parse::ResolvedType& resField = res.fields.back();
 
 				if (resField.size == 0)
 				{
-					res.fieldOffsets.push_back(SIZE_MAX);//undefined value.
+					res.fieldOffsets.push_back(SIZE_MAX-1);//undefined value.
 					continue;
 				}
 				if (!resField.isComplete())
 				{
-					fieldOffset = SIZE_MAX;
+					fieldOffset = parse::ResolvedType::INCOMPLETE_MARK;
+					continue;
+				}
+				if (fieldOffset == parse::ResolvedType::UNSIZED_MARK)
+				{
+					res.fieldOffsets.push_back(SIZE_MAX);//Only known at runtime.
 					continue;
 				}
 
-				res.fieldOffsets.push_back((fieldOffset + 7)& (~0b111));//ceil to byte boundary.
+				fieldOffset = (fieldOffset + 7) & (~0b111);//ceil to byte boundary.
+
+				res.fieldOffsets.push_back(fieldOffset);
 				fieldOffset += resField.size;
 			}
 
-			size_t resSize = parse::ResolvedType::INCOMPLETE_MARK;
-			bool resSizeInBits = false;
-			if (fieldOffset != SIZE_MAX)
-				resSize = fieldOffset;
-
 			return parse::ResolvedType{
 				.base = parse::RawTypeKind::Struct(&res),
-				.size = resSize
+				.size = fieldOffset
 			};
 		},
 		varcase(parse::ExprType::Union&&)->parse::ResolvedType {

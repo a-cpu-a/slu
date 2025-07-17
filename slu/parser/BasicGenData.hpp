@@ -94,8 +94,8 @@ namespace slu::parse
 		using Int128 = ExprType::I128;
 		struct Range128Uu
 		{
-			Uint128 lo;
-			Uint128 hi;
+			Uint128 min;
+			Uint128 max;
 		};
 		struct Range128Su :Range128Uu {};
 		struct Range128Ss :Range128Uu {};
@@ -105,8 +105,8 @@ namespace slu::parse
 		using Int64 = ExprType::I64;
 		struct Range64
 		{
-			Int64 lo;
-			Int64 hi;
+			Int64 min;
+			Int64 max;
 		};
 		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
 		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
@@ -133,20 +133,31 @@ namespace slu::parse
 	>;
 	struct TySigil
 	{
+		constexpr static uint8_t SLICE = 0;
+		constexpr static uint8_t REF = 1;
+		constexpr static uint8_t REF_MUT = 2;
+		constexpr static uint8_t REF_CONST = 3;
+		constexpr static uint8_t REF_SHARE = 4;
+
 		lang::MpItmIdV<true> life;
 		uint8_t type;//slice,&,&mut,&const,&share
 	};
 	struct ResolvedType
 	{
-		constexpr static size_t INCOMPLETE_MARK = SIZE_MAX >> 2;
+		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50)-1;
+		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK-1;
 
 		RawType base;
-		std::vector<TySigil> sigils;
-		size_t size : 63;//in bits.
+		std::vector<TySigil> sigils;//In application order, so {SLICE,REF} -> &[...].
+		size_t size : 50;//in bits. ignoring outerSliceDims.
+		size_t outerSliceDims : 13 = 0;
 		size_t hasMut : 1 = false;
 
 		constexpr bool isComplete() const {
 			return size != INCOMPLETE_MARK;
+		}
+		constexpr bool isSized() const {
+			return size != UNSIZED_MARK;
 		}
 
 		static ResolvedType getInferred() {
