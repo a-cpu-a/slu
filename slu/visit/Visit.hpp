@@ -563,11 +563,11 @@ namespace slu::visit
 			if (var.elseBlock.has_value())
 				visitSoe(vi, **var.elseBlock);
 		},
-		varcase(parse::StatementType::WHILE_LOOP<Vi>&) {
+		varcase(parse::StatementType::While<Vi>&) {
 			visitExpr(vi, var.cond);
 			visitBlock(vi, var.bl);
 		},
-		varcase(parse::StatementType::REPEAT_UNTIL<Vi>&) {
+		varcase(parse::StatementType::RepeatUntil<Vi>&) {
 			visitBlock(vi, var.bl);
 			visitExpr(vi, var.cond);
 		},

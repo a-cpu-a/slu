@@ -923,14 +923,14 @@ namespace slu::paint
 
 			paintStatOrRet<true>(se, var.bl);
 		},
-		varcase(const parse::StatementType::WHILE_LOOP<Se>&) {
+		varcase(const parse::StatementType::While<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "while");
 
 			paintExpr(se, var.cond);
 
 			paintStatOrRet<true>(se, var.bl);
 		},
-		varcase(const parse::StatementType::REPEAT_UNTIL<Se>&) {
+		varcase(const parse::StatementType::RepeatUntil<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "repeat");
 
 			paintStatOrRet<false>(se, var.bl);

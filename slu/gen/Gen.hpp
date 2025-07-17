@@ -956,7 +956,7 @@ namespace slu::parse
 		varcase(const StatementType::IfCond<Out>&) {
 			genIfCond<false>(out, var);
 		},
-		varcase(const StatementType::WHILE_LOOP<Out>&) {
+		varcase(const StatementType::While<Out>&) {
 			out.newLine();//Extra spacing
 			out.add("while ");
 
@@ -973,7 +973,7 @@ namespace slu::parse
 			out.unTabNewl()
 				.addNewl(sel<Out>("end","}"));
 		},
-		varcase(const StatementType::REPEAT_UNTIL<Out>&) {
+		varcase(const StatementType::RepeatUntil<Out>&) {
 			out.add("repeat");
 
 			if constexpr (Out::settings() & sluSyn)

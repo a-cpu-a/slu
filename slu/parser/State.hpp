@@ -847,12 +847,12 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(BLOCK);
 
 		template<bool isSlu>
-		struct WHILE_LOOPv { ExpressionV<isSlu> cond; BlockV<isSlu> bl; };		// "while exp do block end"
-		Slu_DEF_CFG_CAPS(WHILE_LOOP);
+		struct WhileV { ExpressionV<isSlu> cond; BlockV<isSlu> bl; };		// "while exp do block end"
+		Slu_DEF_CFG(While);
 
 		template<bool isSlu>
-		struct REPEAT_UNTILv :WHILE_LOOPv<isSlu> {};						// "repeat block until exp"
-		Slu_DEF_CFG_CAPS(REPEAT_UNTIL);
+		struct RepeatUntilV :WhileV<isSlu> {};						// "repeat block until exp"
+		Slu_DEF_CFG(RepeatUntil);
 
 		// "if exp then block {elseif exp then block} [else block] end"
 		template<bool isSlu>
@@ -1025,8 +1025,8 @@ namespace slu::parse
 		StatementType::BREAK,					// "break"
 		StatementType::GOTOv<isSlu>,			// "goto Name"
 		StatementType::BLOCKv<isSlu>,			// "do block end"
-		StatementType::WHILE_LOOPv<isSlu>,		// "while exp do block end"
-		StatementType::REPEAT_UNTILv<isSlu>,	// "repeat block until exp"
+		StatementType::WhileV<isSlu>,		// "while exp do block end"
+		StatementType::RepeatUntilV<isSlu>,	// "repeat block until exp"
 
 		StatementType::IfCondV<isSlu>,	// "if exp then block {elseif exp then block} [else block] end"
 

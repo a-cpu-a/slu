@@ -464,7 +464,7 @@ namespace slu::comp::mico
 
 			conv.localsStack.back().values[var.name.v] = alloc;
 		},
-			varcase(const parse::StatementType::REPEAT_UNTILv<true>&) {
+			varcase(const parse::StatementType::RepeatUntilV<true>&) {
 			mlir::Type i1Type = builder.getI1Type();
 			const mlir::Location loc = convPos(conv, itm.place);
 			// Initial loop-carried value: run once → %keepGoing = true
@@ -492,7 +492,7 @@ namespace slu::comp::mico
 
 			builder.create<mlir::scf::YieldOp>(convPos(conv, var.bl.end), mlir::ValueRange{ continueLoop });
 		},
-			varcase(const parse::StatementType::WHILE_LOOPv<true>&) {
+			varcase(const parse::StatementType::WhileV<true>&) {
 			auto whileOp = builder.create<mlir::scf::WhileOp>(convPos(conv,itm.place), mlir::TypeRange{}, mlir::ValueRange{});
 
 			builder.setInsertionPointToStart(whileOp.getBeforeBody());

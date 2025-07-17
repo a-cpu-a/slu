@@ -831,7 +831,7 @@ namespace slu::parse
 
 				Block<In> bl = readDoOrStatOrRet<true>(in,allowVarArg);
 				return in.genData.addStat(place, 
-					StatementType::WHILE_LOOP<In>(std::move(expr), std::move(bl))
+					StatementType::While<In>(std::move(expr), std::move(bl))
 				);
 			}
 			break;
@@ -847,7 +847,7 @@ namespace slu::parse
 				Expression<In> expr = readExpr(in,allowVarArg);
 
 				return in.genData.addStat(place, 
-					StatementType::REPEAT_UNTIL<In>({ std::move(expr), std::move(bl) })
+					StatementType::RepeatUntil<In>({ std::move(expr), std::move(bl) })
 				);
 			}
 			break;
