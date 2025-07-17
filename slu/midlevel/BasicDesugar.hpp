@@ -432,12 +432,12 @@ namespace slu::mlvl
 				auto& statList = *statListStack.back();
 				statList.insert(statList.end(), std::make_move_iterator(std::next(stats.begin()+1)), std::make_move_iterator(stats.end()));
 			}
-			else if(std::holds_alternative<parse::StatementType::MOD_DEF_INLINE<Cfg>>(itm.data))
+			else if(std::holds_alternative<parse::StatementType::ModAs<Cfg>>(itm.data))
 			{
 				// Unwrap the inline module
 				//TODO: modules shouldnt use Block!
 				//TODO: state shouldnt leak from lower mp's:
-				auto& module = std::get<parse::StatementType::MOD_DEF_INLINE<Cfg>>(itm.data);
+				auto& module = std::get<parse::StatementType::ModAs<Cfg>>(itm.data);
 				inlineModules.push_back(InlineModule{ module.name, std::move(module.bl.statList) });
 				itm.data = parse::StatementType::MOD_DEF<Cfg>{module.name,module.exported};
 			}

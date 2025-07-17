@@ -23,7 +23,7 @@ namespace slu::parse
 
 			if (checkReadTextToken(in, "as"))
 			{
-				StatementType::MOD_DEF_INLINE<In> res{};
+				StatementType::ModAs<In> res{};
 				res.exported = exported;
 				res.name = modName;
 

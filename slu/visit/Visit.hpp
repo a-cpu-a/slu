@@ -645,7 +645,7 @@ namespace slu::visit
 			visitName(vi, var.name);
 			//TODO
 		},
-		varcase(parse::StatementType::MOD_DEF_INLINE<Vi>&) {
+		varcase(parse::StatementType::ModAs<Vi>&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			visitBlock(vi, var.bl);

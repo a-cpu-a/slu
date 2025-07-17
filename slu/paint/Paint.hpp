@@ -1069,7 +1069,7 @@ namespace slu::paint
 				paintUseVariant(se, var.useVariant);
 			}
 		},
-		varcase(const parse::StatementType::MOD_DEF_INLINE<Se>&) {
+		varcase(const parse::StatementType::ModAs<Se>&) {
 			if (var.exported)
 				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
 			paintKw<Tok::CON_STAT>(se, "mod");

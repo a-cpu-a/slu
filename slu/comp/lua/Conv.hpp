@@ -26,7 +26,7 @@ namespace slu::comp::lua
 		|| std::same_as<T,parse::StatementType::UnsafeBlockV<true>>//ignore, as desugaring will remove it
 		|| std::same_as<T,parse::StatementType::DROPv<true>>
 		|| std::same_as<T,parse::StatementType::MOD_DEFv<true>>
-		|| std::same_as<T,parse::StatementType::MOD_DEF_INLINEv<true>>
+		|| std::same_as<T,parse::StatementType::ModAsV<true>>
 		|| std::same_as<T,parse::StatementType::UnsafeLabel>
 		|| std::same_as<T,parse::StatementType::SafeLabel>;
 
