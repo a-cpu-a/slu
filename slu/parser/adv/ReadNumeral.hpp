@@ -283,14 +283,14 @@ namespace slu::parse
 				if (n128.lo >> 63)//I64 would be negative
 					return ExprType::NUMERAL_U64(n128.lo);
 
-				return ExprType::NUMERAL_I64(n128.lo);
+				return ExprType::I64(n128.lo);
 			}
 
 			if (hex)
-				return ExprType::NUMERAL_I64(parseHexInt(in, number));
+				return ExprType::I64(parseHexInt(in, number));
 			try
 			{
-				return ExprType::NUMERAL_I64(std::stoll(number, nullptr, 10));
+				return ExprType::I64(std::stoll(number, nullptr, 10));
 			}
 			catch (...)
 			{
@@ -330,7 +330,7 @@ namespace slu::parse
 		}
 		if (!in)
 		{//The end of the stream!
-			return ExprType::NUMERAL_I64(firstChar-'0');// turn char into int
+			return ExprType::I64(firstChar-'0');// turn char into int
 		}
 		bool hex = false;
 

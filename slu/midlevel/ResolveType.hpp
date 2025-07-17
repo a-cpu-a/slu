@@ -25,7 +25,7 @@ namespace slu::mlvl
 		varcase(parse::ExprType::LITERAL_STRING&&){
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::String{std::move(var.v)});
 		},
-		varcase(const parse::ExprType::NUMERAL_I64){
+		varcase(const parse::ExprType::I64){
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Int64{ var.v });
 		},
 		varcase(const parse::ExprType::NUMERAL_U64){

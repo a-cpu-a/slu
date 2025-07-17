@@ -321,7 +321,7 @@ namespace slu::parse
 				out.add(std::to_string(var.v));
 		},
 
-		varcase(const ExprType::NUMERAL_I64) {
+		varcase(const ExprType::I64) {
 			_ASSERT(!(Out::settings() & parse::noIntOverflow) || var.v >= 0);
 			if (var.v < 0)
 			{

@@ -358,7 +358,7 @@ namespace slu::comp::mico
 			conv.cfg.errPtr(std::to_string(itm.data.index()));
 			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
-		varcase(const parse::ExprType::NUMERAL_I64) {return convAny64(conv,itm.place,var); },
+		varcase(const parse::ExprType::I64) {return convAny64(conv,itm.place,var); },
 		varcase(const parse::ExprType::NUMERAL_U64) {return convAny64(conv,itm.place,var); },
 		varcase(const parse::ExprType::NUMERAL_I128) {return convAny128(conv,itm.place,var); },
 		varcase(const parse::ExprType::NUMERAL_U128) {return convAny128(conv,itm.place,var); },

@@ -285,7 +285,7 @@ namespace slu::parse
 		struct LITERAL_STRING { std::string v; Position end; };	// "LiteralString"
 		struct NUMERAL { double v; };							// "Numeral"
 
-		struct NUMERAL_I64 { int64_t v; };            // "Numeral"
+		struct I64 { int64_t v; };            // "Numeral"
 
 		//u64,i128,u128, for slu only
 		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
@@ -320,7 +320,7 @@ namespace slu::parse
 	{
 		uint64_t lo = 0; uint64_t hi = 0;
 		constexpr TupleName() = default;
-		constexpr TupleName(ExprType::NUMERAL_I64 v)
+		constexpr TupleName(ExprType::I64 v)
 			:lo(v.v) {}
 		constexpr TupleName(ExprType::NUMERAL_U64 v)
 			: lo(v.v) {}
@@ -337,7 +337,7 @@ namespace slu::parse
 	template<class T>
 	concept Any64BitInt =
 		std::same_as<T, ExprType::NUMERAL_U64>
-		|| std::same_as<T, ExprType::NUMERAL_I64>;
+		|| std::same_as<T, ExprType::I64>;
 
 	using Lifetime = std::vector<MpItmIdV<true>>;
 	struct UnOpItem
@@ -488,7 +488,7 @@ namespace slu::parse
 		ExprType::FALSE,                // "false"
 		ExprType::TRUE,                 // "true"
 		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
-		ExprType::NUMERAL_I64,			// "Numeral"
+		ExprType::I64,			// "Numeral"
 
 		ExprType::LITERAL_STRING,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
