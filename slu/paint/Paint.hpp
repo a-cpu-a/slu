@@ -234,7 +234,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::IfCond<Se>&) {
 			paintIfCond<true>(se, var);
 		},
-		varcase(const parse::ExprType::LIFETIME&) {
+		varcase(const parse::ExprType::Lifetime&) {
 			if constexpr (Se::settings() & sluSyn)
 				paintLifetime(se, var);
 		},

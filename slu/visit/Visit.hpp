@@ -351,7 +351,7 @@ namespace slu::visit
 			visitLimPrefixExpr(vi, *var.val);
 			visitArgChain(vi, var.argChain);
 		},
-		varcase(parse::ExprType::LIFETIME&) {
+		varcase(parse::ExprType::Lifetime&) {
 			visitLifetime(vi,var);
 		},
 		varcase(parse::ExprType::TABLE_CONSTRUCTOR<Vi>&) {

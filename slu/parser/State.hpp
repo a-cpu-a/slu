@@ -451,7 +451,7 @@ namespace slu::parse
 		Slu_DEF_CFG(IfCond);
 
 
-		using LIFETIME = Lifetime;	// " '/' var" {'/' var"}
+		using parse::Lifetime;	// " '/' var" {'/' var"}
 		using TRAIT_EXPR = TraitExpr;
 
 		struct PAT_TYPE_PREFIX {};
@@ -510,7 +510,7 @@ namespace slu::parse
 		ExprType::I128,			// "Numeral"
 		ExprType::U128,			// "Numeral"
 
-		ExprType::LIFETIME,
+		ExprType::Lifetime,
 		ExprType::TRAIT_EXPR,
 
 		ExprType::PAT_TYPE_PREFIX,

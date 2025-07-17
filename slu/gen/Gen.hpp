@@ -361,7 +361,7 @@ namespace slu::parse
 		varcase(const ExprType::OpenRange) {
 			out.add("..");
 		},
-		varcase(const ExprType::LIFETIME&) {
+		varcase(const ExprType::Lifetime&) {
 			if constexpr (Out::settings() & sluSyn)
 				genLifetime(out, var);
 		},

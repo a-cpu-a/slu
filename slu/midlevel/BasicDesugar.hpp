@@ -614,7 +614,7 @@ namespace slu::mlvl
 						{
 							parse::Expression<Cfg> lifetimeExpr;
 							lifetimeExpr.place = place;
-							lifetimeExpr.data = parse::ExprType::LIFETIME{ std::move(*lifetime) };
+							lifetimeExpr.data = parse::ExprType::Lifetime{ std::move(*lifetime) };
 							list.v.emplace_back(std::move(lifetimeExpr));
 						}
 						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
