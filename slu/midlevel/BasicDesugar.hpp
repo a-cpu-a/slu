@@ -241,7 +241,7 @@ namespace slu::mlvl
 			parse::ExpressionV<true> te= ezmatch(spec)(
 			varcase(parse::DestrSpecType::Prefix&) 
 			{
-				auto res = parse::BaseExpressionV<true>{ parse::ExprType::Inferr{},place};
+				auto res = parse::BaseExprV<true>{ parse::ExprType::Inferr{},place};
 				res.unOps = std::move(var);
 
 				return parse::ExpressionV<true>{std::move(res)};
@@ -329,7 +329,7 @@ namespace slu::mlvl
 				varcase(const parse::PatType::DestrAny) {
 					addCanonicVarStat<isLocal>(out, first, itm,
 						false, 
-						{ parse::BaseExpressionV<true>{ parse::ExprType::Inferr{},stat.place } },
+						{ parse::BaseExprV<true>{ parse::ExprType::Inferr{},stat.place } },
 						getSynVarName<isLocal>(),
 						std::move(expr));
 				},

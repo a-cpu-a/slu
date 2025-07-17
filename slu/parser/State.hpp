@@ -520,26 +520,26 @@ namespace slu::parse
 
 
 	template<bool isSlu>
-	struct BaseExpressionV
+	struct BaseExprV
 	{
 		ExprDataV<isSlu> data;
 		Position place;
 		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 
-		BaseExpressionV() = default;
-		BaseExpressionV(ExprDataV<isSlu>&& data):data(std::move(data)) {}
-		BaseExpressionV(ExprDataV<isSlu>&& data,Position place):data(std::move(data)),place(place) {}
+		BaseExprV() = default;
+		BaseExprV(ExprDataV<isSlu>&& data):data(std::move(data)) {}
+		BaseExprV(ExprDataV<isSlu>&& data,Position place):data(std::move(data)),place(place) {}
 
-		BaseExpressionV(const BaseExpressionV&) = delete;
-		BaseExpressionV(BaseExpressionV&&) = default;
-		BaseExpressionV& operator=(BaseExpressionV&&) = default;
+		BaseExprV(const BaseExprV&) = delete;
+		BaseExprV(BaseExprV&&) = default;
+		BaseExprV& operator=(BaseExprV&&) = default;
 	};
 
 	template<bool isSlu>
-	struct ExpressionV : BaseExpressionV<isSlu>
+	struct ExpressionV : BaseExprV<isSlu>
 	{};
 	template<>
-	struct ExpressionV<true> : BaseExpressionV<true>
+	struct ExpressionV<true> : BaseExprV<true>
 	{
 		SmallEnumList<PostUnOpType> postUnOps;
 
