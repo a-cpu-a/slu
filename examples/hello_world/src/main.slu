@@ -3,6 +3,8 @@
 --fn _println(&:>::std::str text) -> void;
 
 safe extern "C" {
+	--TODO: unhack &str into something like libc::Cstring.
+	--TODO: unhack i32 into something like libc::Cint.
 	fn puts(&:>::std::str line) -> :>::std::i32;
 }
 

@@ -351,7 +351,6 @@ namespace slu::comp::mico
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
 
-
 		return ezmatch(itm.data)(
 
 		varcase(const auto&)->mlir::Value {
