@@ -60,10 +60,10 @@ namespace slu::mlvl
 			throw std::runtime_error("TODO: resolve ERR type expressions.");
 		},
 
-		varcase(parse::ExprType::FUNC_CALLv<true>&&)->parse::ResolvedType {
+		varcase(parse::ExprType::FuncCallV<true>&&)->parse::ResolvedType {
 			//TODO: resolve basic ops, jit all else.
 			if(var.argChain.size() != 1)
-				throw std::runtime_error("TODO: resolve complex FUNC_CALL type expressions.");
+				throw std::runtime_error("TODO: resolve complex FuncCall type expressions.");
 
 			throw std::runtime_error("TODO: resolve func-call type expressions.");
 		},

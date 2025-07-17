@@ -489,7 +489,7 @@ namespace slu::mlvl
 						auto& expr1 = expStack.back();
 						parse::Position place = expr1.place;
 
-						parse::ExprType::FUNC_CALL<Cfg> call;
+						parse::ExprType::FuncCall<Cfg> call;
 						parse::ArgsType::EXPLIST<Cfg> list;
 						if constexpr (forType)
 						{
@@ -603,7 +603,7 @@ namespace slu::mlvl
 									});
 							}
 						}
-						parse::ExprType::FUNC_CALL<Cfg> call;
+						parse::ExprType::FuncCall<Cfg> call;
 						parse::ArgsType::EXPLIST<Cfg> list;
 						if constexpr (forType)
 							list.v.emplace_back(wrapTypeExpr(std::move(expr)));

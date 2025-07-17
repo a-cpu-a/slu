@@ -276,9 +276,8 @@ namespace slu::parse
 		using LimPrefixExprV = std::unique_ptr<parse::LimPrefixExprV<isSlu>>;	// "prefixexp"
 		Slu_DEF_CFG(LimPrefixExpr);
 
-		template<bool isSlu>
-		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
-		Slu_DEF_CFG_CAPS(FUNC_CALL);
+		using parse::FuncCallV;
+		using parse::FuncCall;
 
 		struct OpenRange {};					// ".."
 
@@ -352,11 +351,11 @@ namespace slu::parse
 	namespace TraitExprItemType
 	{
 		using LimPrefixExpr = std::unique_ptr<LimPrefixExprV<true>>;
-		using FUNC_CALL = FuncCallV<true>;
+		using FuncCall = FuncCallV<true>;
 	}
 	using TraitExprItem = std::variant<
 		TraitExprItemType::LimPrefixExpr,
-		TraitExprItemType::FUNC_CALL
+		TraitExprItemType::FuncCall
 	>;
 	struct TraitExpr
 	{
@@ -495,7 +494,7 @@ namespace slu::parse
 		ExprType::VARARGS,              // "..." (varargs)
 		ExprType::FUNCTION_DEFv<isSlu>,			// "functiondef"
 		ExprType::LimPrefixExprV<isSlu>,		// "prefixexp"
-		ExprType::FUNC_CALLv<isSlu>,			// "prefixexp argsThing {argsThing}"
+		ExprType::FuncCallV<isSlu>,			// "prefixexp argsThing {argsThing}"
 		ExprType::TABLE_CONSTRUCTORv<isSlu>,	// "tableconstructor"
 
 		ExprType::MULTI_OPERATIONv<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
@@ -837,9 +836,9 @@ namespace slu::parse
 		struct ASSIGNv { std::vector<VarV<isSlu>> vars; ExpListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG_CAPS(ASSIGN);
 
-		template<bool isSlu>
-		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
-		Slu_DEF_CFG_CAPS(FUNC_CALL);
+		using parse::FuncCallV;
+		using parse::FuncCall;
+
 
 		template<bool isSlu>
 		struct LABELv { MpItmIdV<isSlu> v; };		// "label"
@@ -1027,7 +1026,7 @@ namespace slu::parse
 		StatementType::CanonicLocal,
 		StatementType::CanonicGlobal,
 
-		StatementType::FUNC_CALLv<isSlu>,		// "functioncall"
+		StatementType::FuncCallV<isSlu>,		// "functioncall"
 		StatementType::LABELv<isSlu>,			// "label"
 		StatementType::BREAK,					// "break"
 		StatementType::GOTOv<isSlu>,			// "goto Name"

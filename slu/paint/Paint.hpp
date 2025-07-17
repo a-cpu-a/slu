@@ -251,7 +251,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::FUNCTION_DEF<Se>&) {
 			paintFuncDef(se, var.v, parse::MpItmId<Se>::newEmpty(), false);
 		},
-		varcase(const parse::ExprType::FUNC_CALL<Se>&) {
+		varcase(const parse::ExprType::FuncCall<Se>&) {
 			paintLimPrefixExpr<nameTok>(se, *var.val);
 			paintArgChain(se, var.argChain);
 		},
@@ -603,7 +603,7 @@ namespace slu::paint
 		for (const parse::TraitExprItem& i : itm.traitCombo)
 		{
 			ezmatch(i)(
-			varcase(const parse::TraitExprItemType::FUNC_CALL&) {
+			varcase(const parse::TraitExprItemType::FuncCall&) {
 				paintLimPrefixExpr<Tok::NAME_TRAIT>(se, *var.val);
 				paintArgChain(se, var.argChain);
 			},
@@ -942,7 +942,7 @@ namespace slu::paint
 		varcase(const parse::StatementType::IfCond<Se>&) {
 			paintIfCond<false>(se, var);
 		},
-		varcase(const parse::StatementType::FUNC_CALL<Se>&) {
+		varcase(const parse::StatementType::FuncCall<Se>&) {
 			paintLimPrefixExpr<Tok::NAME>(se, *var.val);
 			paintArgChain(se, var.argChain);
 		},

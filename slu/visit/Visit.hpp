@@ -347,7 +347,7 @@ namespace slu::visit
 		varcase(parse::ExprType::LimPrefixExpr<Vi>&) {
 			visitLimPrefixExpr(vi, *var);
 		},
-		varcase(parse::ExprType::FUNC_CALL<Vi>&) {
+		varcase(parse::ExprType::FuncCall<Vi>&) {
 			visitLimPrefixExpr(vi, *var.val);
 			visitArgChain(vi, var.argChain);
 		},
@@ -526,7 +526,7 @@ namespace slu::visit
 			visitExprList(vi, var.exprs);
 			Slu_CALL_VISIT_FN_POST_VAR(ConstVar);
 		},
-		varcase(parse::StatementType::FUNC_CALL<Vi>&) {
+		varcase(parse::StatementType::FuncCall<Vi>&) {
 			visitLimPrefixExpr(vi, *var.val);
 			visitArgChain(vi, var.argChain);
 		},

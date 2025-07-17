@@ -238,7 +238,7 @@ namespace slu::comp::mico
 		{
 			return tryConvBuiltinType(conv, abi, *var, false);
 		},
-		varcase(const parse::ExprType::FUNC_CALLv<true>&)
+		varcase(const parse::ExprType::FuncCallV<true>&)
 		{
 			if(var.argChain.size()!=1)
 				throw std::runtime_error("Unimplemented type expression: function call with multiple layers (mlir conversion)");
@@ -580,7 +580,7 @@ namespace slu::comp::mico
 			builder.create<mlir::memref::StoreOp>(loc, convExpr(conv, var.exprs[0], ""sv), memRef, mlir::ValueRange{ zeroIndex }, false);
 
 		},
-			varcase(const parse::StatementType::FUNC_CALLv<true>&) {
+			varcase(const parse::StatementType::FuncCallV<true>&) {
 
 			auto& varInfo = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v.base;
 			auto name = std::get<parse::BaseVarType::NAMEv<true>>(varInfo);

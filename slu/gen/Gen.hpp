@@ -248,7 +248,7 @@ namespace slu::parse
 			for (const TraitExprItem& i : obj.traitCombo)
 			{
 				ezmatch(i)(
-				varcase(const TraitExprItemType::FUNC_CALL&) {
+				varcase(const TraitExprItemType::FuncCall&) {
 					genFuncCall(out, var);
 				},
 				varcase(const TraitExprItemType::LimPrefixExpr&) {
@@ -339,7 +339,7 @@ namespace slu::parse
 			out.add("function ");
 			genFuncDef(out, var.v,""sv);
 		},
-		varcase(const ExprType::FUNC_CALL<Out>&) {
+		varcase(const ExprType::FuncCall<Out>&) {
 			genFuncCall(out, var);
 		},
 		varcase(const ExprType::LimPrefixExpr<Out>&) {
@@ -923,7 +923,7 @@ namespace slu::parse
 			}
 		},
 
-		varcase(const StatementType::FUNC_CALL<Out>&) {
+		varcase(const StatementType::FuncCall<Out>&) {
 			genFuncCall(out, var);
 			out.addNewl(';');
 			out.wasSemicolon = true;
