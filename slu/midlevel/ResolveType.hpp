@@ -91,12 +91,12 @@ namespace slu::mlvl
 					res.fieldNames.emplace_back("0x" + parse::u64ToStr(idx++));
 					res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi)));
 				},
-				ezcase(parse::FieldType::NAME2EXPRv<true>&& fi) {
+				ezcase(parse::FieldType::Name2ExprV<true>&& fi) {
 					res.fieldNames.emplace_back(fi.idx.asSv(mpDb));
 					res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi.v)));
 				},
-				ezcase(parse::FieldType::EXPR2EXPRv<true>&& fi) {
-					throw std::runtime_error("FieldType::EXPR2EXPRv type resolution: TODO not implemented: jit the expression");
+				ezcase(parse::FieldType::Expr2ExprV<true>&& fi) {
+					throw std::runtime_error("FieldType::Expr2ExprV type resolution: TODO not implemented: jit the expression");
 				},
 				ezcase(const parse::FieldType::NONE _) {
 					throw std::runtime_error("FieldType::NONE should not exist in struct type expression.");

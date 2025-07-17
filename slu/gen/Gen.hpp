@@ -153,14 +153,14 @@ namespace slu::parse
 			ezmatch(f)(
 			varcase(const FieldType::NONE) { _ASSERT(false); },
 
-			varcase(const FieldType::EXPR2EXPR<Out>&) {
+			varcase(const FieldType::Expr2Expr<Out>&) {
 				out.addIndent();
 				out.add('[');
 				genExpr(out, var.idx);
 				out.add("] = ");
 				genExpr(out, var.v);
 			},
-			varcase(const FieldType::NAME2EXPR<Out>&) {
+			varcase(const FieldType::Name2Expr<Out>&) {
 				out.addIndent();
 				out.add(out.db.asSv(var.idx))
 					.add(" = ");

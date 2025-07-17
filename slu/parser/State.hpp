@@ -93,11 +93,11 @@ namespace slu::parse
 	namespace FieldType
 	{
 		//For lua only!
-		template<bool isSlu> struct EXPR2EXPRv;
-		Slu_DEF_CFG_CAPS(EXPR2EXPR);
+		template<bool isSlu> struct Expr2ExprV;
+		Slu_DEF_CFG(Expr2Expr);
 
-		template<bool isSlu> struct NAME2EXPRv;
-		Slu_DEF_CFG_CAPS(NAME2EXPR);
+		template<bool isSlu> struct Name2ExprV;
+		Slu_DEF_CFG(Name2Expr);
 
 		using parse::ExprV;
 		using parse::Expr;
@@ -151,8 +151,8 @@ namespace slu::parse
 	using FieldV = std::variant<
 		FieldType::NONE,// Here, so variant has a default value (DO NOT USE)
 
-		FieldType::EXPR2EXPRv<isSlu>, // "'[' exp ']' = exp"
-		FieldType::NAME2EXPRv<isSlu>, // "Name = exp"
+		FieldType::Expr2ExprV<isSlu>, // "'[' exp ']' = exp"
+		FieldType::Name2ExprV<isSlu>, // "Name = exp"
 		FieldType::ExprV<isSlu>       // "exp"
 	>;
 	Slu_DEF_CFG(Field);
@@ -747,10 +747,10 @@ namespace slu::parse
 	namespace FieldType
 	{
 		template<bool isSlu>
-		struct EXPR2EXPRv { parse::ExprV<isSlu> idx; parse::ExprV<isSlu> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		struct Expr2ExprV { parse::ExprV<isSlu> idx; parse::ExprV<isSlu> v; };		// "‘[’ exp ‘]’ ‘=’ exp"
 
 		template<bool isSlu>
-		struct NAME2EXPRv { MpItmIdV<isSlu> idx; parse::ExprV<isSlu> v; };	// "Name ‘=’ exp"
+		struct Name2ExprV { MpItmIdV<isSlu> idx; parse::ExprV<isSlu> v; };	// "Name ‘=’ exp"
 	}
 	namespace LimPrefixExprType
 	{

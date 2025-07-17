@@ -461,10 +461,10 @@ namespace slu::visit
 			varcase(parse::FieldType::Expr<Vi>&) {
 				visitExpr(vi, var);
 			},
-			varcase(parse::FieldType::EXPR2EXPR<Vi>&) {
+			varcase(parse::FieldType::Expr2Expr<Vi>&) {
 				visitExpr(vi, var.idx); visitExpr(vi, var.v);
 			},
-			varcase(parse::FieldType::NAME2EXPR<Vi>&) {
+			varcase(parse::FieldType::Name2Expr<Vi>&) {
 				visitExpr(vi, var.v);
 			}
 			);

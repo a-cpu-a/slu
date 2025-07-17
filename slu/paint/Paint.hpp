@@ -136,14 +136,14 @@ namespace slu::paint
 	inline void paintField(Se& se, const parse::Field<Se>& itm)
 	{
 		ezmatch(itm)(
-		varcase(const parse::FieldType::EXPR2EXPR<Se>&) {
+		varcase(const parse::FieldType::Expr2Expr<Se>&) {
 			paintKw<Tok::PUNCTUATION>(se, "[");
 			paintExpr(se, var.idx);
 			paintKw<Tok::PUNCTUATION>(se, "]");
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExpr<nameTok>(se, var.v);
 		},
-		varcase(const parse::FieldType::NAME2EXPR<Se>&) {
+		varcase(const parse::FieldType::Name2Expr<Se>&) {
 			paintName<Tok::NAME_TABLE>(se, var.idx);
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExpr<nameTok>(se, var.v);

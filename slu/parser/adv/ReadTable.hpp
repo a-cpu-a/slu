@@ -32,7 +32,7 @@ namespace slu::parse
 		{
 			if (checkReadToken(in, "["))
 			{
-				FieldType::EXPR2EXPR<In> res{};
+				FieldType::Expr2Expr<In> res{};
 
 				res.idx = readExpr(in, allowVarArg);
 
@@ -59,7 +59,7 @@ namespace slu::parse
 				skipSpace(in);
 				in.skip();// '='
 
-				return FieldType::NAME2EXPR<In>(name, readExpr(in,allowVarArg));
+				return FieldType::Name2Expr<In>(name, readExpr(in,allowVarArg));
 			}
 		}
 
