@@ -571,7 +571,7 @@ namespace slu::visit
 			visitBlock(vi, var.bl);
 			visitExpr(vi, var.cond);
 		},
-		varcase(parse::StatementType::FOR_LOOP_NUMERIC<Vi>&) {
+		varcase(parse::StatementType::ForNum<Vi>&) {
 			visitPat<true>(vi, var.varName);
 			visitExpr(vi, var.start);
 			visitExpr(vi, var.end);
@@ -579,7 +579,7 @@ namespace slu::visit
 				visitExpr(vi, *var.step);
 			visitBlock(vi, var.bl);
 		},
-		varcase(parse::StatementType::FOR_LOOP_GENERIC<Vi>&) {
+		varcase(parse::StatementType::ForIn<Vi>&) {
 			visitPat<true>(vi, var.varNames);
 			visitExpr(vi, var.exprs);
 			visitBlock(vi, var.bl);

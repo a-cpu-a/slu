@@ -849,7 +849,7 @@ namespace slu::parse
 
 		// "for Name = exp , exp [, exp] do block end"
 		template<bool isSlu>
-		struct FOR_LOOP_NUMERICv
+		struct ForNumV
 		{
 			Sel<isSlu, MpItmIdV<isSlu>, PatV<true,true>> varName;
 			ExprV<isSlu> start;
@@ -857,17 +857,17 @@ namespace slu::parse
 			std::optional<ExprV<isSlu>> step;
 			BlockV<isSlu> bl;
 		};
-		Slu_DEF_CFG_CAPS(FOR_LOOP_NUMERIC);
+		Slu_DEF_CFG(ForNum);
 
 		// "for namelist in explist do block end"
 		template<bool isSlu>
-		struct FOR_LOOP_GENERICv
+		struct ForInV
 		{
 			Sel<isSlu, NameListV<isSlu>, PatV<true, true>> varNames;
 			Sel<isSlu, ExprListV<isSlu>, ExprV<isSlu>> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
-		Slu_DEF_CFG_CAPS(FOR_LOOP_GENERIC);
+		Slu_DEF_CFG_CAPS(ForIn);
 
 		template<bool isSlu>
 		struct FuncDefBase
@@ -1018,8 +1018,8 @@ namespace slu::parse
 
 		StatementType::IfCondV<isSlu>,	// "if exp then block {elseif exp then block} [else block] end"
 
-		StatementType::FOR_LOOP_NUMERICv<isSlu>,	// "for Name = exp , exp [, exp] do block end"
-		StatementType::FOR_LOOP_GENERICv<isSlu>,	// "for namelist in explist do block end"
+		StatementType::ForNumV<isSlu>,	// "for Name = exp , exp [, exp] do block end"
+		StatementType::ForInV<isSlu>,	// "for namelist in explist do block end"
 
 		StatementType::LOCAL_FUNCTION_DEFv<isSlu>,	// "local function Name funcbody"
 		StatementType::FunctionV<isSlu>,		// "function funcname funcbody"

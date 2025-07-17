@@ -432,7 +432,7 @@ namespace slu::parse
 					isNumeric = names.size() == 1 && checkReadToken(in, "=");
 				if (isNumeric)
 				{
-					StatementType::FOR_LOOP_NUMERIC<In> res{};
+					StatementType::ForNum<In> res{};
 					if constexpr (In::settings() & sluSyn)
 						res.varName = std::move(names);
 					else
@@ -456,7 +456,7 @@ namespace slu::parse
 				// Generic Loop
 				// for namelist in explist do block end | 
 
-				StatementType::FOR_LOOP_GENERIC<In> res{};
+				StatementType::ForIn<In> res{};
 				res.varNames = std::move(names);
 
 				requireToken(in, "in");

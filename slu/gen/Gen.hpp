@@ -992,7 +992,7 @@ namespace slu::parse
 			out.newLine();//Extra spacing
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::FOR_LOOP_NUMERIC<Out>&) {
+		varcase(const StatementType::ForNum<Out>&) {
 
 			out.add("for ");
 			if constexpr (Out::settings() & sluSyn)
@@ -1019,7 +1019,7 @@ namespace slu::parse
 			out.unTabNewl()
 				.addNewl(sel<Out>("end", "}"));
 		},
-		varcase(const StatementType::FOR_LOOP_GENERIC<Out>&) {
+		varcase(const StatementType::ForIn<Out>&) {
 			out.add("for ");
 			if constexpr (Out::settings() & sluSyn)
 				genPat<true>(out, var.varNames);
