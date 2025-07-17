@@ -296,10 +296,10 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Expr);
 		visitUnOps(vi, itm.unOps);
 		ezmatch(itm.data)(
-		varcase(const parse::ExprType::FALSE) {
+		varcase(const parse::ExprType::False) {
 			Slu_CALL_VISIT_FN_PRE_VAR(False);
 		},
-		varcase(const parse::ExprType::TRUE) {
+		varcase(const parse::ExprType::True) {
 			Slu_CALL_VISIT_FN_PRE_VAR(True);
 		},
 		varcase(const parse::ExprType::Nil) {

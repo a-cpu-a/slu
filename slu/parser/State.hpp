@@ -21,8 +21,6 @@
 #include "Input.hpp"
 
 //for enums...
-#undef FALSE
-#undef TRUE
 #undef CONST
 
 namespace slu::parse
@@ -420,8 +418,8 @@ namespace slu::parse
 	namespace ExprType
 	{
 		using Nil = std::monostate;								// "nil"
-		struct FALSE {};										// "false"
-		struct TRUE {};											// "true"
+		struct False {};										// "false"
+		struct True {};											// "true"
 		struct VARARGS {};										// "..."
 
 		template<bool isSlu>
@@ -483,8 +481,8 @@ namespace slu::parse
 	template<bool isSlu>
 	using ExprDataV = std::variant <
 		ExprType::Nil,                  // "nil"
-		ExprType::FALSE,                // "false"
-		ExprType::TRUE,                 // "true"
+		ExprType::False,                // "false"
+		ExprType::True,                 // "true"
 		ExprType::F64,				// "Numeral" (e.g., a floating-point number)
 		ExprType::I64,			// "Numeral"
 

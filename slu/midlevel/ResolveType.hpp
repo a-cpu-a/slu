@@ -161,8 +161,8 @@ namespace slu::mlvl
 		throw std::runtime_error("Invalid slu " _MSG ", index:" #__VA_ARGS__ "."); \
 	}
 
-		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::TRUE),
-		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::FALSE),
+		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::True),
+		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::False),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::Nil),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::VARARGS),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::PAT_TYPE_PREFIX),

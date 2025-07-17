@@ -305,10 +305,10 @@ namespace slu::parse
 		varcase(const ExprType::Nil) {
 			out.add("nil"sv);
 		},
-		varcase(const ExprType::FALSE) {
+		varcase(const ExprType::False) {
 			out.add("false"sv);
 		},
-		varcase(const ExprType::TRUE) {
+		varcase(const ExprType::True) {
 			out.add("true"sv);
 		},
 		varcase(const ExprType::VARARGS) {

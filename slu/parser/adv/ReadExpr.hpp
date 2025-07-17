@@ -216,7 +216,7 @@ namespace slu::parse
 			} else {
 				if (checkReadTextToken(in, "false")) 
 				{
-					basicRes.data = ExprType::FALSE(); 
+					basicRes.data = ExprType::False();
 					break;
 				}
 			}
@@ -277,7 +277,7 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "true")) 
 				{
-					basicRes.data = ExprType::TRUE(); 
+					basicRes.data = ExprType::True(); 
 					break; 
 				}
 			}
