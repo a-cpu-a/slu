@@ -213,7 +213,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::OPEN_RANGE) {
 			paintKw<Tok::RANGE>(se, "..");
 		},
-		varcase(const parse::ExprType::LITERAL_STRING&) {
+		varcase(const parse::ExprType::String&) {
 			paintString(se, var.v,var.end,tint);
 		},
 		varcase(const parse::ExprType::NUMERAL) {

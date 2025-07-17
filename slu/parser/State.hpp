@@ -282,7 +282,7 @@ namespace slu::parse
 
 		struct OPEN_RANGE {};					// ".."
 
-		struct LITERAL_STRING { std::string v; Position end; };	// "LiteralString"
+		struct String { std::string v; Position end; };	// "LiteralString"
 		struct NUMERAL { double v; };							// "Numeral"
 
 		// "Numeral"
@@ -491,7 +491,7 @@ namespace slu::parse
 		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
 		ExprType::I64,			// "Numeral"
 
-		ExprType::LITERAL_STRING,		// "LiteralString"
+		ExprType::String,		// "LiteralString"
 		ExprType::VARARGS,              // "..." (varargs)
 		ExprType::FUNCTION_DEFv<isSlu>,			// "functiondef"
 		ExprType::LIM_PREFIX_EXPv<isSlu>,		// "prefixexp"

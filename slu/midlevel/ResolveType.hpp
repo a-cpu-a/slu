@@ -22,7 +22,7 @@ namespace slu::mlvl
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve open range type expressions.");
 		},
-		varcase(parse::ExprType::LITERAL_STRING&&){
+		varcase(parse::ExprType::String&&){
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::String{std::move(var.v)});
 		},
 		varcase(const parse::ExprType::I64){

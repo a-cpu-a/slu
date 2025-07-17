@@ -332,7 +332,7 @@ namespace slu::parse
 				out.add(std::to_string(var));
 		},
 
-		varcase(const ExprType::LITERAL_STRING&) {
+		varcase(const ExprType::String&) {
 			genLiteral(out,var.v);
 		},
 		varcase(const ExprType::FUNCTION_DEF<Out>&) {

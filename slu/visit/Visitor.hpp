@@ -83,7 +83,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_AUTO(FunctionInfo);
 		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
 		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expression<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::LITERAL_STRING);
+		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::String);
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MULTI_OPERATION<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TraitExpr, parse::TraitExpr);
 		_Slu_DEF_EMPTY_PRE_POST(Table, parse::TableConstructor<Cfg>);

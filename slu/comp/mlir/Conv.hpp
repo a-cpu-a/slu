@@ -366,7 +366,7 @@ namespace slu::comp::mico
 		varcase(const parse::ExprType::LIM_PREFIX_EXPv<true>&)->mlir::Value {
 			return convLimPrefixExpr(conv,itm.place,*var,abi);
 		},
-		varcase(const parse::ExprType::LITERAL_STRING&)->mlir::Value {
+		varcase(const parse::ExprType::String&)->mlir::Value {
 		
 			auto i8Type = builder.getIntegerType(8);
 			auto i64Type = builder.getIntegerType(64);

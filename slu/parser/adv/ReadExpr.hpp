@@ -318,7 +318,7 @@ namespace slu::parse
 			if constexpr(In::settings()&sluSyn)
 			{
 				if (firstChar!='[' || in.peekAt(1) == '=')// [=....
-					basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar),in.getLoc());
+					basicRes.data = ExprType::String(readStringLiteral(in, firstChar),in.getLoc());
 				else
 				{// must be a slicer [x]
 					in.skip();
@@ -331,7 +331,7 @@ namespace slu::parse
 				}
 			}
 			else
-				basicRes.data = ExprType::LITERAL_STRING(readStringLiteral(in, firstChar), in.getLoc());
+				basicRes.data = ExprType::String(readStringLiteral(in, firstChar), in.getLoc());
 
 			break;
 		case '{':
