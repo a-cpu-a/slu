@@ -342,7 +342,7 @@ namespace slu::parse
 				return basicRes;
 			}
 			else
-				basicRes.data = ExprType::TABLE_CONSTRUCTOR<In>(readTableConstructor(in,allowVarArg));
+				basicRes.data = ExprType::Table<In>(readTableConstructor(in,allowVarArg));
 			break;
 		}
 		if (!isNilIntentional

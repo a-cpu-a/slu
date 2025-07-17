@@ -426,8 +426,8 @@ namespace slu::parse
 		using parse::Function;
 
 		template<bool isSlu>
-		struct TABLE_CONSTRUCTORv { TableConstructorV<isSlu> v; };	// "tableconstructor"
-		Slu_DEF_CFG_CAPS(TABLE_CONSTRUCTOR);
+		struct TableV { TableConstructorV<isSlu> v; };	// "tableconstructor"
+		Slu_DEF_CFG(Table);
 
 		//unOps is always empty for this type
 		template<bool isSlu>
@@ -490,7 +490,7 @@ namespace slu::parse
 		ExprType::FunctionV<isSlu>,			// "functiondef"
 		ExprType::LimPrefixExprV<isSlu>,		// "prefixexp"
 		ExprType::FuncCallV<isSlu>,			// "prefixexp argsThing {argsThing}"
-		ExprType::TABLE_CONSTRUCTORv<isSlu>,	// "tableconstructor"
+		ExprType::TableV<isSlu>,	// "tableconstructor"
 
 		ExprType::MULTI_OPERATIONv<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
@@ -549,7 +549,7 @@ namespace slu::parse
 		bool isBasicStruct() const {
 			if(!this->unOps.empty() || !this->postUnOps.empty())
 				return false;
-			return std::holds_alternative<ExprType::TABLE_CONSTRUCTORv<true>>(this->data);
+			return std::holds_alternative<ExprType::TableV<true>>(this->data);
 		}
 	};
 

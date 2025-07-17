@@ -76,7 +76,7 @@ namespace slu::mlvl
 			//TODO
 			throw std::runtime_error("TODO: resolve slice type expressions.");
 		},
-		varcase(parse::ExprType::TABLE_CONSTRUCTORv<true>&&) {
+		varcase(parse::ExprType::TableV<true>&&) {
 			parse::StructRawType& res = *(new parse::StructRawType());
 			res.name = lang::MpItmIdV<true>::newEmpty();
 			res.fieldNames.reserve(var.v.size());

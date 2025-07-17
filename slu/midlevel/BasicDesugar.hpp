@@ -311,7 +311,7 @@ namespace slu::mlvl
 				exprStack.emplace_back(std::move(itm.exprs[0].data));
 			else
 			{
-				exprStack.emplace_back(parse::ExprType::TABLE_CONSTRUCTOR<Cfg>{
+				exprStack.emplace_back(parse::ExprType::Table<Cfg>{
 					.v = parse::mkTbl(std::move(itm.exprs))
 				});
 			}

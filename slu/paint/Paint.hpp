@@ -242,7 +242,7 @@ namespace slu::paint
 			if constexpr (Se::settings() & sluSyn)
 				paintTraitExpr(se, var);
 		},
-		varcase(const parse::ExprType::TABLE_CONSTRUCTOR<Se>&) {
+		varcase(const parse::ExprType::Table<Se>&) {
 			paintTable<nameTok>(se, var.v);
 		},
 		varcase(const parse::ExprType::LimPrefixExpr<Se>&) {

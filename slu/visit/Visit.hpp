@@ -354,7 +354,7 @@ namespace slu::visit
 		varcase(parse::ExprType::Lifetime&) {
 			visitLifetime(vi,var);
 		},
-		varcase(parse::ExprType::TABLE_CONSTRUCTOR<Vi>&) {
+		varcase(parse::ExprType::Table<Vi>&) {
 			visitTable(vi,var.v);
 		},
 		varcase(parse::ExprType::Function<Vi>&) {

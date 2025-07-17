@@ -345,7 +345,7 @@ namespace slu::parse
 		varcase(const ExprType::LimPrefixExpr<Out>&) {
 			genLimPrefixExpr(out, *var);
 		},
-		varcase(const ExprType::TABLE_CONSTRUCTOR<Out>&) {
+		varcase(const ExprType::Table<Out>&) {
 			genTableConstructor(out, var.v);
 		},
 		varcase(const ExprType::MULTI_OPERATION<Out>&) {
