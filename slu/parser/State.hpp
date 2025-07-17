@@ -288,7 +288,7 @@ namespace slu::parse
 		struct I64 { int64_t v; };            // "Numeral"
 
 		//u64,i128,u128, for slu only
-		struct NUMERAL_U64 { uint64_t v; };						// "Numeral"
+		struct U64 { uint64_t v; };						// "Numeral"
 		struct NUMERAL_U128
 		{ // "Numeral"
 			uint64_t lo = 0;
@@ -322,7 +322,7 @@ namespace slu::parse
 		constexpr TupleName() = default;
 		constexpr TupleName(ExprType::I64 v)
 			:lo(v.v) {}
-		constexpr TupleName(ExprType::NUMERAL_U64 v)
+		constexpr TupleName(ExprType::U64 v)
 			: lo(v.v) {}
 		constexpr TupleName(ExprType::NUMERAL_I128 v)
 			: lo(v.lo), hi(v.hi) {}
@@ -336,7 +336,7 @@ namespace slu::parse
 		|| std::same_as<T, ExprType::NUMERAL_I128>;
 	template<class T>
 	concept Any64BitInt =
-		std::same_as<T, ExprType::NUMERAL_U64>
+		std::same_as<T, ExprType::U64>
 		|| std::same_as<T, ExprType::I64>;
 
 	using Lifetime = std::vector<MpItmIdV<true>>;
@@ -505,7 +505,7 @@ namespace slu::parse
 
 		ExprType::OPEN_RANGE,			// ".."
 
-		ExprType::NUMERAL_U64,			// "Numeral"
+		ExprType::U64,			// "Numeral"
 		ExprType::NUMERAL_I128,			// "Numeral"
 		ExprType::NUMERAL_U128,			// "Numeral"
 

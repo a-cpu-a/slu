@@ -318,7 +318,7 @@ namespace slu::visit
 		varcase(const parse::ExprType::NUMERAL_I128) {
 			//TODO
 		},
-		varcase(const parse::ExprType::NUMERAL_U64) {
+		varcase(const parse::ExprType::U64) {
 			//TODO
 		},
 		varcase(const parse::ExprType::NUMERAL_U128) {
