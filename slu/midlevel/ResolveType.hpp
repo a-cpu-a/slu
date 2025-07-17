@@ -119,28 +119,18 @@ namespace slu::mlvl
 					continue;
 				}
 
-				res.fieldOffsets.push_back(fieldOffset);
-				fieldOffset += resField.bitSizeByteCeil();
+				res.fieldOffsets.push_back((fieldOffset + 7)& (~0b111));//ceil to byte boundary.
+				fieldOffset += resField.size;
 			}
 
 			size_t resSize = parse::ResolvedType::INCOMPLETE_MARK;
 			bool resSizeInBits = false;
 			if (fieldOffset != SIZE_MAX)
-			{
-				if (res.fields.size() == 1)
-				{
-					parse::ResolvedType& field = res.fields[0];
-					resSize = field.size;
-					resSizeInBits = field.sizeInBits;
-				}
-				else
-					resSize = fieldOffset / 8;
-			}
+				resSize = fieldOffset;
 
 			return parse::ResolvedType{
 				.base = parse::RawTypeKind::Struct(&res),
-				.size = resSize,
-				.sizeInBits = resSizeInBits
+				.size = resSize
 			};
 		},
 		varcase(parse::ExprType::Union&&)->parse::ResolvedType {

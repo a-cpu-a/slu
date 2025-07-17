@@ -142,18 +142,11 @@ namespace slu::parse
 
 		RawType base;
 		std::vector<TySigil> sigils;
-		size_t size : 62;
-		size_t sizeInBits : 1 = false;
+		size_t size : 63;//in bits.
 		size_t hasMut : 1 = false;
 
 		constexpr bool isComplete() const {
 			return size != INCOMPLETE_MARK;
-		}
-
-		constexpr size_t bitSizeByteCeil() const {
-			if (sizeInBits)
-				return ((size + 7) / 8) * 8;
-			return size*8;
 		}
 
 		static ResolvedType getInferred() {
