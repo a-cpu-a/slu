@@ -10,6 +10,27 @@ namespace slu::mlvl
 	inline const size_t TYPE_RES_SIZE_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
 	inline const size_t TYPE_RES_PTR_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
 
+	void handleTypeExprField(parse::BasicMpDb mpDb, size_t& nameIdx, parse::FieldV<true>& field,auto& res)
+	{
+
+		ezmatch(std::move(field))(
+			ezcase(parse::FieldType::ExprV<true> && fi) {
+			res.fieldNames.emplace_back("0x" + parse::u64ToStr(nameIdx++));
+			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi)));
+		},
+			ezcase(parse::FieldType::Name2ExprV<true> && fi) {
+			res.fieldNames.emplace_back(fi.idx.asSv(mpDb));
+			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi.v)));
+		},
+			ezcase(parse::FieldType::Expr2ExprV<true> && fi) {
+			throw std::runtime_error("FieldType::Expr2ExprV type resolution: TODO not implemented: jit the expression");
+		},
+			ezcase(const parse::FieldType::NONE _) {
+			throw std::runtime_error("FieldType::NONE should not exist in struct/union type expression.");
+		}
+			);
+	}
+
 	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type)
 	{
 		//TODO: change mlir conv code to use global itm's.
@@ -164,22 +185,7 @@ namespace slu::mlvl
 			size_t fieldOffset = 0;
 			for (parse::FieldV<true>& field : var)
 			{
-				ezmatch(std::move(field))(
-				ezcase(parse::FieldType::ExprV<true>&& fi) {
-					res.fieldNames.emplace_back("0x" + parse::u64ToStr(idx++));
-					res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi)));
-				},
-				ezcase(parse::FieldType::Name2ExprV<true>&& fi) {
-					res.fieldNames.emplace_back(fi.idx.asSv(mpDb));
-					res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi.v)));
-				},
-				ezcase(parse::FieldType::Expr2ExprV<true>&& fi) {
-					throw std::runtime_error("FieldType::Expr2ExprV type resolution: TODO not implemented: jit the expression");
-				},
-				ezcase(const parse::FieldType::NONE _) {
-					throw std::runtime_error("FieldType::NONE should not exist in struct type expression.");
-				}
-				);
+				handleTypeExprField(mpDb, idx, field, res);
 				//TODO: fix field offsets changing depending on named field order, and tuple field order between them too.
 				if (fieldOffset!= parse::ResolvedType::INCOMPLETE_MARK)
 					continue;
@@ -216,9 +222,36 @@ namespace slu::mlvl
 			};
 		},
 		varcase(parse::ExprType::Union&&)->parse::ResolvedType {
-			//TODO
-			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve Union type expressions.");
+			parse::UnionRawType& res = *(new parse::UnionRawType());
+			size_t maxSize=0;
+
+			size_t idx = 1;
+			for (parse::FieldV<true>& field : var.fields)
+			{
+				handleTypeExprField(mpDb, idx, field, res);
+				if (maxSize == parse::ResolvedType::INCOMPLETE_MARK)
+					continue;//If any field is incomplete, then union is incomplete.
+
+				const parse::ResolvedType& resField = res.fields.back();
+				if (!resField.isComplete())
+				{
+					maxSize = parse::ResolvedType::INCOMPLETE_MARK;
+					continue;
+				}
+				if (maxSize == parse::ResolvedType::UNSIZED_MARK)
+					continue;//Field is complete, but still the union will be unsized.
+
+				if (!resField.isSized())
+				{
+					maxSize = parse::ResolvedType::UNSIZED_MARK;
+					continue;
+				}
+				maxSize = std::max(maxSize,resField.size);
+			}
+			return parse::ResolvedType{
+				.base = parse::RawTypeKind::Union(&res),
+				.size = maxSize
+			};
 		},
 
 
