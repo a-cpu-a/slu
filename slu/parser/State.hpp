@@ -238,13 +238,13 @@ namespace slu::parse
 		using parse::TableV;
 		using parse::Table;
 
-		struct LITERAL { std::string v; Position end; };// "LiteralString"
+		struct String { std::string v; Position end; };// "LiteralString"
 	};
 	template<bool isSlu>
 	using ArgsV = std::variant<
 		ArgsType::ExprListV<isSlu>,
 		ArgsType::TableV<isSlu>,
-		ArgsType::LITERAL
+		ArgsType::String
 	>;
 	Slu_DEF_CFG(Args);
 

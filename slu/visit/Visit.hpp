@@ -444,7 +444,7 @@ namespace slu::visit
 			varcase(parse::ArgsType::Table<Vi>&) {
 				visitTable(vi, var);
 			},
-			varcase(const parse::ArgsType::LITERAL&) {}
+			varcase(const parse::ArgsType::String&) {}
 			);
 			Slu_CALL_VISIT_FN_SEP(ArgChain,i,itm);
 		}

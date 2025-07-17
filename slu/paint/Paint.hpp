@@ -565,7 +565,7 @@ namespace slu::paint
 			varcase(const parse::ArgsType::Table<Se>&) {
 				paintTable<Tok::NAME>(se, var);
 			},
-			varcase(const parse::ArgsType::LITERAL&) {
+			varcase(const parse::ArgsType::String&) {
 				paintString(se, var.v, var.end, Tok::NONE);
 			}
 			);

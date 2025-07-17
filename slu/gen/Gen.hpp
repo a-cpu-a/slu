@@ -333,7 +333,7 @@ namespace slu::parse
 		},
 
 		varcase(const ExprType::String&) {
-			genLiteral(out,var.v);
+			genString(out,var.v);
 		},
 		varcase(const ExprType::Function<Out>&) {
 			out.add("function ");
@@ -442,7 +442,7 @@ namespace slu::parse
 				out.add(", ");
 		}
 	}
-	inline void genLiteral(AnyOutput auto& out, const std::string& obj)
+	inline void genString(AnyOutput auto& out, const std::string& obj)
 	{
 		out.add('"');
 		for (const char ch : obj)
@@ -484,8 +484,8 @@ namespace slu::parse
 		varcase(const ArgsType::Table<Out>&) {
 			genTable(out, var);
 		},
-		varcase(const ArgsType::LITERAL&) {
-			out.add(' '); genLiteral(out, var.v);
+		varcase(const ArgsType::String&) {
+			out.add(' '); genString(out, var.v);
 		}
 		);
 	}
@@ -1105,7 +1105,7 @@ namespace slu::parse
 			out.newLine();//Extra spacing
 			genSafety(out, var.safety);
 			out.add("extern ");
-			genLiteral(out, var.abi);
+			genString(out, var.abi);
 			out.add(" {").tabUpNewl();
 			for (auto& i : var.stats)
 				genStat(out, i);
