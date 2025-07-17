@@ -210,7 +210,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::VARARGS) {
 			paintKw<Tok::PUNCTUATION>(se, "...");
 		},
-		varcase(const parse::ExprType::OPEN_RANGE) {
+		varcase(const parse::ExprType::OpenRange) {
 			paintKw<Tok::RANGE>(se, "..");
 		},
 		varcase(const parse::ExprType::String&) {

@@ -17,7 +17,7 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::Inferr) {
 			return parse::ResolvedType::getInferred();
 		},
-		varcase(const parse::ExprType::OPEN_RANGE)->parse::ResolvedType {
+		varcase(const parse::ExprType::OpenRange)->parse::ResolvedType {
 			//TODO
 			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve open range type expressions.");

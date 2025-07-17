@@ -280,7 +280,7 @@ namespace slu::parse
 		using FUNC_CALLv = FuncCallV<isSlu>;								// "functioncall"
 		Slu_DEF_CFG_CAPS(FUNC_CALL);
 
-		struct OPEN_RANGE {};					// ".."
+		struct OpenRange {};					// ".."
 
 		struct String { std::string v; Position end; };	// "LiteralString"
 		struct NUMERAL { double v; };							// "Numeral"
@@ -504,7 +504,7 @@ namespace slu::parse
 
 		ExprType::IfCondV<isSlu>,
 
-		ExprType::OPEN_RANGE,			// ".."
+		ExprType::OpenRange,			// ".."
 
 		ExprType::U64,			// "Numeral"
 		ExprType::I128,			// "Numeral"

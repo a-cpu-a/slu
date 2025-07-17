@@ -358,7 +358,7 @@ namespace slu::parse
 				genExpr(out, ex);
 			}
 		},
-		varcase(const ExprType::OPEN_RANGE) {
+		varcase(const ExprType::OpenRange) {
 			out.add("..");
 		},
 		varcase(const ExprType::LIFETIME&) {

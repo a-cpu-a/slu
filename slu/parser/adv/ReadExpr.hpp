@@ -66,7 +66,7 @@ namespace slu::parse
 		if (basicRes.unOps.back().type == UnOpType::RANGE_BEFORE)
 		{
 			basicRes.unOps.erase(basicRes.unOps.end());
-			basicRes.data = ExprType::OPEN_RANGE();
+			basicRes.data = ExprType::OpenRange();
 		}
 	}
 
