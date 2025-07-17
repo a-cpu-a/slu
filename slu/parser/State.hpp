@@ -958,8 +958,8 @@ namespace slu::parse
 		struct UnsafeBlockV { BlockV<isSlu> bl; };	// "unsafe {...}"
 		Slu_DEF_CFG(UnsafeBlock);
 
-		struct UNSAFE_LABEL {};
-		struct SAFE_LABEL {};
+		struct UnsafeLabel {};
+		struct SafeLabel {};
 
 		struct USE
 		{
@@ -1031,8 +1031,8 @@ namespace slu::parse
 		StatementType::ExternBlockV<isSlu>,
 
 		StatementType::UnsafeBlockV<isSlu>,
-		StatementType::UNSAFE_LABEL,	// ::: unsafe :
-		StatementType::SAFE_LABEL,		// ::: safe :
+		StatementType::UnsafeLabel,	// ::: unsafe :
+		StatementType::SafeLabel,		// ::: safe :
 
 		StatementType::DROPv<isSlu>,	// "drop" Name
 		StatementType::USE,				// "use" ...

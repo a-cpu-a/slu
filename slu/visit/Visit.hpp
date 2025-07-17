@@ -631,10 +631,10 @@ namespace slu::visit
 		varcase(parse::StatementType::UnsafeBlock<Vi>&) {
 			visitBlock(vi, var.bl);
 		},
-		varcase(const parse::StatementType::UNSAFE_LABEL) {
+		varcase(const parse::StatementType::UnsafeLabel) {
 			//TODO
 		},
-		varcase(const parse::StatementType::SAFE_LABEL) {
+		varcase(const parse::StatementType::SafeLabel) {
 			//TODO
 		},
 		varcase(parse::StatementType::DROP<Vi>&) {

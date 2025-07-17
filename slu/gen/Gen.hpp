@@ -1121,12 +1121,12 @@ namespace slu::parse
 			out.unTabNewl()
 				.addNewl('}');
 		},
-		varcase(const StatementType::UNSAFE_LABEL) {
+		varcase(const StatementType::UnsafeLabel) {
 			out.unTabTemp()
 				.add(":::unsafe:")
 				.tabUpTemp();
 		},
-		varcase(const StatementType::SAFE_LABEL) {
+		varcase(const StatementType::SafeLabel) {
 			out.unTabTemp()
 				.add(":::safe:")
 				.tabUpTemp();

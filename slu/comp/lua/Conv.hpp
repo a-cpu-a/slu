@@ -27,8 +27,8 @@ namespace slu::comp::lua
 		|| std::same_as<T,parse::StatementType::DROPv<true>>
 		|| std::same_as<T,parse::StatementType::MOD_DEFv<true>>
 		|| std::same_as<T,parse::StatementType::MOD_DEF_INLINEv<true>>
-		|| std::same_as<T,parse::StatementType::UNSAFE_LABEL>
-		|| std::same_as<T,parse::StatementType::SAFE_LABEL>;
+		|| std::same_as<T,parse::StatementType::UnsafeLabel>
+		|| std::same_as<T,parse::StatementType::SafeLabel>;
 
 	struct ConvData : CommonConvData
 	{

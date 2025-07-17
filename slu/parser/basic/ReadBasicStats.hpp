@@ -32,13 +32,13 @@ namespace slu::parse
 			{
 				requireToken(in, ":");
 				in.genData.setUnsafe();
-				return in.genData.addStat(place, StatementType::UNSAFE_LABEL{});
+				return in.genData.addStat(place, StatementType::UnsafeLabel{});
 			}
 			else if (checkReadTextToken(in, "safe"))
 			{
 				requireToken(in, ":");
 				in.genData.setSafe();
-				return in.genData.addStat(place, StatementType::SAFE_LABEL{});
+				return in.genData.addStat(place, StatementType::SafeLabel{});
 			}
 		}
 
