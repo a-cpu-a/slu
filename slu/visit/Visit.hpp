@@ -367,7 +367,7 @@ namespace slu::visit
 			visitBlock(vi, var.block);
 			//TODO
 		},
-		varcase(parse::ExprType::MULTI_OPERATION<Vi>&) {
+		varcase(parse::ExprType::MultiOp<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(MultiOp);
 			visitExpr(vi, *var.first);
 			for (auto& [op,expr] : var.extra)

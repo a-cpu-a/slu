@@ -449,7 +449,7 @@ namespace slu::parse
 		if (firstBinOp == BinOpType::NONE)
 			return basicRes;
 
-		ExprType::MULTI_OPERATION<In> resData{};
+		ExprType::MultiOp<In> resData{};
 
 		resData.first = std::make_unique<Expression<In>>(std::move(basicRes));
 		resData.extra.emplace_back(firstBinOp, readExpr<IS_BASIC,FOR_PAT>(in,allowVarArg,false));

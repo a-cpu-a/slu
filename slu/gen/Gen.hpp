@@ -348,7 +348,7 @@ namespace slu::parse
 		varcase(const ExprType::Table<Out>&) {
 			genTable(out, var);
 		},
-		varcase(const ExprType::MULTI_OPERATION<Out>&) {
+		varcase(const ExprType::MultiOp<Out>&) {
 			genExpr(out, *var.first);
 			for (const auto& [op,ex] : var.extra)
 			{

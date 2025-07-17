@@ -328,7 +328,7 @@ namespace slu::comp::mico
 		std::same_as<T, parse::ExprType::True>
 		|| std::same_as<T, parse::ExprType::False>
 		|| std::same_as<T, parse::ExprType::Nil>
-		|| std::same_as<T, parse::ExprType::MULTI_OPERATIONv<true>>;//already desugared
+		|| std::same_as<T, parse::ExprType::MultiOpV<true>>;//already desugared
 	inline mlir::Value convAny64(ConvData& conv, parse::Position place, const parse::Any64BitInt auto itm)
 	{
 		mlir::OpBuilder& builder = conv.builder;

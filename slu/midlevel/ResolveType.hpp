@@ -169,7 +169,7 @@ namespace slu::mlvl
 		Slu_INVALID_EXPR_CASE("type", parse::ExprType::TraitExpr),
 		Slu_INVALID_EXPR_CASE("type", parse::ExprType::FunctionV<true>),
 		Slu_INVALID_EXPR_CASE("type", parse::ExprType::Lifetime),
-		varcase(parse::ExprType::MULTI_OPERATIONv<true>&&)->parse::ResolvedType {
+		varcase(parse::ExprType::MultiOpV<true>&&)->parse::ResolvedType {
 			throw std::runtime_error("Multi-op type expressions are ment to be desuagared before type resolution.");
 		});
 #undef Slu_INVALID_EXPR_CASE

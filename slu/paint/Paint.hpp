@@ -180,7 +180,7 @@ namespace slu::paint
 	{
 		//skipSpace(se);
 		se.move(itm.place);
-		/*if (std::holds_alternative<parse::ExprType::MULTI_OPERATION>(itm.data))
+		/*if (std::holds_alternative<parse::ExprType::MultiOp>(itm.data))
 		{
 			//complex version
 		}*/
@@ -190,7 +190,7 @@ namespace slu::paint
 				paintUnOpItem(se, i);
 		}
 		ezmatch(itm.data)(
-		varcase(const parse::ExprType::MULTI_OPERATION<Se>&) {
+		varcase(const parse::ExprType::MultiOp<Se>&) {
 			paintExpr<nameTok>(se, *var.first);
 			for (const auto& [op,expr] : var.extra)
 			{

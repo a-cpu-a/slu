@@ -631,7 +631,7 @@ namespace slu::mlvl
 
 		bool preExpr(parse::Expression<Cfg>& itm) 
 		{
-			using MultiOp = parse::ExprType::MULTI_OPERATION<Cfg>;
+			using MultiOp = parse::ExprType::MultiOp<Cfg>;
 			return desugarExpr<false,MultiOp>(itm);
 		}; 
 	};

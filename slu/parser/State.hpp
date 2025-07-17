@@ -430,12 +430,12 @@ namespace slu::parse
 
 		//unOps is always empty for this type
 		template<bool isSlu>
-		struct MULTI_OPERATIONv
+		struct MultiOpV
 		{
 			std::unique_ptr<ExpressionV<isSlu>> first;
 			std::vector<std::pair<BinOpType, ExpressionV<isSlu>>> extra;//size>=1
 		};      // "exp binop exp"
-		Slu_DEF_CFG_CAPS(MULTI_OPERATION);
+		Slu_DEF_CFG(MultiOp);
 
 		//struct UNARY_OPERATION{UnOpType,std::unique_ptr<ExpressionV<isSlu>>};     // "unop exp"	//Inlined as opt prefix
 
@@ -491,7 +491,7 @@ namespace slu::parse
 		ExprType::FuncCallV<isSlu>,			// "prefixexp argsThing {argsThing}"
 		ExprType::TableV<isSlu>,	// "tableconstructor"
 
-		ExprType::MULTI_OPERATIONv<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
+		ExprType::MultiOpV<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
 		// Slu
 
