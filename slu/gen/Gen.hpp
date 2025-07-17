@@ -322,14 +322,14 @@ namespace slu::parse
 		},
 
 		varcase(const ExprType::I64) {
-			_ASSERT(!(Out::settings() & parse::noIntOverflow) || var.v >= 0);
-			if (var.v < 0)
+			_ASSERT(!(Out::settings() & parse::noIntOverflow) || var >= 0);
+			if (var < 0)
 			{
 				out.add("0x");
-				writeU64Hex(out,var.v);
+				writeU64Hex(out,var);
 			}
 			else
-				out.add(std::to_string(var.v));
+				out.add(std::to_string(var));
 		},
 
 		varcase(const ExprType::LITERAL_STRING&) {
@@ -373,7 +373,7 @@ namespace slu::parse
 		},
 		varcase(const ExprType::PAT_TYPE_PREFIX&) {},//Yes, nothing
 		varcase(const ExprType::U64) {
-			out.add(std::to_string(var.v));
+			out.add(std::to_string(var));
 		},
 		varcase(const ExprType::I128) {
 			out.add(parse::u128ToStr(var.lo, var.hi));

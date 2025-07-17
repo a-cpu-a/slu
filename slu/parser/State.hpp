@@ -285,12 +285,13 @@ namespace slu::parse
 		struct LITERAL_STRING { std::string v; Position end; };	// "LiteralString"
 		struct NUMERAL { double v; };							// "Numeral"
 
-		struct I64 { int64_t v; };            // "Numeral"
+		// "Numeral"
+		using I64 = int64_t;
 
 		//u64,i128,u128, for slu only
-		struct U64 { uint64_t v; };						// "Numeral"
+		using U64 = uint64_t;
 		struct U128
-		{ // "Numeral"
+		{
 			uint64_t lo = 0;
 			uint64_t hi = 0;
 
@@ -321,9 +322,9 @@ namespace slu::parse
 		uint64_t lo = 0; uint64_t hi = 0;
 		constexpr TupleName() = default;
 		constexpr TupleName(ExprType::I64 v)
-			:lo(v.v) {}
+			:lo(v) {}
 		constexpr TupleName(ExprType::U64 v)
-			: lo(v.v) {}
+			: lo(v) {}
 		constexpr TupleName(ExprType::I128 v)
 			: lo(v.lo), hi(v.hi) {}
 		constexpr TupleName(ExprType::U128 v)

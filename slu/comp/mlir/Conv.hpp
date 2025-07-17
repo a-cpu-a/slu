@@ -334,7 +334,7 @@ namespace slu::comp::mico
 		mlir::OpBuilder& builder = conv.builder;
 		auto i64Type = builder.getIntegerType(64);
 		return builder.create<mlir::arith::ConstantOp>(
-			convPos(conv, place), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)itm.v)
+			convPos(conv, place), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)itm)
 		);
 	}
 	inline mlir::Value convAny128(ConvData& conv, parse::Position place, const parse::Any128BitInt auto itm)

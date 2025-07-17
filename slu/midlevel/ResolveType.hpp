@@ -26,10 +26,10 @@ namespace slu::mlvl
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::String{std::move(var.v)});
 		},
 		varcase(const parse::ExprType::I64){
-			return parse::ResolvedType::getConstType(parse::RawTypeKind::Int64{ var.v });
+			return parse::ResolvedType::getConstType(parse::RawTypeKind::Int64{ var });
 		},
 		varcase(const parse::ExprType::U64){
-			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint64{ var.v });
+			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint64{ var });
 		},
 		varcase(const parse::ExprType::I128) {
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Int128{ var.lo,var.hi });
