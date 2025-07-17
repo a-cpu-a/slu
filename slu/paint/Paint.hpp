@@ -1052,7 +1052,7 @@ namespace slu::paint
 			paintKw<Tok::FN_STAT>(se, "safe");
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
-		varcase(const parse::StatementType::MOD_DEF<Se>&) {
+		varcase(const parse::StatementType::Mod<Se>&) {
 			if (var.exported)
 				paintKw<Tok::CON_STAT, Tok::EX_TINT>(se, "ex");
 			paintKw<Tok::CON_STAT>(se, "mod");

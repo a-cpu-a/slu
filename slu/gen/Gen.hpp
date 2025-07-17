@@ -1149,7 +1149,7 @@ namespace slu::parse
 				out.wasSemicolon = true;
 			}
 		},
-		varcase(const StatementType::MOD_DEF<Out>&) {
+		varcase(const StatementType::Mod<Out>&) {
 			if (var.exported)out.add("ex ");
 			out.add("mod ").add(out.db.asSv(var.name)).addNewl(';');
 			out.wasSemicolon = true;

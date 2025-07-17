@@ -976,12 +976,12 @@ namespace slu::parse
 		Slu_DEF_CFG_CAPS(DROP);
 
 		template<bool isSlu>
-		struct MOD_DEFv
+		struct ModV
 		{
 			MpItmIdV<isSlu> name;
 			ExportData exported = false;
 		};
-		Slu_DEF_CFG_CAPS(MOD_DEF);
+		Slu_DEF_CFG(Mod);
 
 		template<bool isSlu>
 		struct ModAsV
@@ -1036,7 +1036,7 @@ namespace slu::parse
 
 		StatementType::DROPv<isSlu>,	// "drop" Name
 		StatementType::USE,				// "use" ...
-		StatementType::MOD_DEFv<isSlu>,		// "mod" Name
+		StatementType::ModV<isSlu>,		// "mod" Name
 		StatementType::ModAsV<isSlu>	// "mod" Name "as" "{" block "}"
 	> ;
 	Slu_DEF_CFG(StatementData);

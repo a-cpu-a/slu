@@ -439,7 +439,7 @@ namespace slu::mlvl
 				//TODO: state shouldnt leak from lower mp's:
 				auto& module = std::get<parse::StatementType::ModAs<Cfg>>(itm.data);
 				inlineModules.push_back(InlineModule{ module.name, std::move(module.bl.statList) });
-				itm.data = parse::StatementType::MOD_DEF<Cfg>{module.name,module.exported};
+				itm.data = parse::StatementType::Mod<Cfg>{module.name,module.exported};
 			}
 			else if (std::holds_alternative<parse::StatementType::Local<Cfg>>(itm.data))
 				convVar<true>(itm, std::get<parse::StatementType::Local<Cfg>>(itm.data));

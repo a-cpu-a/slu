@@ -35,7 +35,7 @@ namespace slu::parse
 			}
 			else
 			{
-				in.genData.addStat(place, StatementType::MOD_DEF<In>{ modName, exported });
+				in.genData.addStat(place, StatementType::Mod<In>{ modName, exported });
 			}
 
 			return true;

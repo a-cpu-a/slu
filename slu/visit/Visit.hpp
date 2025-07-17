@@ -640,7 +640,7 @@ namespace slu::visit
 		varcase(parse::StatementType::DROP<Vi>&) {
 			visitExpr(vi, var.expr);
 		},
-		varcase(parse::StatementType::MOD_DEF<Vi>&) {
+		varcase(parse::StatementType::Mod<Vi>&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			//TODO
