@@ -283,7 +283,7 @@ namespace slu::parse
 		struct OpenRange {};					// ".."
 
 		struct String { std::string v; Position end; };	// "LiteralString"
-		struct NUMERAL { double v; };							// "Numeral"
+		struct F64 { double v; };							// "Numeral"
 
 		// "Numeral"
 		using I64 = int64_t;
@@ -488,7 +488,7 @@ namespace slu::parse
 		ExprType::NIL,                  // "nil"
 		ExprType::FALSE,                // "false"
 		ExprType::TRUE,                 // "true"
-		ExprType::NUMERAL,				// "Numeral" (e.g., a floating-point number)
+		ExprType::F64,				// "Numeral" (e.g., a floating-point number)
 		ExprType::I64,			// "Numeral"
 
 		ExprType::String,		// "LiteralString"

@@ -262,7 +262,7 @@ namespace slu::parse
 				{
 					number = "0x" + number;
 				}
-				return ExprType::NUMERAL(std::stod(number));
+				return ExprType::F64(std::stod(number));
 			}
 			throwUnexpectedFloat(in, number);
 		}
@@ -297,7 +297,7 @@ namespace slu::parse
 				if constexpr (in.settings() & noIntOverflow)
 					reportIntTooBig(in, number);
 				if constexpr(ALLOW_FLOAT)
-					return ExprType::NUMERAL(std::stod(number));
+					return ExprType::F64(std::stod(number));
 				throwUnexpectedFloat(in, number);
 			}
 		}
@@ -305,7 +305,7 @@ namespace slu::parse
 		catch (const std::out_of_range&)
 		{
 			if constexpr (ALLOW_FLOAT)
-				return ExprType::NUMERAL(INFINITY);//Always positive, since negative is handled by un-ops, in expressions
+				return ExprType::F64(INFINITY);//Always positive, since negative is handled by un-ops, in expressions
 			throwUnexpectedFloat(in, number);
 		}
 		catch (const std::exception&)

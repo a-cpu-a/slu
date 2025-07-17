@@ -216,7 +216,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::String&) {
 			paintString(se, var.v,var.end,tint);
 		},
-		varcase(const parse::ExprType::NUMERAL) {
+		varcase(const parse::ExprType::F64) {
 			paintNumber(se, tint);
 		},
 		varcase(const parse::ExprType::I128) {

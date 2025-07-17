@@ -37,7 +37,7 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::U128) {
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 		},
-		varcase(const parse::ExprType::NUMERAL)->parse::ResolvedType {
+		varcase(const parse::ExprType::F64)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve numeral type expressions.");
 		},
 		varcase(parse::ExprType::FnType&&)->parse::ResolvedType {

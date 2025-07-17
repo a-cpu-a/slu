@@ -314,7 +314,7 @@ namespace slu::parse
 		varcase(const ExprType::VARARGS) {
 			out.add("..."sv);
 		},
-		varcase(const ExprType::NUMERAL) {
+		varcase(const ExprType::F64) {
 			if (isinf(var.v) && var.v>0.0f)
 				out.add("1e999");
 			else

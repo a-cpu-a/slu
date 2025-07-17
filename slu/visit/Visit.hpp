@@ -309,7 +309,7 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_PRE_VAR(ExprString);
 			visitString(vi, var.v);
 		},
-		varcase(const parse::ExprType::NUMERAL) {
+		varcase(const parse::ExprType::F64) {
 			//TODO
 		},
 		varcase(const parse::ExprType::I64) {
