@@ -21,5 +21,6 @@ ex fn main() -> {}
 	s = --[=[Implicit conv]=] "I have stolen the show! 😈\x00";
 	--puts(s);
 	
+	--TODO: once type is available, alloca a memref with a proper slice ref, pass it in.
 	:>::std::_println(--[=[Implicit conversion from "c...0" to &str]=] "called helloWorld()\x00");
 }

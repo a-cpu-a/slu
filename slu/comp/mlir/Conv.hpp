@@ -28,6 +28,7 @@
 #include <mlir/Dialect/MemRef/IR/MemRef.h>
 #include <mlir/Dialect/SCF/IR/SCF.h>
 #include <mlir/Dialect/MemRef/Transforms/Passes.h>
+#include <mlir/Dialect/Tensor/IR/Tensor.h>
 #include <mlir/Dialect/Arith/IR/Arith.h>
 #include <mlir/Dialect/Index/IR/IndexOps.h>
 #include <mlir/Dialect/Index/IR/IndexDialect.h>
@@ -126,7 +127,7 @@ namespace slu::comp::mico
 		}
 	};
 	//Forward declare!
-	mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm, const std::string_view abi = ""sv);
+	mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm);
 	//
 
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
@@ -263,8 +264,7 @@ namespace slu::comp::mico
 		}
 		);
 	}
-	template<bool forStore>
-	inline mlir::Value convVarBase(ConvData& conv, parse::Position place, const parse::BaseVarV<true>& itm, const std::string_view abi)
+	inline mlir::Value convVarBase(ConvData& conv, parse::Position place, const parse::BaseVarV<true>& itm)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -272,14 +272,14 @@ namespace slu::comp::mico
 		return ezmatch(itm)(
 		varcase(const parse::BaseVarType::Local) {
 			auto lcl = conv.localsStack.back().values[var.v];
-			mlir::Value alloc = lcl.v;
 
-			if constexpr (forStore)return alloc;
+			//if constexpr (forStore)
+			return lcl.v;
 
-			const mlir::Location loc = convPos(conv, place);
-			mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
-			mlir::Value loaded = builder.create<mlir::memref::LoadOp>(loc, alloc, mlir::ValueRange{ index0 });
-
+			//const mlir::Location loc = convPos(conv, place);
+			//mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+			//mlir::Value loaded = builder.create<mlir::memref::LoadOp>(loc, alloc, mlir::ValueRange{ index0 });
+			/*
 			if (abi == "C"sv && loaded.getType().isIndex())
 			{
 				auto i64Type = builder.getIntegerType(64);
@@ -295,9 +295,9 @@ namespace slu::comp::mico
 					, nullptr
 					//, mlir::LLVM::DereferenceableAttr::get(mc, str.size(), false)
 				);
-			}
+			}*/
 
-			return loaded;
+			//return loaded;
 		},
 		varcase(const parse::BaseVarType::NAMEv<true>&) {
 			//TODO
@@ -315,14 +315,14 @@ namespace slu::comp::mico
 		}
 		);
 	}
-	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm, const std::string_view abi)
+	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm)
 	{
 		return ezmatch(itm)(
 		varcase(const parse::LimPrefixExprType::ExprV<true>&){
-			return convExpr(conv, var,abi);
+			return convExpr(conv, var);
 		},
 		varcase(const parse::LimPrefixExprType::VARv<true>&){
-			return convVarBase<false>(conv, place, var.v.base,abi);
+			return convVarBase(conv, place, var.v.base);
 				//TODO sub;
 			//basicly (.x == memref subview?) (.y.x().x == multiple stuff)
 		}
@@ -398,7 +398,7 @@ namespace slu::comp::mico
 			convPos(conv, place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
 		);
 	}
-	inline mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm, const std::string_view abi)
+	inline mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -415,7 +415,7 @@ namespace slu::comp::mico
 		varcase(const parse::ExprType::U128) {return convAny128(conv,itm.place,var); },
 
 		varcase(const parse::ExprType::LimPrefixExprV<true>&)->mlir::Value {
-			return convLimPrefixExpr(conv,itm.place,*var,abi);
+			return convLimPrefixExpr(conv,itm.place,*var);
 		},
 		varcase(const parse::ExprType::String&)->mlir::Value {
 		
@@ -423,7 +423,13 @@ namespace slu::comp::mico
 			auto i64Type = builder.getIntegerType(64);
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			auto strType = mlir::MemRefType::get({ (int64_t)var.v.size() }, i8Type, {}, 0);
+
+			auto ptrNsizeX2Int = builder.getIntegerType(mlvl::TYPE_RES_PTR_SIZE+mlvl::TYPE_RES_SIZE_SIZE*2);
+			auto refSliceType = mlir::MemRefType::get({ 1 }, ptrNsizeX2Int, {}, 0);
+			auto idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
 		
+			mlir::Location loc = convPos(conv, itm.place);
+
 			TmpName strName = mkTmpName(conv);
 			{
 				mlir::OpBuilder::InsertionGuard guard(builder);
@@ -431,7 +437,7 @@ namespace slu::comp::mico
 		
 				auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ var.v.data(),var.v.size() });
 				builder.create<mlir::memref::GlobalOp>(
-					convPos(conv, itm.place),
+					loc,
 					strName.sref(),
 					/*sym_visibility=*/conv.privVis,
 					strType,
@@ -442,26 +448,82 @@ namespace slu::comp::mico
 			}
 		
 			// %str = memref.get_global @greeting : memref<14xi8>
-			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(convPos(conv, itm.place), strType,
+			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(loc, strType,
 				strName.sref());
-			// %ptrIdx = memref.extract_aligned_pointer_as_index %str
-			auto ptrIndex = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
+
+			mlir::Value refSliceAlloc = builder.create<mlir::memref::AllocaOp>(
+				loc, refSliceType
+			);
+			//Reinterpret as 3xindex.
+			mlir::Value c0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+			mlir::Value c1 = builder.create<mlir::arith::ConstantIndexOp>(loc, 1);
+			mlir::Value c2 = builder.create<mlir::arith::ConstantIndexOp>(loc, 2);
+			mlir::Value c3 = builder.create<mlir::arith::ConstantIndexOp>(loc, 3);
+			mlir::Value c64 = builder.create<mlir::arith::ConstantIndexOp>(loc, 64);
+			mlir::Value c128 = builder.create<mlir::arith::ConstantIndexOp>(loc, 128);
+
+
+			mlir::Value idx3Form = builder.create<mlir::memref::ReinterpretCastOp>(
+				loc,idx3Type, refSliceAlloc, 
+				c0,
+				/*sizes   =*/mlir::ValueRange{ c3 },
+				/*strides =*/mlir::ValueRange{ c1 }
+			);
+			auto data = builder.create<mlir::memref::ExtractStridedMetadataOp>(loc, globalStr);
+			//store ptr,size,stride into idx3Form.
+
+
+			mlir::Value ptr = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
 				convPos(conv, itm.place), globalStr
 			);
+			// TODO: check if offset matters.
+			
+			builder.create<mlir::memref::StoreOp>(loc, ptr, idx3Form, mlir::ValueRange{c0});
+			builder.create<mlir::memref::StoreOp>(loc, data.getSizes()[0], idx3Form, mlir::ValueRange{c1});
+			builder.create<mlir::memref::StoreOp>(loc, data.getStrides()[0], idx3Form, mlir::ValueRange{c2});
 
-			if (abi != "C"sv)
-				return ptrIndex;
+			//mlir::Value sz64 = builder.create<mlir::arith::IndexCastUIOp>(loc, i64Type, data.getSizes()[0]);
+			//mlir::Value sz192 = builder.create<mlir::arith::ExtUIOp>(loc, ptrNsizeX2Int, sz64);
+			//
+			//mlir::Value str64 = builder.create<mlir::arith::IndexCastUIOp>(loc, i64Type, data.getStrides()[0]);
+			//mlir::Value str192 = builder.create<mlir::arith::ExtUIOp>(loc, ptrNsizeX2Int, str64);
+			//
+			//mlir::Value ptr64 = builder.create<mlir::arith::IndexCastUIOp>(loc, i64Type, ptr);
+			//mlir::Value ptr192 = builder.create<mlir::arith::ExtUIOp>(loc, ptrNsizeX2Int, ptr64);
+			//
+			//mlir::Value sizeShifted = builder.create<mlir::arith::ShLIOp>(loc, sz192, c64);
+			//mlir::Value offsetShifted = builder.create<mlir::arith::ShLIOp>(loc, str192, c128);
+			//
+			//// OR them together
+			//mlir::Value part1 = builder.create<mlir::arith::OrIOp>(loc, ptr192, sizeShifted);
+			//mlir::Value packed = builder.create<mlir::arith::OrIOp>(loc, part1, offsetShifted);
+			//
+			//return packed;
+
+			//return ref slice.
+			return refSliceAlloc;
+
+
+
+
+			// %ptrIdx = memref.extract_aligned_pointer_as_index %str
+			//auto ptrIndex = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
+			//	convPos(conv, itm.place), globalStr
+			//);
+
+			//if (abi != "C"sv)
+			//	return ptrIndex;
 		
 			// %ptrInt = index.castu %ptrIdx : index to i64
-			auto ptrInt = builder.create<mlir::index::CastUOp>(
-				convPos(conv, itm.place), i64Type, ptrIndex
-			);
+			//auto ptrInt = builder.create<mlir::index::CastUOp>(
+			//	convPos(conv, itm.place), i64Type, ptrIndex
+			//);
 			// %llvm_ptr = llvm.inttoptr %ptrInt : i64 to !llvm.ptr
-			return builder.create<mlir::LLVM::IntToPtrOp>(convPos(conv, itm.place),
-				llvmPtrType, ptrInt
-				, nullptr
-				//, mlir::LLVM::DereferenceableAttr::get(mc, str.size(), false)
-			);
+			//return builder.create<mlir::LLVM::IntToPtrOp>(convPos(conv, itm.place),
+			//	llvmPtrType, ptrInt
+			//	, nullptr
+			//	//, mlir::LLVM::DereferenceableAttr::get(mc, str.size(), false)
+			//);
 		},
 
 
@@ -621,14 +683,20 @@ namespace slu::comp::mico
 			if(!var.vars[0].sub.empty())
 				throw std::runtime_error("Unimplemented assign conv, var sub !empty");
 
-			mlir::Value memRef = convVarBase<true>(conv, itm.place,
-				var.vars[0].base,
-				""sv
+			mlir::Value memRef = convVarBase(
+				conv, itm.place,
+				var.vars[0].base
 			);
 			const mlir::Location loc = convPos(conv, itm.place);
-			auto zeroIndex = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+			//auto zeroIndex = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
 
-			builder.create<mlir::memref::StoreOp>(loc, convExpr(conv, var.exprs[0], ""sv), memRef, mlir::ValueRange{ zeroIndex }, false);
+			mlir::Value expr = convExpr(conv, var.exprs[0]);
+			//Expr is a memref, so copy the bits/bytes.
+			builder.create<mlir::memref::CopyOp>(
+				loc, expr, memRef
+			);
+
+			//builder.create<mlir::memref::StoreOp>(loc, expr, memRef, mlir::ValueRange{ zeroIndex }, false);
 
 		},
 			varcase(const parse::StatementType::FuncCallV<true>&) {
@@ -643,7 +711,7 @@ namespace slu::comp::mico
 			std::vector<mlir::Value> args;
 			args.reserve(argList.size());
 			for (const auto& i : argList)
-				args.emplace_back(convExpr(conv, i,funcInfo->abi));
+				args.emplace_back(convExpr(conv, i));
 			
 			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr) -> i32
 			builder.create<mlir::LLVM::CallOp>(
