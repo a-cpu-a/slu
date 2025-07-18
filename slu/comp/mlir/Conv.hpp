@@ -728,16 +728,16 @@ namespace slu::comp::mico
 			}
 
 			// Build a function in mlir
+			mlir::Block* entry = funcInfo->func.addEntryBlock();
+			builder.setInsertionPointToStart(entry);
+
+			//Locals, arguments.
 			conv.addLocalStackItem(var.func.local2Mp.size());
 			for (size_t i = 0; i < funcItm.argLocals.size(); i++)
 			{
-				parse::LocalId id= funcItm.argLocals[i];
-				conv.localsStack.back().values[id.v] =funcInfo->func.getArgument((unsigned int)i);
+				parse::LocalId id = funcItm.argLocals[i];
+				conv.localsStack.back().values[id.v] = funcInfo->func.getArgument((unsigned int)i);
 			}
-
-
-			mlir::Block* entry = funcInfo->func.addEntryBlock();
-			builder.setInsertionPointToStart(entry);
 
 			for (auto& i : var.func.block.statList)
 				convStat(conv, i);
