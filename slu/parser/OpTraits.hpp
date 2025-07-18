@@ -66,8 +66,21 @@ namespace slu::parse
 			
 			"rep",
 			"range",//!!!
-			"_mkResult"
+			"_mkResult",
+			"as"//!!!
 		};
+		if (!forTrait)
+		{
+			auto& asStr = res[((size_t)BinOpType::AS) - 1];
+			asStr[0] = 'a';
+			asStr[1] = 's';
+			asStr[2] = 'T';
+			asStr[3] = 'y';
+			asStr[4] = 'p';
+			asStr[5] = 'e';
+			asStr[6] = 0;
+		}
+
 		handleTraitCase(res,forTrait);
 		return res;
 	}

@@ -50,9 +50,11 @@ namespace slu::parse
 		RANGE_BETWEEN,	// ".."
 		MAKE_RESULT,	// "~~"
 
+		AS,
+
 		//Not a real op, just the amount of binops
 		// -1 because NONE, +1 cuz total size
-		ENUM_SIZE = MAKE_RESULT - 1+1
+		ENUM_SIZE = AS - 1+1
 	};
 
 	enum class UnOpType : uint8_t

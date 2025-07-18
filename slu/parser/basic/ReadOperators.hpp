@@ -207,6 +207,11 @@ namespace slu::parse
 		case 'a':
 			if (checkReadTextToken(in, "and"))
 				return BinOpType::LOGICAL_AND;
+			if constexpr (in.settings() & sluSyn)
+			{
+				if (checkReadTextToken(in, "as"))
+					return BinOpType::AS;
+			}
 			break;
 		case 'o':
 			if (checkReadTextToken(in, "or"))

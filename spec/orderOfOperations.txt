@@ -90,7 +90,7 @@ Order of Operations {
 	&share	RefShare	(unstable)
 	
 	.		----		(will consider lol)
-	as		----		(todo As::cast ? or maybe Cast::cast ?)
+	as		As.asType
 	~~		----
 	dyn		----
 	impl	----
