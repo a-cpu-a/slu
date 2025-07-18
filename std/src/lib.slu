@@ -10,5 +10,5 @@ safe extern "C" {
 ---Test test test !!!
 ex fn _println(&:>::std::str text) -> {}
 {
-	--self::puts(text);
+	puts(text);
 }
