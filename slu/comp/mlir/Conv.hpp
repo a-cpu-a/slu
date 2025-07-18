@@ -213,7 +213,7 @@ namespace slu::comp::mico
 				return mlir::LLVM::LLVMPointerType::get(&conv.context);
 
 			auto i8Type = conv.builder.getIntegerType(8);
-			return mlir::MemRefType::get({ -1 }, i8Type, {}, 0);
+			return mlir::MemRefType::get({ mlir::ShapedType::kDynamic }, i8Type, {}, 0);
 		}
 		if (name == conv.sharedDb.getItm({ "std","i32" }))
 		{
@@ -322,7 +322,45 @@ namespace slu::comp::mico
 		}
 		);
 	}
+	mlir::Type convType(ConvData& conv, const parse::ResolvedType& itm, const std::string_view abi)
+	{
+		if(!itm.isComplete())
+			throw std::runtime_error("Found incomplete type (mlir conversion)");
 
+		mlir::OpBuilder& builder = conv.builder;
+
+		mlir::IntegerType elemType;
+		const bool cAbi = abi == "C"sv;
+		const bool elemUnsized = itm.size == parse::ResolvedType::UNSIZED_MARK;
+		if(elemUnsized)
+		{
+			if(cAbi)
+				throw std::runtime_error("Found unsized type in C ABI (mlir conversion)");
+			elemType = builder.getIntegerType(8);
+		}
+		else
+			elemType = builder.getIntegerType(itm.size);
+
+		if (cAbi)
+		{
+			if (itm.outerSliceDims != 0)
+				throw std::runtime_error("Found unsized slice type in C ABI (mlir conversion)");
+			return elemType;
+		}
+
+		//Memref {?x}elemType
+		llvm::SmallVector<int64_t> shape;
+		if (itm.outerSliceDims == 0)
+			shape.push_back(elemUnsized? mlir::ShapedType::kDynamic :1);
+		else
+		{
+			shape.append(
+				itm.outerSliceDims + (elemUnsized ? 1 : 0),
+				mlir::ShapedType::kDynamic
+			);
+		}
+		return mlir::MemRefType::get(shape, elemType, {}, 0);
+	}
 	template<typename T>
 	concept AnyInvalidExpression =
 		std::same_as<T, parse::ExprType::True>
@@ -629,19 +667,27 @@ namespace slu::comp::mico
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());
 
+			const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
+			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
+
+			//TODO: use type converter for args!
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
-			//TODO: use type converter!
-			auto putsType = builder.getFunctionType({ llvmPtrType }, { convTypeHack(conv, var.abi, *var.retType.value()) });
+
+			llvm::SmallVector<mlir::Type, 1> retTypes;
+			if(funcItm.ret.size!=0)
+				retTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
+
+			auto putsType = builder.getFunctionType({ llvmPtrType }, retTypes);
 			//StringRef  name, FunctionType type, ArrayRef<NamedAttribute> attrs = {}, ArrayRef<DictionaryAttr> argAttrs = {});
 			//StringRef  sym_name, ::mlir::FunctionType function_type, /*optional*/::mlir::StringAttr sym_visibility, /*optional*/::mlir::ArrayAttr arg_attrs, /*optional*/::mlir::ArrayAttr res_attrs, /*optional*/bool no_inline = false);
 
-			auto mangledName = mangleFuncName(conv, var.abi, var.name); 
+			auto mangledName = mangleFuncName(conv, funcItm.abi, var.name);
 			mlir::func::FuncOp decl = builder.create<mlir::func::FuncOp>(convPos(conv, itm.place),
 				mangledName.sv(),
 				putsType, getExportAttr(conv, var.exported),
 				nullptr, nullptr, false
 			);
-			conv.addElement(var.name, decl, var.abi);
+			conv.addElement(var.name, decl, funcItm.abi);
 		},
 		varcase(const parse::StatementType::FnV<true>&) {
 
@@ -651,15 +697,33 @@ namespace slu::comp::mico
 			GlobalElement* funcInfo = conv.getElement(var.name);
 			if (funcInfo == nullptr)
 			{
-				auto mangledName = mangleFuncName(conv, var.func.abi, var.name);
+				const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
+				const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
+
+				auto mangledName = mangleFuncName(conv, funcItm.abi, var.name);
+
+				llvm::SmallVector<mlir::Type> argTypes;
+				for (const parse::ResolvedType& i : funcItm.args)
+				{
+					if (i.size != 0)
+						argTypes.push_back(convType(conv, i, funcItm.abi));
+				}
+				llvm::SmallVector<mlir::Type, 1> retTypes;
+				if (funcItm.ret.size != 0)
+				{
+					if (funcItm.abi == "C"sv)
+						retTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
+					else//output by ref.
+						argTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
+				}
 
 				mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
 					convPos(conv, var.place), mangledName.sv(),
-					mlir::FunctionType::get(mc, {}, {}),
+					mlir::FunctionType::get(mc, argTypes, retTypes),
 					getExportAttr(conv, var.exported),
 					nullptr, nullptr, false
 				);
-				funcInfo = conv.addElement(var.name, funcOp, var.func.abi);
+				funcInfo = conv.addElement(var.name, funcOp, funcItm.abi);
 			}
 
 			// Build a function in mlir

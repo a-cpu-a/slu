@@ -35,7 +35,6 @@ namespace slu::mlvl
 
 	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type)
 	{
-		//TODO: change mlir conv code to use global itm's.
 		parse::ResolvedType resTy = ezmatch(std::move(type.data))(
 		varcase(const parse::ExprType::Inferr) {
 			return parse::ResolvedType::getInferred();
