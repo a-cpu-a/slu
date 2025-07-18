@@ -549,6 +549,53 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatementType::UnsafeLabel>
 		|| std::same_as<T, parse::StatementType::SafeLabel>;
 
+
+	inline GlobalElement* getOrDeclFn(ConvData& conv,parse::MpItmIdV<true> name,parse::Position place, const parse::ItmType::Fn* funcItmOrNull)
+	{
+		auto* mc = &conv.context;
+		mlir::OpBuilder& builder = conv.builder;
+
+		GlobalElement* funcInfo = conv.getElement(name);
+		if (funcInfo == nullptr)
+		{
+			mlir::OpBuilder::InsertionGuard guard(builder);
+			builder.setInsertionPointToStart(conv.module.getBody());
+
+			if (funcItmOrNull == nullptr)
+			{
+				const parse::Itm& rawItm = conv.sharedDb.getItm(name);
+				funcItmOrNull = &std::get<parse::ItmType::Fn>(rawItm);
+			}
+			const parse::ItmType::Fn& funcItm = *funcItmOrNull;
+
+			auto mangledName = mangleFuncName(conv, funcItm.abi, name);
+
+			llvm::SmallVector<mlir::Type> argTypes;
+			for (const parse::ResolvedType& i : funcItm.args)
+			{
+				if (i.size != 0)
+					argTypes.push_back(convType(conv, i, funcItm.abi));
+			}
+			llvm::SmallVector<mlir::Type, 1> retTypes;
+			if (funcItm.ret.size != 0)
+			{
+				if (funcItm.abi == "C"sv)
+					retTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
+				else//output by ref.
+					argTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
+			}
+
+			mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
+				convPos(conv, place), mangledName.sv(),
+				mlir::FunctionType::get(mc, argTypes, retTypes),
+				getExportAttr(conv, funcItm.exported),
+				nullptr, nullptr, false
+			);
+			funcInfo = conv.addElement(name, funcOp, funcItm.abi);
+		}
+		return funcInfo;
+	}
+
 	inline void convSoeOrBlock(ConvData& conv, const parse::SoeOrBlockV<true>& itm)
 	{
 
@@ -557,7 +604,6 @@ namespace slu::comp::mico
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
-
 
 		ezmatch(itm.data)(
 
@@ -703,7 +749,7 @@ namespace slu::comp::mico
 
 			auto& varInfo = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v.base;
 			auto name = std::get<parse::BaseVarType::NAMEv<true>>(varInfo);
-			GlobalElement* funcInfo = conv.getElement(name.v);
+			GlobalElement* funcInfo = getOrDeclFn(conv,name.v,itm.place,nullptr);
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//It cant be the other types, as they are alreadt desugared!
@@ -745,31 +791,7 @@ namespace slu::comp::mico
 
 		},
 		varcase(const parse::StatementType::FnDeclV<true>&) {
-
-			mlir::OpBuilder::InsertionGuard guard(builder);
-			builder.setInsertionPointToStart(conv.module.getBody());
-
-			const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
-			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
-
-			//TODO: use type converter for args!
-			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
-
-			llvm::SmallVector<mlir::Type, 1> retTypes;
-			if(funcItm.ret.size!=0)
-				retTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
-
-			auto putsType = builder.getFunctionType({ llvmPtrType }, retTypes);
-			//StringRef  name, FunctionType type, ArrayRef<NamedAttribute> attrs = {}, ArrayRef<DictionaryAttr> argAttrs = {});
-			//StringRef  sym_name, ::mlir::FunctionType function_type, /*optional*/::mlir::StringAttr sym_visibility, /*optional*/::mlir::ArrayAttr arg_attrs, /*optional*/::mlir::ArrayAttr res_attrs, /*optional*/bool no_inline = false);
-
-			auto mangledName = mangleFuncName(conv, funcItm.abi, var.name);
-			mlir::func::FuncOp decl = builder.create<mlir::func::FuncOp>(convPos(conv, itm.place),
-				mangledName.sv(),
-				putsType, getExportAttr(conv, var.exported),
-				nullptr, nullptr, false
-			);
-			conv.addElement(var.name, decl, funcItm.abi);
+			getOrDeclFn(conv, var.name, itm.place, nullptr);
 		},
 		varcase(const parse::StatementType::FnV<true>&) {
 
@@ -779,35 +801,7 @@ namespace slu::comp::mico
 			const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
 			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
 
-			GlobalElement* funcInfo = conv.getElement(var.name);
-			if (funcInfo == nullptr)
-			{
-
-				auto mangledName = mangleFuncName(conv, funcItm.abi, var.name);
-
-				llvm::SmallVector<mlir::Type> argTypes;
-				for (const parse::ResolvedType& i : funcItm.args)
-				{
-					if (i.size != 0)
-						argTypes.push_back(convType(conv, i, funcItm.abi));
-				}
-				llvm::SmallVector<mlir::Type, 1> retTypes;
-				if (funcItm.ret.size != 0)
-				{
-					if (funcItm.abi == "C"sv)
-						retTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
-					else//output by ref.
-						argTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
-				}
-
-				mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
-					convPos(conv, var.place), mangledName.sv(),
-					mlir::FunctionType::get(mc, argTypes, retTypes),
-					getExportAttr(conv, var.exported),
-					nullptr, nullptr, false
-				);
-				funcInfo = conv.addElement(var.name, funcOp, funcItm.abi);
-			}
+			GlobalElement* funcInfo = getOrDeclFn(conv, var.name, itm.place, &funcItm);
 
 			// Build a function in mlir
 			mlir::Block* entry = funcInfo->func.addEntryBlock();
