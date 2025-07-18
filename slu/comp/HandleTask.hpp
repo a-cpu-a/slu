@@ -248,6 +248,7 @@ namespace slu::comp
 					});*/
 					data.stat = &j;
 					slu::comp::mico::conv(data);
+					state.mp2Elements.clear();//The module doesnt exist anymore, cant reuse them.
 				}
 			}
 			module.print(llvm::outs());
