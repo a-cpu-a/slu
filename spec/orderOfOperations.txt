@@ -12,26 +12,28 @@ Order of Operations {
 	(pseudo) = ++= |= ~= &= <<= >>= += -= %= *= /= //= ^= **=
 	(pseudo) ,
 
-	unary operators (mut   alloc) --NOTE: mut is not really a operator, but is still listed here
+	unary operators (mut   alloc)
 	
 	or
 	and
-	!=	== (Not the same as lua!)
+	!=	==
 	
 	<	>	<=	 >=
+	
+	as
 	
 	~~
 	
 	++
 	**
 	
-	.. binary, post and prefix range operators
+	binary, post and prefix range operators (..)
 	
-	|	~	&	(Not the same as lua! they are all equal)
+	|	~	&	--(Not the same as most langs! they are all equal)
 	<<	 >>
 	unary operators(dyn impl) --NOTE: when this operator is used, it will consume all additions after it, no precedences matter!
 	+	-
-	% (Not the same as lua, modulus is bellow / * //)
+	% --(Not the same as most langs, modulus is bellow / * //)
 	*	/	//
 	unary operators (!	-	&   &const   &mut   &share   *   *const 	 *mut 	*share)
 	^
@@ -88,6 +90,7 @@ Order of Operations {
 	&share	RefShare	(unstable)
 	
 	.		----		(will consider lol)
+	as		----		(todo As::cast ? or maybe Cast::cast ?)
 	~~		----
 	dyn		----
 	impl	----
