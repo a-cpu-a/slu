@@ -104,7 +104,12 @@ namespace slu::mlvl
 				rt.hasMut = true;
 				return rt;
 			}
-			if (name != mpDb.data->getItm({ "std","ops","Ref","ref" }))
+			parse::UnOpType op;
+			if(name == mpDb.data->getItm({ "std","ops","Ref","ref" }))
+				op = parse::UnOpType::TO_REF;
+			else if (name == mpDb.data->getItm({ "std","ops","Ptr","ptr" }))
+				op = parse::UnOpType::TO_PTR;
+			else
 				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(mpDb)) + " (type resolution)");
 
 			//TODO apply lifetime.
@@ -116,7 +121,7 @@ namespace slu::mlvl
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::RefSlice{new parse::RefSliceRawType{
 						.elem=std::move(rt),
-						.refType= parse::UnOpType::TO_REF
+						.refType= op
 					}},
 					.size = sz
 				};
@@ -125,7 +130,7 @@ namespace slu::mlvl
 			{
 				//If already a ref chain, then just add the sigil.
 				auto& refChain = std::get<parse::RawTypeKind::RefChain>(rt.base);
-				refChain->chain.push_back(parse::RefSigil{ .refType = parse::UnOpType::TO_REF });
+				refChain->chain.push_back(parse::RefSigil{ .refType = op });
 				return rt;
 			}
 

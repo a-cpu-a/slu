@@ -328,6 +328,7 @@ namespace slu::comp::mico
 		}
 		);
 	}
+
 	mlir::Type convType(ConvData& conv, const parse::ResolvedType& itm, const std::string_view abi)
 	{
 		if(!itm.isComplete())
@@ -335,7 +336,7 @@ namespace slu::comp::mico
 
 		mlir::OpBuilder& builder = conv.builder;
 
-		mlir::IntegerType elemType;
+		mlir::Type elemType;
 		const bool cAbi = abi == "C"sv;
 		const bool elemUnsized = itm.size == parse::ResolvedType::UNSIZED_MARK;
 		if(elemUnsized)
@@ -345,7 +346,14 @@ namespace slu::comp::mico
 			elemType = builder.getIntegerType(8);
 		}
 		else
-			elemType = builder.getIntegerType(itm.size);
+		{
+			if (cAbi && itm.size==mlvl::TYPE_RES_PTR_SIZE && itm.outerSliceDims == 0 && std::holds_alternative<parse::RawTypeKind::RefChain>(itm.base))
+			{//Treat references & pointers as llvm.ptr.
+				elemType = mlir::LLVM::LLVMPointerType::get(&conv.context);
+			}
+			else
+				elemType = builder.getIntegerType(itm.size);
+		}
 
 		if (cAbi)
 		{
