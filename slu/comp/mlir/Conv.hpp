@@ -459,8 +459,8 @@ namespace slu::comp::mico
 			mlir::Value c1 = builder.create<mlir::arith::ConstantIndexOp>(loc, 1);
 			mlir::Value c2 = builder.create<mlir::arith::ConstantIndexOp>(loc, 2);
 			mlir::Value c3 = builder.create<mlir::arith::ConstantIndexOp>(loc, 3);
-			mlir::Value c64 = builder.create<mlir::arith::ConstantIndexOp>(loc, 64);
-			mlir::Value c128 = builder.create<mlir::arith::ConstantIndexOp>(loc, 128);
+			//mlir::Value c64I192 = builder.create<mlir::arith::ConstantIntOp>(loc, 64,ptrNsizeX2Int);
+			//mlir::Value c128I192 = builder.create<mlir::arith::ConstantIntOp>(loc, 128, ptrNsizeX2Int);
 
 
 			mlir::Value idx3Form = builder.create<mlir::memref::ReinterpretCastOp>(
@@ -760,7 +760,14 @@ namespace slu::comp::mico
 				args.emplace_back(convExpr(conv, i));
 			
 			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr) -> i32
-			builder.create<mlir::LLVM::CallOp>(
+			//builder.create<mlir::LLVM::CallOp>(
+			//	convPos(conv, itm.place),
+			//	funcInfo->func.getResultTypes(),
+			//	mlir::SymbolRefAttr::get(mc, funcInfo->func.getSymName()),
+			//	llvm::ArrayRef<mlir::Value>{args});
+
+
+			builder.create<mlir::func::CallOp>(
 				convPos(conv, itm.place),
 				funcInfo->func.getResultTypes(),
 				mlir::SymbolRefAttr::get(mc, funcInfo->func.getSymName()),
