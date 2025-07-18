@@ -71,10 +71,15 @@ namespace slu::comp::mico
 {
 	using namespace std::string_view_literals;
 
+	struct LocalStackVal
+	{
+		mlir::Value v;
+		const parse::ResolvedType* ty;
+	};
 	struct LocalStackItm
 	{
 		size_t itemCount;
-		std::vector<mlir::Value> values;
+		std::vector<LocalStackVal> values;
 	};
 
 	struct GlobalElement
@@ -266,7 +271,8 @@ namespace slu::comp::mico
 
 		return ezmatch(itm)(
 		varcase(const parse::BaseVarType::Local) {
-			mlir::Value alloc = conv.localsStack.back().values[var.v];
+			auto lcl = conv.localsStack.back().values[var.v];
+			mlir::Value alloc = lcl.v;
 
 			if constexpr (forStore)return alloc;
 
@@ -499,7 +505,7 @@ namespace slu::comp::mico
 			mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
 			builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
 
-			conv.localsStack.back().values[var.name.v] = alloc;
+			conv.localsStack.back().values[var.name.v] = { alloc ,nullptr};
 		},
 			varcase(const parse::StatementType::RepeatUntilV<true>&) {
 			mlir::Type i1Type = builder.getI1Type();
@@ -736,7 +742,10 @@ namespace slu::comp::mico
 			for (size_t i = 0; i < funcItm.argLocals.size(); i++)
 			{
 				parse::LocalId id = funcItm.argLocals[i];
-				conv.localsStack.back().values[id.v] = funcInfo->func.getArgument((unsigned int)i);
+				conv.localsStack.back().values[id.v] = {
+					funcInfo->func.getArgument((unsigned int)i),
+					&funcItm.args[i]
+				};
 			}
 
 			for (auto& i : var.func.block.statList)
