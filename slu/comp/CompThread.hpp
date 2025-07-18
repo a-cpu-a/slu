@@ -79,9 +79,31 @@ namespace slu::comp
 		mlirState.pm.addPass(mlir::createCSEPass());
 		//mlirState.pm.addPass(mlir::createSymbolDCEPass());
 
-
 		mlir::registerBuiltinDialectTranslation(mlirState.mc);
 		mlir::registerLLVMDialectTranslation(mlirState.mc);
+
+		{
+			lang::ModPath mp{ "std","ops" };
+			parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
+			for (auto& i : parse::unOpTraitNames)
+			{
+				mp.emplace_back(i);
+				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
+				mp.pop_back();
+			}
+			for (auto& i : parse::binOpTraitNames)
+			{
+				mp.emplace_back(i);
+				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
+				mp.pop_back();
+			}
+			for (auto& i : parse::postUnOpTraitNames)
+			{
+				mp.emplace_back(i);
+				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
+				mp.pop_back();
+			}
+		}
 
 		while (true)
 		{
