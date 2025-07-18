@@ -694,11 +694,12 @@ namespace slu::comp::mico
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());
 
+			const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
+			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
+
 			GlobalElement* funcInfo = conv.getElement(var.name);
 			if (funcInfo == nullptr)
 			{
-				const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
-				const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
 
 				auto mangledName = mangleFuncName(conv, funcItm.abi, var.name);
 
@@ -728,6 +729,11 @@ namespace slu::comp::mico
 
 			// Build a function in mlir
 			conv.addLocalStackItem(var.func.local2Mp.size());
+			for (size_t i = 0; i < funcItm.argLocals.size(); i++)
+			{
+				parse::LocalId id= funcItm.argLocals[i];
+				conv.localsStack.back().values[id.v] =funcInfo->func.getArgument((unsigned int)i);
+			}
 
 
 			mlir::Block* entry = funcInfo->func.addEntryBlock();

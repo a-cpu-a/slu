@@ -113,9 +113,8 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret,std::span<parse::Parameter<Cfg>> params)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret,std::span<parse::Parameter<Cfg>> params,const bool hasCode)
 		{
-
 			auto& localMp = *mpDataStack.back();
 
 			parse::ItmType::Fn res;
@@ -127,20 +126,25 @@ namespace slu::mlvl
 				res.ret = parse::ResolvedType{ .base = parse::RawTypeKind::Struct{},.size = 0 };
 
 			res.args.reserve(params.size());
+			if(hasCode)
+				res.argLocals.reserve(params.size());
 			for (auto& i : params)
 			{
-				auto& spec = std::get<parse::PatType::DestrName<Cfg, true>>(i.name).spec;
+				auto& pat = std::get<parse::PatType::DestrName<Cfg, true>>(i.name);
+				auto& spec = pat.spec;
 				parse::Expr<Cfg>& type = std::get<parse::DestrSpecType::Spat<Cfg>>(spec);
 				res.args.emplace_back(resolveTypeExpr(mpDb, std::move(type)));
+				if(hasCode)
+					res.argLocals.push_back(pat.name);
 			}
 
 			localMp.addItm(obj, std::move(res));
 		}
 		void postAnyFuncDeclStat(parse::StatementType::FunctionDecl<Cfg>& itm) {
-			mkFuncStatItm(itm.name.id, std::move(itm.abi), std::move(itm.retType), itm.params);
+			mkFuncStatItm(itm.name.id, std::move(itm.abi), std::move(itm.retType), itm.params,false);
 		}
 		void postAnyFuncDefStat(parse::StatementType::Function<Cfg>& itm) {
-			mkFuncStatItm(itm.name.id, std::move(itm.func.abi), std::move(itm.func.retType), itm.func.params);
+			mkFuncStatItm(itm.name.id, std::move(itm.func.abi), std::move(itm.func.retType), itm.func.params,true);
 		}
 
 		bool preBaseVarName(parse::BaseVarType::NAME<Cfg>& itm) {
