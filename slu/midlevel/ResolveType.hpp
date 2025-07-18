@@ -10,6 +10,8 @@ namespace slu::mlvl
 	inline const size_t TYPE_RES_SIZE_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
 	inline const size_t TYPE_RES_PTR_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
 
+	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type);
+
 	void handleTypeExprField(parse::BasicMpDb mpDb, size_t& nameIdx, parse::FieldV<true>& field,auto& res)
 	{
 
@@ -120,7 +122,7 @@ namespace slu::mlvl
 					.size = sz
 				};
 			}
-			if (std::holds_alternative<parse::RawTypeKind::RefChain>)
+			if (std::holds_alternative<parse::RawTypeKind::RefChain>(rt.base))
 			{
 				//If already a ref chain, then just add the sigil.
 				auto& refChain = std::get<parse::RawTypeKind::RefChain>(rt.base);
