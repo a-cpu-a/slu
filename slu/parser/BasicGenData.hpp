@@ -74,6 +74,7 @@ namespace slu::parse
 	struct StructRawType;
 	struct UnionRawType;
 	struct VariantRawType;
+	struct RefChainRawType;
 	struct RefSliceRawType;
 	struct DelStructRawType {
 		void operator()(StructRawType* it) const noexcept;
@@ -83,6 +84,9 @@ namespace slu::parse
 	};
 	struct DelVariantRawType {
 		void operator()(VariantRawType* it) const noexcept;
+	};
+	struct DelRefChainRawType {
+		void operator()(RefChainRawType* it) const noexcept;
 	};
 	struct DelRefSliceRawType {
 		void operator()(RefSliceRawType* it) const noexcept;
@@ -115,6 +119,7 @@ namespace slu::parse
 		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
 		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
 		using Struct = std::unique_ptr<StructRawType, DelStructRawType>;
+		using RefChain = std::unique_ptr<RefChainRawType, DelRefChainRawType>;
 		using RefSlice = std::unique_ptr<RefSliceRawType, DelRefSliceRawType>;
 	}
 	using RawType = std::variant<
@@ -135,20 +140,15 @@ namespace slu::parse
 		RawTypeKind::Variant,
 		RawTypeKind::Union,
 		RawTypeKind::Struct,
+		RawTypeKind::RefChain,
 		RawTypeKind::RefSlice
 	>;
-	struct TySigil
-	{
-		lang::MpItmIdV<true> life;
-		UnOpType refType;
-	};
 	struct ResolvedType
 	{
 		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50)-1;
 		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK -1;
 
 		RawType base;
-		std::vector<TySigil> sigils;//In application order, so {&share,&mut} -> &mut &share T
 		size_t size : 50;//in bits. element type size, ignoring outerSliceDims.
 		size_t outerSliceDims : 13 = 0;
 		size_t hasMut : 1 = false;
@@ -189,6 +189,16 @@ namespace slu::parse
 	{
 		std::vector<ResolvedType> options;
 	};
+	struct RefSigil
+	{
+		lang::MpItmIdV<true> life;
+		UnOpType refType;
+	};
+	struct RefChainRawType
+	{
+		ResolvedType elem;
+		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
+	};
 	struct RefSliceRawType
 	{
 		ResolvedType elem;//dims stored in here.
@@ -201,6 +211,9 @@ namespace slu::parse
 		delete it;
 	}
 	void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelRefChainRawType::operator()(RefChainRawType* it) const noexcept {
 		delete it;
 	}
 	void ::slu::parse::DelRefSliceRawType::operator()(RefSliceRawType* it) const noexcept {
@@ -290,6 +303,40 @@ namespace slu::parse
 		BasicModPathData(BasicModPathData&&) = default;
 		BasicModPathData& operator=(BasicModPathData&&) = default;
 	};
+	struct BasicMpDbData
+	{
+		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
+		std::vector<BasicModPathData> mps{1};
+
+		const Itm& getItm(const MpItmIdV<true> name) const {
+			return mps[name.mp.id].id2Itm[name.id.val];
+		}
+
+		ModPath getMp(const MpItmIdV<true> name)const 
+		{
+			const BasicModPathData& data = mps[name.mp.id];
+			ModPath res;
+			res.reserve(data.path.size() + 1);
+			res.insert(res.end(), data.path.begin(), data.path.end());
+			res.push_back(data.id2Name[name.id.val]);
+			return res;
+		}
+
+		MpItmIdV<true> getItm(const AnyMp auto& path) const
+		{
+			if (path.size() == 1)
+			{
+				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
+			}
+			MpItmIdV<true> res;
+			res.mp = mp2Id.find(path.subspan(0, path.size() - 1))->second;
+			res.id = mps[res.mp.id].at(path.back());
+			return res;
+		}
+		MpItmIdV<true> getItm(const std::initializer_list<std::string_view>& path) const {
+			return getItm((lang::ViewModPathView)path);
+		}
+	};
 	struct LuaMpDb
 	{
 		std::unordered_map<std::string, LocalObjId> name2Id;
@@ -317,38 +364,7 @@ namespace slu::parse
 		lang::ViewModPath asVmp(const MpItmIdV<false> v) const {
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
-			return { id2Name[v.id.val]};
-		}
-	};
-	struct BasicMpDbData
-	{
-		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
-		std::vector<BasicModPathData> mps{1};
-
-
-		ModPath getMp(const MpItmIdV<true> name)const 
-		{
-			const BasicModPathData& data = mps[name.mp.id];
-			ModPath res;
-			res.reserve(data.path.size() + 1);
-			res.insert(res.end(), data.path.begin(), data.path.end());
-			res.push_back(data.id2Name[name.id.val]);
-			return res;
-		}
-
-		MpItmIdV<true> getItm(const AnyMp auto& path) const
-		{
-			if (path.size() == 1)
-			{
-				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
-			}
-			MpItmIdV<true> res;
-			res.mp = mp2Id.find(path.subspan(0, path.size() - 1))->second;
-			res.id = mps[res.mp.id].at(path.back());
-			return res;
-		}
-		MpItmIdV<true> getItm(const std::initializer_list<std::string_view>& path) const {
-			return getItm((lang::ViewModPathView)path);
+			return { id2Name[v.id.val] };
 		}
 	};
 	struct BasicMpDb

@@ -120,16 +120,21 @@ namespace slu::mlvl
 					.size = sz
 				};
 			}
-			else
+			if (std::holds_alternative<parse::RawTypeKind::RefChain>)
 			{
-				rt.size = TYPE_RES_PTR_SIZE;
-
-				rt.sigils.emplace_back(
-					parse::TySigil{ .refType = parse::UnOpType::TO_REF }
-				);
+				//If already a ref chain, then just add the sigil.
+				auto& refChain = std::get<parse::RawTypeKind::RefChain>(rt.base);
+				refChain->chain.push_back(parse::RefSigil{ .refType = parse::UnOpType::TO_REF });
+				return rt;
 			}
 
-			return rt;
+			return parse::ResolvedType{
+				.base = parse::RawTypeKind::RefChain{new parse::RefChainRawType{
+					.elem = std::move(rt),
+					.chain = { parse::RefSigil{.refType = parse::UnOpType::TO_REF}}
+				}},
+				.size = TYPE_RES_PTR_SIZE
+			};
 		},
 		varcase(parse::ExprType::LimPrefixExprV<true>&&)->parse::ResolvedType {
 
