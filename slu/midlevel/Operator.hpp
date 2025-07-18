@@ -357,6 +357,49 @@ namespace slu::mlvl
 
 		return opsRes;
 	}
+
+	/// @returns the order of unary operations as a vector of bools, where true means post-unary operation
+	constexpr std::vector<bool> unaryOpOrder(const parse::ExprV<true>& expr)
+	{
+		size_t opCount = expr.postUnOps.size() + expr.unOps.size();
+		if(expr.postUnOps.empty() || expr.unOps.empty())
+		{// Only one side, so no order.
+			std::vector<bool> res(opCount, expr.unOps.empty());
+			return res;
+		}
+
+		std::vector<bool> res(opCount,false);
+		size_t unOpIdx = expr.unOps.size()-1;
+		size_t postUnOpIdx = 0;
+
+		uint8_t unPrec = 0;
+		uint8_t postPrec = 0;
+
+		for (size_t i = 0; i < res.size(); i++)
+		{
+			if(precedence<false>(expr.unOps[unOpIdx]) >= precedence<false>(expr.postUnOps.at(postUnOpIdx)))
+			{
+				res[i] = false; // UnOp
+				unOpIdx--;
+				if (unOpIdx == SIZE_MAX)
+				{// Fill the rest.
+					std::fill_n(res.begin() + i + 1, res.size() - i - 1, true);
+					break;
+				}
+			}
+			else
+			{
+				res[i] = true; // PostUnOp
+				postUnOpIdx++;
+				if(postUnOpIdx >= expr.postUnOps.size())
+				{// Fill the rest.
+					std::fill_n(res.begin() + i + 1, res.size() - i - 1, false);
+					break;
+				}
+			}
+		}
+		return res;
+	}
 	/*
 	struct UnOpOrderEntry
 	{

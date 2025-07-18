@@ -453,6 +453,87 @@ namespace slu::mlvl
 				convVar<false>(itm, std::get<parse::StatementType::Const<Cfg>>(itm.data));
 		}
 
+		void desugarUnOp(parse::Expr<Cfg>& expr,
+			std::vector<parse::UnOpItem>& unOps, 
+			parse::SmallEnumList<parse::PostUnOpType>& postUnOps,
+			size_t opIdx,
+			bool isSufOp)
+		{
+			//TODO: special handling for '.*', '?'. -> defer to after type checking / inference?
+
+			parse::Position place = expr.place;
+			//Wrap
+			parse::MpItmId<Cfg> name;
+			parse::Lifetime* lifetime = nullptr;
+
+			if (isSufOp)
+			{
+				parse::PostUnOpType op = postUnOps.at(opIdx);
+				const size_t traitIdx = (size_t)op - 1; //-1 for none
+
+				name = postUnOpFuncs[traitIdx].get([&] {
+					//TODO: implement post-unop func name selection
+					if (op == parse::PostUnOpType::RANGE_AFTER)
+					{
+						lang::ModPath name;
+						name.reserve(4);
+						name.emplace_back("std");
+						name.emplace_back("ops");
+						name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
+						name.emplace_back(parse::postUnOpNames[traitIdx]);
+						return mpDb.getItm(name);
+					}
+					//TODO!!!
+					return parse::MpItmId<Cfg>::newEmpty();
+					});
+			}
+			else
+			{
+				parse::UnOpItem& op = unOps[opIdx];
+				const size_t traitIdx = (size_t)op.type - 1; //-1 for none
+
+				name = unOpFuncs[traitIdx].get([&] {
+					lang::ModPath name;
+					name.reserve(4);
+					name.emplace_back("std");
+					name.emplace_back("ops");
+					if (op.type == parse::UnOpType::RANGE_BEFORE)
+						name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
+					else
+						name.emplace_back(parse::unOpTraitNames[traitIdx]);
+					name.emplace_back(parse::unOpNames[traitIdx]);
+					return mpDb.getItm(name);
+					});
+				if (!op.life.empty())
+				{
+					_ASSERT(op.type == parse::UnOpType::TO_REF
+						|| op.type == parse::UnOpType::TO_REF_MUT
+						|| op.type == parse::UnOpType::TO_REF_CONST
+						|| op.type == parse::UnOpType::TO_REF_SHARE);
+					lifetime = &op.life;
+				}
+				//Else: its inferred, or doesnt exist
+			}
+			
+			parse::ExprType::FuncCall<Cfg> call;
+			parse::ArgsType::ExprList<Cfg> list;
+			list.emplace_back(std::move(expr));
+
+			if (lifetime != nullptr)
+			{
+				parse::Expr<Cfg> lifetimeExpr;
+				lifetimeExpr.place = place;
+				lifetimeExpr.data = parse::ExprType::Lifetime{ std::move(*lifetime) };
+				list.emplace_back(std::move(lifetimeExpr));
+			}
+			call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
+			call.val = parse::mkLpeVar(name);
+
+			//Turn the (moved)expr in a function call expression
+			expr.data = std::move(call);
+			expr.place = place;
+		}
+
 		using ExprT = parse::Expr<Cfg>;
 		bool preExpr(ExprT& itm)
 		{
@@ -541,88 +622,29 @@ namespace slu::mlvl
 					case OpKind::UnOp:
 					case OpKind::PostUnOp:
 					{
-						//TODO: special handling for '.*', '?'. -> defer to after type checking / inference
-
 						auto& opSrcExpr = expStack[i.index];
-
-						auto& expr = expStack.back();
-						parse::Position place = expr.place;
-						//Wrap
-						parse::MpItmId<Cfg> name;
-						parse::Lifetime* lifetime = nullptr;
-						{
-							if (i.kind == OpKind::UnOp)
-							{
-								parse::UnOpItem& op = opSrcExpr.unOps[i.opIdx];
-								const size_t traitIdx = (size_t)op.type - 1; //-1 for none
-
-								name = unOpFuncs[traitIdx].get([&] {
-									lang::ModPath name;
-									name.reserve(4);
-									name.emplace_back("std");
-									name.emplace_back("ops");
-									if (op.type == parse::UnOpType::RANGE_BEFORE)
-										name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
-									else
-										name.emplace_back(parse::unOpTraitNames[traitIdx]);
-									name.emplace_back(parse::unOpNames[traitIdx]);
-									return mpDb.getItm(name);
-									});
-								if (!op.life.empty())
-								{
-									_ASSERT(op.type == parse::UnOpType::TO_REF
-										|| op.type == parse::UnOpType::TO_REF_MUT
-										|| op.type == parse::UnOpType::TO_REF_CONST
-										|| op.type == parse::UnOpType::TO_REF_SHARE);
-									lifetime = &op.life;
-								}
-								//Else: its inferred, or doesnt exist
-							}
-							else if (i.kind == OpKind::PostUnOp)
-							{
-								parse::PostUnOpType op = opSrcExpr.postUnOps.at(i.opIdx);
-								const size_t traitIdx = (size_t)op - 1; //-1 for none
-
-								name = postUnOpFuncs[traitIdx].get([&] {
-									//TODO: implement post-unop func name selection
-									if (op == parse::PostUnOpType::RANGE_AFTER)
-									{
-										lang::ModPath name;
-										name.reserve(4);
-										name.emplace_back("std");
-										name.emplace_back("ops");
-										name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
-										name.emplace_back(parse::postUnOpNames[traitIdx]);
-										return mpDb.getItm(name);
-									}
-									//TODO!!!
-									return parse::MpItmId<Cfg>::newEmpty();
-									});
-							}
-						}
-						parse::ExprType::FuncCall<Cfg> call;
-						parse::ArgsType::ExprList<Cfg> list;
-						list.emplace_back(std::move(expr));
-
-						if (lifetime != nullptr)
-						{
-							parse::Expr<Cfg> lifetimeExpr;
-							lifetimeExpr.place = place;
-							lifetimeExpr.data = parse::ExprType::Lifetime{ std::move(*lifetime) };
-							list.emplace_back(std::move(lifetimeExpr));
-						}
-						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
-						call.val = parse::mkLpeVar(name);
-
-						//Turn the (moved)expr in a function call expression
-						expr.data = std::move(call);
-						expr.place = place;
+						desugarUnOp(expStack.back(), opSrcExpr.unOps, opSrcExpr.postUnOps,i.opIdx, i.kind==OpKind::PostUnOp);
 						break;
 					}
 					};
 				}
-				//desugar operators into trait func calls!
+				//dont call normal stuff!
 				return true;
+			}
+			else
+			{//Desugar un/post ops alone.
+				const std::vector<bool> order = unaryOpOrder(itm);
+
+				std::vector<parse::UnOpItem> preOps = std::move(itm.unOps);
+				parse::SmallEnumList<parse::PostUnOpType> sufOps = std::move(itm.postUnOps);
+
+				size_t preIdx=0;
+				size_t sufIdx=0;
+				for (const bool isSufOp : order)
+				{
+					desugarUnOp(itm, preOps, sufOps, isSufOp ? (sufIdx++) : (preIdx++), isSufOp);
+				}
+
 			}
 			return false;
 		}; 
