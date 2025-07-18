@@ -478,6 +478,7 @@ namespace slu::mlvl
 						ExprT& newExpr = expStack.emplace_back();
 						newExpr.data = std::move(parent.data);
 						newExpr.place = parent.place;
+						visit::visitExpr(*this, newExpr);
 						break;
 					}
 					case OpKind::BinOp:
