@@ -37,10 +37,17 @@ namespace slu::comp
 		mlirState.mc.getOrLoadDialect<mlir::LLVM::LLVMDialect>();
 		mlirState.mc.getOrLoadDialect<mlir::arith::ArithDialect>();
 		mlirState.mc.getOrLoadDialect<mlir::index::IndexDialect>();
+		mlirState.mc.getOrLoadDialect<mlir::DLTIDialect>();
+
+
+		mlir::LowerToLLVMOptions llvmOptions(&mlirState.mc);
+		llvmOptions.overrideIndexBitwidth(64);
+
 		TaskHandleState state{
 			.s = &mlirState,
 			.target = mlir::LLVMConversionTarget{mlirState.mc},
-			.typeConverter = mlir::LLVMTypeConverter{&mlirState.mc}
+			.typeConverter = mlir::LLVMTypeConverter{&mlirState.mc,llvmOptions},
+			.indexSize = 64
 		};
 		state.target.addLegalOp<mlir::ModuleOp>();
 
@@ -48,16 +55,19 @@ namespace slu::comp
 
 		mlir::populateAffineToStdConversionPatterns(patterns);
 		mlir::populateSCFToControlFlowConversionPatterns(patterns);
+		mlir::index::populateIndexToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::arith::populateArithToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::populateFinalizeMemRefToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::cf::populateControlFlowToLLVMConversionPatterns(state.typeConverter, patterns);
-		mlir::index::populateIndexToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::populateFuncToLLVMConversionPatterns(state.typeConverter, patterns);
 
-		//mlir::populateFuncToLLVMFuncOpConversionPattern(state.typeConverter, patterns);
 
 		state.s->patterns = mlir::FrozenRewritePatternSet{ std::move(patterns) };
 
+		mlirState.indexLay = mlir::DataLayoutEntryAttr::get(
+			mlirState.opBuilder.getIndexType(),
+			mlirState.opBuilder.getI32IntegerAttr(state.indexSize)
+		);
 
 		// Optional: enable IR printing/debugging
 		mlirState.pm.enableVerifier(/*verifyPasses=*/true);

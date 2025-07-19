@@ -74,6 +74,7 @@ namespace slu::comp
 		mlir::OpBuilder opBuilder{ &mc };
 		mlir::PassManager pm{ &mc };
 		mlir::FrozenRewritePatternSet patterns;
+		mlir::DataLayoutEntryAttr indexLay;
 	};
 	struct TaskHandleState
 	{
@@ -88,6 +89,8 @@ namespace slu::comp
 		mlir::LLVMTypeConverter typeConverter;
 
 		std::vector<mico::MpElementInfo> mp2Elements;
+
+		uint32_t indexSize = 64;
 	};
 
 	inline lang::ModPath parsePath(std::string_view crateRootPath, std::string_view path)
@@ -224,12 +227,17 @@ namespace slu::comp
 			//out.text = std::move(outVec);
 
 			auto module = mlir::ModuleOp::create(state.s->opBuilder.getUnknownLoc(), "HelloWorldModule");
-			state.s->opBuilder.setInsertionPointToStart(module.getBody());
+
+			mlir::OpBuilder& builder = state.s->opBuilder;
+
+			module->setAttr(mlir::DLTIDialect::kDataLayoutAttrName,
+				mlir::DataLayoutSpecAttr::get(&state.s->mc, { state.s->indexLay }));
+			builder.setInsertionPointToStart(module.getBody());
 
 			using namespace std::literals::string_view_literals;
-			auto privVis = state.s->opBuilder.getStringAttr("private"sv);
-			//auto publVis = state.s->opBuilder.getStringAttr("nested"sv);
-			//auto nestVis = state.s->opBuilder.getStringAttr("nested"sv);
+			auto privVis = builder.getStringAttr("private"sv);
+			//auto publVis = builder.getStringAttr("nested"sv);
+			//auto nestVis = builder.getStringAttr("nested"sv);
 
 			auto data = mico::ConvData{
 						CommonConvData{cfg,*state.sharedDb},
