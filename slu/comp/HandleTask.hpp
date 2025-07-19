@@ -263,13 +263,13 @@ namespace slu::comp
 
 			if (mlir::failed(mlir::applyFullConversion(module, state.target, state.s->patterns)))
 			{
-				cfg.logPtr("Failed to apply full conversion for entrypoint: " + std::to_string(var.entrypointId));
+				cfg.errPtr("Failed to apply full conversion for entrypoint: " + std::to_string(var.entrypointId));
 				//todo: filename!
 				return;
 			}
 			if (mlir::failed(state.s->pm.run(module)))
 			{
-				cfg.logPtr("Failed to run pass manager for entrypoint: " + std::to_string(var.entrypointId));
+				cfg.errPtr("Failed to run pass manager for entrypoint: " + std::to_string(var.entrypointId));
 				//todo: filename!
 				return;
 			}
@@ -279,7 +279,7 @@ namespace slu::comp
 			auto llvmMod = mlir::translateModuleToLLVMIR(module, state.s->llvmCtx, "HelloWorldLlvmModule");
 			if (!llvmMod)
 			{
-				cfg.logPtr("Failed to translate module to Llvm Ir for entrypoint: " + std::to_string(var.entrypointId));
+				cfg.errPtr("Failed to translate module to Llvm Ir for entrypoint: " + std::to_string(var.entrypointId));
 				//todo: filename!
 				return;
 			}
@@ -291,7 +291,7 @@ namespace slu::comp
 				llvm::Linker linker(*p->second);
 				if (linker.linkInModule(std::move(llvmMod)))
 				{
-					cfg.logPtr("Failed to link module for entrypoint: " + std::to_string(var.entrypointId));
+					cfg.errPtr("Failed to link module for entrypoint: " + std::to_string(var.entrypointId));
 					return;
 				}
 				cfg.logPtr("==== LINK ====");
@@ -309,7 +309,7 @@ namespace slu::comp
 				const llvm::Target* target = llvm::TargetRegistry::lookupTarget(targetTriple, error);
 				if (!target)
 				{
-					cfg.logPtr("Failed to find target: " + error);
+					cfg.errPtr("Failed to find target: " + error);
 					continue;
 				}
 

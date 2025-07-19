@@ -12,15 +12,15 @@ safe extern "C" {
 ex fn main() -> {}
 {
 	let mut &:>::std::str s = --[=[Implicit conv]=] "Hello world! \u{1F600} x.x\x00";
-	let unused = 4;--type == 4
+	--let unused = 4;--type == 4
 	
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
 	
 	--puts(s);
-	s = --[=[Implicit conv]=] "I have stolen the show! 😈\x00";
+	--s = --[=[Implicit conv]=] "I have stolen the show! 😈\x00";
 	--puts(s);
 	
 	--TODO: once type is available, alloca a memref with a proper slice ref, pass it in.
-	:>::std::_println(--[=[Implicit conversion from "c...0" to &str]=] "called helloWorld()\x00");
+	--:>::std::_println(--[=[Implicit conversion from "c...0" to &str]=] "called helloWorld()\x00");
 }

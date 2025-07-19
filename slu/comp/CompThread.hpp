@@ -49,16 +49,16 @@ namespace slu::comp
 			.typeConverter = mlir::LLVMTypeConverter{&mlirState.mc,llvmOptions},
 			.indexSize = 64
 		};
-		state.target.addLegalOp<mlir::ModuleOp>();
+		state.target.addLegalOp<mlir::ModuleOp>(); 
 
 		mlir::RewritePatternSet patterns{ &mlirState.mc };
 
 		mlir::populateAffineToStdConversionPatterns(patterns);
 		mlir::populateSCFToControlFlowConversionPatterns(patterns);
-		mlir::index::populateIndexToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::arith::populateArithToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::populateFinalizeMemRefToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::cf::populateControlFlowToLLVMConversionPatterns(state.typeConverter, patterns);
+		mlir::index::populateIndexToLLVMConversionPatterns(state.typeConverter, patterns);
 		mlir::populateFuncToLLVMConversionPatterns(state.typeConverter, patterns);
 
 

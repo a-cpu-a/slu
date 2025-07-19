@@ -114,8 +114,8 @@ int main()
 		std::cout << msg << "\n";
 		};
 	cfg.errPtr = [](const std::string_view msg) {
-		//RED_COLOR_FG ... RESET
-		std::cerr <<"\x1B[38;5;220m" << msg << "\x1B[0m\n";
+		//220 warn
+		std::cerr <<"\x1B[38;5;202m" << msg << "\x1B[0m\n";
 		};
 	cfg.getFileListPtr = [](const std::string_view folderName) -> std::vector<std::string> {
 		std::vector<std::string> files;
