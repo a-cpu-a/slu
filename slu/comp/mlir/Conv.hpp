@@ -611,15 +611,15 @@ namespace slu::comp::mico
 			throw std::runtime_error("Unimplemented statement type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
 			varcase(const parse::StatementType::CanonicLocal&) {
-			mlir::Value val = convExpr(conv, var.value);
+			mlir::Value alloc = convExpr(conv, var.value);
 
-			const mlir::Location loc = convPos(conv, itm.place);
-			auto memrefType = mlir::MemRefType::get({ 1 }, val.getType()); // memref<1x_>
-			mlir::Value alloc = builder.create<mlir::memref::AllocaOp>(loc, memrefType);
+			//const mlir::Location loc = convPos(conv, itm.place);
+			//auto memrefType = mlir::MemRefType::get({ 1 }, val.getType()); // memref<1x_>
+			//mlir::Value alloc = builder.create<mlir::memref::AllocaOp>(loc, memrefType);
 
 
-			mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
-			builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
+			//mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+			//builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
 
 			conv.localsStack.back().values[var.name.v] = { alloc ,nullptr};
 		},
