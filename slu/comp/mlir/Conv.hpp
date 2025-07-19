@@ -807,20 +807,31 @@ namespace slu::comp::mico
 
 			const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
 			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
+			const bool cAbi = funcItm.abi == "C"sv;
 
 			GlobalElement* funcInfo = getOrDeclFn(conv, var.name, itm.place, &funcItm);
 
 			// Build a function in mlir
 			mlir::Block* entry = funcInfo->func.addEntryBlock();
 			builder.setInsertionPointToStart(entry);
+			mlir::Location loc = convPos(conv, itm.place);
 
 			//Locals, arguments.
 			conv.addLocalStackItem(var.func.local2Mp.size());
 			for (size_t i = 0; i < funcItm.argLocals.size(); i++)
 			{
 				parse::LocalId id = funcItm.argLocals[i];
+				mlir::Value val = funcInfo->func.getArgument((unsigned int)i);
+				if (cAbi)
+				{//C ABI: arguments are passed by value, so we need to allocate a memref for them.
+					auto memrefType = mlir::MemRefType::get({ 1 }, val.getType());
+					mlir::Value alloc = builder.create<mlir::memref::AllocaOp>(loc, memrefType);
+					mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
+					builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
+					val = alloc;
+				}
 				conv.localsStack.back().values[id.v] = {
-					funcInfo->func.getArgument((unsigned int)i),
+					val,
 					&funcItm.args[i]
 				};
 			}
