@@ -219,12 +219,12 @@ namespace slu::comp::mico
 			if(abi=="C")
 				return mlir::LLVM::LLVMPointerType::get(&conv.context);
 
-			auto i8Type = conv.builder.getIntegerType(8);
+			auto i8Type = conv.builder.getI8Type();
 			return mlir::MemRefType::get({ mlir::ShapedType::kDynamic }, i8Type, {}, 0);
 		}
 		if (name == conv.sharedDb.getItm({ "std","i32" }))
 		{
-			auto i32Type = conv.builder.getIntegerType(32);
+			auto i32Type = conv.builder.getI32Type();
 			if (reffed)
 				return mlir::MemRefType::get({ 1 }, i32Type, {}, 0);
 			return i32Type;
@@ -309,7 +309,7 @@ namespace slu::comp::mico
 		},
 		varcase(const parse::BaseVarType::Root) {
 			//TODO: builtin root-mp reflection value
-			auto i1Type = builder.getIntegerType(1);
+			auto i1Type = builder.getI1Type();
 			return (mlir::Value)builder.create<mlir::arith::ConstantOp>(
 				convPos(conv, place), i1Type, mlir::IntegerAttr::get(i1Type, 0)
 			);
@@ -344,7 +344,7 @@ namespace slu::comp::mico
 		{
 			if(cAbi)
 				throw std::runtime_error("Found unsized type in C ABI (mlir conversion)");
-			elemType = builder.getIntegerType(8);
+			elemType = builder.getI8Type();
 		}
 		else
 		{
@@ -385,7 +385,7 @@ namespace slu::comp::mico
 	inline mlir::Value convAny64(ConvData& conv, parse::Position place, const parse::Any64BitInt auto itm)
 	{
 		mlir::OpBuilder& builder = conv.builder;
-		auto i64Type = builder.getIntegerType(64);
+		auto i64Type = builder.getI64Type();
 		return builder.create<mlir::arith::ConstantOp>(
 			convPos(conv, place), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)itm)
 		);
@@ -420,8 +420,8 @@ namespace slu::comp::mico
 		},
 		varcase(const parse::ExprType::String&)->mlir::Value {
 		
-			auto i8Type = builder.getIntegerType(8);
-			auto i64Type = builder.getIntegerType(64);
+			auto i8Type = builder.getI8Type();
+			auto i64Type = builder.getI64Type();
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			auto strType = mlir::MemRefType::get({ (int64_t)var.v.size() }, i8Type, {}, 0);
 
