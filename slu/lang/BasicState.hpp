@@ -61,9 +61,7 @@ namespace slu::lang
 			return v.asSv({ *(const MpItmIdV<isSlu>*)this });
 		}
 
-		std::string_view asSv(const parse::BasicMpDbData& v) const requires(isSlu) {
-			return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *(const MpItmIdV<true>*)this });
-		}
+		std::string_view asSv(const parse::BasicMpDbData& v) const requires(isSlu);
 
 		constexpr auto operator<=>(const MpItmIdCommonV&)const = default;
 	};
@@ -90,6 +88,12 @@ namespace slu::lang
 
 		constexpr auto operator<=>(const MpItmIdV<true>&)const = default;
 	};
+
+
+	template<bool isSlu>
+	std::string_view MpItmIdCommonV<isSlu>::asSv(const parse::BasicMpDbData& v) const requires(isSlu) {
+		return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *(const MpItmIdV<true>*)this });
+	}
 
 	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
 	using ExportData = bool;
