@@ -444,7 +444,7 @@ namespace slu::comp::mico
 					strType,
 					denseStr,
 					/*constant=*/true,
-					/*alignment=*/builder.getIntegerAttr(i8Type, 1)
+					/*alignment=*/builder.getIntegerAttr(i64Type, 1)
 				);
 			}
 		
@@ -780,7 +780,8 @@ namespace slu::comp::mico
 			conv.addLocalStackItem(var.local2Mp.size());
 
 			const auto str = "Hello world\0"sv;
-			auto i8Type = builder.getIntegerType(8);
+			auto i8Type = builder.getI8Type();
+			auto i64Type = builder.getI64Type();
 			auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, i8Type, {}, 0);
 			
 			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
@@ -792,7 +793,7 @@ namespace slu::comp::mico
 				strType,
 				denseStr,
 				/*constant=*/true,
-				/*alignment=*/builder.getIntegerAttr(i8Type, 1)
+				/*alignment=*/builder.getIntegerAttr(i64Type, 1)
 			);
 
 			conv.localsStack.pop_back();
