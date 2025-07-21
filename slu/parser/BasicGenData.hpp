@@ -53,8 +53,11 @@ namespace slu::parse
 		return name;
 	}
 
-	struct _ew_string_haah:std::hash<std::string>, std::hash<std::string_view> {
+	struct _ew_string_haah {
 		using is_transparent = void;
+		auto operator()(const auto& a) const noexcept {
+			return std::hash<std::string_view>{}((std::string_view)a);
+		}
 	};
 	struct _ew_string_eq {
 		using is_transparent = void;
