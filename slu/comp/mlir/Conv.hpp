@@ -476,15 +476,12 @@ namespace slu::comp::mico
 			mlir::Value ptr = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(loc, globalStr);
 			auto data = builder.create<mlir::memref::ExtractStridedMetadataOp>(loc, globalStr);
 
-			//mlir::Value idx3Form = builder.create<mlir::memref::ReinterpretCastOp>(
-			//	loc,idx3Type, refSliceAlloc, 
-			//	c0,
-			//	/*sizes   =*/mlir::ValueRange{ c3 },
-			//	/*strides =*/mlir::ValueRange{ c1 }
+			//mlir::Value idx3Form = builder.create<slu_dial::ReinterpretMemRefOp>(
+			//	loc,idx3Type,refSliceAlloc
 			//);
-			mlir::Value idx3Form = builder.create<slu_dial::ReinterpretMemRefOp>(
-				loc,idx3Type,refSliceAlloc
-			);
+			mlir::Value idx3Form = builder.create<mlir::UnrealizedConversionCastOp>(
+				loc, mlir::TypeRange{ idx3Type }, mlir::ValueRange{ refSliceAlloc }
+			).getResult(0);
 			//store ptr,size,stride into idx3Form.
 
 
