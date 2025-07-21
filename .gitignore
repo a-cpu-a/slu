@@ -34,3 +34,12 @@ temp
 /x64/*
 **/build/
 **/_TEST_OUT
+
+**/SluDialect.cpp.inc
+**/SluDialect.h.inc
+**/SluOps.cpp.inc
+**/SluOps.h.inc
+**/SluOpsDialect.cpp.inc
+**/SluOpsDialect.h.inc
+**/SluOpsTypes.cpp.inc
+**/SluOpsTypes.h.inc
