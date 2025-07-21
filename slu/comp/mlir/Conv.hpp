@@ -436,7 +436,7 @@ namespace slu::comp::mico
 				mlir::OpBuilder::InsertionGuard guard(builder);
 				builder.setInsertionPointToStart(conv.module.getBody());
 		
-				auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ var.v.data(),var.v.size() });
+				auto denseStr = builder.getDenseI8ArrayAttr(llvm::ArrayRef{ (const int8_t*)var.v.data(),var.v.size() });
 				builder.create<mlir::memref::GlobalOp>(
 					loc,
 					strName.sref(),
@@ -784,7 +784,7 @@ namespace slu::comp::mico
 			auto i64Type = builder.getI64Type();
 			auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, i8Type, {}, 0);
 			
-			auto denseStr = mlir::DenseElementsAttr::get(strType, llvm::ArrayRef{ str.data(),str.size() });
+			auto denseStr = builder.getDenseI8ArrayAttr(llvm::ArrayRef{ (const int8_t*)str.data(),str.size() });
 
 			builder.create<mlir::memref::GlobalOp>(
 				convPos(conv, itm.place),
