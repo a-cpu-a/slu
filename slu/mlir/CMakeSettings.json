@@ -1,0 +1,9 @@
+﻿{
+  "configurations": [
+    {
+      "name": "Existing Cache",
+      "cacheRoot": "${CMAKE_CURRENT_LIST_DIR}/build",
+      "inheritEnvironments": []
+    }
+  ]
+}
