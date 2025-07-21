@@ -73,7 +73,7 @@ namespace slu::comp
 		llvm::LLVMContext llvmCtx;
 		mlir::OpBuilder opBuilder{ &mc };
 		mlir::PassManager pm{ &mc };
-		mlir::FrozenRewritePatternSet patterns;
+		//mlir::FrozenRewritePatternSet patterns;
 		mlir::DataLayoutEntryAttr indexLay;
 	};
 	struct TaskHandleState
@@ -86,7 +86,7 @@ namespace slu::comp
 		std::unordered_map<uint32_t, std::unique_ptr<llvm::Module>> genOut;
 
 		mlir::LLVMConversionTarget target;
-		mlir::LLVMTypeConverter typeConverter;
+		//mlir::LLVMTypeConverter typeConverter;
 
 		std::vector<mico::MpElementInfo> mp2Elements;
 
@@ -261,12 +261,12 @@ namespace slu::comp
 			}
 			module.print(llvm::outs());
 
-			if (mlir::failed(mlir::applyFullConversion(module, state.target, state.s->patterns)))
-			{
-				cfg.errPtr("Failed to apply full conversion for entrypoint: " + std::to_string(var.entrypointId));
-				//todo: filename!
-				return;
-			}
+			//if (mlir::failed(mlir::applyFullConversion(module, state.target, state.s->patterns)))
+			//{
+			//	cfg.errPtr("Failed to apply full conversion for entrypoint: " + std::to_string(var.entrypointId));
+			//	//todo: filename!
+			//	return;
+			//}
 			if (mlir::failed(state.s->pm.run(module)))
 			{
 				cfg.errPtr("Failed to run pass manager for entrypoint: " + std::to_string(var.entrypointId));

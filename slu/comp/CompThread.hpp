@@ -40,29 +40,29 @@ namespace slu::comp
 		mlirState.mc.getOrLoadDialect<mlir::DLTIDialect>();
 
 
-		mlir::LowerToLLVMOptions llvmOptions(&mlirState.mc);
-		llvmOptions.overrideIndexBitwidth(64);
+		//mlir::LowerToLLVMOptions llvmOptions(&mlirState.mc);
+		//llvmOptions.overrideIndexBitwidth(64);
 
 		TaskHandleState state{
 			.s = &mlirState,
 			.target = mlir::LLVMConversionTarget{mlirState.mc},
-			.typeConverter = mlir::LLVMTypeConverter{&mlirState.mc,llvmOptions},
+			//.typeConverter = mlir::LLVMTypeConverter{&mlirState.mc,llvmOptions},
 			.indexSize = 64
 		};
 		state.target.addLegalOp<mlir::ModuleOp>(); 
 
-		mlir::RewritePatternSet patterns{ &mlirState.mc };
+		//mlir::RewritePatternSet patterns{ &mlirState.mc };
 
-		mlir::populateAffineToStdConversionPatterns(patterns);
-		mlir::populateSCFToControlFlowConversionPatterns(patterns);
-		mlir::arith::populateArithToLLVMConversionPatterns(state.typeConverter, patterns);
-		mlir::populateFinalizeMemRefToLLVMConversionPatterns(state.typeConverter, patterns);
-		mlir::cf::populateControlFlowToLLVMConversionPatterns(state.typeConverter, patterns);
-		mlir::index::populateIndexToLLVMConversionPatterns(state.typeConverter, patterns);
-		mlir::populateFuncToLLVMConversionPatterns(state.typeConverter, patterns);
+		//mlir::populateAffineToStdConversionPatterns(patterns);
+		//mlir::populateSCFToControlFlowConversionPatterns(patterns);
+		//mlir::populateFinalizeMemRefToLLVMConversionPatterns(state.typeConverter, patterns);
+		//mlir::cf::populateControlFlowToLLVMConversionPatterns(state.typeConverter, patterns);
+		//mlir::index::populateIndexToLLVMConversionPatterns(state.typeConverter, patterns);
+		//mlir::arith::populateArithToLLVMConversionPatterns(state.typeConverter, patterns);
+		//mlir::populateFuncToLLVMConversionPatterns(state.typeConverter, patterns);
 
 
-		state.s->patterns = mlir::FrozenRewritePatternSet{ std::move(patterns) };
+		//state.s->patterns = mlir::FrozenRewritePatternSet{ std::move(patterns) };
 
 		mlirState.indexLay = mlir::DataLayoutEntryAttr::get(
 			mlirState.opBuilder.getIndexType(),
@@ -74,14 +74,14 @@ namespace slu::comp
 		//mlirState.pm.enableIRPrinting();
 
 		// Add passes in order
-		//mlirState.pm.addPass(mlir::memref::createExpandStridedMetadataPass());	// memref → memref + affine + arith
-		//mlirState.pm.addPass(mlir::createFinalizeMemRefToLLVMConversionPass());	// memref → LLVM
-		//mlirState.pm.addPass(mlir::createLowerAffinePass());					// Affine → SCF + arith
-		//mlirState.pm.addPass(mlir::createSCFToControlFlowPass());				// SCF → CF
-		//mlirState.pm.addPass(mlir::createConvertControlFlowToLLVMPass());		// cf → LLVM
-		//mlirState.pm.addPass(mlir::createArithToLLVMConversionPass());			// arith → LLVM
-		//mlirState.pm.addPass(mlir::createConvertIndexToLLVMPass());				// index → LLVM
-		//mlirState.pm.addPass(mlir::createConvertFuncToLLVMPass());				// func → LLVM
+		mlirState.pm.addPass(mlir::memref::createExpandStridedMetadataPass());	// memref → memref + affine + arith
+		mlirState.pm.addPass(mlir::createFinalizeMemRefToLLVMConversionPass());	// memref → LLVM
+		mlirState.pm.addPass(mlir::createLowerAffinePass());					// Affine → SCF + arith
+		mlirState.pm.addPass(mlir::createSCFToControlFlowPass());				// SCF → CF
+		mlirState.pm.addPass(mlir::createConvertControlFlowToLLVMPass());		// cf → LLVM
+		mlirState.pm.addPass(mlir::createArithToLLVMConversionPass());			// arith → LLVM
+		mlirState.pm.addPass(mlir::createConvertIndexToLLVMPass());				// index → LLVM
+		mlirState.pm.addPass(mlir::createConvertFuncToLLVMPass());				// func → LLVM
 
 		// Optional: cleanup/canonicalization
 		mlirState.pm.addPass(mlir::createCanonicalizerPass());
