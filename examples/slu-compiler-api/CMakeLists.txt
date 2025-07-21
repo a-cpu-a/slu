@@ -3,10 +3,12 @@
 #
 cmake_minimum_required (VERSION 3.10)
 
-# Enable Hot Reload for MSVC compilers if supported.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+if (MSVC)
+	# Enable Hot Reload for MSVC compilers if supported.
+	if (POLICY CMP0141)
+	  cmake_policy(SET CMP0141 NEW)
+	  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
+	endif()
 endif()
 
 project ("slu-compiler-api")
@@ -21,75 +23,76 @@ target_include_directories(slu-compiler-api
 )
 
 if(IS_DEBUG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
 endif()
 
 find_package(MLIR REQUIRED CONFIG)
 find_package(LLD REQUIRED CONFIG)
 
 target_link_libraries(slu-compiler-api
-    MLIRIR
-    MLIRParser
-    MLIRSupport
+	MLIRIR
+	MLIRParser
+	MLIRSupport
 
-    MLIRFuncDialect
-    MLIRArithDialect
-    MLIRLLVMDialect
-    MLIRControlFlowDialect
-    MLIRSCFDialect
-    MLIRMemRefDialect
-    MLIRIndexDialect
-    
-    MLIRIndexToLLVM
-    MLIRSCFToControlFlow
-    MLIRSCFTransforms
-    MLIRControlFlowInterfaces
-    MLIRControlFlowToLLVM
-    MLIRAffineTransforms
-    MLIRAffineToStandard
-    MLIRArithToLLVM
-    MLIRArithTransforms
-    MLIRFuncToLLVM
-    MLIRFuncTransforms
-    MLIRFunctionInterfaces
-    MLIRMathToLLVM
-    MLIRMathTransforms
-    MLIRMemRefToLLVM
-    MLIRMemRefTransforms
+	MLIRFuncDialect
+	MLIRArithDialect
+	MLIRLLVMDialect
+	MLIRControlFlowDialect
+	MLIRSCFDialect
+	MLIRMemRefDialect
+	MLIRIndexDialect
+	
+	MLIRIndexToLLVM
+	MLIRSCFToControlFlow
+	MLIRSCFTransforms
+	MLIRControlFlowInterfaces
+	MLIRControlFlowToLLVM
+	MLIRAffineTransforms
+	MLIRAffineToStandard
+	MLIRArithToLLVM
+	MLIRArithTransforms
+	MLIRFuncToLLVM
+	MLIRFuncTransforms
+	MLIRFunctionInterfaces
+	MLIRMathToLLVM
+	MLIRMathTransforms
+	MLIRMemRefToLLVM
+	MLIRMemRefTransforms
 
-    MLIRCallInterfaces
-    MLIRCastInterfaces
-    MLIRPass
-    MLIRAnalysis
-    MLIRBuiltinToLLVMIRTranslation
-    MLIRLLVMCommonConversion
-    MLIRLLVMToLLVMIRTranslation
-    MLIRTargetLLVMIRExport
-    MLIRTransforms
+	MLIRCallInterfaces
+	MLIRCastInterfaces
+	MLIRPass
+	MLIRAnalysis
+	MLIRBuiltinToLLVMIRTranslation
+	MLIRLLVMCommonConversion
+	MLIRLLVMToLLVMIRTranslation
+	MLIRTargetLLVMIRExport
+	MLIRTransforms
 
-    LLVMAArch64AsmParser
-    LLVMAArch64CodeGen
-    LLVMAMDGPUAsmParser
-    LLVMAMDGPUCodeGen
-    LLVMNVPTXCodeGen
-    LLVMWebAssemblyAsmParser
-    LLVMWebAssemblyCodeGen
-    LLVMX86AsmParser
-    LLVMX86CodeGen
+	LLVMAArch64AsmParser
+	LLVMAArch64CodeGen
+	LLVMAMDGPUAsmParser
+	LLVMAMDGPUCodeGen
+	LLVMNVPTXCodeGen
+	LLVMWebAssemblyAsmParser
+	LLVMWebAssemblyCodeGen
+	LLVMX86AsmParser
+	LLVMX86CodeGen
 
-    LLVMCodeGen
-    LLVMTarget
-    LLVMPasses
+	LLVMCodeGen
+	LLVMTarget
+	LLVMPasses
 
-    lldCommon
-    lldCOFF
-    lldELF
-    lldWasm
+	lldCommon
+	lldCOFF
+	lldELF
+	lldWasm
 )
 
 target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)
 target_link_libraries(slu-compiler-api optimized ${PROJECT_SOURCE_DIR}/../../x64/Release/Slu.lib)
+target_link_libraries(slu-compiler-api ${PROJECT_SOURCE_DIR}/../../slu/mlir/build/slu-dialect.lib)
 
 add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
 

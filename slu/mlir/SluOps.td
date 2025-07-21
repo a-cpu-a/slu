@@ -2,13 +2,11 @@
 #ifndef SLU_OPS
 #define SLU_OPS
 
-include "slu/mlir/SluBase.td"
+include "slu/mlir/SluDialect.td"
 include "mlir/Interfaces/InferTypeOpInterface.td"
 include "mlir/Interfaces/VectorInterfaces.td"
 include "mlir/Interfaces/SideEffectInterfaces.td"
 
-class SluDialect_Op<string mnemonic, list<Trait> traits = []> :
-    Op<Slu_Dialect, mnemonic, traits>;
 	
 def SluDialect_ReinterpretMemRefOp : SluDialect_Op<"reinterpret_memref", [Pure]> {
   let summary = "Bit-level reinterpretation of memrefs with different element types and shapes";

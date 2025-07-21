@@ -62,6 +62,8 @@ LLD_HAS_DRIVER(elf);
 LLD_HAS_DRIVER(wasm);
 LLD_HAS_DRIVER(coff);
 
+#include <slu/mlir/SluDialect.h>
+
 #pragma warning(pop)
 
 #include <slu/lang/BasicState.hpp>
@@ -425,7 +427,9 @@ namespace slu::comp::mico
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			auto strType = mlir::MemRefType::get({ (int64_t)var.v.size() }, i8Type, {}, 0);
 
-			auto ptrNsizeX2Int = builder.getIntegerType(mlvl::TYPE_RES_PTR_SIZE+mlvl::TYPE_RES_SIZE_SIZE*2);
+			constexpr uint32_t REF_SLICE_SIZE = mlvl::TYPE_RES_PTR_SIZE + mlvl::TYPE_RES_SIZE_SIZE * 2;
+			auto ptrNsizeX2Int = builder.getIntegerType(REF_SLICE_SIZE);
+			auto refSliceBytesType = mlir::MemRefType::get({ (REF_SLICE_SIZE + 7) / 8 }, i8Type, {}, 0);
 			auto refSliceType = mlir::MemRefType::get({ 1 }, ptrNsizeX2Int, {}, 0);
 			auto idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
 
@@ -457,7 +461,10 @@ namespace slu::comp::mico
 			mlir::Value refSliceAlloc = builder.create<mlir::memref::AllocaOp>(
 				loc, refSliceType
 			);
+
 			//Reinterpret as 3xindex.
+			mlir::Value cv0 = builder.create<mlir::arith::ConstantIntOp>(loc, 0,i64Type);
+			mlir::Value cv3 = builder.create<mlir::arith::ConstantIntOp>(loc, 3,i64Type);
 			mlir::Value c0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
 			mlir::Value c1 = builder.create<mlir::arith::ConstantIndexOp>(loc, 1);
 			mlir::Value c2 = builder.create<mlir::arith::ConstantIndexOp>(loc, 2);
@@ -466,19 +473,21 @@ namespace slu::comp::mico
 			//mlir::Value c128I192 = builder.create<mlir::arith::ConstantIntOp>(loc, 128, ptrNsizeX2Int);
 
 
-			mlir::Value idx3Form = builder.create<mlir::memref::ReinterpretCastOp>(
-				loc,idx3Type, refSliceAlloc, 
-				c0,
-				/*sizes   =*/mlir::ValueRange{ c3 },
-				/*strides =*/mlir::ValueRange{ c1 }
-			);
+			mlir::Value ptr = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(loc, globalStr);
 			auto data = builder.create<mlir::memref::ExtractStridedMetadataOp>(loc, globalStr);
+
+			//mlir::Value idx3Form = builder.create<mlir::memref::ReinterpretCastOp>(
+			//	loc,idx3Type, refSliceAlloc, 
+			//	c0,
+			//	/*sizes   =*/mlir::ValueRange{ c3 },
+			//	/*strides =*/mlir::ValueRange{ c1 }
+			//);
+			mlir::Value idx3Form = builder.create<slu_dial::ReinterpretMemRefOp>(
+				loc,idx3Type,refSliceAlloc
+			);
 			//store ptr,size,stride into idx3Form.
 
 
-			mlir::Value ptr = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(
-				convPos(conv, itm.place), globalStr
-			);
 			// TODO: check if offset matters.
 			
 			builder.create<mlir::memref::StoreOp>(loc, ptr, idx3Form, mlir::ValueRange{c0});

@@ -5,6 +5,7 @@ using namespace slu_dial;
 
 #include "slu/mlir/SluOpsDialect.cpp.inc"
 
+
 void slu_dial::SluDialect::initialize() {
     addOperations<
 #define GET_OP_LIST

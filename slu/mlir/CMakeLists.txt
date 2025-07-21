@@ -27,13 +27,12 @@ include(AddMLIR)
 #include(MLIR:AddMLIR)
 
 add_mlir_dialect(SluOps slu)
-add_mlir_doc(SluOps SluOps Dialects/ -gen-dialect-doc -dialect slu)
+add_mlir_doc(SluDialect SluDialect Dialects/ -gen-dialect-doc)
+add_mlir_doc(SluOps SluOps Dialects/ -gen-op-doc -dialect slu)
 
 add_mlir_dialect_library(slu-dialect
   SluDialect.cpp
-
-  ADDITIONAL_HEADER_DIRS
-  ${CMAKE_CURRENT_LIST_DIR}
+  SluOps.cpp
 
   DEPENDS
   MLIRSluOpsIncGen

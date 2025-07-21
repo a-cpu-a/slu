@@ -38,6 +38,7 @@ namespace slu::comp
 		mlirState.mc.getOrLoadDialect<mlir::arith::ArithDialect>();
 		mlirState.mc.getOrLoadDialect<mlir::index::IndexDialect>();
 		mlirState.mc.getOrLoadDialect<mlir::DLTIDialect>();
+		mlirState.mc.getOrLoadDialect<slu_dial::SluDialect>();
 
 
 		//mlir::LowerToLLVMOptions llvmOptions(&mlirState.mc);
