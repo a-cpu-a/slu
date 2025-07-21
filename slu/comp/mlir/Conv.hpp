@@ -428,7 +428,10 @@ namespace slu::comp::mico
 			auto ptrNsizeX2Int = builder.getIntegerType(mlvl::TYPE_RES_PTR_SIZE+mlvl::TYPE_RES_SIZE_SIZE*2);
 			auto refSliceType = mlir::MemRefType::get({ 1 }, ptrNsizeX2Int, {}, 0);
 			auto idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
-		
+
+			auto tensorType = mlir::RankedTensorType::get({ (int64_t)var.v.size() }, i8Type);
+			auto denseStr = mlir::DenseElementsAttr::get(tensorType, llvm::ArrayRef{ (const int8_t*)var.v.data(),var.v.size() });
+
 			mlir::Location loc = convPos(conv, itm.place);
 
 			TmpName strName = mkTmpName(conv);
@@ -436,7 +439,6 @@ namespace slu::comp::mico
 				mlir::OpBuilder::InsertionGuard guard(builder);
 				builder.setInsertionPointToStart(conv.module.getBody());
 		
-				auto denseStr = builder.getDenseI8ArrayAttr(llvm::ArrayRef{ (const int8_t*)var.v.data(),var.v.size() });
 				builder.create<mlir::memref::GlobalOp>(
 					loc,
 					strName.sref(),
@@ -784,7 +786,8 @@ namespace slu::comp::mico
 			auto i64Type = builder.getI64Type();
 			auto strType = mlir::MemRefType::get({ (int64_t)str.size() }, i8Type, {}, 0);
 			
-			auto denseStr = builder.getDenseI8ArrayAttr(llvm::ArrayRef{ (const int8_t*)str.data(),str.size() });
+			auto tensorType = mlir::RankedTensorType::get({ (int64_t)str.size() }, i8Type);
+			auto denseStr = mlir::DenseElementsAttr::get(tensorType,llvm::ArrayRef{ (const int8_t*)str.data(),str.size() });
 
 			builder.create<mlir::memref::GlobalOp>(
 				convPos(conv, itm.place),
