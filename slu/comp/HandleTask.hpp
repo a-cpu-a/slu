@@ -38,6 +38,11 @@ namespace slu::comp
 	};
 	using GenCodeMap = std::unordered_map<uint32_t, std::vector<llvm::SmallVector<char, 0>>>;
 	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile, lang::HashModPathView, lang::EqualModPathView>;
+	struct FileStatList
+	{
+		std::span<const parse::Statement<InputType>> stats;
+		std::string_view filePath;
+	};
 	namespace CompTaskType
 	{
 		using ParseFiles = std::vector<SluFile>;
@@ -49,7 +54,7 @@ namespace slu::comp
 		using ConsensusMergeAsts = MergeAstsMap*;
 		struct DoCodeGen
 		{
-			std::vector<std::span<const parse::Statement<InputType>>> statements;
+			std::vector<FileStatList> statements;
 			uint32_t entrypointId;
 		};
 		using ConsensusMergeGenCode = GenCodeMap*;
@@ -248,7 +253,8 @@ namespace slu::comp
 
 			for (const auto& i : var.statements)
 			{
-				for (const auto& j : i)
+				data.filePath = i.filePath;
+				for (const auto& j : i.stats)
 				{
 					/*slu::comp::lua::conv({
 						CommonConvData{cfg,*state.sharedDb,j},

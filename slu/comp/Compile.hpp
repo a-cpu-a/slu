@@ -191,7 +191,7 @@ namespace slu::comp
 		{// Codegen on all the threads.
 			submitTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 				CompTaskType::DoCodeGen{
-					.statements = {std::span{file.pf.code}},
+					.statements = {FileStatList{std::span{file.pf.code},file.path}},
 					.entrypointId = uint32_t(eps.size() - 1)
 				});
 		}

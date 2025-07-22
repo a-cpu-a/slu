@@ -140,7 +140,7 @@ namespace slu::comp::mico
 	{
 		return mlir::FileLineColLoc::get(
 			&conv.context,
-			"someFile.slu",
+			conv.filePath,
 			(uint32_t)p.line,
 			uint32_t(p.index + 1) // mlir is 1-based, not 0-based
 		);
