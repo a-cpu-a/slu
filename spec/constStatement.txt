@@ -24,7 +24,7 @@ Const Statement {
 	
 	let VecU8 hi = {1,2,3}; --Valid, since 'VecU8' is a const variable 
 	
-	newtype const VecU8 = Vec(u8);
+	const VecU8 = Vec(u8);
 	
 	const Y = X+1; -- Valid, unlike for let.
 	const X = 0;

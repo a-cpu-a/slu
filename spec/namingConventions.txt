@@ -8,15 +8,17 @@ Naming Conventions {
 	N.A.S.A. -> Nasa
 	J.S.O.N. -> Json
 	S.I.M.D. -> Simd
-	L.O.L. -> Lol
+	L.O.L. ---> Lol
+	S.2.C. ---> S2c
 	
-	One letter acronyms steal the uppercasing of the next letter.
+	One letter acronyms merge into the next acronym.
 	J. U.T.F.8 -> Jutf8
-	U. Int -> Uint
+	U. Int. -> Uint
+	J. Word -> JWord --2 capitals, as word is not a acronym.
 	
 	Use a module called "details" for implementation details that need to be exported.
 	
-	constant / immutable type variables/arguments use the same casing as normal types (HelloWorld)
+	constant or immutable, *type* variables / arguments use the same casing as any other type (HelloWorld)
 	
 	myVariable
 	MY_CONSTANT_VARIABLE

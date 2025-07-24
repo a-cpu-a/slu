@@ -66,27 +66,27 @@ Extern Block Statement {
 	
 	cpp && refs -> likely just: *mut T
 	
-	lua any-type -> Any
-	lua integers -> integer
-	lua numbers -> number
-	lua strings -> lua::LuaStr
-	lua tables -> lua::LuaTable(...)
-	lua functions -> lua::LuaFn(...)
-	lua threads -> lua::LuaThread
-	lua user-data -> lua::LuaUserData(...)
-	lua light-user-data -> lua::LuaLightData
-	lua nil -> lua::LuaNil
+	lua any-type		-> lua_ext::Any
+	lua integers		-> lua_ext::integer
+	lua numbers 		-> lua_ext::number
+	lua strings 		-> lua_ext::LuaStr
+	lua tables  		-> lua_ext::LuaTable(...)
+	lua functions		-> lua_ext::LuaFn(...)
+	lua threads  		-> lua_ext::LuaThread
+	lua user-data		-> lua_ext::LuaUserData(...)
+	lua light-user-data	-> lua_ext::LuaLightData
+	lua nil				-> lua_ext::LuaNil
 	
-	js any-type -> Any
-	js integers -> integer
-	js numbers -> number
-	js string -> js::JsStr
-	js object -> js::JsObject(...)
-	js array -> js::JsArray(...)
-	js functions -> js::JsFn(...)
-	js symbol -> js::JsSymbol
-	js null -> js::JsNull
-	js undefined -> js::JsUndefined
+	js any-type 	-> js_ext::Any
+	js integers 	-> js_ext::integer
+	js numbers		-> js_ext::number
+	js string		-> js_ext::JsStr
+	js object		-> js_ext::JsObject(...)
+	js array		-> js_ext::JsArray(...)
+	js functions	-> js_ext::JsFn(...)
+	js symbol		-> js_ext::JsSymbol
+	js null			-> js_ext::JsNull
+	js undefined	-> js_ext::JsUndefined
 	
 	
 	Implementation {

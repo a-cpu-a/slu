@@ -4,8 +4,7 @@
 
 New Syntax {
 	
-	basicExp @::= | basicExp "as" basicExp
-	exp @::= | exp "as" exp
+	binop @::= | "as"
 }
 
 New Keywords {
