@@ -18,27 +18,27 @@
 	--wrap around one of the above things, to allow a list of someting
 	--note: only works for: (Name,TraitExpr,Expr,Var)
 	--
-	ex struct fn CommaList(type T) = @Builtin{"base::type/CommaList"}T;
+	ex struct fn CommaList(T = type) = @Builtin{"base::type/CommaList"}T;
 	
 	--These return the tokens raw, without splicing them
 	
 	--Do NOT use @Builtin{"base::no_splice"} in your own code, as it is only supported here.
 	--The ! after the name, makes it so it doesnt conflict with the types.
 	--It also means you cant call these in function-form
-	@Builtin{"base::no_splice"} ex macro fn Block!{macro Block v}->Block {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Block!{macro v = Block}->Block {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn Stat! {macro Stat  v}->Stat {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Stat! {macro v = Stat }->Stat {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn Var!  {macro Var   v}->Var  {return v;}
-	@Builtin{"base::no_splice"} ex macro fn Expr! {macro Expr  v}->Expr {return v;}
-	@Builtin{"base::no_splice"} ex macro fn Name! {macro Name  v}->Name {return v;}
-	@Builtin{"base::no_splice"} ex macro fn TraitExpr! {macro TraitExpr  v}->TraitExpr {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Var!  {macro v = Var  }->Var  {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Expr! {macro v = Expr }->Expr {return v;}
+	@Builtin{"base::no_splice"} ex macro fn Name! {macro v = Name }->Name {return v;}
+	@Builtin{"base::no_splice"} ex macro fn TraitExpr! {macro v = TraitExpr}->TraitExpr {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn CommaList!{type T,macro CommaList(T)  v}->CommaList(T) {return v;}
+	@Builtin{"base::no_splice"} ex macro fn CommaList!{T = type,macro v = CommaList(T)}->CommaList(T) {return v;}
 	
 	--[=[
 	--TODO: move this elsewhere, when its needed
-		fn prefixUpperify(str prefix,mut String s) -> String {
+		fn prefixUpperify(prefix = &str,s = mut String) -> String {
 			if (s:len() == 0) return prefix;
 			s[1] = s[1].upper()
 			return prefix++s;
@@ -58,7 +58,7 @@
 	-- assertEq!(addType(Expr!{u8}), Expr!{u8});
 	--
 	
-	macro fn implAdd(macro CommaList(Name) ns) -> Vec(Stat) {
+	macro fn implAdd(macro ns = CommaList(Name)) -> Vec(Stat) {
 		
 		let Vec(Stat) r;
 		

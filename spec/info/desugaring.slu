@@ -146,9 +146,3 @@ drop myVar;
 let String myVar = "";
 :>::std::ops::Drop::drop(myVar);--This is added, only if the type of the var implements Drop.
 drop myVar;--Flagged as desugared, cuz its still needed to note down lifetime info.
------------------------------
-fn _(WrapperX{WrappedY hi}) {}
--->
-fn _(WrapperX __value) {
-	let hi = __value.1;
-}

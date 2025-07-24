@@ -17,8 +17,8 @@ Function Expression {
 	Examples:
 	```slu
 	let f = unsafe const || -> u8 => 42
-	let add = |i32 x, i32 y| -> i32 => x + y
-	let fact = |i32 n| -> i32 => do {
+	let add = |x = i32, y = i32| -> i32 => x + y
+	let fact = |n = i32| -> i32 => do {
 		if (n <= 1) {
 			return 1
 		}
@@ -26,7 +26,7 @@ Function Expression {
 	}
 	let square = |x| x * x
 	
-	let divide = unsafe |i32 x, i32 y| -> i32 => x / y
+	let divide = unsafe |x = i32, y = i32| -> i32 => x / y
 	
 	let genl = || -> i32 => (1..100).len() + 1
 	let typeDoLambda = || -> u8 => do {

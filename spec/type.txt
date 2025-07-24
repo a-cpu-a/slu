@@ -20,8 +20,9 @@ New Syntax {
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
-	typedParam ::= uncondDestrPat
+	typedParam ::= Name "=" [exp]
 	paramList ::= typedParam {"," typedParam}
+	paramListSelf ::= [typePrefix "self" ","] paramList
 	
 	tupleableName ::= Name | Integral
 	

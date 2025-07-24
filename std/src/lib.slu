@@ -5,10 +5,10 @@ mod prelude;
 
 --todo-late-desugaring: hoist functions outside of functions?
 safe extern "C" {
-	fn puts(*:>::std::u8 line) -> :>::std::i32;
+	fn puts(line = *:>::std::u8) -> :>::std::i32;
 }
 ---Test test test !!!
-ex fn _println(&:>::std::str text) -> {}
+ex fn _println(text = &:>::std::str) -> {}
 {
 	--puts(text);
 }

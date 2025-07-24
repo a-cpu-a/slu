@@ -5,7 +5,7 @@
 safe extern "C" {
 	--TODO: unhack *u8 into something like libc::Cstring.
 	--TODO: unhack i32 into something like libc::Cint.
-	fn puts(*:>::std::u8 line) -> :>::std::i32;
+	fn puts(line = *:>::std::u8) -> :>::std::i32;
 }
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"

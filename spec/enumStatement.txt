@@ -36,15 +36,15 @@ Enum Statement {
 
 	---Returns a nominally unique type, so you cant make a Option yourself by
 	--- doing `None(T) | Some(T)`, only this function can return a Option
-	struct fn Option(type T) 
+	struct fn Option(T = type) 
 	{
 		--Note: T in the following two statements cant refer to the local variable T, because they are global statements.
 		---Nominally unique unit type
 		---None(u8) is not the same as None(u16)
-		struct None(type T) --[=[@BuiltinSubTypeOf(Option(T))]=] {
+		struct None(T = type) --[=[@BuiltinSubTypeOf(Option(T))]=] {
 		};
 		---Nominally different to T
-		struct Some(type T) --[=[@BuiltinSubTypeOf(Option(T))]=] = T;
+		struct Some(T = type) = --[=[@BuiltinSubTypeOf(Option(T))]=] T;
 		
 		return None(T) | Some(T);
 	}
