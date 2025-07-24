@@ -218,6 +218,11 @@ Official Types {
 
 Type Specifiers {
 	
+	-- In theory, there could be a refinement/liquid type specifier like this: "T : |v| v!=0 " or "T : myPredicateTakingT"
+	-- this could also be chained: "T : |v| v!=0 : |v| v%2==0 : |v| v>-9999"
+	-- it would be best to put the precedence above: mut, ~~, but bellow: ++
+	
+	
 	Slice {
 		Format: "[" X "]"
 		
