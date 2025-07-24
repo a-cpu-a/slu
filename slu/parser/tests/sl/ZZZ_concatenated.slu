@@ -443,7 +443,7 @@ Z_test = None;
 --Z_test is Option::None(3);
 
 
-		fn prefixUpperify(str prefix,mut String s) -> String {
+		fn prefixUpperify(prefix = &str,s = mut String) -> String {
 			if (s.empty()) return s;
 			s[1] = s[1].upper()
 			return prefix++s;
