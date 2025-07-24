@@ -116,7 +116,9 @@ namespace slu::parse
 		if constexpr (In::settings() & sluSyn)
 		{
 			skipSpace(in);
-			p.name = readPat<true>(in, true);
+			p.name = in.genData.template resolveNewName<true>(readName(in));
+			requireToken(in, "=");
+			p.type = readExpr(in, false);
 		}
 		else
 			p.name = in.genData.resolveUnknown(readName(in));

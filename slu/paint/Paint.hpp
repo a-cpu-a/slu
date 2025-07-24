@@ -678,7 +678,12 @@ namespace slu::paint
 	{
 		for (const parse::Parameter<Se>& i : itm)
 		{
-			paintPatOrNamelist<true,Tok::NAME_TYPE>(se, i.name);
+			paintNameOrLocal<Se::settings()& sluSyn>(se, i.name);
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintKw<Tok::PAT_RESTRICT>(se, "=");
+				paintExpr(se, i.type);
+			}
 
 			if (&i != &itm.back() || hasVarArgParam)
 				paintKw<Tok::PUNCTUATION>(se, ",");

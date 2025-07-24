@@ -669,7 +669,8 @@ namespace slu::parse
 	template<>
 	struct ParameterV<true>
 	{
-		PatV<true,true> name;
+		LocalId name;
+		ExprV<true> type;
 	};
 	template<bool isLocal>
 	struct ___PatHack : PatV<true, isLocal> {};

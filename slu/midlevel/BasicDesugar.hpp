@@ -131,12 +131,9 @@ namespace slu::mlvl
 				res.argLocals.reserve(params.size());
 			for (auto& i : params)
 			{
-				auto& pat = std::get<parse::PatType::DestrName<Cfg, true>>(i.name);
-				auto& spec = pat.spec;
-				parse::Expr<Cfg>& type = std::get<parse::DestrSpecType::Spat<Cfg>>(spec);
-				res.args.emplace_back(resolveTypeExpr(mpDb, std::move(type)));
+				res.args.emplace_back(resolveTypeExpr(mpDb, std::move(i.type)));
 				if(hasCode)
-					res.argLocals.push_back(pat.name);
+					res.argLocals.push_back(i.name);
 			}
 
 			localMp.addItm(obj, std::move(res));

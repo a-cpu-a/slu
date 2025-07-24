@@ -556,10 +556,12 @@ namespace slu::parse
 	{
 		for (const Parameter<Out>& par : itm)
 		{
-			if constexpr (out.settings() & sluSyn)
-				genPat<true>(out, par.name);
-			else
-				out.add(out.db.asSv(par.name));
+			genNameOrLocal<Out::settings()& sluSyn>(out, par.name);
+			if constexpr (Out::settings() & sluSyn)
+			{
+				out.add(" = ");
+				genExpr(out, par.type);
+			}
 
 			if (&par != &itm.back() || hasVarArgParam)
 				out.add(", ");

@@ -478,7 +478,8 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Params);
 		for (auto& i : itm)
 		{
-			visitPat<true>(vi, i.name);
+			visitNameOrLocal<true>(vi, i.name);
+			visitTypeExpr(vi, i.type);
 			Slu_CALL_VISIT_FN_SEP(Params, i, itm);
 		}
 		Slu_CALL_VISIT_FN_POST(Params);
