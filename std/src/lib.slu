@@ -10,5 +10,5 @@ safe extern "C" {
 ---Test test test !!!
 ex fn _println(text = &:>::std::str) -> {}
 {
-	--puts(text);
+	puts(text.__convhack__getPtr);
 }

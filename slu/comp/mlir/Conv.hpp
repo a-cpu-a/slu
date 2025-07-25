@@ -295,12 +295,40 @@ namespace slu::comp::mico
 	}
 	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm)
 	{
+		mlir::OpBuilder& builder = conv.builder;
+
 		return ezmatch(itm)(
 		varcase(const parse::LimPrefixExprType::ExprV<true>&){
 			return convExpr(conv, var);
 		},
 		varcase(const parse::LimPrefixExprType::VARv<true>&){
-			return convVarBase(conv, place, var.v.base);
+			mlir::Value base = convVarBase(conv, place, var.v.base);
+			if (var.v.sub.empty())
+				return base;
+
+			auto& sub0 = var.v.sub[0];
+			if (sub0.funcCalls.empty()
+				&& std::holds_alternative<parse::SubVarType::NAMEv<true>>(sub0.idx)
+				&& std::get<parse::SubVarType::NAMEv<true>>(sub0.idx).idx== conv.sharedDb.getItm({ "","__convHack__refSlice_ptr" })
+				)
+			{
+				//Hack: take out ptr.
+
+				auto idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
+
+				mlir::Location loc = convPos(conv, place);
+
+				mlir::Value c0 = mlir::arith::ConstantIndexOp::create(builder, loc, 0);
+				mlir::Value idx3Form = mlir::UnrealizedConversionCastOp::create(builder,
+					loc, mlir::TypeRange{ idx3Type }, mlir::ValueRange{ base }
+				).getResult(0);
+				mlir::Value idxPtr = mlir::memref::LoadOp::create(builder, loc, idx3Form, mlir::ValueRange{ c0 }, false, 0ULL).getResult();
+
+				mlir::Value intPtr = mlir::index::CastUOp::create(builder,loc,builder.getI64Type(), idxPtr);
+
+				return mlir::LLVM::IntToPtrOp::create(builder,loc,mlir::LLVM::LLVMPointerType::get(&conv.context), intPtr).getRes();
+			}
+			return base;
 				//TODO sub;
 			//basicly (.x == memref subview?) (.y.x().x == multiple stuff)
 		}
