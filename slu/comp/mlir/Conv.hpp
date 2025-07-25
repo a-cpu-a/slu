@@ -547,7 +547,7 @@ namespace slu::comp::mico
 			mlir::func::FuncOp funcOp = mlir::func::FuncOp::create(builder,
 				convPos(conv, place), mangledName.sv(),
 				mlir::FunctionType::get(mc, argTypes, retTypes),
-				getExportAttr(conv, funcItm.exported),
+				getExportAttr(conv, false),
 				nullptr, nullptr, false
 			);
 			funcInfo = conv.addElement(name, funcOp, funcItm.abi);
@@ -749,9 +749,6 @@ namespace slu::comp::mico
 			conv.localsStack.pop_back();
 
 		},
-		varcase(const parse::StatementType::FnDeclV<true>&) {
-			getOrDeclFn(conv, var.name, itm.place, nullptr);
-		},
 		varcase(const parse::StatementType::FnV<true>&) {
 
 			mlir::OpBuilder::InsertionGuard guard(builder);
@@ -762,6 +759,8 @@ namespace slu::comp::mico
 			const bool cAbi = funcItm.abi == "C"sv;
 
 			GlobalElement* funcInfo = getOrDeclFn(conv, var.name, itm.place, &funcItm);
+			if(funcItm.exported)
+				funcInfo->func.setPublic();
 
 			// Build a function in mlir
 			mlir::Block* entry = funcInfo->func.addEntryBlock();

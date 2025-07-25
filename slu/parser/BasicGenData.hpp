@@ -234,8 +234,8 @@ namespace slu::parse
 			ResolvedType ret;
 			std::vector<ResolvedType> args;
 			std::vector<LocalId> argLocals;//Only for non decl functions
-			bool isStruct=false;//if true, then auto wraps returned thing in named tuple of 1 elem
 			parse::ExportData exported;
+			bool isStruct=false;//if true, then auto wraps returned thing in named tuple of 1 elem
 		};
 		struct GlobVar
 		{
