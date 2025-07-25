@@ -14,6 +14,7 @@
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4146)
 #pragma warning(disable : 4267)
+#pragma warning(disable : 4624)
 
 #include <mlir/IR/MLIRContext.h>
 #include <mlir/IR/Builders.h>
@@ -286,7 +287,7 @@ namespace slu::comp::mico
 		varcase(const parse::BaseVarType::Root) {
 			//TODO: builtin root-mp reflection value
 			auto i1Type = builder.getI1Type();
-			return (mlir::Value)builder.create<mlir::arith::ConstantOp>(
+			return (mlir::Value)mlir::arith::ConstantOp::create(builder,
 				convPos(conv, place), i1Type, mlir::IntegerAttr::get(i1Type, 0)
 			);
 		}
@@ -362,7 +363,7 @@ namespace slu::comp::mico
 	{
 		mlir::OpBuilder& builder = conv.builder;
 		auto i64Type = builder.getI64Type();
-		return builder.create<mlir::arith::ConstantOp>(
+		return mlir::arith::ConstantOp::create(builder,
 			convPos(conv, place), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)itm)
 		);
 	}
@@ -371,7 +372,7 @@ namespace slu::comp::mico
 		mlir::OpBuilder& builder = conv.builder;
 		auto i128Type = builder.getIntegerType(128);
 		llvm::APInt apVal(128, llvm::ArrayRef{ itm.lo ,itm.hi });
-		return builder.create<mlir::arith::ConstantOp>(
+		return mlir::arith::ConstantOp::create(builder,
 			convPos(conv, place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
 		);
 	}
@@ -417,7 +418,7 @@ namespace slu::comp::mico
 				mlir::OpBuilder::InsertionGuard guard(builder);
 				builder.setInsertionPointToStart(conv.module.getBody());
 		
-				builder.create<mlir::memref::GlobalOp>(
+				mlir::memref::GlobalOp::create(builder,
 					loc,
 					strName.sref(),
 					/*sym_visibility=*/conv.privVis,
@@ -429,54 +430,54 @@ namespace slu::comp::mico
 			}
 		
 			// %str = memref.get_global @strName : memref<14xi8>
-			auto globalStr = builder.create<mlir::memref::GetGlobalOp>(loc, strType,
+			auto globalStr = mlir::memref::GetGlobalOp::create(builder,loc, strType,
 				strName.sref());
 
-			mlir::Value refSliceAlloc = builder.create<mlir::memref::AllocaOp>(
+			mlir::Value refSliceAlloc = mlir::memref::AllocaOp::create(builder,
 				loc, refSliceType
 			);
 
 			//Reinterpret as 3xindex.
-			mlir::Value cv0 = builder.create<mlir::arith::ConstantIntOp>(loc, 0,i64Type);
-			mlir::Value cv3 = builder.create<mlir::arith::ConstantIntOp>(loc, 3,i64Type);
-			mlir::Value c0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
-			mlir::Value c1 = builder.create<mlir::arith::ConstantIndexOp>(loc, 1);
-			mlir::Value c2 = builder.create<mlir::arith::ConstantIndexOp>(loc, 2);
-			mlir::Value c3 = builder.create<mlir::arith::ConstantIndexOp>(loc, 3);
+			mlir::Value cv0 = mlir::arith::ConstantIntOp::create(builder,loc, i64Type,0);
+			mlir::Value cv3 = mlir::arith::ConstantIntOp::create(builder,loc, i64Type,3);
+			mlir::Value c0 = mlir::arith::ConstantIndexOp::create(builder,loc, 0);
+			mlir::Value c1 = mlir::arith::ConstantIndexOp::create(builder,loc, 1);
+			mlir::Value c2 = mlir::arith::ConstantIndexOp::create(builder,loc, 2);
+			mlir::Value c3 = mlir::arith::ConstantIndexOp::create(builder,loc, 3);
 
 
-			mlir::Value ptr = builder.create<mlir::memref::ExtractAlignedPointerAsIndexOp>(loc, globalStr);
-			auto data = builder.create<mlir::memref::ExtractStridedMetadataOp>(loc, globalStr);
+			mlir::Value ptr = mlir::memref::ExtractAlignedPointerAsIndexOp::create(builder,loc, globalStr);
+			auto data = mlir::memref::ExtractStridedMetadataOp::create(builder,loc, globalStr);
 
-			//mlir::Value idx3Form = builder.create<slu_dial::ReinterpretMemRefOp>(
+			//mlir::Value idx3Form = slu_dial::ReinterpretMemRefOp::create(builder,
 			//	loc,idx3Type,refSliceAlloc
 			//);
-			mlir::Value idx3Form = builder.create<mlir::UnrealizedConversionCastOp>(
+			mlir::Value idx3Form = mlir::UnrealizedConversionCastOp::create(builder,
 				loc, mlir::TypeRange{ idx3Type }, mlir::ValueRange{ refSliceAlloc }
 			).getResult(0);
 
 
 			// TODO: check if offset matters. NOTE: wont matter in this specific use case.
 			
-			builder.create<mlir::memref::StoreOp>(loc, ptr, idx3Form, mlir::ValueRange{c0});
-			builder.create<mlir::memref::StoreOp>(loc, data.getSizes()[0], idx3Form, mlir::ValueRange{c1});
-			builder.create<mlir::memref::StoreOp>(loc, data.getStrides()[0], idx3Form, mlir::ValueRange{c2});
+			mlir::memref::StoreOp::create(builder,loc, ptr, idx3Form, mlir::ValueRange{c0});
+			mlir::memref::StoreOp::create(builder,loc, data.getSizes()[0], idx3Form, mlir::ValueRange{c1});
+			mlir::memref::StoreOp::create(builder,loc, data.getStrides()[0], idx3Form, mlir::ValueRange{c2});
 
-			//mlir::Value sz64 = builder.create<mlir::arith::IndexCastUIOp>(loc, i64Type, data.getSizes()[0]);
-			//mlir::Value sz192 = builder.create<mlir::arith::ExtUIOp>(loc, ptrNsizeX2Int, sz64);
+			//mlir::Value sz64 = mlir::arith::IndexCastUIOp::create(builder,loc, i64Type, data.getSizes()[0]);
+			//mlir::Value sz192 = mlir::arith::ExtUIOp::create(builder,loc, ptrNsizeX2Int, sz64);
 			//
-			//mlir::Value str64 = builder.create<mlir::arith::IndexCastUIOp>(loc, i64Type, data.getStrides()[0]);
-			//mlir::Value str192 = builder.create<mlir::arith::ExtUIOp>(loc, ptrNsizeX2Int, str64);
+			//mlir::Value str64 = mlir::arith::IndexCastUIOp::create(builder,loc, i64Type, data.getStrides()[0]);
+			//mlir::Value str192 = mlir::arith::ExtUIOp::create(builder,loc, ptrNsizeX2Int, str64);
 			//
-			//mlir::Value ptr64 = builder.create<mlir::arith::IndexCastUIOp>(loc, i64Type, ptr);
-			//mlir::Value ptr192 = builder.create<mlir::arith::ExtUIOp>(loc, ptrNsizeX2Int, ptr64);
+			//mlir::Value ptr64 = mlir::arith::IndexCastUIOp::create(builder,loc, i64Type, ptr);
+			//mlir::Value ptr192 = mlir::arith::ExtUIOp::create(builder,loc, ptrNsizeX2Int, ptr64);
 			//
-			//mlir::Value sizeShifted = builder.create<mlir::arith::ShLIOp>(loc, sz192, c64);
-			//mlir::Value offsetShifted = builder.create<mlir::arith::ShLIOp>(loc, str192, c128);
+			//mlir::Value sizeShifted = mlir::arith::ShLIOp::create(builder,loc, sz192, c64);
+			//mlir::Value offsetShifted = mlir::arith::ShLIOp::create(builder,loc, str192, c128);
 			//
 			//// OR them together
-			//mlir::Value part1 = builder.create<mlir::arith::OrIOp>(loc, ptr192, sizeShifted);
-			//mlir::Value packed = builder.create<mlir::arith::OrIOp>(loc, part1, offsetShifted);
+			//mlir::Value part1 = mlir::arith::OrIOp::create(builder,loc, ptr192, sizeShifted);
+			//mlir::Value packed = mlir::arith::OrIOp::create(builder,loc, part1, offsetShifted);
 			//
 			//return packed;
 
@@ -543,7 +544,7 @@ namespace slu::comp::mico
 					argTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
 			}
 
-			mlir::func::FuncOp funcOp = builder.create<mlir::func::FuncOp>(
+			mlir::func::FuncOp funcOp = mlir::func::FuncOp::create(builder,
 				convPos(conv, place), mangledName.sv(),
 				mlir::FunctionType::get(mc, argTypes, retTypes),
 				getExportAttr(conv, funcItm.exported),
@@ -577,13 +578,13 @@ namespace slu::comp::mico
 			mlir::Type i1Type = builder.getI1Type();
 			const mlir::Location loc = convPos(conv, itm.place);
 			// Initial loop-carried value: run once → %keepGoing = true
-			mlir::Value one = builder.create<mlir::arith::ConstantIntOp>(loc, 1, i1Type);
+			mlir::Value one = mlir::arith::ConstantIntOp::create(builder,loc, i1Type,1);
 
-			auto whileOp = builder.create<mlir::scf::WhileOp>(loc, mlir::TypeRange{ i1Type }, mlir::ValueRange{ one });
+			auto whileOp = mlir::scf::WhileOp::create(builder,loc, mlir::TypeRange{ i1Type }, mlir::ValueRange{ one });
 
 			auto condArg = whileOp.getBefore().addArgument(i1Type, loc);
 			builder.setInsertionPointToStart(whileOp.getBeforeBody());
-			builder.create<mlir::scf::ConditionOp>(loc, condArg, mlir::ValueRange{ condArg });
+			mlir::scf::ConditionOp::create(builder,loc, condArg, mlir::ValueRange{ condArg });
 
 			whileOp.getAfter().addArgument(i1Type, loc);
 			builder.setInsertionPointToStart(whileOp.getAfterBody());
@@ -596,16 +597,16 @@ namespace slu::comp::mico
 			}
 
 			// repeat-until: stop if cond is true → so loop if NOT result
-			mlir::Value continueLoop = builder.create<mlir::arith::XOrIOp>(
+			mlir::Value continueLoop = mlir::arith::XOrIOp::create(builder,
 				loc, convExpr(conv,var.cond), one);
 
-			builder.create<mlir::scf::YieldOp>(convPos(conv, var.bl.end), mlir::ValueRange{ continueLoop });
+			mlir::scf::YieldOp::create(builder,convPos(conv, var.bl.end), mlir::ValueRange{ continueLoop });
 		},
 			varcase(const parse::StatementType::WhileV<true>&) {
-			auto whileOp = builder.create<mlir::scf::WhileOp>(convPos(conv,itm.place), mlir::TypeRange{}, mlir::ValueRange{});
+			auto whileOp = mlir::scf::WhileOp::create(builder,convPos(conv,itm.place), mlir::TypeRange{}, mlir::ValueRange{});
 
 			builder.setInsertionPointToStart(whileOp.getBeforeBody());
-			builder.create<mlir::scf::ConditionOp>(convPos(conv, var.cond.place), convExpr(conv,var.cond), mlir::ValueRange{});
+			mlir::scf::ConditionOp::create(builder,convPos(conv, var.cond.place), convExpr(conv,var.cond), mlir::ValueRange{});
 
 			builder.setInsertionPointToStart(whileOp.getAfterBody());
 			for (const auto& i : var.bl.statList)
@@ -615,7 +616,7 @@ namespace slu::comp::mico
 				//maybe return something
 				//TODO
 			}
-			builder.create<mlir::scf::YieldOp>(convPos(conv,var.bl.end));
+			mlir::scf::YieldOp::create(builder,convPos(conv,var.bl.end));
 		},
 			varcase(const parse::StatementType::IfCondV<true>&) {
 			
@@ -645,7 +646,7 @@ namespace slu::comp::mico
 					hasMore = var.elseBlock.has_value() || (var.elseIfs.size() > elIfIdx);
 				}
 
-				auto op = builder.create<mlir::scf::IfOp>(loc, mlir::TypeRange{},
+				auto op = mlir::scf::IfOp::create(builder,loc, mlir::TypeRange{},
 					convExpr(conv,*cond), hasMore);
 
 				if (elIfIdx == 0)
@@ -653,7 +654,7 @@ namespace slu::comp::mico
 
 				builder.setInsertionPointToStart(op.thenBlock());
 				convSoeOrBlock(conv, *bl);
-				builder.create<mlir::scf::YieldOp>(convPos(conv, itm.place));
+				mlir::scf::YieldOp::create(builder,convPos(conv, itm.place));
 				if(hasMore)
 				{
 					builder.setInsertionPointToStart(op.elseBlock());
@@ -667,7 +668,7 @@ namespace slu::comp::mico
 			for (const auto i : yieldBlocks)
 			{
 				builder.setInsertionPointToStart(i);
-				builder.create<mlir::scf::YieldOp>(convPos(conv, itm.place));
+				mlir::scf::YieldOp::create(builder,convPos(conv, itm.place));
 			}
 
 			builder.setInsertionPointAfter(firstOp);
@@ -687,12 +688,12 @@ namespace slu::comp::mico
 
 			mlir::Value expr = convExpr(conv, var.exprs[0]);
 			//Expr is a memref, so copy the bits/bytes.
-			builder.create<mlir::memref::CopyOp>(
+			mlir::memref::CopyOp::create(builder,
 				loc, expr, memRef
 			);
 
-			//auto zeroIndex = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
-			//builder.create<mlir::memref::StoreOp>(loc, expr, memRef, mlir::ValueRange{ zeroIndex }, false);
+			//auto zeroIndex = mlir::arith::ConstantIndexOp::create(builder,loc, 0);
+			//mlir::memref::StoreOp::create(builder,loc, expr, memRef, mlir::ValueRange{ zeroIndex }, false);
 
 		},
 			varcase(const parse::StatementType::FuncCallV<true>&) {
@@ -710,13 +711,13 @@ namespace slu::comp::mico
 				args.emplace_back(convExpr(conv, i));
 			
 			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr) -> i32
-			//builder.create<mlir::LLVM::CallOp>(
+			//mlir::LLVM::CallOp::create(builder,
 			//	convPos(conv, itm.place),
 			//	funcInfo->func.getResultTypes(),
 			//	mlir::SymbolRefAttr::get(mc, funcInfo->func.getSymName()),
 			//	llvm::ArrayRef<mlir::Value>{args});
 
-			builder.create<mlir::func::CallOp>(
+			mlir::func::CallOp::create(builder,
 				convPos(conv, itm.place),
 				funcInfo->func.getResultTypes(),
 				mlir::SymbolRefAttr::get(mc, funcInfo->func.getSymName()),
@@ -735,7 +736,7 @@ namespace slu::comp::mico
 			auto tensorType = mlir::RankedTensorType::get({ (int64_t)str.size() }, i8Type);
 			auto denseStr = mlir::DenseElementsAttr::get(tensorType,llvm::ArrayRef{ (const int8_t*)str.data(),str.size() });
 
-			builder.create<mlir::memref::GlobalOp>(
+			mlir::memref::GlobalOp::create(builder,
 				convPos(conv, itm.place),
 				llvm::StringRef{ ":>::hello_world::greeting"sv },
 				/*sym_visibility=*/getExportAttr(conv, var.exported),
@@ -776,9 +777,9 @@ namespace slu::comp::mico
 				if (cAbi)
 				{//C ABI: arguments are passed by value, so we need to allocate a memref for them.
 					auto memrefType = mlir::MemRefType::get({ 1 }, val.getType());
-					mlir::Value alloc = builder.create<mlir::memref::AllocaOp>(loc, memrefType);
-					mlir::Value index0 = builder.create<mlir::arith::ConstantIndexOp>(loc, 0);
-					builder.create<mlir::memref::StoreOp>(loc, val, alloc, mlir::ValueRange{ index0 });
+					mlir::Value alloc = mlir::memref::AllocaOp::create(builder,loc, memrefType);
+					mlir::Value index0 = mlir::arith::ConstantIndexOp::create(builder,loc, 0);
+					mlir::memref::StoreOp::create(builder,loc, val, alloc, mlir::ValueRange{ index0 });
 					val = alloc;
 				}
 				conv.localsStack.back().values[id.v] = {
@@ -796,7 +797,7 @@ namespace slu::comp::mico
 				//TODO
 			}
 			
-			builder.create<mlir::func::ReturnOp>(convPos(conv, var.func.block.end));
+			mlir::func::ReturnOp::create(builder,convPos(conv, var.func.block.end));
 
 			conv.localsStack.pop_back();
 		},
