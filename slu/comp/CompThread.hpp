@@ -47,7 +47,7 @@ namespace slu::comp
 		TaskHandleState state{
 			.s = &mlirState,
 			.target = mlir::LLVMConversionTarget{mlirState.mc},
-			//.typeConverter = mlir::LLVMTypeConverter{&mlirState.mc,llvmOptions},
+			.tyConv = mlir::LLVMTypeConverter{&mlirState.mc},
 			.indexSize = 64
 		};
 		state.target.addLegalOp<mlir::ModuleOp>(); 

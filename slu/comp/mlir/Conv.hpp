@@ -102,6 +102,7 @@ namespace slu::comp::mico
 		mlir::MLIRContext& context;
 		llvm::LLVMContext& llvmContext;
 		mlir::OpBuilder& builder;
+		mlir::LLVMTypeConverter& tyConv;
 		mlir::ModuleOp module;
 		mlir::StringAttr privVis;
 		std::vector<LocalStackItm> localsStack;
@@ -314,15 +315,21 @@ namespace slu::comp::mico
 			{
 				//Hack: take out ptr.
 
-				auto idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
+				mlir::Type idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
+				mlir::Type rawMemref = conv.tyConv.convertType(idx3Type);
 
 				mlir::Location loc = convPos(conv, place);
 
-				mlir::Value c0 = mlir::arith::ConstantIndexOp::create(builder, loc, 0);
-				mlir::Value idx3Form = mlir::UnrealizedConversionCastOp::create(builder,
-					loc, mlir::TypeRange{ idx3Type }, mlir::ValueRange{ base }
+
+				mlir::Value lForm = mlir::UnrealizedConversionCastOp::create(builder,
+					loc, mlir::TypeRange{ rawMemref }, mlir::ValueRange{ base }
 				).getResult(0);
-				mlir::Value idxPtr = mlir::memref::LoadOp::create(builder, loc, idx3Form, mlir::ValueRange{ c0 }, false, 0ULL).getResult();
+				mlir::Value idx3Form = mlir::UnrealizedConversionCastOp::create(builder,
+					loc, mlir::TypeRange{ idx3Type }, mlir::ValueRange{ lForm }
+				).getResult(0);
+
+				mlir::Value c0 = mlir::arith::ConstantIndexOp::create(builder, loc, 0);
+				mlir::Value idxPtr = mlir::memref::LoadOp::create(builder, loc, idx3Form, mlir::ValueRange{ c0 }, false, 0ULL);
 
 				mlir::Value intPtr = mlir::index::CastUOp::create(builder,loc,builder.getI64Type(), idxPtr);
 

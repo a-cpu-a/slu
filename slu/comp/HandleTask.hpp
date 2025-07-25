@@ -91,7 +91,7 @@ namespace slu::comp
 		std::unordered_map<uint32_t, std::unique_ptr<llvm::Module>> genOut;
 
 		mlir::LLVMConversionTarget target;
-		//mlir::LLVMTypeConverter typeConverter;
+		mlir::LLVMTypeConverter tyConv;
 
 		std::vector<mico::MpElementInfo> mp2Elements;
 
@@ -247,7 +247,7 @@ namespace slu::comp
 			auto data = mico::ConvData{
 						CommonConvData{cfg,*state.sharedDb},
 						state.mp2Elements,
-						state.s->mc, state.s->llvmCtx,state.s->opBuilder,module,
+						state.s->mc, state.s->llvmCtx,state.s->opBuilder,state.tyConv,module,
 						privVis
 			};
 

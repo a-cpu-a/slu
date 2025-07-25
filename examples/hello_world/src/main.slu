@@ -2,11 +2,6 @@
 --const &:>::std::str MSG = "Hello world!";
 --fn _println(&:>::std::str text) -> void;
 
-safe extern "C" {
-	--TODO: unhack *u8 into something like libc::Cstring.
-	--TODO: unhack i32 into something like libc::Cint.
-	fn puts(line = *:>::std::u8) -> :>::std::i32;
-}
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
 ex fn main() -> {}
@@ -17,9 +12,9 @@ ex fn main() -> {}
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
 	
-	--puts(s);
+	:>::std::_println(s);
 	s = --[=[Implicit conv]=] "I have stolen the show! 😈\x00";
-	--puts(s);
+	:>::std::_println(s);
 	
 	:>::std::_println(--[=[Implicit conversion from "c...0" to &str]=] "called helloWorld()\x00");
 }
