@@ -682,7 +682,7 @@ namespace slu::paint
 			if constexpr (Se::settings() & sluSyn)
 			{
 				paintKw<Tok::PAT_RESTRICT>(se, "=");
-				paintExpr(se, i.type);
+				paintTypeExpr(se, i.type);
 			}
 
 			if (&i != &itm.back() || hasVarArgParam)
