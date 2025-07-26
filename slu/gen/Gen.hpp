@@ -901,8 +901,8 @@ namespace slu::parse
 			{
 				genExSafety(out, var.exported, OptSafety::DEFAULT);
 				out.add("let ");
-				genExpr(out, var.type);
-				out.add(' ');
+				//genExpr(out, var.type); //TODO: gen resolved types?
+				//out.add(' ');
 				genNameOrLocal<true>(out, var.name);
 				out.add(" = ");
 				genExpr(out, var.value);
@@ -915,9 +915,9 @@ namespace slu::parse
 			{
 				out.pushLocals(var.local2Mp);
 				genExSafety(out, var.exported, OptSafety::DEFAULT);
-				out.add("let ");
-				genExpr(out, var.type);
-				out.add(' ');
+				out.add("const ");
+				//genExpr(out, var.type); //TODO: gen resolved types?
+				//out.add(' ');
 				genNameOrLocal<false>(out, var.name);
 				out.add(" = ");
 				genExpr(out, var.value);
