@@ -8,9 +8,9 @@
 ---Everywhere else, a valid utf 8 string.
 ---Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)
 --@Builtin{"base::type/str"} --TODO: unhack string-ness
-struct str = [0..0xFF];
+--struct str = [0..0xFF];
 
 ---Represents 1 character sized str.
 ---Just a newtype of a str.
 --@Builtin{"base::type/char"} --TODO: unhack char-ness
-struct char = str;
+--struct char = str;
