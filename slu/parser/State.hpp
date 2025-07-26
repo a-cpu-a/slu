@@ -1075,14 +1075,14 @@ namespace slu::parse
 
 		struct CanonicLocal
 		{
-			ExprV<true> type;
+			ResolvedType type;
 			LocalId name;
 			ExprV<true> value;
 			ExportData exported = false;
 		};
 		struct CanonicGlobal
 		{
-			ExprV<true> type;
+			ResolvedType type;
 			LocalsV<true> local2Mp;
 			MpItmIdV<true> name;
 			ExprV<true> value;

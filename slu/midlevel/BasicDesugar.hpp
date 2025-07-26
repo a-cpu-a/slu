@@ -112,7 +112,7 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret,std::span<parse::Parameter<Cfg>> params,parse::ExportData exported,const bool hasCode)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret,std::vector<parse::Parameter<Cfg>>& params,parse::ExportData exported,const bool hasCode)
 		{
 			auto& localMp = *mpDataStack.back();
 
@@ -134,6 +134,7 @@ namespace slu::mlvl
 				if(hasCode)
 					res.argLocals.push_back(i.name);
 			}
+			params.clear();
 
 			localMp.addItm(obj, std::move(res));
 		}
@@ -194,7 +195,7 @@ namespace slu::mlvl
 			const bool isFirstVar,
 			auto& localHolder,
 			bool exported,
-			parse::ExprV<true>&& type,
+			parse::ResolvedType&& type,
 			parse::LocalOrName<Cfg, isLocal> name,
 			parse::Expr<Cfg>&& expr)
 		{
@@ -237,9 +238,9 @@ namespace slu::mlvl
 			else
 				return name;
 		}
-		parse::ExprV<true> destrSpec2TypeExpr(parse::Position place,parse::DestrSpec<Cfg>&& spec)
+		parse::ResolvedType destrSpec2Type(parse::Position place,parse::DestrSpec<Cfg>&& spec)
 		{
-			parse::ExprV<true> te= ezmatch(spec)(
+			parse::ExprV<true> te = ezmatch(spec)(
 			varcase(parse::DestrSpecType::Prefix&) 
 			{
 				auto res = parse::BaseExprV<true>{ parse::ExprType::Inferr{},place};
@@ -252,7 +253,7 @@ namespace slu::mlvl
 			}
 			);
 			visit::visitTypeExpr(*this, te);
-			return te;
+			return resolveTypeExpr(mpDb,std::move(te));
 		}
 		template<bool isLocal,bool isFields,class T>
 		void convDestrLists(parse::Position place,
@@ -275,7 +276,7 @@ namespace slu::mlvl
 				name = itm.name;
 			addCanonicVarStat<isLocal>(out, first, localHolder,
 				exported,
-				destrSpec2TypeExpr(place, std::move(itm.spec)),
+				destrSpec2Type(place, std::move(itm.spec)),
 				name,
 				std::move(expr));
 			if constexpr (isFields)
@@ -330,14 +331,14 @@ namespace slu::mlvl
 				varcase(const parse::PatType::DestrAny) {
 					addCanonicVarStat<isLocal>(out, first, itm,
 						false, 
-						{ parse::BaseExprV<true>{ parse::ExprType::Inferr{},stat.place } },
+						parse::ResolvedType::getInferred(),
 						getSynVarName<isLocal>(),
 						std::move(expr));
 				},
 				varcase(parse::PatType::DestrName<Cfg, isLocal>&) {
 					addCanonicVarStat<isLocal>(out, first, itm,
 						exported,
-						destrSpec2TypeExpr(stat.place,std::move(var.spec)),
+						destrSpec2Type(stat.place,std::move(var.spec)),
 						var.name,
 						std::move(expr));
 				},
