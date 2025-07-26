@@ -308,20 +308,26 @@ namespace slu::visit
 		varcase(parse::ExprType::String&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(ExprString);
 			visitString(vi, var.v);
+			Slu_CALL_VISIT_FN_POST_VAR(ExprString);
 		},
 		varcase(const parse::ExprType::F64) {
+			Slu_CALL_VISIT_FN_PRE_VAR(F64);
 			//TODO
 		},
 		varcase(const parse::ExprType::I64) {
+			Slu_CALL_VISIT_FN_PRE_VAR(I64);
 			//TODO
 		},
 		varcase(const parse::ExprType::I128) {
+			Slu_CALL_VISIT_FN_PRE_VAR(I128);
 			//TODO
 		},
 		varcase(const parse::ExprType::U64) {
+			Slu_CALL_VISIT_FN_PRE_VAR(U64);
 			//TODO
 		},
 		varcase(const parse::ExprType::U128) {
+			Slu_CALL_VISIT_FN_PRE_VAR(U128);
 			//TODO
 		},
 		varcase(const parse::ExprType::OpenRange) {
@@ -331,9 +337,11 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(parse::ExprType::TraitExpr&) {
+			//TODO: pre post
 			visitTraitExpr(vi, var);
 		},
 		varcase(parse::ExprType::IfCond<Vi>&) {
+			//TODO: pre post
 			visitSoe(vi, *var.bl);
 			if (var.elseBlock.has_value())
 				visitSoe(vi, **var.elseBlock);
@@ -345,19 +353,24 @@ namespace slu::visit
 			}
 		},
 		varcase(parse::ExprType::LimPrefixExpr<Vi>&) {
+			//TODO: pre post
 			visitLimPrefixExpr(vi, *var);
 		},
 		varcase(parse::ExprType::FuncCall<Vi>&) {
+			//TODO: pre post
 			visitLimPrefixExpr(vi, *var.val);
 			visitArgChain(vi, var.argChain);
 		},
 		varcase(parse::ExprType::Lifetime&) {
+			//TODO: pre post
 			visitLifetime(vi,var);
 		},
 		varcase(parse::ExprType::Table<Vi>&) {
+			//TODO: pre post
 			visitTable(vi,var);
 		},
 		varcase(parse::ExprType::Function<Vi>&) {
+			//TODO: pre post
 			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo, var);
 			visitSafety(vi, var.safety);
 			Slu_CALL_VISIT_FN_PRE_USER(Locals, var.local2Mp);
@@ -367,7 +380,6 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var);
 			visitBlock(vi, var.block);
-			//TODO
 		},
 		varcase(parse::ExprType::MultiOp<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(MultiOp);
