@@ -12,6 +12,8 @@ namespace slu::parse
 	template<class THIS, class... SettingTs>
 	struct Setting : SettingTs...
 	{
+		constexpr static Setting settings() { return Setting(); }
+
 		template<class... OSettingTs>
 		consteval auto operator|(const Setting<OSettingTs...>& o) const
 		{

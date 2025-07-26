@@ -337,7 +337,7 @@ namespace slu::parse
 		case 'i':
 			if (checkReadTextToken(in, "union"))
 			{
-				readStructStat<StatementType::Union<In>, true>(in, place, exported);
+				readStructStat<StatementType::Union, true>(in, place, exported);
 				return true;
 			}
 		default:
@@ -588,7 +588,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "struct"))
 			{
 				//TODO: `struct fn`
-				readStructStat<StatementType::Struct<In>,false>(in, place, exported);
+				readStructStat<StatementType::Struct,false>(in, place, exported);
 				return true;
 			}
 			break;

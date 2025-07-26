@@ -1003,7 +1003,7 @@ namespace slu::paint
 
 		// Slu
 
-		varcase(const parse::StatementType::Struct<Se>&) {
+		varcase(const parse::StatementType::Struct&) {
 			if constexpr (Se::settings() & sluSyn)
 			{
 				se.pushLocals(var.local2Mp);
@@ -1016,11 +1016,14 @@ namespace slu::paint
 				se.popLocals();
 			}
 		},
-		varcase(const parse::StatementType::Union<Se>&) {
-			se.pushLocals(var.local2Mp);
-			paintStructBasic(se, var, "union");
-			paintTable<Tok::NAME_TYPE>(se, var.type);
-			se.popLocals();
+		varcase(const parse::StatementType::Union&) {
+			if constexpr (Se::settings() & sluSyn)
+			{
+				se.pushLocals(var.local2Mp);
+				paintStructBasic(se, var, "union");
+				paintTable<Tok::NAME_TYPE>(se, var.type);
+				se.popLocals();
+			}
 		},
 
 		varcase(const parse::StatementType::Drop<Se>&) {

@@ -508,10 +508,12 @@ namespace slu::visit
 			visitExpr(vi, var.value);
 		},
 		varcase(parse::StatementType::CanonicGlobal&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(CanonicGlobal);
 			visitExported(vi, var.exported);
 			visitTypeExpr(vi, var.type);
 			visitName(vi, var.name);
 			visitExpr(vi, var.value);
+			Slu_CALL_VISIT_FN_POST_VAR(CanonicGlobal);
 		},
 		varcase(parse::StatementType::Let<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(LetVar);
@@ -585,13 +587,13 @@ namespace slu::visit
 			visitExpr(vi, var.exprs);
 			visitBlock(vi, var.bl);
 		},
-		varcase(parse::StatementType::Struct<Vi>&) {
+		varcase(parse::StatementType::Struct&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			visitParams(vi, var.params);
 			visitTypeExpr(vi, var.type);
 		},
-		varcase(parse::StatementType::Union<Vi>&) {
+		varcase(parse::StatementType::Union&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			visitParams(vi, var.params);

@@ -778,13 +778,13 @@ namespace slu::parse
 		UseVariantType::LIST_OF_STUFF
 	>;
 
-	template<class TyTy, bool isSlu>
-	struct StructBaseV
+	template<class TyTy>
+	struct StructBase
 	{
-		ParamListV<isSlu> params;
-		LocalsV<isSlu> local2Mp;
+		ParamListV<true> params;
+		LocalsV<true> local2Mp;
 		TyTy type;
-		MpItmIdV<isSlu> name;
+		MpItmIdV<true> name;
 		ExportData exported = false;
 	};
 	template<bool isSlu, bool isLocal>
@@ -935,13 +935,8 @@ namespace slu::parse
 		};
 
 
-		template<bool isSlu>
-		struct StructV : StructBaseV<ExprV<true>, isSlu> {};
-		Slu_DEF_CFG(Struct);
-
-		template<bool isSlu>
-		struct UnionV : StructBaseV<TableV<isSlu>, isSlu> {};
-		Slu_DEF_CFG(Union);
+		struct Struct : StructBase<ExprV<true>> {};
+		struct Union : StructBase<TableV<true>> {};
 
 		template<bool isSlu>
 		struct ExternBlockV
@@ -1022,8 +1017,8 @@ namespace slu::parse
 		StatementType::FunctionDeclV<isSlu>,
 		StatementType::FnDeclV<isSlu>,
 
-		StatementType::StructV<isSlu>,
-		StatementType::UnionV<isSlu>,
+		StatementType::Struct,
+		StatementType::Union,
 
 		StatementType::ExternBlockV<isSlu>,
 

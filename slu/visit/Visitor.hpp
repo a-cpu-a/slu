@@ -21,7 +21,7 @@ namespace slu::visit
 	struct EmptyVisitor
 	{
 		using SettingsT = _SettingsT;
-		using Cfg = parse::VecInput<SettingsT>;//TODO: swap with dummy settings cfg holder
+		using Cfg = SettingsT;
 		constexpr static SettingsT settings() { return SettingsT(); }
 
 		constexpr EmptyVisitor(SettingsT) {}
@@ -98,6 +98,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(ExternBlock, parse::StatementType::ExternBlock<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(AnyFuncDefStat, parse::StatementType::Function<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(AnyFuncDeclStat, parse::StatementType::FunctionDecl<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(CanonicGlobal, parse::StatementType::CanonicGlobal);
 		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 
 		//Edge cases:

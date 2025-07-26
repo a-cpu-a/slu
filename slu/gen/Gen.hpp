@@ -1066,7 +1066,7 @@ namespace slu::parse
 
 		//Slu!
 
-		varcase(const StatementType::Struct<Out>&) {
+		varcase(const StatementType::Struct&) {
 			if constexpr (Out::settings() & sluSyn)
 			{
 				out.pushLocals(var.local2Mp);
@@ -1089,20 +1089,23 @@ namespace slu::parse
 			}
 		},
 
-		varcase(const StatementType::Union<Out>&) {
-			out.pushLocals(var.local2Mp);
-			if (var.exported)out.add("ex ");
-			out.add("union ").add(out.db.asSv(var.name));
-			if (!var.params.empty())
+		varcase(const StatementType::Union&) {
+			if constexpr (Out::settings() & sluSyn)
 			{
-				out.add('(');
-				genParamList(out, var.params,false);
-				out.add(')');
+				out.pushLocals(var.local2Mp);
+				if (var.exported)out.add("ex ");
+				out.add("union ").add(out.db.asSv(var.name));
+				if (!var.params.empty())
+				{
+					out.add('(');
+					genParamList(out, var.params, false);
+					out.add(')');
+				}
+				out.add(' ');
+				genTable(out, var.type);
+				out.newLine();
+				out.popLocals();
 			}
-			out.add(' ');
-			genTable(out, var.type);
-			out.newLine();
-			out.popLocals();
 		},
 
 		varcase(const StatementType::ExternBlock<Out>&) {
