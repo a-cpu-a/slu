@@ -735,13 +735,161 @@ namespace slu::parse
 		std::vector<SubVarV<isSlu>> sub;
 	};
 
-	template<bool isSlu>
-	struct AttribNameV
+	struct StructRawType;
+	struct UnionRawType;
+	struct VariantRawType;
+	struct RefChainRawType;
+	struct RefSliceRawType;
+	struct DelStructRawType
 	{
-		MpItmIdV<isSlu> name;
-		std::string attrib;//empty -> no attrib
+		void operator()(StructRawType* it) const noexcept;
 	};
-	Slu_DEF_CFG(AttribName);
+	struct DelUnionRawType
+	{
+		void operator()(UnionRawType* it) const noexcept;
+	};
+	struct DelVariantRawType
+	{
+		void operator()(VariantRawType* it) const noexcept;
+	};
+	struct DelRefChainRawType
+	{
+		void operator()(RefChainRawType* it) const noexcept;
+	};
+	struct DelRefSliceRawType
+	{
+		void operator()(RefSliceRawType* it) const noexcept;
+	};
+	namespace RawTypeKind
+	{
+		using Inferred = std::monostate;
+		struct TypeError {};
+		using Unresolved = std::unique_ptr<parse::ExprV<true>>;
+
+		using String = std::string;
+		using Float64 = ExprType::F64;
+		using Uint128 = ExprType::U128;
+		using Int128 = ExprType::I128;
+		struct Range128Uu
+		{
+			Uint128 min;
+			Uint128 max;
+		};
+		struct Range128Su :Range128Uu {};
+		struct Range128Ss :Range128Uu {};
+		struct Range128Us :Range128Uu {};
+
+		using Uint64 = ExprType::U64;
+		using Int64 = ExprType::I64;
+		struct Range64
+		{
+			Int64 min;
+			Int64 max;
+		};
+		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
+		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
+		using Struct = std::unique_ptr<StructRawType, DelStructRawType>;
+		using RefChain = std::unique_ptr<RefChainRawType, DelRefChainRawType>;
+		using RefSlice = std::unique_ptr<RefSliceRawType, DelRefSliceRawType>;
+	}
+	using RawType = std::variant <
+		RawTypeKind::TypeError,
+		RawTypeKind::Inferred,
+		RawTypeKind::Unresolved,
+
+		RawTypeKind::String,
+		RawTypeKind::Float64,
+		RawTypeKind::Int128,
+		RawTypeKind::Uint128,
+		RawTypeKind::Range128Uu,
+		RawTypeKind::Range128Su,
+		RawTypeKind::Range128Ss,
+		RawTypeKind::Range128Us,
+		RawTypeKind::Int64,
+		RawTypeKind::Uint64,
+		RawTypeKind::Range64,
+		RawTypeKind::Variant,
+		RawTypeKind::Union,
+		RawTypeKind::Struct,
+		RawTypeKind::RefChain,
+		RawTypeKind::RefSlice
+	> ;
+	struct ResolvedType
+	{
+		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50) - 1;
+		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK - 1;
+
+		RawType base;
+		size_t size : 50;//in bits. element type size, ignoring outerSliceDims.
+		size_t outerSliceDims : 13 = 0;
+		size_t hasMut : 1 = false;
+
+		constexpr bool isComplete() const {
+			return size != INCOMPLETE_MARK;
+		}
+		constexpr bool isSized() const {
+			return outerSliceDims == 0 && size != UNSIZED_MARK;
+		}
+
+		static ResolvedType getInferred() {
+			return { .base = parse::RawTypeKind::Inferred{},.size = INCOMPLETE_MARK };
+		}
+		static ResolvedType getConstType(RawType&& v) {
+			return { .base = std::move(v),.size = 0/*Known value, not stored*/ };
+		}
+	};
+	struct StructRawType
+	{
+		std::vector<ResolvedType> fields;
+		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
+		std::vector<size_t> fieldOffsets;//Only defined for fields that have a size>0, also its in bits.
+		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
+		//~StructRawType() {
+		//	fields.~vector();
+		//	fieldNames.~vector();
+		//	fieldOffsets.~vector();
+		//}
+	};
+	struct UnionRawType
+	{
+		std::vector<ResolvedType> fields;
+		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
+		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
+	};
+	struct VariantRawType
+	{
+		std::vector<ResolvedType> options;
+	};
+	struct RefSigil
+	{
+		lang::MpItmIdV<true> life;
+		UnOpType refType;
+	};
+	struct RefChainRawType
+	{
+		ResolvedType elem;
+		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
+	};
+	struct RefSliceRawType
+	{
+		ResolvedType elem;//dims stored in here.
+		UnOpType refType;
+	};
+	void ::slu::parse::DelStructRawType::operator()(StructRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelUnionRawType::operator()(UnionRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelRefChainRawType::operator()(RefChainRawType* it) const noexcept {
+		delete it;
+	}
+	void ::slu::parse::DelRefSliceRawType::operator()(RefSliceRawType* it) const noexcept {
+		delete it;
+	}
 
 	namespace FieldType
 	{
@@ -757,6 +905,13 @@ namespace slu::parse
 		struct VARv { VarV<isSlu> v; };			// "var"
 	}
 
+	template<bool isSlu>
+	struct AttribNameV
+	{
+		MpItmIdV<isSlu> name;
+		std::string attrib;//empty -> no attrib
+	};
+	Slu_DEF_CFG(AttribName);
 	template<bool isSlu>
 	using AttribNameListV = std::vector<AttribNameV<isSlu>>;
 	Slu_DEF_CFG(AttribNameList);
