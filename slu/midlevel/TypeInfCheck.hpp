@@ -7,6 +7,7 @@
 #include <vector>
 #include <optional>
 #include <variant>
+#include <slu/ext/CppMatch.hpp>
 #include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
 #include <slu/parser/BuildState.hpp>
@@ -18,11 +19,8 @@ namespace slu::mlvl
 {
 	using TypeInfCheckCfg = decltype(parse::sluCommon);
 
-	struct VisitTypeBuilder
-	{
-		parse::ResolvedType resolved;
-		//???
-	};
+	using VisitTypeBuilder = std::variant<parse::ResolvedType, parse::LocalId>;
+
 	struct TypeRestriction
 	{
 		//fields?
@@ -49,6 +47,19 @@ namespace slu::mlvl
 		std::vector<LocalVarList> localsDataStack;
 
 		std::vector<VisitTypeBuilder> exprTypeStack;
+
+		void requireAsBool(const VisitTypeBuilder& t)
+		{
+			ezmatch(t)(
+			varcase(const parse::ResolvedType&) {
+				if (!var.isBool(mpDb))
+					throw std::runtime_error("TODO: error logging, found non bool expr");
+			},
+			varcase(const parse::LocalId&) {
+				localsDataStack.back()[var.v].useTys.emplace_back(/*TODO*/);
+			}
+			);
+		}
 
 		bool preExpr(parse::Expr<Cfg>& itm) 
 		{
@@ -82,6 +93,17 @@ namespace slu::mlvl
 			return handleConstType<parse::RawTypeKind::String>(std::move(itm.v));//Steal it as converter will use the type anyway.
 		}
 
+		//Restrictions.
+		void postIfCond(parse::Expr<Cfg>& itm) {
+			requireAsBool(exprTypeStack.back());
+			exprTypeStack.pop_back();
+		}
+
+		//Ignored.
+		bool preCanonicGlobal(parse::StatementType::CanonicGlobal&) {
+			return true;
+		}
+		//Stack stuff.
 		bool preLocals(parse::Locals<Cfg>& itm)
 		{
 			localsStack.push_back(&itm);

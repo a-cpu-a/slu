@@ -341,16 +341,21 @@ namespace slu::visit
 			visitTraitExpr(vi, var);
 		},
 		varcase(parse::ExprType::IfCond<Vi>&) {
-			//TODO: pre post
-			visitSoe(vi, *var.bl);
-			if (var.elseBlock.has_value())
-				visitSoe(vi, **var.elseBlock);
+			Slu_CALL_VISIT_FN_PRE_VAR(IfExpr);
+			Slu_CALL_VISIT_FN_PRE_USER(IfCond, *var.cond);
 			visitExpr(vi, *var.cond);
+			Slu_CALL_VISIT_FN_POST_USER(IfCond, *var.cond);
+			visitSoe(vi, *var.bl);
 			for (auto& [cond, soe] : var.elseIfs)
 			{
+				Slu_CALL_VISIT_FN_PRE_USER(IfCond, cond);
 				visitExpr(vi, cond);
+				Slu_CALL_VISIT_FN_POST_USER(IfCond, cond);
 				visitSoe(vi, soe);
 			}
+			if (var.elseBlock.has_value())
+				visitSoe(vi, **var.elseBlock);
+			Slu_CALL_VISIT_FN_POST_VAR(IfExpr);
 		},
 		varcase(parse::ExprType::LimPrefixExpr<Vi>&) {
 			//TODO: pre post
@@ -574,15 +579,21 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(parse::StatementType::IfCond<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(IfStat);
+			Slu_CALL_VISIT_FN_PRE_USER(IfCond, *var.cond);
 			visitExpr(vi, *var.cond);
+			Slu_CALL_VISIT_FN_POST_USER(IfCond,*var.cond);
 			visitSoe(vi, *var.bl);
 			for (auto& [cond, soe] : var.elseIfs)
 			{
+				Slu_CALL_VISIT_FN_PRE_USER(IfCond, cond);
 				visitExpr(vi, cond);
+				Slu_CALL_VISIT_FN_POST_USER(IfCond, cond);
 				visitSoe(vi, soe);
 			}
 			if (var.elseBlock.has_value())
 				visitSoe(vi, **var.elseBlock);
+			Slu_CALL_VISIT_FN_POST_VAR(IfStat);
 		},
 		varcase(parse::StatementType::While<Vi>&) {
 			visitExpr(vi, var.cond);

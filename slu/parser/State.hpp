@@ -830,6 +830,16 @@ namespace slu::parse
 		constexpr bool isSized() const {
 			return outerSliceDims == 0 && size != UNSIZED_MARK;
 		}
+		constexpr bool isBool(auto mpDb) const
+		{
+			if (outerSliceDims != 0 || size != 1) return false;
+			if (!std::holds_alternative<RawTypeKind::Struct>(base))
+				return false;
+			MpItmIdV<true> name = std::get<RawTypeKind::Struct>(base)->name;
+			return name == mpDb.data->getItm({ "std","bool" })
+				|| name == mpDb.data->getItm({ "std","bool", "false" })
+				|| name == mpDb.data->getItm({ "std","bool", "true" });
+		}
 
 		static ResolvedType getInferred() {
 			return { .base = parse::RawTypeKind::Inferred{},.size = INCOMPLETE_MARK };
