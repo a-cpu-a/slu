@@ -6,7 +6,6 @@
 #include <string>
 #include <vector>
 #include <optional>
-#include <thread>
 #include <variant>
 #include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
@@ -41,7 +40,7 @@ namespace slu::mlvl
 
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
-		using Cfg = visit::EmptyVisitor<DesugarCfg>::Cfg;
+		using Cfg = DesugarCfg;
 		static constexpr bool isSlu = Cfg::settings() & ::slu::parse::sluSyn;
 
 		parse::BasicMpDb mpDb;
@@ -367,10 +366,14 @@ namespace slu::mlvl
 		{
 			if(itm.abi.empty())
 				itm.abi = abiStack.empty() ? "Any" : abiStack.back();
-			localsStack.push_back(&itm.local2Mp);
 			return false;
 		}
-		void postFunctionInfo(parse::FunctionInfo<Cfg>& itm) {
+		bool preLocals(parse::Locals<Cfg>& itm)
+		{
+			localsStack.push_back(&itm);
+			return false;
+		}
+		void postLocals(parse::Locals<Cfg>& itm) {
 			localsStack.pop_back();
 		}
 		bool preStatList(parse::StatList<Cfg>& itm) 
