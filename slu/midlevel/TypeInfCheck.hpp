@@ -24,7 +24,7 @@ namespace slu::mlvl
 	//TODO: create for func call results, table indexing.
 	using TmpVar = uint64_t;
 
-	using VisitTypeBuilder = std::variant<parse::ResolvedType, parse::LocalId, TmpVar>;
+	using VisitTypeBuilder = std::variant<parse::ResolvedType,const parse::ResolvedType*, parse::LocalId, TmpVar>;
 
 	struct TypeRestriction
 	{
@@ -61,6 +61,27 @@ namespace slu::mlvl
 				if (!var.isBool(mpDb))
 					throw std::runtime_error("TODO: error logging, found non bool expr");
 			},
+			varcase(const parse::ResolvedType*) {
+				if (!var->isBool(mpDb))
+					throw std::runtime_error("TODO: error logging, found non bool expr");
+			},
+			varcase(const parse::LocalId) {
+				localsDataStack.back()[var.v].useTys.emplace_back(/*TODO*/);
+			},
+			varcase(const TmpVar) {
+				tmpLocalsDataStack.back()[var].useTys.emplace_back(/*TODO*/);
+			}
+			);
+		}
+		void requireAsTy(const VisitTypeBuilder& t,const parse::ResolvedType& ty)
+		{
+			ezmatch(t)(
+			varcase(const parse::ResolvedType&) {
+				//TODO: check equivelance / sub type.
+			},
+			varcase(const parse::ResolvedType*) {
+				//TODO: check equivelance / sub type.
+			},
 			varcase(const parse::LocalId) {
 				localsDataStack.back()[var.v].useTys.emplace_back(/*TODO*/);
 			},
@@ -79,7 +100,7 @@ namespace slu::mlvl
 		template<class RawT>
 		bool handleConstType(auto&& v)
 		{
-			exprTypeStack.back().resolved = parse::ResolvedType::getConstType(RawT{ std::move(v)});
+			exprTypeStack.emplace_back(parse::ResolvedType::getConstType(RawT{ std::move(v) }));
 			return false;
 		}
 		void editLocalVar(parse::LocalId var)
@@ -114,6 +135,37 @@ namespace slu::mlvl
 		}
 		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
 			editLocalVar(itm.name);
+		}
+		void postFuncCallStat(parse::StatementType::FuncCall<Cfg>& itm) {
+			if(itm.argChain.size() != 1)
+				throw std::runtime_error("TODO: type inference for complex func call args.");
+			if(!std::holds_alternative<parse::ArgsType::ExprList<Cfg>>(itm.argChain[0].args))
+				throw std::runtime_error("TODO: type inference for func call with complex args.");
+
+			if(!std::holds_alternative<parse::LimPrefixExprType::VAR<Cfg>>(*itm.val))
+				throw std::runtime_error("TODO: type inference for func call on expr.");
+			parse::Var<Cfg>& funcVar = std::get<parse::LimPrefixExprType::VAR<Cfg>>(*itm.val).v;
+			if (!funcVar.sub.empty())
+				throw std::runtime_error("TODO: type inference for sub variables in func-call statement.");
+			if (!std::holds_alternative<parse::BaseVarType::NAME<Cfg>>(funcVar.base))
+				throw std::runtime_error("TODO: type inference for func call on non-global var.");
+
+			parse::MpItmId<Cfg> funcName = std::get<parse::BaseVarType::NAME<Cfg>>(funcVar.base).v;
+			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(mpDb.data->getItm(funcName));
+
+			parse::ArgsType::ExprList<Cfg>& args = std::get<parse::ArgsType::ExprList<Cfg>>(itm.argChain[0].args);
+			//Restrict arg exprs to match types in funcItm.
+			for (size_t i = args.size(); i > 0; i++)
+			{
+				const parse::ResolvedType& ty = funcItm.args[i];
+				requireAsTy(exprTypeStack.back(), ty);
+				exprTypeStack.pop_back();
+			}
+			//Make temp var for func result, also add editType for it.
+			//const TmpVar tmpVar = TmpVar(tmpLocalsDataStack.back().size());
+			//tmpLocalsDataStack.back().emplace_back().editTys.emplace_back(&funcItm.ret);
+			//
+			//exprTypeStack.emplace_back(tmpVar);
 		}
 		void postAssign(parse::StatementType::Assign<Cfg>& itm)
 		{

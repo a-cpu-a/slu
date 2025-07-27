@@ -557,8 +557,10 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(ConstVar);
 		},
 		varcase(parse::StatementType::FuncCall<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(FuncCallStat);
 			visitLimPrefixExpr(vi, *var.val);
 			visitArgChain(vi, var.argChain);
+			Slu_CALL_VISIT_FN_POST_VAR(FuncCallStat);
 		},
 		varcase(parse::StatementType::Block<Vi>&) {
 			visitBlock(vi, var);
