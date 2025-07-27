@@ -19,7 +19,12 @@ namespace slu::mlvl
 {
 	using TypeInfCheckCfg = decltype(parse::sluCommon);
 
-	using VisitTypeBuilder = std::variant<parse::ResolvedType, parse::LocalId>;
+
+	//TODO: fix string expressions being fully stolen.
+	//TODO: create for func call results, table indexing.
+	using TmpVar = uint64_t;
+
+	using VisitTypeBuilder = std::variant<parse::ResolvedType, parse::LocalId, TmpVar>;
 
 	struct TypeRestriction
 	{
@@ -32,7 +37,7 @@ namespace slu::mlvl
 
 	struct LocalVarInfo
 	{
-		std::vector<parse::ResolvedType> editTys;
+		std::vector<VisitTypeBuilder> editTys;
 		std::vector<TypeRestrictions> useTys;
 	};
 	using LocalVarList = std::vector<LocalVarInfo>;
@@ -45,6 +50,7 @@ namespace slu::mlvl
 		parse::BasicMpDb mpDb;
 		std::vector<parse::Locals<Cfg>*> localsStack;
 		std::vector<LocalVarList> localsDataStack;
+		std::vector<LocalVarList> tmpLocalsDataStack;
 
 		std::vector<VisitTypeBuilder> exprTypeStack;
 
@@ -55,8 +61,11 @@ namespace slu::mlvl
 				if (!var.isBool(mpDb))
 					throw std::runtime_error("TODO: error logging, found non bool expr");
 			},
-			varcase(const parse::LocalId&) {
+			varcase(const parse::LocalId) {
 				localsDataStack.back()[var.v].useTys.emplace_back(/*TODO*/);
+			},
+			varcase(const TmpVar) {
+				tmpLocalsDataStack.back()[var].useTys.emplace_back(/*TODO*/);
 			}
 			);
 		}
@@ -94,9 +103,19 @@ namespace slu::mlvl
 		}
 
 		//Restrictions.
-		void postIfCond(parse::Expr<Cfg>& itm) {
+		void postAnyCond(parse::Expr<Cfg>& itm) {
 			requireAsBool(exprTypeStack.back());
 			exprTypeStack.pop_back();
+		}
+		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) 
+		{
+			VisitTypeBuilder& editType = exprTypeStack.back();
+			localsDataStack.back()[itm.name.v].editTys.emplace_back(editType);
+			exprTypeStack.pop_back();
+		}
+		void postAssign(parse::StatementType::Assign<Cfg>& itm)
+		{
+			//TODO: add edit type for each edited variable.
 		}
 
 		//Ignored.
@@ -107,10 +126,14 @@ namespace slu::mlvl
 		bool preLocals(parse::Locals<Cfg>& itm)
 		{
 			localsStack.push_back(&itm);
+			localsDataStack.emplace_back();
+			tmpLocalsDataStack.emplace_back();
 			return false;
 		}
 		void postLocals(parse::Locals<Cfg>& itm) {
 			localsStack.pop_back();
+			localsDataStack.pop_back();
+			tmpLocalsDataStack.pop_back();
 		}
 	};
 

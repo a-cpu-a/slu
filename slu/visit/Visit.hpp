@@ -342,15 +342,15 @@ namespace slu::visit
 		},
 		varcase(parse::ExprType::IfCond<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(IfExpr);
-			Slu_CALL_VISIT_FN_PRE_USER(IfCond, *var.cond);
+			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, *var.cond);
 			visitExpr(vi, *var.cond);
-			Slu_CALL_VISIT_FN_POST_USER(IfCond, *var.cond);
+			Slu_CALL_VISIT_FN_POST_USER(AnyCond, *var.cond);
 			visitSoe(vi, *var.bl);
 			for (auto& [cond, soe] : var.elseIfs)
 			{
-				Slu_CALL_VISIT_FN_PRE_USER(IfCond, cond);
+				Slu_CALL_VISIT_FN_PRE_USER(AnyCond, cond);
 				visitExpr(vi, cond);
-				Slu_CALL_VISIT_FN_POST_USER(IfCond, cond);
+				Slu_CALL_VISIT_FN_POST_USER(AnyCond, cond);
 				visitSoe(vi, soe);
 			}
 			if (var.elseBlock.has_value())
@@ -584,15 +584,15 @@ namespace slu::visit
 		},
 		varcase(parse::StatementType::IfCond<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(IfStat);
-			Slu_CALL_VISIT_FN_PRE_USER(IfCond, *var.cond);
+			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, *var.cond);
 			visitExpr(vi, *var.cond);
-			Slu_CALL_VISIT_FN_POST_USER(IfCond,*var.cond);
+			Slu_CALL_VISIT_FN_POST_USER(AnyCond,*var.cond);
 			visitSoe(vi, *var.bl);
 			for (auto& [cond, soe] : var.elseIfs)
 			{
-				Slu_CALL_VISIT_FN_PRE_USER(IfCond, cond);
+				Slu_CALL_VISIT_FN_PRE_USER(AnyCond, cond);
 				visitExpr(vi, cond);
-				Slu_CALL_VISIT_FN_POST_USER(IfCond, cond);
+				Slu_CALL_VISIT_FN_POST_USER(AnyCond, cond);
 				visitSoe(vi, soe);
 			}
 			if (var.elseBlock.has_value())
@@ -600,12 +600,16 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(IfStat);
 		},
 		varcase(parse::StatementType::While<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, var.cond);
 			visitExpr(vi, var.cond);
+			Slu_CALL_VISIT_FN_POST_USER(AnyCond, var.cond);
 			visitBlock(vi, var.bl);
 		},
 		varcase(parse::StatementType::RepeatUntil<Vi>&) {
 			visitBlock(vi, var.bl);
+			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, var.cond);
 			visitExpr(vi, var.cond);
+			Slu_CALL_VISIT_FN_POST_USER(AnyCond, var.cond);
 		},
 		varcase(parse::StatementType::ForNum<Vi>&) {
 			visitPat<true>(vi, var.varName);
