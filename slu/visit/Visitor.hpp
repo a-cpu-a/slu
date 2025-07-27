@@ -105,6 +105,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(Assign, parse::StatementType::Assign<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(CanonicLocal, parse::StatementType::CanonicLocal);
 		_Slu_DEF_EMPTY_PRE_POST(CanonicGlobal, parse::StatementType::CanonicGlobal);
+		_Slu_DEF_EMPTY_PRE_POST(Drop, parse::StatementType::Drop<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 
 		//Edge cases:

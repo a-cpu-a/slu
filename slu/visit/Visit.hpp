@@ -686,7 +686,9 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(parse::StatementType::Drop<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(Drop);
 			visitExpr(vi, var.expr);
+			Slu_CALL_VISIT_FN_POST_VAR(Drop);
 		},
 		varcase(parse::StatementType::Mod<Vi>&) {
 			visitExported(vi, var.exported);

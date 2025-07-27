@@ -118,6 +118,11 @@ namespace slu::mlvl
 			//TODO: add edit type for each edited variable.
 		}
 
+		//Allow any type.
+		void postDrop(parse::StatementType::Drop<Cfg>&) {
+			exprTypeStack.pop_back();
+		}
+
 		//Ignored.
 		bool preCanonicGlobal(parse::StatementType::CanonicGlobal&) {
 			return true;
