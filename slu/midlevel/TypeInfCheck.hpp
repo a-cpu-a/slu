@@ -26,19 +26,23 @@ namespace slu::mlvl
 
 	using VisitTypeBuilder = std::variant<parse::ResolvedType,const parse::ResolvedType*, parse::LocalId, TmpVar>;
 
-	struct TypeRestriction
+	struct TypeRestrictions
 	{
-		//fields?
-		//methods?
+		std::vector<TmpVar> useTmpLocals;
+		std::vector<parse::LocalId> useLocals;
+
+		std::vector<lang::LocalObjId> fields;
+		std::vector<parse::ResolvedType> useTys;
+		std::vector<const parse::ResolvedType*> useTyRefs;
+		bool isBool=false;
 		//traits?
 		//???
 	};
-	using TypeRestrictions = std::vector<TypeRestriction>;
 
 	struct LocalVarInfo
 	{
 		std::vector<VisitTypeBuilder> editTys;
-		std::vector<TypeRestrictions> useTys;
+		TypeRestrictions useTys;
 	};
 	using LocalVarList = std::vector<LocalVarInfo>;
 
@@ -66,14 +70,14 @@ namespace slu::mlvl
 					throw std::runtime_error("TODO: error logging, found non bool expr");
 			},
 			varcase(const parse::LocalId) {
-				localsDataStack.back()[var.v].useTys.emplace_back(/*TODO*/);
+				localsDataStack.back()[var.v].useTys.isBool=true;
 			},
 			varcase(const TmpVar) {
-				tmpLocalsDataStack.back()[var].useTys.emplace_back(/*TODO*/);
+				tmpLocalsDataStack.back()[var].useTys.isBool = true;
 			}
 			);
 		}
-		void requireAsTy(const VisitTypeBuilder& t,const parse::ResolvedType& ty)
+		void requireUseTy(const VisitTypeBuilder& t,const parse::ResolvedType& ty)
 		{
 			ezmatch(t)(
 			varcase(const parse::ResolvedType&) {
@@ -83,10 +87,10 @@ namespace slu::mlvl
 				//TODO: check equivelance / sub type.
 			},
 			varcase(const parse::LocalId) {
-				localsDataStack.back()[var.v].useTys.emplace_back(/*TODO*/);
+				localsDataStack.back()[var.v].useTys.useTyRefs.push_back(&ty);
 			},
 			varcase(const TmpVar) {
-				tmpLocalsDataStack.back()[var].useTys.emplace_back(/*TODO*/);
+				tmpLocalsDataStack.back()[var].useTys.useTyRefs.push_back(&ty);
 			}
 			);
 		}
@@ -103,9 +107,19 @@ namespace slu::mlvl
 			exprTypeStack.emplace_back(parse::ResolvedType::getConstType(RawT{ std::move(v) }));
 			return false;
 		}
-		void editLocalVar(parse::LocalId var)
+		void editLocalVar(parse::LocalId itm)
 		{
-			localsDataStack.back()[var.v].editTys.emplace_back(exprTypeStack.back());
+			VisitTypeBuilder& editTy = exprTypeStack.back();
+			ezmatch(editTy)(
+			varcase(const auto&) {},
+			varcase(const parse::LocalId) {
+				localsDataStack.back()[var.v].useTys.useLocals.push_back(itm);
+			},
+			varcase(const TmpVar) {
+				tmpLocalsDataStack.back()[var].useTys.useLocals.push_back(itm);
+			}
+			);
+			localsDataStack.back()[itm.v].editTys.emplace_back(editTy);
 			exprTypeStack.pop_back();
 		}
 
@@ -158,7 +172,7 @@ namespace slu::mlvl
 			for (size_t i = args.size(); i > 0; i++)
 			{
 				const parse::ResolvedType& ty = funcItm.args[i];
-				requireAsTy(exprTypeStack.back(), ty);
+				requireUseTy(exprTypeStack.back(), ty);
 				exprTypeStack.pop_back();
 			}
 			//Make temp var for func result, also add editType for it.
