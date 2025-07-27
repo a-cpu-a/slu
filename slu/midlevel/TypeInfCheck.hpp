@@ -82,6 +82,11 @@ namespace slu::mlvl
 			exprTypeStack.back().resolved = parse::ResolvedType::getConstType(RawT{ std::move(v)});
 			return false;
 		}
+		void editLocalVar(parse::LocalId var)
+		{
+			localsDataStack.back()[var.v].editTys.emplace_back(exprTypeStack.back());
+			exprTypeStack.pop_back();
+		}
 
 		bool preF64(parse::ExprType::F64 itm) {
 			return handleConstType<parse::RawTypeKind::Float64>(itm);
@@ -107,15 +112,34 @@ namespace slu::mlvl
 			requireAsBool(exprTypeStack.back());
 			exprTypeStack.pop_back();
 		}
-		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) 
-		{
-			VisitTypeBuilder& editType = exprTypeStack.back();
-			localsDataStack.back()[itm.name.v].editTys.emplace_back(editType);
-			exprTypeStack.pop_back();
+		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
+			editLocalVar(itm.name);
 		}
 		void postAssign(parse::StatementType::Assign<Cfg>& itm)
 		{
-			//TODO: add edit type for each edited variable.
+			size_t count = itm.vars.size();
+			for (size_t i = count; i > 0; i--)
+			{
+				parse::Var<Cfg>& var = itm.vars[i-1];
+				if(!var.sub.empty())
+					throw std::runtime_error("TODO: type inference for sub variables in assign statement.");
+
+				ezmatch(var.base)(
+				varcase(parse::BaseVarType::NAMEv<true>&) {
+					throw std::runtime_error("TODO: type check global assign statement.");
+				},
+				varcase(parse::BaseVarType::ExprV<true>&) {
+					throw std::runtime_error("TODO: type inference for expr-var in assign statement.");
+				},
+				varcase(parse::BaseVarType::Local&) {
+					editLocalVar(var);
+				},
+
+				varcase(parse::BaseVarType::Root&) {
+					throw std::runtime_error("TODO better logging: cant assign to mp root (:>).");
+				}
+				);
+			}
 		}
 
 		//Allow any type.

@@ -1,0 +1,27 @@
+#
+# Dependencies: basic, type
+#
+
+Subtypes {
+	
+	int literals: ..., -2,-1,0,1,2, ...
+	float literals.
+	string literals: "", "a", "b"
+	
+	0.0_f32 < f32
+	0.0_f64 < f64
+	
+	
+	1 < 0||1
+	0||1 < 0..1
+	1||2||3||4 < 1..4
+	
+	"a" < "a"||"b"
+	"a"||"b" < &char
+	&char < &str
+	"" < &str
+	""||"a" < &str
+	
+	"" < String
+	"a"||"b" < String
+}
