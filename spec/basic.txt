@@ -35,8 +35,6 @@ New Syntax {
 
 	label ::= ‘:::’ Name ‘:’
 
-	funcname ::= Name {‘.’ Name} [‘:’ Name]
-
 	varlist ::= var {‘,’ var}
 
 	varbase ::= Name | ‘(’ exp ‘)’ subvar
@@ -56,11 +54,11 @@ New Syntax {
 		| exp binop exp | {unop} exp {postunop}
 
 	prefixexp ::= var | ‘(’ exp ‘)’
-	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
+	functioncall ::=  prefixexp args
 	
 	--Note: this var doesnt allow {} and "" style args.
 	prefixexpBfuncArgs ::= var | functioncallBasicArgs | ‘(’ exp ‘)’
-	functioncallBasicArgs ::=  prefixexpBfuncArgs basicargs | prefixexpBfuncArgs ‘:’ Name basicargs 
+	functioncallBasicArgs ::=  prefixexpBfuncArgs basicargs
 
 	basicargs ::=  ‘(’ [explist] ‘)’
 	args ::=  basicargs | tableconstructor | LiteralString 

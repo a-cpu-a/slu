@@ -246,8 +246,11 @@ namespace slu::parse
 			}
 			case ':'://Self funccall
 			{
-				if (in.peekAt(1) == ':' || in.peekAt(1) == '>') //is label / '::' / ':>'
+				if constexpr (In::settings() & sluSyn)
 					goto exit;
+				if (in.peekAt(1) == ':') //is label            /* || in.peekAt(1) == '>' */   / '::' / ':>'
+					goto exit;
+
 				in.skip();//skip colon
 				std::string name = readName(in);
 
