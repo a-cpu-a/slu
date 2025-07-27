@@ -510,8 +510,10 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Stat);
 		ezmatch(itm.data)(
 		varcase(parse::StatementType::Assign<Vi>&) {
-			visitExprList(vi, var.exprs);
+			Slu_CALL_VISIT_FN_PRE_VAR(Assign);
 			visitVarList(vi, var.vars);
+			visitExprList(vi, var.exprs);
+			Slu_CALL_VISIT_FN_POST_VAR(Assign);
 		},
 		varcase(parse::StatementType::Local<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(LocalVar);
@@ -521,10 +523,12 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(LocalVar);
 		},
 		varcase(parse::StatementType::CanonicLocal&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(CanonicLocal);
 			visitExported(vi, var.exported);
 			//visitTypeExpr(vi, var.type); //TODO: resolved type visit?
 			visitNameOrLocal<true>(vi, var.name);
 			visitExpr(vi, var.value);
+			Slu_CALL_VISIT_FN_POST_VAR(CanonicLocal);
 		},
 		varcase(parse::StatementType::CanonicGlobal&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(CanonicGlobal);
