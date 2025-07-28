@@ -57,6 +57,12 @@ Subtypes {
 	1. do types match exactly, unless they are refs, then lifetime outlives.
 	2. lifetime outlives
 	
+	
+	
+	
+	To keep things simple, no recursive type inference.
+	
+	
 	-----------
 	
 	let mut x = "";
@@ -81,7 +87,7 @@ Subtypes {
 	
 	let mut x = 0;
 	x = x + 1; -- error, cuz having any range of values extends the type to infinity. (mut 0..)
-	
+	-->
 	tx >= 0
 	t_y >= +(tx,1)
 	tx >= t_y
@@ -90,17 +96,56 @@ Subtypes {
 	
 	-----------
 	
+	let mut x = 1;
+	x = -x;
+	-->
+	tx >= 1
+	t_y >= -(tx)
+	tx >= t_y
+	???
+	
+	-----------
+	
+	let mut x = 0;
+	let y = 500-x;
+	x = -y;
+	-->
+	tx >= 0
+	ty >= 500-tx
+	tx >= -ty
+	
+	ty >= 500
+	tx >= -500
+	
+	ty >= 1000 --(500 - (-500))
+	tx >= -1000
+	
+	-- error, it goes forever
+	
+	-----------
+	
+	let mut x = 1;
+	x = 1-x;
+	-->
+	tx >= 1
+	t_y >= -(1,tx)
+	tx >= t_y
+	
+	tx >= 0 --(1-1)
+	
+	-----------
+	
 	let mut x = 0;
 	let mut y = x;
 	y = 3;
 	x = y+x; -- error, cuz it explodes to infinity again
-	
+	-->
 	tx >= 0
 	ty >= tx
 	ty >= 3
 	t_z >= +(ty,tx)
 	tx >= t_z
-	
+	-->
 	ty >= 0
 	tx >= +(ty,tx) -- wait, that makes no sense, it depends on itself!
 }
