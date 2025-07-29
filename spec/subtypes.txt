@@ -27,6 +27,9 @@ Subtypes {
 	
 	-----------
 	
+	Name matching -> named types are supertypes of unnamed types.
+	(or maybe the other way around?) (you can assign unnamed struct to a named struct var)
+	
 	String x String / Int x Int / Float x Float
 	1. equal
 	
