@@ -830,12 +830,20 @@ namespace slu::parse
 		constexpr bool isSized() const {
 			return outerSliceDims == 0 && size != UNSIZED_MARK;
 		}
+		constexpr std::optional<MpItmIdV<true>> getStructName() const
+		{
+			if (outerSliceDims != 0) return std::nullopt;
+			if (!std::holds_alternative<RawTypeKind::Struct>(base))
+				return std::nullopt;
+			return std::get<RawTypeKind::Struct>(base)->name;
+		}
 		constexpr bool isBool(auto mpDb) const
 		{
-			if (outerSliceDims != 0 || size != 1) return false;
-			if (!std::holds_alternative<RawTypeKind::Struct>(base))
-				return false;
-			MpItmIdV<true> name = std::get<RawTypeKind::Struct>(base)->name;
+			if (size > 1) return false;
+			auto optName = getStructName();
+			if (!optName.has_value()) return false;
+
+			MpItmIdV<true> name = *optName;
 			return name == mpDb.data->getItm({ "std","bool" })
 				|| name == mpDb.data->getItm({ "std","bool", "false" })
 				|| name == mpDb.data->getItm({ "std","bool", "true" });
@@ -847,6 +855,32 @@ namespace slu::parse
 		static ResolvedType getConstType(RawType&& v) {
 			return { .base = std::move(v),.size = 0/*Known value, not stored*/ };
 		}
+		static ResolvedType newZstStruct(MpItmIdV<true> name) {
+			return getConstType(StructRawType::newNamed(name));
+		}
+		static ResolvedType getBool(auto mpDb,bool tr,bool fa) {
+			if (tr && fa)
+				return { .base = parse::RawTypeKind::Struct{StructRawType::boolStruct(mpDb)},.size = 1};
+			if (tr) return newConstTrue(mpDb);
+			_ASSERT(fa);
+			return newConstFalse(mpDb);
+		}
+		static ResolvedType newConstTrue(auto mpDb) {
+			return ResolvedType::newZstStruct(mpDb.data->getItm({ "std","bool","true" }));
+		}
+		static ResolvedType newConstFalse(auto mpDb) {
+			return ResolvedType::newZstStruct(mpDb.data->getItm({ "std","bool","false" }));
+		}
+		template<std::same_as<ResolvedType&&>... Ts>
+		static ResolvedType newVariant(Ts... t) {
+			auto& elems = *(new VariantRawType());
+			(elems.options.emplace_back(std::move(t))...);
+			return { .base = parse::RawTypeKind::Variant{&elems} };
+		}
+	};
+	struct VariantRawType
+	{
+		std::vector<ResolvedType> options;
 	};
 	struct StructRawType
 	{
@@ -859,16 +893,31 @@ namespace slu::parse
 		//	fieldNames.~vector();
 		//	fieldOffsets.~vector();
 		//}
+		static parse::RawTypeKind::Struct newRawTy() {
+			auto& elems = *(new StructRawType());
+			return parse::RawTypeKind::Struct{ &elems };
+		}
+		static parse::RawTypeKind::Struct newNamed(MpItmIdV<true> name) {
+			auto t = newRawTy();
+			t->name = name;
+			return t;
+		}
+		static parse::RawTypeKind::Struct boolStruct(auto mpDb) {
+			RawTypeKind::Struct thing = newRawTy();
+			thing->fields.emplace_back(ResolvedType::newVariant(
+				ResolvedType::newConstFalse(mpDb),
+				ResolvedType::newConstTrue(mpDb)
+			));
+			thing->fieldNames.push_back("0x1");
+			thing->name = mpDb.data->getItm({ "std","bool" });
+			return thing;
+		}
 	};
 	struct UnionRawType
 	{
 		std::vector<ResolvedType> fields;
 		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
 		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
-	};
-	struct VariantRawType
-	{
-		std::vector<ResolvedType> options;
 	};
 	struct RefSigil
 	{

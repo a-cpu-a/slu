@@ -26,23 +26,59 @@ namespace slu::mlvl
 
 	using VisitTypeBuilder = std::variant<parse::ResolvedType,const parse::ResolvedType*, parse::LocalId, TmpVar>;
 
-	struct TypeRestrictions
+	struct SubTySide
 	{
-		std::vector<TmpVar> useTmpLocals;
-		std::vector<parse::LocalId> useLocals;
+		std::vector<TmpVar> tmpLocals;
+		std::vector<parse::LocalId> locals;
+		std::vector<parse::ResolvedType> tys;
+		std::vector<const parse::ResolvedType*> tyRefs;
 
-		std::vector<lang::LocalObjId> fields;
-		std::vector<parse::ResolvedType> useTys;
-		std::vector<const parse::ResolvedType*> useTyRefs;
-		bool isBool=false;
-		//traits?
-		//???
+		void clear()
+		{
+			tmpLocals.clear();
+			locals.clear();
+			tys.clear();
+			tyRefs.clear();
+		}
 	};
+
 
 	struct LocalVarInfo
 	{
-		std::vector<VisitTypeBuilder> editTys;
-		TypeRestrictions useTys;
+		std::vector<lang::LocalObjId> fields;
+		//traits?
+		//???
+
+		SubTySide use;//Requirements when used.
+		SubTySide edit;//Requirements when writen to.
+
+		bool boolLike :1 = false;//part of use.
+
+		bool taken : 1 = false;
+
+		bool resolved : 1 = false;
+
+		constexpr parse::ResolvedType* resolvedType()
+		{
+			if (!resolved)return nullptr;
+			return &edit.tys[0];
+		}
+		parse::ResolvedType& resolveNoCheck(parse::ResolvedType&& t)
+		{
+			_ASSERT(!resolved);
+			//use.clear();
+			fields.clear();
+			edit.clear();
+			resolved = true;
+			return edit.tys.emplace_back(std::move(t));
+		}
+		void requireBoolLike(parse::BasicMpDb mpDb)
+		{
+			if(resolved && !boolLike && !resolvedType()->isBool(mpDb))
+				throw std::runtime_error("TODO: error logging, found non bool expr");
+
+			boolLike = true;
+		}
 	};
 	using LocalVarList = std::vector<LocalVarInfo>;
 
@@ -58,6 +94,13 @@ namespace slu::mlvl
 
 		std::vector<VisitTypeBuilder> exprTypeStack;
 
+		LocalVarInfo& localVar(const parse::LocalId id) {
+			return localsDataStack.back()[id.v];
+		}
+		LocalVarInfo& localVar(const TmpVar id) {
+			return tmpLocalsDataStack.back()[id];
+		}
+
 		void requireAsBool(const VisitTypeBuilder& t)
 		{
 			ezmatch(t)(
@@ -70,10 +113,10 @@ namespace slu::mlvl
 					throw std::runtime_error("TODO: error logging, found non bool expr");
 			},
 			varcase(const parse::LocalId) {
-				localsDataStack.back()[var.v].useTys.isBool=true;
+				localVar(var).requireBoolLike(mpDb);
 			},
 			varcase(const TmpVar) {
-				tmpLocalsDataStack.back()[var].useTys.isBool = true;
+				localVar(var).requireBoolLike(mpDb);
 			}
 			);
 		}
@@ -87,10 +130,10 @@ namespace slu::mlvl
 				//TODO: check equivelance / sub type.
 			},
 			varcase(const parse::LocalId) {
-				localsDataStack.back()[var.v].useTys.useTyRefs.push_back(&ty);
+				localVar(var).use.tyRefs.push_back(&ty);
 			},
 			varcase(const TmpVar) {
-				tmpLocalsDataStack.back()[var].useTys.useTyRefs.push_back(&ty);
+				localVar(var).use.tyRefs.push_back(&ty);
 			}
 			);
 		}
@@ -113,13 +156,26 @@ namespace slu::mlvl
 			ezmatch(editTy)(
 			varcase(const auto&) {},
 			varcase(const parse::LocalId) {
-				localsDataStack.back()[var.v].useTys.useLocals.push_back(itm);
+				localVar(var).use.locals.push_back(itm);
 			},
 			varcase(const TmpVar) {
-				tmpLocalsDataStack.back()[var].useTys.useLocals.push_back(itm);
+				localVar(var).use.locals.push_back(itm);
 			}
 			);
-			localsDataStack.back()[itm.v].editTys.emplace_back(editTy);
+			ezmatch(editTy)(
+			varcase(parse::ResolvedType&) {
+				localVar(itm).edit.tys.emplace_back(std::move(var));
+			},
+			varcase(const parse::ResolvedType*) {
+				localVar(itm).edit.tyRefs.emplace_back(var);
+			},
+			varcase(const parse::LocalId) {
+				localVar(itm).edit.locals.emplace_back(var);
+			},
+			varcase(const TmpVar) {
+				localVar(itm).edit.tmpLocals.emplace_back(var);
+			}
+			);
 			exprTypeStack.pop_back();
 		}
 
@@ -225,7 +281,92 @@ namespace slu::mlvl
 			tmpLocalsDataStack.emplace_back();
 			return false;
 		}
+
+		void visitSubTySide(SubTySide& side, auto&& visitor)
+		{
+			for (auto& i : side.tmpLocals)
+				visitor(resolveLocal(localVar(i)));
+			for (auto& i : side.locals)
+				visitor(resolveLocal(localVar(i)));
+			for (auto& i : side.tys)
+				visitor(i);
+			for (auto& i : side.tyRefs)
+				visitor(*i);
+		}
+
+
+
+		void checkLocals(std::span<LocalVarInfo> locals)
+		{
+			for (LocalVarInfo& i : locals)
+			{
+				if (i.resolved)
+					continue;
+				if(i.taken)
+					throw std::runtime_error("TODO: error logging, variable type depends on itself, cant inferr it");
+				i.taken = true;
+				// Resolve its type
+
+				if (i.boolLike)
+				{// "true", "false" or "bool"
+					bool canTrue = false;
+					bool canFalse = false;
+
+					//First resolve those things & also check types a bit.
+
+					visitSubTySide(i.edit,
+						[&](const parse::ResolvedType& otherTy) {
+							if(otherTy.size>1)
+								throw std::runtime_error("TODO: error logging, found non bool expr");
+							auto tyNameOpt = otherTy.getStructName();
+							if (!tyNameOpt)
+								throw std::runtime_error("TODO: error logging, found non bool expr");
+							parse::MpItmIdV<true> tyName = *tyNameOpt;
+							if (tyName == mpDb.data->getItm({ "std","bool" }))
+								canTrue = canFalse = true;
+							else if (tyName == mpDb.data->getItm({ "std","bool", "true" }))
+								canTrue = true;
+							else if (tyName == mpDb.data->getItm({ "std","bool", "false" }))
+								canFalse = true;
+							else
+								throw std::runtime_error("TODO: error logging, found non bool expr");
+						}
+					);
+					if(!(canTrue || canFalse))
+						throw std::runtime_error("TODO: error logging, found non bool type");
+
+					i.resolveNoCheck(parse::ResolvedType::getBool(mpDb,canTrue, canFalse));
+				}
+				else
+				{
+					//TODO: resolve it.
+				}
+				//Check use's
+
+				visitSubTySide(i.use,
+					[&](const parse::ResolvedType& useTy) {
+						//TODO: check if equivelant to resolved type.
+					}
+				);
+
+				i.taken = false;
+			}
+		}
+		parse::ResolvedType& resolveLocal(LocalVarInfo& local)
+		{
+			if (local.resolved)
+				return *local.resolvedType();
+			
+			checkLocals(std::span<LocalVarInfo>{ &local,1 });
+			return *local.resolvedType();
+		}
+
 		void postLocals(parse::Locals<Cfg>& itm) {
+			//Check all restrictions.
+
+			checkLocals(tmpLocalsDataStack.back());
+			checkLocals(localsDataStack.back());
+
 			localsStack.pop_back();
 			localsDataStack.pop_back();
 			tmpLocalsDataStack.pop_back();
