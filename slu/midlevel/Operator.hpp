@@ -65,6 +65,8 @@ namespace slu::mlvl
 			break;
 		case parse::BinOpType::MAKE_RESULT: if constexpr (!isLua)return 15;
 			break;
+		case parse::BinOpType::UNION: if constexpr (!isLua)return 17;
+			break;
 		case parse::BinOpType::AS: if constexpr (!isLua)return 13;
 			break;
 

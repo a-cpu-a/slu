@@ -46,9 +46,10 @@ namespace slu::parse
 
 		// Slu
 
-		ARRAY_MUL,// "**"
+		ARRAY_MUL,		// "**"
 		RANGE_BETWEEN,	// ".."
 		MAKE_RESULT,	// "~~"
+		UNION,			// "||"
 
 		AS,
 

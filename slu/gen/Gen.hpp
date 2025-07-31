@@ -74,6 +74,8 @@ namespace slu::parse
 			return ".."sv;
 		case BinOpType::MAKE_RESULT:
 			return "~~"sv;
+		case BinOpType::UNION:
+			return "||"sv;
 		case BinOpType::AS:
 			return "as"sv;
 		default:

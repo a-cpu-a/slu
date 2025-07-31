@@ -67,6 +67,7 @@ namespace slu::parse
 			"rep",
 			"range",//!!!
 			"_mkResult",
+			"_union",
 			"as\0\0\0\0"//!!! // the \0's are to work around ?msvc? stuff.
 		};
 		if (!forTrait)

@@ -99,6 +99,9 @@ namespace slu::paint
 		case parse::BinOpType::MAKE_RESULT:
 			paintKw<Tok::GEN_OP>(se, "~~");
 			break;
+		case parse::BinOpType::UNION:
+			paintKw<Tok::GEN_OP>(se, "||");
+			break;
 		case parse::BinOpType::AS:
 			paintKw<Tok::AS>(se, "as");
 			break;

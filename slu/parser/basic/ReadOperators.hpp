@@ -185,6 +185,11 @@ namespace slu::parse
 			return BinOpType::BITWISE_XOR;
 		case '|':
 			in.skip();
+			if constexpr (in.settings() & sluSyn)
+			{
+				if (checkReadToken(in, "|"))//||
+					return BinOpType::UNION;
+			}
 			return BinOpType::BITWISE_OR;
 		case '>':
 			in.skip();

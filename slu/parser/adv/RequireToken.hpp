@@ -91,9 +91,10 @@ namespace slu::parse
 		return checkToken(in, tok, true);
 	}
 
-	template<size_t TOK_SIZE>
+	template<bool SKIP_SPACE=true,size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkReadToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
-		skipSpace(in);
+		if constexpr(SKIP_SPACE)
+			skipSpace(in);
 		return checkToken(in, tok, nameLike, true);
 	}
 	template<size_t TOK_SIZE>
