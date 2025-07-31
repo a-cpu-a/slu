@@ -48,13 +48,13 @@ namespace slu::mlvl
 				{
 					if constexpr (itmSigned)
 					{
-						if (var > INT64_MAX || var < INT64_MIN)
+						if (var > (uint64_t)INT64_MAX)
 							return false;
 						return itm == (int64_t)var;
 					}
 					else
 					{
-						if(itm > INT64_MAX || itm < INT64_MIN)
+						if(itm > (uint64_t)INT64_MAX)
 							return false;
 						return (int64_t)itm == var;
 					}

@@ -894,8 +894,8 @@ namespace slu::parse
 			constexpr bool isInside(const T v) const {
 				if constexpr (std::same_as<T, Uint64>)
 				{
-					if (o > INT64_MAX || o < INT64_MIN) return false;
-					return isInside((Int64)o);
+					if (v > (uint64_t)INT64_MAX) return false;
+					return isInside((Int64)v);
 				}
 				return v >= min && v <= max;
 			}
@@ -903,7 +903,7 @@ namespace slu::parse
 			constexpr bool isOnly(const T o) {
 				if constexpr (std::same_as<T,Uint64>)
 				{
-					if (o > INT64_MAX) return false;
+					if (o > (uint64_t)INT64_MAX) return false;
 					return isOnly((Int64)o);
 				}
 				return min == o && max == o;
