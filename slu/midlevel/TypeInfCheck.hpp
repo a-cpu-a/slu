@@ -294,8 +294,6 @@ namespace slu::mlvl
 				visitor(*i);
 		}
 
-
-
 		void checkLocals(std::span<LocalVarInfo> locals)
 		{
 			for (LocalVarInfo& i : locals)
@@ -316,6 +314,8 @@ namespace slu::mlvl
 
 					visitSubTySide(i.edit,
 						[&](const parse::ResolvedType& otherTy) {
+							if (!otherTy.isComplete())
+								throw std::runtime_error("TODO: error logging, found incomplete type expr");
 							if(otherTy.size>1)
 								throw std::runtime_error("TODO: error logging, found non bool expr");
 							auto tyNameOpt = otherTy.getStructName();
@@ -338,16 +338,23 @@ namespace slu::mlvl
 					i.resolveNoCheck(parse::ResolvedType::getBool(mpDb,canTrue, canFalse));
 				}
 				else
-				{
-					//TODO: resolve it.
+				{//TODO: resolve it (find a type, that is a subtype for all the edit types).
+					visitSubTySide(i.edit,
+						[&](const parse::ResolvedType& editTy) {
+							if (!editTy.isComplete())
+								throw std::runtime_error("TODO: error logging, found incomplete type expr");
+						});
 				}
 				//Check use's
 
 				visitSubTySide(i.use,
 					[&](const parse::ResolvedType& useTy) {
-						//TODO: check if equivelant to resolved type.
+						if (!useTy.isComplete())
+							throw std::runtime_error("TODO: error logging, found incomplete type expr");
+						//TODO: check if the resolved type is a subtype of useTy.
 					}
 				);
+				i.use.clear();
 
 				i.taken = false;
 			}
