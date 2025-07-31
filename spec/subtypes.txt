@@ -27,43 +27,55 @@ Subtypes {
 	
 	-----------
 	
-	Name matching -> named types are supertypes of unnamed types.
+	Name matching -> {
+		if both unnamed / same name, then return true;
+		--the names dont match...
+		
+		if super-type has no name, then return false;
+		
+		--potential sub type upcast?
+		--or maybe a constructor?
+		
+	} named types are supertypes of unnamed types.
 	(or maybe the other way around?) (you can assign unnamed struct to a named struct var)
 	
-	String x String / Int x Int / Float x Float
+	String <= String / Int <= Int / Float <= Float
 	1. equal
 	
-	Float x FloatType
+	Float <= FloatType
 	1. same float type?
 	
-	Int x Range
+	Int <= Range
 	1. int inside range?
 	
-	Range x Range
+	Range <= Range
 	1. does it fully contain the other range?
 	
-	Struct x Struct
+	Struct <= Struct
 	1. names must match
-	2. TODO: ??? field counts must match? + ??? ?? ?? ???
-	3. for now just check exact, unless its a ref.
+	2. check if the subtype's fields are subtypes of the super-type's versions of those fields. (super exclusive fields are ignored).
 	
-	Union x Union
-	1. name match & all fields match exactly, unless they are refs, then lifetime outlives
+	Union <= Union
+	1. names must match
+	2. all cases match exactly, unless they are refs, then lifetime outlives
 	
-	Variant x T
-	1. check subtyping for each variant elem
+	Variant <= Variant
+	1. check if the subtype's variants are in the super-type.
 	
-	Slices
+	T < Variant
+	1. is the subtype(or one of its supertypes) inside the variant.
+	
+	Slice <= Slice
 	1. types must match exactly, unless they are refs, then lifetime outlives.
 	
-	Ref x Ref
+	Ref <= Ref
 	1. do types match exactly, unless they are refs, then lifetime outlives.
 	2. lifetime outlives
 	
-	
-	
-	
-	To keep things simple, no recursive type inference.
+	--todo: impl recursive types.
+	Rec <= Rec
+	1. exact match on variable
+	2. exact match on type
 	
 	
 	-----------
@@ -81,10 +93,10 @@ Subtypes {
 	
 	-----------
 	
-	let mut x = 4; --type = mut 4
+	let mut x = 4;
 	let y = x;
 	let z = y;
-	x = z;
+	x = z; --error, due to recursion, in theory (type = mut 4)
 	
 	-----------
 	
@@ -100,7 +112,7 @@ Subtypes {
 	-----------
 	
 	let mut x = 1;
-	x = -x;
+	x = -x; --error, due to recursion, in theory (type = mut -1 || 1)
 	-->
 	tx >= 1
 	t_y >= -(tx)
@@ -111,7 +123,7 @@ Subtypes {
 	
 	let mut x = 0;
 	let y = 500-x;
-	x = -y;
+	x = -y; --error, due to recursion
 	-->
 	tx >= 0
 	ty >= 500-tx
@@ -128,7 +140,7 @@ Subtypes {
 	-----------
 	
 	let mut x = 1;
-	x = 1-x;
+	x = 1-x; --error, due to recursion, in theory (type = mut 0..1)
 	-->
 	tx >= 1
 	t_y >= -(1,tx)
