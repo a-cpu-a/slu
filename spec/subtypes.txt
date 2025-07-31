@@ -36,8 +36,18 @@ Subtypes {
 		--potential sub type upcast?
 		--or maybe a constructor?
 		
+		if the subtype implements SubtypeOf(super type), then return true;
+		
+		--should this exist?
+		--if the supertype implements SupertypeOf(sub type), then return true;
+		
+		return false;
+		
 	} named types are supertypes of unnamed types.
 	(or maybe the other way around?) (you can assign unnamed struct to a named struct var)
+	
+	ErrorType <= * / * <= ErrorType
+	1. always true
 	
 	String <= String / Int <= Int / Float <= Float
 	1. equal
@@ -47,6 +57,9 @@ Subtypes {
 	
 	Int <= Range
 	1. int inside range?
+	
+	Range <= Int
+	1. does the range only have that one int?
 	
 	Range <= Range
 	1. does it fully contain the other range?

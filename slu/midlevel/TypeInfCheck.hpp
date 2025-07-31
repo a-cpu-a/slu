@@ -19,10 +19,61 @@ namespace slu::mlvl
 {
 	using TypeInfCheckCfg = decltype(parse::sluCommon);
 
+	template <class T>
+	inline bool sameCheck(const T& itm, const parse::ResolvedType& useTy)
+	{
+		if (!std::holds_alternative<T>(useTy.base))
+			return false;
+		const T& o = std::get<T>(useTy.base);
+		return itm == o;
+	}
+	inline bool rangeRangeSubtypeCheck(const parse::AnyRawRange auto itm, const parse::AnyRawRange auto useTy) {
+		return itm.max <= useTy.max && itm.min >= useTy.min;
+	}
+	template <parse::AnyRawIntOrRange T>
+	inline bool intRangeSubtypeCheck(const T itm, const parse::ResolvedType& useTy)
+	{
+		return ezmatch(useTy.base)(
+		varcase(const auto&) { return false; },
+		varcase(const parse::AnyRawIntOrRange auto) {
+			constexpr bool isInt = parse::AnyRawInt<std::remove_cvref_t<decltype(var)>>;
+			if constexpr (parse::AnyRawInt<T> && isInt)
+				return itm == var;
+			else if constexpr (parse::AnyRawInt<T>)
+				return var.isInside(itm);
+			else if constexpr (isInt)
+				return itm.isOnly(var);
+			else
+				return rangeRangeSubtypeCheck(itm,var);
+		}
+		);
+	}
 
 	inline bool subtypeCheck(parse::BasicMpDb mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
-		//TODO
+		if (subty.outerSliceDims != useTy.outerSliceDims)
+			return false;
+		if (subty.outerSliceDims != 0)
+		{
+			//TODO: Slice <= Slice.
+		}
+		ezmatch(subty.base)(
+		varcase(const parse::RawTypeKind::TypeError) {
+				return true;//poisioned, so pass forward.
+		},
+		varcase(const parse::RawTypeKind::String&) {
+			return sameCheck(var,useTy);
+		},
+		varcase(const parse::RawTypeKind::Float64) {
+			return sameCheck(var, useTy);//TODO: allow f64 as the type too (needs to be impl first).
+		},
+
+
+
+		varcase(const parse::AnyRawIntOrRange auto) {
+			return intRangeSubtypeCheck(var, useTy);
+		}
+		);
 	}
 
 
@@ -317,11 +368,18 @@ namespace slu::mlvl
 				{// "true", "false" or "bool"
 					bool canTrue = false;
 					bool canFalse = false;
+					bool poison = false;
 
 					//First resolve those things & also check types a bit.
 
 					visitSubTySide(i.edit,
 						[&](const parse::ResolvedType& otherTy) {
+							if(std::holds_alternative<parse::RawTypeKind::TypeError>(otherTy.base))
+							{
+								poison = true;
+								return;
+							}
+
 							if (!otherTy.isComplete())
 								throw std::runtime_error("TODO: error logging, found incomplete type expr");
 							if(otherTy.size>1)
@@ -340,10 +398,17 @@ namespace slu::mlvl
 								throw std::runtime_error("TODO: error logging, found non bool expr");
 						}
 					);
-					if(!(canTrue || canFalse))
-						throw std::runtime_error("TODO: error logging, found non bool type");
 
-					i.resolveNoCheck(parse::ResolvedType::getBool(mpDb,canTrue, canFalse));
+					if(!(canTrue || canFalse))
+					{
+						poison = true;
+						//TODO: error logging, found non bool type
+					}
+
+					if (poison)
+						i.resolveNoCheck(parse::ResolvedType::newError());
+					else
+						i.resolveNoCheck(parse::ResolvedType::getBool(mpDb,canTrue, canFalse));
 				}
 				else
 				{//TODO: resolve it (find a type, that is a subtype for all the edit types).

@@ -263,17 +263,31 @@ namespace slu::parse
 		std::vector<ArgFuncCallV<isSlu>> argChain;
 	};
 
-	template<bool SIGNED>
+	template<bool SIGNED,bool NEGATIVIZED = false>
 	struct Integer128
 	{
 		uint64_t lo = 0;
 		uint64_t hi = 0;
 
+		constexpr Integer128<SIGNED, !NEGATIVIZED> negative() const {
+			return {lo,hi};
+		}
+		constexpr Integer128<false, false> abs() const {
+			if constexpr (SIGNED)
+			{
+				if (hiSigned() < 0)
+				{
+					return (Integer128<false, false>{ ~lo, ~hi }) + Integer128<false, false>{1,0};
+				}
+			}
+			return { lo, hi };
+		}
+
 		constexpr bool isNegative() const {
 			if constexpr (SIGNED)
-				return static_cast<int64_t>(hi) < 0;
+				return (static_cast<int64_t>(hi) < 0) != NEGATIVIZED;//!= is xor
 			else
-				return false;
+				return NEGATIVIZED;
 		}
 		constexpr auto hiSigned() const {
 			if constexpr (SIGNED)
@@ -281,8 +295,22 @@ namespace slu::parse
 			else
 				return static_cast<uint64_t>(hi);
 		}
-		template<bool O_SIGN>
-		constexpr auto operator<=>(const Integer128<O_SIGN>& o) const {
+		template<bool O_SIGN,bool O_NEGATIVIZED>
+		constexpr std::strong_ordering operator<=>(const Integer128<O_SIGN, O_NEGATIVIZED>& o) const {
+			const bool neg = isNegative();
+			const bool oNeg = o.isNegative();
+			if (neg && oNeg)
+				return o.negative() <=> negative();
+			if (neg)
+				return std::strong_ordering::less; // this is negative, o is positive
+			if (oNeg)
+				return std::strong_ordering::greater; // this is positive, o is negative
+
+			//Both are positive, after negativization that is.
+
+			if constexpr (NEGATIVIZED || O_NEGATIVIZED)
+				return abs() <=> o.abs();
+
 			if constexpr (SIGNED == O_SIGN)
 			{
 				// Both signed or both unsigned
@@ -822,32 +850,63 @@ namespace slu::parse
 		using Unresolved = std::unique_ptr<parse::ExprV<true>>;
 
 		using String = std::string;
+
 		using Float64 = ExprType::F64;
+
 		using Uint128 = ExprType::U128;
 		using Int128 = ExprType::I128;
-		struct Range128Pp
-		{
-			Uint128 min;
-			Uint128 max;
-		};
-		struct Range128Np :Range128Pp {};
-		struct Range128Nn :Range128Pp {};
-		struct Range128Pn :Range128Pp {};
-
 		using Uint64 = ExprType::U64;
 		using Int64 = ExprType::I64;
+	}
+	template <class T>
+	concept AnyRawInt = std::same_as<T, parse::RawTypeKind::Uint64>
+		|| std::same_as<T, parse::RawTypeKind::Uint128>
+		|| std::same_as<T, parse::RawTypeKind::Int64>
+		|| std::same_as<T, parse::RawTypeKind::Int128>;
+
+	template <bool NEG_MIN, bool NEG_MAX>
+	struct Range128
+	{
+		Integer128<false,NEG_MIN> min;
+		Integer128<false,NEG_MAX> max;
+
+		template<AnyRawInt T>
+		constexpr bool isInside(const T v) const {
+			return v >= min && v <= max;
+		}
+		constexpr bool isOnly(const AnyRawInt auto o) {
+			return min == o && max == o;
+		}
+	};
+
+	namespace RawTypeKind
+	{
+		struct Range128Pp : Range128<false,false>{};
+		struct Range128Np : Range128<true, false>{};
+		struct Range128Nn : Range128<true, true>{};
+		struct Range128Pn : Range128<false,true>{};
+
 		struct Range64
 		{
 			Int64 min;
 			Int64 max;
-			constexpr bool isInside(Int64 v) const {
+			template<AnyRawInt T>
+			constexpr bool isInside(const T v) const {
+				if constexpr (std::same_as<T, Uint64>)
+				{
+					if (o > INT64_MAX || o < INT64_MIN) return false;
+					return isInside((Int64)o);
+				}
 				return v >= min && v <= max;
 			}
-			constexpr bool isInside(Int128 v) const {
-				return v >= min && v <= max;
-			}
-			constexpr bool isInside(Uint128 v) const {
-				return v >= min && v <= max;
+			template<AnyRawInt T>
+			constexpr bool isOnly(const T o) {
+				if constexpr (std::same_as<T,Uint64>)
+				{
+					if (o > INT64_MAX) return false;
+					return isOnly((Int64)o);
+				}
+				return min == o && max == o;
 			}
 		};
 		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
@@ -877,7 +936,18 @@ namespace slu::parse
 		RawTypeKind::Struct,
 		RawTypeKind::RefChain,
 		RawTypeKind::RefSlice
-	> ;
+	>;
+
+	template <class T>
+	concept AnyRawRange = std::same_as<T, parse::RawTypeKind::Range64>
+		|| std::same_as<T, parse::RawTypeKind::Range128Nn>
+		|| std::same_as<T, parse::RawTypeKind::Range128Pn>
+		|| std::same_as<T, parse::RawTypeKind::Range128Pp>
+		|| std::same_as<T, parse::RawTypeKind::Range128Np>;
+
+	template <class T>
+	concept AnyRawIntOrRange = AnyRawInt<T> || AnyRawRange<T>;
+
 	struct ResolvedType
 	{
 		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50) - 1;
