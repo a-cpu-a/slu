@@ -81,17 +81,38 @@ namespace slu::mlvl
 			//TODO: Slice <= Slice.
 		}
 		ezmatch(subty.base)(
+		varcase(const parse::RawTypeKind::Unresolved) {
+			throw std::runtime_error("Found unresolved type in subtype check");
+		},
+		varcase(const parse::RawTypeKind::Inferred) {
+			throw std::runtime_error("Found inferred type in subtype check");
+		},
 		varcase(const parse::RawTypeKind::TypeError) {
-				return true;//poisioned, so pass forward.
+			return true;//poisioned, so pass forward.
 		},
 		varcase(const parse::RawTypeKind::String&) {
-			return sameCheck(var,useTy);
+			return sameCheck(var,useTy);//TODO: subtyping into &str.
 		},
 		varcase(const parse::RawTypeKind::Float64) {
 			return sameCheck(var, useTy);//TODO: allow f64 as the type too (needs to be impl first).
 		},
 
+		varcase(const parse::RawTypeKind::Variant&) {
+			//TODO: other side must be variant with similar cases.
+		},
+		varcase(const parse::RawTypeKind::Union&) {
+			//TODO
+		},
+		varcase(const parse::RawTypeKind::Struct&) {
+			//TODO
+		},
 
+		varcase(const parse::RawTypeKind::RefChain&) {
+			//TODO: nearly exact check!
+		},
+		varcase(const parse::RawTypeKind::RefSlice&) {
+			//TODO: nearly exact check!
+		},
 
 		varcase(const parse::AnyRawIntOrRange auto) {
 			return intRangeSubtypeCheck(var, useTy);
