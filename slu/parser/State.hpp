@@ -263,6 +263,84 @@ namespace slu::parse
 		std::vector<ArgFuncCallV<isSlu>> argChain;
 	};
 
+	template<bool SIGNED>
+	struct Integer128
+	{
+		uint64_t lo = 0;
+		uint64_t hi = 0;
+
+		constexpr bool isNegative() const {
+			if constexpr (SIGNED)
+				return static_cast<int64_t>(hi) < 0;
+			else
+				return false;
+		}
+		constexpr auto hiSigned() const {
+			if constexpr (SIGNED)
+				return static_cast<int64_t>(hi);
+			else
+				return static_cast<uint64_t>(hi);
+		}
+		template<bool O_SIGN>
+		constexpr auto operator<=>(const Integer128<O_SIGN>& o) const {
+			if constexpr (SIGNED == O_SIGN)
+			{
+				// Both signed or both unsigned
+				if (hi != o.hi) return hiSigned() <=> o.hiSigned();
+				return lo <=> o.lo;
+			}
+			else if constexpr (SIGNED)
+			{
+				// this is signed, o is unsigned
+				if (isNegative()) return std::strong_ordering::less;
+				// Now 'this' is positive. Compare magnitudes directly.
+				if (hi != o.hi) return hi <=> o.hi;
+				return lo <=> o.lo;
+			}
+			else
+			{
+				// this is unsigned, o is signed
+				if (o.isNegative()) return std::strong_ordering::greater;
+				// Now 'o' is positive. Compare magnitudes directly.
+				if (hi != o.hi) return hi <=> o.hi;
+				return lo <=> o.lo;
+			}
+		}
+		// Comparison with int64_t
+		constexpr auto operator<=>(int64_t val) const {
+			Integer128<true> o{};
+			o.lo = static_cast<uint64_t>(val);
+			o.hi = val < 0 ? ~0ULL : 0;
+			return *this <=> o;
+		}
+		// Comparison with uint64_t
+		constexpr auto operator<=>(uint64_t val) const {
+			Integer128<false> o{};
+			o.lo = val;
+			o.hi = 0;
+			return *this <=> o;
+		}
+
+		constexpr Integer128 operator+(Integer128 o) const
+		{
+			Integer128 res = *this;
+			res.lo += o.lo;
+			res.hi += o.hi;
+			if (res.lo < lo)//overflow check
+				res.hi++;
+			return res;
+		}
+		constexpr Integer128 shift(uint8_t count) const
+		{
+			Integer128 res = *this;
+			res.hi <<= count;
+			res.hi |= lo >> (64 - count);
+			res.lo <<= count;
+			return res;
+		}
+
+	};
+
 	namespace ExprType
 	{
 		template<bool isSlu>
@@ -282,31 +360,8 @@ namespace slu::parse
 
 		//u64,i128,u128, for slu only
 		using U64 = uint64_t;
-		struct U128
-		{
-			uint64_t lo = 0;
-			uint64_t hi = 0;
-
-			U128 operator+(U128 o) const
-			{
-				U128 res = *this;
-				res.lo += o.lo;
-				res.hi += o.hi;
-				if (res.lo < lo)//overflow check
-					res.hi++;
-				return res;
-			}
-			U128 shift(uint8_t count) const
-			{
-				U128 res = *this;
-				res.hi <<= count;
-				res.hi |= lo >> (64 - count);
-				res.lo <<= count;
-				return res;
-			}
-
-		};
-		struct I128 :U128 {};					// "Numeral"
+		struct U128 : Integer128<false> {};
+		struct I128 : Integer128<true> {};
 	}
 
 	struct TupleName
@@ -770,14 +825,14 @@ namespace slu::parse
 		using Float64 = ExprType::F64;
 		using Uint128 = ExprType::U128;
 		using Int128 = ExprType::I128;
-		struct Range128Uu
+		struct Range128Pp
 		{
 			Uint128 min;
 			Uint128 max;
 		};
-		struct Range128Su :Range128Uu {};
-		struct Range128Ss :Range128Uu {};
-		struct Range128Us :Range128Uu {};
+		struct Range128Np :Range128Pp {};
+		struct Range128Nn :Range128Pp {};
+		struct Range128Pn :Range128Pp {};
 
 		using Uint64 = ExprType::U64;
 		using Int64 = ExprType::I64;
@@ -785,6 +840,15 @@ namespace slu::parse
 		{
 			Int64 min;
 			Int64 max;
+			constexpr bool isInside(Int64 v) const {
+				return v >= min && v <= max;
+			}
+			constexpr bool isInside(Int128 v) const {
+				return v >= min && v <= max;
+			}
+			constexpr bool isInside(Uint128 v) const {
+				return v >= min && v <= max;
+			}
 		};
 		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
 		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
@@ -801,10 +865,10 @@ namespace slu::parse
 		RawTypeKind::Float64,
 		RawTypeKind::Int128,
 		RawTypeKind::Uint128,
-		RawTypeKind::Range128Uu,
-		RawTypeKind::Range128Su,
-		RawTypeKind::Range128Ss,
-		RawTypeKind::Range128Us,
+		RawTypeKind::Range128Pp,
+		RawTypeKind::Range128Np,
+		RawTypeKind::Range128Nn,
+		RawTypeKind::Range128Pn,
 		RawTypeKind::Int64,
 		RawTypeKind::Uint64,
 		RawTypeKind::Range64,
@@ -852,6 +916,10 @@ namespace slu::parse
 		static ResolvedType getInferred() {
 			return { .base = parse::RawTypeKind::Inferred{},.size = INCOMPLETE_MARK };
 		}
+		static ResolvedType newError() {
+			return { .base = parse::RawTypeKind::TypeError{},.size = INCOMPLETE_MARK };
+		}
+
 		static ResolvedType getConstType(RawType&& v) {
 			return { .base = std::move(v),.size = 0/*Known value, not stored*/ };
 		}
