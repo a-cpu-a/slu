@@ -636,6 +636,8 @@ namespace slu::comp::mico
 				loc, convExpr(conv,var.cond), one);
 
 			mlir::scf::YieldOp::create(builder,convPos(conv, var.bl.end), mlir::ValueRange{ continueLoop });
+
+			builder.setInsertionPointAfter(whileOp);
 		},
 			varcase(const parse::StatementType::WhileV<true>&) {
 			auto whileOp = mlir::scf::WhileOp::create(builder,convPos(conv,itm.place), mlir::TypeRange{}, mlir::ValueRange{});
@@ -652,6 +654,21 @@ namespace slu::comp::mico
 				//TODO
 			}
 			mlir::scf::YieldOp::create(builder,convPos(conv,var.bl.end));
+
+			builder.setInsertionPointAfter(whileOp);
+		},
+		varcase(const parse::StatementType::BlockV<true>&) {
+			auto scopeOp = mlir::memref::AllocaScopeOp::create(builder, convPos(conv, itm.place), mlir::TypeRange{});
+
+			builder.setInsertionPointToStart(scopeOp.getBody());
+			for (const auto& i : var.statList)
+				convStat(conv, i);
+			if (var.hadReturn && !var.retExprs.empty())
+			{
+				//maybe return something
+				//TODO
+			}
+			builder.setInsertionPointAfter(scopeOp);
 		},
 			varcase(const parse::StatementType::IfCondV<true>&) {
 			
