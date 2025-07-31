@@ -36,9 +36,32 @@ namespace slu::mlvl
 		return ezmatch(useTy.base)(
 		varcase(const auto&) { return false; },
 		varcase(const parse::AnyRawIntOrRange auto) {
-			constexpr bool isInt = parse::AnyRawInt<std::remove_cvref_t<decltype(var)>>;
+			using VarT = std::remove_cvref_t<decltype(var)>;
+			constexpr bool isInt = parse::AnyRawInt<VarT>;
+			constexpr bool itmSigned = std::same_as<T, parse::RawTypeKind::Int64>;
+
 			if constexpr (parse::AnyRawInt<T> && isInt)
-				return itm == var;
+			{// Check for sign mismatch
+				if constexpr (
+					itmSigned != std::same_as<VarT, parse::RawTypeKind::Int64>
+					)
+				{
+					if constexpr (itmSigned)
+					{
+						if (var > INT64_MAX || var < INT64_MIN)
+							return false;
+						return itm == (int64_t)var;
+					}
+					else
+					{
+						if(itm > INT64_MAX || itm < INT64_MIN)
+							return false;
+						return (int64_t)itm == var;
+					}
+				}
+				else
+					return itm == var;
+			}
 			else if constexpr (parse::AnyRawInt<T>)
 				return var.isInside(itm);
 			else if constexpr (isInt)
