@@ -33,12 +33,13 @@ New Keywords {
 	box    		(451k)		(42.2k)		?
 	abstract	(14k)		(358)		?
 	become 		(52k)		(286)		?
+	comptime	(256)		(4)			comptime marker / expr
 	final  		(122k)		(7.7k)		?
 	override	(253k)		(14.8k)		?
 	typeof 		(44k)		(616)		?
 	virtual		(82.9k)		(3.2k)		?
+	with		(..)		(..)		Impl with args?
 	unsized		(120)		(0)			?
-	comptime	(256)		(4)			comptime marker / expr
 
 
 	--TODO, planned
@@ -73,7 +74,6 @@ New Keywords {
 	case		(352k)		(8.2k)		match case
 	enum   		(129k)		(8.5k)		Define a enum
 	impl   		(594k)		(23.8k)		Implement a trait
-	with		(..)		(..)		Impl with args
 	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type

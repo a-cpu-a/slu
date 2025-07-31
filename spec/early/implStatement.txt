@@ -4,12 +4,11 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "impl" ["with" "(" paramList ")"] [traitExp "for"] basicExp "{" {stat} "}"
+	stat @::= | OptExportPrefix "impl" ["(" paramList ")"] [traitExp "for"] basicExp "{" {stat} "}"
 }
 
 New Keywords {
 	impl
-	with
 	for
 }
 
@@ -21,9 +20,11 @@ Impl Statement {
 	
 	Impls allow you to define functions for other types (and trait combinations), in a less repetetive way.
 	
-	The values, for the items inside of the 'with' are inferred from the impl usage sites, and the uses of the args within the impl.
+	The values, for the items inside of the params are inferred from the impl usage sites, and the uses of the args within the impl.
 	
 	The expressions inside the impl definition must be simple aliases, including variables,
 	and strong type functions, however, arbitrary functions are not allowed.
 	This is to make matching types to impl's easy and simple.
+	
+	If your trait expr / basic expr need "()" around them you may need a empty param list, to keep things parsable.
 }
