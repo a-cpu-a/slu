@@ -25,6 +25,18 @@ Subtypes {
 	"" < String
 	"a"||"b" < String
 	
+	
+	-----------
+	
+	Subtype inference.
+	
+	if only 1 type, then use that type.
+	
+	if any of the edit-types are int or int-range, then the type is either a int or int-range.
+	if all of the types are string, then the type is a union of strings.
+	if all of the types are floats of the same type, then the type is either float-const or float
+	
+	
 	-----------
 	
 	Name matching -> {
