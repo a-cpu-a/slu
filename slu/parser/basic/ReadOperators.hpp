@@ -81,7 +81,7 @@ namespace slu::parse
 		case '.':
 			if  constexpr (!(in.settings() & sluSyn))break;
 			if (typeOnly)break;
-			if (checkReadToken(in, ".."))
+			if (checkReadToken<false>(in, ".."))
 				return UnOpType::RANGE_BEFORE;
 			break;
 		case 'm':
@@ -108,11 +108,11 @@ namespace slu::parse
 				in.skip();
 				return PostUnOpType::PROPOGATE_ERR;
 			case '.':
-				if (checkReadToken(in, ".*"))
+				if (checkReadToken<false>(in, ".*"))
 					return PostUnOpType::DEREF;
 				if constexpr (!noRangeOp)
 				{
-					if (checkReadToken(in, ".."))
+					if (checkReadToken<false>(in, ".."))
 						return PostUnOpType::RANGE_AFTER;
 				}
 				break;
@@ -129,11 +129,8 @@ namespace slu::parse
 			in.skip();
 			if constexpr (in.settings() & sluSyn)
 			{
-				if (in.peek() == '+')
-				{
-					in.skip();
+				if (checkReadToken<false>(in, "+"))//++
 					return BinOpType::CONCATENATE;
-				}
 			}
 			return BinOpType::ADD;
 		case '-':
@@ -143,16 +140,13 @@ namespace slu::parse
 			in.skip();
 			if constexpr (in.settings() & sluSyn)
 			{
-				if (in.peek() == '*')
-				{
-					in.skip();
+				if (checkReadToken<false>(in, "*"))//**
 					return BinOpType::ARRAY_MUL;
-				}
 			}
 			return BinOpType::MULTIPLY;
 		case '/':
 			in.skip();
-			if (checkReadToken(in, "/"))// '//'
+			if (checkReadToken<false>(in, "/"))// '//'
 				return BinOpType::FLOOR_DIVIDE;
 			return BinOpType::DIVIDE;
 		case '^':
@@ -174,12 +168,12 @@ namespace slu::parse
 			in.skip();
 			if constexpr (in.settings() & sluSyn)
 			{
-				if (checkReadToken(in, "~"))//~~
+				if (checkReadToken<false>(in, "~"))//~~
 					return BinOpType::MAKE_RESULT;
 			}
 			else
 			{
-				if (checkReadToken(in, "="))//~=
+				if (checkReadToken<false>(in, "="))//~=
 					return BinOpType::NOT_EQUAL;
 			}
 			return BinOpType::BITWISE_XOR;
@@ -187,26 +181,26 @@ namespace slu::parse
 			in.skip();
 			if constexpr (in.settings() & sluSyn)
 			{
-				if (checkReadToken(in, "|"))//||
+				if (checkReadToken<false>(in, "|"))//||
 					return BinOpType::UNION;
 			}
 			return BinOpType::BITWISE_OR;
 		case '>':
 			in.skip();
-			if (checkReadToken(in, ">"))//>>
+			if (checkReadToken<false>(in, ">"))//>>
 				return BinOpType::SHIFT_RIGHT;
-			if (checkReadToken(in, "="))//>=
+			if (checkReadToken<false>(in, "="))//>=
 				return BinOpType::GREATER_EQUAL;
 			return BinOpType::GREATER_THAN;
 		case '<':
 			in.skip();
-			if (checkReadToken(in, "<"))//<<
+			if (checkReadToken<false>(in, "<"))//<<
 				return BinOpType::SHIFT_LEFT;
-			if (checkReadToken(in, "="))//<=
+			if (checkReadToken<false>(in, "="))//<=
 				return BinOpType::LESS_EQUAL;
 			return BinOpType::LESS_THAN;
 		case '=':
-			if (checkReadToken(in, "=="))
+			if (checkReadToken<false>(in, "=="))
 				return BinOpType::EQUAL;
 			break;
 		case 'a':
@@ -224,7 +218,7 @@ namespace slu::parse
 			break;
 		case '.':
 
-			if (checkReadToken(in, ".."))
+			if (checkReadToken<false>(in, ".."))
 			{
 				if constexpr (in.settings() & sluSyn)
 					return BinOpType::RANGE_BETWEEN;
