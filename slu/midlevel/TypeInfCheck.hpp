@@ -20,6 +20,12 @@ namespace slu::mlvl
 	using TypeInfCheckCfg = decltype(parse::sluCommon);
 
 
+	inline bool subtypeCheck(parse::BasicMpDb mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
+	{
+		//TODO
+	}
+
+
 	//TODO: fix string expressions being fully stolen.
 	//TODO: create for func call results, table indexing.
 	using TmpVar = uint64_t;
@@ -124,10 +130,12 @@ namespace slu::mlvl
 		{
 			ezmatch(t)(
 			varcase(const parse::ResolvedType&) {
-				//TODO: check equivelance / sub type.
+				if(!subtypeCheck(mpDb,var, ty))
+					throw std::runtime_error("TODO: error logging, found non matching type expr");
 			},
 			varcase(const parse::ResolvedType*) {
-				//TODO: check equivelance / sub type.
+				if (!subtypeCheck(mpDb, *var, ty))
+					throw std::runtime_error("TODO: error logging, found non matching type expr");
 			},
 			varcase(const parse::LocalId) {
 				localVar(var).use.tyRefs.push_back(&ty);
@@ -351,7 +359,9 @@ namespace slu::mlvl
 					[&](const parse::ResolvedType& useTy) {
 						if (!useTy.isComplete())
 							throw std::runtime_error("TODO: error logging, found incomplete type expr");
-						//TODO: check if the resolved type is a subtype of useTy.
+						// Check if the resolved type is a subtype of useTy.
+						if (!subtypeCheck(mpDb, *i.resolvedType(), useTy))
+							throw std::runtime_error("TODO: error logging, found type that is not a subtype of use type");
 					}
 				);
 				i.use.clear();
