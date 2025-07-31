@@ -14,7 +14,7 @@ New Syntax {
 	typeunop ::= "&" [borrowLifetime] [shMutConst] | "*" [shMutConst]
 	typepostunop ::= ".*"
 	
-	binop @::= | "~~"
+	binop @::= | "~~" | "||"
 	unop @::= | typeunop | "alloc" | "mut"
 	postunp @::= | typepostunop
 	

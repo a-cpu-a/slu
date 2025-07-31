@@ -9,7 +9,7 @@ Order of Operations {
 	
 	```
 	(pseudo) ;
-	(pseudo) = ++= |= ~= &= <<= >>= += -= %= *= /= //= ^= **=
+	(pseudo) = ||= ++= **= |= ~= &= <<= >>= += -= %= *= /= //= ^=
 	(pseudo) ,
 
 	unary operators (mut   alloc)
@@ -23,6 +23,7 @@ Order of Operations {
 	as
 	
 	~~
+	|| --union operator
 	
 	++
 	**
@@ -92,6 +93,7 @@ Order of Operations {
 	.		----		(will consider lol)
 	as		As.asType
 	~~		----
+	||		----
 	dyn		----
 	impl	----
 	mut		MarkMut		(unstable)
