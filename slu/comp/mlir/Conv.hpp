@@ -589,10 +589,33 @@ namespace slu::comp::mico
 		}
 		return funcInfo;
 	}
-
-	inline void convSoeOrBlock(ConvData& conv, const parse::SoeOrBlockV<true>& itm)
+	// Returns if region isnt terminated.
+	inline bool convBlock(ConvData& conv,const parse::BlockV<true>& itm)
 	{
+		mlir::OpBuilder& builder = conv.builder;
+		for (const auto& i : itm.statList)
+			convStat(conv, i);
+		if (itm.hadReturn && !itm.retExprs.empty())
+		{
+			//maybe return something
+			//TODO
+			return false;
+		}
+		return true;
+	}
 
+	inline std::optional<mlir::Value> convSoeOrBlock(ConvData& conv, const parse::SoeOrBlockV<true>& itm)
+	{
+		ezmatch(itm)(
+			varcase(const parse::SoeType::ExprV<true>&)->std::optional<mlir::Value> {
+				return convExpr(conv, *var);
+			},
+			varcase(const parse::SoeType::BlockV<true>&)->std::optional<mlir::Value> {
+				if(convBlock(conv, var))
+					return (mlir::Value)nullptr;
+				return std::nullopt;
+			}
+			);
 	}
 	inline void convStat(ConvData& conv, const parse::StatementV<true>& itm)
 	{
@@ -623,13 +646,8 @@ namespace slu::comp::mico
 
 			whileOp.getAfter().addArgument(i1Type, loc);
 			builder.setInsertionPointToStart(whileOp.getAfterBody());
-			for (const auto& i : var.bl.statList)
-				convStat(conv, i);
-			if (var.bl.hadReturn && !var.bl.retExprs.empty())
-			{
-				//maybe return something
-				//TODO
-			}
+
+			convBlock(conv, var.bl);
 
 			// repeat-until: stop if cond is true → so loop if NOT result
 			mlir::Value continueLoop = mlir::arith::XOrIOp::create(builder,
@@ -646,14 +664,8 @@ namespace slu::comp::mico
 			mlir::scf::ConditionOp::create(builder,convPos(conv, var.cond.place), convExpr(conv,var.cond), mlir::ValueRange{});
 
 			builder.setInsertionPointToStart(whileOp.getAfterBody());
-			for (const auto& i : var.bl.statList)
-				convStat(conv, i);
-			if (var.bl.hadReturn && !var.bl.retExprs.empty())
-			{
-				//maybe return something
-				//TODO
-			}
-			mlir::scf::YieldOp::create(builder,convPos(conv,var.bl.end));
+			if(convBlock(conv, var.bl))
+				mlir::scf::YieldOp::create(builder,convPos(conv,var.bl.end));
 
 			builder.setInsertionPointAfter(whileOp);
 		},
@@ -661,13 +673,7 @@ namespace slu::comp::mico
 			auto scopeOp = mlir::memref::AllocaScopeOp::create(builder, convPos(conv, itm.place), mlir::TypeRange{});
 
 			builder.setInsertionPointToStart(scopeOp.getBody());
-			for (const auto& i : var.statList)
-				convStat(conv, i);
-			if (var.hadReturn && !var.retExprs.empty())
-			{
-				//maybe return something
-				//TODO
-			}
+			convBlock(conv, var);
 			builder.setInsertionPointAfter(scopeOp);
 		},
 			varcase(const parse::StatementType::IfCondV<true>&) {
@@ -705,8 +711,15 @@ namespace slu::comp::mico
 					firstOp = op;
 
 				builder.setInsertionPointToStart(op.thenBlock());
-				convSoeOrBlock(conv, *bl);
-				mlir::scf::YieldOp::create(builder,convPos(conv, itm.place));
+				std::optional<mlir::Value> ret = convSoeOrBlock(conv, *bl);
+				if(ret.has_value())
+				{
+					if (*ret == nullptr)
+						mlir::scf::YieldOp::create(builder, convPos(conv, itm.place));
+					else
+						mlir::scf::YieldOp::create(builder, convPos(conv, itm.place), *ret);
+				}
+
 				if(hasMore)
 				{
 					builder.setInsertionPointToStart(op.elseBlock());
@@ -720,7 +733,7 @@ namespace slu::comp::mico
 			for (const auto i : yieldBlocks)
 			{
 				builder.setInsertionPointToStart(i);
-				mlir::scf::YieldOp::create(builder,convPos(conv, itm.place));
+				mlir::scf::YieldOp::create(builder, convPos(conv, itm.place));//TODO: return something.
 			}
 
 			builder.setInsertionPointAfter(firstOp);
@@ -839,16 +852,8 @@ namespace slu::comp::mico
 				};
 			}
 
-			for (auto& i : var.func.block.statList)
-				convStat(conv, i);
-
-			if (var.func.block.hadReturn && !var.func.block.retExprs.empty())
-			{
-				//maybe return something
-				//TODO
-			}
-			
-			mlir::func::ReturnOp::create(builder,convPos(conv, var.func.block.end));
+			if(convBlock(conv, var.func.block))
+				mlir::func::ReturnOp::create(builder,convPos(conv, var.func.block.end));
 
 			conv.localsStack.pop_back();
 		},
