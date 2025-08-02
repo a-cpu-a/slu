@@ -913,7 +913,6 @@ namespace slu::parse
 		struct Range128Pp : Range128<false,false>{};
 		struct Range128Np : Range128<true, false>{};
 		struct Range128Nn : Range128<true, true>{};
-		struct Range128Pn : Range128<false,true>{};
 
 		struct Range64
 		{
@@ -956,7 +955,6 @@ namespace slu::parse
 		RawTypeKind::Range128Pp,
 		RawTypeKind::Range128Np,
 		RawTypeKind::Range128Nn,
-		RawTypeKind::Range128Pn,
 		RawTypeKind::Int64,
 		RawTypeKind::Uint64,
 		RawTypeKind::Range64,
@@ -970,14 +968,13 @@ namespace slu::parse
 	template <class T>
 	concept AnyRawRange = std::same_as<T, parse::RawTypeKind::Range64>
 		|| std::same_as<T, parse::RawTypeKind::Range128Nn>
-		|| std::same_as<T, parse::RawTypeKind::Range128Pn>
 		|| std::same_as<T, parse::RawTypeKind::Range128Pp>
 		|| std::same_as<T, parse::RawTypeKind::Range128Np>;
 	using Range129 = std::variant<
 		parse::RawTypeKind::Range128Pp,
 		parse::RawTypeKind::Range128Np,
-		parse::RawTypeKind::Range128Nn,
-		parse::RawTypeKind::Range128Pn>;
+		parse::RawTypeKind::Range128Nn
+	>;
 
 	constexpr uint64_t abs(int64_t v)
 	{
@@ -993,10 +990,10 @@ namespace slu::parse
 		constexpr bool minP = std::same_as<MinT, Integer128<false, false>>;
 		constexpr bool maxP = std::same_as<MaxT, Integer128<false, false>>;
 
+		static_assert(!(minP && !maxP), "Found positive min, and negative max");
+
 		if constexpr (minP && maxP)
 			return RawTypeKind::Range128Pp{ {.min = min, .max = max} };
-		else if constexpr (minP && !maxP)
-			return RawTypeKind::Range128Pn{ {.min = min, .max = max} };
 		else if constexpr (!minP && maxP)
 			return RawTypeKind::Range128Np{ {.min = min, .max = max} };
 		else
@@ -1028,8 +1025,7 @@ namespace slu::parse
 				return RawTypeKind::Range128Nn{ {.min = abs(v.min), .max = abs(v.max)} };
 			return RawTypeKind::Range128Np{ {.min = abs(v.min), .max = (uint64_t)v.max} };
 		}
-		if (v.max < 0)
-			return RawTypeKind::Range128Pn{ {.min = (uint64_t)v.min, .max = abs(v.max)} };
+		_ASSERT(v.max >= 0);
 		return RawTypeKind::Range128Pp{ {.min = (uint64_t)v.min, .max = (uint64_t)v.max} };
 	}
 
