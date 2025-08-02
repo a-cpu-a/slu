@@ -99,7 +99,12 @@ namespace slu::mlvl
 		},
 
 		varcase(const parse::RawTypeKind::Variant&) {
-			//TODO: other side must be variant with similar cases.
+			for (const auto& i : var->options)
+			{
+				if (!subtypeCheck(mpDb, i, useTy))
+					return false;
+			}
+			return true;
 		},
 		varcase(const parse::RawTypeKind::Union&) {
 			//TODO
