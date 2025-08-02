@@ -557,8 +557,7 @@ namespace slu::mlvl
 								}
 								parse::r129Get(j, [&](const auto& jRange) {
 									parse::r129Get(fullIntRange, [&](const auto& fullRange) {
-										//TODO: allow adjacent ones too: 1..1, 2..2 -> 1..2.
-										if (jRange.min <= fullRange.max)
+										if (jRange.min.lteOtherPlus1(fullRange.max))
 										{// Overlap / adjacent, so merge them.
 											const bool maxBigger = fullRange.max < jRange.max;
 											const bool minSmaller = fullRange.min > jRange.min;

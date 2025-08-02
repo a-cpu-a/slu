@@ -269,15 +269,30 @@ namespace slu::parse
 		uint64_t lo = 0;
 		uint64_t hi = 0;
 
+		constexpr static Integer128<true,false> fromInt(const int64_t val)
+		{
+			Integer128<true, false> o{};
+			o.lo = static_cast<uint64_t>(val);
+			o.hi = val < 0 ? ~0ULL : 0;
+			return o;
+		}
+		constexpr static Integer128<false, false> fromInt(const uint64_t val)
+		{
+			Integer128<false, false> o{};
+			o.lo = val;
+			o.hi = 0;
+			return o;
+		}
+
 		constexpr Integer128<SIGNED, !NEGATIVIZED> negative() const {
-			return {lo,hi};
+			return { lo,hi };
 		}
 		constexpr Integer128<false, false> abs() const {
 			if constexpr (SIGNED)
 			{
 				if (hiSigned() < 0)
 				{
-					return (Integer128<false, false>{ ~lo, ~hi }) + Integer128<false, false>{1,0};
+					return (Integer128<false, false>{ ~lo, ~hi }) + Integer128<false, false>{1, 0};
 				}
 			}
 			return { lo, hi };
@@ -295,7 +310,7 @@ namespace slu::parse
 			else
 				return static_cast<uint64_t>(hi);
 		}
-		template<bool O_SIGN,bool O_NEGATIVIZED>
+		template<bool O_SIGN, bool O_NEGATIVIZED>
 		constexpr std::strong_ordering operator<=>(const Integer128<O_SIGN, O_NEGATIVIZED>& o) const {
 			const bool neg = isNegative();
 			const bool oNeg = o.isNegative();
@@ -334,21 +349,12 @@ namespace slu::parse
 				return lo <=> o.lo;
 			}
 		}
-		// Comparison with int64_t
-		constexpr auto operator<=>(int64_t val) const {
-			Integer128<true> o{};
-			o.lo = static_cast<uint64_t>(val);
-			o.hi = val < 0 ? ~0ULL : 0;
-			return *this <=> o;
+		constexpr auto operator<=>(const int64_t val) const {
+			return *this <=> fromInt(val);
 		}
-		// Comparison with uint64_t
-		constexpr auto operator<=>(uint64_t val) const {
-			Integer128<false> o{};
-			o.lo = val;
-			o.hi = 0;
-			return *this <=> o;
+		constexpr auto operator<=>(const uint64_t val) const {
+			return *this <=> fromInt(val);
 		}
-
 		constexpr Integer128 operator+(Integer128 o) const requires(!NEGATIVIZED)
 		{
 			Integer128 res = *this;
@@ -357,6 +363,33 @@ namespace slu::parse
 			if (res.lo < lo)//overflow check
 				res.hi++;
 			return res;
+		}
+
+		template<bool O_NEGATIVIZED>
+		constexpr bool lteOtherPlus1(const Integer128<false,O_NEGATIVIZED>& o) const requires(!SIGNED)
+		{
+			if constexpr (NEGATIVIZED && O_NEGATIVIZED)
+			{//-A <= -B+1 (->) A >= B-1.
+				if (o == 0) return true;
+				return negative() >= (o.negative() + fromInt(-1));
+			}
+			else if constexpr (NEGATIVIZED && !O_NEGATIVIZED)
+			{//-A <= B+1
+				if(o.lo==UINT64_MAX && o.hi==UINT64_MAX)
+					return true;
+				return *this <= (o+fromInt(1));
+			}
+			else if constexpr (!NEGATIVIZED && O_NEGATIVIZED)
+			{//A <= -B+1 (->) -A >= B-1.
+				if (o == 0) return *this<=1;
+				return negative() >= (o.negative() + fromInt(-1));
+			}
+			else
+			{//A <= B+1.
+				if (o.lo == UINT64_MAX && o.hi == UINT64_MAX)
+					return true;
+				return *this <= (o + fromInt(1));
+			}
 		}
 		constexpr Integer128 shift(uint8_t count) const requires(!NEGATIVIZED)
 		{
@@ -415,14 +448,13 @@ namespace slu::parse
 		std::same_as<T, ExprType::U64>
 		|| std::same_as<T, ExprType::I64>;
 
+	//Slu
 	using Lifetime = std::vector<MpItmIdV<true>>;
 	struct UnOpItem
 	{
 		Lifetime life;
 		UnOpType type;
 	};
-
-	//Slu
 
 	namespace TraitExprItemType
 	{
@@ -438,10 +470,7 @@ namespace slu::parse
 		std::vector<TraitExprItem> traitCombo;
 		Position place;
 	};
-
 	using TypePrefix = std::vector<UnOpItem>;
-
-
 
 
 	//Common
