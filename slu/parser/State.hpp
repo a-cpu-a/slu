@@ -14,6 +14,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+#include <slu/ext/CppMatch.hpp>
 #include <slu/ext/ExtendVariant.hpp>
 #include <slu/lang/BasicState.hpp>
 #include "Enums.hpp"
@@ -1078,6 +1079,8 @@ namespace slu::parse
 	template <class T>
 	concept AnyRawIntOrRange = AnyRawInt<T> || AnyRawRange<T>;
 
+	RawType cloneRawType(const RawType& t);
+
 	struct ResolvedType
 	{
 		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50) - 1;
@@ -1087,6 +1090,10 @@ namespace slu::parse
 		size_t size : 50;//in bits. element type size, ignoring outerSliceDims.
 		size_t outerSliceDims : 13 = 0;
 		size_t hasMut : 1 = false;
+
+		ResolvedType clone() const {
+			return { .base = cloneRawType(base), .size = size, .outerSliceDims = outerSliceDims, .hasMut = hasMut};
+		}
 
 		constexpr bool isComplete() const {
 			return size != INCOMPLETE_MARK;
@@ -1146,11 +1153,50 @@ namespace slu::parse
 	{
 		std::vector<ResolvedType> options;
 
+		static RawTypeKind::Variant newRawTy() {
+			auto& elems = *(new VariantRawType());
+			return RawTypeKind::Variant{ &elems };
+		}
+		RawTypeKind::Variant cloneRaw() const 
+		{
+			RawTypeKind::Variant res = newRawTy();
+			res->options.reserve(options.size());
+			for (const auto& i : options)
+				res->options.emplace_back(i.clone());
+			return res;
+		}
+
+		constexpr size_t calcSize() const {
+			size_t size = 0;
+			for (const auto& i : options)
+			{
+				if (!i.isComplete())
+				{
+					size = ResolvedType::INCOMPLETE_MARK;
+					break;
+				}
+				else if (!i.isSized())
+				{
+					size = ResolvedType::UNSIZED_MARK;
+					continue;
+				}
+				if (i.size > size)
+					size = i.size;
+			}
+			if (!options.empty() && size != ResolvedType::INCOMPLETE_MARK && size != ResolvedType::UNSIZED_MARK)
+			{
+				//size = (size + 7) & (~0b111);// round up to 8 bits
+				size += std::bit_width(options.size() - 1);//add bits for the index
+			}
+			return size;
+		}
+
 		template<std::same_as<ResolvedType&&>... Ts>
 		static ResolvedType newTy(Ts... t) {
 			auto& elems = *(new VariantRawType());
 			((elems.options.emplace_back(std::move(t))), ...);
-			return { .base = parse::RawTypeKind::Variant{&elems} };
+
+			return { .base = parse::RawTypeKind::Variant{&elems},.size=elems.calcSize()};
 		}
 	};
 	struct StructRawType
@@ -1164,10 +1210,23 @@ namespace slu::parse
 		//	fieldNames.~vector();
 		//	fieldOffsets.~vector();
 		//}
-		static parse::RawTypeKind::Struct newRawTy() {
+
+		static RawTypeKind::Struct newRawTy() {
 			auto& elems = *(new StructRawType());
-			return parse::RawTypeKind::Struct{ &elems };
+			return RawTypeKind::Struct{ &elems };
 		}
+		RawTypeKind::Struct cloneRaw() const 
+		{
+			RawTypeKind::Struct res = newRawTy();
+			res->fields.reserve(fields.size());
+			for (const auto& i : fields)
+				res->fields.emplace_back(i.clone());
+			res->fieldNames = fieldNames;
+			res->fieldOffsets = fieldOffsets;
+			res->name = name;
+			return res;
+		}
+
 		static parse::RawTypeKind::Struct newNamed(MpItmIdV<true> name) {
 			auto t = newRawTy();
 			t->name = name;
@@ -1192,6 +1251,21 @@ namespace slu::parse
 		std::vector<ResolvedType> fields;
 		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
 		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
+
+		static RawTypeKind::Union newRawTy() {
+			auto& elems = *(new UnionRawType());
+			return RawTypeKind::Union{ &elems };
+		}
+		RawTypeKind::Union cloneRaw() const
+		{
+			RawTypeKind::Union res = newRawTy();
+			res->fields.reserve(fields.size());
+			for (const auto& i : fields)
+				res->fields.emplace_back(i.clone());
+			res->fieldNames = fieldNames;
+			res->name = name;
+			return res;
+		}
 	};
 	struct RefSigil
 	{
@@ -1202,11 +1276,35 @@ namespace slu::parse
 	{
 		ResolvedType elem;
 		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
+
+		static RawTypeKind::RefChain newRawTy() {
+			auto& elems = *(new RefChainRawType());
+			return RawTypeKind::RefChain{ &elems };
+		}
+		RawTypeKind::RefChain cloneRaw() const
+		{
+			RawTypeKind::RefChain res = newRawTy();
+			res->elem = elem.clone();
+			res->chain = chain;
+			return res;
+		}
 	};
 	struct RefSliceRawType
 	{
 		ResolvedType elem;//dims stored in here.
 		UnOpType refType;
+
+		static RawTypeKind::RefSlice newRawTy() {
+			auto& elems = *(new RefSliceRawType());
+			return RawTypeKind::RefSlice{ &elems };
+		}
+		RawTypeKind::RefSlice cloneRaw() const
+		{
+			RawTypeKind::RefSlice res = newRawTy();
+			res->elem = elem.clone();
+			res->refType = refType;
+			return res;
+		}
 	};
 	void ::slu::parse::DelStructRawType::operator()(StructRawType* it) const noexcept {
 		delete it;
@@ -1222,6 +1320,32 @@ namespace slu::parse
 	}
 	void ::slu::parse::DelRefSliceRawType::operator()(RefSliceRawType* it) const noexcept {
 		delete it;
+	}
+
+	inline RawType cloneRawType(const RawType& t)
+	{
+		return ezmatch(t)(
+		varcase(const auto&) { return RawType{ var }; },
+		varcase(const RawTypeKind::Unresolved&)->RawType {
+			throw std::runtime_error("Cannot clone unresolved type");
+		},
+		varcase(const RawTypeKind::Struct&) {
+			return RawType{ var->cloneRaw() };
+		},
+		varcase(const RawTypeKind::Union&) {
+			return RawType{ var->cloneRaw() };
+		},
+		varcase(const RawTypeKind::Variant&) {
+			return RawType{ var->cloneRaw() };
+		},
+		varcase(const RawTypeKind::RefChain&) {
+			return RawType{ var->cloneRaw() };
+		},
+		varcase(const RawTypeKind::RefSlice&) {
+			return RawType{ var->cloneRaw() };
+		}
+
+		);
 	}
 
 	namespace FieldType
