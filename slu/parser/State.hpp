@@ -1140,6 +1140,8 @@ namespace slu::parse
 			return ResolvedType::newZstStruct(mpDb.data->getItm({ "std","bool","false" }));
 		}
 		static ResolvedType newIntRange(const auto& range) {
+			if(range.min==range.max)
+				return ResolvedType::getConstType(RawType(range.min));
 			return {.base = range,.size=calcRangeBits(range)};
 		}
 		template<std::same_as<ResolvedType&&>... Ts>
