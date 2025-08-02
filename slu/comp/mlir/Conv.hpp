@@ -607,7 +607,7 @@ namespace slu::comp::mico
 
 	inline std::optional<mlir::Value> convSoeOrBlock(ConvData& conv, const parse::SoeOrBlockV<true>& itm)
 	{
-		ezmatch(itm)(
+		return ezmatch(itm)(
 			varcase(const parse::SoeType::ExprV<true>&)->std::optional<mlir::Value> {
 				return convExpr(conv, *var);
 			},
@@ -616,7 +616,7 @@ namespace slu::comp::mico
 					return (mlir::Value)nullptr;
 				return std::nullopt;
 			}
-			);
+		);
 	}
 	inline void convStat(ConvData& conv, const parse::StatementV<true>& itm)
 	{

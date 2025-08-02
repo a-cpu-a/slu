@@ -270,6 +270,9 @@ namespace slu::parse
 		uint64_t lo = 0;
 		uint64_t hi = 0;
 
+		constexpr static Integer128<SIGNED,false> signFlipped(const Integer128<!SIGNED,false> val) {
+			return {val.lo,val.hi};
+		}
 		constexpr static Integer128<true,false> fromInt(const int64_t val)
 		{
 			Integer128<true, false> o{};
@@ -438,8 +441,8 @@ namespace slu::parse
 
 		//u64,i128,u128, for slu only
 		using U64 = uint64_t;
-		struct U128 : Integer128<false> {};
-		struct I128 : Integer128<true> {};
+		using U128 = Integer128<false>;
+		using I128 = Integer128<true>;
 	}
 
 	struct TupleName
