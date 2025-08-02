@@ -355,8 +355,15 @@ namespace slu::parse
 		constexpr auto operator<=>(const uint64_t val) const {
 			return *this <=> fromInt(val);
 		}
-		constexpr Integer128 operator+(Integer128 o) const requires(!NEGATIVIZED)
+		template<bool O_NEGATIVIZED>
+		constexpr Integer128 operator+(Integer128<SIGNED,O_NEGATIVIZED> o) const requires(!NEGATIVIZED && (!SIGNED || !O_NEGATIVIZED))
 		{
+			if constexpr (O_NEGATIVIZED)
+			{
+				o.lo = ~o.lo;
+				o.hi = ~o.hi;
+				o = o + fromInt(1); // Negate
+			}
 			Integer128 res = *this;
 			res.lo += o.lo;
 			res.hi += o.hi;
@@ -364,7 +371,16 @@ namespace slu::parse
 				res.hi++;
 			return res;
 		}
+		constexpr Integer128 operator-(const Integer128& o) const requires(!NEGATIVIZED) {
+			return *this + o.negative();
+		}
 
+		constexpr size_t bitWidth() const requires(!SIGNED && !NEGATIVIZED)
+		{
+			if(hi==0)
+				return std::bit_width(lo);
+			return 64 + std::bit_width(hi);
+		}
 		template<bool O_NEGATIVIZED>
 		constexpr bool lteOtherPlus1(const Integer128<false,O_NEGATIVIZED>& o) const requires(!SIGNED)
 		{
@@ -1028,6 +1044,36 @@ namespace slu::parse
 		_ASSERT(v.max >= 0);
 		return RawTypeKind::Range128Pp{ {.min = (uint64_t)v.min, .max = (uint64_t)v.max} };
 	}
+	constexpr size_t calcRangeBits(const RawTypeKind::Range64 range)
+	{
+		uint64_t vals;//implicit +1.
+		if (range.min < 0)
+		{
+			vals = abs(range.min);
+			if (range.max < 0)
+				vals -= abs(range.max);
+			else
+				vals += range.max;
+		}
+		else
+			vals = range.max - range.min;
+		return std::bit_width(vals);
+	}
+	template<AnyRawRange T>
+	constexpr size_t calcRangeBits(const T& range)
+	{
+		constexpr bool minP = std::same_as<T, RawTypeKind::Range128Pp>;
+		constexpr bool maxP = std::same_as<T, RawTypeKind::Range128Np>
+			|| std::same_as<T, RawTypeKind::Range128Pp>;
+		static_assert(!(minP && !maxP), "Found positive min, and negative max");
+
+		if constexpr (minP && maxP)
+			return (range.max - range.min).bitWidth();
+		else if constexpr (!minP && maxP)
+			return (range.min.abs() + range.max).bitWidth();
+		else
+			return (range.min.abs() - range.max.abs()).bitWidth();
+	}
 
 	template <class T>
 	concept AnyRawIntOrRange = AnyRawInt<T> || AnyRawRange<T>;
@@ -1092,6 +1138,9 @@ namespace slu::parse
 		}
 		static ResolvedType newConstFalse(auto mpDb) {
 			return ResolvedType::newZstStruct(mpDb.data->getItm({ "std","bool","false" }));
+		}
+		static ResolvedType newIntRange(const auto& range) {
+			return {.base = range,.size=calcRangeBits(range)};
 		}
 		template<std::same_as<ResolvedType&&>... Ts>
 		static ResolvedType newVariant(Ts... t) {

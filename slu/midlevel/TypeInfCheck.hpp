@@ -398,6 +398,7 @@ namespace slu::mlvl
 				visitor(*i);
 		}
 
+		// scales: O(N^3) // n(1+2n^2+3n)/6
 		void addSubTypeToList(std::vector<const parse::ResolvedType*>& types, const parse::ResolvedType& editTy)
 		{
 			for (const parse::ResolvedType* j : types)
