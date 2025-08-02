@@ -112,11 +112,13 @@ namespace slu::mlvl
 			else
 				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(mpDb)) + " (type resolution)");
 
+			const bool zst = rt.size == 0;
+
 			//TODO apply lifetime.
 
 			if (rt.outerSliceDims != 0)
 			{
-				size_t sz = TYPE_RES_PTR_SIZE + TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims;
+				size_t sz = zst ? 0 : (TYPE_RES_PTR_SIZE + TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims);
 
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::RefSlice{new parse::RefSliceRawType{
@@ -139,7 +141,7 @@ namespace slu::mlvl
 					.elem = std::move(rt),
 					.chain = { parse::RefSigil{.refType = parse::UnOpType::TO_REF}}
 				}},
-				.size = TYPE_RES_PTR_SIZE
+				.size = zst ? 0 : TYPE_RES_PTR_SIZE
 			};
 		},
 		varcase(parse::ExprType::LimPrefixExprV<true>&&)->parse::ResolvedType {
