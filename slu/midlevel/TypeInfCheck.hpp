@@ -536,6 +536,7 @@ namespace slu::mlvl
 						i.resolveNoCheck(parse::ResolvedType::newError());
 					else
 					{
+						parse::Range129 fullIntRange;
 						if(!intRanges.empty())
 						{
 							// Sort by start, end doesnt matter, cuz we only care about overlapping/adjacency.
@@ -548,7 +549,6 @@ namespace slu::mlvl
 									});
 								}
 							);
-							parse::Range129 fullIntRange;
 							bool first = true;
 							for (const auto& j : intRanges)
 							{
@@ -577,6 +577,27 @@ namespace slu::mlvl
 									});
 								});
 							}
+						}
+						//Make a new type that is a subtype of all the edit types (a variant or just the first element)
+						_ASSERT(!types.empty());
+						if (types.size() == 1)
+							i.resolveNoCheck(types[0]->clone());
+						else
+						{
+							parse::RawTypeKind::Variant v = parse::VariantRawType::newRawTy();
+							for (const parse::ResolvedType* j : types)
+								v->options.emplace_back(j->clone());
+							if (!intRanges.empty())
+							{
+								parse::r129Get(fullIntRange, [&](const auto& fullRange) {
+									v->options.emplace_back(parse::ResolvedType::newIntRange(fullRange));
+								});
+							}
+							size_t sz = v->calcSize();
+							parse::ResolvedType res;
+							res.base = std::move(v);
+							res.size = sz;
+							i.resolveNoCheck(std::move(res));
 						}
 					}
 				}
