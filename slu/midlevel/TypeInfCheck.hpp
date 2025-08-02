@@ -397,6 +397,71 @@ namespace slu::mlvl
 				visitor(*i);
 		}
 
+		void addSubTypeToList(std::vector<const parse::ResolvedType*>& types, const parse::ResolvedType& editTy)
+		{
+			for (const parse::ResolvedType* j : types)
+			{
+				if (subtypeCheck(mpDb, editTy, *j))
+					return;//Already found a supertype of it.
+			}
+			types.emplace_back(&editTy);
+			//TODO: maybe look for subtypes of editTy, or atleast unify them.
+		}
+		void visitTypeForInference(bool& poison,
+			std::vector<const parse::ResolvedType*>& types,
+			std::vector<parse::Range129>& intRanges,
+			const parse::ResolvedType& editTy) 
+		{
+			if (!editTy.isComplete())
+				throw std::runtime_error("TODO: error logging, found incomplete type expr");
+			if (editTy.outerSliceDims != 0)
+			{
+				//TODO: slices.
+			}
+			ezmatch(editTy.base)(
+				varcase(const parse::RawTypeKind::Unresolved&) {
+				throw std::runtime_error("TODO: error logging, found unresolved type expr");
+			},
+				varcase(const parse::RawTypeKind::Inferred) {
+				throw std::runtime_error("TODO: error logging, found inferred type expr");
+			},
+				varcase(const parse::RawTypeKind::TypeError) {
+				poison = true;
+			},
+				varcase(const parse::RawTypeKind::String&) {
+				addSubTypeToList(types, editTy);
+			},
+				varcase(const parse::RawTypeKind::Union&) {
+				addSubTypeToList(types, editTy);
+			},
+				varcase(const parse::RawTypeKind::Struct&) {
+				addSubTypeToList(types, editTy);
+			},
+				varcase(const parse::RawTypeKind::Variant&) {
+				for (auto& j : var->options)
+					visitTypeForInference(poison, types, intRanges, j);
+			},
+				varcase(const parse::RawTypeKind::RefChain&) {
+				//TODO.
+			},
+				varcase(const parse::RawTypeKind::RefSlice&) {
+				//TODO.
+			},
+
+				varcase(const parse::RawTypeKind::Float64) {
+				//TODO: float+float -> float-type... or float+float -> float || float?
+			},
+				[&]<parse::AnyRawIntOrRange T>(const T & var) {
+				if constexpr (parse::AnyRawInt<T>)
+					intRanges.emplace_back(parse::range129FromInt(var));
+				else if constexpr (std::same_as<T, parse::RawTypeKind::Range64>)
+					intRanges.emplace_back(parse::range129From64(var));
+				else
+					intRanges.emplace_back(var);
+			}
+				);
+		}
+
 		void checkLocals(std::span<LocalVarInfo> locals)
 		{
 			for (LocalVarInfo& i : locals)
@@ -455,12 +520,15 @@ namespace slu::mlvl
 						i.resolveNoCheck(parse::ResolvedType::getBool(mpDb,canTrue, canFalse));
 				}
 				else
-				{//TODO: resolve it (find a type, that is a subtype for all the edit types).
+				{//TODO: resolve it (find a type, that is a subtype of all the edit types).
+					bool poison = false;
+					std::vector<const parse::ResolvedType*> types;
+					std::vector<parse::Range129> intRanges;
 					visitSubTySide(i.edit,
 						[&](const parse::ResolvedType& editTy) {
-							if (!editTy.isComplete())
-								throw std::runtime_error("TODO: error logging, found incomplete type expr");
+							visitTypeForInference(poison, types, intRanges, editTy);
 						});
+
 				}
 				//Check use's
 
