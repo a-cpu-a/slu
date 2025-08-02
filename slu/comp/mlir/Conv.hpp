@@ -133,6 +133,7 @@ namespace slu::comp::mico
 	};
 	//Forward declare!
 	mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm);
+	void convStat(ConvData& conv, const parse::StatementV<true>& itm);
 	//
 
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {

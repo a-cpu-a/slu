@@ -1123,9 +1123,6 @@ namespace slu::parse
 		static ResolvedType getConstType(RawType&& v) {
 			return { .base = std::move(v),.size = 0/*Known value, not stored*/ };
 		}
-		static ResolvedType newZstStruct(MpItmIdV<true> name) {
-			return getConstType(StructRawType::newNamed(name));
-		}
 		static ResolvedType getBool(auto mpDb,bool tr,bool fa) {
 			if (tr && fa)
 				return { .base = parse::RawTypeKind::Struct{StructRawType::boolStruct(mpDb)},.size = 1};
@@ -1134,26 +1131,27 @@ namespace slu::parse
 			return newConstFalse(mpDb);
 		}
 		static ResolvedType newConstTrue(auto mpDb) {
-			return ResolvedType::newZstStruct(mpDb.data->getItm({ "std","bool","true" }));
+			return StructRawType::newZstTy(mpDb.data->getItm({ "std","bool","true" }));
 		}
 		static ResolvedType newConstFalse(auto mpDb) {
-			return ResolvedType::newZstStruct(mpDb.data->getItm({ "std","bool","false" }));
+			return StructRawType::newZstTy(mpDb.data->getItm({ "std","bool","false" }));
 		}
 		static ResolvedType newIntRange(const auto& range) {
 			if(range.min==range.max)
 				return ResolvedType::getConstType(RawType(range.min));
 			return {.base = range,.size=calcRangeBits(range)};
 		}
-		template<std::same_as<ResolvedType&&>... Ts>
-		static ResolvedType newVariant(Ts... t) {
-			auto& elems = *(new VariantRawType());
-			(elems.options.emplace_back(std::move(t))...);
-			return { .base = parse::RawTypeKind::Variant{&elems} };
-		}
 	};
 	struct VariantRawType
 	{
 		std::vector<ResolvedType> options;
+
+		template<std::same_as<ResolvedType&&>... Ts>
+		static ResolvedType newTy(Ts... t) {
+			auto& elems = *(new VariantRawType());
+			((elems.options.emplace_back(std::move(t))), ...);
+			return { .base = parse::RawTypeKind::Variant{&elems} };
+		}
 	};
 	struct StructRawType
 	{
@@ -1175,9 +1173,12 @@ namespace slu::parse
 			t->name = name;
 			return t;
 		}
+		static ResolvedType newZstTy(MpItmIdV<true> name) {
+			return ResolvedType::getConstType(newNamed(name));
+		}
 		static parse::RawTypeKind::Struct boolStruct(auto mpDb) {
 			RawTypeKind::Struct thing = newRawTy();
-			thing->fields.emplace_back(ResolvedType::newVariant(
+			thing->fields.emplace_back(VariantRawType::newTy(
 				ResolvedType::newConstFalse(mpDb),
 				ResolvedType::newConstTrue(mpDb)
 			));
