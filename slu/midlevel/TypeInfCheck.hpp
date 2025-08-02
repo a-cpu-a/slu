@@ -23,10 +23,23 @@ namespace slu::mlvl
 	template <class T>
 	inline bool sameCheck(const T& itm, const parse::ResolvedType& useTy)
 	{
-		if (!std::holds_alternative<T>(useTy.base))
+		return ezmatch(useTy.base)(
+		varcase(const auto&) { return false; },
+		varcase(const parse::RawTypeKind::TypeError) {
+			return true;//poisioned, so pass forward.
+		},
+		varcase(const parse::RawTypeKind::Variant&) {
+			for (const auto& i : var->options)
+			{
+				if (sameCheck(itm, i))
+					return true;//Yep atleast one item is a valid thing.
+			}
 			return false;
-		const T& o = std::get<T>(useTy.base);
-		return itm == o;
+		},
+		varcase(const T&) {
+			return itm==var;
+		},
+		);
 	}
 	inline bool rangeRangeSubtypeCheck(const parse::AnyRawRange auto itm, const parse::AnyRawRange auto useTy) {
 		return itm.max <= useTy.max && itm.min >= useTy.min;
@@ -36,6 +49,17 @@ namespace slu::mlvl
 	{
 		return ezmatch(useTy.base)(
 		varcase(const auto&) { return false; },
+		varcase(const parse::RawTypeKind::TypeError) {
+			return true;//poisioned, so pass forward.
+		},
+		varcase(const parse::RawTypeKind::Variant&) {
+			for (const auto& i : var->options)
+			{
+				if (intRangeSubtypeCheck(itm, i))
+					return true;//Yep atleast one item is a valid thing.
+			}
+			return false;
+		},
 		varcase(const parse::AnyRawIntOrRange auto) {
 			using VarT = std::remove_cvref_t<decltype(var)>;
 			constexpr bool isInt = parse::AnyRawInt<VarT>;
