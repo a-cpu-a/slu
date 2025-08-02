@@ -131,7 +131,7 @@ namespace slu::mlvl
 			return true;
 		},
 		varcase(const parse::RawTypeKind::Union&) {
-			//TODO
+			//TODO: nearly exact check!
 		},
 		varcase(const parse::RawTypeKind::Struct&) {
 			//TODO

@@ -1101,13 +1101,7 @@ namespace slu::parse
 		constexpr bool isSized() const {
 			return outerSliceDims == 0 && size != UNSIZED_MARK;
 		}
-		constexpr std::optional<MpItmIdV<true>> getStructName() const
-		{
-			if (outerSliceDims != 0) return std::nullopt;
-			if (!std::holds_alternative<RawTypeKind::Struct>(base))
-				return std::nullopt;
-			return std::get<RawTypeKind::Struct>(base)->name;
-		}
+		constexpr std::optional<MpItmIdV<true>> getStructName() const;
 		constexpr bool isBool(auto mpDb) const
 		{
 			if (size > 1) return false;
@@ -1322,6 +1316,13 @@ namespace slu::parse
 		delete it;
 	}
 
+	constexpr std::optional<MpItmIdV<true>> ResolvedType::getStructName() const
+	{
+		if (outerSliceDims != 0) return std::nullopt;
+		if (!std::holds_alternative<RawTypeKind::Struct>(base))
+			return std::nullopt;
+		return std::get<RawTypeKind::Struct>(base)->name;
+	}
 	inline RawType cloneRawType(const RawType& t)
 	{
 		return ezmatch(t)(
