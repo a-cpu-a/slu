@@ -349,7 +349,7 @@ namespace slu::parse
 			return *this <=> o;
 		}
 
-		constexpr Integer128 operator+(Integer128 o) const
+		constexpr Integer128 operator+(Integer128 o) const requires(!NEGATIVIZED)
 		{
 			Integer128 res = *this;
 			res.lo += o.lo;
@@ -358,7 +358,7 @@ namespace slu::parse
 				res.hi++;
 			return res;
 		}
-		constexpr Integer128 shift(uint8_t count) const
+		constexpr Integer128 shift(uint8_t count) const requires(!NEGATIVIZED)
 		{
 			Integer128 res = *this;
 			res.hi <<= count;
@@ -944,6 +944,65 @@ namespace slu::parse
 		|| std::same_as<T, parse::RawTypeKind::Range128Pn>
 		|| std::same_as<T, parse::RawTypeKind::Range128Pp>
 		|| std::same_as<T, parse::RawTypeKind::Range128Np>;
+	using Range129 = std::variant<
+		parse::RawTypeKind::Range128Pp,
+		parse::RawTypeKind::Range128Np,
+		parse::RawTypeKind::Range128Nn,
+		parse::RawTypeKind::Range128Pn>;
+
+	constexpr uint64_t abs(int64_t v)
+	{
+		if (v == INT64_MIN)
+			return INT64_MAX + 1ULL;
+		return v < 0 ? -v : v;
+	}
+	constexpr auto r129Get(const Range129& v,auto&& visitor) {
+		return std::visit(std::move(visitor), v);
+	}
+	template <class MinT, class MaxT>
+	constexpr auto r129From(const MinT& min, const MaxT& max) {
+		constexpr bool minP = std::same_as<MinT, Integer128<false, false>>;
+		constexpr bool maxP = std::same_as<MaxT, Integer128<false, false>>;
+
+		if constexpr (minP && maxP)
+			return RawTypeKind::Range128Pp{ {.min = min, .max = max} };
+		else if constexpr (minP && !maxP)
+			return RawTypeKind::Range128Pn{ {.min = min, .max = max} };
+		else if constexpr (!minP && maxP)
+			return RawTypeKind::Range128Np{ {.min = min, .max = max} };
+		else
+			return RawTypeKind::Range128Nn{ {.min = min, .max = max} };
+	}
+	constexpr Range129 range129FromInt(uint64_t v) {
+		return RawTypeKind::Range128Pp{ {.min = v, .max = v } };
+	}
+	constexpr Range129 range129FromInt(int64_t v) {
+		if(v < 0)
+			return RawTypeKind::Range128Nn{ {.min = abs(v), .max = abs(v) } };
+		return range129FromInt((uint64_t)v);
+	}
+	constexpr Range129 range129FromInt(AnyRawInt auto v)//128 bit
+	{
+		if (v < 0)
+		{
+			v = v.abs();
+			return RawTypeKind::Range128Nn{ {.min = v, .max = v} };
+		}
+		else
+			return RawTypeKind::Range128Pp{ {.min = v, .max = v } };
+	}
+	constexpr Range129 range129From64(const RawTypeKind::Range64 v)
+	{
+		if (v.min < 0)
+		{
+			if (v.max < 0)
+				return RawTypeKind::Range128Nn{ {.min = abs(v.min), .max = abs(v.max)} };
+			return RawTypeKind::Range128Np{ {.min = abs(v.min), .max = (uint64_t)v.max} };
+		}
+		if (v.max < 0)
+			return RawTypeKind::Range128Pn{ {.min = (uint64_t)v.min, .max = abs(v.max)} };
+		return RawTypeKind::Range128Pp{ {.min = (uint64_t)v.min, .max = (uint64_t)v.max} };
+	}
 
 	template <class T>
 	concept AnyRawIntOrRange = AnyRawInt<T> || AnyRawRange<T>;
