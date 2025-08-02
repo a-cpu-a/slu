@@ -398,7 +398,7 @@ namespace slu::mlvl
 				visitor(*i);
 		}
 
-		// scales: O(N^3) // n(1+2n^2+3n)/6
+		// scales: O(N^3) // n(1+2n^2+3n)/6 // n is number of assignments*avg1OrVariantSize.
 		void addSubTypeToList(std::vector<const parse::ResolvedType*>& types, const parse::ResolvedType& editTy)
 		{
 			for (const parse::ResolvedType* j : types)
@@ -418,7 +418,8 @@ namespace slu::mlvl
 				throw std::runtime_error("TODO: error logging, found incomplete type expr");
 			if (editTy.outerSliceDims != 0)
 			{
-				//TODO: slices.
+				addSubTypeToList(types, editTy);
+				return;
 			}
 			ezmatch(editTy.base)(
 				varcase(const parse::RawTypeKind::Unresolved&) {
@@ -437,17 +438,17 @@ namespace slu::mlvl
 				addSubTypeToList(types, editTy);
 			},
 				varcase(const parse::RawTypeKind::Struct&) {
-				addSubTypeToList(types, editTy);
+				addSubTypeToList(types, editTy);//Todo: potential unification.
 			},
 				varcase(const parse::RawTypeKind::Variant&) {
 				for (auto& j : var->options)
 					visitTypeForInference(poison, types, intRanges, j);
 			},
 				varcase(const parse::RawTypeKind::RefChain&) {
-				//TODO.
+				addSubTypeToList(types, editTy);
 			},
 				varcase(const parse::RawTypeKind::RefSlice&) {
-				//TODO.
+				addSubTypeToList(types, editTy);
 			},
 
 				varcase(const parse::RawTypeKind::Float64) {
