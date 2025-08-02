@@ -7,6 +7,7 @@
 #include <vector>
 #include <optional>
 #include <variant>
+#include <algorithm>
 #include <slu/ext/CppMatch.hpp>
 #include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
@@ -529,6 +530,54 @@ namespace slu::mlvl
 							visitTypeForInference(poison, types, intRanges, editTy);
 						});
 
+					if (poison)
+						i.resolveNoCheck(parse::ResolvedType::newError());
+					else
+					{
+						if(!intRanges.empty())
+						{
+							// Sort by start, end doesnt matter, cuz we only care about overlapping/adjacency.
+							std::sort(intRanges.begin(), intRanges.end(),
+								[&](const parse::Range129& a, const parse::Range129& b) {
+									return parse::r129Get(a, [&](const auto& aRange) {
+										return parse::r129Get(b, [&](const auto& bRange) {
+											return aRange.min < bRange.min;
+											});
+									});
+								}
+							);
+							parse::Range129 fullIntRange;
+							bool first = true;
+							for (const auto& j : intRanges)
+							{
+								if (first)
+								{
+									fullIntRange = j;
+									continue;
+								}
+								parse::r129Get(j, [&](const auto& jRange) {
+									parse::r129Get(fullIntRange, [&](const auto& fullRange) {
+										//TODO: allow adjacent ones too: 1..1, 2..2 -> 1..2.
+										if (jRange.min <= fullRange.max)
+										{// Overlap / adjacent, so merge them.
+											const bool maxBigger = fullRange.max < jRange.max;
+											const bool minSmaller = fullRange.min > jRange.min;
+											if (!maxBigger && !minSmaller)
+												return;
+											if (maxBigger && minSmaller)
+												fullIntRange = j;
+											else if(maxBigger)
+												fullIntRange = parse::r129From(fullRange.min,jRange.max);
+											else
+												fullIntRange = parse::r129From(jRange.min, fullRange.max);
+										}
+										// No overlap.
+										throw std::runtime_error("TODO: error logging, found non overlapping int ranges in type inference");
+									});
+								});
+							}
+						}
+					}
 				}
 				//Check use's
 
