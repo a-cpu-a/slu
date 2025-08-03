@@ -179,11 +179,11 @@ namespace slu::mlvl
 		if (subty.outerSliceDims != 0)//both have the same non-0 slice size.
 			return nearExactCheck(subty, useTy);//TODO: allow variant here.
 
-		ezmatch(subty.base)(
-		varcase(const parse::RawTypeKind::Unresolved&) {
+		return ezmatch(subty.base)(
+		varcase(const parse::RawTypeKind::Unresolved&)->bool {
 			throw std::runtime_error("Found unresolved type in subtype check");
 		},
-		varcase(const parse::RawTypeKind::Inferred) {
+		varcase(const parse::RawTypeKind::Inferred)->bool {
 			throw std::runtime_error("Found inferred type in subtype check");
 		},
 		varcase(const parse::RawTypeKind::TypeError) {
