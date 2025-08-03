@@ -38,7 +38,7 @@ namespace slu::mlvl
 		},
 		varcase(const T&) {
 			return onSame(itm, var);
-		},
+		}
 		);
 	}
 	inline bool rangeRangeSubtypeCheck(const parse::AnyRawRange auto itm, const parse::AnyRawRange auto useTy) {
