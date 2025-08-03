@@ -96,6 +96,8 @@ namespace slu::mlvl
 		}
 		);
 	}
+	bool subtypeCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
+
 	inline bool nameMatchCheck(parse::BasicMpDb mpDb,parse::MpItmIdV<true> subName, parse::MpItmIdV<true> useName)
 	{
 
@@ -104,7 +106,19 @@ namespace slu::mlvl
 	//ignores outerSliceDims of either side, as if checking the slices element type.
 	inline bool nearExactCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
+		if (subty.base.index() != useTy.base.index())
+			return false;//Ranges and int should be compacted into smallest form anyway.
 
+		//This should already be true, if all parts of the near exact check are correct.
+		//if (subty.size != useTy.size)
+		//	return false;
+		if (
+			std::holds_alternative<parse::RawTypeKind::RefChain>(subty.base)
+			|| std::holds_alternative<parse::RawTypeKind::RefSlice>(subty.base))
+		{
+			return subtypeCheck(mpDb, subty, useTy);
+		}
+		//TODO: compare them.
 	}
 	inline bool subtypeCheck(parse::BasicMpDb mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
@@ -163,7 +177,12 @@ namespace slu::mlvl
 			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 				if (!nameMatchCheck(mpDb, var->name, useTy->name))
 					return false;
-				//TODO
+				for (size_t i = 0; i < var->fields.size(); i++)
+				{
+					const parse::ResolvedType& ty = var->fields[i];
+					const std::string& name = var->fieldNames[i];
+					//TODO: locate same field in other type & subtype check it.
+				}
 			});
 		},
 
