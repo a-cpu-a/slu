@@ -368,6 +368,14 @@ namespace slu::parse
 		constexpr auto operator<=>(const uint64_t val) const {
 			return *this <=> fromInt(val);
 		}
+
+		template<bool O_SIGN, bool O_NEGATIVIZED>
+		constexpr bool operator==(const Integer128<O_SIGN, O_NEGATIVIZED>& o) const {
+			if constexpr (O_SIGN!=SIGNED || O_NEGATIVIZED!=NEGATIVIZED)
+				return false;
+			return lo == o.lo && hi == o.hi;
+		}
+
 		template<bool O_NEGATIVIZED>
 		constexpr Integer128 operator+(Integer128<SIGNED,O_NEGATIVIZED> o) const requires(!NEGATIVIZED && (!SIGNED || !O_NEGATIVIZED))
 		{
