@@ -102,6 +102,12 @@ namespace slu::mlvl
 	{
 
 	}
+	template <class T>
+	inline bool nearExactCheckDeref(parse::BasicMpDb mpDb, const T& subty, const parse::ResolvedType& useTy)
+	{
+		if (!std::holds_alternative<T>(useTy.base)) return false;
+		return *subty == *std::get<T>(useTy.base);
+	}
 
 	//ignores outerSliceDims of either side, as if checking the slices element type.
 	inline bool nearExactCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
@@ -112,20 +118,38 @@ namespace slu::mlvl
 		//This should already be true, if all parts of the near exact check are correct.
 		//if (subty.size != useTy.size)
 		//	return false;
-		if (
-			std::holds_alternative<parse::RawTypeKind::RefChain>(subty.base)
-			|| std::holds_alternative<parse::RawTypeKind::RefSlice>(subty.base))
-		{
+
+		return ezmatch(subty.base)(
+		[&]<class T>(const T& var) {
+			if(!std::holds_alternative<T>(useTy.base)) return false;
+			return var == std::get<T>(useTy.base);
+		},
+		varcase(const parse::RawTypeKind::Variant&) {
+			return nearExactCheckDeref(mpDb,var,useTy);
+		},
+		varcase(const parse::RawTypeKind::Struct&) {
+			return nearExactCheckDeref(mpDb,var,useTy);
+		},
+		varcase(const parse::RawTypeKind::Union&) {
+			return nearExactCheckDeref(mpDb,var,useTy);
+		},
+		varcase(const parse::RawTypeKind::TypeError) {
+			return true;
+		},
+		varcase(const parse::RawTypeKind::RefChain&) {
+			return subtypeCheck(mpDb, subty, useTy);
+		},
+		varcase(const parse::RawTypeKind::RefSlice&) {
 			return subtypeCheck(mpDb, subty, useTy);
 		}
-		//TODO: compare them.
+		);
 	}
 	inline bool subtypeCheck(parse::BasicMpDb mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
 		if (subty.outerSliceDims != useTy.outerSliceDims)
-			return false;
+			return false;//TODO: allow variant here.
 		if (subty.outerSliceDims != 0)//both have the same non-0 slice size.
-			return nearExactCheck(mpDb, subty, useTy);
+			return nearExactCheck(mpDb, subty, useTy);//TODO: allow variant here.
 
 		ezmatch(subty.base)(
 		varcase(const parse::RawTypeKind::Unresolved) {
