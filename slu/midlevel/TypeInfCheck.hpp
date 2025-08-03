@@ -21,7 +21,7 @@ namespace slu::mlvl
 	using TypeInfCheckCfg = decltype(parse::sluCommon);
 
 	template <class T>
-	inline bool sameCheck(const T& itm, const parse::ResolvedType& useTy)
+	inline bool sameCheck(const T& itm, const parse::ResolvedType& useTy,const auto& onSame)
 	{
 		return ezmatch(useTy.base)(
 		varcase(const auto&) { return false; },
@@ -31,13 +31,13 @@ namespace slu::mlvl
 		varcase(const parse::RawTypeKind::Variant&) {
 			for (const auto& i : var->options)
 			{
-				if (sameCheck(itm, i))
+				if (sameCheck(itm, i, onSame))
 					return true;//Yep atleast one item is a valid thing.
 			}
 			return false;
 		},
 		varcase(const T&) {
-			return itm==var;
+			return onSame(itm, var);
 		},
 		);
 	}
@@ -97,14 +97,18 @@ namespace slu::mlvl
 		);
 	}
 
+	//ignores outerSliceDims of either side, as if checking the slices element type.
+	inline bool nearExactCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
+	{
+
+	}
 	inline bool subtypeCheck(parse::BasicMpDb mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
 		if (subty.outerSliceDims != useTy.outerSliceDims)
 			return false;
-		if (subty.outerSliceDims != 0)
-		{
-			//TODO: Slice <= Slice.
-		}
+		if (subty.outerSliceDims != 0)//both have the same non-0 slice size.
+			return nearExactCheck(mpDb, subty, useTy);
+
 		ezmatch(subty.base)(
 		varcase(const parse::RawTypeKind::Unresolved) {
 			throw std::runtime_error("Found unresolved type in subtype check");
@@ -116,10 +120,12 @@ namespace slu::mlvl
 			return true;//poisioned, so pass forward.
 		},
 		varcase(const parse::RawTypeKind::String&) {
-			return sameCheck(var,useTy);//TODO: subtyping into &str.
+			using T = parse::RawTypeKind::String;
+			return sameCheck<T>(var, useTy, std::equal_to<T>{});//TODO: subtyping into &str.
 		},
 		varcase(const parse::RawTypeKind::Float64) {
-			return sameCheck(var, useTy);//TODO: allow f64 as the type too (needs to be impl first).
+			using T = parse::RawTypeKind::Float64;
+			return sameCheck<T>(var, useTy, std::equal_to<T>{});//TODO: allow f64 as the type too (needs to be impl first).
 		},
 
 		varcase(const parse::RawTypeKind::Variant&) {
@@ -131,17 +137,46 @@ namespace slu::mlvl
 			return true;
 		},
 		varcase(const parse::RawTypeKind::Union&) {
-			//TODO: nearly exact check!
+			using T = parse::RawTypeKind::Union;
+			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+				if(var->fields.size() != var->fields.size())
+					return false;
+				//TODO: var->name.
+				for (size_t i = 0; i < var->fields.size(); i++)
+				{
+					if(!nearExactCheck(mpDb, var->fields[i], useTy->fields[i]))
+						return false;
+					if(var->fieldNames[i] != useTy->fieldNames[i])
+						return false;
+				}
+				return true;
+			});
 		},
 		varcase(const parse::RawTypeKind::Struct&) {
-			//TODO
+			using T = parse::RawTypeKind::Struct;
+			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+				//TODO: var->name.
+				//TODO
+			});
 		},
 
 		varcase(const parse::RawTypeKind::RefChain&) {
-			//TODO: nearly exact check!
+			using T = parse::RawTypeKind::RefChain;
+			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+				if(var->chain != useTy->chain)
+					return false;
+				return nearExactCheck(mpDb, var->elem, useTy->elem);
+			});
 		},
 		varcase(const parse::RawTypeKind::RefSlice&) {
-			//TODO: nearly exact check!
+			using T = parse::RawTypeKind::RefSlice;
+			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+				if(var->refType != useTy->refType)
+					return false;
+				if(var->elem.outerSliceDims != useTy->elem.outerSliceDims)
+					return false;
+				return nearExactCheck(mpDb, var->elem, useTy->elem);
+			});
 		},
 
 		varcase(const parse::AnyRawIntOrRange auto) {
