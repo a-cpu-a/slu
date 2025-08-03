@@ -375,8 +375,6 @@ namespace slu::parse
 				return true;
 			if (isNegative() != o.isNegative())
 				return false;
-			if constexpr (SIGNED != O_SIGN)
-				return abs() == o.abs();
 			return lo == o.lo && hi == o.hi;
 		}
 
