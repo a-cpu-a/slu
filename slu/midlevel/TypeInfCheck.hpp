@@ -44,6 +44,9 @@ namespace slu::mlvl
 	inline bool rangeRangeSubtypeCheck(const parse::AnyRawRange auto itm, const parse::AnyRawRange auto useTy) {
 		return itm.max <= useTy.max && itm.min >= useTy.min;
 	}
+	inline bool _compilerHackGt(auto a, auto b) {
+		return a > b;
+	}
 	template <parse::AnyRawIntOrRange T>
 	inline bool intRangeSubtypeCheck(const T itm, const parse::ResolvedType& useTy)
 	{
@@ -60,34 +63,29 @@ namespace slu::mlvl
 			}
 			return false;
 		},
-		varcase(const parse::AnyRawIntOrRange auto) {
+		varcase(const parse::AnyRawIntOrRange auto&) {
 			using VarT = std::remove_cvref_t<decltype(var)>;
+			constexpr bool itmIsInt = parse::AnyRawInt<T>;
 			constexpr bool isInt = parse::AnyRawInt<VarT>;
 
-			constexpr bool itmSigned = std::same_as<T, parse::RawTypeKind::Int64>;
-			constexpr bool itmUnsigned = std::same_as<T, parse::RawTypeKind::Uint64>;
-
-			constexpr bool varSigned = std::same_as<VarT, parse::RawTypeKind::Int64>;
-			constexpr bool varUnsigned = std::same_as<VarT, parse::RawTypeKind::Uint64>;
-
-			if constexpr (parse::AnyRawInt<T> && isInt)
+			if constexpr (itmIsInt && isInt)
 			{// Check for sign mismatch
-				if constexpr (itmSigned && varUnsigned)
+				if constexpr (std::same_as<T, parse::RawTypeKind::Int64> && std::same_as<VarT, parse::RawTypeKind::Uint64>)
 				{
 					if (var > (uint64_t)INT64_MAX)
 						return false;
 					return itm == (int64_t)var;
 				}
-				else if constexpr (itmUnsigned && varSigned)
+				else if constexpr (std::same_as<T, parse::RawTypeKind::Uint64> && std::same_as<VarT, parse::RawTypeKind::Int64>)
 				{
-					if (itm > (uint64_t)INT64_MAX)
+					if (_compilerHackGt(itm, (uint64_t)INT64_MAX))
 						return false;
 					return (int64_t)itm == var;
 				}
 				else
 					return itm == var;
 			}
-			else if constexpr (parse::AnyRawInt<T>)
+			else if constexpr (itmIsInt)
 				return var.isInside(itm);
 			else if constexpr (isInt)
 				return itm.isOnly(var);
@@ -247,7 +245,7 @@ namespace slu::mlvl
 			return subtypeCheckRefSlice(var, useTy);
 		},
 
-		varcase(const parse::AnyRawIntOrRange auto) {
+		varcase(const parse::AnyRawIntOrRange auto&) {
 			return intRangeSubtypeCheck(var, useTy);
 		}
 		);

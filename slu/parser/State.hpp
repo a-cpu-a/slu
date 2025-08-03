@@ -377,6 +377,12 @@ namespace slu::parse
 				return false;
 			return lo == o.lo && hi == o.hi;
 		}
+		constexpr bool operator==(const int64_t val) const {
+			return *this == fromInt(val);
+		}
+		constexpr bool operator==(const uint64_t val) const {
+			return *this == fromInt(val);
+		}
 
 		template<bool O_NEGATIVIZED>
 		constexpr Integer128 operator+(Integer128<SIGNED,O_NEGATIVIZED> o) const requires(!NEGATIVIZED && (!SIGNED || !O_NEGATIVIZED))
@@ -385,7 +391,9 @@ namespace slu::parse
 			{
 				o.lo = ~o.lo;
 				o.hi = ~o.hi;
-				o = o + fromInt(1); // Negate
+				auto s = Integer128<false, false>{ .lo = o.lo,.hi = o.hi } + fromInt(1ULL); // Negate;
+				o.lo = s.lo;
+				o.hi = s.hi;
 			}
 			Integer128 res = *this;
 			res.lo += o.lo;
@@ -409,8 +417,8 @@ namespace slu::parse
 		{
 			if constexpr (NEGATIVIZED && O_NEGATIVIZED)
 			{//-A <= -B+1 (->) A >= B-1.
-				if (o == 0) return true;
-				return negative() >= (o.negative() + fromInt(-1));
+				if (o == 0ULL) return true;
+				return negative() >= (o.negative() + fromInt(UINT64_MAX));//-1
 			}
 			else if constexpr (NEGATIVIZED && !O_NEGATIVIZED)
 			{//-A <= B+1
@@ -420,8 +428,8 @@ namespace slu::parse
 			}
 			else if constexpr (!NEGATIVIZED && O_NEGATIVIZED)
 			{//A <= -B+1 (->) -A >= B-1.
-				if (o == 0) return *this<=1;
-				return negative() >= (o.negative() + fromInt(-1));
+				if (o == 0ULL) return *this<=1ULL;
+				return negative() >= (o.negative() + fromInt(UINT64_MAX));//-1
 			}
 			else
 			{//A <= B+1.
@@ -925,10 +933,12 @@ namespace slu::parse
 		using Int64 = ExprType::I64;
 	}
 	template <class T>
-	concept AnyRawInt = std::same_as<T, parse::RawTypeKind::Uint64>
-		|| std::same_as<T, parse::RawTypeKind::Pos128>
-		|| std::same_as<T, parse::RawTypeKind::Int64>
+	concept Any128Int = std::same_as<T, parse::RawTypeKind::Pos128>
 		|| std::same_as<T, parse::RawTypeKind::Neg128>;
+	template <class T>
+	concept AnyRawInt = std::same_as<T, parse::RawTypeKind::Uint64>
+		|| std::same_as<T, parse::RawTypeKind::Int64>
+		|| Any128Int<T>;
 
 	template <bool NEG_MIN, bool NEG_MAX>
 	struct Range128
@@ -940,7 +950,7 @@ namespace slu::parse
 		constexpr bool isInside(const T v) const {
 			return v >= min && v <= max;
 		}
-		constexpr bool isOnly(const AnyRawInt auto o) {
+		constexpr bool isOnly(const AnyRawInt auto o) const{
 			return min == o && max == o;
 		}
 		constexpr auto operator<=>(const Range128&) const = default;
@@ -963,10 +973,11 @@ namespace slu::parse
 					if (v > (uint64_t)INT64_MAX) return false;
 					return isInside((Int64)v);
 				}
-				return v >= min && v <= max;
+				else
+					return v >= min && v <= max;
 			}
 			template<AnyRawInt T>
-			constexpr bool isOnly(const T o) {
+			constexpr bool isOnly(const T o) const {
 				if constexpr (std::same_as<T,Uint64>)
 				{
 					if (o > (uint64_t)INT64_MAX) return false;
@@ -1046,13 +1057,10 @@ namespace slu::parse
 			return RawTypeKind::Range128Nn{ .min = abs(v), .max = abs(v)  };
 		return range129FromInt((uint64_t)v);
 	}
-	constexpr Range129 range129FromInt(AnyRawInt auto v)//128 bit
+	constexpr Range129 range129FromInt(Any128Int auto v)
 	{
-		if (v < 0)
-		{
-			v = v.abs();
+		if constexpr (std::same_as<decltype(v), RawTypeKind::Neg128>)
 			return RawTypeKind::Range128Nn{ .min = v, .max = v };
-		}
 		else
 			return RawTypeKind::Range128Pp{ .min = v, .max = v };
 	}
@@ -1211,8 +1219,8 @@ namespace slu::parse
 			return size;
 		}
 
-		template<std::same_as<ResolvedType&&>... Ts>
-		static ResolvedType newTy(Ts... t) {
+		template<std::same_as<ResolvedType>... Ts>
+		static ResolvedType newTy(Ts&&... t) {
 			auto& elems = *(new VariantRawType());
 			((elems.options.emplace_back(std::move(t))), ...);
 
@@ -1324,6 +1332,8 @@ namespace slu::parse
 	{
 		lang::MpItmIdV<true> life;
 		UnOpType refType;
+
+		constexpr auto operator<=>(const RefSigil&) const = default;
 	};
 	struct RefChainRawType
 	{
