@@ -26,9 +26,9 @@ Subtypes {
 	"a"||"b" < String
 	
 	
-	-----------
-	
-	Subtype inference.
+	---------------------
+	- Subtype inference -
+	---------------------
 	
 	if only 1 type, then use that type.
 	
@@ -40,7 +40,9 @@ Subtypes {
 	
 	??? ({1} + {2} -> {1..2})
 	
-	-----------
+	-----------------
+	- Subtype check -
+	-----------------
 	
 	Name matching -> {
 		if both unnamed / same name, then return true;
@@ -60,6 +62,12 @@ Subtypes {
 		
 	} named types are supertypes of unnamed types.
 	(or maybe the other way around?) (you can assign unnamed struct to a named struct var)
+	
+	Near exact check -> {
+		do type kinds match exacly? (Float != FloatType, Int != Range, Int==Int, ...)
+		
+		do types match exactly, unless they are refs, then lifetime outlives
+	}
 	
 	ErrorType <= * / * <= ErrorType
 	1. always true
@@ -85,7 +93,8 @@ Subtypes {
 	
 	Union <= Union
 	1. names must match
-	2. all cases match exactly, unless they are refs, then lifetime outlives
+	2. all field names equal
+	2. for all fields, near exact check
 	
 	Variant <= Variant
 	1. check if the subtype's variants are in the super-type.
@@ -94,16 +103,17 @@ Subtypes {
 	1. is the subtype(or one of its supertypes) inside the variant.
 	
 	Slice <= Slice
-	1. types must match exactly, unless they are refs, then lifetime outlives.
+	1. near exact check on elem.
 	
 	Ref <= Ref
-	1. do types match exactly, unless they are refs, then lifetime outlives.
+	1. near exact check on elem.
 	2. lifetime outlives
 	
 	--todo: impl recursive types.
 	Rec <= Rec
-	1. exact match on variable
-	2. exact match on type
+	???
+	??? 1. exact match on variable
+	??? 2. near exact check on type
 	
 	
 	-----------
