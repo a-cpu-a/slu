@@ -938,9 +938,9 @@ namespace slu::parse
 
 	namespace RawTypeKind
 	{
-		struct Range128Pp : Range128<false,false>{constexpr auto operator<=>(const Range128Pp& o) const = default;};
-		struct Range128Np : Range128<true, false>{constexpr auto operator<=>(const Range128Np& o) const = default;};
-		struct Range128Nn : Range128<true, true> {constexpr auto operator<=>(const Range128Nn& o) const = default;};
+		using Range128Pp = Range128<false,false>;
+		using Range128Np = Range128<true, false>;
+		using Range128Nn = Range128<true, true> ;
 
 		struct Range64
 		{
@@ -1022,18 +1022,18 @@ namespace slu::parse
 		static_assert(!(minP && !maxP), "Found positive min, and negative max");
 
 		if constexpr (minP && maxP)
-			return RawTypeKind::Range128Pp{ {.min = min, .max = max} };
+			return RawTypeKind::Range128Pp{ .min = min, .max = max };
 		else if constexpr (!minP && maxP)
-			return RawTypeKind::Range128Np{ {.min = min, .max = max} };
+			return RawTypeKind::Range128Np{ .min = min, .max = max };
 		else
-			return RawTypeKind::Range128Nn{ {.min = min, .max = max} };
+			return RawTypeKind::Range128Nn{ .min = min, .max = max };
 	}
 	constexpr Range129 range129FromInt(uint64_t v) {
-		return RawTypeKind::Range128Pp{ {.min = v, .max = v } };
+		return RawTypeKind::Range128Pp{ .min = v, .max = v  };
 	}
 	constexpr Range129 range129FromInt(int64_t v) {
 		if(v < 0)
-			return RawTypeKind::Range128Nn{ {.min = abs(v), .max = abs(v) } };
+			return RawTypeKind::Range128Nn{ .min = abs(v), .max = abs(v)  };
 		return range129FromInt((uint64_t)v);
 	}
 	constexpr Range129 range129FromInt(AnyRawInt auto v)//128 bit
@@ -1041,21 +1041,21 @@ namespace slu::parse
 		if (v < 0)
 		{
 			v = v.abs();
-			return RawTypeKind::Range128Nn{ {.min = v, .max = v} };
+			return RawTypeKind::Range128Nn{ .min = v, .max = v };
 		}
 		else
-			return RawTypeKind::Range128Pp{ {.min = v, .max = v } };
+			return RawTypeKind::Range128Pp{ .min = v, .max = v };
 	}
 	constexpr Range129 range129From64(const RawTypeKind::Range64 v)
 	{
 		if (v.min < 0)
 		{
 			if (v.max < 0)
-				return RawTypeKind::Range128Nn{ {.min = abs(v.min), .max = abs(v.max)} };
-			return RawTypeKind::Range128Np{ {.min = abs(v.min), .max = (uint64_t)v.max} };
+				return RawTypeKind::Range128Nn{ .min = abs(v.min), .max = abs(v.max) };
+			return RawTypeKind::Range128Np{ .min = abs(v.min), .max = (uint64_t)v.max };
 		}
 		_ASSERT(v.max >= 0);
-		return RawTypeKind::Range128Pp{ {.min = (uint64_t)v.min, .max = (uint64_t)v.max} };
+		return RawTypeKind::Range128Pp{ .min = (uint64_t)v.min, .max = (uint64_t)v.max };
 	}
 	constexpr size_t calcRangeBits(const RawTypeKind::Range64 range)
 	{
