@@ -695,14 +695,32 @@ namespace slu::mlvl
 										{// Overlap / adjacent, so merge them.
 											const bool maxBigger = fullRange.max < jRange.max;
 											const bool minSmaller = fullRange.min > jRange.min;
-											if (!maxBigger && !minSmaller)
-												return;
+
 											if (maxBigger && minSmaller)
 												fullIntRange = j;
-											else if(maxBigger)
-												fullIntRange = parse::r129From(fullRange.min,jRange.max);
-											else
-												fullIntRange = parse::r129From(jRange.min, fullRange.max);
+											else 
+											{
+												if constexpr (
+													!(std::same_as<decltype(fullRange.min), parse::Integer128<false, false>>
+														&& std::same_as<decltype(jRange.max), parse::Integer128<false, true>>)
+													)
+												{
+													if (maxBigger)
+													{
+														fullIntRange = parse::r129From(fullRange.min, jRange.max);
+														return;
+													}
+												}
+												if constexpr (
+													!(std::same_as<decltype(jRange.min), parse::Integer128<false, false>>
+														&& std::same_as<decltype(fullRange.max), parse::Integer128<false, true>>)
+													)
+												{
+													if (minSmaller)
+														fullIntRange = parse::r129From(jRange.min, fullRange.max);
+												}
+											}
+											return;
 										}
 										// No overlap.
 										throw std::runtime_error("TODO: error logging, found non overlapping int ranges in type inference");
