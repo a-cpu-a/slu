@@ -96,6 +96,10 @@ namespace slu::mlvl
 		}
 		);
 	}
+	inline bool nameMatchCheck(parse::BasicMpDb mpDb,parse::MpItmIdV<true> subName, parse::MpItmIdV<true> useName)
+	{
+
+	}
 
 	//ignores outerSliceDims of either side, as if checking the slices element type.
 	inline bool nearExactCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
@@ -141,7 +145,9 @@ namespace slu::mlvl
 			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 				if(var->fields.size() != var->fields.size())
 					return false;
-				//TODO: var->name.
+				if (!nameMatchCheck(mpDb, var->name, useTy->name))
+					return false;
+
 				for (size_t i = 0; i < var->fields.size(); i++)
 				{
 					if(!nearExactCheck(mpDb, var->fields[i], useTy->fields[i]))
@@ -155,7 +161,8 @@ namespace slu::mlvl
 		varcase(const parse::RawTypeKind::Struct&) {
 			using T = parse::RawTypeKind::Struct;
 			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
-				//TODO: var->name.
+				if (!nameMatchCheck(mpDb, var->name, useTy->name))
+					return false;
 				//TODO
 			});
 		},
