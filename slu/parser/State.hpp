@@ -1142,7 +1142,11 @@ namespace slu::parse
 		}
 		static ResolvedType newIntRange(const auto& range) {
 			if(range.min==range.max)
+			{
+				//TODO: compact to 64 bit ints.
 				return ResolvedType::getConstType(RawType(range.min));
+			}
+			//TODO: compact to range64.
 			return {.base = range,.size=calcRangeBits(range)};
 		}
 	};
