@@ -63,26 +63,26 @@ namespace slu::mlvl
 		varcase(const parse::AnyRawIntOrRange auto) {
 			using VarT = std::remove_cvref_t<decltype(var)>;
 			constexpr bool isInt = parse::AnyRawInt<VarT>;
+
 			constexpr bool itmSigned = std::same_as<T, parse::RawTypeKind::Int64>;
+			constexpr bool itmUnsigned = std::same_as<T, parse::RawTypeKind::Uint64>;
+
+			constexpr bool varSigned = std::same_as<VarT, parse::RawTypeKind::Int64>;
+			constexpr bool varUnsigned = std::same_as<VarT, parse::RawTypeKind::Uint64>;
 
 			if constexpr (parse::AnyRawInt<T> && isInt)
 			{// Check for sign mismatch
-				if constexpr (
-					itmSigned != std::same_as<VarT, parse::RawTypeKind::Int64>
-					)
+				if constexpr (itmSigned && varUnsigned)
 				{
-					if constexpr (itmSigned)
-					{
-						if (var > (uint64_t)INT64_MAX)
-							return false;
-						return itm == (int64_t)var;
-					}
-					else
-					{
-						if(itm > (uint64_t)INT64_MAX)
-							return false;
-						return (int64_t)itm == var;
-					}
+					if (var > (uint64_t)INT64_MAX)
+						return false;
+					return itm == (int64_t)var;
+				}
+				else if constexpr (itmUnsigned && varSigned)
+				{
+					if (itm > (uint64_t)INT64_MAX)
+						return false;
+					return (int64_t)itm == var;
 				}
 				else
 					return itm == var;
