@@ -371,8 +371,12 @@ namespace slu::parse
 
 		template<bool O_SIGN, bool O_NEGATIVIZED>
 		constexpr bool operator==(const Integer128<O_SIGN, O_NEGATIVIZED>& o) const {
-			if constexpr (O_SIGN!=SIGNED || O_NEGATIVIZED!=NEGATIVIZED)
+			if (lo == 0 && o.lo == 0 && hi == 0 && o.hi == 0)
+				return true;
+			if (isNegative() != o.isNegative())
 				return false;
+			if constexpr (SIGNED != O_SIGN)
+				return abs() == o.abs();
 			return lo == o.lo && hi == o.hi;
 		}
 
