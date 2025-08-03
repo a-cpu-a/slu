@@ -14,6 +14,7 @@
 #include <slu/gen/Gen.hpp>
 #include <slu/MetaTableUtils.hpp>
 #include <slu/comp/Compile.hpp>
+#include <slu/midlevel/TypeInfCheck.hpp>
 
 
 void ____test()
