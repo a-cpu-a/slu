@@ -64,6 +64,8 @@ Subtypes {
 	(or maybe the other way around?) (you can assign unnamed struct to a named struct var)
 	
 	Near exact check -> {
+		if one of them a type error, then return true;
+		
 		do type kinds match exacly? (Float != FloatType, Int != Range, Int==Int, ...)
 		
 		if the types are refs -> {

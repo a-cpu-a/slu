@@ -106,8 +106,8 @@ namespace slu::mlvl
 	//ignores outerSliceDims of either side, as if checking the slices element type.
 	inline bool nearExactCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
-		if (subty.base.index() != useTy.base.index())
-			return false;//Ranges and int should be compacted into smallest form anyway.
+		if(std::holds_alternative<parse::RawTypeKind::TypeError>(useTy.base))
+			return true;//poisioned, so pass forward.
 
 		//This should already be true, if all parts of the near exact check are correct.
 		//if (subty.size != useTy.size)
