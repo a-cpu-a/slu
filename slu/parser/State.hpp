@@ -270,9 +270,6 @@ namespace slu::parse
 		uint64_t lo = 0;
 		uint64_t hi = 0;
 
-		constexpr static Integer128<SIGNED,false> signFlipped(const Integer128<!SIGNED,false> val) {
-			return {val.lo,val.hi};
-		}
 		constexpr static Integer128<true,false> fromInt(const int64_t val)
 		{
 			Integer128<true, false> o{};
@@ -296,7 +293,8 @@ namespace slu::parse
 			{
 				if (hiSigned() < 0)
 				{
-					return (Integer128<false, false>{ ~lo, ~hi }) + Integer128<false, false>{1, 0};
+					return (Integer128<false, false>{ ~lo, ~hi }) 
+						+ Integer128<false, false>{1, 0};
 				}
 			}
 			return { lo, hi };
@@ -316,16 +314,18 @@ namespace slu::parse
 		}
 		template<bool O_SIGN, bool O_NEGATIVIZED>
 		constexpr std::strong_ordering operator<=>(const Integer128<O_SIGN, O_NEGATIVIZED>& o) const {
-			const bool neg = isNegative();
-			const bool oNeg = o.isNegative();
-			if (neg && oNeg)
-				return o.negative() <=> negative();
-			if (neg)
-				return std::strong_ordering::less; // this is negative, o is positive
-			if (oNeg)
-				return std::strong_ordering::greater; // this is positive, o is negative
-
-			//Both are positive, after negativization that is.
+			if constexpr (SIGNED || NEGATIVIZED || O_SIGN || O_NEGATIVIZED)
+			{
+				const bool neg = isNegative();
+				const bool oNeg = o.isNegative();
+				if (neg && oNeg)
+					return o.negative() <=> negative();
+				if (neg)
+					return std::strong_ordering::less; // this is negative, o is positive
+				if (oNeg)
+					return std::strong_ordering::greater; // this is positive, o is negative }
+			}
+			//Both are positive... after negativization that is.
 
 			if constexpr (NEGATIVIZED || O_NEGATIVIZED)
 				return abs() <=> o.abs();
@@ -419,7 +419,6 @@ namespace slu::parse
 			res.lo <<= count;
 			return res;
 		}
-
 	};
 
 	namespace ExprType
