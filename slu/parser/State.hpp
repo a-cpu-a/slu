@@ -23,6 +23,15 @@
 
 namespace slu::parse
 {
+	struct ResolvedType;
+}
+
+namespace slu::mlvl
+{
+	bool nearExactCheck(const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
+}
+namespace slu::parse
+{
 
 	template<AnyCfgable CfgT, template<bool> class T>
 	using SelV = T<CfgT::settings()& sluSyn>;
@@ -924,13 +933,14 @@ namespace slu::parse
 		constexpr bool isOnly(const AnyRawInt auto o) {
 			return min == o && max == o;
 		}
+		constexpr auto operator<=>(const Range128&) const = default;
 	};
 
 	namespace RawTypeKind
 	{
-		struct Range128Pp : Range128<false,false>{};
-		struct Range128Np : Range128<true, false>{};
-		struct Range128Nn : Range128<true, true>{};
+		struct Range128Pp : Range128<false,false>{constexpr auto operator<=>(const Range128Pp& o) const = default;};
+		struct Range128Np : Range128<true, false>{constexpr auto operator<=>(const Range128Np& o) const = default;};
+		struct Range128Nn : Range128<true, true> {constexpr auto operator<=>(const Range128Nn& o) const = default;};
 
 		struct Range64
 		{
@@ -954,6 +964,7 @@ namespace slu::parse
 				}
 				return min == o && max == o;
 			}
+			constexpr auto operator<=>(const Range64&) const = default;
 		};
 		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
 		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
@@ -1197,6 +1208,15 @@ namespace slu::parse
 
 			return { .base = parse::RawTypeKind::Variant{&elems},.size=elems.calcSize()};
 		}
+		bool nearlyExact(const VariantRawType& o) const {
+			if (options.size() != o.options.size()) return false;
+			for (size_t i = 0; i < options.size(); ++i)
+			{
+				if (!mlvl::nearExactCheck(options[i], o.options[i]))
+					return false;
+			}
+			return true;
+		}
 	};
 	struct StructRawType
 	{
@@ -1244,6 +1264,18 @@ namespace slu::parse
 			thing->name = mpDb.data->getItm({ "std","bool" });
 			return thing;
 		}
+		bool nearlyExact(const StructRawType& o) const {
+			if (fields.size() != o.fields.size()) return false;
+			if (name != o.name) return false;
+			for (size_t i = 0; i < fields.size(); ++i)
+			{
+				if(fieldNames[i]!=o.fieldNames[i])
+					return false;
+				if (!mlvl::nearExactCheck(fields[i], o.fields[i]))
+					return false;
+			}
+			return true;
+		}
 	};
 	struct UnionRawType
 	{
@@ -1264,6 +1296,18 @@ namespace slu::parse
 			res->fieldNames = fieldNames;
 			res->name = name;
 			return res;
+		}
+		bool nearlyExact(const UnionRawType& o) const {
+			if (fields.size() != o.fields.size()) return false;
+			if (name != o.name) return false;
+			for (size_t i = 0; i < fields.size(); ++i)
+			{
+				if (fieldNames[i] != o.fieldNames[i])
+					return false;
+				if (!mlvl::nearExactCheck(fields[i], o.fields[i]))
+					return false;
+			}
+			return true;
 		}
 	};
 	struct RefSigil

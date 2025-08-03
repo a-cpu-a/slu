@@ -103,14 +103,34 @@ namespace slu::mlvl
 
 	}
 	template <class T>
-	inline bool nearExactCheckDeref(parse::BasicMpDb mpDb, const T& subty, const parse::ResolvedType& useTy)
+	inline bool nearExactCheckDeref(const T& subty, const parse::ResolvedType& useTy)
 	{
 		if (!std::holds_alternative<T>(useTy.base)) return false;
-		return *subty == *std::get<T>(useTy.base);
+		return subty->nearlyExact(*std::get<T>(useTy.base));
+	}
+	inline bool subtypeCheckRefChain(const parse::RawTypeKind::RefChain& var, const parse::ResolvedType& useTy)
+	{
+		using T = parse::RawTypeKind::RefChain;
+		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+			if (var->chain != useTy->chain)
+				return false;
+			return nearExactCheck(var->elem, useTy->elem);
+		});
+	}
+	inline bool subtypeCheckRefSlice(const parse::RawTypeKind::RefSlice& var, const parse::ResolvedType& useTy)
+	{
+		using T = parse::RawTypeKind::RefSlice;
+		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+			if (var->refType != useTy->refType)
+				return false;
+			if (var->elem.outerSliceDims != useTy->elem.outerSliceDims)
+				return false;
+			return nearExactCheck(var->elem, useTy->elem);
+		});
 	}
 
 	//ignores outerSliceDims of either side, as if checking the slices element type.
-	inline bool nearExactCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
+	inline bool nearExactCheck(const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
 		if(std::holds_alternative<parse::RawTypeKind::TypeError>(useTy.base))
 			return true;//poisioned, so pass forward.
@@ -135,20 +155,20 @@ namespace slu::mlvl
 		},
 
 		varcase(const parse::RawTypeKind::Variant&) {
-			return nearExactCheckDeref(mpDb,var,useTy);
+			return nearExactCheckDeref(var,useTy);
 		},
 		varcase(const parse::RawTypeKind::Struct&) {
-			return nearExactCheckDeref(mpDb,var,useTy);
+			return nearExactCheckDeref(var,useTy);
 		},
 		varcase(const parse::RawTypeKind::Union&) {
-			return nearExactCheckDeref(mpDb,var,useTy);
+			return nearExactCheckDeref(var,useTy);
 		},
 
 		varcase(const parse::RawTypeKind::RefChain&) {
-			return subtypeCheck(mpDb, subty, useTy);
+			return subtypeCheckRefChain(var, useTy);
 		},
 		varcase(const parse::RawTypeKind::RefSlice&) {
-			return subtypeCheck(mpDb, subty, useTy);
+			return subtypeCheckRefSlice(var, useTy);
 		}
 		);
 	}
@@ -157,7 +177,7 @@ namespace slu::mlvl
 		if (subty.outerSliceDims != useTy.outerSliceDims)
 			return false;//TODO: allow variant here.
 		if (subty.outerSliceDims != 0)//both have the same non-0 slice size.
-			return nearExactCheck(mpDb, subty, useTy);//TODO: allow variant here.
+			return nearExactCheck(subty, useTy);//TODO: allow variant here.
 
 		ezmatch(subty.base)(
 		varcase(const parse::RawTypeKind::Unresolved) {
@@ -196,7 +216,9 @@ namespace slu::mlvl
 
 				for (size_t i = 0; i < var->fields.size(); i++)
 				{
-					if(!nearExactCheck(mpDb, var->fields[i], useTy->fields[i]))
+					if(var->fields[i].outerSliceDims != useTy->fields[i].outerSliceDims)
+						return false;
+					if(!nearExactCheck(var->fields[i], useTy->fields[i]))
 						return false;
 					if(var->fieldNames[i] != useTy->fieldNames[i])
 						return false;
@@ -219,22 +241,10 @@ namespace slu::mlvl
 		},
 
 		varcase(const parse::RawTypeKind::RefChain&) {
-			using T = parse::RawTypeKind::RefChain;
-			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
-				if(var->chain != useTy->chain)
-					return false;
-				return nearExactCheck(mpDb, var->elem, useTy->elem);
-			});
+			return subtypeCheckRefChain(var, useTy);
 		},
 		varcase(const parse::RawTypeKind::RefSlice&) {
-			using T = parse::RawTypeKind::RefSlice;
-			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
-				if(var->refType != useTy->refType)
-					return false;
-				if(var->elem.outerSliceDims != useTy->elem.outerSliceDims)
-					return false;
-				return nearExactCheck(mpDb, var->elem, useTy->elem);
-			});
+			return subtypeCheckRefSlice(var, useTy);
 		},
 
 		varcase(const parse::AnyRawIntOrRange auto) {
