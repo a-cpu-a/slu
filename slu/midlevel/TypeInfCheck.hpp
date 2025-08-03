@@ -144,10 +144,10 @@ namespace slu::mlvl
 			if(!std::holds_alternative<T>(useTy.base)) return false;
 			return var == std::get<T>(useTy.base);
 		},
-		varcase(const parse::RawTypeKind::Inferred) {
+		varcase(const parse::RawTypeKind::Inferred) ->bool{
 			throw std::runtime_error("TODO: error logging, Found Inferred type in near exact type check");
 		},
-		varcase(const parse::RawTypeKind::Unresolved&) {
+		varcase(const parse::RawTypeKind::Unresolved&)->bool {
 			throw std::runtime_error("TODO: error logging, Found unresolved type in near exact type check");
 		},
 		varcase(const parse::RawTypeKind::TypeError) {
@@ -180,7 +180,7 @@ namespace slu::mlvl
 			return nearExactCheck(subty, useTy);//TODO: allow variant here.
 
 		ezmatch(subty.base)(
-		varcase(const parse::RawTypeKind::Unresolved) {
+		varcase(const parse::RawTypeKind::Unresolved&) {
 			throw std::runtime_error("Found unresolved type in subtype check");
 		},
 		varcase(const parse::RawTypeKind::Inferred) {

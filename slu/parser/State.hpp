@@ -416,7 +416,7 @@ namespace slu::parse
 			{//-A <= B+1
 				if(o.lo==UINT64_MAX && o.hi==UINT64_MAX)
 					return true;
-				return *this <= (o+fromInt(1));
+				return *this <= (o+fromInt(1ULL));
 			}
 			else if constexpr (!NEGATIVIZED && O_NEGATIVIZED)
 			{//A <= -B+1 (->) -A >= B-1.
@@ -427,7 +427,7 @@ namespace slu::parse
 			{//A <= B+1.
 				if (o.lo == UINT64_MAX && o.hi == UINT64_MAX)
 					return true;
-				return *this <= (o + fromInt(1));
+				return *this <= (o + fromInt(1ULL));
 			}
 		}
 		constexpr Integer128 shift(uint8_t count) const requires(!NEGATIVIZED)
