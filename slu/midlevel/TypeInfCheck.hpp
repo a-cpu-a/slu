@@ -124,6 +124,16 @@ namespace slu::mlvl
 			if(!std::holds_alternative<T>(useTy.base)) return false;
 			return var == std::get<T>(useTy.base);
 		},
+		varcase(const parse::RawTypeKind::Inferred) {
+			throw std::runtime_error("TODO: error logging, Found Inferred type in near exact type check");
+		},
+		varcase(const parse::RawTypeKind::Unresolved&) {
+			throw std::runtime_error("TODO: error logging, Found unresolved type in near exact type check");
+		},
+		varcase(const parse::RawTypeKind::TypeError) {
+			return true;
+		},
+
 		varcase(const parse::RawTypeKind::Variant&) {
 			return nearExactCheckDeref(mpDb,var,useTy);
 		},
@@ -133,9 +143,7 @@ namespace slu::mlvl
 		varcase(const parse::RawTypeKind::Union&) {
 			return nearExactCheckDeref(mpDb,var,useTy);
 		},
-		varcase(const parse::RawTypeKind::TypeError) {
-			return true;
-		},
+
 		varcase(const parse::RawTypeKind::RefChain&) {
 			return subtypeCheck(mpDb, subty, useTy);
 		},
