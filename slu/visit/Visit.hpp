@@ -318,16 +318,16 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_PRE_VAR(I64);
 			//TODO
 		},
-		varcase(const parse::ExprType::I128) {
-			Slu_CALL_VISIT_FN_PRE_VAR(I128);
+		varcase(const parse::ExprType::P128) {
+			Slu_CALL_VISIT_FN_PRE_VAR(P128);
 			//TODO
 		},
 		varcase(const parse::ExprType::U64) {
 			Slu_CALL_VISIT_FN_PRE_VAR(U64);
 			//TODO
 		},
-		varcase(const parse::ExprType::U128) {
-			Slu_CALL_VISIT_FN_PRE_VAR(U128);
+		varcase(const parse::ExprType::M128) {
+			Slu_CALL_VISIT_FN_PRE_VAR(M128);
 			//TODO
 		},
 		varcase(const parse::ExprType::OpenRange) {

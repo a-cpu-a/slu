@@ -441,8 +441,8 @@ namespace slu::parse
 
 		//u64,i128,u128, for slu only
 		using U64 = uint64_t;
-		using U128 = Integer128<false>;
-		using I128 = Integer128<true>;
+		using P128 = Integer128<false>;
+		using M128 = Integer128<false,true>;
 	}
 
 	struct TupleName
@@ -453,16 +453,15 @@ namespace slu::parse
 			:lo(v) {}
 		constexpr TupleName(ExprType::U64 v)
 			: lo(v) {}
-		constexpr TupleName(ExprType::I128 v)
-			: lo(v.lo), hi(v.hi) {}
-		constexpr TupleName(ExprType::U128 v)
+		TupleName(ExprType::M128 v) { throw std::runtime_error("Cant index into tuple with negative index."); }
+		constexpr TupleName(ExprType::P128 v)
 			: lo(v.lo), hi(v.hi) {}
 	};
 
 	template<class T>
 	concept Any128BitInt =
-		std::same_as<T, ExprType::U128>
-		|| std::same_as<T, ExprType::I128>;
+		std::same_as<T, ExprType::P128>
+		|| std::same_as<T, ExprType::M128>;
 	template<class T>
 	concept Any64BitInt =
 		std::same_as<T, ExprType::U64>
@@ -627,8 +626,8 @@ namespace slu::parse
 		ExprType::OpenRange,			// ".."
 
 		ExprType::U64,			// "Numeral"
-		ExprType::I128,			// "Numeral"
-		ExprType::U128,			// "Numeral"
+		ExprType::P128,			// "Numeral"
+		ExprType::M128,			// "Numeral"
 
 		ExprType::Lifetime,
 		ExprType::TraitExpr,
@@ -902,16 +901,16 @@ namespace slu::parse
 
 		using Float64 = ExprType::F64;
 
-		using Uint128 = ExprType::U128;
-		using Int128 = ExprType::I128;
+		using Pos128 = ExprType::P128;
+		using Neg128 = ExprType::M128;
 		using Uint64 = ExprType::U64;
 		using Int64 = ExprType::I64;
 	}
 	template <class T>
 	concept AnyRawInt = std::same_as<T, parse::RawTypeKind::Uint64>
-		|| std::same_as<T, parse::RawTypeKind::Uint128>
+		|| std::same_as<T, parse::RawTypeKind::Pos128>
 		|| std::same_as<T, parse::RawTypeKind::Int64>
-		|| std::same_as<T, parse::RawTypeKind::Int128>;
+		|| std::same_as<T, parse::RawTypeKind::Neg128>;
 
 	template <bool NEG_MIN, bool NEG_MAX>
 	struct Range128
@@ -970,8 +969,8 @@ namespace slu::parse
 
 		RawTypeKind::String,
 		RawTypeKind::Float64,
-		RawTypeKind::Int128,
-		RawTypeKind::Uint128,
+		RawTypeKind::Pos128,
+		RawTypeKind::Neg128,
 		RawTypeKind::Range128Pp,
 		RawTypeKind::Range128Np,
 		RawTypeKind::Range128Nn,

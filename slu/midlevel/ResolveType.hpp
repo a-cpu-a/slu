@@ -53,11 +53,11 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::U64){
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint64{ var });
 		},
-		varcase(const parse::ExprType::I128) {
-			return parse::ResolvedType::getConstType(parse::RawTypeKind::Int128{ var.lo,var.hi });
+		varcase(const parse::ExprType::P128) {
+			return parse::ResolvedType::getConstType(parse::RawTypeKind::Pos128{ var.lo,var.hi });
 		},
-		varcase(const parse::ExprType::U128) {
-			return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
+		varcase(const parse::ExprType::M128) {
+			return parse::ResolvedType::getConstType(parse::RawTypeKind::Neg128{ var.lo,var.hi });
 		},
 		varcase(const parse::ExprType::F64)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve F64 type expressions.");

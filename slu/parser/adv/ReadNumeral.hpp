@@ -42,9 +42,9 @@ namespace slu::parse
 		return result;
 	}
 
-	constexpr ExprType::U128 parseHexU128(AnyInput auto& in, const std::string& str) {
+	constexpr ExprType::P128 parseHexU128(AnyInput auto& in, const std::string& str) {
 
-		ExprType::U128 result;
+		ExprType::P128 result;
 
 		for (const char c : str)
 		{
@@ -65,9 +65,9 @@ namespace slu::parse
 
 		return result;
 	}
-	constexpr ExprType::U128 parseU128(AnyInput auto& in, const std::string& str) {
+	constexpr ExprType::P128 parseU128(AnyInput auto& in, const std::string& str) {
 
-		ExprType::U128 result;
+		ExprType::P128 result;
 
 		for (const char c : str)
 		{
@@ -270,15 +270,15 @@ namespace slu::parse
 		{
 			if constexpr (in.settings() & sluSyn)
 			{
-				ExprType::U128 n128 = hex
+				ExprType::P128 n128 = hex
 					? parseHexU128(in, number)
 					: parseU128(in, number);
 
 				if (n128.hi >> 63)
 					return n128;//I128 would be negative
 
-				if (n128.hi != 0)
-					return DataT{ ExprType::I128::signFlipped(n128) };
+				//if (n128.hi != 0)
+				//	return DataT{ ExprType::I128::signFlipped(n128) };
 
 				if (n128.lo >> 63)//I64 would be negative
 					return ExprType::U64(n128.lo);

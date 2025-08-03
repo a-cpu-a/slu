@@ -425,8 +425,8 @@ namespace slu::comp::mico
 		},
 		varcase(const parse::ExprType::I64) {return convAny64(conv,itm.place,var); },
 		varcase(const parse::ExprType::U64) {return convAny64(conv,itm.place,var); },
-		varcase(const parse::ExprType::I128) {return convAny128(conv,itm.place,var); },
-		varcase(const parse::ExprType::U128) {return convAny128(conv,itm.place,var); },
+		varcase(const parse::ExprType::P128) {return convAny128(conv,itm.place,var); },
+		varcase(const parse::ExprType::M128) {return convAny128(conv,itm.place,var); },
 
 		varcase(const parse::ExprType::LimPrefixExprV<true>&)->mlir::Value {
 			return convLimPrefixExpr(conv,itm.place,*var);

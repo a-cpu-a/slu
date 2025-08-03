@@ -382,11 +382,11 @@ namespace slu::mlvl
 		bool preU64(parse::ExprType::U64 itm) {
 			return handleConstType<parse::RawTypeKind::Uint64>(itm);
 		}
-		bool preI128(parse::ExprType::I128 itm) {
-			return handleConstType<parse::RawTypeKind::Int128>(itm);
+		bool preM128(parse::ExprType::M128 itm) {
+			return handleConstType<parse::RawTypeKind::Neg128>(itm);
 		}
-		bool preU128(parse::ExprType::U128 itm) {
-			return handleConstType<parse::RawTypeKind::Uint128>(itm);
+		bool preP128(parse::ExprType::P128 itm) {
+			return handleConstType<parse::RawTypeKind::Pos128>(itm);
 		}
 		bool preExprString(parse::ExprType::String& itm) {
 			return handleConstType<parse::RawTypeKind::String>(std::move(itm.v));//Steal it as converter will use the type anyway.

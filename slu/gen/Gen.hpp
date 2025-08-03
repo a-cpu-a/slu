@@ -379,15 +379,15 @@ namespace slu::parse
 		varcase(const ExprType::U64) {
 			out.add(std::to_string(var));
 		},
-		varcase(const ExprType::I128) {
+		varcase(const ExprType::P128) {
 			out.add(parse::u128ToStr(var.lo, var.hi));
 		},
-		varcase(const ExprType::U128) {
-			out.add(parse::u128ToStr(var.lo, var.hi));
+		varcase(const ExprType::M128) {
+			out.add(" -").add(parse::u128ToStr(var.lo, var.hi));
 		},
 
 		varcase(const ExprType::Inferr) {
-			out.add("?");
+			out.add('?');
 		},
 		varcase(const ExprType::Dyn&) {
 			out.add("dyn ");

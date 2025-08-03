@@ -113,8 +113,8 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST_RAW(F64, parse::ExprType::F64);
 		_Slu_DEF_EMPTY_PRE_POST_RAW(I64, parse::ExprType::I64);
 		_Slu_DEF_EMPTY_PRE_POST_RAW(U64, parse::ExprType::U64);
-		_Slu_DEF_EMPTY_PRE_POST_RAW(I128, parse::ExprType::I128);
-		_Slu_DEF_EMPTY_PRE_POST_RAW(U128, parse::ExprType::U128);
+		_Slu_DEF_EMPTY_PRE_POST_RAW(P128, parse::ExprType::P128);
+		_Slu_DEF_EMPTY_PRE_POST_RAW(M128, parse::ExprType::M128);
 
 		_Slu_DEF_EMPTY_AUTO_LG(DestrField);
 		_Slu_DEF_EMPTY_PRE_LG(DestrFieldPat, parse::DestrField);
