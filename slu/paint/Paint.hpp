@@ -190,6 +190,42 @@ namespace slu::paint
 				paintUnOpItem(se, i);
 		}
 		ezmatch(itm.data)(
+		varcase(const parse::ExprType::MpRoot) {
+			paintKw<Tok::MP_ROOT>(se, ":>");
+		},
+		varcase(const parse::ExprType::Local) {
+			paintNameOrLocal<true,nameTok>(se, var);
+		},
+		varcase(const parse::ExprType::Global<Se>&) {
+			paintMp<nameTok>(se, var);
+		},
+		varcase(const parse::ExprType::Parens<Se>&) {
+			paintKw<Tok::GEN_OP>(se, "(");
+			paintExpr(se, *var);
+			paintKw<Tok::GEN_OP>(se, ")");
+		},
+		varcase(const parse::ExprType::Deref&) {
+			if constexpr (Se::settings() & sluSyn)
+				paintExpr(se, *var.v);
+			paintKw<Tok::DEREF>(se, ".*");
+		},
+		varcase(const parse::ExprType::Index<Se>&) {
+			paintExpr(se, *var.v);
+			paintKw<Tok::GEN_OP>(se, "[");
+			paintExpr(se, *var.idx);
+			paintKw<Tok::GEN_OP>(se, "]");
+		},
+		varcase(const parse::ExprType::Field<Se>&) {
+			paintExpr(se, *var.v);
+			paintKw<Tok::GEN_OP>(se, ".");
+			paintPoolStr(se, var.field);
+		},
+		varcase(const parse::ExprType::SelfCall<Se>&) {
+			paintSelfCall<true>(se, var);
+		},
+		varcase(const parse::ExprType::Call<Se>&) {
+			paintCall<true>(se, var);
+		},
 		varcase(const parse::ExprType::MultiOp<Se>&) {
 			paintExpr<nameTok>(se, *var.first);
 			for (const auto& [op,expr] : var.extra)
@@ -247,12 +283,6 @@ namespace slu::paint
 		},
 		varcase(const parse::ExprType::Function<Se>&) {
 			paintFuncDef(se, var, parse::MpItmId<Se>::newEmpty(), false);
-		},
-		varcase(const parse::ExprType::SelfCall<Se>&) {
-			paintSelfCall<true>(se, var);
-		},
-		varcase(const parse::ExprType::Call<Se>&) {
-			paintCall<true>(se, var);
 		},
 		varcase(const parse::ExprType::PatTypePrefix&) {
 			Slu_panic("Pat type prefix leaked outside of pattern parsing!");
@@ -403,7 +433,7 @@ namespace slu::paint
 	inline void paintDestrField(Se& se, const parse::DestrField<Se, isLocal>& itm)
 	{
 		paintKw<Tok::GEN_OP>(se, "|");
-		paintName<Tok::NAME_TABLE>(se, itm.name);
+		paintPoolStr<Tok::NAME_TABLE>(se, itm.name);
 		paintKw<Tok::GEN_OP>(se, "|");
 		paintPat<isLocal,nameTok>(se, itm.pat);
 	}

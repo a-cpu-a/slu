@@ -29,11 +29,10 @@ namespace slu::paint
 		return parse::skipSpace(se);//TODO: identify TODO's FIXME's WIP's, etc
 	}
 	template<Tok tok, Tok overlayTok, bool SKIP_SPACE = true, AnySemOutput Se>
-	inline void paintName(Se& se, const parse::MpItmId<Se>& f)
+	inline void paintName(Se& se, const std::string_view name)
 	{
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
-		const std::string_view name = se.in.genData.asSv(f);
 		if (!name.empty() && name[0] == '0')//does name contain a hex number?
 		{//It may be any number, so maybe not the same as 'name'
 			while (se.in)
@@ -55,9 +54,19 @@ namespace slu::paint
 			se.in.skip(name.size());
 		}
 	}
+	template<Tok tok, Tok overlayTok, bool SKIP_SPACE = true, AnySemOutput Se>
+	inline void paintName(Se& se, const parse::MpItmId<Se>& f) {
+		const std::string_view name = se.in.genData.asSv(f);
+		paintName<tok, tok, SKIP_SPACE>(se, name);
+	}
 	template<Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
 	inline void paintName(Se& se, const parse::MpItmId<Se>& f) {
 		paintName<tok, tok, SKIP_SPACE>(se, f);
+	}
+	template<Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
+	inline void paintPoolStr(Se& se, const parse::PoolString f) {
+		const std::string_view name = se.in.genData.asSv(f);
+		paintName<tok, tok, SKIP_SPACE>(se, name);
 	}
 	template<bool isLocal,Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
 	inline void paintNameOrLocal(Se& se, const parse::LocalOrName<Se,isLocal>& f) {

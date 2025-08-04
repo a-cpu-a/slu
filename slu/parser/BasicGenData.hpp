@@ -392,6 +392,9 @@ namespace slu::parse
 
 		*/
 
+		std::string_view asSv(const PoolString id) const {
+			return mpDb.asSv(id);
+		}
 		std::string_view asSv(const MpItmIdV<isSlu> id) const {
 			return mpDb.asSv(id);
 		}
