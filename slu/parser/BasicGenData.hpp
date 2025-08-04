@@ -684,8 +684,12 @@ namespace slu::parse
 				return MpItmIdV<false>{id};
 			}
 		}
-		PoolString poolStr(std::string&& name) {
-			return mpDb.data->mps[0].get(std::move(name));
+		PoolString poolStr(std::string&& name) 
+		{
+			if constexpr (isSlu)
+				return mpDb.data->mps[0].get(std::move(name));
+			else
+				return mpDb.get(std::move(name));
 		}
 		constexpr MpItmIdV<isSlu> resolveUnknown(const ModPath& name)
 		{

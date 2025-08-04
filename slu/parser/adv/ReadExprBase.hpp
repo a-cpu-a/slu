@@ -57,7 +57,7 @@ namespace slu::parse
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			varDataOut.data = ExprType::Parens<In>(readExpr(in, allowVarArg));
+			varDataOut.data = ExprType::Parens<In>(std::make_unique<Expr<In>>(readExpr(in, allowVarArg)));
 			varDataNeedsSubThing = true;
 			requireToken(in, ")");
 			return false;
@@ -149,16 +149,33 @@ namespace slu::parse
 					"{}"
 					, opType, errorLocStr(in)));
 			}
+			if (std::holds_alternative<ExprType::Call<In>>(varData.back().data))
+			{
+				ExprType::Call<In>& start = std::get<ExprType::Call<In>>(varData.back().data);
+				StatementType::Call<In> res;
+				res.args = std::move(start.args);
+				res.v = { std::move(*start.v) };
+
+				return std::move(res);
+			}
+			ExprType::SelfCall<In>& start = std::get<ExprType::SelfCall<In>>(varData.back().data);
+			StatementType::SelfCall<In> res;
+			res.args = std::move(start.args);
+			res.method = start.method;
+			res.v = { std::move(*start.v) };
+
+			return std::move(res);
 		}
-		return std::move(varData.back());
+		else
+			return std::move(varData.back());
 	}
 	template<class T,bool boxed, AnyInput In,class... Ts>
 	inline Expr<In> wrapExpr(Position place,Expr<In>&& expr,Ts&&... extraItems)
 	{
-		return Expr<In>{ {.data = T{
+		return Expr<In>{ {T{
 						   parse::ExprUserExpr<In,boxed>{mayBoxFrom<boxed>(std::move(expr))},
 						   std::move(extraItems)...
-		}, .place = place} };
+		}, place} };
 	}
 
 	template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
@@ -351,7 +368,7 @@ namespace slu::parse
 				varData.back() = wrapExpr<ExprType::Index<In>, true, In>(
 					wrapPlace,
 					std::move(varData.back()),
-					std::move(idx)
+					mayBoxFrom<true>(std::move(idx))
 				);
 				varDataNeedsSubThing = false;
 				endsWithArgs = false;
