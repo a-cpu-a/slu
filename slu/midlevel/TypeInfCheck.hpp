@@ -434,6 +434,9 @@ namespace slu::mlvl
 		bool preExprString(parse::ExprType::String& itm) {
 			return handleConstType<parse::RawTypeKind::String>(std::move(itm.v));//Steal it as converter will use the type anyway.
 		}
+		void postTableExpr(parse::ExprType::Table<Cfg>& itm) {
+			//TODO
+		}
 
 		//Restrictions.
 		void postAnyCond(parse::Expr<Cfg>& itm) {

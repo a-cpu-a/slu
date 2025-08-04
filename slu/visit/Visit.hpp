@@ -371,19 +371,20 @@ namespace slu::visit
 			visitLifetime(vi,var);
 		},
 		varcase(parse::ExprType::Table<Vi>&) {
-			//TODO: pre post
+			Slu_CALL_VISIT_FN_PRE_VAR(TableExpr);
 			visitTable(vi,var);
+			Slu_CALL_VISIT_FN_POST_VAR(TableExpr);
 		},
 		varcase(parse::ExprType::Function<Vi>&) {
 			//TODO: pre post
-			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo, var);
+			Slu_CALL_VISIT_FN_PRE_VAR(FunctionInfo);
 			visitSafety(vi, var.safety);
 			Slu_CALL_VISIT_FN_PRE_USER(Locals, var.local2Mp);
 			visitParams(vi, var.params);
 			if(var.retType.has_value())
 				visitTypeExpr(vi, **var.retType);
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
-			Slu_CALL_VISIT_FN_POST_USER(FunctionInfo, var);
+			Slu_CALL_VISIT_FN_POST_VAR(FunctionInfo);
 			visitBlock(vi, var.block);
 		},
 		varcase(parse::ExprType::MultiOp<Vi>&) {
