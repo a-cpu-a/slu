@@ -1168,12 +1168,21 @@ namespace slu::parse
 			return StructRawType::newZstTy(mpDb.data->getItm({ "std","bool","false" }));
 		}
 		static ResolvedType newIntRange(const auto& range) {
+			const bool minIsI64 = range.min <= INT64_MAX && range.min >= INT64_MIN;
 			if(range.min==range.max)
 			{
-				//TODO: compact to 64 bit ints.
+				if(minIsI64)
+					return ResolvedType::getConstType(RawTypeKind::Int64(range.min.lo));
+				if (range.min >= 0ULL && range.min <= UINT64_MAX)
+					return ResolvedType::getConstType(RawTypeKind::Uint64(range.min.lo));
 				return ResolvedType::getConstType(RawType(range.min));
 			}
-			//TODO: compact to range64.
+			if (minIsI64 && range.max <= INT64_MAX && range.max >= INT64_MIN)
+				return { .base = RawTypeKind::Range64{
+				(int64_t)range.min.lo,
+				(int64_t)range.max.lo},
+				.size = calcRangeBits(range) 
+			};
 			return {.base = range,.size=calcRangeBits(range)};
 		}
 	};
