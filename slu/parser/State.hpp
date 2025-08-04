@@ -171,7 +171,7 @@ namespace slu::parse
 
 		template<bool isSlu> // exp "[" exp "]"
 		struct IndexV : ExprUserExprV<isSlu, true> {
-			BoxExprV<isSlu> index;
+			BoxExprV<isSlu> idx;
 		};
 		Slu_DEF_CFG(Index);
 

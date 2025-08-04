@@ -38,7 +38,7 @@ namespace slu::parse
 		::slu::parse::PoolString field)
 	{
 		return {::slu::parse::BaseExprV<isSlu>{
-			::slu::parse::ExprType::FieldV<isSlu>{mkNameExpr<isSlu>(name), field},
+			::slu::parse::ExprType::FieldV<isSlu>{mkNameExpr<isSlu>(place,name), field},
 				place
 		} };
 	}

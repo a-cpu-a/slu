@@ -330,6 +330,40 @@ namespace slu::visit
 		varcase(const parse::ExprType::VarArgs) {
 			//TODO
 		},
+		varcase(const parse::ExprType::MpRoot) {
+			//TODO
+		},
+		varcase(const parse::ExprType::Local) {
+			//TODO
+		},
+		varcase(parse::ExprType::Global<Vi>&) {
+			//TODO
+		},
+		varcase(parse::ExprType::Deref&) {
+			visitExpr(vi, *var.v);
+			//TODO
+		},
+		varcase(parse::ExprType::Index<Vi>&) {
+			visitExpr(vi, *var.v);
+			visitExpr(vi, *var.idx);
+			//TODO
+		},
+		varcase(parse::ExprType::Field<Vi>&) {
+			visitExpr(vi, *var.v);
+			visitPoolString(vi, var.field);
+			//TODO
+		},
+		varcase(parse::ExprType::Call<Vi>&) {
+			visitExpr(vi, *var.v);
+			visitArgs(vi, var.args);
+			//TODO
+		},
+		varcase(parse::ExprType::SelfCall<Vi>&) {
+			visitExpr(vi, *var.v);
+			visitName(vi, var.method);
+			visitArgs(vi, var.args);
+			//TODO
+		},
 		varcase(parse::ExprType::TraitExpr&) {
 			//TODO: pre post
 			visitTraitExpr(vi, var);
@@ -351,17 +385,6 @@ namespace slu::visit
 				visitSoe(vi, **var.elseBlock);
 			Slu_CALL_VISIT_FN_POST_VAR(IfExpr);
 		},
-		//varcase(parse::ExprType::LimPrefixExpr<Vi>&) {
-		//	Slu_CALL_VISIT_FN_PRE_VAR(LimPrefixExprExpr);
-		//	visitLimPrefixExpr(vi, *var);
-		//	Slu_CALL_VISIT_FN_POST_VAR(LimPrefixExprExpr);
-		//},
-		//varcase(parse::ExprType::FuncCall<Vi>&) {
-		//	Slu_CALL_VISIT_FN_PRE_VAR(FuncCallExpr);
-		//	visitLimPrefixExpr(vi, *var.val);
-		//	visitArgChain(vi, var.argChain);
-		//	Slu_CALL_VISIT_FN_POST_VAR(FuncCallExpr);
-		//},
 		varcase(parse::ExprType::Lifetime&) {
 			//TODO: pre post
 			visitLifetime(vi,var);
@@ -441,9 +464,9 @@ namespace slu::visit
 	inline void visitArgs(Vi& vi, parse::Args<Vi>& itm)
 	{
 		ezmatch(itm)(
-		varcase(parse::ArgsType::ExprList<Vi>&) {	visitExprList(vi, var); },
-		varcase(parse::ArgsType::Table<Vi>&) {		visitTable(vi, var); },
-		varcase(parse::ArgsType::String&) {			visitString(vi,var); }
+		varcase(parse::ArgsType::ExprList<Vi>&) { visitExprList(vi, var); },
+		varcase(parse::ArgsType::Table<Vi>&) {	  visitTable(vi, var); },
+		varcase(parse::ArgsType::String&) {		  visitString(vi,var.v); }
 		);
 	}
 	template<AnyVisitor Vi>
@@ -536,14 +559,17 @@ namespace slu::visit
 		varcase(parse::StatementType::Call<Vi>&) {
 			visitExpr(vi, *var.v);
 			visitArgs(vi, var.args);
+			//TODO
 		},
 		varcase(parse::StatementType::SelfCall<Vi>&) {
 			visitExpr(vi, *var.v);
 			visitName(vi, var.method);
 			visitArgs(vi, var.args);
+			//TODO
 		},
 		varcase(parse::StatementType::Block<Vi>&) {
 			visitBlock(vi, var);
+			//TODO
 		},
 		varcase(parse::StatementType::Goto<Vi>&) {
 			//TODO
