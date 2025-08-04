@@ -134,7 +134,7 @@ namespace slu::visit
 			for (auto& i : var.items)
 			{
 				Slu_CALL_VISIT_FN_PRE_USER_LG(DestrField, i);
-				visitName(vi, i.name);
+				visitPoolString(vi, i.name);
 				Slu_CALL_VISIT_FN_PRE_USER_LG(DestrFieldPat, i);
 				visitPat<isLocal>(vi, i.pat);
 				Slu_CALL_VISIT_FN_POST_USER_LG(DestrField, i);
@@ -539,7 +539,7 @@ namespace slu::visit
 		},
 		varcase(parse::StatementType::SelfCall<Vi>&) {
 			visitExpr(vi, *var.v);
-			visitPoolString(vi, var.method);
+			visitName(vi, var.method);
 			visitArgs(vi, var.args);
 		},
 		varcase(parse::StatementType::Block<Vi>&) {

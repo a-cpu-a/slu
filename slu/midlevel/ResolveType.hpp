@@ -39,11 +39,6 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::Inferr) {
 			return parse::ResolvedType::getInferred();
 		},
-		varcase(const parse::ExprType::OpenRange)->parse::ResolvedType {
-			//TODO
-			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
-			throw std::runtime_error("TODO: resolve open range type expressions.");
-		},
 		varcase(parse::ExprType::String&&){
 			return parse::ResolvedType::getConstType(parse::RawTypeKind::String{std::move(var.v)});
 		},
@@ -62,19 +57,25 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::F64)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve F64 type expressions.");
 		},
+		varcase(const parse::ExprType::Deref)->parse::ResolvedType {
+			throw std::runtime_error("TODO: resolve Deref type expressions.");
+		},
+		varcase(const parse::ExprType::IndexV<true>&&)->parse::ResolvedType {
+			throw std::runtime_error("TODO: resolve Index type expressions.");
+		},
+		varcase(const parse::ExprType::FieldV<true>&&)->parse::ResolvedType {
+			throw std::runtime_error("TODO: resolve Field type expressions.");
+		},
+		varcase(const parse::ExprType::SelfCallV<true>&&)->parse::ResolvedType {
+			throw std::runtime_error("TODO: resolve self-call type expressions.");
+		},
 		varcase(parse::ExprType::FnType&&)->parse::ResolvedType {
-			//TODO
-			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve Fn type expressions.");
 		},
 		varcase(parse::ExprType::Dyn&&)->parse::ResolvedType {
-			//TODO
-			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve Dyn type expressions.");
 		},
 		varcase(parse::ExprType::Impl&&)->parse::ResolvedType {
-			//TODO
-			//return parse::ResolvedType::getConstType(parse::RawTypeKind::Uint128{ var.lo,var.hi });
 			throw std::runtime_error("TODO: resolve Impl type expressions.");
 		},
 		varcase(parse::ExprType::Err&&)->parse::ResolvedType {
@@ -268,6 +269,9 @@ namespace slu::mlvl
 		throw std::runtime_error("Invalid slu " _MSG ", index:" #__VA_ARGS__ "."); \
 	}
 
+		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::OpenRange),
+		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::MpRoot),
+		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::Local),
 		Slu_INVALID_EXPR_CASE("expression",parse::ExprType::True),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::False),
 		Slu_INVALID_EXPR_CASE("expression", parse::ExprType::Nil),
