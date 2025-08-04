@@ -289,12 +289,10 @@ namespace slu::parse
 		varcase(const ExprType::Local) {
 			genNameOrLocal<true>(out, var);
 		},
-		varcase(const ExprType::Deref) {
+		varcase(const ExprType::Deref&) {
 			if constexpr (Out::settings() & sluSyn)
-			{
 				genExpr(out, *var.v);
-				out.add(".*");
-			}
+			out.add(".*"sv);
 		},
 		varcase(const ExprType::Index<Out>&) {
 			genExpr(out, *var.v);
@@ -327,7 +325,7 @@ namespace slu::parse
 		},
 		varcase(const ExprType::F64) {
 			if (isinf(var) && var>0.0f)
-				out.add("1e999");
+				out.add("1e999"sv);
 			else
 				out.add(std::to_string(var));
 		},
@@ -336,7 +334,7 @@ namespace slu::parse
 			_ASSERT(!(Out::settings() & parse::noIntOverflow) || var >= 0);
 			if (var < 0)
 			{
-				out.add("0x");
+				out.add("0x"sv);
 				writeU64Hex(out,var);
 			}
 			else
@@ -347,14 +345,8 @@ namespace slu::parse
 			genString(out,var.v);
 		},
 		varcase(const ExprType::Function<Out>&) {
-			out.add("function ");
+			out.add("function "sv);
 			genFuncDef(out, var,""sv);
-		},
-		varcase(const ExprType::Call<Out>&) {
-			genCall<true>(out, var);
-		},
-		varcase(const ExprType::SelfCall<Out>&) {
-			genSelfCall<true>(out, var);
 		},
 		varcase(const ExprType::Table<Out>&) {
 			genTable(out, var);
@@ -370,7 +362,7 @@ namespace slu::parse
 			}
 		},
 		varcase(const ExprType::OpenRange) {
-			out.add("..");
+			out.add(".."sv);
 		},
 		varcase(const ExprType::Lifetime&) {
 			if constexpr (Out::settings() & sluSyn)
@@ -390,49 +382,43 @@ namespace slu::parse
 			out.add(parse::u128ToStr(var.lo, var.hi));
 		},
 		varcase(const ExprType::M128) {
-			out.add(" -").add(parse::u128ToStr(var.lo, var.hi));
+			out.add(" -"sv).add(parse::u128ToStr(var.lo, var.hi));
 		},
 
 		varcase(const ExprType::Inferr) {
 			out.add('?');
 		},
 		varcase(const ExprType::Dyn&) {
-			out.add("dyn ");
+			out.add("dyn "sv);
 			genTraitExpr(out, var.expr);
 		},
 		varcase(const ExprType::Impl&) {
-			out.add("impl ");
+			out.add("impl "sv);
 			genTraitExpr(out, var.expr);
 		},
 		varcase(const ExprType::Err&) {
+			out.add("~~"sv);
 			if constexpr (Out::settings() & sluSyn)
-			{
-				out.add("~~");
 				genExpr(out, *var.err);
-			}
 		},
 		varcase(const ExprType::Slice&) {
+			out.add('[');
 			if constexpr (Out::settings() & sluSyn)
-			{
-				out.add('[');
 				genExpr(out, *var.v);
-				out.add(']');
-			}
+			out.add(']');
 		},
 		varcase(const ExprType::Union&) {
+			out.add("union "sv);
 			if constexpr (Out::settings() & sluSyn)
-			{
-				out.add("union ");
 				genTable(out, var.fields);
-			}
 		},
 		varcase(const ExprType::FnType&) {
 			if constexpr (Out::settings() & sluSyn)
 			{
 				genSafety(out, var.safety);
-				out.add("fn ");
+				out.add("fn "sv);
 				genExpr(out, *var.argType);
-				out.add(" -> ");
+				out.add(" -> "sv);
 				genExpr(out, *var.retType);
 			}
 		}
