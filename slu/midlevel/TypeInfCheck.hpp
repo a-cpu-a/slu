@@ -478,9 +478,9 @@ namespace slu::mlvl
 			size_t count = itm.vars.size();
 			for (size_t i = count; i > 0; i--)
 			{
-				parse::Expr<Cfg>& var = itm.vars[i-1];
+				parse::ExprData<Cfg>& var = itm.vars[i-1];
 
-				ezmatch(var.data)(
+				ezmatch(var)(
 				varcase(auto&) {
 					throw std::runtime_error("TODO: type inference/checking for any expr in assign statement.");
 				},

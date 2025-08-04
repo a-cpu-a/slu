@@ -329,31 +329,31 @@ namespace slu::comp::mico
 			convPos(conv, place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
 		);
 	}
-	inline mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm)
+	inline mlir::Value convExpr(ConvData& conv,parse::Position place, const parse::ExprDataV<true>& itm)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
 
-		return ezmatch(itm.data)(
+		return ezmatch(itm)(
 
 		varcase(const auto&)->mlir::Value {
-			conv.cfg.errPtr(std::to_string(itm.data.index()));
-			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
+			conv.cfg.errPtr(std::to_string(itm.index()));
+			throw std::runtime_error("Unimplemented expression type idx(" + std::to_string(itm.index()) + ") (mlir conversion)");
 		},
-		varcase(const parse::ExprType::I64) {return convAny64(conv,itm.place,var); },
-		varcase(const parse::ExprType::U64) {return convAny64(conv,itm.place,var); },
-		varcase(const parse::ExprType::P128) {return convAny128(conv,itm.place,var); },
-		varcase(const parse::ExprType::M128) {return convAny128(conv,itm.place,var); },
+		varcase(const parse::ExprType::I64) {return convAny64(conv,place,var); },
+		varcase(const parse::ExprType::U64) {return convAny64(conv,place,var); },
+		varcase(const parse::ExprType::P128) {return convAny128(conv,place,var); },
+		varcase(const parse::ExprType::M128) {return convAny128(conv,place,var); },
 
 		varcase(const parse::ExprType::ParensV<true>&) {
-			return convExpr(conv,*var);
+			return convExpr(conv,var->place,var->data);
 		},
 		varcase(const parse::ExprType::Local) {
 			return conv.localsStack.back().values[var.v].v;
 		},
 		varcase(const parse::ExprType::FieldV<true>&) {
 
-			mlir::Value base = convExpr(conv, *var.v);
+			mlir::Value base = convExpr(conv, var.v->place, var.v->data);
 
 			if (var.field == conv.sharedDb.getPoolStr("__convHack__refSlice_ptr"sv))
 			{
@@ -362,7 +362,7 @@ namespace slu::comp::mico
 				mlir::Type idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
 				mlir::Type rawMemref = conv.tyConv.convertType(idx3Type);
 
-				mlir::Location loc = convPos(conv, itm.place);
+				mlir::Location loc = convPos(conv, place);
 
 
 				mlir::Value lForm = mlir::UnrealizedConversionCastOp::create(builder,
@@ -399,7 +399,7 @@ namespace slu::comp::mico
 			auto tensorType = mlir::RankedTensorType::get({ (int64_t)var.v.size() }, i8Type);
 			auto denseStr = mlir::DenseElementsAttr::get(tensorType, llvm::ArrayRef{ (const int8_t*)var.v.data(),var.v.size() });
 
-			mlir::Location loc = convPos(conv, itm.place);
+			mlir::Location loc = convPos(conv, place);
 
 			TmpName strName = mkTmpName(conv);
 			{
@@ -476,7 +476,7 @@ namespace slu::comp::mico
 
 			//Ignore these
 		varcase(const AnyInvalidExpression auto&)->mlir::Value {
-			throw std::runtime_error("Invalid expression type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
+			throw std::runtime_error("Invalid expression type idx(" + std::to_string(itm.index()) + ") (mlir conversion)");
 		}
 		);
 	}
@@ -561,7 +561,7 @@ namespace slu::comp::mico
 	{
 		return ezmatch(itm)(
 			varcase(const parse::SoeType::ExprV<true>&)->std::optional<mlir::Value> {
-				return convExpr(conv, *var);
+				return convExpr(conv, var->place,var->data);
 			},
 			varcase(const parse::SoeType::BlockV<true>&)->std::optional<mlir::Value> {
 				if(convBlock(conv, var))
@@ -581,7 +581,7 @@ namespace slu::comp::mico
 			throw std::runtime_error("Unimplemented statement type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
 			varcase(const parse::StatementType::CanonicLocal&) {
-			mlir::Value alloc = convExpr(conv, var.value);
+			mlir::Value alloc = convExpr(conv, var.value.place, var.value.data);
 
 			conv.localsStack.back().values[var.name.v] = { alloc ,nullptr};
 		},
@@ -604,7 +604,7 @@ namespace slu::comp::mico
 
 			// repeat-until: stop if cond is true → so loop if NOT result
 			mlir::Value continueLoop = mlir::arith::XOrIOp::create(builder,
-				loc, convExpr(conv,var.cond), one);
+				loc, convExpr(conv,var.cond.place, var.cond.data), one);
 
 			mlir::scf::YieldOp::create(builder,convPos(conv, var.bl.end), mlir::ValueRange{ continueLoop });
 
@@ -658,7 +658,7 @@ namespace slu::comp::mico
 				}
 
 				auto op = mlir::scf::IfOp::create(builder,loc, mlir::TypeRange{},
-					convExpr(conv,*cond), hasMore);
+					convExpr(conv,cond->place, cond->data), hasMore);
 
 				if (elIfIdx == 0)
 					firstOp = op;
@@ -697,11 +697,11 @@ namespace slu::comp::mico
 
 
 			mlir::Value memRef = convExpr(
-				conv, var.vars[0]
+				conv,itm.place, var.vars[0]
 			);
 			const mlir::Location loc = convPos(conv, itm.place);
 
-			mlir::Value expr = convExpr(conv, var.exprs[0]);
+			mlir::Value expr = convExpr(conv, var.exprs[0].place, var.exprs[0].data);
 			//Expr is a memref, so copy the bits/bytes.
 			mlir::memref::CopyOp::create(builder,
 				loc, expr, memRef

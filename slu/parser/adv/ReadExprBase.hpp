@@ -52,12 +52,12 @@ namespace slu::parse
 
 	//Returns if skipped after
 	template<AnyInput In>
-	inline bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, Expr<In>& varDataOut, bool& varDataNeedsSubThing)
+	inline bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, ExprData<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			varDataOut.data = ExprType::Parens<In>(std::make_unique<Expr<In>>(readExpr(in, allowVarArg)));
+			varDataOut = ExprType::Parens<In>(std::make_unique<Expr<In>>(readExpr(in, allowVarArg)));
 			varDataNeedsSubThing = true;
 			requireToken(in, ")");
 			return false;
@@ -72,12 +72,12 @@ namespace slu::parse
 				{
 					in.skip(2);
 					skipSpace(in);
-					varDataOut.data = ExprType::Global<In>(in.genData.resolveRootName(readModPath(in)));
+					varDataOut = ExprType::Global<In>(in.genData.resolveRootName(readModPath(in)));
 					return false;
 				}
 				else
 				{
-					varDataOut.data = ExprType::MpRoot{};
+					varDataOut = ExprType::MpRoot{};
 					return true;
 				}
 			}
@@ -95,25 +95,25 @@ namespace slu::parse
 			{
 				ezmatch(in.genData.resolveNameOrLocal(mp[0]))(
 					varcase(const LocalId) {
-					varDataOut.data = ExprType::Local(var);
+					varDataOut = ExprType::Local(var);
 				},
 					varcase(const MpItmId<In>) {
-					varDataOut.data = ExprType::Global<In>(var);
+					varDataOut = ExprType::Global<In>(var);
 				}
 					);
 			}
 			else
-				varDataOut.data = ExprType::Global<In>(in.genData.resolveName(mp));
+				varDataOut = ExprType::Global<In>(in.genData.resolveName(mp));
 
 			return skipped;
 		}
 		//Check, cuz 'excess elements in struct initializer' happens in normal lua
-		varDataOut.data = ExprType::Global<In>(in.genData.resolveName(start));
+		varDataOut = ExprType::Global<In>(in.genData.resolveName(start));
 		return false;
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
-	inline T returnPrefixExprVar(In& in, ExprList<In>& varData, const bool endsWithArgs,const bool varDataNeedsSubThing,const char opTypeCh)
+	inline T returnPrefixExprVar(In& in, std::vector<ExprData<In>>& varData, const bool endsWithArgs,const bool varDataNeedsSubThing,const char opTypeCh)
 	{
 		char opType[4] = "EOS";
 
@@ -149,16 +149,16 @@ namespace slu::parse
 					"{}"
 					, opType, errorLocStr(in)));
 			}
-			if (std::holds_alternative<ExprType::Call<In>>(varData.back().data))
+			if (std::holds_alternative<ExprType::Call<In>>(varData.back()))
 			{
-				ExprType::Call<In>& start = std::get<ExprType::Call<In>>(varData.back().data);
+				ExprType::Call<In>& start = std::get<ExprType::Call<In>>(varData.back());
 				StatementType::Call<In> res;
 				res.args = std::move(start.args);
 				res.v = { std::move(*start.v) };
 
 				return std::move(res);
 			}
-			ExprType::SelfCall<In>& start = std::get<ExprType::SelfCall<In>>(varData.back().data);
+			ExprType::SelfCall<In>& start = std::get<ExprType::SelfCall<In>>(varData.back());
 			StatementType::SelfCall<In> res;
 			res.args = std::move(start.args);
 			res.method = start.method;
@@ -170,12 +170,14 @@ namespace slu::parse
 			return std::move(varData.back());
 	}
 	template<class T,bool boxed, AnyInput In,class... Ts>
-	inline Expr<In> wrapExpr(Position place,Expr<In>&& expr,Ts&&... extraItems)
+	inline T wrapExpr(Position place,ExprData<In>&& expr,Ts&&... extraItems)
 	{
-		return Expr<In>{ {T{
-						   parse::ExprUserExpr<In,boxed>{mayBoxFrom<boxed>(std::move(expr))},
-						   std::move(extraItems)...
-		}, place} };
+		return T{
+				parse::ExprUserExpr<In,boxed>{mayBoxFrom<boxed>(
+					Expr<In>{{std::move(expr),place}}
+				)},
+				std::move(extraItems)...
+		};
 	}
 
 	template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
@@ -190,7 +192,7 @@ namespace slu::parse
 			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
 		*/
 
-		ExprList<In> varData;
+		std::vector<ExprData<In>> varData;
 		bool endsWithArgs = false;
 		bool varDataNeedsSubThing = false;
 		

@@ -271,10 +271,19 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genExpr(Out& out, const Expr<Out>& obj)
 	{
-		genUnOps(out,obj.unOps);
-
+		genUnOps(out, obj.unOps);
+		genExprData(out, obj.data);
+		if constexpr (Out::settings() & sluSyn)
+		{
+			for (const PostUnOpType t : obj.postUnOps)
+				out.add(getPostUnOpAsStr(t));
+		}
+	}
+	template<AnyOutput Out>
+	inline void genExprData(Out& out, const ExprData<Out>& obj)
+	{
 		using namespace std::literals;
-		ezmatch(obj.data)(
+		ezmatch(obj)(
 		varcase(const ExprType::Parens<Out>&) {
 			out.add('(');
 			genExpr(out, *var);
@@ -423,11 +432,6 @@ namespace slu::parse
 			}
 		}
 		);
-		if constexpr(Out::settings()&sluSyn)
-		{
-			for (const PostUnOpType t : obj.postUnOps)
-				out.add(getPostUnOpAsStr(t));
-		}
 	}
 	template<AnyOutput Out>
 	inline void genExprList(Out& out, const ExprList<Out>& obj)
@@ -880,7 +884,8 @@ namespace slu::parse
 		},
 
 		varcase(const StatementType::Assign<Out>&) {
-			genExprList(out, var.vars);
+			for (auto& i : var.vars)
+				genExprData(out, i);
 			out.add(" = ");
 			genExprList(out, var.exprs);
 			out.addNewl(';');

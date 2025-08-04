@@ -189,7 +189,20 @@ namespace slu::paint
 			for (const auto& i : itm.unOps)
 				paintUnOpItem(se, i);
 		}
-		ezmatch(itm.data)(
+		paintExprData<nameTok>(se, itm.data, tint);
+		if constexpr (Se::settings() & sluSyn)
+		{
+			if (unOps)
+			{
+				for (const auto& i : itm.postUnOps)
+					paintPostUnOp(se, i);
+			}
+		}
+	}
+	template<Tok nameTok=Tok::NAME,AnySemOutput Se>
+	inline void paintExprData(Se& se, const parse::ExprData<Se>& itm,const Tok tint = Tok::NONE)
+	{
+		ezmatch(itm)(
 		varcase(const parse::ExprType::MpRoot) {
 			paintKw<Tok::MP_ROOT>(se, ":>");
 		},
@@ -334,14 +347,6 @@ namespace slu::paint
 			}
 		}
 		);
-		if constexpr (Se::settings() & sluSyn)
-		{
-			if (unOps)
-			{
-				for (const auto& i : itm.postUnOps)
-					paintPostUnOp(se, i);
-			}
-		}
 	}
 	template<Tok tok, Tok overlayTok=Tok::NONE,AnySemOutput Se>
 	inline void paintMp(Se& se, const parse::MpItmId<Se>& itm)
@@ -947,7 +952,8 @@ namespace slu::paint
 			paintCall<false>(se, var);
 		},
 		varcase(const parse::StatementType::Assign<Se>&) {
-			paintExprList(se, var.vars);
+			for (auto& i : var.vars)
+				paintExprData(se, i);
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExprList(se, var.exprs);
 		},

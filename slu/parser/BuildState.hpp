@@ -32,15 +32,24 @@ namespace slu::parse
 		return mkLocal<isSlu>(place, name);
 	}
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkFieldIdx(
+	inline ::slu::parse::ExprDataV<isSlu> mkFieldIdx(
+		::slu::parse::Position place,
+		auto name,//name or local
+		::slu::parse::PoolString field)
+	{
+		return 
+			::slu::parse::ExprType::FieldV<isSlu>{
+				{::slu::parse::mayBoxFrom<true>(mkNameExpr<isSlu>(place,name))},
+					field};
+	}
+	template<bool isSlu>
+	inline ::slu::parse::ExprV<isSlu> mkFieldIdxExpr(
 		::slu::parse::Position place, 
 		auto name,//name or local
 		::slu::parse::PoolString field)
 	{
 		return {::slu::parse::BaseExprV<isSlu>{
-			::slu::parse::ExprType::FieldV<isSlu>{
-				{::slu::parse::mayBoxFrom<true>(mkNameExpr<isSlu>(place,name))},
-					field},
+				mkFieldIdx(place,name,field),
 				place
 		} };
 	}

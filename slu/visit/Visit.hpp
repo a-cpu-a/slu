@@ -289,7 +289,14 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Expr);
 		visitUnOps(vi, itm.unOps);
-		ezmatch(itm.data)(
+		visitExprData(vi, itm.data);
+		visitPostUnOps(vi, std::span<const parse::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
+		Slu_CALL_VISIT_FN_POST(Expr);
+	}
+	template<AnyVisitor Vi>
+	inline void visitExprData(Vi& vi, parse::ExprData<Vi>& itm)
+	{
+		ezmatch(itm)(
 		varcase(const parse::ExprType::False) {
 			Slu_CALL_VISIT_FN_PRE_VAR(False);
 		},
@@ -448,9 +455,6 @@ namespace slu::visit
 			visitTypeExpr(vi, *var.retType);
 		}
 		);
-		visitPostUnOps(vi, std::span<const parse::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
-
-		Slu_CALL_VISIT_FN_POST(Expr);
 	}
 	template<AnyVisitor Vi>
 	inline void visitExprList(Vi& vi, parse::ExprList<Vi>& itm)
@@ -514,7 +518,10 @@ namespace slu::visit
 		ezmatch(itm.data)(
 		varcase(parse::StatementType::Assign<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Assign);
-			visitExprList(vi, var.vars);
+			for (auto& i : var.vars)
+			{
+				visitExprData(vi, i);
+			}
 			visitExprList(vi, var.exprs);
 			Slu_CALL_VISIT_FN_POST_VAR(Assign);
 		},

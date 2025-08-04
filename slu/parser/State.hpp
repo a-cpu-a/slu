@@ -623,7 +623,7 @@ namespace slu::parse
 		using Semicol = std::monostate;	// ";"
 
 		template<bool isSlu>
-		struct AssignV { ExprListV<isSlu> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
+		struct AssignV { std::vector<ExprDataV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG(Assign);
 
 		template<bool isSlu>
