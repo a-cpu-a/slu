@@ -371,12 +371,6 @@ namespace slu::mlvl
 			);
 		}
 
-		bool preExpr(parse::Expr<Cfg>& itm) 
-		{
-			exprTypeStack.emplace_back();
-			return false;
-		}
-
 		template<class RawT>
 		bool handleConstType(auto&& v)
 		{
@@ -412,12 +406,18 @@ namespace slu::mlvl
 			exprTypeStack.pop_back();
 		}
 
-		bool preF64(parse::ExprType::F64 itm) {
-			return handleConstType<parse::RawTypeKind::Float64>(itm);
+
+		bool preExpr(parse::Expr<Cfg>& itm)
+		{
+			exprTypeStack.emplace_back();
+			return false;
 		}
 
 		bool preOpenRange(parse::ExprType::OpenRange itm) {
 			throw std::runtime_error("TODO: type-check/inferr open range expressions.");
+		}
+		bool preF64(parse::ExprType::F64 itm) {
+			return handleConstType<parse::RawTypeKind::Float64>(itm);
 		}
 		bool preI64(parse::ExprType::I64 itm) {
 			return handleConstType<parse::RawTypeKind::Int64>(itm);
