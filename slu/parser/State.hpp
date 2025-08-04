@@ -131,14 +131,15 @@ namespace slu::parse
 
 	template<bool isSlu,bool boxed>
 	struct ExprUserExprV {
-		MayBox<boxed,Expr<isSlu>> expr;
+		MayBox<boxed,ExprV<isSlu>> expr;
 	};
 	template<bool boxed>
 	struct ExprUserExprV<true, boxed>
 	{
-		MayBox<boxed, Expr<true>> v;
+		MayBox<boxed, ExprV<true>> v;
 		parse::ResolvedType ty;
 	};
+	Slu_DEF_CFG2(ExprUserExpr,boxed);
 
 	template<bool isSlu, bool boxed> // exp args
 	struct CallV : ExprUserExprV<isSlu, boxed>
@@ -147,8 +148,9 @@ namespace slu::parse
 	};
 	Slu_DEF_CFG2(Call, boxed);
 	template<bool isSlu, bool boxed> //Lua: exp ":" Name args //Slu: exp "." Name args
-	struct SelfCallV : CallV<isSlu, boxed>
+	struct SelfCallV : ExprUserExprV<isSlu, boxed>
 	{
+		ArgsV<isSlu> args;
 		MpItmIdV<isSlu> method;
 	};
 	Slu_DEF_CFG2(SelfCall, boxed);
@@ -161,7 +163,8 @@ namespace slu::parse
 		using GlobalV = MpItmIdV<isSlu>;
 		Slu_DEF_CFG(Global);
 
-		using ParensV = BoxExprV<true>;	// "(" exp ")"
+		template<bool isSlu> // "(" exp ")"
+		using ParensV = BoxExprV<isSlu>;
 		Slu_DEF_CFG(Parens);
 
 		struct Deref : ExprUserExprV<true, true> {};// exp ".*"
@@ -618,7 +621,7 @@ namespace slu::parse
 		using Semicol = std::monostate;	// ";"
 
 		template<bool isSlu>
-		struct AssignV { std::vector<ExprListV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
+		struct AssignV { ExprListV<isSlu> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG(Assign);
 
 		template<bool isSlu>

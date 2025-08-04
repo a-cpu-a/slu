@@ -24,8 +24,8 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	traitExp ::= basicExp
-		| traitExp "+" traitExp
+	--Note: basicExp in here doesnt parse for binary operators.
+	traitExp ::= basicExp {"+" basicExp}
 	
 	basicExp @::= | "dyn" traitExp
 		| "impl" traitExp

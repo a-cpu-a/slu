@@ -27,24 +27,16 @@ namespace slu::parse
 		TraitExpr ret;
 		ret.place = in.getLoc();
 
-		const char firstChar = in.peek();
-		
-		if (firstChar != ':' &&firstChar != '(' && !isValidNameStartChar(firstChar))
-			throwExpectedTraitExpr(in);
-
-		ret.traitCombo.emplace_back(parsePrefixExprVar<TraitExprItem, true,true>(in, false, firstChar));
-
-		skipSpace(in);
+		ret.traitCombo.emplace_back(readBasicExpr(in, false, false));
 
 		while (in)
 		{
+			skipSpace(in);
 			if (in.peek() != '+')
 				break;
 			in.skip();
 
-			ret.traitCombo.emplace_back(parsePrefixExprVar<TraitExprItem, true, true>(in, false, firstChar));
-
-			skipSpace(in);
+			ret.traitCombo.emplace_back(readBasicExpr(in, false, false));
 		}
 		return ret;
 	}

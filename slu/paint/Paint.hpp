@@ -245,15 +245,14 @@ namespace slu::paint
 		varcase(const parse::ExprType::Table<Se>&) {
 			paintTable<nameTok>(se, var);
 		},
-		varcase(const parse::ExprType::LimPrefixExpr<Se>&) {
-			paintLimPrefixExpr<nameTok>(se, *var);
-		},
 		varcase(const parse::ExprType::Function<Se>&) {
 			paintFuncDef(se, var, parse::MpItmId<Se>::newEmpty(), false);
 		},
-		varcase(const parse::ExprType::FuncCall<Se>&) {
-			paintLimPrefixExpr<nameTok>(se, *var.val);
-			paintArgChain(se, var.argChain);
+		varcase(const parse::ExprType::SelfCall<Se>&) {
+			paintSelfCall<true>(se, var);
+		},
+		varcase(const parse::ExprType::Call<Se>&) {
+			paintCall<true>(se, var);
 		},
 		varcase(const parse::ExprType::PatTypePrefix&) {
 			Slu_panic("Pat type prefix leaked outside of pattern parsing!");
@@ -916,10 +915,10 @@ namespace slu::paint
 			paintIfCond<false>(se, var);
 		},
 		varcase(const parse::StatementType::SelfCall<Se>&) {
-			paintSelfCall(se, var);
+			paintSelfCall<false>(se, var);
 		},
 		varcase(const parse::StatementType::Call<Se>&) {
-			paintCall(se, var);
+			paintCall<false>(se, var);
 		},
 		varcase(const parse::StatementType::Assign<Se>&) {
 			paintExprList(se, var.vars);

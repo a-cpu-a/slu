@@ -312,11 +312,11 @@ namespace slu::parse
 			out.add("function ");
 			genFuncDef(out, var,""sv);
 		},
-		varcase(const ExprType::FuncCall<Out>&) {
-			genFuncCall(out, var);
+		varcase(const ExprType::Call<Out>&) {
+			genCall<true>(out, var);
 		},
-		varcase(const ExprType::LimPrefixExpr<Out>&) {
-			genLimPrefixExpr(out, *var);
+		varcase(const ExprType::SelfCall<Out>&) {
+			genSelfCall<true>(out, var);
 		},
 		varcase(const ExprType::Table<Out>&) {
 			genTable(out, var);
@@ -908,12 +908,12 @@ namespace slu::parse
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
-
 		varcase(const StatementType::SelfCall<Out>&) {
 			genSelfCall<false>(out, var);
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
+
 		varcase(const StatementType::Label<Out>&) {
 			out.unTabTemp()
 				.add(sel<Out>("::", ":::"))
