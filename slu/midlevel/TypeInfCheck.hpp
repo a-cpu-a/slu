@@ -257,9 +257,8 @@ namespace slu::mlvl
 
 
 	//TODO: fix string expressions being fully stolen.
-	//TODO: create for func call results, table indexing.
+	//TODO: create TmpVar's for func call results, table indexing.
 	using TmpVar = uint64_t;
-
 	using VisitTypeBuilder = std::variant<parse::ResolvedType,const parse::ResolvedType*, parse::LocalId, TmpVar>;
 
 	struct SubTySide
@@ -277,8 +276,6 @@ namespace slu::mlvl
 			tyRefs.clear();
 		}
 	};
-
-
 	struct LocalVarInfo
 	{
 		std::vector<lang::LocalObjId> fields;
@@ -288,10 +285,8 @@ namespace slu::mlvl
 		SubTySide use;//Requirements when used.
 		SubTySide edit;//Requirements when writen to.
 
-		bool boolLike :1 = false;//part of use.
-
-		bool taken : 1 = false;
-
+		bool boolLike : 1 = false;//part of use.
+		bool taken    : 1 = false;
 		bool resolved : 1 = false;
 
 		constexpr parse::ResolvedType* resolvedType()
@@ -442,7 +437,7 @@ namespace slu::mlvl
 			exprTypeStack.pop_back();
 		}
 		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
-			editLocalVar(itm.name);
+			editLocalVar(itm.name);//TODO: restrict the type to exactly that? (unless it is inferr)
 		}
 		void postFuncCallStat(parse::StatementType::FuncCall<Cfg>& itm) {
 			if(itm.argChain.size() != 1)
@@ -648,7 +643,7 @@ namespace slu::mlvl
 					if(!(canTrue || canFalse))
 					{
 						poison = true;
-						//TODO: error logging, found non bool type
+						throw std::runtime_error("TODO: error logging, found non bool type");
 					}
 
 					if (poison)
@@ -694,7 +689,7 @@ namespace slu::mlvl
 								parse::r129Get(j, [&](const auto& jRange) {
 									parse::r129Get(fullIntRange, [&](const auto& fullRange) {
 										if (jRange.min.lteOtherPlus1(fullRange.max))
-										{// Overlap / adjacent, so merge them.
+										{// Overlapping or adjacent, so merge them.
 											const bool maxBigger = fullRange.max < jRange.max;
 											const bool minSmaller = fullRange.min > jRange.min;
 
@@ -783,6 +778,7 @@ namespace slu::mlvl
 
 			checkLocals(tmpLocalsDataStack.back());
 			checkLocals(localsDataStack.back());
+			//TODO: Export the types, so conv can use them.
 
 			localsStack.pop_back();
 			localsDataStack.pop_back();
