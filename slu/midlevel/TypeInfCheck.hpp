@@ -440,6 +440,12 @@ namespace slu::mlvl
 		void postTableExpr(parse::ExprType::Table<Cfg>& itm) {
 			//TODO
 		}
+		void postFuncCallExpr(parse::ExprType::FuncCall<Cfg>& itm) {
+			//TODO
+		}
+		void postLimPrefixExprExpr(parse::ExprType::LimPrefixExpr<Cfg>& itm) {
+			//TODO
+		}
 
 		//Restrictions.
 		void postAnyCond(parse::Expr<Cfg>& itm) {
