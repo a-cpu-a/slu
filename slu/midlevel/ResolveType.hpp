@@ -82,17 +82,11 @@ namespace slu::mlvl
 			throw std::runtime_error("TODO: resolve Err type expressions.");
 		},
 
-		varcase(parse::ExprType::FuncCallV<true>&&)->parse::ResolvedType {
+		varcase(parse::ExprType::CallV<true>&&)->parse::ResolvedType {
 			//TODO: resolve basic ops, jit all else.
-			if(var.argChain.size() != 1)
-				throw std::runtime_error("TODO: resolve complex FuncCall type expressions.");
+			parse::MpItmIdV<true> name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
 
-			auto& func = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v;
-			if (!func.sub.empty())
-				throw std::runtime_error("Unimplemented type expression (has subvar's) (type resolution)");
-			auto name = std::get<parse::BaseVarType::NAMEv<true>>(func.base).v;
-
-			auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.argChain[0].args);
+			auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
 			auto& firstArgExpr = expArgs.front();
 
 			parse::ResolvedType rt= resolveTypeExpr(mpDb, std::move(firstArgExpr));
@@ -144,12 +138,7 @@ namespace slu::mlvl
 				.size = zst ? 0 : TYPE_RES_PTR_SIZE
 			};
 		},
-		varcase(parse::ExprType::LimPrefixExprV<true>&&)->parse::ResolvedType {
-
-			auto& val = std::get<parse::LimPrefixExprType::VARv<true>>(*var).v;
-			if (!val.sub.empty())
-				throw std::runtime_error("Unimplemented type expression (has subvar's) (type resolution)");
-			auto& name = std::get<parse::BaseVarType::NAMEv<true>>(val.base).v;
+		ezcase(const parse::ExprType::GlobalV<true> name)->parse::ResolvedType {
 
 			if (name == mpDb.data->getItm({ "std","str" }))
 			{

@@ -131,7 +131,7 @@ namespace slu::parse
 
 	template<bool isSlu,bool boxed>
 	struct ExprUserExprV {
-		MayBox<boxed,ExprV<isSlu>> expr;
+		MayBox<boxed,ExprV<isSlu>> v;
 	};
 	template<bool boxed>
 	struct ExprUserExprV<true, boxed>
