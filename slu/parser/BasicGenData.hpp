@@ -169,6 +169,14 @@ namespace slu::parse
 			return mps[name.mp.id].id2Itm[name.id.val];
 		}
 
+		//Returns empty if not found
+		const PoolString getPoolStr(std::string_view txt) const {
+			auto p = mps[0].name2Id.find(txt);
+			if (p == mps[0].name2Id.end())
+				return PoolString::newEmpty();
+			return PoolString{ p->second };
+		}
+
 		ModPath getMp(const MpItmIdV<true> name)const 
 		{
 			const BasicModPathData& data = mps[name.mp.id];

@@ -11,7 +11,18 @@ namespace slu::parse
 	inline ::slu::parse::ExprV<isSlu> mkGlobal(::slu::parse::Position place, ::slu::lang::MpItmIdV<isSlu> name)
 	{
 		return ::slu::parse::BaseExprV<isSlu>{
-			::slu::parse::ExprType::GlobalV<isSlue>{name},
+			::slu::parse::ExprType::GlobalV<isSlu>{name},
+				place
+		};
+	}
+	template<bool isSlu>
+	inline ::slu::parse::ExprV<isSlu> mkFieldIdx(
+		::slu::parse::Position place, 
+		::slu::lang::MpItmIdV<isSlu> name,
+		::slu::parse::PoolString field)
+	{
+		return ::slu::parse::BaseExprV<isSlu>{
+			::slu::parse::ExprType::FieldV<isSlu>{mkGlobal(name), field},
 				place
 		};
 	}

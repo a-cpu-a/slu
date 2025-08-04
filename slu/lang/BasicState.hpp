@@ -37,6 +37,10 @@ namespace slu::lang
 	{
 		size_t val;
 
+		constexpr static LocalObjId newEmpty() {
+			return LocalObjId{ SIZE_MAX };
+		}
+
 		constexpr auto operator<=>(const LocalObjId&)const = default;
 	};
 

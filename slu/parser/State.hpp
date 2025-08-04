@@ -503,7 +503,7 @@ namespace slu::parse
 	template<bool isSlu, bool isLocal>
 	struct DestrFieldV
 	{
-		MpItmIdV<isSlu> name;// |(...)| thingy
+		PoolString name;// |(...)| thingy
 		PatV<isSlu,isLocal> pat;//May be any type of pattern
 	};
 	Slu_DEF_CFG2(DestrField,isLocal);

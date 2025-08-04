@@ -284,7 +284,7 @@ namespace slu::mlvl
 				for (auto& i : std::views::reverse(itm.items))
 					patStack.push_back(&i.pat);
 				for (auto& i : itm.items)
-					exprStack.emplace_back(parse::mkLpeVar(name, i.name));
+					exprStack.emplace_back(parse::mkFieldIdx(name, i.name));
 			}
 			else
 			{

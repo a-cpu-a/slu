@@ -209,13 +209,8 @@ namespace slu::comp::mico
 		return { std::move(res)};
 	}
 
-	mlir::Type tryConvBuiltinType(ConvData& conv, const std::string_view abi, const parse::LimPrefixExprV<true>& itm,const bool reffed)
+	mlir::Type tryConvBuiltinType(ConvData& conv, const std::string_view abi, const lang::MpItmIdV<true>& name,const bool reffed)
 	{
-		const auto& var = std::get<parse::LimPrefixExprType::VARv<true>>(itm).v;
-		if(!var.sub.empty())
-			throw std::runtime_error("Unimplemented type expression (has subvar's) (mlir conversion)");
-		const auto& name = std::get<parse::BaseVarType::NAMEv<true>>(var.base).v;
-		
 		if (name == conv.sharedDb.getItm({ "std","str" }))
 		{
 			if(!reffed)
@@ -246,99 +241,21 @@ namespace slu::comp::mico
 		{
 			throw std::runtime_error("Unimplemented type expression idx(" + std::to_string(expr.data.index()) + ") (mlir conversion)");
 		},
-		varcase(const parse::ExprType::LimPrefixExprV<true>&)
+		varcase(const parse::ExprType::GlobalV<true>&)
 		{
-			return tryConvBuiltinType(conv, abi, *var, false);
+			return tryConvBuiltinType(conv, abi, var, false);
 		},
-		varcase(const parse::ExprType::FuncCallV<true>&)
+		varcase(const parse::ExprType::CallV<true>&)
 		{
-			if(var.argChain.size()!=1)
-				throw std::runtime_error("Unimplemented type expression: function call with multiple layers (mlir conversion)");
-			
-			const auto& func = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v;
-			if (!func.sub.empty())
-				throw std::runtime_error("Unimplemented type expression (has subvar's) (mlir conversion)");
-			const auto& name = std::get<parse::BaseVarType::NAMEv<true>>(func.base).v;
+			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
 			if(name!= conv.sharedDb.getItm({ "std","ops","Ref","ref"}))
 				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
 			
-			const auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.argChain[0].args);
+			const auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
 			const auto& firstArgExpr = expArgs.front();
-			const auto& firstArg = std::get<parse::ExprType::LimPrefixExprV<true>>(firstArgExpr.data);
+			const auto& firstArg = std::get<parse::ExprType::GlobalV<true>>(firstArgExpr.data);
 			
-			return tryConvBuiltinType(conv, abi, *firstArg, true);
-		}
-		);
-	}
-	inline mlir::Value convVarBase(ConvData& conv, parse::Position place, const parse::BaseVarV<true>& itm)
-	{
-		auto* mc = &conv.context;
-		mlir::OpBuilder& builder = conv.builder;
-
-		return ezmatch(itm)(
-		varcase(const parse::BaseVarType::Local) {
-			return conv.localsStack.back().values[var.v].v;
-		},
-		varcase(const parse::BaseVarType::NAMEv<true>&) {
-			//TODO
-			return (mlir::Value)nullptr;
-		},
-		varcase(const parse::BaseVarType::ExprV<true>&) {
-			return convExpr(conv,var);
-		},
-		varcase(const parse::BaseVarType::Root) {
-			//TODO: builtin root-mp reflection value
-			auto i1Type = builder.getI1Type();
-			return (mlir::Value)mlir::arith::ConstantOp::create(builder,
-				convPos(conv, place), i1Type, mlir::IntegerAttr::get(i1Type, 0)
-			);
-		}
-		);
-	}
-	inline mlir::Value convLimPrefixExpr(ConvData& conv,parse::Position place, const parse::LimPrefixExprV<true>& itm)
-	{
-		mlir::OpBuilder& builder = conv.builder;
-
-		return ezmatch(itm)(
-		varcase(const parse::LimPrefixExprType::ExprV<true>&){
-			return convExpr(conv, var);
-		},
-		varcase(const parse::LimPrefixExprType::VARv<true>&){
-			mlir::Value base = convVarBase(conv, place, var.v.base);
-			if (var.v.sub.empty())
-				return base;
-
-			auto& sub0 = var.v.sub[0];
-			if (sub0.funcCalls.empty()
-				&& std::holds_alternative<parse::SubVarType::NAMEv<true>>(sub0.idx)
-				&& std::get<parse::SubVarType::NAMEv<true>>(sub0.idx).idx== conv.sharedDb.getItm({ "","__convHack__refSlice_ptr" })
-				)
-			{
-				//Hack: take out ptr.
-
-				mlir::Type idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
-				mlir::Type rawMemref = conv.tyConv.convertType(idx3Type);
-
-				mlir::Location loc = convPos(conv, place);
-
-
-				mlir::Value lForm = mlir::UnrealizedConversionCastOp::create(builder,
-					loc, mlir::TypeRange{ rawMemref }, mlir::ValueRange{ base }
-				).getResult(0);
-				mlir::Value idx3Form = mlir::UnrealizedConversionCastOp::create(builder,
-					loc, mlir::TypeRange{ idx3Type }, mlir::ValueRange{ lForm }
-				).getResult(0);
-
-				mlir::Value c0 = mlir::arith::ConstantIndexOp::create(builder, loc, 0);
-				mlir::Value idxPtr = mlir::memref::LoadOp::create(builder, loc, idx3Form, mlir::ValueRange{ c0 }, false, 0ULL);
-
-				mlir::Value intPtr = mlir::index::CastUOp::create(builder,loc,builder.getI64Type(), idxPtr);
-
-				return mlir::LLVM::IntToPtrOp::create(builder,loc,mlir::LLVM::LLVMPointerType::get(&conv.context), intPtr).getRes();
-			}
-			return base;
-				//TODO sub;
-			//basicly (.x == memref subview?) (.y.x().x == multiple stuff)
+			return tryConvBuiltinType(conv, abi, firstArg, true);
 		}
 		);
 	}
@@ -428,8 +345,43 @@ namespace slu::comp::mico
 		varcase(const parse::ExprType::P128) {return convAny128(conv,itm.place,var); },
 		varcase(const parse::ExprType::M128) {return convAny128(conv,itm.place,var); },
 
-		varcase(const parse::ExprType::LimPrefixExprV<true>&)->mlir::Value {
-			return convLimPrefixExpr(conv,itm.place,*var);
+		varcase(const parse::ExprType::ParensV<true>&) {
+			return convExpr(conv,*var);
+		},
+		varcase(const parse::ExprType::Local) {
+			return conv.localsStack.back().values[var.v].v;
+		},
+		varcase(const parse::ExprType::FieldV<true>&) {
+
+			mlir::Value base = convExpr(conv, *var.v);
+
+			if (var.field == conv.sharedDb.getPoolStr("__convHack__refSlice_ptr"sv))
+			{
+				//Hack: take out ptr.
+
+				mlir::Type idx3Type = mlir::MemRefType::get({ 3 }, builder.getIndexType(), {}, 0);
+				mlir::Type rawMemref = conv.tyConv.convertType(idx3Type);
+
+				mlir::Location loc = convPos(conv, itm.place);
+
+
+				mlir::Value lForm = mlir::UnrealizedConversionCastOp::create(builder,
+					loc, mlir::TypeRange{ rawMemref }, mlir::ValueRange{ base }
+				).getResult(0);
+				mlir::Value idx3Form = mlir::UnrealizedConversionCastOp::create(builder,
+					loc, mlir::TypeRange{ idx3Type }, mlir::ValueRange{ lForm }
+				).getResult(0);
+
+				mlir::Value c0 = mlir::arith::ConstantIndexOp::create(builder, loc, 0);
+				mlir::Value idxPtr = mlir::memref::LoadOp::create(builder, loc, idx3Form, mlir::ValueRange{ c0 }, false, 0ULL);
+
+				mlir::Value intPtr = mlir::index::CastUOp::create(builder, loc, builder.getI64Type(), idxPtr);
+
+				return mlir::LLVM::IntToPtrOp::create(builder, loc, mlir::LLVM::LLVMPointerType::get(&conv.context), intPtr).getRes();
+			}
+			//TODO sub;
+			//basicly (.x == memref subview?) (.y.x().x == multiple stuff)
+			throw std::runtime_error("TODO: Field expr's are unimplemented (mlir conversion)");
 		},
 		varcase(const parse::ExprType::String&)->mlir::Value {
 		
@@ -743,12 +695,9 @@ namespace slu::comp::mico
 			if (var.vars.size() != 1 || var.exprs.size() != 1)
 				throw std::runtime_error("Unimplemented assign conv, vers.size or var.exprs != 1");
 
-			if(!var.vars[0].sub.empty())
-				throw std::runtime_error("Unimplemented assign conv, var sub !empty");
 
-			mlir::Value memRef = convVarBase(
-				conv, itm.place,
-				var.vars[0].base
+			mlir::Value memRef = convExpr(
+				conv, var.vars[0]
 			);
 			const mlir::Location loc = convPos(conv, itm.place);
 
@@ -762,15 +711,14 @@ namespace slu::comp::mico
 			//mlir::memref::StoreOp::create(builder,loc, expr, memRef, mlir::ValueRange{ zeroIndex }, false);
 
 		},
-			varcase(const parse::StatementType::FuncCallV<true>&) {
+		varcase(const parse::StatementType::CallV<true>&) {
 
-			auto& varInfo = std::get<parse::LimPrefixExprType::VARv<true>>(*var.val).v.base;
-			auto name = std::get<parse::BaseVarType::NAMEv<true>>(varInfo);
-			GlobalElement* funcInfo = getOrDeclFn(conv,name.v,itm.place,nullptr);
+			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
+			GlobalElement* funcInfo = getOrDeclFn(conv,name,itm.place,nullptr);
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//It cant be the other types, as they are alreadt desugared!
-			auto& argList = std::get<parse::ArgsType::ExprListV<true>>(var.argChain[0].args);
+			auto& argList = std::get<parse::ArgsType::ExprListV<true>>(var.args);
 			std::vector<mlir::Value> args;
 			args.reserve(argList.size());
 			for (const auto& i : argList)
