@@ -440,13 +440,6 @@ namespace slu::mlvl
 		void postTableExpr(parse::ExprType::Table<Cfg>& itm) {
 			//TODO
 		}
-		void postFuncCallExpr(parse::ExprType::FuncCall<Cfg>& itm) {
-			//TODO
-		}
-		//TODO: canonicalize this instead.
-		void postLimPrefixExprExpr(parse::ExprType::LimPrefixExpr<Cfg>& itm) {
-			//TODO
-		}
 
 		//Restrictions.
 		void postAnyCond(parse::Expr<Cfg>& itm) {
@@ -456,24 +449,17 @@ namespace slu::mlvl
 		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
 			editLocalVar(itm.name);//TODO: restrict the type to exactly that? (unless it is inferr)
 		}
-		void postFuncCallStat(parse::StatementType::FuncCall<Cfg>& itm) {
-			if(itm.argChain.size() != 1)
-				throw std::runtime_error("TODO: type inference for complex func call args.");
-			if(!std::holds_alternative<parse::ArgsType::ExprList<Cfg>>(itm.argChain[0].args))
+		void postCallStat(parse::StatementType::Call<Cfg>& itm) {
+			if(!std::holds_alternative<parse::ArgsType::ExprList<Cfg>>(itm.args))
 				throw std::runtime_error("TODO: type inference for func call with complex args.");
 
-			if(!std::holds_alternative<parse::LimPrefixExprType::VAR<Cfg>>(*itm.val))
-				throw std::runtime_error("TODO: type inference for func call on expr.");
-			parse::Var<Cfg>& funcVar = std::get<parse::LimPrefixExprType::VAR<Cfg>>(*itm.val).v;
-			if (!funcVar.sub.empty())
-				throw std::runtime_error("TODO: type inference for sub variables in func-call statement.");
-			if (!std::holds_alternative<parse::BaseVarType::NAME<Cfg>>(funcVar.base))
+			if (!std::holds_alternative<parse::ExprType::Global<Cfg>>(itm.v->data))
 				throw std::runtime_error("TODO: type inference for func call on non-global var.");
 
-			parse::MpItmId<Cfg> funcName = std::get<parse::BaseVarType::NAME<Cfg>>(funcVar.base).v;
+			parse::MpItmId<Cfg> funcName = std::get<parse::ExprType::Global<Cfg>>(itm.v->data);
 			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(mpDb.data->getItm(funcName));
 
-			parse::ArgsType::ExprList<Cfg>& args = std::get<parse::ArgsType::ExprList<Cfg>>(itm.argChain[0].args);
+			parse::ArgsType::ExprList<Cfg>& args = std::get<parse::ArgsType::ExprList<Cfg>>(itm.args);
 			//Restrict arg exprs to match types in funcItm.
 			for (size_t i = args.size(); i > 0; i++)
 			{
@@ -492,23 +478,17 @@ namespace slu::mlvl
 			size_t count = itm.vars.size();
 			for (size_t i = count; i > 0; i--)
 			{
-				parse::Var<Cfg>& var = itm.vars[i-1];
-				if(!var.sub.empty())
-					throw std::runtime_error("TODO: type inference for sub variables in assign statement.");
+				parse::Expr<Cfg>& var = itm.vars[i-1];
 
-				ezmatch(var.base)(
-				varcase(parse::BaseVarType::NAMEv<true>&) {
+				ezmatch(var.data)(
+				varcase(auto&) {
+					throw std::runtime_error("TODO: type inference/checking for any expr in assign statement.");
+				},
+				varcase(parse::ExprType::GlobalV<true>&) {
 					throw std::runtime_error("TODO: type check global assign statement.");
 				},
-				varcase(parse::BaseVarType::ExprV<true>&) {
-					throw std::runtime_error("TODO: type inference for expr-var in assign statement.");
-				},
-				varcase(parse::BaseVarType::Local&) {
+				varcase(parse::ExprType::Local&) {
 					editLocalVar(var);
-				},
-
-				varcase(parse::BaseVarType::Root&) {
-					throw std::runtime_error("TODO better logging: cant assign to mp root (:>).");
 				}
 				);
 			}
