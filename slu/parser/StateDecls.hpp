@@ -55,7 +55,7 @@ namespace slu::parse
 		T& operator*() { return get(); }
 		const T& operator*() const { return get(); }
 
-		T& operator->() { return &get(); }
+		T* operator->() { return &get(); }
 		const T* operator->() const { return &get(); }
 	};
 	template<bool boxed, class T>
