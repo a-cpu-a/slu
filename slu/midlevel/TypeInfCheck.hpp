@@ -415,6 +415,10 @@ namespace slu::mlvl
 		bool preF64(parse::ExprType::F64 itm) {
 			return handleConstType<parse::RawTypeKind::Float64>(itm);
 		}
+
+		bool preOpenRange(parse::ExprType::OpenRange itm) {
+			throw std::runtime_error("TODO: type-check/inferr open range expressions.");
+		}
 		bool preI64(parse::ExprType::I64 itm) {
 			return handleConstType<parse::RawTypeKind::Int64>(itm);
 		}

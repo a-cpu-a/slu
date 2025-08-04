@@ -331,7 +331,7 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(const parse::ExprType::OpenRange) {
-			//TODO
+			Slu_CALL_VISIT_FN_PRE_VAR(OpenRange);
 		},
 		varcase(const parse::ExprType::VarArgs) {
 			//TODO
