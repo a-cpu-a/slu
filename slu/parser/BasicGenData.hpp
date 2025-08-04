@@ -226,6 +226,11 @@ namespace slu::parse
 				return {};//empty
 			return id2Name[v.id.val];
 		}
+		std::string_view asSv(const PoolString v) const {
+			if (v.val == SIZE_MAX)
+				return {};//empty
+			return id2Name[v.val];
+		}
 		lang::ViewModPath asVmp(const MpItmIdV<false> v) const {
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
@@ -292,6 +297,11 @@ namespace slu::parse
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
 			return data->mps[v.mp.id].id2Name[v.id.val];
+		}
+		std::string_view asSv(const PoolString v) const {
+			if (v.val == SIZE_MAX)
+				return {};//empty
+			return data->mps[0].id2Name[v.val];
 		}
 		lang::ViewModPath asVmp(const MpItmIdV<true> v) const {
 			if (v.id.val == SIZE_MAX)

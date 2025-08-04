@@ -275,6 +275,44 @@ namespace slu::parse
 
 		using namespace std::literals;
 		ezmatch(obj.data)(
+		varcase(const ExprType::Parens<Out>&) {
+			out.add('(');
+			genExpr(out, *var);
+			out.add(')');
+		},
+		varcase(const ExprType::MpRoot) {
+			out.add(":>"sv);
+		},
+		varcase(const ExprType::Global<Out>) {
+			genModPath(out, out.db.asVmp(var));
+		},
+		varcase(const ExprType::Local) {
+			genNameOrLocal<true>(out, var);
+		},
+		varcase(const ExprType::Deref) {
+			if constexpr (Out::settings() & sluSyn)
+			{
+				genExpr(out, *var.v);
+				out.add(".*");
+			}
+		},
+		varcase(const ExprType::Index<Out>&) {
+			genExpr(out, *var.v);
+			out.add('[');
+			genExpr(out, *var.idx);
+			out.add(']');
+		},
+		varcase(const ExprType::Field<Out>&) {
+			genExpr(out, *var.v);
+			out.add('.');
+			out.add(out.db.asSv(var.field));
+		},
+		varcase(const ExprType::Call<Out>&) {
+			genCall<true>(out, var);
+		},
+		varcase(const ExprType::SelfCall<Out>&) {
+			genSelfCall<true>(out, var);
+		},
 		varcase(const ExprType::Nil) {
 			out.add("nil"sv);
 		},
@@ -377,7 +415,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 			{
 				out.add('[');
-				genExpr(out, *var);
+				genExpr(out, *var.v);
 				out.add(']');
 			}
 		},
@@ -506,6 +544,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genModPath(Out& out, const lang::ViewModPath& obj)
 	{
+		out.add(":>::");
 		out.add(obj[0]);
 		for (size_t i = 1; i < obj.size(); i++)
 		{
