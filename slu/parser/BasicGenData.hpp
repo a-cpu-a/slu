@@ -244,10 +244,11 @@ namespace slu::parse
 			//Else: check if first part is empty
 			return data->mps[n.mp.id].path[0].empty();
 		}
-		MpItmIdV<true> resolveUnknown(const std::string& name)
-		{
-			LocalObjId id = data->mps[0].get(name);
-			return MpItmIdV<true>{id, { 0 }};
+		PoolString poolStr(const std::string_view name) {
+			return data->mps[0].get(name);
+		}
+		MpItmIdV<true> resolveUnknown(const std::string_view name) {
+			return MpItmIdV<true>{poolStr(name), {0}};
 		}
 
 		template<bool unknown>
