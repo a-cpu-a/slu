@@ -443,6 +443,7 @@ namespace slu::mlvl
 		void postFuncCallExpr(parse::ExprType::FuncCall<Cfg>& itm) {
 			//TODO
 		}
+		//TODO: canonicalize this instead.
 		void postLimPrefixExprExpr(parse::ExprType::LimPrefixExpr<Cfg>& itm) {
 			//TODO
 		}
@@ -714,8 +715,8 @@ namespace slu::mlvl
 											else 
 											{
 												if constexpr (
-													!(std::same_as<decltype(fullRange.min), parse::Integer128<false, false>>
-														&& std::same_as<decltype(jRange.max), parse::Integer128<false, true>>)
+													!(std::same_as<decltype(fullRange.min), Integer128<false, false>>
+														&& std::same_as<decltype(jRange.max), Integer128<false, true>>)
 													)
 												{
 													if (maxBigger)
@@ -725,8 +726,8 @@ namespace slu::mlvl
 													}
 												}
 												if constexpr (
-													!(std::same_as<decltype(jRange.min), parse::Integer128<false, false>>
-														&& std::same_as<decltype(fullRange.max), parse::Integer128<false, true>>)
+													!(std::same_as<decltype(jRange.min), Integer128<false, false>>
+														&& std::same_as<decltype(fullRange.max), Integer128<false, true>>)
 													)
 												{
 													if (minSmaller)
