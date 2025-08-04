@@ -466,13 +466,13 @@ namespace slu::parse
 	template<bool boxed,AnyOutput Out>
 	inline void genCall(Out& out, const Call<Out,boxed>& itm)
 	{
-		genExpr(out, *itm.expr);
+		genExpr(out, *itm.v);
 		genArgs(out, itm.args);
 	}
 	template<bool boxed,AnyOutput Out>
 	inline void genSelfCall(Out& out, const SelfCall<Out,boxed>& itm)
 	{
-		genExpr(out, *itm.expr);
+		genExpr(out, *itm.v);
 		out.add(sel<Out>(":","."))
 			.add(out.db.asSv(itm.method));
 		genArgs(out, itm.args);

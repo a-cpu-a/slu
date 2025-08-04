@@ -534,11 +534,11 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(ConstVar);
 		},
 		varcase(parse::StatementType::Call<Vi>&) {
-			visitExpr(vi, var.expr);
+			visitExpr(vi, *var.v);
 			visitArgs(vi, var.args);
 		},
 		varcase(parse::StatementType::SelfCall<Vi>&) {
-			visitExpr(vi, var.expr);
+			visitExpr(vi, *var.v);
 			visitPoolString(vi, var.method);
 			visitArgs(vi, var.args);
 		},

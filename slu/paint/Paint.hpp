@@ -849,14 +849,14 @@ namespace slu::paint
 	template<bool boxed, AnySemOutput Se>
 	inline void paintCall(Se& se, const parse::Call<Se,boxed>& itm)
 	{
-		paintExpr(se, *itm.expr);
+		paintExpr(se, *itm.v);
 		paintArgs(se, itm.args);
 	}
 
 	template<bool boxed, AnySemOutput Se>
 	inline void paintSelfCall(Se& se, const parse::SelfCall<Se,boxed>& itm)
 	{
-		paintExpr(se, *itm.expr);
+		paintExpr(se, *itm.v);
 		paintKw<Tok::GEN_OP>(se, parse::sel<Se>(":", "."));
 		paintName(se, itm.method);
 		paintArgs(se, itm.args);
