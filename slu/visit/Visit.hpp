@@ -357,17 +357,17 @@ namespace slu::visit
 				visitSoe(vi, **var.elseBlock);
 			Slu_CALL_VISIT_FN_POST_VAR(IfExpr);
 		},
-		varcase(parse::ExprType::LimPrefixExpr<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(LimPrefixExprExpr);
-			visitLimPrefixExpr(vi, *var);
-			Slu_CALL_VISIT_FN_POST_VAR(LimPrefixExprExpr);
-		},
-		varcase(parse::ExprType::FuncCall<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(FuncCallExpr);
-			visitLimPrefixExpr(vi, *var.val);
-			visitArgChain(vi, var.argChain);
-			Slu_CALL_VISIT_FN_POST_VAR(FuncCallExpr);
-		},
+		//varcase(parse::ExprType::LimPrefixExpr<Vi>&) {
+		//	Slu_CALL_VISIT_FN_PRE_VAR(LimPrefixExprExpr);
+		//	visitLimPrefixExpr(vi, *var);
+		//	Slu_CALL_VISIT_FN_POST_VAR(LimPrefixExprExpr);
+		//},
+		//varcase(parse::ExprType::FuncCall<Vi>&) {
+		//	Slu_CALL_VISIT_FN_PRE_VAR(FuncCallExpr);
+		//	visitLimPrefixExpr(vi, *var.val);
+		//	visitArgChain(vi, var.argChain);
+		//	Slu_CALL_VISIT_FN_POST_VAR(FuncCallExpr);
+		//},
 		varcase(parse::ExprType::Lifetime&) {
 			//TODO: pre post
 			visitLifetime(vi,var);

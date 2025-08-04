@@ -9,8 +9,6 @@ New Syntax {
 	
 	comptimeExp ::= exp
 	comptimeVar ::= modpath {"." tupleableName}
-	comptimeVarType ::= modpath
-	comptimeFunccall ::= comptimeVar [":" tupleableName] args
 	
 	basicExp @::= | "const" "(" exp ")"
 }
@@ -35,9 +33,8 @@ Const Keyword {
 	When using it on "const" local variables, the variables might be moved over to some private global state.
 	
 	
-	comptimeExp,comptimeFunccall -> must be runnable at compile-time
+	comptimeExp -> must be runnable at compile-time
 	comptimeVar -> value must be known at compile-time
-	comptimeVarType -> only basic type paths allowed
 	
 	(const(exp)) can be used to force a expression to be run at compile-time
 	

@@ -9,14 +9,13 @@
 	ex struct Block = @Builtin{"base::type/block"}void;
 	ex struct Stat = @Builtin{"base::type/stat"}void;
 	
-	ex struct Var = @Builtin{"base::type/var"}void;
 	ex struct Expr = @Builtin{"base::type/exp"}void;
 	ex struct Name = @Builtin{"base::type/Name"}void;
 	ex struct TraitExpr = @Builtin{"base::type/traitExp"}void;
 	
 	--
 	--wrap around one of the above things, to allow a list of someting
-	--note: only works for: (Name,TraitExpr,Expr,Var)
+	--note: only works for: (Name,TraitExpr,Expr)
 	--
 	ex struct fn CommaList(T = type) = @Builtin{"base::type/CommaList"}T;
 	
@@ -29,7 +28,6 @@
 	
 	@Builtin{"base::no_splice"} ex macro fn Stat! {macro v = Stat }->Stat {return v;}
 	
-	@Builtin{"base::no_splice"} ex macro fn Var!  {macro v = Var  }->Var  {return v;}
 	@Builtin{"base::no_splice"} ex macro fn Expr! {macro v = Expr }->Expr {return v;}
 	@Builtin{"base::no_splice"} ex macro fn Name! {macro v = Name }->Name {return v;}
 	@Builtin{"base::no_splice"} ex macro fn TraitExpr! {macro v = TraitExpr}->TraitExpr {return v;}
@@ -80,7 +78,6 @@
 		Block,
 		Stat,
 		
-		Var,
 		Expr,
 		Name,
 		TraitExpr
@@ -107,7 +104,6 @@ New Syntax {
 	
 	stat @::= | macroInvSpl
 	basicExp @::= | macroInvSpl
-	var @::= | macroInvSpl
 	Name @::= | macroInvSpl
 	traitExp @::= | macroInvSpl
 	OptExportPrefix @::= | macroInvSpl

@@ -128,21 +128,6 @@ namespace slu::parse
 	>;
 	Slu_DEF_CFG(Args);
 
-	template<bool isSlu>
-	struct ArgFuncCallV
-	{// funcArgs ::=  [‘:’ Name] args
-
-		MpItmIdV<isSlu> funcName;//If empty, then no colon needed. Only used for ":xxx"
-		ArgsV<isSlu> args;
-	};
-
-	template<bool isSlu>
-	struct FuncCallV
-	{
-		std::unique_ptr<LimPrefixExprV<isSlu>> val;
-		std::vector<ArgFuncCallV<isSlu>> argChain;
-	};
-
 
 	template<bool isSlu>
 	struct ExprUserExprV {
@@ -152,25 +137,18 @@ namespace slu::parse
 	struct ExprUserExprV<true>
 	{
 		BoxExprV<true> v;
-		parse::ResolvedType res;
+		parse::ResolvedType ty;
 	};
 
 	namespace ExprType
 	{
-		template<bool isSlu>
-		using LimPrefixExprV = std::unique_ptr<parse::LimPrefixExprV<isSlu>>;	// "prefixexp"
-		Slu_DEF_CFG(LimPrefixExpr);
-
-		using parse::FuncCallV;
-		using parse::FuncCall;
-
-		struct OpenRange {};	// ".."
-
 		struct MpRoot {};		// ":>"
 		using Local = LocalId;
 		template<bool isSlu>
 		using GlobalV = MpItmIdV<isSlu>;
 		Slu_DEF_CFG(Global);
+
+		struct Deref : ExprUserExprV<true> {};// exp ".*"
 
 		template<bool isSlu> // exp "[" exp "]"
 		struct IndexV : ExprUserExprV<isSlu> {
@@ -189,6 +167,14 @@ namespace slu::parse
 			ArgsV<isSlu> args;
 		};
 		Slu_DEF_CFG(Call);
+
+		template<bool isSlu> //Lua: exp ":" Name args //Slu: exp "." Name args
+		struct SelfCallV : ExprUserExprV<isSlu>
+		{
+			MpItmIdV<isSlu> method;
+			ArgsV<isSlu> args;
+		};
+		Slu_DEF_CFG(SelfCall);
 	}
 
 	struct TupleName
@@ -221,18 +207,9 @@ namespace slu::parse
 		UnOpType type;
 	};
 
-	namespace TraitExprItemType
-	{
-		using LimPrefixExpr = std::unique_ptr<LimPrefixExprV<true>>;
-		using FuncCall = FuncCallV<true>;
-	}
-	using TraitExprItem = std::variant<
-		TraitExprItemType::LimPrefixExpr,
-		TraitExprItemType::FuncCall
-	>;
 	struct TraitExpr
 	{
-		std::vector<TraitExprItem> traitCombo;
+		std::vector<ExprV<true>> traitCombo;
 		Position place;
 	};
 	using TypePrefix = std::vector<UnOpItem>;
@@ -315,12 +292,10 @@ namespace slu::parse
 		using IfCondV = BaseIfCondV<isSlu, true>;
 		Slu_DEF_CFG(IfCond);
 
-
 		using parse::Lifetime;	// " '/' var" {'/' var"}
 		using parse::TraitExpr;
 
 		struct PatTypePrefix {};
-
 
 		struct Inferr {};
 		struct Union
@@ -333,13 +308,11 @@ namespace slu::parse
 			BoxExprV<true> retType;
 			OptSafety safety = OptSafety::DEFAULT;
 		};
-		struct Dyn
-		{
-			TraitExpr expr;
+		struct Dyn {
+			parse::TraitExpr expr;
 		};
-		struct Impl
-		{
-			TraitExpr expr;
+		struct Impl {
+			parse::TraitExpr expr;
 		};
 		using Slice = BoxExprV<true>;
 		struct Err
@@ -359,13 +332,22 @@ namespace slu::parse
 		ExprType::String,		// "LiteralString"
 		ExprType::VarArgs,              // "..." (varargs)
 		ExprType::FunctionV<isSlu>,			// "functiondef"
-		ExprType::LimPrefixExprV<isSlu>,		// "prefixexp"
-		ExprType::FuncCallV<isSlu>,			// "prefixexp argsThing {argsThing}"
 		ExprType::TableV<isSlu>,	// "tableconstructor"
 
 		ExprType::MultiOpV<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
 
+		ExprType::Local,
+		ExprType::GlobalV<isSlu>,
+
+		ExprType::IndexV<isSlu>,
+		ExprType::FieldV<isSlu>,
+		ExprType::CallV<isSlu>,
+		ExprType::SelfCallV<isSlu>,
+		ExprType::Deref,
+
 		// Slu
+
+		ExprType::MpRoot,
 
 		ExprType::IfCondV<isSlu>,
 
@@ -554,64 +536,6 @@ namespace slu::parse
 
 	//Common
 
-	namespace SubVarType
-	{
-		using Deref = std::monostate;
-
-		template<bool isSlu>
-		struct NAMEv { MpItmIdV<isSlu> idx; };	// {funcArgs} ‘.’ Name
-		Slu_DEF_CFG_CAPS(NAME);
-
-		using parse::ExprV;
-		using parse::Expr;
-	}
-
-	template<bool isSlu>
-	struct SubVarV
-	{
-		std::vector<ArgFuncCallV<isSlu>> funcCalls;
-
-		std::variant<
-			SubVarType::Deref,
-			SubVarType::NAMEv<isSlu>,
-			SubVarType::ExprV<isSlu>
-		> idx;
-	};
-
-	Slu_DEF_CFG(SubVar);
-
-	namespace BaseVarType
-	{
-		using Root = std::monostate;// ":>" // modpath root
-		using Local = parse::LocalId;
-
-		template<bool isSlu>
-		struct NAMEv
-		{
-			MpItmIdV<isSlu> v;
-		};
-		Slu_DEF_CFG_CAPS(NAME);
-
-		using parse::ExprV;
-		using parse::Expr;
-
-	}
-	template<bool isSlu>
-	using BaseVarV = std::variant<
-		BaseVarType::Root,
-		BaseVarType::Local,
-		BaseVarType::NAMEv<isSlu>,
-		BaseVarType::ExprV<isSlu>
-	>;
-	Slu_DEF_CFG(BaseVar);
-
-	template<bool isSlu>
-	struct VarV
-	{
-		BaseVarV<isSlu> base;
-		std::vector<SubVarV<isSlu>> sub;
-	};
-
 	namespace FieldType
 	{
 		template<bool isSlu>
@@ -619,11 +543,6 @@ namespace slu::parse
 
 		template<bool isSlu>
 		struct Name2ExprV { MpItmIdV<isSlu> idx; parse::ExprV<isSlu> v; };	// "Name ‘=’ exp"
-	}
-	namespace LimPrefixExprType
-	{
-		template<bool isSlu>
-		struct VARv { VarV<isSlu> v; };			// "var"
 	}
 
 	template<bool isSlu>
@@ -688,11 +607,13 @@ namespace slu::parse
 		using Semicol = std::monostate;	// ";"
 
 		template<bool isSlu>
-		struct AssignV { std::vector<VarV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
+		struct AssignV { std::vector<ExprListV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG(Assign);
 
-		using parse::FuncCallV;
-		using parse::FuncCall;
+		using parse::ExprType::Call;
+		using parse::ExprType::CallV;
+		using parse::ExprType::SelfCall;
+		using parse::ExprType::SelfCallV;
 
 
 		template<bool isSlu>
@@ -873,7 +794,9 @@ namespace slu::parse
 		StatementType::CanonicLocal,
 		StatementType::CanonicGlobal,
 
-		StatementType::FuncCallV<isSlu>,		// "functioncall"
+		StatementType::CallV<isSlu>,
+		StatementType::SelfCallV<isSlu>,
+
 		StatementType::LabelV<isSlu>,			// "label"
 		StatementType::Break,					// "break"
 		StatementType::GotoV<isSlu>,			// "goto Name"

@@ -12,11 +12,10 @@ New Syntax {
 	shMutConst ::= "mut" | "const" | "share"
 	
 	typeunop ::= "&" [borrowLifetime] [shMutConst] | "*" [shMutConst]
-	typepostunop ::= ".*"
 	
 	binop @::= | "~~" | "||"
 	unop @::= | typeunop | "alloc" | "mut"
-	postunp @::= | typepostunop
+	postunp @::= | ".*"
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	

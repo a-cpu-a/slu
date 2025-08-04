@@ -79,13 +79,10 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_AUTO_LG(Pat);
 		_Slu_DEF_EMPTY_AUTO(DestrSpec);
 		_Slu_DEF_EMPTY_AUTO(Soe);
-		_Slu_DEF_EMPTY_AUTO(LimPrefixExpr);
 		_Slu_DEF_EMPTY_AUTO(FunctionInfo);
 		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
 		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TableExpr, parse::ExprType::Table<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(FuncCallExpr, parse::ExprType::FuncCall<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(LimPrefixExprExpr, parse::ExprType::LimPrefixExpr<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::String);
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MultiOp<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TraitExpr, parse::TraitExpr);
@@ -109,7 +106,8 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(CanonicLocal, parse::StatementType::CanonicLocal);
 		_Slu_DEF_EMPTY_PRE_POST(CanonicGlobal, parse::StatementType::CanonicGlobal);
 		_Slu_DEF_EMPTY_PRE_POST(Drop, parse::StatementType::Drop<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(FuncCallStat, parse::StatementType::FuncCall<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(CallStat, parse::StatementType::Call<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(SelfCallStat, parse::StatementType::SelfCall<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 
 		//Edge cases:

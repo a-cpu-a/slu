@@ -10,7 +10,7 @@ New Syntax {
 
 	basicstat ::= ‘;’
 		| varlist ‘=’ explist
-		| functioncall
+		| var selfablecall
 		| ‘goto’ Name
 
 	--TODO: loop exprs, also move it to some new spec
@@ -35,40 +35,28 @@ New Syntax {
 
 	label ::= ‘:::’ Name ‘:’
 
-	varlist ::= var {‘,’ var}
-
-	varbase ::= Name | ‘(’ exp ‘)’ subvar
-	subvar ::= {args} (‘[’ exp ‘]’ | ‘.’ Name | ‘.*’)
-	var ::= varbase {subvar}
-
-	namelist ::= Name {‘,’ Name}
-
 	explist ::= exp {‘,’ exp}
+	varlist ::= var {‘,’ var}
+	
+	subvar ::= ‘.*’ | ‘.’ Name | ‘[’ exp ‘]’ | 
+	var ::= Name | ‘(’ exp ‘)’ | var {selfablecall} subvar
 
-	basicExp ::=  Numeral | LiteralString | tableconstructor
-		| prefixexpBfuncArgs | functioncallBasicArgs
+	basicArgs ::=  ‘(’ [explist] ‘)’ | LiteralString
+	args ::=  basicArgs | tableconstructor
+	
+	selfablecall ::= ["." Name] args
+
+	basicExp ::=  Name | ‘(’ exp ‘)’ | Numeral | LiteralString | tableconstructor
+		| basicExp ‘[’ exp ‘]’ | basicExp ‘.’ Name | basicExp selfablecall
 		| basicExp binop basicExp | {unop} basicExp {postunop}
 	
 	exp ::=  basicExp
-		| prefixexp | functioncall
+		| exp selfablecall
 		| exp binop exp | {unop} exp {postunop}
 
-	prefixexp ::= var | ‘(’ exp ‘)’
-	functioncall ::=  prefixexp args
-	
-	--Note: this var doesnt allow {} and "" style args.
-	prefixexpBfuncArgs ::= var | functioncallBasicArgs | ‘(’ exp ‘)’
-	functioncallBasicArgs ::=  prefixexpBfuncArgs basicargs
-
-	basicargs ::=  ‘(’ [explist] ‘)’
-	args ::=  basicargs | tableconstructor | LiteralString 
-
 	tableconstructor ::= ‘{’ [fieldlist] ‘}’
-
 	fieldlist ::= field {fieldsep field} [fieldsep]
-
 	field ::= Name ‘=’ exp | exp
-
 	fieldsep ::= ‘,’ | ‘;’
 
 	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’

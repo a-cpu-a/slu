@@ -86,9 +86,6 @@ namespace slu::parse
 	template<bool isSlu>
 	using BoxExprV = std::unique_ptr<ExprV<isSlu>>;
 
-	template<bool isSlu> struct VarV;
-	Slu_DEF_CFG(Var);
-
 	namespace FieldType
 	{
 		//For lua only!
@@ -101,26 +98,6 @@ namespace slu::parse
 		using parse::ExprV;
 		using parse::Expr;
 	}
-	namespace LimPrefixExprType
-	{
-		template<bool isSlu> struct VARv;
-		Slu_DEF_CFG_CAPS(VAR);
-
-		using parse::ExprV;
-		using parse::Expr;
-	}
-	template<bool isSlu>
-	using LimPrefixExprV = std::variant<
-		LimPrefixExprType::VARv<isSlu>,
-		LimPrefixExprType::ExprV<isSlu>
-	>;
-	Slu_DEF_CFG(LimPrefixExpr);
-
-	template<bool isSlu> struct ArgFuncCallV;
-	Slu_DEF_CFG(ArgFuncCall);
-
-	template<bool isSlu> struct FuncCallV;
-	Slu_DEF_CFG(FuncCall);
 
 	template<bool isSlu>
 	using ExprListV = std::vector<ExprV<isSlu>>;
@@ -128,6 +105,8 @@ namespace slu::parse
 
 	namespace ExprType
 	{
+		struct OpenRange {};	// ".."
+
 		struct String { std::string v; Position end; };	// "LiteralString"	
 
 		// "Numeral"
