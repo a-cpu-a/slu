@@ -847,17 +847,17 @@ namespace slu::paint
 	concept NonPaintableStat = std::same_as<T,parse::StatementType::CanonicLocal>
 		|| std::same_as<T, parse::StatementType::CanonicGlobal>;
 
-	template<AnySemOutput Se>
-	inline void paintCall(Se& se, const parse::ExprType::Call<Se>& itm)
+	template<bool boxed, AnySemOutput Se>
+	inline void paintCall(Se& se, const parse::Call<Se,boxed>& itm)
 	{
-		paintExpr(se, itm.expr);
+		paintExpr(se, *itm.expr);
 		paintArgs(se, itm.args);
 	}
 
-	template<AnySemOutput Se>
-	inline void paintSelfCall(Se& se, const parse::ExprType::SelfCall<Se>& itm)
+	template<bool boxed, AnySemOutput Se>
+	inline void paintSelfCall(Se& se, const parse::SelfCall<Se,boxed>& itm)
 	{
-		paintExpr(se, itm.expr);
+		paintExpr(se, *itm.expr);
 		paintKw<Tok::GEN_OP>(se, parse::sel<Se>(":", "."));
 		paintName(se, itm.method);
 		paintArgs(se, itm.args);

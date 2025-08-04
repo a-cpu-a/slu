@@ -52,16 +52,14 @@ namespace slu::parse
 
 	//Returns if skipped after
 	template<AnyInput In>
-	inline bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, Var<In>& varDataOut, bool& varDataNeedsSubThing)
+	inline bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, Expr<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			Expr<In> res = readExpr(in,allowVarArg);
-			requireToken(in, ")");
-
-			varDataOut.base = BaseVarType::Expr<In>(std::move(res));
+			varDataOut.data = ExprType::Parens<In>(readExpr(in, allowVarArg));
 			varDataNeedsSubThing = true;
+			requireToken(in, ")");
 			return false;
 		}
 		if constexpr (In::settings() & sluSyn)
@@ -74,12 +72,12 @@ namespace slu::parse
 				{
 					in.skip(2);
 					skipSpace(in);
-					varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveRootName(readModPath(in)));
+					varDataOut.data = ExprType::Global<In>(in.genData.resolveRootName(readModPath(in)));
 					return false;
 				}
 				else
 				{
-					varDataOut.base = BaseVarType::Root{};
+					varDataOut.data = ExprType::MpRoot{};
 					return true;
 				}
 			}
@@ -97,25 +95,25 @@ namespace slu::parse
 			{
 				ezmatch(in.genData.resolveNameOrLocal(mp[0]))(
 					varcase(const LocalId) {
-					varDataOut.base = BaseVarType::Local(var);
+					varDataOut.data = ExprType::Local(var);
 				},
 					varcase(const MpItmId<In>) {
-					varDataOut.base = BaseVarType::NAME<In>(var);
+					varDataOut.data = ExprType::Global<In>(var);
 				}
 					);
 			}
 			else
-				varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(mp));
+				varDataOut.data = ExprType::Global<In>(in.genData.resolveName(mp));
 
 			return skipped;
 		}
 		//Check, cuz 'excess elements in struct initializer' happens in normal lua
-		varDataOut.base = BaseVarType::NAME<In>(in.genData.resolveName(start));
+		varDataOut.data = ExprType::Global<In>(in.genData.resolveName(start));
 		return false;
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
-	inline T returnPrefixExprVar(In& in, std::vector<Var<In>>& varData, std::vector<ArgFuncCall<In>>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
+	inline T returnPrefixExprVar(In& in, ExprList<In>& varData, std::vector<Args<In>>& funcCallData,const bool varDataNeedsSubThing,const char opTypeCh)
 	{
 		char opType[4] = "EOS";
 
@@ -167,8 +165,7 @@ namespace slu::parse
 			BaseVarType::Expr<In>& bVarExpr = std::get<BaseVarType::Expr<In>>(varData.back().base);
 			return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(bVarExpr)), std::move(funcCallData));
 		}
-		auto limP = LimPrefixExprType::VAR<In>(std::move(varData.back()));
-		return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(limP)), std::move(funcCallData));
+		return FuncCall<In>(std::make_unique<LimPrefixExpr<In>>(std::move(varData.back())), std::move(funcCallData));
 	}
 	template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
 	inline T parsePrefixExprVar(In& in, const bool allowVarArg, char firstChar)
@@ -182,8 +179,8 @@ namespace slu::parse
 			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
 		*/
 
-		std::vector<Var<In>> varData;
-		std::vector<ArgFuncCall<In>> funcCallData;// Current func call chain, empty->no chain
+		ExprList<In> varData;
+		std::vector<Args<In>> funcCallData;// Current func call chain, empty->no chain
 		bool varDataNeedsSubThing = false;
 		
 		varData.emplace_back();
