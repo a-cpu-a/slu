@@ -262,19 +262,15 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, "?");
 		},
 		varcase(const parse::ExprType::Err&) {
+			paintKw<Tok::GEN_OP>(se, "~~");
 			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::GEN_OP>(se, "~~");
 				paintTypeExpr(se, *var.err, tint);
-			}
 		},
 		varcase(const parse::ExprType::Slice&) {
+			paintKw<Tok::GEN_OP>(se, "[");
 			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::GEN_OP>(se, "[");
-				paintTypeExpr(se, *var);
-				paintKw<Tok::GEN_OP>(se, "]");
-			}
+				paintTypeExpr(se, *var.v);
+			paintKw<Tok::GEN_OP>(se, "]");
 		},
 		varcase(const parse::ExprType::Union&) {
 			if constexpr (Se::settings() & sluSyn)

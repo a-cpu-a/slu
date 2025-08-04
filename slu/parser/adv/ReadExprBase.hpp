@@ -240,7 +240,7 @@ namespace slu::parse
 				if (in.peekAt(1) == ':') //is label            /* || in.peekAt(1) == '>' */   / '::' / ':>'
 					goto exit;
 
-				Position wrapPlace = in.getPos();
+				Position wrapPlace = in.getLoc();
 
 				in.skip();//skip colon
 				PoolString method = in.genData.poolStr(readName(in));
@@ -269,13 +269,13 @@ namespace slu::parse
 			case '\'':
 				if constexpr (in.settings() & spacedFuncCallStrForm)
 				{
-					if (opType!="{" && !skipped)
+					if (opType!='{' && !skipped)
 						throwSpaceMissingBeforeString(in);
 				}
 				[[fallthrough]];
 			case '('://Funccall
 			{
-				Position wrapPlace = in.getPos();
+				Position wrapPlace = in.getLoc();
 				varData.back() = wrapExpr<ExprType::Call<In>, true, In>(
 					wrapPlace,
 					std::move(varData.back()),
@@ -291,7 +291,7 @@ namespace slu::parse
 					if (in.peekAt(1) == '.') //is concat or range (..)
 						goto exit;
 				}
-				Position wrapPlace = in.getPos();
+				Position wrapPlace = in.getLoc();
 				if constexpr (In::settings() & sluSyn)
 				{
 					if (in.peekAt(1) == '*')
@@ -325,6 +325,7 @@ namespace slu::parse
 			}
 			case '[':// Arr-index
 			{
+				Position wrapPlace = in.getLoc();
 				const char secondCh = in.peekAt(1);
 
 				if (secondCh == '[' || secondCh == '=')//is multi-line string?
@@ -334,7 +335,6 @@ namespace slu::parse
 						if (!skipped)
 							throwSpaceMissingBeforeString(in);
 					}
-					Position wrapPlace = in.getPos();
 					varData.back() = wrapExpr<ExprType::Call<In>, true,In>(
 						wrapPlace,
 						std::move(varData.back()),
@@ -344,7 +344,6 @@ namespace slu::parse
 					break;
 				}
 
-				Position wrapPlace = in.getPos();
 				in.skip();//skip first char
 				Expr<In> idx = readExpr(in,allowVarArg);
 				requireToken(in, "]");

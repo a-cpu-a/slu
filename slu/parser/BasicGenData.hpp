@@ -139,7 +139,7 @@ namespace slu::parse
 		LocalObjId at(const std::string_view name) const {
 			return name2Id.find(name)->second;
 		}
-		LocalObjId get(const std::string_view name)
+		LocalObjId get(std::string_view name)
 		{
 			auto p = name2Id.find(name);
 			if (p == name2Id.end())
@@ -148,6 +148,20 @@ namespace slu::parse
 
 				name2Id[std::string(name)] = { res };
 				id2Name.emplace_back(name);
+
+				return { res };
+			}
+			return p->second;
+		}
+		LocalObjId get(std::string&& name)
+		{
+			auto p = name2Id.find(name);
+			if (p == name2Id.end())
+			{
+				const size_t res = id2Name.size();
+
+				name2Id[std::string(name)] = { res };
+				id2Name.emplace_back(std::move(name));
 
 				return { res };
 			}
@@ -666,6 +680,9 @@ namespace slu::parse
 				LocalObjId id = mpDb.get(name);
 				return MpItmIdV<false>{id};
 			}
+		}
+		PoolString poolStr(std::string&& name) {
+			return mpDb.data->mps[0].get(std::move(name));
 		}
 		constexpr MpItmIdV<isSlu> resolveUnknown(const ModPath& name)
 		{
