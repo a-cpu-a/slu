@@ -326,7 +326,9 @@ namespace slu::parse
 		struct Impl {
 			parse::TraitExpr expr;
 		};
-		using Slice = BoxExprV<true>;
+		struct Slice {
+			BoxExprV<true> v;
+		};
 		struct Err
 		{
 			BoxExprV<true> err;

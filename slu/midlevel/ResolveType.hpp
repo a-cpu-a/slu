@@ -174,7 +174,7 @@ namespace slu::mlvl
 			throw std::runtime_error("TODO: resolve complex lim-prefix-expr type expressions.");
 		},
 		varcase(parse::ExprType::Slice&&)->parse::ResolvedType {
-			parse::ResolvedType rt = resolveTypeExpr(mpDb, std::move(*var));
+			parse::ResolvedType rt = resolveTypeExpr(mpDb, std::move(*var.v));
 			rt.outerSliceDims++;
 			return rt;
 		},
