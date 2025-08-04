@@ -284,7 +284,7 @@ namespace slu::mlvl
 				for (auto& i : std::views::reverse(itm.items))
 					patStack.push_back(&i.pat);
 				for (auto& i : itm.items)
-					exprStack.emplace_back(parse::mkFieldIdx(name, i.name));
+					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place,name, i.name));
 			}
 			else
 			{
@@ -293,7 +293,7 @@ namespace slu::mlvl
 				for (size_t i = 0; i < itm.items.size(); i++)
 				{
 					parse::PoolString index = mpDb.poolStr("0x" + parse::u64ToStr(i));
-					exprStack.emplace_back(parse::mkFieldIdx(name, index));
+					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place, name, index));
 				}
 			}
 		}
