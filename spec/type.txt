@@ -15,7 +15,6 @@ New Syntax {
 	
 	binop @::= | "~~" | "||"
 	unop @::= | typeunop | "alloc" | "mut"
-	postunp @::= | ".*"
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	

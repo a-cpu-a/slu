@@ -47,11 +47,11 @@ New Syntax {
 	selfablecall ::= ["." Name] args
 
 	basicExp ::=  Name | ‘(’ exp ‘)’ | Numeral | LiteralString | tableconstructor
-		| basicExp ‘[’ exp ‘]’ | basicExp ‘.’ Name | basicExp selfablecall
+		| basicExp subvar | basicExp selfablecall
 		| basicExp binop basicExp | {unop} basicExp {postunop}
 	
 	exp ::=  basicExp
-		| exp selfablecall
+		| exp subvar | exp selfablecall
 		| exp binop exp | {unop} exp {postunop}
 
 	tableconstructor ::= ‘{’ [fieldlist] ‘}’
