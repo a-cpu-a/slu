@@ -58,6 +58,11 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Name);
 	}
+	template<AnyVisitor Vi>
+	inline void visitPoolString(Vi& vi, parse::PoolString& itm)
+	{
+		//TODO
+	}
 	template<bool isLocal,AnyVisitor Vi>
 	inline void visitNameOrLocal(Vi& vi, parse::LocalOrName<Vi,isLocal>& itm)
 	{
@@ -432,23 +437,15 @@ namespace slu::visit
 		}
 		Slu_CALL_VISIT_FN_POST(ExprList);
 	}
-	/*template<AnyVisitor Vi>
-	inline void visitArgChain(Vi& vi, std::span<parse::ArgFuncCall<Vi>> itm)
+	template<AnyVisitor Vi>
+	inline void visitArgs(Vi& vi, parse::Args<Vi>& itm)
 	{
-		Slu_CALL_VISIT_FN_PRE(ArgChain);
-		for (auto& i : itm)
-		{
-			ezmatch(i.args)(
-			varcase(parse::ArgsType::ExprList<Vi>&) { visitExprList(vi, var); },
-			varcase(parse::ArgsType::Table<Vi>&) {
-				visitTable(vi, var);
-			},
-			varcase(const parse::ArgsType::String&) {}
-			);
-			Slu_CALL_VISIT_FN_SEP(ArgChain,i,itm);
-		}
-		Slu_CALL_VISIT_FN_POST(ArgChain);
-	}*/
+		ezmatch(itm)(
+		varcase(parse::ArgsType::ExprList<Vi>&) {	visitExprList(vi, var); },
+		varcase(parse::ArgsType::Table<Vi>&) {		visitTable(vi, var); },
+		varcase(parse::ArgsType::String&) {			visitString(vi,var); }
+		);
+	}
 	template<AnyVisitor Vi>
 	inline void visitTable(Vi& vi, parse::Table<Vi>& itm)
 	{
@@ -536,11 +533,14 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 			Slu_CALL_VISIT_FN_POST_VAR(ConstVar);
 		},
-		varcase(parse::StatementType::FuncCall<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(FuncCallStat);
-			visitLimPrefixExpr(vi, *var.val);
-			visitArgChain(vi, var.argChain);
-			Slu_CALL_VISIT_FN_POST_VAR(FuncCallStat);
+		varcase(parse::StatementType::Call<Vi>&) {
+			visitExpr(vi, var.expr);
+			visitArgs(vi, var.args);
+		},
+		varcase(parse::StatementType::SelfCall<Vi>&) {
+			visitExpr(vi, var.expr);
+			visitPoolString(vi, var.method);
+			visitArgs(vi, var.args);
 		},
 		varcase(parse::StatementType::Block<Vi>&) {
 			visitBlock(vi, var);
