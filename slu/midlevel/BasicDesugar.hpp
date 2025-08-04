@@ -292,8 +292,8 @@ namespace slu::mlvl
 					patStack.push_back(&i);
 				for (size_t i = 0; i < itm.items.size(); i++)
 				{
-					parse::MpItmId<Cfg> index = mpDb.resolveUnknown("0x" + parse::u64ToStr(i));
-					exprStack.emplace_back(parse::mkLpeVar(name, index));
+					parse::PoolString index = mpDb.poolStr("0x" + parse::u64ToStr(i));
+					exprStack.emplace_back(parse::mkFieldIdx(name, index));
 				}
 			}
 		}
