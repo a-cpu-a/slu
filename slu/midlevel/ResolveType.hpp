@@ -36,6 +36,9 @@ namespace slu::mlvl
 	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type)
 	{
 		parse::ResolvedType resTy = ezmatch(std::move(type.data))(
+		varcase(parse::ExprType::ParensV<true>&&) {
+			return resolveTypeExpr(mpDb,std::move(*var));
+		},
 		varcase(const parse::ExprType::Inferr) {
 			return parse::ResolvedType::getInferred();
 		},

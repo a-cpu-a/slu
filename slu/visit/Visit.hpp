@@ -330,6 +330,9 @@ namespace slu::visit
 		varcase(const parse::ExprType::VarArgs) {
 			//TODO
 		},
+		varcase(parse::ExprType::Parens<Vi>&) {
+			visitExpr(vi, *var);
+		},
 		varcase(const parse::ExprType::MpRoot) {
 			//TODO
 		},
@@ -434,7 +437,7 @@ namespace slu::visit
 			visitTraitExpr(vi, var.expr);
 		},
 		varcase(parse::ExprType::Slice&) {
-			visitExpr(vi, *var);
+			visitExpr(vi, *var.v);
 		},
 		varcase(parse::ExprType::Union&) {
 			visitTable(vi, var.fields);
