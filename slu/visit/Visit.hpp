@@ -406,7 +406,7 @@ namespace slu::visit
 			visitTypeExpr(vi, *var.err);
 		},
 		varcase(const parse::ExprType::Inferr) {
-			//TODO
+			Slu_CALL_VISIT_FN_PRE_VAR(Inferr);
 		},
 		varcase(parse::ExprType::Dyn&) {
 			visitTraitExpr(vi, var.expr);

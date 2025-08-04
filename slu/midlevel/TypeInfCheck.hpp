@@ -413,6 +413,9 @@ namespace slu::mlvl
 			return false;
 		}
 
+		bool preInferr(parse::ExprType::Inferr itm) {
+			throw std::runtime_error("TODO: type-check/inferr type of '?', it might be a error or just 'type'.");
+		}
 		bool preOpenRange(parse::ExprType::OpenRange itm) {
 			throw std::runtime_error("TODO: type-check/inferr open range expressions.");
 		}
