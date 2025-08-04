@@ -145,11 +145,11 @@ namespace slu::mlvl
 			mkFuncStatItm(itm.name.id, std::move(itm.func.abi), std::move(itm.func.retType), itm.func.params, itm.exported,true);
 		}
 
-		bool preBaseVarName(parse::BaseVarType::NAME<Cfg>& itm) {
-			if (mpDb.isUnknown(itm.v))
+		bool preGlobal(parse::ExprType::Global<Cfg>& itm) {
+			if (mpDb.isUnknown(itm))
 			{
-				parse::BasicModPathData& mp = mpDb.data->mps[itm.v.mp.id];
-				std::string_view item = mp.id2Name[itm.v.id.val];
+				parse::BasicModPathData& mp = mpDb.data->mps[itm.mp.id];
+				std::string_view item = mp.id2Name[itm.id.val];
 
 				std::string_view start = item;
 				if (mp.path.size() > 1)
@@ -174,12 +174,12 @@ namespace slu::mlvl
 							tmpMp.insert(tmpMp.end(), mp.path.begin() + 1, mp.path.end());
 							tmpMp.emplace_back(item);
 
-							itm.v.mp = mpDb.get<false>(tmpMp);
-							itm.v.id = mpDb.data->mps[itm.v.mp.id].get(item);
+							itm.mp = mpDb.get<false>(tmpMp);
+							itm.id = mpDb.data->mps[itm.mp.id].get(item);
 							return false;
 						}
-						itm.v.mp = i;
-						itm.v.id.val = k-1;
+						itm.mp = i;
+						itm.id.val = k-1;
 						return false;
 					}
 				}
@@ -517,7 +517,7 @@ namespace slu::mlvl
 				//Else: its inferred, or doesnt exist
 			}
 			
-			parse::ExprType::FuncCall<Cfg> call;
+			parse::ExprType::Call<Cfg> call;
 			parse::ArgsType::ExprList<Cfg> list;
 			list.emplace_back(std::move(expr));
 
@@ -528,8 +528,8 @@ namespace slu::mlvl
 				lifetimeExpr.data = parse::ExprType::Lifetime{ std::move(*lifetime) };
 				list.emplace_back(std::move(lifetimeExpr));
 			}
-			call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
-			call.val = parse::mkLpeVar(name);
+			call.args = std::move(list);
+			call.v = parse::mkBoxGlobal<isSlu,true>(place, name);
 
 			//Turn the (moved)expr in a function call expression
 			expr.data = std::move(call);
@@ -575,16 +575,16 @@ namespace slu::mlvl
 						auto& expr1 = expStack.back();
 						parse::Position place = expr1.place;
 
-						parse::ExprType::FuncCall<Cfg> call;
+						parse::ExprType::Call<Cfg> call;
 						parse::ArgsType::ExprList<Cfg> list;
 						list.emplace_back(std::move(expr1));
 						list.emplace_back(std::move(expr2));
-						call.argChain.emplace_back(parse::MpItmId<Cfg>::newEmpty(), std::move(list));
+						call.args = std::move(list);
 
 						parse::BinOpType op = ops.extra[i.index - 1].first;
 						const size_t traitIdx = (size_t)op - 1; //-1 for none
 
-						call.val = parse::mkLpeVar(binOpFuncs[traitIdx].get([&] {
+						call.v = parse::mkBoxGlobal<isSlu,true>(place,binOpFuncs[traitIdx].get([&] {
 							lang::ModPath name;
 							name.reserve(4);
 							name.emplace_back("std");

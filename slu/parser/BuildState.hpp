@@ -8,6 +8,18 @@
 namespace slu::parse
 {
 	template<bool isSlu>
+	inline ::slu::parse::ExprV<isSlu> mkGlobal(::slu::parse::Position place, ::slu::lang::MpItmIdV<isSlu> name)
+	{
+		return ::slu::parse::BaseExprV<isSlu>{
+			::slu::parse::ExprType::GlobalV<isSlue>{name},
+				place
+		};
+	}
+	template<bool isSlu,bool boxed>
+	inline auto mkBoxGlobal(::slu::parse::Position place, ::slu::lang::MpItmIdV<isSlu> name) {
+		return ::slu::parse::mayBoxFrom<boxed>(mkGlobal<isSlu>(place,name));
+	}
+	template<bool isSlu>
 	inline ::slu::parse::TableV<isSlu> mkTbl(::slu::parse::ExprListV<isSlu>&& exprs)
 	{
 		::slu::parse::TableV<isSlu> tc;
