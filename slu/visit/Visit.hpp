@@ -184,52 +184,41 @@ namespace slu::visit
 		);
 		Slu_CALL_VISIT_FN_POST_LG(Pat);
 	}
-	template<AnyVisitor Vi>
-	inline void visitVar(Vi& vi, parse::Var<Vi>& itm)
-	{
-		Slu_CALL_VISIT_FN_PRE(Var);
-		ezmatch(itm.base)(
-		varcase(parse::BaseVarType::Expr<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(BaseVarExpr);
-			visitExpr(vi, var);
-			Slu_CALL_VISIT_FN_POST_VAR(BaseVarExpr);
-		},
-		varcase(parse::BaseVarType::NAME<Vi>&) {
-			Slu_CALL_VISIT_FN_PRE_VAR(BaseVarName);
-			visitMp(vi, var.v);
-			Slu_CALL_VISIT_FN_POST_VAR(BaseVarName);
-		},
-		varcase(const parse::BaseVarType::Local) {
-			//TODO
-		},
-		varcase(const parse::BaseVarType::Root) {
-			Slu_CALL_VISIT_FN_PRE_VAR(BaseVarRoot);
-		}
-		);
-		for (auto& i : itm.sub)
-		{
-			visitArgChain(vi,i.funcCalls);
-			ezmatch(i.idx)(
-			varcase(parse::SubVarType::NAME<Vi>&) {},
-			varcase(parse::SubVarType::Expr<Vi>&) {
-				visitExpr(vi, var);
-			},
-			varcase(parse::SubVarType::Deref) {}
-			);
-		}
-		Slu_CALL_VISIT_FN_POST(Var);
-	}
-	template<AnyVisitor Vi>
-	inline void visitVarList(Vi& vi, std::span<parse::Var<Vi>> itm)
-	{
-		Slu_CALL_VISIT_FN_PRE(VarList);
-		for (auto& i : itm)
-		{
-			visitVar(vi,i);
-			Slu_CALL_VISIT_FN_SEP(VarList,i,itm);
-		}
-		Slu_CALL_VISIT_FN_POST(VarList);
-	}
+	//template<AnyVisitor Vi>
+	//inline void visitVar(Vi& vi, parse::Var<Vi>& itm)
+	//{
+	//	Slu_CALL_VISIT_FN_PRE(Var);
+	//	ezmatch(itm.base)(
+	//	varcase(parse::BaseVarType::Expr<Vi>&) {
+	//		Slu_CALL_VISIT_FN_PRE_VAR(BaseVarExpr);
+	//		visitExpr(vi, var);
+	//		Slu_CALL_VISIT_FN_POST_VAR(BaseVarExpr);
+	//	},
+	//	varcase(parse::BaseVarType::NAME<Vi>&) {
+	//		Slu_CALL_VISIT_FN_PRE_VAR(BaseVarName);
+	//		visitMp(vi, var.v);
+	//		Slu_CALL_VISIT_FN_POST_VAR(BaseVarName);
+	//	},
+	//	varcase(const parse::BaseVarType::Local) {
+	//		//TODO
+	//	},
+	//	varcase(const parse::BaseVarType::Root) {
+	//		Slu_CALL_VISIT_FN_PRE_VAR(BaseVarRoot);
+	//	}
+	//	);
+	//	for (auto& i : itm.sub)
+	//	{
+	//		visitArgChain(vi,i.funcCalls);
+	//		ezmatch(i.idx)(
+	//		varcase(parse::SubVarType::NAME<Vi>&) {},
+	//		varcase(parse::SubVarType::Expr<Vi>&) {
+	//			visitExpr(vi, var);
+	//		},
+	//		varcase(parse::SubVarType::Deref) {}
+	//		);
+	//	}
+	//	Slu_CALL_VISIT_FN_POST(Var);
+	//}
 	template<AnyVisitor Vi>
 	inline void visitStatList(Vi& vi, parse::StatList<Vi>& itm)
 	{
@@ -443,19 +432,7 @@ namespace slu::visit
 		}
 		Slu_CALL_VISIT_FN_POST(ExprList);
 	}
-	template<AnyVisitor Vi>
-	inline void visitLimPrefixExpr(Vi& vi, parse::LimPrefixExpr<Vi>& itm)
-	{
-		Slu_CALL_VISIT_FN_PRE(LimPrefixExpr);
-		ezmatch(itm)(
-		varcase(parse::LimPrefixExprType::Expr<Vi>&) { visitExpr(vi, var); },
-		varcase(parse::LimPrefixExprType::VAR<Vi>&) {
-			visitVar(vi, var.v);
-		}
-		);
-		Slu_CALL_VISIT_FN_POST(LimPrefixExpr);
-	}
-	template<AnyVisitor Vi>
+	/*template<AnyVisitor Vi>
 	inline void visitArgChain(Vi& vi, std::span<parse::ArgFuncCall<Vi>> itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(ArgChain);
@@ -471,7 +448,7 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_SEP(ArgChain,i,itm);
 		}
 		Slu_CALL_VISIT_FN_POST(ArgChain);
-	}
+	}*/
 	template<AnyVisitor Vi>
 	inline void visitTable(Vi& vi, parse::Table<Vi>& itm)
 	{
@@ -514,7 +491,7 @@ namespace slu::visit
 		ezmatch(itm.data)(
 		varcase(parse::StatementType::Assign<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Assign);
-			visitVarList(vi, var.vars);
+			visitExprList(vi, var.vars);
 			visitExprList(vi, var.exprs);
 			Slu_CALL_VISIT_FN_POST_VAR(Assign);
 		},

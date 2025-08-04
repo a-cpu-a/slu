@@ -75,7 +75,6 @@ namespace slu::visit
 
 		_Slu_DEF_EMPTY_PRE_POST(File, parse::ParsedFile<Cfg>);
 		_Slu_DEF_EMPTY_AUTO(Block);
-		_Slu_DEF_EMPTY_AUTO(Var);
 		_Slu_DEF_EMPTY_AUTO_LG(Pat);
 		_Slu_DEF_EMPTY_AUTO(DestrSpec);
 		_Slu_DEF_EMPTY_AUTO(Soe);
@@ -90,8 +89,6 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(Locals, parse::Locals<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Statement<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(DestrSimple, parse::PatType::Simple<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(BaseVarExpr, parse::BaseVarType::Expr<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(BaseVarName, parse::BaseVarType::NAME<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(LocalVar, parse::StatementType::Local<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(LetVar, parse::StatementType::Let<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(ConstVar, parse::StatementType::Const<Cfg>);
@@ -136,7 +133,6 @@ namespace slu::visit
 		//Pre only:
 		_Slu_DEF_EMPTY_PRE_UNIT(PostUnOp, parse::PostUnOpType);
 		_Slu_DEF_EMPTY_PRE_UNIT(BinOp, parse::BinOpType);
-		_Slu_DEF_EMPTY_PRE_UNIT(BaseVarRoot, parse::BaseVarType::Root);
 		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny);
 		_Slu_DEF_EMPTY_PRE(BlockReturn, parse::Block<Cfg>);
 		_Slu_DEF_EMPTY_PRE(Name, parse::MpItmId<Cfg>);
@@ -160,8 +156,6 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_SEP(DestrFieldsLocal, std::span<parse::DestrField<Cfg Slu_co true>>, parse::DestrField<Cfg Slu_co true>);
 		_Slu_DEF_EMPTY_SEP(DestrFieldsGlobal, std::span<parse::DestrField<Cfg Slu_co false>>, parse::DestrField<Cfg Slu_co false>);
 
-		_Slu_DEF_EMPTY_LIST(VarList, parse::Var<Cfg>);
-		_Slu_DEF_EMPTY_LIST(ArgChain, parse::ArgFuncCall<Cfg>);
 		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId<Cfg>);
 		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<Cfg>);

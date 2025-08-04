@@ -181,30 +181,6 @@ namespace slu::parse
 		out.unTab()
 			.add('}');
 	}
-	template<AnyOutput Out>
-	inline void genLimPrefixExpr(Out& out, const LimPrefixExpr<Out>& obj)
-	{
-		ezmatch(obj)(
-		varcase(const LimPrefixExprType::VAR<Out>&) {
-			genVar(out, var.v);
-		},
-		varcase(const LimPrefixExprType::Expr<Out>&) {
-			out.add('(');
-			genExpr(out, var);
-			out.add(')');
-		}
-		);
-	}
-
-	template<AnyOutput Out>
-	inline void genFuncCall(Out& out,const FuncCall<Out>& obj)
-	{
-		genLimPrefixExpr(out, *obj.val);
-		for (const ArgFuncCall<Out>& arg : obj.argChain)
-		{
-			genArgFuncCall(out, arg);
-		}
-	}
 	inline void writeU64Hex(AnyOutput auto& out, const uint64_t v) {
 		for (size_t i = 0; i < 16; i++)
 		{
@@ -249,16 +225,9 @@ namespace slu::parse
 	{
 		if constexpr(Out::settings() & sluSyn)
 		{
-			for (const TraitExprItem& i : obj.traitCombo)
+			for (const parse::ExprV<true>& i : obj.traitCombo)
 			{
-				ezmatch(i)(
-				varcase(const TraitExprItemType::FuncCall&) {
-					genFuncCall(out, var);
-				},
-				varcase(const TraitExprItemType::LimPrefixExpr&) {
-					genLimPrefixExpr(out, *var);
-				}
-					);
+				genExpr(out, i);
 				if (&i != &obj.traitCombo.back())
 					out.add(" + ");
 			}
@@ -472,14 +441,14 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genArgFuncCall(Out& out, const ArgFuncCall<Out>& arg)
+	inline void genArgs(Out& out, const Args<Out>& itm)
 	{
-		if (!arg.funcName.empty())
-		{
-			out.add(':')
-				.add(out.db.asSv(arg.funcName));
-		}
-		ezmatch(arg.args)(
+		//if (!arg.funcName.empty())
+		//{
+		//	out.add(':')
+		//		.add(out.db.asSv(arg.funcName));
+		//}
+		ezmatch(itm)(
 		varcase(const ArgsType::ExprList<Out>&) {
 			out.add('(');
 			genExprList(out, var);
@@ -495,6 +464,21 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
+	inline void genCall(Out& out, const ExprType::Call<Out>& itm)
+	{
+		genExpr(out, itm.expr);
+		genArgs(out, itm.args);
+	}
+	template<AnyOutput Out>
+	inline void genSelfCall(Out& out, const ExprType::SelfCall<Out>& itm)
+	{
+		genExpr(out, itm.expr);
+		out.add(sel<Out>(":","."))
+			.add(out.db.asSv(itm.method));
+		genArgs(out, itm.args);
+	}
+
+	/*template<AnyOutput Out>
 	inline void genSubVar(Out& out, const SubVar<Out>& obj)
 	{
 		for (const ArgFuncCall<Out>& arg : obj.funcCalls)
@@ -517,7 +501,7 @@ namespace slu::parse
 			out.add(".*");
 		}
 		);
-	}
+	}*/
 
 	template<AnyOutput Out>
 	inline void genModPath(Out& out, const lang::ViewModPath& obj)
@@ -529,30 +513,30 @@ namespace slu::parse
 			out.add(obj[i]);
 		}
 	}
-	template<AnyOutput Out>
-	inline void genVar(Out& out, const Var<Out>& obj)
-	{
-		ezmatch(obj.base)(
-		varcase(const BaseVarType::Root) {
-			out.add(":>");
-		},
-		varcase(const BaseVarType::Local) {
-			//TODO
-		},
-		varcase(const BaseVarType::NAME<Out>&) {
-			out.add(out.db.asSv(var.v));
-		},
-		varcase(const BaseVarType::Expr<Out>&) {
-			out.add('(');
-			genExpr(out, var);
-			out.add(')');
-		}
-		);
-		for (const SubVar<Out>& sub :  obj.sub)
-		{
-			genSubVar(out, sub);
-		}
-	}
+	//template<AnyOutput Out>
+	//inline void genVar(Out& out, const Var<Out>& obj)
+	//{
+	//	ezmatch(obj.base)(
+	//	varcase(const BaseVarType::Root) {
+	//		out.add(":>");
+	//	},
+	//	varcase(const BaseVarType::Local) {
+	//		//TODO
+	//	},
+	//	varcase(const BaseVarType::NAME<Out>&) {
+	//		out.add(out.db.asSv(var.v));
+	//	},
+	//	varcase(const BaseVarType::Expr<Out>&) {
+	//		out.add('(');
+	//		genExpr(out, var);
+	//		out.add(')');
+	//	}
+	//	);
+	//	for (const SubVar<Out>& sub :  obj.sub)
+	//	{
+	//		genSubVar(out, sub);
+	//	}
+	//}
 	template<AnyOutput Out>
 	inline void genParamList(Out& out, const ParamList<Out>& itm,const bool hasVarArgParam)
 	{
@@ -638,16 +622,6 @@ namespace slu::parse
 			out.popLocals();
 	}
 
-	template<AnyOutput Out>
-	inline void genVarList(Out& out, const std::vector<Var<Out>>& obj)
-	{
-		for (const Var<Out>& v : obj)
-		{
-			genVar(out, v);
-			if (&v != &obj.back())
-				out.add(", ");
-		}
-	}
 	template<AnyOutput Out>
 	inline void genDestrSpec(Out& out, const DestrSpec<Out>& obj)
 	{
@@ -881,7 +855,7 @@ namespace slu::parse
 		},
 
 		varcase(const StatementType::Assign<Out>&) {
-			genVarList(out, var.vars);
+			genExprList(out, var.vars);
 			out.add(" = ");
 			genExprList(out, var.exprs);
 			out.addNewl(';');
@@ -929,8 +903,14 @@ namespace slu::parse
 			}
 		},
 
-		varcase(const StatementType::FuncCall<Out>&) {
-			genFuncCall(out, var);
+		varcase(const StatementType::Call<Out>&) {
+			genCall(out, var);
+			out.addNewl(';');
+			out.wasSemicolon = true;
+		},
+
+		varcase(const StatementType::SelfCall<Out>&) {
+			genSelfCall(out, var);
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},

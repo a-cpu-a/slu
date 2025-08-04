@@ -169,10 +169,9 @@ namespace slu::parse
 		Slu_DEF_CFG(Call);
 
 		template<bool isSlu> //Lua: exp ":" Name args //Slu: exp "." Name args
-		struct SelfCallV : ExprUserExprV<isSlu>
+		struct SelfCallV : CallV<isSlu>
 		{
 			MpItmIdV<isSlu> method;
-			ArgsV<isSlu> args;
 		};
 		Slu_DEF_CFG(SelfCall);
 	}
