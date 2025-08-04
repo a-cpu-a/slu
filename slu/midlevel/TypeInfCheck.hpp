@@ -98,7 +98,11 @@ namespace slu::mlvl
 
 	inline bool nameMatchCheck(parse::BasicMpDb mpDb,parse::MpItmIdV<true> subName, parse::MpItmIdV<true> useName)
 	{
-
+		if(subName == useName) return true;//Same name, so match.
+		if (subName.empty()) return true;
+		if (useName.empty()) return false;//Named -/> unnamed.
+		//TODO: upcasts.
+		return false;
 	}
 	template <class T>
 	inline bool nearExactCheckDeref(const T& subty, const parse::ResolvedType& useTy)
@@ -142,14 +146,14 @@ namespace slu::mlvl
 			if(!std::holds_alternative<T>(useTy.base)) return false;
 			return var == std::get<T>(useTy.base);
 		},
+		varcase(const parse::RawTypeKind::TypeError) {
+			return true;
+		},
 		varcase(const parse::RawTypeKind::Inferred) ->bool{
 			throw std::runtime_error("TODO: error logging, Found Inferred type in near exact type check");
 		},
 		varcase(const parse::RawTypeKind::Unresolved&)->bool {
 			throw std::runtime_error("TODO: error logging, Found unresolved type in near exact type check");
-		},
-		varcase(const parse::RawTypeKind::TypeError) {
-			return true;
 		},
 
 		varcase(const parse::RawTypeKind::Variant&) {
@@ -653,7 +657,7 @@ namespace slu::mlvl
 						i.resolveNoCheck(parse::ResolvedType::getBool(mpDb,canTrue, canFalse));
 				}
 				else
-				{//TODO: resolve it (find a type, that is a subtype of all the edit types).
+				{//resolve it (find a type, that is a subtype of all the edit types).
 					bool poison = false;
 					std::vector<const parse::ResolvedType*> types;
 					std::vector<parse::Range129> intRanges;

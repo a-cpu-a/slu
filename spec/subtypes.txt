@@ -48,7 +48,7 @@ Subtypes {
 		if both unnamed / same name, then return true;
 		--the names dont match...
 		
-		if super-type has no name, then return false;
+		if use-type has no name, then return false;
 		
 		--potential sub type upcast?
 		--or maybe a constructor?
@@ -56,12 +56,10 @@ Subtypes {
 		if the subtype implements SubtypeOf(super type), then return true;
 		
 		--should this exist?
-		--if the supertype implements SupertypeOf(sub type), then return true;
+		--if the use-type implements SupertypeOf(sub type), then return true;
 		
 		return false;
-		
-	} named types are supertypes of unnamed types.
-	(or maybe the other way around?) (you can assign unnamed struct to a named struct var)
+	}
 	
 	Near exact check -> {
 		if one of them a type error, then return true;
