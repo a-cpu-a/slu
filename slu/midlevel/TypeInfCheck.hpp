@@ -101,7 +101,7 @@ namespace slu::mlvl
 		if(subName == useName) return true;//Same name, so match.
 		if (subName.empty()) return true;
 		if (useName.empty()) return false;//Named -/> unnamed.
-		//TODO: upcasts.
+		//TODO: upcasting for enums.
 		return false;
 	}
 	template <class T>
@@ -193,7 +193,7 @@ namespace slu::mlvl
 		},
 		varcase(const parse::RawTypeKind::String&) {
 			using T = parse::RawTypeKind::String;
-			return sameCheck<T>(var, useTy, std::equal_to<T>{});//TODO: subtyping into &str.
+			return sameCheck<T>(var, useTy, std::equal_to<T>{});//TODO: subtyping into &str / &char.
 		},
 		varcase(const parse::RawTypeKind::Float64) {
 			using T = parse::RawTypeKind::Float64;

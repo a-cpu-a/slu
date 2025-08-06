@@ -53,7 +53,8 @@ Subtypes {
 		--potential sub type upcast?
 		--or maybe a constructor?
 		
-		if the subtype implements SubtypeOf(super type), then return true;
+		--this is prob not a good idea...
+		--if the subtype implements SubtypeOf(super type), then return true;
 		
 		--should this exist?
 		--if the use-type implements SupertypeOf(sub type), then return true;
@@ -92,7 +93,7 @@ Subtypes {
 	1. does it fully contain the other range?
 	
 	Struct <= Struct
-	1. names must match
+	1. names must match, or have a upcast relationship
 	2. check if the subtype's fields are subtypes of the super-type's versions of those fields. (super exclusive fields are ignored).
 	3. are the fields in the subtype also in the same order inside the super type.
 	
@@ -109,6 +110,17 @@ Subtypes {
 	
 	Slice <= Slice
 	1. near exact check on elem.
+	
+	String <= Ref
+	1. is there only 1 ref sigil, that is just "&"
+	2. is the ref for a "std::str" or "std::char" struct
+	3. if its for "std::char", then is the string 1 character long? (could be multiple bytes: 1*u8 / 3*u8 / 2*u16 / ...)
+	
+	Variant <= Ref
+	1. is there only 1 ref sigil, that is just "&"
+	2. is the ref for a "std::str" or "std::char" struct
+	3. does the variant only contain strings
+	4. if the ref is for "std::char", then are all the strings 1 character long?
 	
 	Ref <= Ref
 	1. near exact check on elem.
