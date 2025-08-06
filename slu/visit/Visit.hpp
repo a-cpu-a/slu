@@ -344,35 +344,42 @@ namespace slu::visit
 			//TODO
 		},
 		varcase(const parse::ExprType::Local) {
+			Slu_CALL_VISIT_FN_PRE_VAR(LocalExpr);
 			//TODO
 		},
 		varcase(parse::ExprType::Global<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(GlobalExpr);
 			//TODO
 		},
 		varcase(parse::ExprType::Deref&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(DerefExpr);
 			visitExpr(vi, *var.v);
-			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(DerefExpr);
 		},
 		varcase(parse::ExprType::Index<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(IndexExpr);
 			visitExpr(vi, *var.v);
 			visitExpr(vi, *var.idx);
-			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(IndexExpr);
 		},
 		varcase(parse::ExprType::Field<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(FieldExpr);
 			visitExpr(vi, *var.v);
 			visitPoolString(vi, var.field);
-			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(FieldExpr);
 		},
 		varcase(parse::ExprType::Call<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(CallExpr);
 			visitExpr(vi, *var.v);
 			visitArgs(vi, var.args);
-			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(CallExpr);
 		},
 		varcase(parse::ExprType::SelfCall<Vi>&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(SelfCallExpr);
 			visitExpr(vi, *var.v);
 			visitName(vi, var.method);
 			visitArgs(vi, var.args);
-			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(SelfCallExpr);
 		},
 		varcase(parse::ExprType::TraitExpr&) {
 			//TODO: pre post

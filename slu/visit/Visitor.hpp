@@ -82,9 +82,15 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
 		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TableExpr, parse::ExprType::Table<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(GlobalExpr, parse::ExprType::Global<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(DerefExpr, parse::ExprType::Deref);
+		_Slu_DEF_EMPTY_PRE_POST(IndexExpr, parse::ExprType::Index<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(FieldExpr, parse::ExprType::Field<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(CallExpr, parse::ExprType::Call<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(SelfCallExpr, parse::ExprType::SelfCall<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(TraitExpr, parse::TraitExpr);
 		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::String);
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MultiOp<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(TraitExpr, parse::TraitExpr);
 		_Slu_DEF_EMPTY_PRE_POST(Table, parse::Table<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Locals, parse::Locals<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Statement<Cfg>);
@@ -108,6 +114,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 
 		//Edge cases:
+		_Slu_DEF_EMPTY_PRE_POST_RAW(LocalExpr, parse::ExprType::Local);
 		_Slu_DEF_EMPTY_PRE_POST_RAW(OpenRange, parse::ExprType::OpenRange);
 		_Slu_DEF_EMPTY_PRE_POST_RAW(F64, parse::ExprType::F64);
 		_Slu_DEF_EMPTY_PRE_POST_RAW(I64, parse::ExprType::I64);
