@@ -102,25 +102,26 @@ Subtypes {
 	2. all field names equal
 	2. for all fields, near exact check
 	
-	Variant <= Variant
-	1. check if the subtype's variants are in the super-type.
-	
 	T < Variant
 	1. is the subtype(or one of its supertypes) inside the variant.
 	
-	Slice <= Slice
-	1. near exact check on elem.
+	Variant <= T
+	1. do all the variant types match the subtype check with T
+	
+	--Variant <= Ref
+	--1. is there only 1 ref sigil, that is just "&"
+	--2. is the ref for a "std::str" or "std::char" struct
+	--3. does the variant only contain strings
+	--4. if the ref is for "std::char", then are all the strings 1 character long?
 	
 	String <= Ref
 	1. is there only 1 ref sigil, that is just "&"
-	2. is the ref for a "std::str" or "std::char" struct
-	3. if its for "std::char", then is the string 1 character long? (could be multiple bytes: 1*u8 / 3*u8 / 2*u16 / ...)
+	2. does lifetime outlive static
+	3. is the ref for a "std::str" or "std::char" struct (not slice)
+	4. if its for "std::char", then is the string 1 character long? (could be multiple bytes: 1*u8 / 3*u8 / 2*u16 / ...)
 	
-	Variant <= Ref
-	1. is there only 1 ref sigil, that is just "&"
-	2. is the ref for a "std::str" or "std::char" struct
-	3. does the variant only contain strings
-	4. if the ref is for "std::char", then are all the strings 1 character long?
+	Slice <= Slice
+	1. near exact check on elem.
 	
 	Ref <= Ref
 	1. near exact check on elem.

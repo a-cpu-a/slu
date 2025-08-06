@@ -20,8 +20,12 @@ namespace slu::mlvl
 {
 	using TypeInfCheckCfg = decltype(parse::sluCommon);
 
-	template <class T>
-	inline bool sameCheck(const T& itm, const parse::ResolvedType& useTy,const auto& onSame)
+	template <class T,bool IS_STR=false>
+	inline bool sameCheck(
+		parse::Sel<IS_STR,std::monostate,parse::BasicMpDb> mpDb,
+		const T& itm, 
+		const parse::ResolvedType& useTy,
+		const auto& onSame)
 	{
 		return ezmatch(useTy.base)(
 		varcase(const auto&) { return false; },
@@ -31,8 +35,27 @@ namespace slu::mlvl
 		varcase(const parse::RawTypeKind::Variant&) {
 			for (const auto& i : var->options)
 			{
-				if (sameCheck(itm, i, onSame))
+				if (sameCheck<T,IS_STR>(mpDb,itm, i, onSame))
 					return true;//Yep atleast one item is a valid thing.
+			}
+			return false;
+		},
+			//if its string, then match for ref chain. (also dont use ref chain by default as that could be T)
+		varcase(const parse::Sel<IS_STR,parse::RawTypeKind::String, parse::RawTypeKind::RefChain>&) {
+			if constexpr (IS_STR)
+			{// Subtyping into &str / &char.
+				if(var->chain.size()!=1)
+					return false;
+				//TODO: check lifetime
+				if(var->chain[0].refType!=parse::UnOpType::TO_REF)
+					return false;
+				auto optName = var->elem.getStructName();
+				if(!optName.has_value())
+					return false;
+				lang::MpItmIdV<true> name = *optName;
+
+				return name == mpDb.data->getItm({ "std","str" })
+					|| name == mpDb.data->getItm({ "std","char" });
 			}
 			return false;
 		},
@@ -102,6 +125,7 @@ namespace slu::mlvl
 		if (subName.empty()) return true;
 		if (useName.empty()) return false;//Named -/> unnamed.
 		//TODO: upcasting for enums.
+
 		return false;
 	}
 	template <class T>
@@ -113,7 +137,7 @@ namespace slu::mlvl
 	inline bool subtypeCheckRefChain(const parse::RawTypeKind::RefChain& var, const parse::ResolvedType& useTy)
 	{
 		using T = parse::RawTypeKind::RefChain;
-		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+		return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
 			if (var->chain != useTy->chain)
 				return false;
 			return nearExactCheck(var->elem, useTy->elem);
@@ -122,7 +146,7 @@ namespace slu::mlvl
 	inline bool subtypeCheckRefSlice(const parse::RawTypeKind::RefSlice& var, const parse::ResolvedType& useTy)
 	{
 		using T = parse::RawTypeKind::RefSlice;
-		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+		return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
 			if (var->refType != useTy->refType)
 				return false;
 			if (var->elem.outerSliceDims != useTy->elem.outerSliceDims)
@@ -193,11 +217,11 @@ namespace slu::mlvl
 		},
 		varcase(const parse::RawTypeKind::String&) {
 			using T = parse::RawTypeKind::String;
-			return sameCheck<T>(var, useTy, std::equal_to<T>{});//TODO: subtyping into &str / &char.
+			return sameCheck<T,true>(mpDb,var, useTy, std::equal_to<T>{});
 		},
 		varcase(const parse::RawTypeKind::Float64) {
 			using T = parse::RawTypeKind::Float64;
-			return sameCheck<T>(var, useTy, std::equal_to<T>{});//TODO: allow f64 as the type too (needs to be impl first).
+			return sameCheck<T>({}, var, useTy, std::equal_to<T>{});//TODO: allow f64 as the type too (needs to be impl first).
 		},
 
 		varcase(const parse::RawTypeKind::Variant&) {
@@ -210,7 +234,7 @@ namespace slu::mlvl
 		},
 		varcase(const parse::RawTypeKind::Union&) {
 			using T = parse::RawTypeKind::Union;
-			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+			return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
 				if(var->fields.size() != var->fields.size())
 					return false;
 				if (!nameMatchCheck(mpDb, var->name, useTy->name))
@@ -230,7 +254,7 @@ namespace slu::mlvl
 		},
 		varcase(const parse::RawTypeKind::Struct&) {
 			using T = parse::RawTypeKind::Struct;
-			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
+			return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
 				if (!nameMatchCheck(mpDb, var->name, useTy->name))
 					return false;
 				size_t otherIdx = 0;
