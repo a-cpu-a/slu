@@ -13,6 +13,7 @@
 
 #include <slu/lang/BasicState.hpp>
 #include <slu/midlevel/BasicDesugar.hpp>
+#include <slu/midlevel/TypeInfCheck.hpp>
 #include <slu/parser/SimpleErrors.hpp>
 
 #include <slu/comp/CompCfg.hpp>
@@ -43,6 +44,11 @@ namespace slu::comp
 		std::span<const parse::Statement<InputType>> stats;
 		std::string_view filePath;
 	};
+	struct MutFileStatList
+	{
+		std::span<parse::Statement<InputType>> stats;
+		std::string_view filePath;
+	};
 	namespace CompTaskType
 	{
 		using ParseFiles = std::vector<SluFile>;
@@ -57,6 +63,7 @@ namespace slu::comp
 			std::vector<FileStatList> statements;
 			uint32_t entrypointId;
 		};
+		using TypeInfCheck = std::vector<MutFileStatList>;
 		using ConsensusMergeGenCode = GenCodeMap*;
 	}
 	using CompTaskData = std::variant<
@@ -64,6 +71,7 @@ namespace slu::comp
 		CompTaskType::ConsensusUnifyAsts,
 		CompTaskType::ConsensusMergeAsts,
 		CompTaskType::DoCodeGen,
+		CompTaskType::TypeInfCheck,
 		CompTaskType::ConsensusMergeGenCode
 	>;
 	struct CompTask
@@ -219,13 +227,18 @@ namespace slu::comp
 			for (auto& i : state.parsedFiles)
 			{
 				var->emplace(
-					std::move(i.mp), 
+					std::move(i.mp),
 					std::move(i)//mp was moved, so it is now invalid.
 				);
 			}
 			state.parsedFiles.clear(); // Not needed anymore
 		},
-			varcase(CompTaskType::DoCodeGen&)
+		varcase(CompTaskType::TypeInfCheck&)
+		{
+			for (const auto& i : var)
+				mlvl::typeInferrAndCheck(state.mpDb, i.stats);
+		},
+		varcase(CompTaskType::DoCodeGen&)
 		{ // Handle code gen of all the global statements
 			//parse::Output out;
 			//parse::LuaMpDb luaDb;

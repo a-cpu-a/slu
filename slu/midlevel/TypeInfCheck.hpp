@@ -239,6 +239,7 @@ namespace slu::mlvl
 					const std::string& name = var->fieldNames[i];
 					//TODO: locate same field in other type & subtype check it.
 				}
+				//return true;
 			});
 		},
 
@@ -256,8 +257,6 @@ namespace slu::mlvl
 	}
 
 
-	//TODO: fix string expressions being fully stolen.
-	//TODO: create TmpVar's for func call results, table indexing.
 	using TmpVar = uint64_t;
 	using VisitTypeBuilder = std::variant<parse::ResolvedType,const parse::ResolvedType*, parse::LocalId, TmpVar>;
 
@@ -447,6 +446,7 @@ namespace slu::mlvl
 			//TODO
 			return true;
 		}
+		//TODO: create TmpVar's for (self)call/indexing/deref results, when the types are not obvious.
 		void postDerefExpr(parse::ExprType::Deref& itm) {
 			//TODO
 		}
@@ -457,11 +457,18 @@ namespace slu::mlvl
 		void postFieldExpr(parse::ExprType::Field<Cfg>& itm) {
 			if (itm.field == mpDb.data->getPoolStr("__convHack__refSlice_ptr"))
 			{
-				exprTypeStack.pop_back();
-				exprTypeStack.emplace_back(parse::RefChainRawType::newPtrTy(
-					parse::ResolvedType::newU8()
-				));
+				auto& tmpVars = tmpLocalsDataStack.back();
+				TmpVar varId = tmpVars.size();
+				LocalVarInfo& var = tmpVars.emplace_back(&itm.ty);
+				var.edit.tys.emplace_back(
+					parse::RefChainRawType::newPtrTy(
+						parse::ResolvedType::newU8()
+					)
+				);
+				exprTypeStack.back() = varId;
 			}
+			//TODO: require top expr type to have the field.
+			//TODO: mk a edit sided thing for it (either resolve the type now, or at check time)
 			throw std::runtime_error("TODO: type inference for field exprs.");
 		}
 		bool preCallExpr(parse::ExprType::Call<Cfg>& itm) {
@@ -505,12 +512,12 @@ namespace slu::mlvl
 			//
 			//exprTypeStack.emplace_back(tmpVar);
 		}
-		void postAssign(parse::StatementType::Assign<Cfg>& itm)
+		bool preAssign(parse::StatementType::Assign<Cfg>& itm)
 		{
-			size_t count = itm.vars.size();
-			for (size_t i = count; i > 0; i--)
+			for (size_t i = 0; i < itm.vars.size(); i++)
 			{
-				parse::ExprData<Cfg>& var = itm.vars[i-1];
+				parse::ExprData<Cfg>& var = itm.vars[i];
+				visit::visitExpr(*this, itm.exprs[i]);
 
 				ezmatch(var)(
 				varcase(auto&) {
@@ -524,6 +531,7 @@ namespace slu::mlvl
 				}
 				);
 			}
+			return true;
 		}
 
 		//Allow any type.
@@ -821,7 +829,8 @@ namespace slu::mlvl
 		}
 	};
 
-	inline void typeInferrAndCheck(parse::BasicMpDbData& mpDbData, lang::MpItmIdV<true> modName, parse::StatListV<true>& module)
+	inline void typeInferrAndCheck(parse::BasicMpDbData& mpDbData,
+		std::span<parse::StatementV<true>> module)
 	{
 		TypeInfCheckVisitor vi{ {},parse::BasicMpDb{ &mpDbData } };
 

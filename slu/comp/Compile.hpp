@@ -178,8 +178,18 @@ namespace slu::comp
 		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
 			CompTaskType::ConsensusMergeAsts{ &astMap }
 		);
-		//TODO: build some kind of dep graph.
-		//TODO: type-inference/checking + comptime eval
+		//TODO: build some kind of dep graph?
+
+		//TODO: + comptime eval (jit?)
+		//type-inference/checking
+		for (auto& [mp, file] : astMap)
+		{// Codegen on all the threads.
+			submitTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
+				CompTaskType::TypeInfCheck{ 
+					MutFileStatList{std::span{file.pf.code},file.path} 
+				});
+		}
+		waitForTasksToComplete(tasksLeft, cvMain);
 
 		std::vector<CodeGenEntrypoint> eps;
 		for (auto& [mp, file] : astMap)

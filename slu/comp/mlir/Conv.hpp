@@ -783,6 +783,10 @@ namespace slu::comp::mico
 
 			//Locals, arguments.
 			conv.addLocalStackItem(var.func.local2Mp.names.size());
+			LocalStackItm& localTop = conv.localsStack.back();
+			for (size_t i = 0; i < var.func.local2Mp.types.size(); i++)
+				localTop.values[i].ty = &var.func.local2Mp.types[i];
+
 			for (size_t i = 0; i < funcItm.argLocals.size(); i++)
 			{
 				parse::LocalId id = funcItm.argLocals[i];
@@ -795,7 +799,7 @@ namespace slu::comp::mico
 					mlir::memref::StoreOp::create(builder,loc, val, alloc, mlir::ValueRange{ index0 });
 					val = alloc;
 				}
-				conv.localsStack.back().values[id.v] = {
+				localTop.values[id.v] = {
 					val,
 					&funcItm.args[i]
 				};

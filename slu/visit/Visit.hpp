@@ -346,10 +346,12 @@ namespace slu::visit
 		varcase(const parse::ExprType::Local) {
 			Slu_CALL_VISIT_FN_PRE_VAR(LocalExpr);
 			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(LocalExpr);
 		},
 		varcase(parse::ExprType::Global<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(GlobalExpr);
-			//TODO
+			visitMp(vi, var);
+			Slu_CALL_VISIT_FN_POST_VAR(GlobalExpr);
 		},
 		varcase(parse::ExprType::Deref&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(DerefExpr);
