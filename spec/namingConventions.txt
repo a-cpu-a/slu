@@ -15,20 +15,48 @@ Naming Conventions {
 	J. U.T.F.8 -> Jutf8
 	U. Int. -> Uint
 	J. Word -> JWord --2 capitals, as word is not a acronym.
+	A Func -> AFunc --A is ment as the word 'a', not some acronym
+	
+	Crates use snake_case in code, and kebab-case outside of it.
+	
+	Structs, enums, enum variants, traits and unions are treated as constants that store types.
+	Arguments and fields are treated as variables.
+	Variables uee lowerCamelCase.
+	Constants use SCREAMING_SNAKE_CASE.
+	Variables and constants use PascalCase if they store types.
+	
+	Functions use camelCase.
+	Functions use PascalCase if they return types.
 	
 	Use a module called "details" for implementation details that need to be exported.
 	
-	constant or immutable, *type* variables / arguments use the same casing as any other type (HelloWorld)
-	
-	myVariable
-	MY_CONSTANT_VARIABLE
-	myJsonFunction
-	myMacroFunction
-	
-	my_simd_module
+	```slu
 	my_crate
+	mod my_simd_module
 	
-	MyJsonType
-	MyTraitLol
-	primitive00
+	const MY_CONSTANT_VARIABLE = "Hello World!"
+	let myVariable = 10
+	let MyVariableStoringAType = u8
+	const MyConstVariableStoringAType = u8
+	
+	fn myFunction()
+	macro myMacroFunction()
+	fn MyFunctionThatReturnsAType() -> Type
+	
+	struct MyType{}
+	trait MyTrait{}
+	
+	struct primitive00{}
+	```
+	
+	Extra examples.
+	```slu
+	
+	fn formatAsR10G10B10()
+	const FORMAT_R10_G10_B10 = 10
+	struct ColorR10G10B10 {}
+	fn dwonloadXmlHtmlOrXhtml()
+	trait FsIo {}
+	
+	```
 }
