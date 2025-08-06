@@ -7,9 +7,6 @@
 
 namespace slu::mlvl
 {
-	inline const size_t TYPE_RES_SIZE_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
-	inline const size_t TYPE_RES_PTR_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
-
 	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type);
 
 	void handleTypeExprField(parse::BasicMpDb mpDb, size_t& nameIdx, parse::FieldV<true>& field,auto& res)
@@ -116,7 +113,7 @@ namespace slu::mlvl
 
 			if (rt.outerSliceDims != 0)
 			{
-				size_t sz = zst ? 0 : (TYPE_RES_PTR_SIZE + TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims);
+				size_t sz = zst ? 0 : (parse::TYPE_RES_PTR_SIZE + parse::TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims);
 
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::RefSlice{new parse::RefSliceRawType{
@@ -139,7 +136,7 @@ namespace slu::mlvl
 					.elem = std::move(rt),
 					.chain = { parse::RefSigil{.refType = parse::UnOpType::TO_REF}}
 				}},
-				.size = zst ? 0 : TYPE_RES_PTR_SIZE
+				.size = zst ? 0 : parse::TYPE_RES_PTR_SIZE
 			};
 		},
 		ezcase(const parse::ExprType::GlobalV<true> name)->parse::ResolvedType {

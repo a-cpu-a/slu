@@ -278,7 +278,7 @@ namespace slu::comp::mico
 		}
 		else
 		{
-			if (cAbi && itm.size==mlvl::TYPE_RES_PTR_SIZE && itm.outerSliceDims == 0 && std::holds_alternative<parse::RawTypeKind::RefChain>(itm.base))
+			if (cAbi && itm.size == parse::TYPE_RES_PTR_SIZE && itm.outerSliceDims == 0 && std::holds_alternative<parse::RawTypeKind::RefChain>(itm.base))
 			{//Treat references & pointers as llvm.ptr.
 				elemType = mlir::LLVM::LLVMPointerType::get(&conv.context);
 			}
@@ -390,7 +390,7 @@ namespace slu::comp::mico
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			auto strType = mlir::MemRefType::get({ (int64_t)var.v.size() }, i8Type, {}, 0);
 
-			constexpr uint32_t REF_SLICE_SIZE = mlvl::TYPE_RES_PTR_SIZE + mlvl::TYPE_RES_SIZE_SIZE * 2;
+			constexpr uint32_t REF_SLICE_SIZE = parse::TYPE_RES_PTR_SIZE + parse::TYPE_RES_SIZE_SIZE * 2;
 			auto ptrNsizeX2Int = builder.getIntegerType(REF_SLICE_SIZE);
 			auto refSliceBytesType = mlir::MemRefType::get({ (REF_SLICE_SIZE + 7) / 8 }, i8Type, {}, 0);
 			auto refSliceType = mlir::MemRefType::get({ 1 }, ptrNsizeX2Int, {}, 0);

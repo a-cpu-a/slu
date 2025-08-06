@@ -35,6 +35,9 @@ namespace slu::mlvl
 
 namespace slu::parse
 {
+	inline const size_t TYPE_RES_SIZE_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
+	inline const size_t TYPE_RES_PTR_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
+
 	struct StructRawType;
 	struct UnionRawType;
 	struct VariantRawType;
@@ -497,7 +500,7 @@ namespace slu::parse
 
 		static ResolvedType newPtrTy(parse::ResolvedType&& t) {
 			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=UnOpType::TO_PTR} }));
-			return { .base = parse::RawTypeKind::RefChain{&val},.size = mlvl::TYPE_RES_PTR_SIZE };
+			return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE };
 		}
 		static RawTypeKind::RefChain newRawTy() {
 			auto& elems = *(new RefChainRawType());
