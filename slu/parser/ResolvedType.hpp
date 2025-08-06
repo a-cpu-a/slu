@@ -310,6 +310,9 @@ namespace slu::parse
 		static ResolvedType newConstFalse(auto mpDb) {
 			return StructRawType::newZstTy(mpDb.data->getItm({ "std","bool","false" }));
 		}
+		static ResolvedType newU8() {
+			return { .base = RawTypeKind::Range64{.min=0,.max=UINT8_MAX},.size = 8 };
+		}
 		static ResolvedType newIntRange(const auto& range) {
 			const bool minIsI64 = range.min <= INT64_MAX && range.min >= INT64_MIN;
 			if (range.min == range.max)
@@ -492,6 +495,10 @@ namespace slu::parse
 		ResolvedType elem;
 		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
 
+		static ResolvedType newPtrTy(parse::ResolvedType&& t) {
+			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=UnOpType::TO_PTR} }));
+			return { .base = parse::RawTypeKind::RefChain{&val},.size = mlvl::TYPE_RES_PTR_SIZE };
+		}
 		static RawTypeKind::RefChain newRawTy() {
 			auto& elems = *(new RefChainRawType());
 			return RawTypeKind::RefChain{ &elems };

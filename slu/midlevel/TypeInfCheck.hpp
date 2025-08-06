@@ -433,10 +433,44 @@ namespace slu::mlvl
 			return handleConstType<parse::RawTypeKind::Pos128>(itm);
 		}
 		bool preExprString(parse::ExprType::String& itm) {
-			return handleConstType<parse::RawTypeKind::String>(std::move(itm.v));//Steal it as converter will use the type anyway.
+			return handleConstType<parse::RawTypeKind::String>(std::string(itm.v));
 		}
-		void postTableExpr(parse::ExprType::Table<Cfg>& itm) {
+		bool preLocalExpr(const parse::ExprType::Local itm) {
+			exprTypeStack.back() = itm;
+			return false;
+		}
+		bool preGlobalExpr(parse::ExprType::Global<Cfg>& itm) {
 			//TODO
+			return false;
+		}
+		bool preTableExpr(parse::ExprType::Table<Cfg>& itm) {
+			//TODO
+			return true;
+		}
+		void postDerefExpr(parse::ExprType::Deref& itm) {
+			//TODO
+		}
+		bool preIndexExpr(parse::ExprType::Index<Cfg>& itm) {
+			//TODO
+			return true;
+		}
+		void postFieldExpr(parse::ExprType::Field<Cfg>& itm) {
+			if (itm.field == mpDb.data->getPoolStr("__convHack__refSlice_ptr"))
+			{
+				exprTypeStack.pop_back();
+				exprTypeStack.emplace_back(parse::RefChainRawType::newPtrTy(
+					parse::ResolvedType::newU8()
+				));
+			}
+			throw std::runtime_error("TODO: type inference for field exprs.");
+		}
+		bool preCallExpr(parse::ExprType::Call<Cfg>& itm) {
+			//TODO
+			return true;
+		}
+		bool preSelfCallExpr(parse::ExprType::SelfCall<Cfg>& itm) {
+			//TODO
+			return true;
 		}
 
 		//Restrictions.
