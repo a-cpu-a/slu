@@ -239,7 +239,7 @@ namespace slu::paint
 		std::vector<const parse::Locals<In>*> localStack;
 
 		auto resolveLocal(parse::LocalId local) {
-			return localStack.back()->at(local.v);
+			return localStack.back()->names.at(local.v);
 		}
 		void pushLocals(const parse::Locals<In>& locals) {
 			localStack.push_back(&locals);

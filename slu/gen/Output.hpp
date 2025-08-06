@@ -98,7 +98,7 @@ namespace slu::parse
 
 
 		auto resolveLocal(parse::LocalId local) {
-			return localStack.back()->at(local.v);
+			return localStack.back()->names.at(local.v);
 		}
 		void pushLocals(const parse::LocalsV<SLU_SYN>& locals) {
 			localStack.push_back(&locals);

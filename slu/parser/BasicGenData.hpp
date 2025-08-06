@@ -574,7 +574,7 @@ namespace slu::parse
 				if (!localsStack.empty())
 				{
 					size_t id = 0;
-					for (auto& i : localsStack.back())
+					for (auto& i : localsStack.back().names)
 					{
 						if(mpDb.data->mps[i.mp.id].id2Name[i.id.val]==name)
 							return LocalId{ id };
@@ -597,7 +597,7 @@ namespace slu::parse
 			if constexpr (isSlu)
 			{
 				return ezmatch(resolveNameOrLocal(name))(
-					varcase(const LocalId) { return localsStack.back()[var.v]; },
+					varcase(const LocalId) { return localsStack.back().names[var.v]; },
 					varcase(const MpItmIdV<isSlu>) {return var;	}
 					);
 			}
@@ -667,8 +667,8 @@ namespace slu::parse
 			if constexpr (isLocal)
 			{
 				auto& stack = localsStack.back();
-				stack.push_back(n);
-				return LocalId(stack.size() - 1);
+				stack.names.push_back(n);
+				return LocalId(stack.names.size() - 1);
 			}
 			else
 				return n;

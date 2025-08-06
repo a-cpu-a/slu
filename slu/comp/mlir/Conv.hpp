@@ -740,7 +740,7 @@ namespace slu::comp::mico
 		},
 		varcase(const parse::StatementType::ConstV<true>&) {
 
-			conv.addLocalStackItem(var.local2Mp.size());
+			conv.addLocalStackItem(var.local2Mp.names.size());
 
 			const auto str = "Hello world\0"sv;
 			auto i8Type = builder.getI8Type();
@@ -782,7 +782,7 @@ namespace slu::comp::mico
 			mlir::Location loc = convPos(conv, itm.place);
 
 			//Locals, arguments.
-			conv.addLocalStackItem(var.func.local2Mp.size());
+			conv.addLocalStackItem(var.func.local2Mp.names.size());
 			for (size_t i = 0; i < funcItm.argLocals.size(); i++)
 			{
 				parse::LocalId id = funcItm.argLocals[i];

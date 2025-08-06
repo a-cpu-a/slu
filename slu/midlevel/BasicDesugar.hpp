@@ -231,8 +231,8 @@ namespace slu::mlvl
 			if constexpr (isLocal)
 			{
 				auto& localSpace = *localsStack.back();
-				parse::LocalId id = { localSpace.size() };
-				localSpace.push_back(name);
+				parse::LocalId id = { localSpace.names.size() };
+				localSpace.names.push_back(name);
 				return id;
 			}
 			else

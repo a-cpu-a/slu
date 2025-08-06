@@ -57,7 +57,11 @@ namespace slu::parse
 	using LocalOrNameV = Sel<isLocal, MpItmIdV<isSlu>, LocalId>;
 	Slu_DEF_CFG2(LocalOrName, isLocal);
 	template<bool isSlu>
-	using LocalsV = std::vector<MpItmIdV<isSlu>>;
+	struct LocalsV
+	{
+		std::vector<MpItmIdV<isSlu>> names;
+		std::vector<parse::ResolvedType> types;//Empty until type checking.
+	};
 	Slu_DEF_CFG(Locals);
 
 	template<bool isSlu>

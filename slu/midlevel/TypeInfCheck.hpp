@@ -278,6 +278,8 @@ namespace slu::mlvl
 	};
 	struct LocalVarInfo
 	{
+		parse::ResolvedType* resolvedType = nullptr;
+
 		std::vector<lang::LocalObjId> fields;
 		//traits?
 		//???
@@ -289,11 +291,6 @@ namespace slu::mlvl
 		bool taken    : 1 = false;
 		bool resolved : 1 = false;
 
-		constexpr parse::ResolvedType* resolvedType()
-		{
-			if (!resolved)return nullptr;
-			return &edit.tys[0];
-		}
 		parse::ResolvedType& resolveNoCheck(parse::ResolvedType&& t)
 		{
 			_ASSERT(!resolved);
@@ -301,11 +298,12 @@ namespace slu::mlvl
 			fields.clear();
 			edit.clear();
 			resolved = true;
-			return edit.tys.emplace_back(std::move(t));
+			*resolvedType = std::move(t);
+			return *resolvedType;
 		}
 		void requireBoolLike(parse::BasicMpDb mpDb)
 		{
-			if(resolved && !boolLike && !resolvedType()->isBool(mpDb))
+			if(resolved && !boolLike && !resolvedType->isBool(mpDb))
 				throw std::runtime_error("TODO: error logging, found non bool expr");
 
 			boolLike = true;
@@ -507,7 +505,14 @@ namespace slu::mlvl
 		bool preLocals(parse::Locals<Cfg>& itm)
 		{
 			localsStack.push_back(&itm);
+
 			localsDataStack.emplace_back();
+			localsDataStack.back().reserve(itm.names.size());
+
+			itm.types.resize(itm.names.size());
+			for (size_t i = 0; i < itm.names.size(); i++)
+				localsDataStack.back()[i].resolvedType = &itm.types[i];
+
 			tmpLocalsDataStack.emplace_back();
 			return false;
 		}
@@ -752,7 +757,7 @@ namespace slu::mlvl
 						if (!useTy.isComplete())
 							throw std::runtime_error("TODO: error logging, found incomplete type expr");
 						// Check if the resolved type is a subtype of useTy.
-						if (!subtypeCheck(mpDb, *i.resolvedType(), useTy))
+						if (!subtypeCheck(mpDb, *i.resolvedType, useTy))
 							throw std::runtime_error("TODO: error logging, found type that is not a subtype of use type");
 					}
 				);
@@ -764,10 +769,10 @@ namespace slu::mlvl
 		parse::ResolvedType& resolveLocal(LocalVarInfo& local)
 		{
 			if (local.resolved)
-				return *local.resolvedType();
+				return *local.resolvedType;
 			
 			checkLocals(std::span<LocalVarInfo>{ &local,1 });
-			return *local.resolvedType();
+			return *local.resolvedType;
 		}
 
 		void postLocals(parse::Locals<Cfg>& itm) {
@@ -775,7 +780,6 @@ namespace slu::mlvl
 
 			checkLocals(tmpLocalsDataStack.back());
 			checkLocals(localsDataStack.back());
-			//TODO: Export the types, so conv can use them.
 
 			localsStack.pop_back();
 			localsDataStack.pop_back();
