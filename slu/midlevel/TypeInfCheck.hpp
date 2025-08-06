@@ -233,13 +233,25 @@ namespace slu::mlvl
 			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 				if (!nameMatchCheck(mpDb, var->name, useTy->name))
 					return false;
+				size_t otherIdx = 0;
 				for (size_t i = 0; i < var->fields.size(); i++)
 				{
 					const parse::ResolvedType& ty = var->fields[i];
 					const std::string& name = var->fieldNames[i];
-					//TODO: locate same field in other type & subtype check it.
+					bool exit = true;
+					//locate same field in other type & subtype check it.
+					for (; otherIdx < useTy->fieldNames.size(); otherIdx++)
+					{
+						if (name != useTy->fieldNames[otherIdx])
+							continue;
+						if (!subtypeCheck(mpDb, ty, useTy->fields[otherIdx]))
+							return false;
+						exit = false;
+					}
+					if(exit)
+						return false;
 				}
-				//return true;
+				return true;
 			});
 		},
 

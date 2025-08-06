@@ -94,6 +94,7 @@ Subtypes {
 	Struct <= Struct
 	1. names must match
 	2. check if the subtype's fields are subtypes of the super-type's versions of those fields. (super exclusive fields are ignored).
+	3. are the fields in the subtype also in the same order inside the super type.
 	
 	Union <= Union
 	1. names must match
