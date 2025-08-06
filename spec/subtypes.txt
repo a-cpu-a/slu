@@ -68,10 +68,15 @@ Subtypes {
 		do type kinds match exacly? (Float != FloatType, Int != Range, Int==Int, ...)
 		
 		if the types are refs -> {
-			use the normal subtype check.
-		} else {
-			do they match exactly?
+			return the normal subtype check;
+		} else if the types are structs -> {
+			is the subtype is "std::char", and usetype is "std::str", then return true;
 		}
+		do they match exactly?
+	}
+	
+	Upcast relationship {
+		--TODO: include char -> str conversions.
 	}
 	
 	ErrorType <= * / * <= ErrorType

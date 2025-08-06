@@ -184,7 +184,7 @@ namespace slu::mlvl
 			return nearExactCheckDeref(var,useTy);
 		},
 		varcase(const parse::RawTypeKind::Struct&) {
-			return nearExactCheckDeref(var,useTy);
+			return nearExactCheckDeref(var,useTy);//TODO: allow char -> str
 		},
 		varcase(const parse::RawTypeKind::Union&) {
 			return nearExactCheckDeref(var,useTy);
