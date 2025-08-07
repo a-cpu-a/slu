@@ -189,7 +189,7 @@ namespace slu::parse
 		mp.name2Id.reserve(itmCount);
 
 		if (!data.mp.empty())
-			mp2Id[mp.path] = data.idx();
+			mp2Id[mp.path] = data.id;
 	}
 	struct BasicMpDbData
 	{
