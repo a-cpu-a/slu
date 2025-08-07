@@ -175,20 +175,25 @@ namespace slu::parse
 		BasicModPathData(BasicModPathData&&) = default;
 		BasicModPathData& operator=(BasicModPathData&&) = default;
 	};
+	using Mp2MpIdMap = std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView>;
 	template<size_t N>
-	inline void initMpData(BasicModPathData& mp, const mpc::MpcMp<N>& data,size_t itmCount)
+	inline void initMpData(Mp2MpIdMap& mp2Id,BasicModPathData& mp, const mpc::MpcMp<N>& data,size_t itmCount)
 	{
 		mp.path.resize(data.mp.size());
+
 
 		for (size_t i = 0; i < data.mp.size(); i++)
 			mp.path[i] = std::string(data.mp[i]);
 		//mp.id2Itm.reserve(itmCount);
 		mp.id2Name.reserve(itmCount);
 		mp.name2Id.reserve(itmCount);
+
+		if (!data.mp.empty())
+			mp2Id[mp.path] = data.idx();
 	}
 	struct BasicMpDbData
 	{
-		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
+		Mp2MpIdMap mp2Id;
 		std::vector<BasicModPathData> mps;
 
 		BasicMpDbData() {
@@ -197,7 +202,7 @@ namespace slu::parse
 #define _Slu_INIT_MP(ARG_MP) \
 	size_t i_##ARG_MP = 0; \
 	BasicModPathData& mp_##ARG_MP = mps[::slu::mpc::MP_##ARG_MP.idx()]; \
-	initMpData(mp_##ARG_MP, \
+	initMpData(mp2Id, mp_##ARG_MP, \
 		::slu::mpc::MP_##ARG_MP, \
 		::slu::mpc::MP_ITM_COUNT_##ARG_MP \
 	); \
