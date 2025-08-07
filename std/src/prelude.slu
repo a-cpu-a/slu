@@ -8,8 +8,11 @@
 ---Everywhere else, a valid utf 8 string.
 ---Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)
 --@Builtin{"base::type/str"} --TODO: unhack string-ness
---struct str = [0..0xFF];
+--struct str = [u8];
 
+
+--TODO: subtyping from char to str is not as simple as it once seemed. Remove it?
 ---Represents a 1 character sized str.
+---Stored as just a pointer + stride pair.
 --@Builtin{"base::type/char"} --TODO: unhack char-ness
---struct char = [0..0xFF];
+--struct char{*u8,usize};
