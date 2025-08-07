@@ -523,7 +523,7 @@ namespace slu::mlvl
 			throw std::runtime_error("TODO: type inference for field exprs.");
 		}
 		bool preCallExpr(parse::ExprType::Call<Cfg>& itm) {
-			//TODO
+			handleCall<false, true>(itm);
 			return true;
 		}
 		bool preSelfCallExpr(parse::ExprType::SelfCall<Cfg>& itm) {
@@ -531,16 +531,11 @@ namespace slu::mlvl
 			return true;
 		}
 
-		//Restrictions.
-		void postAnyCond(parse::Expr<Cfg>& itm) {
-			requireAsBool(exprTypeStack.back());
-			exprTypeStack.pop_back();
-		}
-		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
-			editLocalVar(itm.name);//TODO: restrict the type to exactly that? (unless it is inferr)
-		}
-		void postCallStat(parse::StatementType::Call<Cfg>& itm) {
-			if(!std::holds_alternative<parse::ArgsType::ExprList<Cfg>>(itm.args))
+		//
+
+		template<bool voidOutput,bool boxed>
+		void handleCall(parse::Call<Cfg,boxed>& itm) {
+			if (!std::holds_alternative<parse::ArgsType::ExprList<Cfg>>(itm.args))
 				throw std::runtime_error("TODO: type inference for func call with complex args.");
 
 			if (!std::holds_alternative<parse::ExprType::Global<Cfg>>(itm.v->data))
@@ -553,15 +548,34 @@ namespace slu::mlvl
 			//Restrict arg exprs to match types in funcItm.
 			for (size_t i = args.size(); i > 0; i++)
 			{
+				visit::visitExpr(*this, args[i]);
 				const parse::ResolvedType& ty = funcItm.args[i];
 				requireUseTy(exprTypeStack.back(), ty);
 				exprTypeStack.pop_back();
 			}
-			//Make temp var for func result, also add editType for it.
-			//const TmpVar tmpVar = TmpVar(tmpLocalsDataStack.back().size());
-			//tmpLocalsDataStack.back().emplace_back().editTys.emplace_back(&funcItm.ret);
-			//
-			//exprTypeStack.emplace_back(tmpVar);
+			if constexpr (!voidOutput)
+			{
+				auto& tmpVars = tmpLocalsDataStack.back();
+				//Make temp var for func result, also add editType for it.
+				TmpVar varId = tmpVars.size();
+				tmpVars.emplace_back().edit.tyRefs.emplace_back(&funcItm.ret);
+				
+				exprTypeStack.back() = varId;
+			}
+		}
+
+		//Restrictions.
+		void postAnyCond(parse::Expr<Cfg>& itm) {
+			requireAsBool(exprTypeStack.back());
+			exprTypeStack.pop_back();
+		}
+		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
+			editLocalVar(itm.name);//TODO: restrict the type to exactly that? (unless it is inferr)
+		}
+		bool preCallStat(parse::StatementType::Call<Cfg>& itm) 
+		{
+			handleCall<true,false>(itm);
+			return true;
 		}
 		bool preAssign(parse::StatementType::Assign<Cfg>& itm)
 		{
@@ -592,6 +606,9 @@ namespace slu::mlvl
 
 		//Ignored.
 		bool preCanonicGlobal(parse::StatementType::CanonicGlobal&) {
+			return true;
+		}
+		bool preTypeExpr(parse::Expr<Cfg>&) {
 			return true;
 		}
 		//Stack stuff.

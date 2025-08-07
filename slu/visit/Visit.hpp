@@ -235,7 +235,9 @@ namespace slu::visit
 	template<AnyVisitor Vi>
 	inline void visitTypeExpr(Vi& vi, parse::Expr<Vi>& itm)
 	{
+		Slu_CALL_VISIT_FN_PRE(TypeExpr);
 		visitExpr(vi, itm);
+		Slu_CALL_VISIT_FN_POST(TypeExpr);
 	}
 	template<AnyVisitor Vi>
 	inline void visitTraitExpr(Vi& vi, parse::TraitExpr& itm)

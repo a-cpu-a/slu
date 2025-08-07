@@ -81,6 +81,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_AUTO(FunctionInfo);
 		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
 		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expr<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(TypeExpr, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TableExpr, parse::ExprType::Table<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(GlobalExpr, parse::ExprType::Global<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(DerefExpr, parse::ExprType::Deref);
