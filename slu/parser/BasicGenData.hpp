@@ -14,6 +14,7 @@
 
 #include <slu/parser/State.hpp>
 #include <slu/parser/Input.hpp>
+#include <slu/lang/Mpc.hpp>
 
 namespace slu::parse
 {
@@ -174,10 +175,48 @@ namespace slu::parse
 		BasicModPathData(BasicModPathData&&) = default;
 		BasicModPathData& operator=(BasicModPathData&&) = default;
 	};
+	template<size_t N>
+	inline void initMpData(BasicModPathData& mp, const mpc::MpcMp<N>& data,size_t itmCount)
+	{
+		mp.path.resize(data.mp.size());
+
+		for (size_t i = 0; i < data.mp.size(); i++)
+			mp.path[i] = std::string(data.mp[i]);
+		//mp.id2Itm.reserve(itmCount);
+		mp.id2Name.reserve(itmCount);
+		mp.name2Id.reserve(itmCount);
+	}
 	struct BasicMpDbData
 	{
 		std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView> mp2Id;
-		std::vector<BasicModPathData> mps{1};
+		std::vector<BasicModPathData> mps;
+
+		BasicMpDbData() {
+			using namespace std::string_view_literals;
+			mps.resize(mpc::MP_COUNT);
+#define _Slu_INIT_MP(ARG_MP) \
+	size_t i_##ARG_MP = 0; \
+	BasicModPathData& mp_##ARG_MP = mps[::slu::mpc::MP_##ARG_MP.idx()]; \
+	initMpData(mp_##ARG_MP, \
+		::slu::mpc::MP_##ARG_MP, \
+		::slu::mpc::MP_ITM_COUNT_##ARG_MP \
+	); \
+	Slu_##ARG_MP##_ITEMS(;)
+#define _Slu_HANDLE_ITEM(ARG_MP,_VAR,_STR) \
+	mp_##ARG_MP.id2Name.emplace_back(_STR##sv); \
+	mp_##ARG_MP.name2Id.emplace(_STR##sv,i_##ARG_MP++)
+#define _X(_VAR,_STR) _Slu_HANDLE_ITEM(POOLED,_VAR,_STR)
+			_Slu_INIT_MP(POOLED);
+#undef _X
+#define _X(_VAR,_STR) _Slu_HANDLE_ITEM(STD,_VAR,_STR)
+			_Slu_INIT_MP(STD);
+#undef _X
+#define _X(_VAR,_STR) _Slu_HANDLE_ITEM(STD_BOOL,_VAR,_STR)
+			_Slu_INIT_MP(STD_BOOL);
+#undef _X
+#undef _Slu_HANDLE_ITEM
+#undef _Slu_INIT_MP
+		}
 
 		const Itm& getItm(const MpItmIdV<true> name) const {
 			return mps[name.mp.id].id2Itm[name.id.val];
@@ -185,8 +224,8 @@ namespace slu::parse
 
 		//Returns empty if not found
 		const PoolString getPoolStr(std::string_view txt) const {
-			auto p = mps[0].name2Id.find(txt);
-			if (p == mps[0].name2Id.end())
+			auto p = mps[mpc::MP_UNKNOWN.idx()].name2Id.find(txt);
+			if (p == mps[mpc::MP_UNKNOWN.idx()].name2Id.end())
 				return PoolString::newEmpty();
 			return PoolString{ p->second };
 		}
@@ -258,16 +297,16 @@ namespace slu::parse
 
 		bool isUnknown(MpItmIdV<true> n) const
 		{
-			if (n.mp.id == 0)
+			if (n.mp.id == mpc::MP_UNKNOWN.idx())
 				return true;//Hardcoded as always unknown.
 			//Else: check if first part is empty
 			return data->mps[n.mp.id].path[0].empty();
 		}
 		PoolString poolStr(const std::string_view name) {
-			return data->mps[0].get(name);
+			return data->mps[mpc::MP_UNKNOWN.idx()].get(name);
 		}
 		MpItmIdV<true> resolveUnknown(const std::string_view name) {
-			return MpItmIdV<true>{poolStr(name), {0}};
+			return MpItmIdV<true>{poolStr(name), { mpc::MP_UNKNOWN.idx() }};
 		}
 
 		template<bool unknown>
@@ -315,7 +354,7 @@ namespace slu::parse
 		std::string_view asSv(const PoolString v) const {
 			if (v.val == SIZE_MAX)
 				return {};//empty
-			return data->mps[0].id2Name[v.val];
+			return data->mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
 		lang::ViewModPath asVmp(const MpItmIdV<true> v) const {
 			if (v.id.val == SIZE_MAX)
@@ -687,7 +726,7 @@ namespace slu::parse
 		PoolString poolStr(std::string&& name) 
 		{
 			if constexpr (isSlu)
-				return mpDb.data->mps[0].get(std::move(name));
+				return mpDb.data->mps[mpc::MP_UNKNOWN.idx()].get(std::move(name));
 			else
 				return mpDb.get(std::move(name));
 		}
