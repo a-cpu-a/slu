@@ -22,7 +22,6 @@ namespace slu::mlvl
 
 	template <class T,bool IS_STR=false>
 	inline bool sameCheck(
-		parse::Sel<IS_STR,std::monostate,parse::BasicMpDb> mpDb,
 		const T& itm, 
 		const parse::ResolvedType& useTy,
 		const auto& onSame)
@@ -35,7 +34,7 @@ namespace slu::mlvl
 		varcase(const parse::RawTypeKind::Variant&) {
 			for (const auto& i : var->options)
 			{
-				if (sameCheck<T,IS_STR>(mpDb,itm, i, onSame))
+				if (sameCheck<T,IS_STR>(itm, i, onSame))
 					return true;//Yep atleast one item is a valid thing.
 			}
 			return false;
@@ -54,8 +53,8 @@ namespace slu::mlvl
 					return false;
 				lang::MpItmIdV<true> name = *optName;
 
-				return name == mpDb.data->getItm({ "std","str" })
-					|| name == mpDb.data->getItm({ "std","char" });
+				return name == mpc::STD_STR
+					|| name == mpc::STD_CHAR;//TODO: require 1 ch only
 			}
 			return false;
 		},
@@ -117,9 +116,9 @@ namespace slu::mlvl
 		}
 		);
 	}
-	bool subtypeCheck(parse::BasicMpDb mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
+	bool subtypeCheck(const parse::BasicMpDbData& mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
 
-	inline bool nameMatchCheck(parse::BasicMpDb mpDb,parse::MpItmIdV<true> subName, parse::MpItmIdV<true> useName)
+	inline bool nameMatchCheck(const parse::BasicMpDbData& mpDb,parse::MpItmIdV<true> subName, parse::MpItmIdV<true> useName)
 	{
 		if(subName == useName) return true;//Same name, so match.
 		if (subName.empty()) return true;
@@ -142,7 +141,7 @@ namespace slu::mlvl
 	inline bool subtypeCheckRefChain(const parse::RawTypeKind::RefChain& var, const parse::ResolvedType& useTy)
 	{
 		using T = parse::RawTypeKind::RefChain;
-		return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
+		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 			if (var->chain != useTy->chain)
 				return false;
 			return nearExactCheck(var->elem, useTy->elem);
@@ -151,7 +150,7 @@ namespace slu::mlvl
 	inline bool subtypeCheckRefSlice(const parse::RawTypeKind::RefSlice& var, const parse::ResolvedType& useTy)
 	{
 		using T = parse::RawTypeKind::RefSlice;
-		return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
+		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 			if (var->refType != useTy->refType)
 				return false;
 			if (var->elem.outerSliceDims != useTy->elem.outerSliceDims)
@@ -213,7 +212,7 @@ namespace slu::mlvl
 		}
 		);
 	}
-	inline bool subtypeCheck(parse::BasicMpDb mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
+	inline bool subtypeCheck(const parse::BasicMpDbData& mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
 		if (subty.outerSliceDims != useTy.outerSliceDims)
 			return false;//TODO: allow variant here.
@@ -232,11 +231,11 @@ namespace slu::mlvl
 		},
 		varcase(const parse::RawTypeKind::String&) {
 			using T = parse::RawTypeKind::String;
-			return sameCheck<T,true>(mpDb,var, useTy, std::equal_to<T>{});
+			return sameCheck<T,true>(var, useTy, std::equal_to<T>{});
 		},
 		varcase(const parse::RawTypeKind::Float64) {
 			using T = parse::RawTypeKind::Float64;
-			return sameCheck<T>({}, var, useTy, std::equal_to<T>{});//TODO: allow f64 as the type too (needs to be impl first).
+			return sameCheck<T>(var, useTy, std::equal_to<T>{});//TODO: allow f64 as the type too (needs to be impl first).
 		},
 
 		varcase(const parse::RawTypeKind::Variant&) {
@@ -249,7 +248,7 @@ namespace slu::mlvl
 		},
 		varcase(const parse::RawTypeKind::Union&) {
 			using T = parse::RawTypeKind::Union;
-			return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
+			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 				if(var->fields.size() != var->fields.size())
 					return false;
 				if (!nameMatchCheck(mpDb, var->name, useTy->name))
@@ -269,7 +268,7 @@ namespace slu::mlvl
 		},
 		varcase(const parse::RawTypeKind::Struct&) {
 			using T = parse::RawTypeKind::Struct;
-			return sameCheck<T>({}, var, useTy, [&](const T& var, const T& useTy) {
+			return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 				if (!nameMatchCheck(mpDb, var->name, useTy->name))
 					return false;
 				size_t otherIdx = 0;
@@ -366,7 +365,7 @@ namespace slu::mlvl
 		using Cfg = TypeInfCheckCfg;
 		static constexpr bool isSlu = Cfg::settings() & ::slu::parse::sluSyn;
 
-		parse::BasicMpDb mpDb;
+		const parse::BasicMpDbData& mpDb;
 		std::vector<parse::Locals<Cfg>*> localsStack;
 		std::vector<LocalVarList> localsDataStack;
 		std::vector<LocalVarList> tmpLocalsDataStack;
@@ -506,7 +505,7 @@ namespace slu::mlvl
 			return true;
 		}
 		void postFieldExpr(parse::ExprType::Field<Cfg>& itm) {
-			if (itm.field == mpDb.data->getPoolStr("__convHack__refSlice_ptr"))
+			if (itm.field == mpDb.getPoolStr("__convHack__refSlice_ptr"))
 			{
 				auto& tmpVars = tmpLocalsDataStack.back();
 				TmpVar varId = tmpVars.size();
@@ -547,7 +546,7 @@ namespace slu::mlvl
 				throw std::runtime_error("TODO: type inference for func call on non-global var.");
 
 			parse::MpItmId<Cfg> funcName = std::get<parse::ExprType::Global<Cfg>>(itm.v->data);
-			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(mpDb.data->getItm(funcName));
+			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(mpDb.getItm(funcName));
 
 			parse::ArgsType::ExprList<Cfg>& args = std::get<parse::ArgsType::ExprList<Cfg>>(itm.args);
 			//Restrict arg exprs to match types in funcItm.
@@ -724,11 +723,11 @@ namespace slu::mlvl
 							if (!tyNameOpt)
 								throw std::runtime_error("TODO: error logging, found non bool expr");
 							parse::MpItmIdV<true> tyName = *tyNameOpt;
-							if (tyName == mpDb.data->getItm({ "std","bool" }))
+							if (tyName == mpDb.getItm({ "std","bool" }))
 								canTrue = canFalse = true;
-							else if (tyName == mpDb.data->getItm({ "std","bool", "true" }))
+							else if (tyName == mpDb.getItm({ "std","bool", "true" }))
 								canTrue = true;
-							else if (tyName == mpDb.data->getItm({ "std","bool", "false" }))
+							else if (tyName == mpDb.getItm({ "std","bool", "false" }))
 								canFalse = true;
 							else
 								throw std::runtime_error("TODO: error logging, found non bool expr");
@@ -880,10 +879,10 @@ namespace slu::mlvl
 		}
 	};
 
-	inline void typeInferrAndCheck(parse::BasicMpDbData& mpDbData,
+	inline void typeInferrAndCheck(const parse::BasicMpDbData& mpDbData,
 		std::span<parse::StatementV<true>> module)
 	{
-		TypeInfCheckVisitor vi{ {},parse::BasicMpDb{ &mpDbData } };
+		TypeInfCheckVisitor vi{ {}, mpDbData };
 
 		for (auto& i : module)
 			visit::visitStat(vi, i);

@@ -236,7 +236,7 @@ namespace slu::comp
 		varcase(CompTaskType::TypeInfCheck&)
 		{
 			for (const auto& i : var)
-				mlvl::typeInferrAndCheck(state.mpDb, i.stats);
+				mlvl::typeInferrAndCheck(*state.sharedDb, i.stats);
 		},
 		varcase(CompTaskType::DoCodeGen&)
 		{ // Handle code gen of all the global statements
