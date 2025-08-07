@@ -11,7 +11,6 @@ namespace slu::mlvl
 
 	void handleTypeExprField(parse::BasicMpDb mpDb, size_t& nameIdx, parse::FieldV<true>& field,auto& res)
 	{
-
 		ezmatch(std::move(field))(
 			ezcase(parse::FieldType::ExprV<true> && fi) {
 			res.fieldNames.emplace_back("0x" + parse::u64ToStr(nameIdx++));
@@ -141,7 +140,7 @@ namespace slu::mlvl
 		},
 		ezcase(const parse::ExprType::GlobalV<true> name)->parse::ResolvedType {
 
-			if (name == mpDb.data->getItm({ "std","str" }))
+			if (name == mpc::STD_STR)
 			{
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},
@@ -149,21 +148,21 @@ namespace slu::mlvl
 					.outerSliceDims=1
 				};
 			}
-			if (name == mpDb.data->getItm({ "std","i32" }))
+			if (name == mpc::STD_I32)
 			{
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{INT32_MIN,INT32_MAX},
 					.size = 32,
 				};
 			}
-			if (name == mpDb.data->getItm({ "std","i8" }))
+			if (name == mpc::STD_I8)
 			{
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{INT8_MIN,INT8_MAX},
 					.size = 8,
 				};
 			}
-			if (name == mpDb.data->getItm({ "std","u8" }))
+			if (name == mpc::STD_U8)
 			{
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},

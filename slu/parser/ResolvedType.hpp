@@ -18,6 +18,7 @@
 #include <slu/ext/CppMatch.hpp>
 #include <slu/ext/ExtendVariant.hpp>
 #include <slu/lang/BasicState.hpp>
+#include <slu/lang/Mpc.hpp>
 #include <slu/BigInt.hpp>
 #include "Enums.hpp"
 #include "SmallEnumList.hpp"
@@ -279,16 +280,16 @@ namespace slu::parse
 			return outerSliceDims == 0 && size != UNSIZED_MARK;
 		}
 		constexpr std::optional<lang::MpItmIdV<true>> getStructName() const;
-		constexpr bool isBool(auto mpDb) const
+		constexpr bool isBool() const
 		{
 			if (size > 1) return false;
 			auto optName = getStructName();
 			if (!optName.has_value()) return false;
 
 			MpItmIdV<true> name = *optName;
-			return name == mpDb.data->getItm({ "std","bool" })
-				|| name == mpDb.data->getItm({ "std","bool", "false" })
-				|| name == mpDb.data->getItm({ "std","bool", "true" });
+			return name == mpc::STD_BOOL
+				|| name == mpc::STD_BOOL_FALSE
+				|| name == mpc::STD_BOOL_TRUE;
 		}
 
 		static ResolvedType getInferred() {
@@ -300,19 +301,6 @@ namespace slu::parse
 
 		static ResolvedType getConstType(RawType&& v) {
 			return { .base = std::move(v),.size = 0/*Known value, not stored*/ };
-		}
-		static ResolvedType getBool(auto mpDb, bool tr, bool fa) {
-			if (tr && fa)
-				return { .base = parse::RawTypeKind::Struct{StructRawType::boolStruct(mpDb)},.size = 1 };
-			if (tr) return newConstTrue(mpDb);
-			_ASSERT(fa);
-			return newConstFalse(mpDb);
-		}
-		static ResolvedType newConstTrue(auto mpDb) {
-			return StructRawType::newZstTy(mpDb.data->getItm({ "std","bool","true" }));
-		}
-		static ResolvedType newConstFalse(auto mpDb) {
-			return StructRawType::newZstTy(mpDb.data->getItm({ "std","bool","false" }));
 		}
 		static ResolvedType newU8() {
 			return { .base = RawTypeKind::Range64{.min=0,.max=UINT8_MAX},.size = 8 };
@@ -431,15 +419,28 @@ namespace slu::parse
 		static ResolvedType newZstTy(lang::MpItmIdV<true> name) {
 			return ResolvedType::getConstType(newNamed(name));
 		}
-		static parse::RawTypeKind::Struct boolStruct(auto mpDb) {
+		static parse::RawTypeKind::Struct boolStruct() {
 			RawTypeKind::Struct thing = newRawTy();
 			thing->fields.emplace_back(VariantRawType::newTy(
-				ResolvedType::newConstFalse(mpDb),
-				ResolvedType::newConstTrue(mpDb)
+				newFalseTy(),
+				newTrueTy()
 			));
 			thing->fieldNames.push_back("0x1");
-			thing->name = mpDb.data->getItm({ "std","bool" });
+			thing->name = mpc::STD_BOOL;
 			return thing;
+		}
+		static ResolvedType newTrueTy() {
+			return newZstTy(mpc::STD_BOOL_TRUE);
+		}
+		static ResolvedType newFalseTy() {
+			return newZstTy(mpc::STD_BOOL_FALSE);
+		}
+		static ResolvedType newBoolTy(const bool tr, const bool fa) {
+			if (tr && fa)
+				return { .base = parse::RawTypeKind::Struct{boolStruct()},.size = 1 };
+			if (tr) return newTrueTy();
+			_ASSERT(fa);
+			return newFalseTy();
 		}
 		bool nearlyExact(const StructRawType& o) const {
 			if (fields.size() != o.fields.size()) return false;

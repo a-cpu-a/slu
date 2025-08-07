@@ -125,7 +125,7 @@ namespace slu::mlvl
 		if (subName.empty()) return true;
 		if (useName.empty()) return false;//Named -/> unnamed.
 		//TODO: upcasting for enums.
-
+		//TODO: unhardcode this maybe? or keep it for perf reasons?
 		if ((subName == mpc::STD_BOOL_TRUE
 			|| subName == mpc::STD_BOOL_FALSE)
 			&& useName == mpc::STD_BOOL)
@@ -351,9 +351,9 @@ namespace slu::mlvl
 			*resolvedType = std::move(t);
 			return *resolvedType;
 		}
-		void requireBoolLike(parse::BasicMpDb mpDb)
+		void requireBoolLike()
 		{
-			if(resolved && !boolLike && !resolvedType->isBool(mpDb))
+			if(resolved && !boolLike && !resolvedType->isBool())
 				throw std::runtime_error("TODO: error logging, found non bool expr");
 
 			boolLike = true;
@@ -384,18 +384,18 @@ namespace slu::mlvl
 		{
 			ezmatch(t)(
 			varcase(const parse::ResolvedType&) {
-				if (!var.isBool(mpDb))
+				if (!var.isBool())
 					throw std::runtime_error("TODO: error logging, found non bool expr");
 			},
 			varcase(const parse::ResolvedType*) {
-				if (!var->isBool(mpDb))
+				if (!var->isBool())
 					throw std::runtime_error("TODO: error logging, found non bool expr");
 			},
 			varcase(const parse::LocalId) {
-				localVar(var).requireBoolLike(mpDb);
+				localVar(var).requireBoolLike();
 			},
 			varcase(const TmpVar) {
-				localVar(var).requireBoolLike(mpDb);
+				localVar(var).requireBoolLike();
 			}
 			);
 		}
@@ -744,7 +744,7 @@ namespace slu::mlvl
 					if (poison)
 						i.resolveNoCheck(parse::ResolvedType::newError());
 					else
-						i.resolveNoCheck(parse::ResolvedType::getBool(mpDb,canTrue, canFalse));
+						i.resolveNoCheck(parse::StructRawType::newBoolTy(canTrue, canFalse));
 				}
 				else
 				{//resolve it (find a type, that is a subtype of all the edit types).

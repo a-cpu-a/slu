@@ -211,7 +211,7 @@ namespace slu::comp::mico
 
 	mlir::Type tryConvBuiltinType(ConvData& conv, const std::string_view abi, const lang::MpItmIdV<true>& name,const bool reffed)
 	{
-		if (name == conv.sharedDb.getItm({ "std","str" }))
+		if (name == mpc::STD_STR)
 		{
 			if(!reffed)
 				throw std::runtime_error("Unimplemented type expression: std::str, without ref (mlir conversion, reffed expected)");
@@ -222,7 +222,7 @@ namespace slu::comp::mico
 			auto i8Type = conv.builder.getI8Type();
 			return mlir::MemRefType::get({ mlir::ShapedType::kDynamic }, i8Type, {}, 0);
 		}
-		if (name == conv.sharedDb.getItm({ "std","i32" }))
+		if (name == mpc::STD_I32)
 		{
 			auto i32Type = conv.builder.getI32Type();
 			if (reffed)
