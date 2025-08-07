@@ -132,7 +132,7 @@ namespace slu::comp::mico
 		}
 	};
 	//Forward declare!
-	mlir::Value convExpr(ConvData& conv, const parse::ExprV<true>& itm);
+	mlir::Value convExpr(ConvData& conv, parse::Position place, const parse::ExprDataV<true>& itm);
 	void convStat(ConvData& conv, const parse::StatementV<true>& itm);
 	//
 
@@ -614,7 +614,7 @@ namespace slu::comp::mico
 			auto whileOp = mlir::scf::WhileOp::create(builder,convPos(conv,itm.place), mlir::TypeRange{}, mlir::ValueRange{});
 
 			builder.setInsertionPointToStart(whileOp.getBeforeBody());
-			mlir::scf::ConditionOp::create(builder,convPos(conv, var.cond.place), convExpr(conv,var.cond), mlir::ValueRange{});
+			mlir::scf::ConditionOp::create(builder,convPos(conv, var.cond.place), convExpr(conv,var.cond.place,var.cond.data), mlir::ValueRange{});
 
 			builder.setInsertionPointToStart(whileOp.getAfterBody());
 			if(convBlock(conv, var.bl))
@@ -722,7 +722,7 @@ namespace slu::comp::mico
 			std::vector<mlir::Value> args;
 			args.reserve(argList.size());
 			for (const auto& i : argList)
-				args.emplace_back(convExpr(conv, i));
+				args.emplace_back(convExpr(conv,i.place, i.data));
 			
 			// %res = llvm.call @puts(%llvm_ptr) : (!llvm.ptr) -> i32
 			//mlir::LLVM::CallOp::create(builder,
