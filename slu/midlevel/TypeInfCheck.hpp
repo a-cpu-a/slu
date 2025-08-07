@@ -516,6 +516,7 @@ namespace slu::mlvl
 					)
 				);
 				exprTypeStack.back() = varId;
+				return;
 			}
 			//TODO: require top expr type to have the field.
 			//TODO: mk a edit sided thing for it (either resolve the type now, or at check time)
@@ -883,7 +884,7 @@ namespace slu::mlvl
 		std::span<parse::StatementV<true>> module)
 	{
 		TypeInfCheckVisitor vi{ {}, mpDbData };
-
+		
 		for (auto& i : module)
 			visit::visitStat(vi, i);
 		_ASSERT(vi.exprTypeStack.empty());
