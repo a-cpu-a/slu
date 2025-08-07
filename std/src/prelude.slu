@@ -10,7 +10,6 @@
 --@Builtin{"base::type/str"} --TODO: unhack string-ness
 --struct str = [0..0xFF];
 
----Represents 1 character sized str.
----Just a newtype of a str.
+---Represents a 1 character sized str.
 --@Builtin{"base::type/char"} --TODO: unhack char-ness
---struct char = str;
+--struct char = [0..0xFF];

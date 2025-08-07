@@ -126,6 +126,11 @@ namespace slu::mlvl
 		if (useName.empty()) return false;//Named -/> unnamed.
 		//TODO: upcasting for enums.
 
+		if ((subName == mpc::STD_BOOL_TRUE
+			|| subName == mpc::STD_BOOL_FALSE)
+			&& useName == mpc::STD_BOOL)
+			return true;//allow true/false -> bool
+
 		return false;
 	}
 	template <class T>
@@ -184,7 +189,17 @@ namespace slu::mlvl
 			return nearExactCheckDeref(var,useTy);
 		},
 		varcase(const parse::RawTypeKind::Struct&) {
-			return nearExactCheckDeref(var,useTy);//TODO: allow char -> str
+			using T = parse::RawTypeKind::Struct;
+			if (!std::holds_alternative<T>(useTy.base))
+				return false;
+			if (nearExactCheckDeref(var, useTy))
+				return true;
+
+			// Allow &char->&str conversions
+			if (var->name != mpc::STD_CHAR)
+				return false;
+			const T& o =  std::get<T>(useTy.base);
+			return o->name == mpc::STD_STR;
 		},
 		varcase(const parse::RawTypeKind::Union&) {
 			return nearExactCheckDeref(var,useTy);

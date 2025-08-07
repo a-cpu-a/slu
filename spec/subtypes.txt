@@ -53,6 +53,9 @@ Subtypes {
 		--potential sub type upcast?
 		--or maybe a constructor?
 		
+		--TODO: something to allow enums to be upcast ( true => bool, None(T) => Option(T) )
+		--TODO: char => str
+		
 		--this is prob not a good idea...
 		--if the subtype implements SubtypeOf(super type), then return true;
 		
