@@ -1,36 +1,29 @@
 
 
-V1 - compile 1 file, fn main
-	(only types: i32, void, str, bool)
-	(const, let, let mut, fn)
+V1 - compile multiple files, fn main, type checking & inference
+	(only types: i32, u8, i8, Unit, str, bool)
+	(if, let, let mut, fn)
 
-V2 - (if, for)
+V2 - (for)
+
+V3 - f_, n_, i_ and u_
 
 
-
-V4 - multiple files (kinda modules)
-
-V5 - modules (no toml stuff yet)
-
-V6 - custom types (struct)
-
-V7 - f_, n_, i_ and u_
-
-V8 - custom types (union)
+V8 - custom types (const, struct, union)
 
 V9 - custom types (enum)
 
 V10 - export, public checking
 
-V11 - type checking
 
 V12 - match expr / stat
 
-
+V13 - modules with toml stuff
 
 V14 - traits & impls
 
 V18 - safety checking
+
 
 
 V20 - trait type args / vars
@@ -41,7 +34,7 @@ V24 - raii, drop stat
 
 
 
-V36 - comptime
+V36 - cached constants, instead of inlined exprs
 
 V37 - untyped style functions, vars. dynamic type
 
