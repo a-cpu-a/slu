@@ -667,16 +667,22 @@ namespace slu::parse
 	template<bool isLocal,AnyOutput Out>
 	inline void genNameOrLocal(Out& out, const LocalOrName<Out, isLocal>& obj)
 	{
+		std::string_view v;
 		if constexpr (isLocal)
-			out.add(out.db.asSv(out.resolveLocal(obj)));
+			v = (out.db.asSv(out.resolveLocal(obj)));
 		else
-			out.add(out.db.asSv(obj));
+			v = (out.db.asSv(obj));
+		if (v.starts_with('$'))
+			out.add("--[=[ ");
+		out.add(v);
+		if (v.starts_with('$'))
+			out.add(" ]=]");
 	}
 	template<bool isLocal,AnyOutput Out>
 	inline void genPat(Out& out, const Pat<Out, isLocal>& obj)
 	{
 		ezmatch(obj)(
-		varcase(const PatType::DestrAny) {
+		varcase(const PatType::DestrAny<Out,isLocal>) {
 			out.add('_');
 		},
 		varcase(const PatType::Simple<Out>&) {
@@ -708,11 +714,8 @@ namespace slu::parse
 			if(var.extraFields)
 				out.add(", ..");
 			out.unTabNewl().add('}');
-			if(!var.name.empty())
-			{
-				out.add(' ');
-				genNameOrLocal<isLocal>(out, var.name);
-			}
+			out.add(' ');
+			genNameOrLocal<isLocal>(out, var.name);
 		},
 		varcase(const PatType::DestrName<Out,isLocal>&) {
 			genDestrSpec(out, var.spec);

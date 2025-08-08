@@ -487,13 +487,12 @@ namespace slu::paint
 			}
 			paintKw<Tok::GEN_OP>(se, "}");
 
-			if(!var.name.empty())
-				paintNameOrLocal<isLocal, Tok::NAME>(se, var.name);
+			paintNameOrLocal<isLocal, Tok::NAME>(se, var.name);
 		},
 		varcase(const parse::PatType::Simple<Se>&) {
 			paintExpr(se, var);
 		},
-		varcase(const parse::PatType::DestrAny) {
+		varcase(const parse::PatType::DestrAny<Se, isLocal>) {
 			paintKw<Tok::GEN_OP>(se, "_");
 		},
 		varcase(const parse::PatType::DestrName<Se,isLocal>&) {

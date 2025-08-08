@@ -43,16 +43,17 @@ namespace slu::paint
 				se.template add<tok, overlayTok>(1);
 				se.in.skip();
 			}
+			return;
 		}
-		else
+		else if (name.starts_with('$'))
+			return;
+
+		for (size_t i = 0; i < name.size(); i++)
 		{
-			for (size_t i = 0; i < name.size(); i++)
-			{
-				_ASSERT(se.in.peekAt(i) == name[i]);
-			}
-			se.template add<tok, overlayTok>(name.size());
-			se.in.skip(name.size());
+			_ASSERT(se.in.peekAt(i) == name[i]);
 		}
+		se.template add<tok, overlayTok>(name.size());
+		se.in.skip(name.size());
 	}
 	template<Tok tok, Tok overlayTok, bool SKIP_SPACE = true, AnySemOutput Se>
 	inline void paintName(Se& se, const parse::MpItmId<Se>& f) {

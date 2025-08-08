@@ -117,8 +117,9 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE_LG(Pat);
 		ezmatch(itm)(
-		varcase(const parse::PatType::DestrAny) {
+		varcase(const parse::PatType::DestrAny<Vi,isLocal>) {
 			Slu_CALL_VISIT_FN_PRE_VAR(DestrAny);
+			//TODO: synthetic name visit?
 		},
 
 		varcase(parse::PatType::Simple<Vi>&) {
@@ -140,11 +141,8 @@ namespace slu::visit
 				Slu_CALL_VISIT_FN_POST_USER_LG(DestrField, i);
 				Slu_CALL_VISIT_FN_SEP_LG(DestrFields, i, var.items);
 			}
-			if(!var.name.empty())
-			{
-				Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrFieldsName);
-				visitNameOrLocal<isLocal>(vi, var.name);
-			}
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrFieldsName);
+			visitNameOrLocal<isLocal>(vi, var.name);
 			Slu_CALL_VISIT_FN_POST_VAR_LG(DestrFields);
 		},
 		varcase(parse::PatType::DestrList<Vi, isLocal>&) {
@@ -156,11 +154,8 @@ namespace slu::visit
 				visitPat<isLocal>(vi, i);
 				Slu_CALL_VISIT_FN_SEP_LG(DestrList, i, var.items);
 			}
-			if (!var.name.empty())
-			{
-				Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrListName);
-				visitNameOrLocal<isLocal>(vi, var.name);
-			}
+			Slu_CALL_VISIT_FN_PRE_VAR_LG(DestrListName);
+			visitNameOrLocal<isLocal>(vi, var.name);
 			Slu_CALL_VISIT_FN_POST_VAR_LG(DestrList);
 		},
 
