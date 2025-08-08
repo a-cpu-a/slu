@@ -57,7 +57,7 @@ namespace slu::parse
 		if (isValidNameChar(in.peek()) && !checkTextToken(in,"in"))
 			ret.name = in.genData.template resolveNewName<isLocal>(readName(in));
 		else
-			ret.name = LocalOrName<In,isLocal>::newEmpty();
+			ret.name = in.genData.template resolveNewSynName<isLocal>();
 
 		return ret;
 	}
@@ -107,7 +107,7 @@ namespace slu::parse
 		if (firstChar == '_' && !isValidNameChar(in.peekAt(1)))
 		{
 			in.skip();
-			return PatType::DestrAny{};
+			return PatType::DestrAny<In, isLocal>{in.genData.template resolveNewSynName<isLocal>()};
 		}
 
 		Expr<In> expr = readExpr<true,true>(in, false);

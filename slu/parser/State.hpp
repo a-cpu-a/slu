@@ -450,7 +450,10 @@ namespace slu::parse
 	Slu_DEF_CFG(DestrSpec);
 	namespace DestrPatType
 	{
-		using Any = std::monostate;
+		template<bool isSlu, bool isLocal>
+		using AnyV = LocalOrNameV<isSlu,isLocal>;
+		Slu_DEF_CFG2(Any, isLocal);
+
 		template<bool isSlu, bool isLocal> struct FieldsV;
 		Slu_DEF_CFG2(Fields, isLocal);
 		template<bool isSlu, bool isLocal> struct ListV;
@@ -469,7 +472,9 @@ namespace slu::parse
 		using SimpleV = NdPatV<isSlu>;
 		Slu_DEF_CFG(Simple);
 
-		using DestrAny = DestrPatType::Any;
+		template<bool isSlu, bool isLocal>
+		using DestrAnyV = DestrPatType::AnyV<isSlu, isLocal>;
+		Slu_DEF_CFG2(DestrAny, isLocal);
 
 		template<bool isSlu,bool isLocal>
 		using DestrFieldsV = DestrPatType::FieldsV<isSlu, isLocal>;
@@ -494,7 +499,7 @@ namespace slu::parse
 
 	template<bool isSlu,bool isLocal>
 	using PatV = std::variant<
-		PatType::DestrAny,
+		PatType::DestrAnyV<isSlu, isLocal>,
 
 		PatType::SimpleV<isSlu>,
 
@@ -521,7 +526,7 @@ namespace slu::parse
 			DestrSpecV<isSlu> spec;
 			bool extraFields : 1 = false;
 			std::vector<DestrFieldV<isSlu, isLocal>> items;
-			LocalOrNameV<isSlu, isLocal> name;//May be empty
+			LocalOrNameV<isSlu, isLocal> name;//May be synthetic
 		};
 		template<bool isSlu, bool isLocal>
 		struct ListV
@@ -529,7 +534,7 @@ namespace slu::parse
 			DestrSpecV<isSlu> spec;
 			bool extraFields : 1 = false;
 			std::vector<PatV<isSlu, isLocal>> items;
-			LocalOrNameV<isSlu,isLocal> name;//May be empty
+			LocalOrNameV<isSlu,isLocal> name;//May be synthetic
 		};
 
 		template<bool isSlu, bool isLocal>

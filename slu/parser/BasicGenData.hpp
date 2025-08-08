@@ -717,6 +717,21 @@ namespace slu::parse
 			else
 				return n;
 		}
+		template<bool isLocal>
+		constexpr LocalOrNameV<isSlu, isLocal> resolveNewSynName()
+		{
+			const size_t id = anonScopeCounts.back().v++;
+			const std::string name = getAnonName(id);
+			auto n = addLocalObj(name);
+			if constexpr (isLocal)
+			{
+				auto& stack = localsStack.back();
+				stack.names.push_back(n);
+				return LocalId(stack.names.size() - 1);
+			}
+			else
+				return n;
+		}
 		// .XXX, XXX, :XXX
 		constexpr MpItmIdV<isSlu> resolveUnknown(const std::string& name)
 		{

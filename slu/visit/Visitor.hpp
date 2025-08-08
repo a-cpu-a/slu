@@ -141,7 +141,8 @@ namespace slu::visit
 		//Pre only:
 		_Slu_DEF_EMPTY_PRE_UNIT(PostUnOp, parse::PostUnOpType);
 		_Slu_DEF_EMPTY_PRE_UNIT(BinOp, parse::BinOpType);
-		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny);
+		_Slu_DEF_EMPTY_PRE_UNIT(DestrAnyLocal, parse::PatType::DestrAny<Cfg Slu_co true>);
+		_Slu_DEF_EMPTY_PRE_UNIT(DestrAnyGlobal, parse::PatType::DestrAny<Cfg Slu_co false>);
 		_Slu_DEF_EMPTY_PRE(BlockReturn, parse::Block<Cfg>);
 		_Slu_DEF_EMPTY_PRE(Name, parse::MpItmId<Cfg>);
 		_Slu_DEF_EMPTY_PRE_UNIT(String, std::span<char>);

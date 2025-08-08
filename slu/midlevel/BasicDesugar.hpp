@@ -215,29 +215,29 @@ namespace slu::mlvl
 					exported);
 			}
 		}
-		template<bool isLocal>
-		parse::LocalOrName<Cfg, isLocal> getSynVarName()
-		{
-			lang::ModPathId mp = mpStack.back();
-			auto& mpData = mpDb.data->mps[mp.id];
-			lang::LocalObjId obj = { mpData.id2Name.size() };
-			parse::MpItmId<Cfg> name = {obj, mp};
-
-			std::string synName = parse::getAnonName(obj.val);
-
-			mpData.name2Id[synName] = obj;
-			mpData.id2Name[obj.val] = std::move(synName);
-
-			if constexpr (isLocal)
-			{
-				auto& localSpace = *localsStack.back();
-				parse::LocalId id = { localSpace.names.size() };
-				localSpace.names.push_back(name);
-				return id;
-			}
-			else
-				return name;
-		}
+		//template<bool isLocal>
+		//parse::LocalOrName<Cfg, isLocal> getSynVarName()
+		//{
+		//	lang::ModPathId mp = mpStack.back();
+		//	auto& mpData = mpDb.data->mps[mp.id];
+		//	lang::LocalObjId obj = { mpData.id2Name.size() };
+		//	parse::MpItmId<Cfg> name = {obj, mp};
+		//
+		//	std::string synName = parse::getAnonName(obj.val);
+		//
+		//	mpData.name2Id[synName] = obj;
+		//	mpData.id2Name[obj.val] = std::move(synName);
+		//
+		//	if constexpr (isLocal)
+		//	{
+		//		auto& localSpace = *localsStack.back();
+		//		parse::LocalId id = { localSpace.names.size() };
+		//		localSpace.names.push_back(name);
+		//		return id;
+		//	}
+		//	else
+		//		return name;
+		//}
 		parse::ResolvedType destrSpec2Type(parse::Position place,parse::DestrSpec<Cfg>&& spec)
 		{
 			parse::ExprV<true> te = ezmatch(spec)(
@@ -266,25 +266,18 @@ namespace slu::mlvl
 			bool exported,
 			T& itm) requires(parse::AnyCompoundDestr<isLocal,T>)
 		{
-			parse::LocalOrNameV<isSlu, isLocal> name;
-			if (itm.name.empty())
-			{
-				name = getSynVarName<isLocal>();
-				exported = false;
-			}
-			else
-				name = itm.name;
+			//TODO: do this for synthetic names: exported = false;
 			addCanonicVarStat<isLocal>(out, first, localHolder,
 				exported,
 				destrSpec2Type(place, std::move(itm.spec)),
-				name,
+				itm.name,
 				std::move(expr));
 			if constexpr (isFields)
 			{
 				for (auto& i : std::views::reverse(itm.items))
 					patStack.push_back(&i.pat);
 				for (auto& i : itm.items)
-					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place,name, i.name));
+					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place, itm.name, i.name));
 			}
 			else
 			{
@@ -293,7 +286,7 @@ namespace slu::mlvl
 				for (size_t i = 0; i < itm.items.size(); i++)
 				{
 					parse::PoolString index = mpDb.poolStr("0x" + parse::u64ToStr(i));
-					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place, name, index));
+					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place, itm.name, index));
 				}
 			}
 		}
@@ -328,11 +321,11 @@ namespace slu::mlvl
 				varcase(const auto&) {
 					throw std::runtime_error("Invalid destructuring pattern type, idx(" + std::to_string(pat.index()) + ") (basic desugar)");
 				},
-				varcase(const parse::PatType::DestrAny) {
+				varcase(const parse::PatType::DestrAny<Cfg, isLocal>) {
 					addCanonicVarStat<isLocal>(out, first, itm,
 						false, 
 						parse::ResolvedType::getInferred(),
-						getSynVarName<isLocal>(),
+						var,
 						std::move(expr));
 				},
 				varcase(parse::PatType::DestrName<Cfg, isLocal>&) {
