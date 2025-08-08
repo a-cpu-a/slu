@@ -63,13 +63,13 @@ New types {
 	
 	Unit
 	bool
-	integer
-	fastnum
+	bool::true
+	bool::false
 	NumVec
 	Any
 	str
+	char
 	String
-	Table
 	Userdata
 	
 	f8
@@ -105,7 +105,7 @@ Official Types {
 	(names starting with a capital are complex types)
 	
 	trait {
-		Represents some trait as a value.
+		Represents some trait (potentially a combination of them) as a value.
 	}
 	type {
 		Represents some type as a value.
@@ -117,16 +117,13 @@ Official Types {
 		A nominally unique unit type, used as the default type for some things.
 	}
 	bool {
-		A boolean, either true or false
+		A boolean, either bool::true or bool::false
 	}
-	integer {
-		A 25, 32, 64, or 54 bit integer
-		54 bit integers are only for luajit, and older versions of lua (can store up to 2^53).
-		25 bit integers are for 32bit versions of lua pre 5.3 (can store up to 2^24
-		
-		Slu types can be cast into this, any overflows are still errors.
-		
-		Platform specific, so on some very old platforms, might be 8 or 16 bit sized.
+	bool::false {
+		A boolean, always false
+	}
+	bool::true {
+		A boolean, always true
 	}
 	NumVec {
 		a vector of numbers, ment for vectorial operations
@@ -136,23 +133,23 @@ Official Types {
 		let mulRes = 100 * u8x4{4,3,2,1};
 		```
 	}
-	fastnum {
-		A 32 or 64 bit float, might also be a integer on some lua versions.
-		
-		Slu types can be cast into this, any overflows are still errors.
-	}
 	
 	Any {
-		Any type is allowed, except void
+		Any type is allowed
 	}
 	str {
-		A part of a owning string, immutable.
+		A slice of character units.
 		
 		a reference to a string of utf8 bytes, or utf16 chars.
 		
 		Must be valid utf16, with no malformed surrogate pairs, or valid utf8, using the old standard that allows charaters up to 32~ bits, without any surrogate pairs.
 		
-		On most hosts the contents are utf8, some hosts, like java & javascript use utf16.
+		On most hosts the contents are utf8, some hosts, like java & javascript use utf16, if any host uses utf8, then utf8 is used on all of them.
+	}
+	char {
+		(TODO: some magic tricks to make the syntax &char, not "char(lifetime)")
+		A reference to a character inside a str, immutable.
+		Must point to a valid character, because it doesnt store the size of it.
 	}
 	String {
 		A mutable string.
@@ -160,11 +157,6 @@ Official Types {
 		Same restrictions on content as "str".
 		
 		Creating invalid content isnt ub in itself, but some libraries or functions will not handle that correctly.
-	}
-	Table {
-		A lua like table, can have fields and indices
-		Valid keys: any primitive type (Table,Func,String,uX,iX,fX,true/false,...), except void or NaN. 
-		Yes, this also includes floats and negative numbers.
 	}
 	Userdata {
 		Special data passed from the compiler

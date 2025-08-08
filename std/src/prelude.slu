@@ -4,6 +4,8 @@
 --const type u8 = 0..0xFF;
 --const type i32 = -0x80000000..0x7FFFFFFF;
 
+--struct Unit {};
+
 ---May be u16 in js/java/...
 ---Everywhere else, a valid utf 8 string.
 ---Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)

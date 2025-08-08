@@ -43,14 +43,15 @@ Enum Statement {
 		---Nominally unique unit type
 		---None(u8) is not the same as None(u16)
 		struct None(T = type) {};
-		impl(T) SubtypeOf(Option(T)) for None(T) {
-			fn upcast(self) -> Option(T) { return Option(T){self} }
-		}
+		--impl(T) SubtypeOf(Option(T)) for None(T) {
+		--	fn upcast(self) -> Option(T) { return Option(T){self} }
+		--}
 		---Nominally different to T
 		struct Some(T = type) {T};
-		impl(T) SubtypeOf(Option(T)) for Some(T) {
-			fn upcast(self) -> Option(T) { return Option(T){self} }
-		}
+		--impl(T) SubtypeOf(Option(T)) for Some(T) {
+		--	fn upcast(self) -> Option(T) { return Option(T){self} }
+		--}
+		
 		--Not a global statement, so T is the arg.
 		return None(T) || Some(T);
 	}
