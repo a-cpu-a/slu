@@ -86,7 +86,7 @@ namespace slu::parse
 		MUT,			// "mut"
 
 		//Not a real op, just the amount of unops
-		//== MUT because NONE inst a real op.
+		//== MUT because NONE isnt a real op.
 		ENUM_SIZE = MUT
 	};
 
