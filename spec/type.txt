@@ -110,7 +110,7 @@ Official Types {
 	type {
 		Represents some type as a value.
 	}
-	lifetime {
+	Lifetime {
 		Represents some lifetime as a value.
 	}
 	Unit {
