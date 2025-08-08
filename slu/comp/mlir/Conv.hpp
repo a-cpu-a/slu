@@ -245,17 +245,25 @@ namespace slu::comp::mico
 		{
 			return tryConvBuiltinType(conv, abi, var, false);
 		},
+		varcase(const parse::ExprType::SelfCallV<true>&)
+		{
+			if (var.method != conv.sharedDb.getItm({ "std","ops","Ref","ref" }))
+				throw std::runtime_error("Unimplemented type expression: " + std::string(var.method.asSv(conv.sharedDb)) + " (mlir conversion)");
+
+			const auto& selfName = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
+
+			return tryConvBuiltinType(conv, abi, selfName, true);
+		},
 		varcase(const parse::ExprType::CallV<true>&)
 		{
 			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
-			if(name!= conv.sharedDb.getItm({ "std","ops","Ref","ref"}))
-				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
+			throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
 			
-			const auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
-			const auto& firstArgExpr = expArgs.front();
-			const auto& firstArg = std::get<parse::ExprType::GlobalV<true>>(firstArgExpr.data);
-			
-			return tryConvBuiltinType(conv, abi, firstArg, true);
+			//const auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
+			//const auto& firstArgExpr = expArgs.front();
+			//const auto& firstArg = std::get<parse::ExprType::GlobalV<true>>(firstArgExpr.data);
+			//
+			//return tryConvBuiltinType(conv, abi, firstArg, true);
 		}
 		);
 	}

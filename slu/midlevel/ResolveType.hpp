@@ -82,16 +82,15 @@ namespace slu::mlvl
 			throw std::runtime_error("TODO: resolve Err type expressions.");
 		},
 
-		varcase(parse::ExprType::CallV<true>&&)->parse::ResolvedType {
+		varcase(parse::ExprType::SelfCallV<true>&&)->parse::ResolvedType {
 			//TODO: resolve basic ops, jit all else.
-			parse::MpItmIdV<true> name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
-
 			auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
-			auto& firstArgExpr = expArgs.front();
+			if(expArgs.size()!=1)
+				throw std::runtime_error("TODO: self call type expressions with >1 arg.");
 
-			parse::ResolvedType rt= resolveTypeExpr(mpDb, std::move(firstArgExpr));
+			parse::ResolvedType rt= resolveTypeExpr(mpDb, std::move(*var.v));
 
-			if (name == mpDb.data->getItm({ "std","ops","MarkMut","markMut" }))
+			if (var.method == mpDb.data->getItm({ "std","ops","MarkMut","markMut" }))
 			{
 				if(rt.hasMut)
 					throw std::runtime_error("Invalid type expression: used 'mut' on already marked as mutable type.");
@@ -99,12 +98,12 @@ namespace slu::mlvl
 				return rt;
 			}
 			parse::UnOpType op;
-			if(name == mpDb.data->getItm({ "std","ops","Ref","ref" }))
+			if(var.method == mpDb.data->getItm({ "std","ops","Ref","ref" }))
 				op = parse::UnOpType::TO_REF;
-			else if (name == mpDb.data->getItm({ "std","ops","Ptr","ptr" }))
+			else if (var.method == mpDb.data->getItm({ "std","ops","Ptr","ptr" }))
 				op = parse::UnOpType::TO_PTR;
 			else
-				throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(mpDb)) + " (type resolution)");
+				throw std::runtime_error("Unimplemented type expression: " + std::string(var.method.asSv(mpDb)) + " (type resolution)");
 
 			const bool zst = rt.size == 0;
 
