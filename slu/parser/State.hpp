@@ -155,7 +155,7 @@ namespace slu::parse
 	struct SelfCallV : ExprUserExprV<isSlu, boxed>
 	{
 		ArgsV<isSlu> args;
-		MpItmIdV<isSlu> method;
+		MpItmIdV<isSlu> method;//may be unresolved, or itm=trait-fn, or itm=fn
 	};
 	Slu_DEF_CFG2(SelfCall, boxed);
 

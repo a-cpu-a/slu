@@ -454,8 +454,6 @@ namespace slu::mlvl
 			size_t opIdx,
 			bool isSufOp)
 		{
-			//TODO: special handling for '.*', '?'. -> defer to after type checking / inference?
-
 			parse::Position place = expr.place;
 			//Wrap
 			parse::MpItmId<Cfg> name;
@@ -468,17 +466,17 @@ namespace slu::mlvl
 
 				name = postUnOpFuncs[traitIdx].get([&] {
 					//TODO: implement post-unop func name selection
-					if (op == parse::PostUnOpType::RANGE_AFTER)
+					if (op != parse::PostUnOpType::PROPOGATE_ERR)
 					{
 						lang::ModPath name;
 						name.reserve(4);
 						name.emplace_back("std");
 						name.emplace_back("ops");
-						name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
+						name.emplace_back(parse::postUnOpTraitNames[traitIdx]);
 						name.emplace_back(parse::postUnOpNames[traitIdx]);
 						return mpDb.getItm(name);
 					}
-					//TODO!!!
+					//TODO: special handling for '?'. -> defer to after type checking / inference?
 					return parse::MpItmId<Cfg>::newEmpty();
 					});
 			}
@@ -492,10 +490,7 @@ namespace slu::mlvl
 					name.reserve(4);
 					name.emplace_back("std");
 					name.emplace_back("ops");
-					if (op.type == parse::UnOpType::RANGE_BEFORE)
-						name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
-					else
-						name.emplace_back(parse::unOpTraitNames[traitIdx]);
+					name.emplace_back(parse::unOpTraitNames[traitIdx]);
 					name.emplace_back(parse::unOpNames[traitIdx]);
 					return mpDb.getItm(name);
 					});
@@ -510,9 +505,8 @@ namespace slu::mlvl
 				//Else: its inferred, or doesnt exist
 			}
 			
-			parse::ExprType::Call<Cfg> call;
+			parse::ExprType::SelfCall<Cfg> call;
 			parse::ArgsType::ExprList<Cfg> list;
-			list.emplace_back(std::move(expr));
 
 			if (lifetime != nullptr)
 			{
@@ -522,7 +516,8 @@ namespace slu::mlvl
 				list.emplace_back(std::move(lifetimeExpr));
 			}
 			call.args = std::move(list);
-			call.v = parse::mkBoxGlobal<isSlu,true>(place, name);
+			call.v = parse::mayBoxFrom<true>(std::move(expr));
+			call.method = name;
 
 			//Turn the (moved)expr in a function call expression
 			expr.data = std::move(call);
@@ -542,7 +537,6 @@ namespace slu::mlvl
 				auto order = multiOpOrder<false>(ops);
 
 				std::vector<ExprT> expStack;
-				//newExpr.data = ;
 				for (auto& i : order)
 				{
 					switch (i.kind)
@@ -568,16 +562,16 @@ namespace slu::mlvl
 						auto& expr1 = expStack.back();
 						parse::Position place = expr1.place;
 
-						parse::ExprType::Call<Cfg> call;
+						parse::ExprType::SelfCall<Cfg> call;
 						parse::ArgsType::ExprList<Cfg> list;
-						list.emplace_back(std::move(expr1));
+						call.v = parse::mayBoxFrom<true>(std::move(expr1));
 						list.emplace_back(std::move(expr2));
 						call.args = std::move(list);
 
 						parse::BinOpType op = ops.extra[i.index - 1].first;
 						const size_t traitIdx = (size_t)op - 1; //-1 for none
 
-						call.v = parse::mkBoxGlobal<isSlu,true>(place,binOpFuncs[traitIdx].get([&] {
+						call.method = binOpFuncs[traitIdx].get([&] {
 							lang::ModPath name;
 							name.reserve(4);
 							name.emplace_back("std");
@@ -588,25 +582,13 @@ namespace slu::mlvl
 							bool isEq = op == parse::BinOpType::EQUAL
 								|| op == parse::BinOpType::NOT_EQUAL;
 							if (isOrd || isEq)
-							{
 								name.emplace_back("cmp");
-								if (isOrd)
-									name.emplace_back("PartialOrd");
-								else
-									name.emplace_back("PartialEq");
-							}
 							else
-							{
 								name.emplace_back("ops");
-								if (op == parse::BinOpType::RANGE_BETWEEN)
-									name.emplace_back(parse::RANGE_OP_TRAIT_NAME);
-								else
-									name.emplace_back(parse::binOpTraitNames[traitIdx]);
-							}
+							name.emplace_back(parse::binOpTraitNames[traitIdx]);
 							name.emplace_back(parse::binOpNames[traitIdx]);
 							return mpDb.getItm(name);
-							})
-						);
+						});
 
 
 						//Turn the first (moved)expr in a function call expression
@@ -636,9 +618,7 @@ namespace slu::mlvl
 				size_t preIdx=0;
 				size_t sufIdx=0;
 				for (const bool isSufOp : order)
-				{
 					desugarUnOp(itm, preOps, sufOps, isSufOp ? (sufIdx++) : (preIdx++), isSufOp);
-				}
 
 			}
 			return false;
