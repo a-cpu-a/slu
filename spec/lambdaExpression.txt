@@ -48,7 +48,7 @@ Function Expression {
 	let l6 = || -> u8 => do {do return 100;};
 	let l7 = || -> u8 => do {return 100;};
 	let l9 = || print("Hello");
-	let l8 = || do {print("Hello");} --Always returns void, cuz ur not returning the print.
+	let l8 = || do {print("Hello");} --Always returns Unit, cuz ur not returning the print.
 	
 	```
 	
@@ -76,7 +76,7 @@ Function Expression {
 		let l6 = || -> u8 => do {do return 100;};
 		let l7 = || {return 100;};
 		let l8 = || -> u8 {return 100;};
-		let l9 = || print("Hello"); --Always returns void, no matter the return type of print, because its a func-call statement
+		let l9 = || print("Hello"); --Always returns Unit, no matter the return type of print, because its a func-call statement
 		let l9 = || => print("Hello");
 		let l0 = || => do {print("Hello");}
 		```

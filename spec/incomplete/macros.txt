@@ -6,12 +6,12 @@
 	
 	--These types are only available at comptime
 	
-	ex struct Block = @Builtin{"base::type/block"}void;
-	ex struct Stat = @Builtin{"base::type/stat"}void;
+	ex struct Block = @Builtin{"base::type/block"}Unit;
+	ex struct Stat = @Builtin{"base::type/stat"}Unit;
 	
-	ex struct Expr = @Builtin{"base::type/exp"}void;
-	ex struct Name = @Builtin{"base::type/Name"}void;
-	ex struct TraitExpr = @Builtin{"base::type/traitExp"}void;
+	ex struct Expr = @Builtin{"base::type/exp"}Unit;
+	ex struct Name = @Builtin{"base::type/Name"}Unit;
+	ex struct TraitExpr = @Builtin{"base::type/traitExp"}Unit;
 	
 	--
 	--wrap around one of the above things, to allow a list of someting

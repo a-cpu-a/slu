@@ -61,7 +61,7 @@ New types {
 	
 	lifetime
 	
-	void
+	Unit
 	bool
 	integer
 	fastnum
@@ -113,8 +113,8 @@ Official Types {
 	lifetime {
 		Represents some lifetime as a value.
 	}
-	void {
-		A unit, used as the default type.
+	Unit {
+		A nominally unique unit type, used as the default type for some things.
 	}
 	bool {
 		A boolean, either true or false

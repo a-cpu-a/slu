@@ -70,7 +70,7 @@ New Annotations {
 	
 	Example:
 	```slu
-	ex type Expr = @Builtin{"base::type/exp"}void;
+	ex const type Expr = @Builtin{"base::type/exp"}Unit;
 	```
 	
 	
