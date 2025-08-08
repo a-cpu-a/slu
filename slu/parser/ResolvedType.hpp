@@ -259,20 +259,37 @@ namespace slu::parse
 
 	RawType cloneRawType(const RawType& t);
 
+	constexpr uint8_t alignDataFromSize(size_t bits)
+	{
+		if (bits == 0)
+			return 0;
+		if (bits <= 128)
+			return (uint8_t)std::bit_width(bits-1);
+		return 7;
+	}
+
 	struct ResolvedType
 	{
 		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50) - 1;
 		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK - 1;
 
 		RawType base;
-		size_t size : 50;//in bits. element type size, ignoring outerSliceDims.
+		size_t size : 46;//in bits. element type size, ignoring outerSliceDims.
+		size_t alignmentData : 4 = 0;//log2(alignment in bits). 1bit .. 4096bytes
 		size_t outerSliceDims : 13 = 0;
 		size_t hasMut : 1 = false;
 
 		ResolvedType clone() const {
-			return { .base = cloneRawType(base), .size = size, .outerSliceDims = outerSliceDims, .hasMut = hasMut };
+			return { .base = cloneRawType(base),
+				.size = size,
+				.alignmentData = alignmentData,
+				.outerSliceDims = outerSliceDims,
+				.hasMut = hasMut 
+			};
 		}
-
+		constexpr size_t alignBits() const {
+			return 2ULL << alignmentData;
+		}
 		constexpr bool isComplete() const {
 			return size != INCOMPLETE_MARK;
 		}
@@ -300,10 +317,10 @@ namespace slu::parse
 		}
 
 		static ResolvedType getConstType(RawType&& v) {
-			return { .base = std::move(v),.size = 0/*Known value, not stored*/ };
+			return { .base = std::move(v),.size = 0,.alignmentData=0 /*Known value, not stored*/ };
 		}
 		static ResolvedType newU8() {
-			return { .base = RawTypeKind::Range64{.min=0,.max=UINT8_MAX},.size = 8 };
+			return { .base = RawTypeKind::Range64{.min=0,.max=UINT8_MAX},.size = 8,.alignmentData=alignDataFromSize(8)};
 		}
 		static ResolvedType newIntRange(const auto& range) {
 			const bool minIsI64 = range.min <= INT64_MAX && range.min >= INT64_MIN;
@@ -316,12 +333,18 @@ namespace slu::parse
 				return ResolvedType::getConstType(RawType(range.min));
 			}
 			if (minIsI64 && range.max <= INT64_MAX && range.max >= INT64_MIN)
-				return { .base = RawTypeKind::Range64{
+			{
+				ResolvedType res = { .base = RawTypeKind::Range64{
 				(int64_t)range.min.lo,
 				(int64_t)range.max.lo},
 				.size = calcRangeBits(range)
-			};
-			return { .base = range,.size = calcRangeBits(range) };
+				};
+				res.alignmentData = alignDataFromSize(res.size);
+				return res;
+			}
+			ResolvedType res = { .base = range,.size = calcRangeBits(range) };
+			res.alignmentData = alignDataFromSize(res.size);
+			return res;
 		}
 	};
 	struct VariantRawType
@@ -341,10 +364,12 @@ namespace slu::parse
 			return res;
 		}
 
-		constexpr size_t calcSize() const {
+		constexpr std::pair<size_t, uint8_t> calcSizeAndAlign() const {
 			size_t size = 0;
+			uint8_t align = 0;
 			for (const auto& i : options)
 			{
+				align = std::max(align, (uint8_t)i.alignmentData);
 				if (!i.isComplete())
 				{
 					size = ResolvedType::INCOMPLETE_MARK;
@@ -363,15 +388,16 @@ namespace slu::parse
 				//size = (size + 7) & (~0b111);// round up to 8 bits
 				size += std::bit_width(options.size() - 1);//add bits for the index
 			}
-			return size;
+			align = std::max(align, alignDataFromSize(size));
+			return {size, align};
 		}
 
 		template<std::same_as<ResolvedType>... Ts>
 		static ResolvedType newTy(Ts&&... t) {
 			auto& elems = *(new VariantRawType());
 			((elems.options.emplace_back(std::move(t))), ...);
-
-			return { .base = parse::RawTypeKind::Variant{&elems},.size = elems.calcSize() };
+			auto [sz, alignData] = elems.calcSizeAndAlign();
+			return { .base = parse::RawTypeKind::Variant{&elems},.size = sz,.alignmentData = alignData};
 		}
 		bool nearlyExact(const VariantRawType& o) const {
 			if (options.size() != o.options.size()) return false;
@@ -437,7 +463,7 @@ namespace slu::parse
 		}
 		static ResolvedType newBoolTy(const bool tr, const bool fa) {
 			if (tr && fa)
-				return { .base = parse::RawTypeKind::Struct{boolStruct()},.size = 1 };
+				return { .base = parse::RawTypeKind::Struct{boolStruct()},.size = 1,.alignmentData=alignDataFromSize(1)};
 			if (tr) return newTrueTy();
 			_ASSERT(fa);
 			return newFalseTy();
@@ -502,7 +528,7 @@ namespace slu::parse
 
 		static ResolvedType newPtrTy(parse::ResolvedType&& t) {
 			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=UnOpType::TO_PTR} }));
-			return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE };
+			return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
 		}
 		static RawTypeKind::RefChain newRawTy() {
 			auto& elems = *(new RefChainRawType());

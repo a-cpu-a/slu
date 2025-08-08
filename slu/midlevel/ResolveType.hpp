@@ -119,7 +119,8 @@ namespace slu::mlvl
 						.elem=std::move(rt),
 						.refType= op
 					}},
-					.size = sz
+					.size = sz,
+					.alignmentData=parse::alignDataFromSize(sz)
 				};
 			}
 			if (std::holds_alternative<parse::RawTypeKind::RefChain>(rt.base))
@@ -129,22 +130,25 @@ namespace slu::mlvl
 				refChain->chain.push_back(parse::RefSigil{ .refType = op });
 				return rt;
 			}
-
+			size_t sz = zst ? 0 : parse::TYPE_RES_PTR_SIZE;
 			return parse::ResolvedType{
 				.base = parse::RawTypeKind::RefChain{new parse::RefChainRawType{
 					.elem = std::move(rt),
 					.chain = { parse::RefSigil{.refType = parse::UnOpType::TO_REF}}
 				}},
-				.size = zst ? 0 : parse::TYPE_RES_PTR_SIZE
+				.size = sz,
+				.alignmentData = parse::alignDataFromSize(sz)
 			};
 		},
 		ezcase(const parse::ExprType::GlobalV<true> name)->parse::ResolvedType {
 
 			if (name == mpc::STD_STR)
 			{
+				//TODO: this is wrong, it must be wrapped in a struct!
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},
 					.size = 8,
+					.alignmentData= parse::alignDataFromSize(8),
 					.outerSliceDims=1
 				};
 			}
@@ -153,6 +157,7 @@ namespace slu::mlvl
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{INT32_MIN,INT32_MAX},
 					.size = 32,
+					.alignmentData = parse::alignDataFromSize(32),
 				};
 			}
 			if (name == mpc::STD_I8)
@@ -160,6 +165,7 @@ namespace slu::mlvl
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{INT8_MIN,INT8_MAX},
 					.size = 8,
+					.alignmentData = parse::alignDataFromSize(8),
 				};
 			}
 			if (name == mpc::STD_U8)
@@ -167,6 +173,7 @@ namespace slu::mlvl
 				return parse::ResolvedType{
 					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},
 					.size = 8,
+					.alignmentData = parse::alignDataFromSize(8),
 				};
 			}
 
@@ -185,6 +192,7 @@ namespace slu::mlvl
 			res.fieldOffsets.reserve(var.size());
 			size_t idx = 1;
 			size_t fieldOffset = 0;
+			uint8_t maxAlign = 0;
 			for (parse::FieldV<true>& field : var)
 			{
 				handleTypeExprField(mpDb, idx, field, res);
@@ -193,6 +201,7 @@ namespace slu::mlvl
 					continue;
 
 				const parse::ResolvedType& resField = res.fields.back();
+				maxAlign = std::max(maxAlign, (uint8_t)resField.alignmentData);
 
 				if (resField.size == 0)
 				{
@@ -220,12 +229,14 @@ namespace slu::mlvl
 
 			return parse::ResolvedType{
 				.base = parse::RawTypeKind::Struct(&res),
-				.size = fieldOffset
+				.size = fieldOffset,
+				.alignmentData = maxAlign
 			};
 		},
 		varcase(parse::ExprType::Union&&)->parse::ResolvedType {
 			parse::UnionRawType& res = *(new parse::UnionRawType());
 			size_t maxSize=0;
+			uint8_t maxAlign = 0;
 
 			size_t idx = 1;
 			for (parse::FieldV<true>& field : var.fields)
@@ -235,6 +246,8 @@ namespace slu::mlvl
 					continue;//If any field is incomplete, then union is incomplete.
 
 				const parse::ResolvedType& resField = res.fields.back();
+				maxAlign = std::max(maxAlign, (uint8_t)resField.alignmentData);
+
 				if (!resField.isComplete())
 				{
 					maxSize = parse::ResolvedType::INCOMPLETE_MARK;
@@ -252,7 +265,8 @@ namespace slu::mlvl
 			}
 			return parse::ResolvedType{
 				.base = parse::RawTypeKind::Union(&res),
-				.size = maxSize
+				.size = maxSize,
+				.alignmentData = maxAlign
 			};
 		},
 

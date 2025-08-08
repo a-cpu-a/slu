@@ -168,6 +168,8 @@ namespace slu::mlvl
 		//This should already be true, if all parts of the near exact check are correct.
 		//if (subty.size != useTy.size)
 		//	return false;
+		if (subty.alignmentData != useTy.alignmentData)
+			return false;
 
 		return ezmatch(subty.base)(
 		[&]<class T>(const T& var) {
@@ -852,10 +854,11 @@ namespace slu::mlvl
 									v->options.emplace_back(parse::ResolvedType::newIntRange(fullRange));
 								});
 							}
-							size_t sz = v->calcSize();
+							auto [sz,alignData] = v->calcSizeAndAlign();
 							parse::ResolvedType res;
 							res.base = std::move(v);
 							res.size = sz;
+							res.alignmentData = alignData;
 							i.resolveNoCheck(std::move(res));
 						}
 					}
