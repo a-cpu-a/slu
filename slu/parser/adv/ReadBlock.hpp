@@ -102,6 +102,25 @@ namespace slu::parse
 		return false;
 	}
 
+	template<bool pushAnonScope, AnyInput In>
+	inline StatList<In> readGlobStatList(In& in)
+	{
+		if constexpr (pushAnonScope)
+			in.genData.pushAnonScope(in.getLoc());
+		skipSpace(in);
+		while (true)
+		{
+			if (!in)//File ended, so stat-list ended too
+				break;
+
+			if (in.peek() == '}')
+				break;
+
+			readStatement<false>(in, false);
+			skipSpace(in);
+		}
+		return in.genData.popScope(in.getLoc()).statList;
+	}
 	//second -> nextSynName, only for isGlobal=true
 	template<bool isLoop, AnyInput In>
 	inline std::pair<StatList<In>,lang::ModPathId> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
@@ -124,7 +143,7 @@ namespace slu::parse
 		return { std::move(bl.statList), bl.mp };
 	}
 
-	//if not pushScoep, then you will need to push it yourself!
+	//if not pushScope, then you will need to push it yourself!
 	template<bool isLoop, AnyInput In>
 	inline Block<In> readBlock(In& in, const bool allowVarArg,const bool pushScope)
 	{

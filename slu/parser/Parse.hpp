@@ -280,6 +280,29 @@ namespace slu::parse
 	}
 
 	template<bool isLoop,AnyInput In>
+	inline bool readTchStat(In& in, const Position place, const ExportData exported)
+	{
+		if (checkReadTextToken(in, "trait"))
+		{
+			StatementType::Trait res;
+			res.exported = exported;
+			skipSpace(in);
+			if (in.get() == '(')
+			{
+				in.skip();
+				res.params = readParamList(in);
+			}
+			res.name = in.genData.addLocalObj(readName(in));
+			requireToken(in, "{");
+			in.genData.pushScope(in.getLoc(), res.name);
+			res.itms = readGlobStatList<false>(in);
+			requireToken(in, "}");
+			return res;
+		}
+		return false;
+	}
+
+	template<bool isLoop,AnyInput In>
 	inline bool readUchStat(In& in, const Position place, const ExportData exported)
 	{
 		if (in.isOob(2))
@@ -313,7 +336,7 @@ namespace slu::parse
 					if (!exported && readEchStat<isLoop>(in, place, OptSafety::UNSAFE, false))
 						return true;
 					break;
-				case 't'://traits?
+				case 't'://unsafe traits?
 				default:
 					break;
 				}
@@ -866,6 +889,8 @@ namespace slu::parse
 							return;
 						break;
 					case 't'://trait?
+						if (readTchStat<isLoop>(in, place, true))
+							return;
 						break;
 					case 'l'://let? local?
 						if (readLchStat<isLoop>(in, place, true, allowVarArg))
@@ -920,6 +945,8 @@ namespace slu::parse
 		case 't'://trait?
 			if constexpr (In::settings() & sluSyn)
 			{
+				if (readTchStat<isLoop>(in, place, false))
+					return;
 			}
 			break;
 		default://none of the above...
