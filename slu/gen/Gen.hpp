@@ -1160,10 +1160,42 @@ namespace slu::parse
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
+		varcase(const StatementType::Trait&) {
+			if constexpr (Out::settings() & sluSyn)
+			{
+				if (var.exported) out.add("ex ");
+				out.add("trait ")
+					.add(out.db.asSv(var.name));
+				genParamList(out, var.params, false);
+				out.add(" {").tabUpNewl().newLine();
+				for (auto& i : var.itms)
+					genStat(out, i);
+				out.unTabNewl().addNewl('}');
+			}
+		},
+		varcase(const StatementType::Impl&) {
+			if constexpr (Out::settings() & sluSyn)
+			{
+				if (var.exported) out.add("ex ");
+				out.add("impl");
+				genParamList(out, var.params, false);
+				out.add(' ');
+				if (var.forTrait.has_value())
+				{
+					genExpr(out, *var.forTrait);
+					out.add(" for ");
+				}
+				genExpr(out, var.type);
+				out.add(" {").tabUpNewl().newLine();
+				for (auto& i : var.code)
+					genStat(out, i);
+				out.unTabNewl().addNewl('}');
+			}
+		},
 		varcase(const StatementType::Use&) {
 			if constexpr (Out::settings() & sluSyn)
 			{
-				if (var.exported)out.add("ex ");
+				if (var.exported) out.add("ex ");
 				out.add("use ");
 				genModPath(out, out.db.asVmp(var.base));
 				genUseVariant(out, var.useVariant);
@@ -1183,7 +1215,7 @@ namespace slu::parse
 
 			for (auto& i : var.code)
 				genStat(out,i);
-			out.unTabNewl().add('}');
+			out.unTabNewl().addNewl('}');
 		}
 
 		);

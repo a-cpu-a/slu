@@ -798,7 +798,7 @@ namespace slu::parse
 			ParamListV<true> params;
 			std::optional<ExprV<true>> forTrait;
 			ExprV<true> type;
-			StatListV<true> itms;
+			StatListV<true> code;
 			ExportData exported = false;
 		};
 
