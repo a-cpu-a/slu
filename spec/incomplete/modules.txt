@@ -12,9 +12,9 @@ New Syntax {
 
 	basicExp @::= | modpath
 	
-	stat @::= | OptExportPrefix "mod" Name "as" "{" block "}"
-	stat @::= | OptExportPrefix "mod" Name
-	stat @::= | OptExportPrefix "use" modpath useVariant
+	globstat @::= | OptExportPrefix "mod" Name "as" "{" chunk "}"
+	globstat @::= | OptExportPrefix "mod" Name
+	globstat @::= | OptExportPrefix "use" modpath useVariant
 	
 	useVariant ::= ["as" Name | modpathindex]
 	

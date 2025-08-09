@@ -102,7 +102,7 @@ New Syntax {
 	macroInvoke ::= comptimeVar"!" macroArgs
 	macroInvSpl ::= macroInvoke | macroSplice
 	
-	stat @::= | macroInvSpl
+	globstat @::= | macroInvSpl
 	basicExp @::= | macroInvSpl
 	Name @::= | macroInvSpl
 	traitExp @::= | macroInvSpl
@@ -119,7 +119,7 @@ New Syntax {
 	
 	PreMacro ::=
 	
-	stat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
+	globstat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
 	
 }
 

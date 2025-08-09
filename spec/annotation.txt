@@ -21,6 +21,8 @@ New Syntax {
 	block @::= | outerAnnotations block
 	
 	stat @::= | annotations stat
+	globstat @::= | annotations globstat
+	basicstat @::= | annotations basicstat
 	basicExp @::= | annotations basicExp
 	exp @::= | annotations exp
 }

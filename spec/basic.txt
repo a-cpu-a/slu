@@ -4,17 +4,20 @@
 
 New Syntax {
 	
-	chunk ::= block
+	chunk ::= {globstat}
 
 	block ::= {stat} [retstat [‘;’]]
-
+	
+	globstat ::= ‘;’
+	
 	basicstat ::= ‘;’
 		| varlist ‘=’ explist
 		| var selfablecall
 		| ‘goto’ Name
 
-	--TODO: loop exprs, also move it to some new spec
+	--TODO: loop exprs & stats, also move it to some new spec
 	stat ::=  basicstat
+		| globstat
 		| ‘loop’ ‘{’ block ‘}’
 		| label
 		| ‘{’ block ‘}’
@@ -26,7 +29,7 @@ New Syntax {
 
 	--TODO: labeled breaks
 	--TODO: parse break as a retstat
-	retstat ::= ("return" | "break" [":" (Name | "do" | "for" | "while" | "repeat" | "loop")]) [explist]
+	retstat ::= ("return" | "break" [":" Name]) [explist]
 
 	--TODO: be more lenient on the semicolons too
 	statOrRet ::= retstat | basicstat | ‘{’ block ‘}’

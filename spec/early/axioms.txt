@@ -9,11 +9,11 @@ New Syntax {
 		| "unsafe" modpath [modpathindex]
 		| "use" "axiom" modpath
 	
-	stat @::= | OptExportPrefix "axiom" Name ["as" "{" {axiomStat} "}"]
-	stat @::= | OptExportPrefix "use" "axiom" modpath
-	stat @::= | "drop" "axiom" modpath
+	globstat @::= | OptExportPrefix "axiom" Name ["as" "{" {axiomStat} "}"]
+	globstat @::= | OptExportPrefix "use" "axiom" modpath
+	globstat @::= | "drop" "axiom" modpath
 	
-	stat @::= | OptExportPrefix "impl" "axiom" modpath "{" {axiomStat} "}"
+	globstat @::= | OptExportPrefix "impl" "axiom" modpath "{" {axiomStat} "}"
 }
 
 New Keywords {

@@ -6,7 +6,7 @@ New Syntax {
 	
 	structInit ::= tableconstructor | "=" exp
 	
-	stat @::= | OptExportPrefix "struct" Name ["(" [paramList] ")"] structInit
+	globstat @::= | OptExportPrefix "struct" Name ["(" [paramList] ")"] structInit
 }
 
 New Keywords {

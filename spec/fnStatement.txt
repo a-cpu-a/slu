@@ -6,7 +6,7 @@ New Syntax {
 
 	PreFn ::=
 	
-	stat @::= | OptExportPrefix [safety] PreFn ["struct"] "fn" Name "(" [paramList] ")" ["->" basicExp] [‘{’ block ‘}’]
+	globstat @::= | OptExportPrefix [safety] PreFn ["struct"] "fn" Name "(" [paramList] ")" ["->" basicExp] [‘{’ block ‘}’]
 }
 
 New Keywords {

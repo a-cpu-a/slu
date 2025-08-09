@@ -7,7 +7,7 @@ New Syntax {
 	enumfield ::= annotations OptExportPrefix Name [structInit]
 	enumfieldList ::= enumfield {fieldsep enumfield} [fieldsep]
 	
-	stat @::= | OptExportPrefix "enum" Name ["(" [paramList] ")"] "{" [enumfieldList] "}"
+	globstat @::= | OptExportPrefix "enum" Name ["(" [paramList] ")"] "{" [enumfieldList] "}"
 }
 
 New Keywords {

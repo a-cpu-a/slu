@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix [safety] PreFn "function" Name "(" [paramList] ")" ["->" basicExp] [‘{’ block ‘}’]
+	globstat @::= | OptExportPrefix [safety] PreFn "function" Name "(" [paramList] ")" ["->" basicExp] [‘{’ block ‘}’]
 	basicExp @::= | [safety] PreFn "function" "(" [paramList] ")" ["->" basicExp] statOrRet
 }
 
