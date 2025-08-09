@@ -236,7 +236,7 @@ namespace slu::parse
 		return { std::move(func), false };
 	}
 
-	template<bool isLoop,SemicolMode semicolMode = SemicolMode::REQUIRE, AnyInput In>
+	template<bool isLoop, AnyInput In>
 	inline Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
 	{
 		if constexpr(In::settings() & sluSyn)
@@ -250,7 +250,7 @@ namespace slu::parse
 
 			in.genData.pushAnonScope(in.getLoc());//readBlock also pushes!
 
-			if (readReturn<isLoop,semicolMode>(in, allowVarArg))
+			if (readReturn<isLoop>(in, allowVarArg))
 				return in.genData.popScope(in.getLoc());
 			//Basic Statement + ';'
 
@@ -258,21 +258,7 @@ namespace slu::parse
 
 			Block<In> bl = in.genData.popScope(in.getLoc());
 
-			if constexpr (semicolMode == SemicolMode::REQUIRE_OR_KW)
-			{
-				skipSpace(in);
-
-				const char ch1 = in.peek();
-
-				if (ch1 == ';')
-					in.skip();//thats it
-				else if (!isBasicBlockEnding(in, ch1))
-					throwSemicolMissingAfterStat(in);
-			}
-			else if constexpr(semicolMode==SemicolMode::NONE)
-				readOptToken(in, ";");
-			else
-				requireToken(in, ";");
+			readOptToken(in, ";");
 
 			return bl;
 		}
@@ -290,7 +276,7 @@ namespace slu::parse
 		{
 			return std::make_unique<Expr<In>>(readExpr<BASIC>(in, allowVarArg));
 		}
-		return readDoOrStatOrRet<isLoop, SemicolMode::NONE>(in, allowVarArg);
+		return readDoOrStatOrRet<isLoop>(in, allowVarArg);
 	}
 
 	template<bool isLoop,AnyInput In>
@@ -845,7 +831,7 @@ namespace slu::parse
 			{ // repeat block until exp
 				Block<In> bl;
 				if constexpr (In::settings() & sluSyn)
-					bl = readDoOrStatOrRet<true, SemicolMode::NONE>(in, allowVarArg);
+					bl = readDoOrStatOrRet<true>(in, allowVarArg);
 				else
 					bl = readBlock<true>(in, allowVarArg, true);
 				requireToken(in, "until");

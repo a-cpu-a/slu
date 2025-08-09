@@ -59,11 +59,7 @@ namespace slu::parse
 		return false;
 	}
 
-	enum class SemicolMode
-	{
-		NONE, REQUIRE, REQUIRE_OR_KW
-	};
-	template<bool isLoop,SemicolMode semicolReq, AnyInput In>
+	template<bool isLoop, AnyInput In>
 	inline bool readReturn(In& in, const bool allowVarArg)
 	{
 		bool ret = checkReadTextToken(in, "return");
@@ -88,29 +84,18 @@ namespace slu::parse
 
 			skipSpace(in);
 
-			if constexpr (semicolReq == SemicolMode::NONE)
-			{
-				if (!in)
-					return true;
-			}
+			if (!in)
+				return true;
 
 			const char ch1 = in.peek();
 
 			if (ch1 == ';')
 				in.skip();//thats it
-			else if (isBasicBlockEnding(in, ch1))
-			{
-				if constexpr (semicolReq == SemicolMode::REQUIRE)
-					requireToken(in, ";");//Lazy way to throw error, maybe fix later?
-			}
-			else
+			else if (!isBasicBlockEnding(in, ch1))
 			{
 				in.genData.scopeReturn(readExprList(in, allowVarArg));
 
-				if constexpr (semicolReq != SemicolMode::NONE)
-					requireToken(in, ";");
-				else
-					readOptToken(in, ";");
+				readOptToken(in, ";");
 			}
 			return true;
 		}
@@ -167,7 +152,7 @@ namespace slu::parse
 
 			if (mayReturn)
 			{
-				if (readReturn<isLoop,SemicolMode::NONE>(in, allowVarArg))
+				if (readReturn<isLoop>(in, allowVarArg))
 					break;// no more loop
 			}
 			else if (isBasicBlockEnding(in, ch))

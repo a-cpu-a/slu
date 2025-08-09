@@ -31,8 +31,7 @@ New Syntax {
 	--TODO: parse labeled breaks
 	retstat ::= ("return" | "break" [":" Name]) [explist]
 
-	--TODO: be more lenient on the semicolons too
-	statOrRet ::= retstat | basicstat | ‘{’ block ‘}’
+	statOrRet ::= retstat [‘;’] | basicstat [‘;’] | ‘{’ block ‘}’
 	
 	
 
