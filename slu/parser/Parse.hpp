@@ -182,7 +182,7 @@ namespace slu::parse
 			in.genData.pushLocalScope();
 
 		if (funcName.has_value())
-			in.genData.pushScope(in.getLoc(), *funcName);
+			in.genData.pushScope(in.getLoc(),std::move(*funcName));
 		else
 			in.genData.pushAnonScope(in.getLoc());
 
@@ -286,15 +286,16 @@ namespace slu::parse
 		{
 			StatementType::Trait res;
 			res.exported = exported;
+			std::string name = readName(in);
+			res.name = in.genData.addLocalObj(name);
+			in.genData.pushScope(in.getLoc(), std::move(name));
 			skipSpace(in);
 			if (in.get() == '(')
 			{
 				in.skip();
 				res.params = readParamList(in);
 			}
-			res.name = in.genData.addLocalObj(readName(in));
 			requireToken(in, "{");
-			in.genData.pushScope(in.getLoc(), res.name);
 			res.itms = readGlobStatList<false>(in);
 			requireToken(in, "}");
 			return res;

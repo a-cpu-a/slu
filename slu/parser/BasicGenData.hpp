@@ -512,10 +512,10 @@ namespace slu::parse
 				anonScopeCounts.push_back(anonScopeCounts.back());
 		}
 		//For func, macro, inline_mod, type?, ???
-		constexpr void pushScope(const Position start,const std::string& name) {
+		constexpr void pushScope(const Position start,std::string&& name) {
 			//addLocalObj(name);
 
-			totalMp.push_back(name);
+			totalMp.push_back(std::move(name));
 			scopes.push_back({ NORMAL_SCOPE });
 			scopes.back().res.start = start;
 			anonScopeCounts.emplace_back(0);

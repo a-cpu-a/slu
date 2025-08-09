@@ -28,7 +28,7 @@ namespace slu::parse
 				res.name = modName;
 
 				requireToken(in, "{");
-				in.genData.pushScope(in.getLoc(), res.name);
+				in.genData.pushScope(in.getLoc(), std::move(name));
 				res.code = readGlobStatList<false>(in);
 				requireToken(in, "}");
 
