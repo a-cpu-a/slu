@@ -1168,7 +1168,7 @@ namespace slu::parse
 					.add(out.db.asSv(var.name));
 				genParamList(out, var.params, false);
 				out.add(" {").tabUpNewl().newLine();
-				for (auto& i : var.itms)
+				for (const auto& i : var.itms)
 					genStat(out, i);
 				out.unTabNewl().addNewl('}');
 			}
@@ -1182,12 +1182,12 @@ namespace slu::parse
 				out.add(' ');
 				if (var.forTrait.has_value())
 				{
-					genExpr(out, *var.forTrait);
+					genTraitExpr(out, *var.forTrait);
 					out.add(" for ");
 				}
 				genExpr(out, var.type);
 				out.add(" {").tabUpNewl().newLine();
-				for (auto& i : var.code)
+				for (const auto& i : var.code)
 					genStat(out, i);
 				out.unTabNewl().addNewl('}');
 			}
