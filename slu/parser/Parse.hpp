@@ -298,7 +298,62 @@ namespace slu::parse
 			requireToken(in, "{");
 			res.itms = readGlobStatList<false>(in);
 			requireToken(in, "}");
-			return res;
+			in.genData.addStat(place, std::move(res));
+			return true;
+		}
+		return false;
+	}
+	template<bool isLoop, AnyInput In>
+	inline bool readIchStat(In& in, const Position place, const ExportData exported,const bool allowVarArg)
+	{
+		if (in.isOob(1))
+			return false;
+		switch (in.peekAt(1))
+		{
+		case 'f':
+			if (!exported && checkReadTextToken(in, "if"))
+			{ // if exp then block {elseif exp then block} [else block] end
+				in.genData.addStat(place,
+					readIfCond<isLoop, false, false>(
+						in, allowVarArg
+					));
+				return true;
+			}
+			break;
+		case 'm':
+			if constexpr (In::settings()&sluSyn)
+			{
+				if (checkReadTextToken(in, "impl"))
+				{
+					StatementType::Impl res;
+					res.exported = exported;
+					skipSpace(in);
+					if (in.get() == '(')
+					{
+						in.skip();
+						res.params = readParamList(in);
+					}
+					TraitExpr traitOrType = readTraitExpr(in);
+					if (checkReadTextToken(in, "for"))
+					{
+						res.forTrait = std::move(traitOrType);
+						res.type = readExpr<true>(in, false);
+					}
+					else
+					{
+						if (traitOrType.traitCombo.size() != 1)
+							throwExpectedTypeExpr(in);
+						res.type = std::move(traitOrType.traitCombo[0]);
+					}
+
+					requireToken(in, "{");
+					res.code = readGlobStatList<true>(in);
+					requireToken(in, "}");
+					in.genData.addStat(place, std::move(res));
+					return true;
+				}
+			}
+			break;
 		}
 		return false;
 	}
@@ -866,14 +921,9 @@ namespace slu::parse
 				);
 			}
 			break;
-		case 'i'://if?
-			if (checkReadTextToken(in, "if"))
-			{ // if exp then block {elseif exp then block} [else block] end
-				return in.genData.addStat(place, 
-					readIfCond<isLoop,false,false>(
-						in,allowVarArg
-				));
-			}
+		case 'i'://if? impl?
+			if (readIchStat<isLoop>(in, place,false, allowVarArg))
+				return;
 			break;
 
 			//Slu
@@ -891,6 +941,10 @@ namespace slu::parse
 						break;
 					case 't'://trait?
 						if (readTchStat<isLoop>(in, place, true))
+							return;
+						break;
+					case 'i'://impl?
+						if (readIchStat<isLoop>(in, place, true,allowVarArg))
 							return;
 						break;
 					case 'l'://let? local?
