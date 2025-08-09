@@ -16,12 +16,13 @@ Type State {
 	
 	Safely mutate types of variables, without redefining them every time.
 	
-	TODO: how would you easily make a enum version of the typestates?
+	TODO: how would you easily make a enum version of the typestates? : Note, now that enum items are their own kind of type, this may not be so hard, if its restricted to a preset state defined by some enum.
 		currently the system works great, until you need some runtime behaviour.
 		(manualy moving into/out of some enum variants)
 		(2 seperate places that both define what enum states are allowed (enum of state data, enum of state types))
 	
 	TODO: maybe a marker at call sites, to help type inference? `in.trans skipSpace()`
+		or maybe a marker on the variable? `trans let x = stream(); x.y();`
 	
 	instead of:
 	```slu

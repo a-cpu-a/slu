@@ -59,7 +59,7 @@ Match Statement {
 	
 	
 	--TODO: do we even need restrictions?
-	-- the only loss would be '5 or 7 or 11' type of stuff
+	-- the only loss would be '5 or 7 or 11' type of stuff, unless you type it out using a 'if'
 	
 	Lets you match on a expressions result.
 	
