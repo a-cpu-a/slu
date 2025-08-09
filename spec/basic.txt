@@ -4,6 +4,7 @@
 
 New Syntax {
 	
+	--TODO: ban non global statements in chunks at parse time.
 	chunk ::= {globstat}
 
 	block ::= {stat} [retstat [‘;’]]
@@ -27,8 +28,7 @@ New Syntax {
 		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
 
-	--TODO: labeled breaks
-	--TODO: parse break as a retstat
+	--TODO: parse labeled breaks
 	retstat ::= ("return" | "break" [":" Name]) [explist]
 
 	--TODO: be more lenient on the semicolons too

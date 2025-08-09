@@ -1190,20 +1190,27 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genBlock(Out& out, const Block<Out>& obj)
+	inline void genBlock(Out& out, const Block<Out>& itm)
 	{
-		for (const Statement<Out>& s : obj.statList)
+		for (const Statement<Out>& s : itm.statList)
 		{
 			genStat(out, s);
 		}
 
-		if (obj.hadReturn)
+		if (itm.retTy != parse::RetType::NONE)
 		{
-			out.add("return");
-			if (!obj.retExprs.empty())
+			bool ret = itm.retTy == parse::RetType::RETURN;
+			if constexpr (Out::settings() & sluSyn)
+			{
+				if (!ret)
+					out.add("break");
+			}
+			if (ret)
+				out.add("return");
+			if (!itm.retExprs.empty())
 			{
 				out.add(' ');
-				genExprList(out, obj.retExprs);
+				genExprList(out, itm.retExprs);
 			}
 			out.add(';');
 			out.wasSemicolon = true;

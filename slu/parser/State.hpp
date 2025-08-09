@@ -67,21 +67,28 @@ namespace slu::parse
 	template<bool isSlu>
 	using DynLocalOrNameV = Sel<isSlu, MpItmIdV<false>, std::variant<MpItmIdV<true>, LocalId>>;
 
+	enum class RetType : uint8_t
+	{
+		NONE,
+		RETURN,
+		BREAK
+	};
+
 	template<bool isSlu>
 	struct BlockV
 	{
 		StatListV<isSlu> statList;
-		ExprListV<isSlu> retExprs;//Special, may contain 0 elements (even with hadReturn)
+		ExprListV<isSlu> retExprs;// May contain 0 elements
 
 		lang::ModPathId mp;
 
 		Position start;
 		Position end;
 
-		bool hadReturn = false;
+		RetType retTy = RetType::NONE;
 
 		bool empty() const {
-			return !hadReturn && statList.empty();
+			return retTy == RetType::NONE && statList.empty();
 		}
 
 		BlockV() = default;

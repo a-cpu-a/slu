@@ -553,8 +553,8 @@ namespace slu::parse
 			}
 			return res;
 		}
-		void scopeReturn() {
-			scopes.back().res.hadReturn = true;
+		void scopeReturn(RetType ty) {
+			scopes.back().res.retTy = ty;
 		}
 		// Make sure to run no args `scopeReturn()` first!
 		void scopeReturn(ExprListV<isSlu>&& expList) {

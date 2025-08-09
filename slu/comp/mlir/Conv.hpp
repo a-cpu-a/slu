@@ -556,7 +556,7 @@ namespace slu::comp::mico
 		mlir::OpBuilder& builder = conv.builder;
 		for (const auto& i : itm.statList)
 			convStat(conv, i);
-		if (itm.hadReturn && !itm.retExprs.empty())
+		if (itm.retTy!=parse::RetType::NONE && !itm.retExprs.empty())
 		{
 			//maybe return something
 			//TODO

@@ -63,12 +63,28 @@ namespace slu::parse
 	{
 		NONE, REQUIRE, REQUIRE_OR_KW
 	};
-	template<SemicolMode semicolReq, AnyInput In>
+	template<bool isLoop,SemicolMode semicolReq, AnyInput In>
 	inline bool readReturn(In& in, const bool allowVarArg)
 	{
-		if (checkReadTextToken(in, "return"))
+		bool ret = checkReadTextToken(in, "return");
+		bool brk = false;
+		if constexpr (In::settings()&sluSyn)
 		{
-			in.genData.scopeReturn();
+			if(!ret)
+				brk = checkReadTextToken(in, "break");
+			if constexpr (!isLoop)
+			{
+				if (brk)
+				{
+					in.handleError(std::format(
+						"Break used outside of loop"
+						"{}", errorLocStr(in)));
+				}
+			}
+		}
+		if (ret || brk)
+		{
+			in.genData.scopeReturn(ret ? RetType::RETURN : RetType::BREAK);
 
 			skipSpace(in);
 
@@ -145,9 +161,13 @@ namespace slu::parse
 
 			const char ch = in.peek();
 
-			if (ch == 'r')
+			bool mayReturn = ch == 'r';
+			if constexpr (In::settings() & sluSyn)
+				mayReturn = mayReturn || (ch == 'b');
+
+			if (mayReturn)
 			{
-				if (readReturn<SemicolMode::NONE>(in, allowVarArg))
+				if (readReturn<isLoop,SemicolMode::NONE>(in, allowVarArg))
 					break;// no more loop
 			}
 			else if (isBasicBlockEnding(in, ch))

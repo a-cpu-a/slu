@@ -250,7 +250,7 @@ namespace slu::parse
 
 			in.genData.pushAnonScope(in.getLoc());//readBlock also pushes!
 
-			if (readReturn<semicolMode>(in, allowVarArg))
+			if (readReturn<isLoop,semicolMode>(in, allowVarArg))
 				return in.genData.popScope(in.getLoc());
 			//Basic Statement + ';'
 
@@ -806,15 +806,18 @@ namespace slu::parse
 			}
 			break;
 		case 'b'://break?
-			if (checkReadTextToken(in, "break"))
+			if constexpr (!(In::settings() & sluSyn))
 			{
-				if constexpr (!isLoop)
+				if (checkReadTextToken(in, "break"))
 				{
-					in.handleError(std::format(
-						"Break used outside of loop{}"
-						, errorLocStr(in)));
+					if constexpr (!isLoop)
+					{
+						in.handleError(std::format(
+							"Break used outside of loop{}"
+							, errorLocStr(in)));
+					}
+					return in.genData.addStat(place, StatementType::Break{});
 				}
-				return in.genData.addStat(place, StatementType::Break{});
 			}
 			break;
 		case 'g'://goto?

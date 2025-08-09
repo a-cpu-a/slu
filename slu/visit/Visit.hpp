@@ -746,7 +746,7 @@ namespace slu::visit
 	{
 		Slu_CALL_VISIT_FN_PRE(Block);
 		visitStatList(vi, itm.statList);
-		if (itm.hadReturn)
+		if (itm.retTy != parse::RetType::NONE)
 		{
 			Slu_CALL_VISIT_FN_PRE(BlockReturn);
 			visitExprList(vi, itm.retExprs);

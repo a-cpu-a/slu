@@ -1120,15 +1120,16 @@ namespace slu::paint
 		{
 			paintStat(se, stat);
 		}
-		if (itm.hadReturn)
+		if (itm.retTy != parse::RetType::NONE)
 		{
+			bool ret = itm.retTy == parse::RetType::RETURN;
 			if constexpr(Se::settings()&sluSyn)
 			{
-				skipSpace(se);
-				if (se.in.peek() == 'd')
-					paintKw<Tok::FN_STAT, false>(se, "do");
+				if(!ret)
+					paintKw<Tok::FN_STAT>(se, "break");
 			}
-			paintKw<Tok::FN_STAT>(se,"return");
+			if(ret)
+				paintKw<Tok::FN_STAT>(se,"return");
 			paintExprList(se, itm.retExprs);
 
 			skipSpace(se);
