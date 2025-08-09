@@ -4,6 +4,7 @@
 
 New Syntax {
 	
+	--Since there is a trait expr, the type expression doesnt parse binary operators.
 	globstat @::= | OptExportPrefix "impl" ["(" paramList ")"] [traitExp "for"] basicExp "{" {globstat} "}"
 }
 

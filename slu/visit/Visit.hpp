@@ -714,6 +714,22 @@ namespace slu::visit
 			visitExpr(vi, var.expr);
 			Slu_CALL_VISIT_FN_POST_VAR(Drop);
 		},
+		varcase(parse::StatementType::Trait&) {
+			visitExported(vi, var.exported);
+			visitName(vi, var.name);
+			visitParams(vi, var.params);
+			visitStatList(vi, var.itms);
+			//TODO
+		},
+		varcase(parse::StatementType::Impl&) {
+			visitExported(vi, var.exported);
+			visitParams(vi, var.params);
+			if (var.forTrait.has_value())
+				visitTraitExpr(vi, *var.forTrait);
+			visitExpr(vi, var.type);
+			visitStatList(vi, var.code);
+			//TODO
+		},
 		varcase(parse::StatementType::Mod<Vi>&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
