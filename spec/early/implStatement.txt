@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	globstat @::= | OptExportPrefix "impl" ["(" paramList ")"] [traitExp "for"] basicExp "{" {stat} "}"
+	globstat @::= | OptExportPrefix "impl" ["(" paramList ")"] [traitExp "for"] basicExp "{" {globstat} "}"
 }
 
 New Keywords {

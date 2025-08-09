@@ -786,10 +786,19 @@ namespace slu::parse
 		struct UnsafeLabel {};
 		struct SafeLabel {};
 
-		struct Use
+		struct Trait
 		{
-			MpItmIdV<true> base;//the aliased/imported thing, or modpath base
-			UseVariant useVariant;
+			MpItmIdV<true> name;
+			ParamListV<true> params;
+			StatListV<true> itms;
+			ExportData exported = false;
+		};
+		struct Impl
+		{
+			ParamListV<true> params;
+			std::optional<ExprV<true>> forTrait;
+			ExprV<true> type;
+			StatListV<true> itms;
 			ExportData exported = false;
 		};
 
@@ -799,6 +808,14 @@ namespace slu::parse
 			ExprV<isSlu> expr;
 		};
 		Slu_DEF_CFG(Drop);
+
+
+		struct Use
+		{
+			MpItmIdV<true> base;//the aliased/imported thing, or modpath base
+			UseVariant useVariant;
+			ExportData exported = false;
+		};
 
 		template<bool isSlu>
 		struct ModV
@@ -860,6 +877,9 @@ namespace slu::parse
 		StatementType::SafeLabel,		// ::: safe :
 
 		StatementType::DropV<isSlu>,	// "drop" Name
+		StatementType::Trait,
+		StatementType::Impl,
+
 		StatementType::Use,				// "use" ...
 		StatementType::ModV<isSlu>,		// "mod" Name
 		StatementType::ModAsV<isSlu>	// "mod" Name "as" "{" block "}"

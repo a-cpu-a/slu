@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	globstat @::= | OptExportPrefix "trait" Name ["(" paramList ")"] "{" {stat} "}"
+	globstat @::= | OptExportPrefix "trait" Name ["(" paramList ")"] "{" {globstat} "}"
 }
 
 New Keywords {
