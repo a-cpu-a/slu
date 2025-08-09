@@ -1181,7 +1181,8 @@ namespace slu::parse
 			out.add("mod ").add(out.db.asSv(var.name)).add(" as {");
 			out.tabUpNewl().newLine();
 
-			genBlock(out,var.bl);
+			for (auto& i : var.code)
+				genStat(out,i);
 			out.unTabNewl().add('}');
 		}
 

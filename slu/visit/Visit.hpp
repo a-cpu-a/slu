@@ -722,7 +722,7 @@ namespace slu::visit
 		varcase(parse::StatementType::ModAs<Vi>&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
-			visitBlock(vi, var.bl);
+			visitStatList(vi, var.code);
 		}
 		);
 		Slu_CALL_VISIT_FN_POST(Stat);

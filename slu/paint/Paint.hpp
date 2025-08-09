@@ -1086,7 +1086,8 @@ namespace slu::paint
 			paintKw<Tok::CON_STAT>(se, "as");
 
 			paintKw<Tok::BRACES>(se, "{");
-			paintBlock(se, var.bl);
+			for (auto& i : var.code)
+				paintStat(se, i);
 			paintKw<Tok::BRACES>(se, "}");
 		}
 		);

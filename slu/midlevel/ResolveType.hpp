@@ -65,8 +65,8 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::FieldV<true>&&)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve Field type expressions.");
 		},
-		varcase(const parse::ExprType::SelfCallV<true>&&)->parse::ResolvedType {
-			throw std::runtime_error("TODO: resolve self-call type expressions.");
+		varcase(const parse::ExprType::CallV<true>&&)->parse::ResolvedType {
+			throw std::runtime_error("TODO: resolve call type expressions.");
 		},
 		varcase(parse::ExprType::FnType&&)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve Fn type expressions.");

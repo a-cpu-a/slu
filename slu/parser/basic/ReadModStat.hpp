@@ -28,8 +28,9 @@ namespace slu::parse
 				res.name = modName;
 
 				requireToken(in, "{");
-				in.genData.pushScope(in.getLoc(), std::move(name));
-				res.bl = readBlockNoStartCheck<false>(in, false,false);
+
+				auto [sl, mp] = readStatList<false>(in, false, true);
+				res.code = std::move(sl);
 
 				in.genData.addStat(place, std::move(res));
 			}

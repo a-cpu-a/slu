@@ -254,7 +254,7 @@ namespace slu::comp::mico
 
 			return tryConvBuiltinType(conv, abi, selfName, true);
 		},
-		varcase(const parse::ExprType::CallV<true>&)
+		varcase(const parse::ExprType::CallV<true>&)->mlir::Type
 		{
 			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
 			throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");

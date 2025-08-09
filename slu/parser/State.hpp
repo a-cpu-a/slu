@@ -804,7 +804,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct ModAsV : ModV<isSlu>
 		{
-			BlockV<isSlu> bl;
+			StatListV<isSlu> code;
 		};
 		Slu_DEF_CFG(ModAs);
 
