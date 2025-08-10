@@ -1177,6 +1177,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 			{
 				if (var.exported) out.add("ex ");
+				if (var.deferChecking) out.add("defer ");
 				out.add("impl");
 				genParamList(out, var.params, false);
 				out.add(' ');

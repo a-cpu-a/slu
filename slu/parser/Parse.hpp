@@ -323,6 +323,7 @@ namespace slu::parse
 		case 'm':
 			if constexpr (In::settings()&sluSyn)
 			{
+				//TODO: parse defer
 				if (checkReadTextToken(in, "impl"))
 				{
 					StatementType::Impl res;

@@ -80,6 +80,7 @@ New Keywords {
 	const		(317k)		(34.3k)		Immutable pointers
 	crate		(73k)		(1.1k)		this crate
 	alloc		(??)		(??)		Allocate something for gc
+	defer		(??)		(??)		Defer impl type checking.
 	macro		(52.5k)		(5.8k)		macro def
 	match		(545k)		(27.4k)		match expr
 	catch		(44k)		(3.3k)		catch stat
