@@ -14,8 +14,15 @@ namespace slu::parse
 			"Expected exportable statment after " 
 			LUACC_SINGLE_STRING("ex")
 			", at"
-			"{}"
-			, errorLocStr(in)));
+			"{}", errorLocStr(in)));
+	}
+	inline void throwExpectedImplAfterDefer(AnyInput auto& in)
+	{
+		throw UnexpectedKeywordError(std::format(
+			"Expected impl statment after " 
+			LUACC_SINGLE_STRING("defer")
+			", at"
+			"{}", errorLocStr(in)));
 	}
 	inline void throwUnexpectedSafety(AnyInput auto& in, const Position pos)
 	{

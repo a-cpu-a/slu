@@ -36,9 +36,9 @@ namespace slu::parse
 	"generator", "gen",	"yield", "async", "await", "static", \
 	/* documented */\
 	"it", "as","at", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
-	"also","case", "drop", "enum", "impl", "safe", "const", \
-	"alloc", "macro", "match", "catch", "throw","trans", "union", \
-	"axiom","share", "unsafe","struct", "module", "extern"
+	"also", "case", "drop", "enum", "impl", "safe", "const", \
+	"alloc", "defer", "macro", "match", "catch", "throw", "trans",\
+	"union", "axiom","share", "unsafe", "struct", "module", "extern"
 #define _Slu_MOSTLY_KWS "self", "Self", "crate", "super"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {

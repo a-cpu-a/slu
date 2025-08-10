@@ -304,14 +304,14 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline bool readIchStat(In& in, const Position place, const ExportData exported,const bool allowVarArg)
+	inline bool readIchStat(In& in, const Position place, const ExportData exported, const bool hasDefer,const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
 		switch (in.peekAt(1))
 		{
 		case 'f':
-			if (!exported && checkReadTextToken(in, "if"))
+			if (!hasDefer && !exported && checkReadTextToken(in, "if"))
 			{ // if exp then block {elseif exp then block} [else block] end
 				in.genData.addStat(place,
 					readIfCond<isLoop, false, false>(
@@ -323,11 +323,11 @@ namespace slu::parse
 		case 'm':
 			if constexpr (In::settings()&sluSyn)
 			{
-				//TODO: parse defer
 				if (checkReadTextToken(in, "impl"))
 				{
 					StatementType::Impl res;
 					res.exported = exported;
+					res.deferChecking = hasDefer;
 					skipSpace(in);
 					if (in.get() == '(')
 					{
@@ -860,6 +860,11 @@ namespace slu::parse
 						StatementType::Drop<In>(readExpr(in,allowVarArg))
 					);
 				}
+				if (checkReadTextToken(in, "defer"))
+				{
+					if (readIchStat<isLoop>(in, place, false, true, allowVarArg))
+						return;
+				}
 			}
 			else
 			{
@@ -923,7 +928,7 @@ namespace slu::parse
 			}
 			break;
 		case 'i'://if? impl?
-			if (readIchStat<isLoop>(in, place,false, allowVarArg))
+			if (readIchStat<isLoop>(in, place,false,false, allowVarArg))
 				return;
 			break;
 
@@ -945,8 +950,20 @@ namespace slu::parse
 							return;
 						break;
 					case 'i'://impl?
-						if (readIchStat<isLoop>(in, place, true,allowVarArg))
+						if (readIchStat<isLoop>(in, place, true,false,allowVarArg))
 							return;
+						break;
+					case 'd'://defer impl?
+						if (checkReadTextToken(in, "defer"))
+						{
+							skipSpace(in);
+							if(in.get()=='i')
+							{
+								if (readIchStat<isLoop>(in, place, true, true, allowVarArg))
+									return;
+							}
+							throwExpectedImplAfterDefer(in);
+						}
 						break;
 					case 'l'://let? local?
 						if (readLchStat<isLoop>(in, place, true, allowVarArg))
