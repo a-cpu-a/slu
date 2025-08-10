@@ -723,7 +723,6 @@ namespace slu::visit
 		},
 		varcase(parse::StatementType::Impl&) {
 			visitExported(vi, var.exported);
-			visitParams(vi, var.params);
 			if (var.forTrait.has_value())
 				visitTraitExpr(vi, *var.forTrait);
 			visitExpr(vi, var.type);

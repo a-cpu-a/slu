@@ -1178,9 +1178,7 @@ namespace slu::parse
 			{
 				if (var.exported) out.add("ex ");
 				if (var.deferChecking) out.add("defer ");
-				out.add("impl");
-				genParamList(out, var.params, false);
-				out.add(' ');
+				out.add("impl ");
 				if (var.forTrait.has_value())
 				{
 					genTraitExpr(out, *var.forTrait);

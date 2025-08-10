@@ -795,7 +795,6 @@ namespace slu::parse
 		};
 		struct Impl
 		{
-			ParamListV<true> params;
 			std::optional<TraitExpr> forTrait;
 			ExprV<true> type;
 			StatListV<true> code;

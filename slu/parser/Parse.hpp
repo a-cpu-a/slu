@@ -328,12 +328,6 @@ namespace slu::parse
 					StatementType::Impl res;
 					res.exported = exported;
 					res.deferChecking = hasDefer;
-					skipSpace(in);
-					if (in.get() == '(')
-					{
-						in.skip();
-						res.params = readParamList(in);
-					}
 					TraitExpr traitOrType = readTraitExpr(in);
 					if (checkReadTextToken(in, "for"))
 					{
