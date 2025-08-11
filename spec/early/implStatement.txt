@@ -5,7 +5,7 @@
 New Syntax {
 	
 	--Since there is a trait expr, the type expression doesnt parse binary operators, unless the trait expr was already parsed.
-	globstat @::= | OptExportPrefix ["defer"] "impl" [traitExp "for"] basicExp "{" {globstat} "}"
+	globstat @::= | OptExportPrefix ["defer"] "impl" ["(" paramList ")"] [traitExp "for"] basicExp "{" {globstat} "}"
 }
 
 New Keywords {
@@ -31,6 +31,5 @@ Impl Statement {
 	If your trait expr / basic expr need "()" around them you may need a empty param list, to keep things parsable.
 	
 	
-	--TODO: maybe not such a good idea, since this is a semi-structural type system, this would basically be possible only by ducktyping such impl's
-	Adding 'defer', makes type checking happen only once the impl is actually used.
+	Adding 'defer', makes type checking happen only once the impl is actually used, allowing you to use T in any way you like.
 }

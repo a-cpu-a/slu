@@ -103,13 +103,15 @@ Subtypes {
 	
 	Struct <= Struct
 	1. names must match, or have a upcast relationship
-	2. check if the subtype's fields are subtypes of the super-type's versions of those fields. (super exclusive fields are ignored).
-	3. are the fields in the subtype also in the same order inside the super type.
+	2. if names fully match, and both structs have generic-args, then they must match, (if the args match, then all fields should be the same, as struct functions are pure)
+	3. check if the subtype's fields are subtypes of the super-type's versions of those fields. (super exclusive fields are ignored).
+	4. are the fields in the subtype also in the same order inside the super type.
 	
 	Union <= Union
 	1. names must match
-	2. all field names equal
-	2. for all fields, near exact check
+	2. if both structs have generic-args, then they must match, (if the args match, then all fields should be the same, as union functions are pure)
+	3. all field names equal
+	4. for all fields, near exact check
 	
 	T < Variant
 	1. is the subtype(or one of its supertypes) inside the variant.
