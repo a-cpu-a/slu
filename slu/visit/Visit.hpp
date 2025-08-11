@@ -653,7 +653,7 @@ namespace slu::visit
 			visitName(vi, var.name);
 			Slu_CALL_VISIT_FN_PRE_USER(Locals, var.local2Mp);
 			visitParams(vi, var.params);
-			visitTypeExpr(vi, var.type);
+			visitTable(vi, var.type);
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 		},
 		varcase(parse::StatementType::Union&) {

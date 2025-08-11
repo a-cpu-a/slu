@@ -1093,12 +1093,8 @@ namespace slu::parse
 					genParamList(out, var.params, false);
 					out.add(')');
 				}
-				if (!var.type.isBasicStruct())
-					out.add(" = ");
-				else
-					out.add(' ');
-
-				genExpr(out, var.type);
+				out.add(' ');
+				genTable(out, var.type);
 				out.newLine();
 				out.popLocals();
 			}

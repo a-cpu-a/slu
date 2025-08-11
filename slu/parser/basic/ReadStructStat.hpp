@@ -52,26 +52,8 @@ namespace slu::parse
 			res.params = readParamList(in);
 			skipSpace(in);
 		}
-		if constexpr (structOnly)
-		{
-			requireToken(in, "{");
-			res.type = readTable<false>(in, false);
-		}
-		else
-		{
-			switch (in.peek())
-			{
-			case '{':
-				res.type = readExpr(in,false);
-				break;
-			case '=':
-				in.skip();
-				res.type = readExpr(in, false);
-				break;
-			default:
-				throwExpectedStructOrAssign(in);
-			}
-		}
+		requireToken(in, "{");
+		res.type = readTable<false>(in, false);
 		res.local2Mp = in.genData.popLocalScope();
 
 		in.genData.addStat(place, std::move(res));

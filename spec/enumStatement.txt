@@ -29,7 +29,7 @@ Enum Statement {
 	```slu
 	enum Option(T) {
 		None,
-		Some = T
+		Some{T}
 	}
 
 	-- Desugars into the following:

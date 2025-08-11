@@ -1008,11 +1008,7 @@ namespace slu::paint
 			{
 				se.pushLocals(var.local2Mp);
 				paintStructBasic(se, var, "struct");
-
-				skipSpace(se);
-				if (se.in.peek() == '=')
-					paintKw<Tok::ASSIGN>(se, "=");
-				paintTypeExpr(se, var.type);
+				paintTable<Tok::NAME_TYPE>(se, var.type);
 				se.popLocals();
 			}
 		},

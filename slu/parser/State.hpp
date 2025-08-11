@@ -605,12 +605,11 @@ namespace slu::parse
 		UseVariantType::LIST_OF_STUFF
 	>;
 
-	template<class TyTy>
 	struct StructBase
 	{
 		ParamListV<true> params;
 		LocalsV<true> local2Mp;
-		TyTy type;
+		TableV<true> type;
 		MpItmIdV<true> name;
 		ExportData exported = false;
 	};
@@ -766,8 +765,8 @@ namespace slu::parse
 		};
 
 
-		struct Struct : StructBase<ExprV<true>> {};
-		struct Union : StructBase<TableV<true>> {};
+		struct Struct : StructBase {};
+		struct Union : StructBase {};
 
 		template<bool isSlu>
 		struct ExternBlockV

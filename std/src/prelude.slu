@@ -1,8 +1,8 @@
 
 
 --const type = @Builtin{"base::type/type"}0; --TODO: unhack this from the compiler
---const type u8 = 0..0xFF;
---const type i32 = -0x80000000..0x7FFFFFFF;
+--const type u8 = 0..0xFF as type;
+--const type i32 = -0x80000000..0x7FFFFFFF as type;
 
 --struct Unit {};
 
@@ -10,7 +10,7 @@
 ---Everywhere else, a valid utf 8 string.
 ---Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)
 --@Builtin{"base::type/str"} --TODO: unhack string-ness
---struct str = [u8];
+--struct str{[u8]};
 
 
 --TODO: subtyping from char to str is not as simple as it once seemed. Remove it?
