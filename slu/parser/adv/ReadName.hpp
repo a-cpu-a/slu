@@ -39,7 +39,8 @@ namespace slu::parse
 	"also", "case", "drop", "enum", "impl", "safe", "alloc", "axiom", \
 	"catch", "const", "defer", "macro", "match", "share", "throw", "trans",\
 	"union", "where", "extern", "module", "struct", "unsafe"
-#define _Slu_MOSTLY_KWS "self", "Self", "crate", "super"
+#define _Slu_VERY_KWS "self", "crate", "super"
+#define _Slu_MOSTLY_KWS _Slu_VERY_KWS, "Self"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
 		"false", "nil", "not", "true", _Slu_COMMON_KWS
@@ -51,6 +52,11 @@ namespace slu::parse
 		//Conditional
 		_Slu_MOSTLY_KWS, "trait",
 	};
+	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_BOUND_VAR = {
+		_Slu_COMMON_KWS,
+		_Slu_KWS,
+		_Slu_VERY_KWS
+	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
 		_Slu_COMMON_KWS,
 		_Slu_KWS
@@ -60,14 +66,16 @@ namespace slu::parse
 		_Slu_KWS,
 		_Slu_MOSTLY_KWS
 	};
-#undef _LUA_KWS
+#undef _Slu_KWS
 #undef _Slu_MOSTLY_KWS
+#undef _Slu_VERY_KWS
 #undef _Slu_COMMON_KWS
 	enum class NameCatagory
 	{
 		DEFAULT,
 		MP_START,
-		MP
+		MP,
+		BOUND_VAR
 	};
 	template<NameCatagory cata>
 	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
@@ -80,6 +88,8 @@ namespace slu::parse
 				checkSet = &RESERVED_KEYWORDS_SLU_MP_START;
 			else if constexpr (cata== NameCatagory::MP)
 				checkSet = &RESERVED_KEYWORDS_SLU_MP;
+			else if constexpr (cata== NameCatagory::BOUND_VAR)
+				checkSet = &RESERVED_KEYWORDS_SLU_BOUND_VAR;
 			else
 				checkSet = &RESERVED_KEYWORDS_SLU;
 		}

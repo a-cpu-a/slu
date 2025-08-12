@@ -279,6 +279,23 @@ namespace slu::parse
 		return readDoOrStatOrRet<isLoop>(in, allowVarArg);
 	}
 
+	template<AnyInput In>
+	inline void readWhereClauses(In& in, WhereClauses& itm)
+	{
+		if (checkReadTextToken(in, "where"))
+		{
+			while (true)
+			{
+				WhereClause& c = itm.emplace_back();
+				c.var = in.genData.resolveName(readName<NameCatagory::BOUND_VAR>(in));
+				requireToken(in, ":");
+				c.bound = readTraitExpr(in);
+
+				if (!checkReadToken(in, ",")
+					break;
+			}
+		}
+	}
 	template<bool isLoop,AnyInput In>
 	inline bool readTchStat(In& in, const Position place, const ExportData exported)
 	{
@@ -294,7 +311,15 @@ namespace slu::parse
 			{
 				in.skip();
 				res.params = readParamList(in);
+				skipSpace(in);
 			}
+			if (in.get() == ':')
+			{
+				in.skip();
+				res.whereSelf = readTraitExpr(in);
+			}
+			readWhereClauses(in,res.clauses);
+
 			requireToken(in, "{");
 			res.itms = readGlobStatList<false>(in);
 			requireToken(in, "}");
@@ -351,6 +376,7 @@ namespace slu::parse
 							throwExpectedTypeExpr(in);
 						res.type = std::move(traitOrType.traitCombo[0]);
 					}
+					readWhereClauses(in, res.clauses);
 
 					requireToken(in, "{");
 					res.code = readGlobStatList<true>(in);

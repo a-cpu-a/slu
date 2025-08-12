@@ -633,6 +633,13 @@ namespace slu::parse
 		ExportData exported = false;
 	};
 
+	struct WhereClause
+	{
+		TraitExpr bound;
+		MpItmIdV<true> var;
+	};
+	using WhereClauses = std::vector<WhereClause>;
+
 	namespace StatementType
 	{
 		using Semicol = std::monostate;	// ";"
@@ -787,13 +794,16 @@ namespace slu::parse
 
 		struct Trait
 		{
+			WhereClauses clauses;
 			MpItmIdV<true> name;
 			ParamListV<true> params;
 			StatListV<true> itms;
+			std::optional<TraitExpr> whereSelf;
 			ExportData exported = false;
 		};
 		struct Impl
 		{
+			WhereClauses clauses;
 			ParamListV<true> params;
 			std::optional<TraitExpr> forTrait;
 			ExprV<true> type;
