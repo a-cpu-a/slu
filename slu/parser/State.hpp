@@ -798,8 +798,9 @@ namespace slu::parse
 			std::optional<TraitExpr> forTrait;
 			ExprV<true> type;
 			StatListV<true> code;
-			ExportData exported :1 = false;
+			ExportData exported: 1 = false;
 			bool deferChecking : 1 = false;
+			bool isUnsafe	   : 1 = false;
 		};
 
 		template<bool isSlu>

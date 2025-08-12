@@ -304,14 +304,15 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline bool readIchStat(In& in, const Position place, const ExportData exported, const bool hasDefer,const bool allowVarArg)
+	inline bool readIchStat(In& in, const Position place, const ExportData exported, const OptSafety safety,const bool hasDefer,const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
 		switch (in.peekAt(1))
 		{
 		case 'f':
-			if (!hasDefer && !exported && checkReadTextToken(in, "if"))
+			if (safety == OptSafety::DEFAULT && !hasDefer && !exported 
+				&& checkReadTextToken(in, "if"))
 			{ // if exp then block {elseif exp then block} [else block] end
 				in.genData.addStat(place,
 					readIfCond<isLoop, false, false>(
@@ -325,9 +326,13 @@ namespace slu::parse
 			{
 				if (checkReadTextToken(in, "impl"))
 				{
+					if (safety == OptSafety::SAFE)
+						throwUnexpectedSafety(in, place);
+
 					StatementType::Impl res;
 					res.exported = exported;
 					res.deferChecking = hasDefer;
+					res.isUnsafe = safety == OptSafety::UNSAFE;
 					skipSpace(in);
 					if (in.get() == '(')
 					{
@@ -376,6 +381,22 @@ namespace slu::parse
 				skipSpace(in);
 				switch (in.peek())
 				{
+				case 'i':
+					if (readIchStat<isLoop>(in, place, exported, OptSafety::UNSAFE,false, false))
+						return true;
+					break;
+				case 'd'://defer impl?
+					if (checkReadTextToken(in, "defer"))
+					{
+						skipSpace(in);
+						if (in.get() == 'i')
+						{
+							if (readIchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, true, allowVarArg))
+								return;
+						}
+						throwExpectedImplAfterDefer(in);
+					}
+					break;
 				case 'f':
 					if (readFchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, false))
 						return true;
@@ -862,7 +883,7 @@ namespace slu::parse
 				}
 				if (checkReadTextToken(in, "defer"))
 				{
-					if (readIchStat<isLoop>(in, place, false, true, allowVarArg))
+					if (readIchStat<isLoop>(in, place, false,OptSafety::DEFAULT, true, allowVarArg))
 						return;
 				}
 			}
@@ -928,7 +949,7 @@ namespace slu::parse
 			}
 			break;
 		case 'i'://if? impl?
-			if (readIchStat<isLoop>(in, place,false,false, allowVarArg))
+			if (readIchStat<isLoop>(in, place, false,OptSafety::DEFAULT,false, allowVarArg))
 				return;
 			break;
 
@@ -950,7 +971,7 @@ namespace slu::parse
 							return;
 						break;
 					case 'i'://impl?
-						if (readIchStat<isLoop>(in, place, true,false,allowVarArg))
+						if (readIchStat<isLoop>(in, place,  true,OptSafety::DEFAULT,false,allowVarArg))
 							return;
 						break;
 					case 'd'://defer impl?
@@ -959,7 +980,7 @@ namespace slu::parse
 							skipSpace(in);
 							if(in.get()=='i')
 							{
-								if (readIchStat<isLoop>(in, place, true, true, allowVarArg))
+								if (readIchStat<isLoop>(in, place,  true,OptSafety::DEFAULT, true, allowVarArg))
 									return;
 							}
 							throwExpectedImplAfterDefer(in);
