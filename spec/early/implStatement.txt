@@ -5,11 +5,12 @@
 New Syntax {
 	
 	--Since there is a trait expr, the type expression doesnt parse binary operators, unless the trait expr was already parsed.
-	globstat @::= | OptExportPrefix ["defer"] "impl" ["(" paramList ")"] [traitExp "for"] basicExp "{" {globstat} "}"
+	globstat @::= | OptExportPrefix ["unsafe"] ["defer"] "impl" ["(" paramList ")"] [traitExp "for"] basicExp [whereClauses] "{" {globstat} "}"
 }
 
 New Keywords {
 	defer
+	where
 	impl
 	for
 }
@@ -30,6 +31,6 @@ Impl Statement {
 	
 	If your trait expr / basic expr need "()" around them you may need a empty param list, to keep things parsable.
 	
-	
+	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the 'traitExp for' form.
 	Adding 'defer', makes type checking happen only once the impl is actually used, allowing you to use T in any way you like.
 }
