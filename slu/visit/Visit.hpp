@@ -516,6 +516,16 @@ namespace slu::visit
 		}
 		Slu_CALL_VISIT_FN_POST(Params);
 	}
+	template<AnyVisitor Vi>
+	inline void visitWhereClauses(Vi& vi, parse::WhereClauses& itm)
+	{
+		for (auto& i : itm)
+		{
+			visitName(vi, i.var);
+			visitTraitExpr(vi, i.bound);
+		}
+		//TODO
+	}
 
 	template<AnyVisitor Vi>
 	inline void visitStat(Vi& vi, parse::Statement<Vi>& itm)
@@ -718,6 +728,9 @@ namespace slu::visit
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			visitParams(vi, var.params);
+			if (var.whereSelf.has_value())
+				visitTraitExpr(vi, *var.whereSelf);
+			visitWhereClauses(vi, var.clauses);
 			visitStatList(vi, var.itms);
 			//TODO
 		},
@@ -727,6 +740,7 @@ namespace slu::visit
 			if (var.forTrait.has_value())
 				visitTraitExpr(vi, *var.forTrait);
 			visitExpr(vi, var.type);
+			visitWhereClauses(vi, var.clauses);
 			visitStatList(vi, var.code);
 			//TODO
 		},
