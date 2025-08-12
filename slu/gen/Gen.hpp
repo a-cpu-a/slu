@@ -876,6 +876,20 @@ namespace slu::parse
 		out.wasSemicolon = true;
 	}
 	template<AnyOutput Out>
+	inline void genWhereClauses(Out& out, const WhereClauses& itm)
+	{
+		if (itm.empty())
+			return;
+		out.add(" where ");
+		for (const WhereClause& v : itm)
+		{
+			out.add(out.db.asSv(v.var)).add(": ");
+			genTraitExpr(out, v.bound);
+			if (&v != &itm.back())
+				out.add(", ");
+		}
+	}
+	template<AnyOutput Out>
 	inline void genStat(Out& out, const Statement<Out>& obj)
 	{
 		ezmatch(obj.data)(
@@ -1163,6 +1177,12 @@ namespace slu::parse
 				out.add("trait ")
 					.add(out.db.asSv(var.name));
 				genParamList(out, var.params, false);
+				if (var.whereSelf.has_value())
+				{
+					out.add(": ");
+					genTraitExpr(out, *var.whereSelf);
+				}
+				genWhereClauses(out, var.clauses);
 				out.add(" {").tabUpNewl().newLine();
 				for (const auto& i : var.itms)
 					genStat(out, i);
@@ -1183,6 +1203,7 @@ namespace slu::parse
 					out.add(" for ");
 				}
 				genExpr(out, var.type);
+				genWhereClauses(out, var.clauses);
 				out.add(" {").tabUpNewl().newLine();
 				for (const auto& i : var.code)
 					genStat(out, i);
