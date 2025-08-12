@@ -27,7 +27,7 @@ namespace slu::parse
 
 #define _Slu_KWS \
 	/* freedom */\
-	"continue", "where", "reloc", "loop", "raw","has","glob", \
+	"continue", "reloc", "loop", "raw","has","glob", \
 	/* future */\
 	"only", "box", "abstract", "become", "comptime", "final", \
 	"override", "typeof", "virtual","with", "unsized", \
@@ -36,9 +36,9 @@ namespace slu::parse
 	"generator", "gen",	"yield", "async", "await", "static", \
 	/* documented */\
 	"it", "as","at", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
-	"also", "case", "drop", "enum", "impl", "safe", "const", \
-	"alloc", "defer", "macro", "match", "catch", "throw", "trans",\
-	"union", "axiom","share", "unsafe", "struct", "module", "extern"
+	"also", "case", "drop", "enum", "impl", "safe", "alloc", "axiom", \
+	"catch", "const", "defer", "macro", "match", "throw", "trans",\
+	"union", "share", "where",  "unsafe", "struct", "module", "extern"
 #define _Slu_MOSTLY_KWS "self", "Self", "crate", "super"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {

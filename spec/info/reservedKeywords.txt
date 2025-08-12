@@ -19,7 +19,6 @@ New Keywords {
 	--Maybe eventualy used...
 
 	continue 	(162k)		(4.1k)		Try looping again.
-	where  		(299k)		(1.8k)		?
 	reloc  		(6.1k)		(470)		Relocate a value
 	loop   		(288k)		(12.8k)		Force loop again
 	raw    		(766k)		(176k)		?
@@ -77,6 +76,7 @@ New Keywords {
 	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
+	axiom		(..)		(..)		Axiom stuff
 	const		(317k)		(34.3k)		Immutable pointers
 	crate		(73k)		(1.1k)		this crate
 	alloc		(??)		(??)		Allocate something for gc
@@ -87,8 +87,8 @@ New Keywords {
 	throw		(92.2k)		(7k)		return a error
 	trans  		(..)		(..)		Transmute types
 	union  		(25k)		(2k)		Define a union
-	axiom		(..)		(..)		Axiom stuff
 	share		(424k)		(7.6k)		Extended ref system
+	where  		(299k)		(1.8k)		Where clauses
 	unsafe 		(6.4k)		(372)		Mark as unsafe
 	struct 		(506k)		(62.2k)		Define a struct
 	module		(651k)		(40.2k)		module def
