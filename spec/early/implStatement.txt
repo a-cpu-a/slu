@@ -34,3 +34,10 @@ Impl Statement {
 	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the 'traitExp for' form.
 	Adding 'defer', makes type checking happen only once the impl is actually used, allowing you to use T in any way you like.
 }
+
+
+
+
+Sources {
+	https://doc.rust-lang.org/stable/reference/items/implementations.html
+}

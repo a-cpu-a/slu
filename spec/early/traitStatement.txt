@@ -32,3 +32,16 @@ Trait Statement {
 	
 	The `":" traitExp` part is equivelant to `where Self : traitExp`
 }
+
+
+
+Sources {
+	https://github.com/rust-lang/rfcs/blob/master/text/0048-traits.md
+	https://github.com/rust-lang/rfcs/blob/2ad779b99015e2a609ef416877485604d4799069/text/0135-where.md
+	https://smallcultfollowing.com/babysteps/blog/2013/04/02/associated-items/
+	https://smallcultfollowing.com/babysteps/blog/2013/04/03/associated-items-continued/
+	
+	https://doc.rust-lang.org/stable/reference/items/traits.html
+	https://doc.rust-lang.org/stable/reference/trait-bounds.html#grammar-TypeParamBounds
+	https://doc.rust-lang.org/stable/reference/items/generics.html#grammar-WhereClause
+}
