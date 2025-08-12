@@ -18,57 +18,56 @@ New Keywords {
 	
 	--Maybe eventualy used...
 
-	continue 	(162k)		(4.1k)		Try looping again.
-	reloc  		(6.1k)		(470)		Relocate a value
-	loop   		(288k)		(12.8k)		Force loop again
-	raw    		(766k)		(176k)		?
 	has    		(..)		(..)		maybe for trait impl check?
-	glob   		(..)		(..)		alternative form for global vars, instead of 'const'? or maybe a global var that is not stored in const-memory / is memrefed?
+	raw    		(766k)		(176k)		?
+	glob   		(..)		(..)		alternative form for global vars, instead of 'static'. A global var that is might not be stored in const-memory / is memrefed?
+	loop   		(288k)		(12.8k)		Force loop again
+	reloc  		(6.1k)		(470)		Relocate a value
+	continue 	(162k)		(4.1k)		Try looping again.
 	
 
 	--Future proofing
 
-	only		(745k)		(5.2k)		Different ref system
 	box    		(451k)		(42.2k)		?
-	abstract	(14k)		(358)		?
-	become 		(52k)		(286)		?
-	comptime	(256)		(4)			comptime marker / expr
-	final  		(122k)		(7.7k)		?
-	override	(253k)		(14.8k)		?
-	typeof 		(44k)		(616)		?
-	virtual		(82.9k)		(3.2k)		?
+	only		(745k)		(5.2k)		Different ref system
 	with		(..)		(..)		Impl with args?
+	final  		(122k)		(7.7k)		?
+	become 		(52k)		(286)		?
+	typeof 		(44k)		(616)		?
+	abstract	(14k)		(358)		?
+	comptime	(256)		(4)			comptime marker / expr
+	override	(253k)		(14.8k)		?
 	unsized		(120)		(0)			?
+	virtual		(82.9k)		(3.2k)		?
 
 
 	--planned
 	
+	gen    		(909k)		(89.6k)		Generator?
 	copy   		(461k)		(41.7k)		Copy a value explicitly
 	move   		(1.7m)		(341k)		Move a value explicitly
-	super  		(207k)		(6.3k)		Super-type, super module
-	generator	(64.8k)		(5.6k)		Generator function?
-	gen    		(909k)		(89.6k)		Generator?
-	
-	yield  		(53.8k)		(2.3k)		Async / gen weak return
 	async  		(82.9k)		(5.7k)		Mark as async?
 	await  		(16.9k)		(1.2k)		Wait for something from a value.
+	super  		(207k)		(6.3k)		Super-type, super module
+	yield  		(53.8k)		(2.3k)		Async / gen weak return
 	static 		(250k)		(6.5k)		Global
+	generator	(64.8k)		(5.6k)		Generator function?
 	
 	
 	--keywords from other spec things
 	
-	it			(..)		(..)		also exp/block
 	as			(4.6m)		(713k)		cast / use...as...
 	at			(..)		(..)		maybe for ranges, fixed-point precision
-	of			(2.5m)		(87k)		match [...] of ...
-	fn			(563k)		(48.1k)		function def
 	ex			(3.7m)		(573k)		export
-	dyn    		(209k)		(5.5k)		Vtable traits
-	let			(1.6m)		(199k)		var def
+	fn			(563k)		(48.1k)		function def
+	it			(..)		(..)		also exp/block
+	of			(2.5m)		(87k)		match [...] of ...
+	dyn    		(209k)		(5.5k)		Vtable trait
+	let			(1.6m)		(199k)		var defs
+	mod			(..)		(..)		module
+	mut			(85k)		(8.2k)		mutable
 	try			(672k)		(73k)		try expr/stat
 	use			(2.4m)		(140k)		use expr
-	mut			(85k)		(8.2k)		mutable
-	mod			(..)		(..)		module
 	also		(..)		(..)		also expressions / blocks
 	case		(352k)		(8.2k)		match case
 	enum   		(129k)		(8.5k)		Define a enum
@@ -76,23 +75,23 @@ New Keywords {
 	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
+	alloc		(??)		(??)		Allocate something for gc
 	axiom		(..)		(..)		Axiom stuff
+	catch		(44k)		(3.3k)		catch stat
 	const		(317k)		(34.3k)		Immutable pointers
 	crate		(73k)		(1.1k)		this crate
-	alloc		(??)		(??)		Allocate something for gc
 	defer		(??)		(??)		Defer impl type checking.
 	macro		(52.5k)		(5.8k)		macro def
 	match		(545k)		(27.4k)		match expr
-	catch		(44k)		(3.3k)		catch stat
+	share		(424k)		(7.6k)		Extended ref system
 	throw		(92.2k)		(7k)		return a error
 	trans  		(..)		(..)		Transmute types
 	union  		(25k)		(2k)		Define a union
-	share		(424k)		(7.6k)		Extended ref system
 	where  		(299k)		(1.8k)		Where clauses
-	unsafe 		(6.4k)		(372)		Mark as unsafe
-	struct 		(506k)		(62.2k)		Define a struct
-	module		(651k)		(40.2k)		module def
 	extern		(..)		(..)		extern blocks, extern spec
+	module		(651k)		(40.2k)		module def
+	struct 		(506k)		(62.2k)		Define a struct
+	unsafe 		(6.4k)		(372)		Mark as unsafe
 	
 	--Common with lua
 	

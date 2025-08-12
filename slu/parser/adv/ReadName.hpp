@@ -27,22 +27,22 @@ namespace slu::parse
 
 #define _Slu_KWS \
 	/* freedom */\
-	"continue", "reloc", "loop", "raw","has","glob", \
+	"has", "raw", "glob", "loop", "reloc", "continue", \
 	/* future */\
-	"only", "box", "abstract", "become", "comptime", "final", \
-	"override", "typeof", "virtual","with", "unsized", \
+	"box", "only", "with", "final", "become", "typeof", \
+	"abstract", "comptime", "override", "unsized", "virtual", \
 	/* todos */\
-	"copy", "move",   \
-	"generator", "gen",	"yield", "async", "await", "static", \
+	"gen",	"copy", "move",   \
+	"async", "await", "yield", "static", "generator", \
 	/* documented */\
-	"it", "as","at", "of", "fn", "ex", "dyn", "let", "try", "use", "mut", "mod" \
+	"as", "at", "ex", "fn", "it", "of", "dyn", "let", "mod", "mut", "try", "use" \
 	"also", "case", "drop", "enum", "impl", "safe", "alloc", "axiom", \
-	"catch", "const", "defer", "macro", "match", "throw", "trans",\
-	"union", "share", "where",  "unsafe", "struct", "module", "extern"
+	"catch", "const", "defer", "macro", "match", "share", "throw", "trans",\
+	"union", "where", "extern", "module", "struct", "unsafe"
 #define _Slu_MOSTLY_KWS "self", "Self", "crate", "super"
 
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
-		"false", "nil", "not", _Slu_COMMON_KWS, "true"
+		"false", "nil", "not", "true", _Slu_COMMON_KWS
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU = {
 		_Slu_COMMON_KWS,
