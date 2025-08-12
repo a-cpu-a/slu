@@ -417,8 +417,8 @@ namespace slu::parse
 						skipSpace(in);
 						if (in.get() == 'i')
 						{
-							if (readIchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, true, allowVarArg))
-								return;
+							if (readIchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, true, false))
+								return true;
 						}
 						throwExpectedImplAfterDefer(in);
 					}
