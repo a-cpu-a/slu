@@ -1045,6 +1045,11 @@ namespace slu::paint
 				paintExportData<Tok::IMPL>(se, var.exported);
 				if (var.deferChecking) paintKw<Tok::IMPL>(se, "defer");
 				paintKw<Tok::IMPL>(se, "impl");
+
+				skipSpace(se);
+				if(se.in.peek() == '(')
+					paintParamList(se, var.params, false);
+
 				if (var.forTrait.has_value())
 				{
 					paintTraitExpr(se, *var.forTrait);
