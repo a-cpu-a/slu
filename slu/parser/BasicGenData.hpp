@@ -76,6 +76,14 @@ namespace slu::parse
 		}
 	};
 
+	struct TraitFn
+	{
+		parse::MpItmIdV<true> name;
+		std::vector<ResolvedType> args;
+		ResolvedType ret;
+		parse::ExportData exported;
+
+	};
 	namespace ItmType
 	{
 		//Applied to anon/synthetic/private? stuff
@@ -88,8 +96,18 @@ namespace slu::parse
 			std::vector<ResolvedType> args;
 			std::vector<LocalId> argLocals;//Only for non decl functions
 			parse::ExportData exported;
-			bool isStruct=false;//if true, then auto wraps returned thing in named tuple of 1 elem
 		};
+		struct NamedTypeImpls
+		{
+			std::vector<parse::MpItmIdV<true>> impls;
+		};
+		struct TypeFn : Fn, NamedTypeImpls
+		{};
+		struct ArglessTypeVar : NamedTypeImpls
+		{
+			ResolvedType ty;
+		};
+		//like basic global vars in c++!
 		struct GlobVar
 		{
 			ResolvedType ty;
@@ -100,24 +118,34 @@ namespace slu::parse
 			ResolvedType ty;
 			parse::ExprV<true> value;
 		};
-		struct TypeVar//Also for structs/unions/parts-of-enums without params
+		struct Trait
 		{
-			ResolvedType ty;
-			//TODO: computable value? how: thread safety? lazy? ???
-			ResolvedType computedResolvedType;//hack, only supports simple stuff that doesnt need jit
+			std::vector<parse::MpItmIdV<true>> consts;
+			std::vector<TraitFn> fns;
+			parse::ExportData exported;
+			//TODO: where clauses
 		};
-		struct Alias
+		struct Impl
+		{
+			parse::ExportData exported;
+			//TODO: impl data (params, impl-consts, impl-fn's, where clauses)
+		};
+		struct Alias//TODO something for ::* use's
 		{
 			lang::MpItmIdV<true> usedThing;
 		};
-		struct Module {};
+		struct Module{};
 	}
 	using Itm = std::variant<
 		ItmType::Unknown,
 		ItmType::Fn,
+		ItmType::NamedTypeImpls, // Used temporarily while a type is not defined, but does have impl's
+		ItmType::TypeFn,
+		ItmType::ArglessTypeVar,
 		ItmType::GlobVar,
 		ItmType::ConstVar,
-		ItmType::TypeVar,
+		ItmType::Trait,
+		ItmType::Impl,
 		ItmType::Alias,
 		ItmType::Module
 	>;
