@@ -291,7 +291,7 @@ namespace slu::parse
 				requireToken(in, ":");
 				c.bound = readTraitExpr(in);
 
-				if (!checkReadToken(in, ",")
+				if (!checkReadToken(in, ","))
 					break;
 			}
 		}
