@@ -178,7 +178,6 @@ namespace slu::paint
 	template<Tok nameTok=Tok::NAME,AnySemOutput Se>
 	inline void paintExpr(Se& se, const parse::Expr<Se>& itm,const Tok tint = Tok::NONE,const bool unOps=true)
 	{
-		//skipSpace(se);
 		se.move(itm.place);
 		/*if (std::holds_alternative<parse::ExprType::MultiOp>(itm.data))
 		{
@@ -390,50 +389,6 @@ namespace slu::paint
 			}
 		}
 	}
-	/*template<AnySemOutput Se>
-	inline void paintSubVar(Se& se, const parse::SubVar<Se>& itm)
-	{
-		paintArgChain(se, itm.funcCalls);
-
-		ezmatch(itm.idx)(
-		varcase(const parse::SubVarType::Expr<Se>&) {
-			paintKw<Tok::GEN_OP>(se, "[");
-			paintExpr(se, var);
-			paintKw<Tok::GEN_OP>(se, "]");
-		},
-		varcase(const parse::SubVarType::NAME<Se>&) {
-			paintKw<Tok::MP_IDX>(se, ".");
-			paintName<Tok::NAME>(se, var.idx);
-		},
-		varcase(const parse::SubVarType::Deref) {
-			paintKw<Tok::DEREF>(se, ".*");
-		}
-		);
-	}*/
-	//template<Tok nameTok,AnySemOutput Se>
-	//inline void paintVar(Se& se, const parse::Var<Se>& itm)
-	//{
-	//	ezmatch(itm.base)(
-	//	varcase(const parse::BaseVarType::Root) {
-	//		paintKw<Tok::MP_ROOT>(se, ":>");
-	//	},
-	//	varcase(const parse::BaseVarType::Local) {
-	//		//TODO
-	//	},
-	//	varcase(const parse::BaseVarType::NAME<Se>&) {
-	//		paintMp<nameTok>(se, var.v);
-	//	},
-	//	varcase(const parse::BaseVarType::Expr<Se>&) {
-	//		paintKw<Tok::GEN_OP>(se, "(");
-	//		paintExpr<nameTok>(se, var);
-	//		paintKw<Tok::GEN_OP>(se, ")");
-	//	}
-	//	);
-	//	for (const parse::SubVar<Se>& i : itm.sub)
-	//	{
-	//		paintSubVar(se, i);
-	//	}
-	//}
 	template<bool isLocal, Tok nameTok, AnySemOutput Se>
 	inline void paintDestrField(Se& se, const parse::DestrField<Se, isLocal>& itm)
 	{
@@ -872,17 +827,12 @@ namespace slu::paint
 			paintKw<Tok::PUNCTUATION>(se, ")");
 		}
 	}
-	template<class T>
-	concept NonPaintableStat = std::same_as<T,parse::StatementType::CanonicLocal>
-		|| std::same_as<T, parse::StatementType::CanonicGlobal>;
-
 	template<bool boxed, AnySemOutput Se>
 	inline void paintCall(Se& se, const parse::Call<Se,boxed>& itm)
 	{
 		paintExpr(se, *itm.v);
 		paintArgs(se, itm.args);
 	}
-
 	template<bool boxed, AnySemOutput Se>
 	inline void paintSelfCall(Se& se, const parse::SelfCall<Se,boxed>& itm)
 	{
@@ -892,6 +842,27 @@ namespace slu::paint
 		paintArgs(se, itm.args);
 	}
 
+	template<AnySemOutput Se>
+	inline void paintWhereClauses(Se& se, const parse::WhereClauses& itm)
+	{
+		if (itm.empty())return;
+		paintKw<Tok::IMPL>(se, "where");
+
+		for (const parse::WhereClause& i : itm)
+		{
+			paintName<Tok::NAME>(se, i.var);
+
+			paintKw<Tok::GEN_OP>(se, ":");
+			paintTraitExpr(se, i.bound);
+
+			if (&i != &itm.back())
+				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+	}
+
+	template<class T>
+	concept NonPaintableStat = std::same_as<T,parse::StatementType::CanonicLocal>
+		|| std::same_as<T, parse::StatementType::CanonicGlobal>;
 	template<AnySemOutput Se>
 	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
 	{
@@ -1033,6 +1004,12 @@ namespace slu::paint
 				paintKw<Tok::IMPL>(se, "trait");
 				paintName<Tok::NAME_TRAIT>(se, var.name);
 				paintParamList(se, var.params, false);
+				if (var.whereSelf.has_value())
+				{
+					paintKw<Tok::GEN_OP>(se, ":");
+					paintTraitExpr(se, *var.whereSelf);
+				}
+				paintWhereClauses(se, var.clauses);
 				paintKw<Tok::BRACES>(se, "{");
 				for (const auto& i : var.itms)
 					paintStat(se, i);
@@ -1056,6 +1033,8 @@ namespace slu::paint
 					paintKw<Tok::IMPL>(se, "for");
 				}
 				paintExpr<Tok::NAME_TYPE>(se, var.type);
+
+				paintWhereClauses(se, var.clauses);
 				paintKw<Tok::BRACES>(se, "{");
 				for (const auto& i : var.code)
 					paintStat(se, i);
