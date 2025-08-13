@@ -7,12 +7,9 @@ New Syntax {
 	typepostunop @::= | ‘?’
 	
 	tryItem ::= pat ["if" exp] "=>" explist
-	tryStat ::= tryItem | matchElseItem | ";"
+	tryStat ::= tryItem | ";"
 	
-	tryExp ::= "try" (‘{’ block ‘}’ ‘catch’ | basicExp) ["->" basicExp] "{" {tryStat} "}"
-	
-	basicExp @::= | tryExp
-	stat @::= | tryExp
+	statOrExpr @::= | "try" basicExp ["->" basicExp] "{" {tryStat} "}"
 	
 	
 	

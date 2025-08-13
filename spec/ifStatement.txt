@@ -13,9 +13,8 @@ New Syntax {
 	
 	
 	ifExp ::= ifExpRoot statOrExpr
-	ifExpBasic ::= ifExpRoot statOrBasicExpr
 	
-	basicExp @::= | ifExpBasic
+	statOrExpr @::= | ifExpRoot statOrBasicExpr
 	exp @::= | ifExp
 	stat @::= | ifExp
 }

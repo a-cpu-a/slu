@@ -55,10 +55,8 @@ Enum Statement {
 		--Not a global statement, so T is the arg.
 		return None(T) || Some(T);
 	}
-	use Option::None;
-	use Option::Some;
 
-	--Use it: Option::Some(u8), Option(u8) Some{100} None{} None
+	--Use it: Option::Some(u8), Option(u8) Option::Some{100} Option::None{} Option::None
 	```
 	
 	Implementation {

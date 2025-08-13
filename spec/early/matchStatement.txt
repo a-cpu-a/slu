@@ -41,13 +41,9 @@ New Syntax {
 	pat ::= sPat | dPat
 	
 	matchItem ::= pat ["if" exp] "=>" explist
-	matchElseItem ::= "else" ["if" exp] "=>" explist
-	matchStat ::= matchItem | matchElseItem | ";"
+	matchStat ::= matchItem | ";"
 	
-	matchExp ::= "match" basicExp ["->" basicExp] "{" {matchStat} "}"
-	
-	basicExp @::= | matchExp
-	stat @::= | matchExp
+	statOrExpr @::= | "match" basicExp ["->" basicExp] "{" {matchStat} "}"
 }
 
 New Keywords {

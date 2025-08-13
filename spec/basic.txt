@@ -15,11 +15,13 @@ New Syntax {
 		| varlist ‘=’ explist
 		| var selfablecall
 		| ‘goto’ Name
-
+	
+	statOrExpr ::= ‘loop’ ["->" basicExp] ‘{’ block ‘}’
+	
 	--TODO: loop exprs & stats, also move it to some new spec
 	stat ::=  basicstat
 		| globstat
-		| ‘loop’ ‘{’ block ‘}’
+		| statOrExpr
 		| label
 		| ‘{’ block ‘}’
 		| ‘while’ basicExp statOrRet
@@ -51,6 +53,7 @@ New Syntax {
 	basicExp ::=  Name | ‘(’ exp ‘)’ | Numeral | LiteralString | tableconstructor
 		| basicExp subvar | basicExp selfablecall
 		| basicExp binop basicExp | {unop} basicExp {postunop}
+		| statOrExpr
 	
 	exp ::=  basicExp
 		| exp subvar | exp selfablecall
