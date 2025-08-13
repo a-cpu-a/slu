@@ -27,7 +27,7 @@ namespace slu::parse
 
 #define _Slu_KWS \
 	/* freedom */\
-	"has", "raw", "glob", "loop", "reloc", "continue", \
+	"any", "has", "raw", "glob", "reloc", "concept", \
 	/* future */\
 	"box", "only", "with", "final", "become", "typeof", \
 	"abstract", "comptime", "override", "unsized", "virtual", \
@@ -36,9 +36,9 @@ namespace slu::parse
 	"async", "await", "yield", "static", "generator", \
 	/* documented */\
 	"as", "at", "ex", "fn", "it", "of", "dyn", "let", "mod", "mut", "try", "use" \
-	"also", "case", "drop", "enum", "impl", "safe", "alloc", "axiom", \
+	"also", "case", "drop", "enum", "impl", "loop", "safe", "alloc", "axiom", \
 	"catch", "const", "defer", "macro", "match", "share", "throw", "trans",\
-	"union", "where", "extern", "module", "struct", "unsafe"
+	"union", "where", "extern", "module", "struct", "unsafe", "continue"
 #define _Slu_VERY_KWS "self", "crate", "super"
 #define _Slu_MOSTLY_KWS _Slu_VERY_KWS, "Self"
 
@@ -55,7 +55,7 @@ namespace slu::parse
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_BOUND_VAR = {
 		_Slu_COMMON_KWS,
 		_Slu_KWS,
-		_Slu_VERY_KWS
+		_Slu_VERY_KWS, "trait"
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
 		_Slu_COMMON_KWS,

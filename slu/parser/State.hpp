@@ -71,7 +71,8 @@ namespace slu::parse
 	{
 		NONE,
 		RETURN,
-		BREAK
+		BREAK,
+		CONTINUE
 	};
 
 	template<bool isSlu>

@@ -17,13 +17,13 @@ New Keywords {
 	trait  		(63.2k)		(4k)		Define a trait
 	
 	--Maybe eventualy used...
-
+	
+	any 		(..)		(..)		c++ concepts but defining the type (Ty = any MyConcept)
 	has    		(..)		(..)		maybe for trait impl check?
 	raw    		(766k)		(176k)		?
 	glob   		(..)		(..)		alternative form for global vars, instead of 'static'. A global var that is might not be stored in const-memory / is memrefed?
-	loop   		(288k)		(12.8k)		Force loop again
 	reloc  		(6.1k)		(470)		Relocate a value
-	continue 	(162k)		(4.1k)		Try looping again.
+	concept 	(..)		(..)		maybe c++ style template concepts
 	
 
 	--Future proofing
@@ -72,6 +72,7 @@ New Keywords {
 	case		(352k)		(8.2k)		match case
 	enum   		(129k)		(8.5k)		Define a enum
 	impl   		(594k)		(23.8k)		Implement a trait
+	loop   		(288k)		(12.8k)		Loop forever
 	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
@@ -92,6 +93,7 @@ New Keywords {
 	module		(651k)		(40.2k)		module def
 	struct 		(506k)		(62.2k)		Define a struct
 	unsafe 		(6.4k)		(372)		Mark as unsafe
+	continue 	(162k)		(4.1k)		Try looping again.
 	
 	--Common with lua
 	

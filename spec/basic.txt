@@ -30,8 +30,8 @@ New Syntax {
 		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
 
-	--TODO: parse labeled breaks
-	retstat ::= ("return" | "break" [":" Name]) [explist]
+	--TODO: parse labeled breaks, parse continue too
+	retstat ::= (("return" | "break" [":" Name]) [explist]) | "continue"
 
 	statOrRet ::= retstat [‘;’] | basicstat [‘;’] | ‘{’ block ‘}’
 	

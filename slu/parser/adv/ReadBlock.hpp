@@ -63,14 +63,19 @@ namespace slu::parse
 	inline bool readReturn(In& in, const bool allowVarArg)
 	{
 		bool ret = checkReadTextToken(in, "return");
-		bool brk = false;
+		RetType retTy = RetType::NONE;
 		if constexpr (In::settings()&sluSyn)
 		{
 			if(!ret)
-				brk = checkReadTextToken(in, "break");
+			{
+				if (checkReadTextToken(in, "break"))
+					retTy = RetType::BREAK;
+				else if(checkReadTextToken(in, "continue"))
+					retTy = RetType::CONTINUE;
+			}
 			if constexpr (!isLoop)
 			{
-				if (brk)
+				if (retTy!=RetType::NONE)
 				{
 					in.handleError(std::format(
 						"Break used outside of loop"
@@ -78,9 +83,9 @@ namespace slu::parse
 				}
 			}
 		}
-		if (ret || brk)
+		if (ret || retTy != RetType::NONE)
 		{
-			in.genData.scopeReturn(ret ? RetType::RETURN : RetType::BREAK);
+			in.genData.scopeReturn(ret ? RetType::RETURN : retTy);
 
 			skipSpace(in);
 

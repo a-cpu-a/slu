@@ -1259,7 +1259,7 @@ namespace slu::parse
 			if constexpr (Out::settings() & sluSyn)
 			{
 				if (!ret)
-					out.add("break");
+					out.add(itm.retTy == parse::RetType::CONTINUE ? "continue" : "break");
 			}
 			if (ret)
 				out.add("return");
