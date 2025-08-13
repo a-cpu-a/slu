@@ -410,6 +410,7 @@ namespace slu::mlvl
 		}
 		void postStat(parse::Statement<Cfg>& itm) 
 		{
+			/*
 			if (std::holds_alternative<parse::StatementType::ExternBlock<Cfg>>(itm.data))
 			{
 				// Unwrap the extern block
@@ -429,8 +430,8 @@ namespace slu::mlvl
 				// Insert the rest of the statements
 				auto& statList = *statListStack.back();
 				statList.insert(statList.end(), std::make_move_iterator(std::next(stats.begin()+1)), std::make_move_iterator(stats.end()));
-			}
-			else if(std::holds_alternative<parse::StatementType::ModAs<Cfg>>(itm.data))
+			}*/
+			if(std::holds_alternative<parse::StatementType::ModAs<Cfg>>(itm.data))
 			{// Unwrap the inline module
 				auto& module = std::get<parse::StatementType::ModAs<Cfg>>(itm.data);
 				inlineModules.push_back(InlineModule{ module.name, std::move(module.code) });
