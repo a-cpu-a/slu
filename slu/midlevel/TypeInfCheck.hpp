@@ -327,32 +327,38 @@ namespace slu::mlvl
 			tyRefs.clear();
 		}
 	};
+	struct MethodCall
+	{
+		std::vector<TmpVar> args;
+		parse::MpItmIdV<true>* name;
+		TmpVar selfArg;
+	};
 	struct LocalVarInfo
 	{
 		parse::ResolvedType* resolvedType = nullptr;
 
-		std::vector<lang::LocalObjId> usedFields;
-		std::vector<lang::MpItmIdV<true>> usedMethods;
+		//std::vector<lang::LocalObjId> usedFields;
+		//std::vector<lang::MpItmIdV<true>> usedMethods;
 		//traits?
 		//???
 
 		SubTySide use;//Requirements when used.
-		SubTySide edit;//Requirements when writen to.
+		std::variant<SubTySide, MethodCall> edit;//Requirements when writen to.
 
 		bool boolLike : 1 = false;//part of use.
 		bool taken    : 1 = false;
 		bool resolved : 1 = false;
 
-		parse::ResolvedType& resolveNoCheck(parse::ResolvedType&& t)
+		void resolveNoCheck(parse::ResolvedType&& t)
 		{
 			_ASSERT(!resolved);
-			//use.clear();
-			usedFields.clear();
-			usedMethods.clear();
-			edit.clear();
+			//use.clear(); //Dont, because we check use-types after calling this func
+			//usedFields.clear();
+			//usedMethods.clear();
+			edit = {};
 			resolved = true;
-			*resolvedType = std::move(t);
-			return *resolvedType;
+			if(resolvedType!=nullptr)
+				*resolvedType = std::move(t);
 		}
 		void requireBoolLike()
 		{
@@ -422,7 +428,9 @@ namespace slu::mlvl
 			exprTypeStack.emplace_back(parse::ResolvedType::getConstType(RawT{ std::move(v) }));
 			return false;
 		}
-		void editLocalVar(parse::LocalId itm)
+		template<class T>
+		void editLocalVar(T itm)
+			requires(std::same_as<T, parse::LocalId> || std::same_as<T, TmpVar>)
 		{
 			VisitTypeBuilder& editTy = exprTypeStack.back();
 			handleVisTyBuilder(editTy,
@@ -430,21 +438,24 @@ namespace slu::mlvl
 					throw std::runtime_error("Error, found resolved type, expected a local var.");
 				},
 				[&](LocalVarInfo& var) {
-					var.use.locals.push_back(itm);
+					if constexpr (std::same_as<T, TmpVar>)
+						var.use.tmpLocals.push_back(itm); 
+					else
+						var.use.locals.push_back(itm);
 				});
 
 			ezmatch(editTy)(
 			varcase(parse::ResolvedType&) {
-				localVar(itm).edit.tys.emplace_back(std::move(var));
+				std::get<SubTySide>(localVar(itm).edit).tys.emplace_back(std::move(var));
 			},
 			varcase(const parse::ResolvedType*) {
-				localVar(itm).edit.tyRefs.emplace_back(var);
+				std::get<SubTySide>(localVar(itm).edit).tyRefs.emplace_back(var);
 			},
 			varcase(const parse::LocalId) {
-				localVar(itm).edit.locals.emplace_back(var);
+				std::get<SubTySide>(localVar(itm).edit).locals.emplace_back(var);
 			},
 			varcase(const TmpVar) {
-				localVar(itm).edit.tmpLocals.emplace_back(var);
+				std::get<SubTySide>(localVar(itm).edit).tmpLocals.emplace_back(var);
 			}
 			);
 			exprTypeStack.pop_back();
@@ -507,7 +518,7 @@ namespace slu::mlvl
 				auto& tmpVars = tmpLocalsDataStack.back();
 				TmpVar varId = tmpVars.size();
 				LocalVarInfo& var = tmpVars.emplace_back(&itm.ty);
-				var.edit.tys.emplace_back(
+				std::get<SubTySide>(var.edit).tys.emplace_back(
 					parse::RefChainRawType::newPtrTy(
 						parse::ResolvedType::newU8()
 					)
@@ -523,19 +534,53 @@ namespace slu::mlvl
 			handleCall<false, true>(itm);
 			return true;
 		}
-		bool preSelfCallExpr(parse::ExprType::SelfCall<Cfg>& itm) {
-			//TODO
-			visit::visitExpr(*this, *itm.v);
+		void checkTypeMethod(
+			const parse::ResolvedType& var,const parse::Args<Cfg>& args, 
+			parse::MpItmId<Cfg>& method,parse::ResolvedType& resTy)
+		{
+			//TODO: check if var impls that method & what it is
 
-			//"Complex" method resolution. (todo: defer it to as late as possible!)
-			VisitTypeBuilder& editTy = exprTypeStack.back();
-			handleVisTyBuilder(editTy,
-				[&](const parse::ResolvedType& var) {
-					checkTypeMethod(mpDb, var, itm.args, itm.method, itm.ty);
-				},
-				[&](LocalVarInfo& var) {
-					var.usedMethods.emplace_back(itm.method);
-				});
+			//TODO: "Complex" method resolution.
+			
+			//TODO: if method is a trait-fn, then: ???
+			//TODO: impl/builtin-impl found for method
+
+			auto& argList = std::get<parse::ArgsType::ExprList<Cfg>>(args);
+			//TODO: check arg use types
+		}
+		bool preSelfCallExpr(parse::ExprType::SelfCall<Cfg>& itm) 
+		{
+			visit::visitExpr(*this, *itm.v);
+			auto& tmpVars = tmpLocalsDataStack.back();
+
+			TmpVar selfId = tmpVars.size();
+			tmpVars.emplace_back(nullptr);//TODO: special handling of not outputing
+			editLocalVar(selfId);
+			//var.usedMethods.emplace_back(itm.method);
+			//Tmp var for each arg.
+			//tmp var for output
+
+			auto& argList = std::get<parse::ArgsType::ExprList<Cfg>>(itm.args);
+			std::vector<TmpVar> args;
+			for (auto& i : argList)
+			{
+				//Make temp var for func result, also add editType for it.
+				visit::visitExpr(*this, i);
+				auto& tmpVars = tmpLocalsDataStack.back();//visitExpr could realloc it
+
+				TmpVar varId = tmpVars.size();
+				tmpVars.emplace_back(nullptr);//TODO: special handling of not outputing
+				editLocalVar(varId);
+				args.emplace_back(varId);
+			}
+			auto& tmpVars = tmpLocalsDataStack.back();//may realloc
+
+			//Make temp var for func result, also add editType for it.
+			TmpVar varId = tmpVars.size();
+			tmpVars.emplace_back().edit  = MethodCall(std::move(args), &itm.method, selfId);
+			tmpVars.back().resolvedType = &itm.ty;
+
+			exprTypeStack.back() = varId;
 			
 			return true;
 		}
@@ -567,9 +612,10 @@ namespace slu::mlvl
 				auto& tmpVars = tmpLocalsDataStack.back();
 				//Make temp var for func result, also add editType for it.
 				TmpVar varId = tmpVars.size();
-				tmpVars.emplace_back().edit.tyRefs.emplace_back(&funcItm.ret);
-				
+				tmpVars.emplace_back(&itm.ty).edit.tyRefs.emplace_back(&funcItm.ret);
+
 				exprTypeStack.back() = varId;
+				
 			}
 		}
 
@@ -715,6 +761,16 @@ namespace slu::mlvl
 				);
 		}
 
+		//Returns if failed
+		bool resolveMethod(std::vector<parse::ResolvedType>& derefStack,parse::MpItmId<Cfg>& name)
+		{
+			if (derefStack.size() > 16)//TODO: config for limit
+				return true;//TODO: error
+
+			//TODO:
+			return false;
+		}
+
 		void checkLocals(std::span<LocalVarInfo> locals)
 		{
 			for (LocalVarInfo& i : locals)
@@ -734,31 +790,38 @@ namespace slu::mlvl
 
 					//First resolve those things & also check types a bit.
 
-					visitSubTySide(i.edit,
-						[&](const parse::ResolvedType& otherTy) {
-							if(std::holds_alternative<parse::RawTypeKind::TypeError>(otherTy.base))
-							{
-								poison = true;
-								return;
-							}
+					ezmatch(i.edit)(
+					varcase(MethodCall&){
+						//TODO: method call support
+					},
+					varcase(SubTySide&){
+						visitSubTySide(var,
+							[&](const parse::ResolvedType& otherTy) {
+								if (std::holds_alternative<parse::RawTypeKind::TypeError>(otherTy.base))
+								{
+									poison = true;
+									return;
+								}
 
-							if (!otherTy.isComplete())
-								throw std::runtime_error("TODO: error logging, found incomplete type expr");
-							if(otherTy.size>1)
-								throw std::runtime_error("TODO: error logging, found non bool expr");
-							auto tyNameOpt = otherTy.getStructName();
-							if (!tyNameOpt)
-								throw std::runtime_error("TODO: error logging, found non bool expr");
-							parse::MpItmIdV<true> tyName = *tyNameOpt;
-							if (tyName == mpDb.getItm({ "std","bool" }))
-								canTrue = canFalse = true;
-							else if (tyName == mpDb.getItm({ "std","bool", "true" }))
-								canTrue = true;
-							else if (tyName == mpDb.getItm({ "std","bool", "false" }))
-								canFalse = true;
-							else
-								throw std::runtime_error("TODO: error logging, found non bool expr");
-						}
+								if (!otherTy.isComplete())
+									throw std::runtime_error("TODO: error logging, found incomplete type expr");
+								if (otherTy.size > 1)
+									throw std::runtime_error("TODO: error logging, found non bool expr");
+								auto tyNameOpt = otherTy.getStructName();
+								if (!tyNameOpt)
+									throw std::runtime_error("TODO: error logging, found non bool expr");
+								parse::MpItmIdV<true> tyName = *tyNameOpt;
+								if (tyName == mpDb.getItm({ "std","bool" }))
+									canTrue = canFalse = true;
+								else if (tyName == mpDb.getItm({ "std","bool", "true" }))
+									canTrue = true;
+								else if (tyName == mpDb.getItm({ "std","bool", "false" }))
+									canFalse = true;
+								else
+									throw std::runtime_error("TODO: error logging, found non bool expr");
+							}
+						);
+					}
 					);
 
 					if(!(canTrue || canFalse))
@@ -777,10 +840,41 @@ namespace slu::mlvl
 					bool poison = false;
 					std::vector<const parse::ResolvedType*> types;
 					std::vector<parse::Range129> intRanges;
-					visitSubTySide(i.edit,
-						[&](const parse::ResolvedType& editTy) {
-							visitTypeForInference(poison, types, intRanges, editTy);
-						});
+
+					ezmatch(i.edit)(
+					varcase(MethodCall&) {
+						std::vector<parse::ResolvedType> derefStack(1);
+
+						LocalVarInfo& selfInfo = localVar(var.selfArg);
+						selfInfo.resolvedType = &derefStack.front();
+						checkLocals(std::span(&selfInfo, 1));
+						//Now that self is known, we need to know the method.
+
+						if (resolveMethod(derefStack, *var.name))
+						{
+							poison = true;
+							for (const TmpVar k : var.args)
+								localVar(k).resolveNoCheck(parse::ResolvedType::newError());
+							return;
+						}
+
+						//we resolved this type, so now we resolve & check the args
+						for (const TmpVar k : var.args)
+						{
+							//TODO: add use ty with the methods real type
+							checkLocals(std::span(&localVar(k), 1));
+						}
+						//Now that args are of known types, we need to know what the result is!
+						//TODO: output the result type into types array
+					},
+					varcase(SubTySide&) {
+						visitSubTySide(var,
+							[&](const parse::ResolvedType& editTy) {
+								visitTypeForInference(poison, types, intRanges, editTy);
+							});
+					}
+					);
+
 
 					if (poison)
 						i.resolveNoCheck(parse::ResolvedType::newError());
@@ -891,7 +985,7 @@ namespace slu::mlvl
 			if (local.resolved)
 				return *local.resolvedType;
 			
-			checkLocals(std::span<LocalVarInfo>{ &local,1 });
+			checkLocals(std::span{ &local,1 });
 			return *local.resolvedType;
 		}
 
