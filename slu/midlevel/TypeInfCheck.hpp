@@ -331,7 +331,8 @@ namespace slu::mlvl
 	{
 		parse::ResolvedType* resolvedType = nullptr;
 
-		std::vector<lang::LocalObjId> fields;
+		std::vector<lang::LocalObjId> usedFields;
+		std::vector<lang::MpItmIdV<true>> usedMethods;
 		//traits?
 		//???
 
@@ -346,7 +347,8 @@ namespace slu::mlvl
 		{
 			_ASSERT(!resolved);
 			//use.clear();
-			fields.clear();
+			usedFields.clear();
+			usedMethods.clear();
 			edit.clear();
 			resolved = true;
 			*resolvedType = std::move(t);
@@ -381,43 +383,37 @@ namespace slu::mlvl
 			return tmpLocalsDataStack.back()[id];
 		}
 
-		void requireAsBool(const VisitTypeBuilder& t)
+		void handleVisTyBuilder(const VisitTypeBuilder& t,auto&& appRes,auto&& appLocal)
 		{
 			ezmatch(t)(
-			varcase(const parse::ResolvedType&) {
-				if (!var.isBool())
-					throw std::runtime_error("TODO: error logging, found non bool expr");
-			},
-			varcase(const parse::ResolvedType*) {
-				if (!var->isBool())
-					throw std::runtime_error("TODO: error logging, found non bool expr");
-			},
-			varcase(const parse::LocalId) {
-				localVar(var).requireBoolLike();
-			},
-			varcase(const TmpVar) {
-				localVar(var).requireBoolLike();
-			}
+			varcase(const parse::ResolvedType&) {appRes(var);},
+			varcase(const parse::ResolvedType*) {appRes(*var);},
+			varcase(const parse::LocalId) {appLocal(localVar(var));},
+			varcase(const TmpVar) {appLocal(localVar(var));}
 			);
+		}
+
+		void requireAsBool(const VisitTypeBuilder& t)
+		{
+			handleVisTyBuilder(t,
+				[&](const parse::ResolvedType&  var) {
+					if (!var.isBool())
+						throw std::runtime_error("TODO: error logging, found non bool expr");
+				},
+				[&](LocalVarInfo& var) {
+					var.requireBoolLike();
+			});
 		}
 		void requireUseTy(const VisitTypeBuilder& t,const parse::ResolvedType& ty)
 		{
-			ezmatch(t)(
-			varcase(const parse::ResolvedType&) {
-				if(!subtypeCheck(mpDb,var, ty))
-					throw std::runtime_error("TODO: error logging, found non matching type expr");
-			},
-			varcase(const parse::ResolvedType*) {
-				if (!subtypeCheck(mpDb, *var, ty))
-					throw std::runtime_error("TODO: error logging, found non matching type expr");
-			},
-			varcase(const parse::LocalId) {
-				localVar(var).use.tyRefs.push_back(&ty);
-			},
-			varcase(const TmpVar) {
-				localVar(var).use.tyRefs.push_back(&ty);
-			}
-			);
+			handleVisTyBuilder(t,
+				[&](const parse::ResolvedType& var) {
+					if (!subtypeCheck(mpDb, var, ty))
+						throw std::runtime_error("TODO: error logging, found non matching type expr");
+				},
+				[&](LocalVarInfo& var) {
+					var.use.tyRefs.push_back(&ty);
+				});
 		}
 
 		template<class RawT>
@@ -429,15 +425,14 @@ namespace slu::mlvl
 		void editLocalVar(parse::LocalId itm)
 		{
 			VisitTypeBuilder& editTy = exprTypeStack.back();
-			ezmatch(editTy)(
-			varcase(const auto&) {},
-			varcase(const parse::LocalId) {
-				localVar(var).use.locals.push_back(itm);
-			},
-			varcase(const TmpVar) {
-				localVar(var).use.locals.push_back(itm);
-			}
-			);
+			handleVisTyBuilder(editTy,
+				[&](const parse::ResolvedType& var) {
+					throw std::runtime_error("Error, found resolved type, expected a local var.");
+				},
+				[&](LocalVarInfo& var) {
+					var.use.locals.push_back(itm);
+				});
+
 			ezmatch(editTy)(
 			varcase(parse::ResolvedType&) {
 				localVar(itm).edit.tys.emplace_back(std::move(var));
@@ -530,8 +525,17 @@ namespace slu::mlvl
 		}
 		bool preSelfCallExpr(parse::ExprType::SelfCall<Cfg>& itm) {
 			//TODO
+			visit::visitExpr(*this, *itm.v);
 
 			//"Complex" method resolution. (todo: defer it to as late as possible!)
+			VisitTypeBuilder& editTy = exprTypeStack.back();
+			handleVisTyBuilder(editTy,
+				[&](const parse::ResolvedType& var) {
+					checkTypeMethod(mpDb, var, itm.args, itm.method, itm.ty);
+				},
+				[&](LocalVarInfo& var) {
+					var.usedMethods.emplace_back(itm.method);
+				});
 			
 			return true;
 		}

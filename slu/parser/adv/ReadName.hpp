@@ -32,12 +32,12 @@ namespace slu::parse
 	"at", "of", "box", "case", "only", "with", "final", "become", "typeof", \
 	"abstract", "comptime", "override", "unsized", "virtual", \
 	/* todos */\
-	"gen",	"copy", "move",   \
+	"gen",	"copy", "move", \
 	"async", "await", "yield", "static", "generator", \
 	/* documented */\
 	"as", "ex", "fn", "it", "dyn", "let", "mod", "mut", "try", "use" \
 	"also", "drop", "enum", "impl", "loop", "safe", "alloc", "axiom", \
-	"catch", "const", "defer", "macro", "match", "share", "throw", "trans",\
+	"catch", "const", "defer", "macro", "match", "share", "throw", "trans", \
 	"union", "where", "extern", "module", "struct", "unsafe", "continue"
 #define _Slu_VERY_KWS "self", "crate", "super"
 #define _Slu_MOSTLY_KWS _Slu_VERY_KWS, "Self"
