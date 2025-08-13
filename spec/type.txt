@@ -31,6 +31,7 @@ New Syntax {
 		| "impl" traitExp
 		| "[" exp "]"
 		| "?"
+		| "struct" basicStruct --TODO parse this
 		| "union" basicStruct
 		| "~~" basicExp
 		| [safety] "fn" exp "->" basicExp
