@@ -728,6 +728,7 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(Drop);
 		},
 		varcase(parse::StatementType::Trait&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(Trait);
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			visitParams(vi, var.params);
@@ -735,9 +736,10 @@ namespace slu::visit
 				visitTraitExpr(vi, *var.whereSelf);
 			visitWhereClauses(vi, var.clauses);
 			visitStatList(vi, var.itms);
-			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(Trait);
 		},
 		varcase(parse::StatementType::Impl&) {
+			Slu_CALL_VISIT_FN_PRE_VAR(Impl);
 			visitExported(vi, var.exported);
 			visitParams(vi, var.params);
 			if (var.forTrait.has_value())
@@ -745,7 +747,7 @@ namespace slu::visit
 			visitExpr(vi, var.type);
 			visitWhereClauses(vi, var.clauses);
 			visitStatList(vi, var.code);
-			//TODO
+			Slu_CALL_VISIT_FN_POST_VAR(Impl);
 		},
 		varcase(parse::StatementType::Mod<Vi>&) {
 			visitExported(vi, var.exported);

@@ -355,6 +355,18 @@ namespace slu::mlvl
 			statList.insert(statList.end(), std::make_move_iterator(std::next(out.begin() + 1)), std::make_move_iterator(out.end()));
 		}
 
+		bool preTrait(parse::StatementType::Trait& itm) 
+		{
+			//TODO
+			return false;
+		}
+
+		bool preImpl(parse::StatementType::Impl& itm)
+		{
+			//TODO
+			return false;
+		}
+
 		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
 		{
 			if(itm.abi.empty())
