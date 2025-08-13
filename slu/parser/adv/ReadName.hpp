@@ -29,14 +29,14 @@ namespace slu::parse
 	/* freedom */\
 	"any", "has", "raw", "glob", "reloc", "concept", \
 	/* future */\
-	"box", "only", "with", "final", "become", "typeof", \
+	"at", "of", "box", "case", "only", "with", "final", "become", "typeof", \
 	"abstract", "comptime", "override", "unsized", "virtual", \
 	/* todos */\
 	"gen",	"copy", "move",   \
 	"async", "await", "yield", "static", "generator", \
 	/* documented */\
-	"as", "at", "ex", "fn", "it", "of", "dyn", "let", "mod", "mut", "try", "use" \
-	"also", "case", "drop", "enum", "impl", "loop", "safe", "alloc", "axiom", \
+	"as", "ex", "fn", "it", "dyn", "let", "mod", "mut", "try", "use" \
+	"also", "drop", "enum", "impl", "loop", "safe", "alloc", "axiom", \
 	"catch", "const", "defer", "macro", "match", "share", "throw", "trans",\
 	"union", "where", "extern", "module", "struct", "unsafe", "continue"
 #define _Slu_VERY_KWS "self", "crate", "super"
