@@ -452,6 +452,9 @@ namespace slu::visit
 		varcase(parse::ExprType::Slice&) {
 			visitExpr(vi, *var.v);
 		},
+		varcase(parse::ExprType::Struct&) {
+			visitTable(vi, var.fields);
+		},
 		varcase(parse::ExprType::Union&) {
 			visitTable(vi, var.fields);
 		},

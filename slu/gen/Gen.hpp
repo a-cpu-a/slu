@@ -416,6 +416,11 @@ namespace slu::parse
 				genExpr(out, *var.v);
 			out.add(']');
 		},
+		varcase(const ExprType::Struct&) {
+			out.add("struct "sv);
+			if constexpr (Out::settings() & sluSyn)
+				genTable(out, var.fields);
+		},
 		varcase(const ExprType::Union&) {
 			out.add("union "sv);
 			if constexpr (Out::settings() & sluSyn)

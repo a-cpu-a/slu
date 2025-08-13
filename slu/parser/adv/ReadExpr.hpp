@@ -184,7 +184,14 @@ namespace slu::parse
 			if constexpr (in.settings() & sluSyn)
 			{
 				if (!checkReadTextToken(in, "safe"))
+				{
+					if (checkReadTextToken(in, "struct"))
+					{
+						requireToken(in, "{");
+						basicRes.data = ExprType::Struct(readTable<false>(in, false));
+					}
 					break;
+				}
 				requireToken(in, "fn");
 				basicRes.data = readFnType<IS_BASIC>(in, OptSafety::SAFE);
 			}

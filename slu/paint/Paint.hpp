@@ -314,6 +314,13 @@ namespace slu::paint
 				paintTypeExpr(se, *var.v);
 			paintKw<Tok::GEN_OP>(se, "]");
 		},
+		varcase(const parse::ExprType::Struct&) {
+			if constexpr (Se::settings() & sluSyn)
+			{
+				paintKw<Tok::CON_STAT>(se, "struct");
+				paintTable<Tok::NAME_TYPE>(se, var.fields);
+			}
+		},
 		varcase(const parse::ExprType::Union&) {
 			if constexpr (Se::settings() & sluSyn)
 			{
