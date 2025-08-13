@@ -325,8 +325,10 @@ namespace slu::parse
 		{
 			TableV<true> fields;
 		};
-		struct Union : Struct
-		{};
+		struct Union
+		{
+			TableV<true> fields;
+		};
 		struct FnType
 		{
 			BoxExprV<true> argType;

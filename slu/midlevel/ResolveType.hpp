@@ -29,6 +29,56 @@ namespace slu::mlvl
 			);
 	}
 
+	parse::ResolvedType resolveStructType(parse::BasicMpDb mpDb, parse::TableV<true>&& itm)
+	{
+		parse::StructRawType& res = *(new parse::StructRawType());
+		res.name = lang::MpItmIdV<true>::newEmpty();
+		res.fieldNames.reserve(itm.size());
+		res.fields.reserve(itm.size());
+		res.fieldOffsets.reserve(itm.size());
+		size_t idx = 1;
+		size_t fieldOffset = 0;
+		uint8_t maxAlign = 0;
+		for (parse::FieldV<true>& field : itm)
+		{
+			handleTypeExprField(mpDb, idx, field, res);
+			//TODO: fix field offsets changing depending on named field order, and tuple field order between them too.
+			if (fieldOffset != parse::ResolvedType::INCOMPLETE_MARK)
+				continue;
+
+			const parse::ResolvedType& resField = res.fields.back();
+			maxAlign = std::max(maxAlign, (uint8_t)resField.alignmentData);
+
+			if (resField.size == 0)
+			{
+				res.fieldOffsets.push_back(SIZE_MAX - 1);//undefined value.
+				continue;
+			}
+			if (!resField.isComplete())
+			{
+				fieldOffset = parse::ResolvedType::INCOMPLETE_MARK;
+				continue;
+			}
+			if (fieldOffset == parse::ResolvedType::UNSIZED_MARK)
+			{
+				res.fieldOffsets.push_back(SIZE_MAX);//Only known at runtime.
+				continue;
+			}
+			fieldOffset = (fieldOffset + 7) & (~0b111);//ceil to byte boundary.
+
+			res.fieldOffsets.push_back(fieldOffset);
+			fieldOffset += resField.size;
+
+			if (!resField.isSized())
+				fieldOffset = parse::ResolvedType::UNSIZED_MARK;//Following fields will only have offsets known at runtime.
+		}
+
+		return parse::ResolvedType{
+			.base = parse::RawTypeKind::Struct(&res),
+			.size = fieldOffset,
+			.alignmentData = maxAlign
+		};
+	}
 	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type)
 	{
 		parse::ResolvedType resTy = ezmatch(std::move(type.data))(
@@ -183,54 +233,11 @@ namespace slu::mlvl
 			rt.outerSliceDims++;
 			return rt;
 		},
+		varcase(parse::ExprType::Struct&&) {
+			return resolveStructType(mpDb,std::move(var.fields));
+		},
 		varcase(parse::ExprType::TableV<true>&&) {
-			parse::StructRawType& res = *(new parse::StructRawType());
-			res.name = lang::MpItmIdV<true>::newEmpty();
-			res.fieldNames.reserve(var.size());
-			res.fields.reserve(var.size());
-			res.fieldOffsets.reserve(var.size());
-			size_t idx = 1;
-			size_t fieldOffset = 0;
-			uint8_t maxAlign = 0;
-			for (parse::FieldV<true>& field : var)
-			{
-				handleTypeExprField(mpDb, idx, field, res);
-				//TODO: fix field offsets changing depending on named field order, and tuple field order between them too.
-				if (fieldOffset!= parse::ResolvedType::INCOMPLETE_MARK)
-					continue;
-
-				const parse::ResolvedType& resField = res.fields.back();
-				maxAlign = std::max(maxAlign, (uint8_t)resField.alignmentData);
-
-				if (resField.size == 0)
-				{
-					res.fieldOffsets.push_back(SIZE_MAX-1);//undefined value.
-					continue;
-				}
-				if (!resField.isComplete())
-				{
-					fieldOffset = parse::ResolvedType::INCOMPLETE_MARK;
-					continue;
-				}
-				if (fieldOffset == parse::ResolvedType::UNSIZED_MARK)
-				{
-					res.fieldOffsets.push_back(SIZE_MAX);//Only known at runtime.
-					continue;
-				}
-				fieldOffset = (fieldOffset + 7) & (~0b111);//ceil to byte boundary.
-
-				res.fieldOffsets.push_back(fieldOffset);
-				fieldOffset += resField.size;
-
-				if(!resField.isSized())
-					fieldOffset = parse::ResolvedType::UNSIZED_MARK;//Following fields will only have offsets known at runtime.
-			}
-
-			return parse::ResolvedType{
-				.base = parse::RawTypeKind::Struct(&res),
-				.size = fieldOffset,
-				.alignmentData = maxAlign
-			};
+			return resolveStructType(mpDb, std::move(var));
 		},
 		varcase(parse::ExprType::Union&&)->parse::ResolvedType {
 			parse::UnionRawType& res = *(new parse::UnionRawType());

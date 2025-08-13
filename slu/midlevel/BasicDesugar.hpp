@@ -119,7 +119,6 @@ namespace slu::mlvl
 			parse::ItmType::Fn res;
 			res.abi = std::move(abi);
 			res.exported = exported;
-			res.isStruct = false;
 			if (ret.has_value())
 				res.ret = resolveTypeExpr(mpDb, std::move(**ret));
 			else
