@@ -6,8 +6,7 @@ New Syntax {
 	
 	safety ::= "safe" | "unsafe"
 	
-	
-	stat @::= | "unsafe" statOrRet
+	stat @::= | "unsafe" "{" {stat} "}"
 	stat @::= | ":::" safety ":"
 	
 }
@@ -18,13 +17,7 @@ New Keywords {
 }
 
 Unsafe Block {
-	Inside the block, there is no new scope, so variables are shared with the above block.
-	
-	Inside of it any unsafe code can be used.
-	
-	Implementation {
-		May be parsed as 2 statments inside of 1, (PUSH_ALLOW_UNSAFE ... POP_ALLOW_UNSAFE)
-	}
+	Inside a unsafe block, there is no new scope, so variables are usable even after the block ends, due to this return/break is not allowed inside unsafe blocks, also inside it any unsafe code can be used.
 }
 Safety Label {
 	After the label, the current safety mode switches.
