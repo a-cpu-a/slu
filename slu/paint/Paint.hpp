@@ -1066,7 +1066,10 @@ namespace slu::paint
 		},
 		varcase(const parse::StatementType::UnsafeBlock<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "unsafe");
-			paintDoEndBlock(se, var.bl);
+			paintKw<Tok::BRACES>(se, "{");
+			for (auto& i : var.stats)
+				paintStat(se, i);
+			paintKw<Tok::BRACES>(se, "}");
 		},
 		varcase(const parse::StatementType::UnsafeLabel) {
 			paintKw<Tok::PUNCTUATION>(se, ":::");

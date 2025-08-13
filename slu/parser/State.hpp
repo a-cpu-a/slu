@@ -791,7 +791,9 @@ namespace slu::parse
 		Slu_DEF_CFG(ExternBlock);
 
 		template<bool isSlu>
-		struct UnsafeBlockV { BlockV<isSlu> bl; };	// "unsafe {...}"
+		struct UnsafeBlockV {
+			StatListV<isSlu> stats;
+		};	// "unsafe {...}"
 		Slu_DEF_CFG(UnsafeBlock);
 
 		struct UnsafeLabel {};

@@ -496,8 +496,6 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatementType::Use>
 		|| std::same_as<T, parse::StatementType::FnDeclV<true>>
 		|| std::same_as<T, parse::StatementType::FunctionDeclV<true>>
-		|| std::same_as<T, parse::StatementType::ExternBlockV<true>>//ignore, as desugaring will remove it
-		|| std::same_as<T, parse::StatementType::UnsafeBlockV<true>>//ignore, as desugaring will remove it
 		|| std::same_as<T, parse::StatementType::DropV<true>>
 		|| std::same_as<T, parse::StatementType::ModV<true>>
 		|| std::same_as<T, parse::StatementType::ModAsV<true>>
@@ -629,6 +627,14 @@ namespace slu::comp::mico
 				mlir::scf::YieldOp::create(builder,convPos(conv,var.bl.end));
 
 			builder.setInsertionPointAfter(whileOp);
+		},
+		varcase(const parse::StatementType::ExternBlockV<true>&) {
+			for (const auto& i : var.stats)
+				convStat(conv, i);
+		},
+		varcase(const parse::StatementType::UnsafeBlockV<true>&) {
+			for (const auto& i : var.stats)
+				convStat(conv, i);
 		},
 		varcase(const parse::StatementType::BlockV<true>&) {
 			auto scopeOp = mlir::memref::AllocaScopeOp::create(builder, convPos(conv, itm.place), mlir::TypeRange{});

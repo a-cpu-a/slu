@@ -1154,7 +1154,8 @@ namespace slu::parse
 			out.newLine();//Extra spacing
 			out.add("unsafe {")
 				.tabUpNewl();
-			genBlock(out, var.bl);
+			for (auto& i : var.stats)
+				genStat(out, i);
 			out.unTabNewl()
 				.addNewl('}');
 		},

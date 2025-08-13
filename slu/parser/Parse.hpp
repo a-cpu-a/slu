@@ -431,7 +431,8 @@ namespace slu::parse
 				{
 					in.skip();
 					in.genData.pushUnsafe();
-					StatementType::UnsafeBlock<In> res = { readBlockNoStartCheck<isLoop>(in, false,true) };
+					StatementType::UnsafeBlock<In> res = { readStatList<isLoop>(in, false,false).first };
+					requireToken(in, "}");
 					in.genData.popSafety();
 					in.genData.addStat(place, std::move(res));
 					return true;

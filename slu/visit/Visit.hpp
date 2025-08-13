@@ -714,7 +714,7 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(ExternBlock);
 		},
 		varcase(parse::StatementType::UnsafeBlock<Vi>&) {
-			visitBlock(vi, var.bl);
+			visitStatList(vi, var.stats);
 		},
 		varcase(const parse::StatementType::UnsafeLabel) {
 			//TODO

@@ -530,6 +530,9 @@ namespace slu::mlvl
 		}
 		bool preSelfCallExpr(parse::ExprType::SelfCall<Cfg>& itm) {
 			//TODO
+
+			//"Complex" method resolution. (todo: defer it to as late as possible!)
+			
 			return true;
 		}
 

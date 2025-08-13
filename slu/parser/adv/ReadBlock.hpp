@@ -122,6 +122,7 @@ namespace slu::parse
 		return in.genData.popScope(in.getLoc()).statList;
 	}
 	//second -> nextSynName, only for isGlobal=true
+	//No start '{' check, also doesnt skip '}'!
 	template<bool isLoop, AnyInput In>
 	inline std::pair<StatList<In>,lang::ModPathId> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
 	{
