@@ -329,6 +329,11 @@ namespace slu::mlvl
 		parse::MpItmIdV<true>* name;
 		TmpVar selfArg;
 	};
+	struct FieldGet
+	{
+		parse::PoolString name;
+		TmpVar selfArg;
+	};
 	struct LocalVarInfo
 	{
 		parse::ResolvedType* resolvedType = nullptr;
@@ -339,7 +344,7 @@ namespace slu::mlvl
 		//???
 
 		SubTySide use;//Requirements when used.
-		std::variant<SubTySide, MethodCall> edit;//Requirements when writen to.
+		std::variant<SubTySide, MethodCall,FieldGet> edit;//Requirements when writen to.
 
 		bool boolLike : 1 = false;//part of use.
 		bool taken    : 1 = false;
@@ -522,9 +527,15 @@ namespace slu::mlvl
 				exprTypeStack.back() = varId;
 				return;
 			}
-			//TODO: require top expr type to have the field.
-			//TODO: mk a edit sided thing for it (either resolve the type now, or at check time)
-			throw std::runtime_error("TODO: type inference for field exprs.");
+			visit::visitExpr(*this, *itm.v);
+
+			auto& tmpVars = tmpLocalsDataStack.back();
+			TmpVar selfId = tmpVars.size();
+			tmpVars.emplace_back(nullptr);
+			editLocalVar(selfId);
+
+			TmpVar resId = tmpVars.size();
+			tmpVars.emplace_back(&itm.ty).edit = FieldGet{ .name = itm.field,.selfArg = resId };
 		}
 		bool preCallExpr(parse::ExprType::Call<Cfg>& itm) {
 			handleCall<false, true>(itm);
@@ -573,8 +584,7 @@ namespace slu::mlvl
 
 			//Make temp var for func result, also add editType for it.
 			TmpVar varId = tmpVars.size();
-			tmpVars.emplace_back().edit  = MethodCall(std::move(args), &itm.method, selfId);
-			tmpVars.back().resolvedType = &itm.ty;
+			tmpVars.emplace_back(&itm.ty).edit  = MethodCall(std::move(args), &itm.method, selfId);
 
 			exprTypeStack.back() = varId;
 			
@@ -790,6 +800,9 @@ namespace slu::mlvl
 					varcase(MethodCall&){
 						//TODO: method call support
 					},
+					varcase(const FieldGet){
+						//TODO: field get support
+					},
 					varcase(SubTySide&){
 						visitSubTySide(var,
 							[&](const parse::ResolvedType& otherTy) {
@@ -862,6 +875,11 @@ namespace slu::mlvl
 						}
 						//Now that args are of known types, we need to know what the result is!
 						//TODO: output the result type into types array
+					},
+					varcase(const FieldGet) {
+						LocalVarInfo& selfInfo = localVar(var.selfArg);
+						checkLocals(std::span(&selfInfo, 1));
+						//TODO: field get support
 					},
 					varcase(SubTySide&) {
 						visitSubTySide(var,
