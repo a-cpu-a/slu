@@ -287,6 +287,12 @@ namespace slu::parse
 		MpItmIdV<true> getItm(const std::initializer_list<std::string_view>& path) const {
 			return getItm((lang::ViewModPathView)path);
 		}
+
+		std::string_view getSv(const PoolString v) const {
+			if (v.val == SIZE_MAX)
+				return {};//empty
+			return mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
+		}
 	};
 	struct LuaMpDb
 	{

@@ -507,10 +507,10 @@ namespace slu::mlvl
 		}
 		//TODO: create TmpVar's for (self)call/indexing/deref results, when the types are not obvious.
 		void postDerefExpr(parse::ExprType::Deref& itm) {
-			//TODO
+			//TODO: could be deref or deref-mut or ... lol
 		}
 		bool preIndexExpr(parse::ExprType::Index<Cfg>& itm) {
-			//TODO
+			//TODO: need to finalize spec first?
 			return true;
 		}
 		void postFieldExpr(parse::ExprType::Field<Cfg>& itm) {
@@ -636,6 +636,16 @@ namespace slu::mlvl
 		bool preCallStat(parse::StatementType::Call<Cfg>& itm) 
 		{
 			handleCall<true,false>(itm);
+			return true;
+		}
+		bool preIfExpr(parse::ExprType::IfCond<Cfg>& itm)
+		{
+			//TODO: mk tmp var for result, merge all of them into it & return that on the stack!
+			return true;
+		}
+		bool preIfStat(parse::StatementType::IfCond<Cfg>& itm)
+		{
+			//TODO: mk tmp var for result, merge all of them into it & delete it.
 			return true;
 		}
 		bool preAssign(parse::StatementType::Assign<Cfg>& itm)
@@ -849,6 +859,7 @@ namespace slu::mlvl
 					bool poison = false;
 					std::vector<const parse::ResolvedType*> types;
 					std::vector<parse::Range129> intRanges;
+					bool alreadyResolved = false;
 
 					ezmatch(i.edit)(
 					varcase(MethodCall&) {
@@ -878,8 +889,59 @@ namespace slu::mlvl
 					},
 					varcase(const FieldGet) {
 						LocalVarInfo& selfInfo = localVar(var.selfArg);
+						parse::ResolvedType tmpTy;
+						if (selfInfo.resolvedType == nullptr)
+							selfInfo.resolvedType = &tmpTy;
 						checkLocals(std::span(&selfInfo, 1));
-						//TODO: field get support
+
+						parse::ResolvedType& ty = *selfInfo.resolvedType;
+						// check if it even has that field
+						if (ty.outerSliceDims != 0)
+						{
+							poison = true;
+							//TODO: msg about trying to field into a slice
+							return;
+						}
+						std::string_view fieldView = mpDb.getSv(var.name);
+						//TODO: auto deref
+						ezmatch(ty.base)(
+						ezcase(auto&) {
+							poison = true;
+							//TODO: msg about trying to field into something with no fields.
+						},
+						ezcase(parse::RawTypeKind::TypeError) {
+							poison = true;
+						},
+						[&]<class T>(T& var2) 
+							requires std::same_as<T, parse::RawTypeKind::Struct> 
+							||std::same_as<T, parse::RawTypeKind::Union>
+						{
+							size_t idx = 0;
+							bool good = false;
+							for (const std::string& j : var2->fieldNames)
+							{
+								if (j == fieldView)
+								{
+									good = true;
+									break;
+								}
+								idx++;
+							}
+							if (!good)
+							{
+								poison = true;
+								//TODO: struct doesnt have that field.
+								return;
+							}
+							if (&ty == &tmpTy)
+							{
+								alreadyResolved = true;
+								i.resolveNoCheck(std::move(var2->fields[idx]));
+							}
+							else
+								types.push_back(&var2->fields[idx]);
+						}
+						);
 					},
 					varcase(SubTySide&) {
 						visitSubTySide(var,
@@ -892,7 +954,7 @@ namespace slu::mlvl
 
 					if (poison)
 						i.resolveNoCheck(parse::ResolvedType::newError());
-					else
+					else if(!alreadyResolved)
 					{
 						parse::Range129 fullIntRange;
 						if(!intRanges.empty())
