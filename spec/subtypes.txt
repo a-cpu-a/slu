@@ -73,8 +73,6 @@ Subtypes {
 		
 		if the types are refs -> {
 			return the normal subtype check;
-		} else if the types are structs -> {
-			is the subtype is "std::char", and usetype is "std::str", then return true;
 		}
 		do they match exactly?
 	}

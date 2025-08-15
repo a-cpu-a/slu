@@ -196,11 +196,7 @@ namespace slu::mlvl
 			if (nearExactCheckDeref(var, useTy))
 				return true;
 
-			// Allow &char->&str conversions
-			if (var->name != mpc::STD_CHAR)
-				return false;
-			const T& o =  std::get<T>(useTy.base);
-			return o->name == mpc::STD_STR;
+			return false;
 		},
 		varcase(const parse::RawTypeKind::Union&) {
 			return nearExactCheckDeref(var,useTy);
