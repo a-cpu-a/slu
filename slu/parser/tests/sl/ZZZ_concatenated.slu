@@ -113,7 +113,7 @@ let a{|1|x}=0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
 
 const x??? rtype = x()????;
-const ? qtype = x();
+const _ qtype = x();
 const ~~Err errtype = getErr();
 const Xxx~~Err restype = getErr();
 

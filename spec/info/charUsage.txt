@@ -37,7 +37,7 @@ Char Usage {
 	|   )    |        |   X    |
 	|   >=   |        |   X    |
 	|   >    |   -    |   X    | prefix, cuz of '=>' and '->'
-	|   ?    |   X    |   X    |
+	|   ?    |        |   X    |
 	|   '    |   X    |   X    |
 	|   "    |   X    |   X    |
 	|   %    |        |   X    |

@@ -105,12 +105,15 @@ namespace slu::parse
 		{
 		default:
 			break;
-		case '?':
+		case '_':
 			if constexpr (in.settings() & sluSyn)
 			{
-				in.skip();
-				basicRes.data = ExprType::Inferr{};
-				break;
+				if(!in.isOob(1) && !isValidNameChar(in.peekAt(1)))
+				{
+					in.skip();
+					basicRes.data = ExprType::Inferr{};
+					break;
+				}
 			}
 			[[fallthrough]];
 		case ')':

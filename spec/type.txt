@@ -30,7 +30,7 @@ New Syntax {
 	basicExp @::= | "dyn" traitExp
 		| "impl" traitExp
 		| "[" exp "]"
-		| "?"
+		| "_"
 		| "struct" basicStruct --TODO parse this
 		| "union" basicStruct
 		| "~~" basicExp
@@ -230,11 +230,8 @@ Type Specifiers {
 	}
 	Result {
 		Format: [X] "~~" X
-		Format: [X] "?"
 		
 		Allows both a error, and a value, or just an error, and the value type is inferred.
-		The type specifier '?' is just like unary '~~', except the error type is inferred.
-		When '?' is used alone, both the value and error type is inferred.
 		
 		Allows use of the "?" operator, and other error handling tools.
 	}
