@@ -19,21 +19,14 @@ safe extern 'other str kind' {
 	fn helloWorld0() -> *const[str] {}
 }
 
-struct GenZstruct(t T) = {}
+struct GenZstruct(t T) {}
 union Uxxx {}
 
-struct Zstruct = {}
-struct Wstruct = {u8,u8,u8}
 struct Xstruct {}
 struct Ystruct {u8,u8,u8}
 
-struct NamedStructEq = {x=type}
-struct MixedStructEq = {u8,str,x=type}
 struct NamedStruct {x=type}
 struct MixedStruct {u8,str,x=type}
-
-struct Qstruct = u8;
-struct Tstruct = type;
 
 --unions
 
@@ -44,18 +37,11 @@ union MixedUnion {u8,str,x=type}
 
 
 
-
-struct GenWstruct(type Tx) = {u8,u8,u8}
 struct GenXstruct(type Tx) {}
 struct GenYstruct(type Tx) {u8,u8,u8}
 
-struct GenNamedStructEq(type Tx) = {x=type}
-struct GenMixedStructEq(type Tx) = {u8,str,x=type}
 struct GenNamedStruct(type Tx) {x=type}
 struct GenMixedStruct(type Tx) {u8,str,x=type}
-
-struct GenQstruct(type Tx) = u8;
-struct GenTstruct(type Tx) = type;
 
 --unions
 
