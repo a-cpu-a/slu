@@ -29,11 +29,11 @@ namespace slu::parse
 	/* freedom */\
 	"any", "has", "raw", "glob", "reloc", "concept", \
 	/* future */\
-	"at", "of", "box", "case", "only", "with", "final", "become", "typeof", \
-	"abstract", "comptime", "override", "unsized", "virtual", \
+	"at", "of", "box", "auto", "case", "only", "with", "final", "become", \
+	"typeof", "abstract", "comptime", "override", "unsized", "virtual", \
 	/* todos */\
-	"gen",	"copy", "move", \
-	"async", "await", "yield", "static", "generator", \
+	"gen",	"copy", "move", "async", "await", \
+	"yield", "static", "generator", \
 	/* documented */\
 	"as", "ex", "fn", "it", "dyn", "let", "mod", "mut", "try", "use" \
 	"also", "drop", "enum", "impl", "loop", "safe", "alloc", "axiom", \

@@ -31,6 +31,7 @@ New Keywords {
 	at			(..)		(..)		maybe for ranges, fixed-point precision?
 	of			(2.5m)		(87k)		?
 	box    		(451k)		(42.2k)		?
+	auto		(..)		(..)		auto traits?
 	case		(352k)		(8.2k)		match case?
 	only		(745k)		(5.2k)		Different ref system
 	with		(..)		(..)		Impl with args?
