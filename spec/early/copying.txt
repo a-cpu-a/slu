@@ -13,11 +13,9 @@ Clone Trait {
 	may be cheap or expensive, but not implicit.
 }
 Claim Trait {
-	--TODO: what is the best way to enforce this? @DeriveClaim or something + make 'impl Claim' unsafe/illegal if Copy is implemented?
-	If Copy is implemented, then this has to be a memcpy.
+	Marks a types clone impl as implicit, so it is called instead of moving (except at the last use, where a clone would be useless).
+	The clone impl must not use panic or abort, it be O(1) and it should be useful.
 	
-	simple copying that should be implicit. 
-	Implementations must not use panic or abort.
 	--TODO: could the name potentially be improved? "AutoCopy", "AutoClone", "ImplicitCopy", ...?
 }
 
@@ -25,6 +23,7 @@ Copying {
 	Copy,Clone or Claim can be used to create a copy.
 	if a type implements Claim, then it goes from move-only, to auto-copy.
 }
+
 
 
 Sources {
