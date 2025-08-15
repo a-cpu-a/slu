@@ -23,15 +23,18 @@ Impl Statement {
 	
 	Impls allow you to define functions for other types (and trait combinations), in a less repetetive way.
 	
-	The values, for the items inside of the params are inferred from the impl usage sites, and the uses of the args within the impl.
+	The values, for the items inside of the params are inferred from the impl usage sites (if using defer), and the where clauses.
+	Without "defer" the produced params are very opaque, so it is not possible to obtain knowlage about if the type implements X, unless it is specified in a where clause.
 	
-	The expressions inside the impl definition must be simple aliases, including variables,
-	and strong type functions, however, arbitrary functions are not allowed.
-	This is to make matching types to impl's easy and simple.
+	The type inside the impl definition must have a name.
+	(This is to make matching types to impl's easy and simple.)
 	
 	If your trait expr / basic expr need "()" around them you may need a empty param list, to keep things parsable.
 	
 	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the 'traitExp for' form.
+	
+	--Actually, is this a good idea? Why not do compiler magic to auto "add" it instead? (like when impl T, where T: ?Drop, or something?)
+	--Will "defer" be used as a hack, to avoid adding any `T: ?Drop` style things, at the cost of simple dyn support?
 	Adding 'defer', makes type checking happen only once the impl is actually used, allowing you to use T in any way you like.
 }
 

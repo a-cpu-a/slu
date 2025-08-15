@@ -1,0 +1,33 @@
+#
+# Dependencies: basic, types
+#
+
+Copy Trait {
+	Marks a type as being memcpy-able.
+	
+	may be cheap or expensive, but not implicit.
+}
+Clone Trait {
+	if T is Copy or Claim (or even both), then Clone is auto implemented. (auto impl uses memcpy)
+	
+	may be cheap or expensive, but not implicit.
+}
+Claim Trait {
+	--TODO: what is the best way to enforce this? @DeriveClaim or something + make 'impl Claim' unsafe/illegal if Copy is implemented?
+	If Copy is implemented, then this has to be a memcpy.
+	
+	simple copying that should be implicit. 
+	Implementations must not use panic or abort.
+	--TODO: could the name potentially be improved? "AutoCopy", "AutoClone", "ImplicitCopy", ...?
+}
+
+Copying {
+	Copy,Clone or Claim can be used to create a copy.
+	if a type implements Claim, then it goes from move-only, to auto-copy.
+}
+
+
+Sources {
+	https://smallcultfollowing.com/babysteps/blog/2024/06/21/claim-auto-and-otherwise/
+	https://smallcultfollowing.com/babysteps/blog/2024/06/26/claim-followup-1/
+}

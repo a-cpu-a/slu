@@ -98,7 +98,7 @@ Order of Operations {
 	impl	----
 	mut		MarkMut		(unstable)
 	alloc	----
-	=		----		(maybe...)
+	=		----		(maybe...) Move + Relocate.reloc()?
 	```
 	
 	
