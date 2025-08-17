@@ -371,6 +371,21 @@ namespace slu::mlvl
 	};
 	using LocalVarList = std::vector<LocalVarInfo>;
 
+	struct BreakPoint
+	{
+		parse::PoolString name;//empty -> not named.
+		TmpVar out;// size-max -> scope limiter.
+
+		static constexpr BreakPoint newScopeLimiter() {
+			return BreakPoint{ parse::PoolString::newEmpty(), SIZE_MAX};
+		}
+
+		constexpr bool scopeLimiter() const
+		{
+			return out == SIZE_MAX;
+		}
+	};
+
 	struct TypeInfCheckVisitor : visit::EmptyVisitor<TypeInfCheckCfg>
 	{
 		using Cfg = TypeInfCheckCfg;
@@ -382,6 +397,7 @@ namespace slu::mlvl
 		std::vector<LocalVarList> tmpLocalsDataStack;
 
 		std::vector<VisitTypeBuilder> exprTypeStack;
+		std::vector<BreakPoint> breakPointStack;
 
 		LocalVarInfo& localVar(const parse::LocalId id) {
 			return localsDataStack.back()[id.v];
@@ -638,15 +654,48 @@ namespace slu::mlvl
 			handleCall<true,false>(itm);
 			return true;
 		}
-		bool preIfExpr(parse::ExprType::IfCond<Cfg>& itm)
+		void handleSoe(TmpVar resId,parse::SoeOrBlock<Cfg>& itm)
 		{
-			//TODO: mk tmp var for result, merge all of them into it & return that on the stack!
+			ezmatch(itm)(
+			varcase(parse::SoeType::Expr<Cfg>&) {
+				visit::visitExpr(*this, *var);
+				editLocalVar(resId);
+			},
+			varcase(parse::SoeType::Block<Cfg>&) {
+				visit::visitBlock(*this, var);
+			}
+			);
+		}
+		template<bool isExpr>
+		bool handleIfCond(parse::BaseIfCond<Cfg, isExpr>& itm)
+		{
+			auto& tmpVars = tmpLocalsDataStack.back();
+			TmpVar resId = tmpVars.size();
+			tmpVars.emplace_back(&itm.ty);
+
+			visit::visitExpr(*this, *itm.cond);
+			requireAsBool(exprTypeStack.back());
+			exprTypeStack.pop_back();
+
+			handleSoe(resId, *itm.bl);
+			for (auto& i : itm.elseIfs)
+			{
+				visit::visitExpr(*this, i.first);
+				requireAsBool(exprTypeStack.back());
+				exprTypeStack.pop_back();
+				handleSoe(resId, i.second);
+			}
+			handleSoe(resId, **itm.elseBlock);
+
+			if constexpr(isExpr)
+				exprTypeStack.back() = resId;
 			return true;
 		}
-		bool preIfStat(parse::StatementType::IfCond<Cfg>& itm)
-		{
-			//TODO: mk tmp var for result, merge all of them into it & delete it.
-			return true;
+		bool preIfExpr(parse::ExprType::IfCond<Cfg>& itm) {
+			return handleIfCond<true>(itm);
+		}
+		bool preIfStat(parse::StatementType::IfCond<Cfg>& itm) {
+			return handleIfCond<false>(itm);
 		}
 		bool preAssign(parse::StatementType::Assign<Cfg>& itm)
 		{
@@ -695,6 +744,8 @@ namespace slu::mlvl
 				localsDataStack.back()[i].resolvedType = &itm.types[i];
 
 			tmpLocalsDataStack.emplace_back();
+			if (!breakPointStack.empty())
+				breakPointStack.emplace_back(BreakPoint::newScopeLimiter());
 			return false;
 		}
 
@@ -1074,6 +1125,8 @@ namespace slu::mlvl
 			localsStack.pop_back();
 			localsDataStack.pop_back();
 			tmpLocalsDataStack.pop_back();
+			if (!breakPointStack.empty())
+				breakPointStack.pop_back();
 		}
 	};
 

@@ -287,6 +287,7 @@ namespace slu::parse
 		MayBox<boxIt, ExprV<isSlu>> cond;
 		MayBox<boxIt, SoeOrBlockV<isSlu>> bl;
 		std::optional<MayBox<boxIt, SoeOrBlockV<isSlu>>> elseBlock;
+		parse::ResolvedType ty;
 	};
 	Slu_DEF_CFG2(BaseIfCond, boxIt);
 

@@ -36,7 +36,7 @@ New Syntax {
 	statOrRet ::= retstat [‘;’] | basicstat [‘;’] | ‘{’ block ‘}’
 	
 	
-
+	--TODO: maybe switch to `"'" Name ":"`, and `break "'" Name`
 	label ::= ‘:::’ Name ‘:’
 
 	explist ::= exp {‘,’ exp}
