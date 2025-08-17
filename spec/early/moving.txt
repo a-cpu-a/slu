@@ -1,0 +1,23 @@
+#
+# Dependencies: basic, types
+#
+
+Move Trait {
+	
+	If a type is Copy, it is known to be Move too.
+	
+	Marks a type as being memmove-able.
+	
+	may be cheap or expensive.
+}
+Relocate Trait {
+	method .relocate(in = &mut T,out = &mut T)
+	if T is Move, then Relocate is auto implemented. (auto impl uses memcpy / memmove)
+	
+	may be cheap or expensive, shouldnt be too expensive.
+}
+
+Moving {
+	Relocate's may be elided at any moment, it is not legal to rely on them happening, for example if a compiler boxes up all objects (java?), relocates might not even happen.
+	
+}
