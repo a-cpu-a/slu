@@ -27,7 +27,7 @@ namespace slu::parse
 
 #define _Slu_KWS \
 	/* freedom */\
-	"any", "has", "raw", "glob", "reloc", "concept", \
+	"any", "has", "raw", "glob", "reloc", "concept", "nostride", \
 	/* future */\
 	"at", "of", "box", "auto", "case", "only", "with", "final", "become", \
 	"typeof", "abstract", "comptime", "override", "unsized", "virtual", \
