@@ -596,11 +596,11 @@ namespace slu::mlvl
 				editLocalVar(varId);
 				args.emplace_back(varId);
 			}
-			auto& tmpVars = tmpLocalsDataStack.back();//may realloc
+			auto& tmpVars2 = tmpLocalsDataStack.back();//may realloc
 
 			//Make temp var for func result, also add editType for it.
-			TmpVar varId = tmpVars.size();
-			tmpVars.emplace_back(&itm.ty).edit  = MethodCall(std::move(args), &itm.method, selfId);
+			TmpVar varId = tmpVars2.size();
+			tmpVars2.emplace_back(&itm.ty).edit  = MethodCall(std::move(args), &itm.method, selfId);
 
 			exprTypeStack.back() = varId;
 			
@@ -634,7 +634,9 @@ namespace slu::mlvl
 				auto& tmpVars = tmpLocalsDataStack.back();
 				//Make temp var for func result, also add editType for it.
 				TmpVar varId = tmpVars.size();
-				tmpVars.emplace_back(&itm.ty).edit.tyRefs.emplace_back(&funcItm.ret);
+				auto& someEdit = tmpVars.emplace_back(&itm.ty).edit;
+				someEdit = SubTySide();
+				std::get<SubTySide>(someEdit).tyRefs.emplace_back(&funcItm.ret);
 
 				exprTypeStack.back() = varId;
 				

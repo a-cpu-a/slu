@@ -1143,7 +1143,12 @@ namespace slu::paint
 			if constexpr(Se::settings()&sluSyn)
 			{
 				if(!ret)
-					paintKw<Tok::FN_STAT>(se, itm.retTy == parse::RetType::CONTINUE ? "continue" : "break");
+				{
+					if(itm.retTy == parse::RetType::CONTINUE)
+						paintKw<Tok::FN_STAT>(se, "continue");
+					else
+						paintKw<Tok::FN_STAT>(se, "break");
+				}
 			}
 			if(ret)
 				paintKw<Tok::FN_STAT>(se,"return");
