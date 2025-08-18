@@ -490,9 +490,9 @@ namespace slu::paint
 		);
 	}
 	template<bool forCond,AnySemOutput Se>
-	inline void paintEndBlock(Se& se, const parse::Block<Se>& itm)
+	inline void paintEndBlock(Se& se, const parse::Block<Se>& itm, const bool scopeOwner = true)
 	{
-		paintBlock(se, itm);
+		paintBlock(se, itm, scopeOwner);
 		skipSpace(se);
 		paintKw<Tok::BRACES>(se, "}");
 	}
@@ -638,7 +638,7 @@ namespace slu::paint
 		paintKw<Tok::BRACES>(se, "{");
 
 		//No do, for functions in lua
-		paintEndBlock<false>(se, func.block);
+		paintEndBlock<false>(se, func.block,false);
 
 		se.popLocals();
 	}
