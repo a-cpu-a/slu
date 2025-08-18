@@ -1,0 +1,18 @@
+
+trait Xd {const Y = 100}
+trait(T=type) Xt {const Y = T}
+
+impl P {const Y = 5}
+impl Q() {const Y = 5}
+impl X for Y {const Y = 5}
+impl() (X) for Z {const Y = 5}
+
+defer impl Pd {const Y = 5}
+defer impl Qd() {const Y = 5}
+defer impl Xd for Yd {const Y = 5}
+defer impl() (Xd) for Zd {const Y = 5}
+
+impl(T=type) Pt {const Y = T}
+impl(T=type) Qt(T) {const Y = T}
+impl(T=type) Xt for Yt {const Y = T}
+impl(T=type) (Xt) for Zt {const Y = T}

@@ -1,10 +1,30 @@
+
+fn _(){
+trait Xd {const Y = 100}
+trait(T=type) Xt {const Y = T}
+
+impl P {const Y = 5}
+impl Q() {const Y = 5}
+impl X for Y {const Y = 5}
+impl() (X) for Z {const Y = 5}
+
+defer impl Pd {const Y = 5}
+defer impl Qd() {const Y = 5}
+defer impl Xd for Yd {const Y = 5}
+defer impl() (Xd) for Zd {const Y = 5}
+
+impl(T=type) Pt {const Y = T}
+impl(T=type) Qt(T) {const Y = T}
+impl(T=type) Xt for Yt {const Y = T}
+impl(T=type) (Xt) for Zt {const Y = T}
+
+
 fn l(_=0,val=0){
 	j(val);
 }
 
 const 1+{k} v = 0
 
-fn _(){
 ex unsafe fn decl_helloWorld1() -> {u8,u8,u8}
 ex safe fn decl_helloWorld2() -> &mut u8;
 ex fn decl_helloWorld3() -> &[u8];
@@ -25,7 +45,7 @@ safe extern 'other str kind' {
 	fn helloWorld0() -> *const[str] {}
 }
 
-struct GenZstruct(t T) {}
+struct GenZstruct(t = T) {}
 union Uxxx {}
 
 struct Xstruct {}
@@ -43,19 +63,19 @@ union MixedUnion {u8,str,x=type}
 
 
 
-struct GenXstruct(type Tx) {}
-struct GenYstruct(type Tx) {u8,u8,u8}
+struct GenXstruct(Tx = type) {}
+struct GenYstruct(Tx = type) {u8,u8,u8}
 
-struct GenNamedStruct(type Tx) {x=type}
-struct GenMixedStruct(type Tx) {u8,str,x=type}
+struct GenNamedStruct(Tx = type) {x=type}
+struct GenMixedStruct(Tx = type) {u8,str,x=type}
 
 --unions
 
-union GenXunion(type Tx) {}
-union GenYunion(type Tx) {u8,u8,u8}
+union GenXunion(Tx = type) {}
+union GenYunion(Tx = type) {u8,u8,u8}
 
-union GenNamedUnion(type Tx) {x=type}
-union GenMixedUnion(type Tx) {u8,str,x=type}
+union GenNamedUnion(Tx = type) {x=type}
+union GenMixedUnion(Tx = type) {u8,str,x=type}
 
 ex struct ExStru{}
 ex union Exuni{}

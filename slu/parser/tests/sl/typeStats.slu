@@ -1,5 +1,5 @@
 
-struct GenZstruct(t T) {}
+struct GenZstruct(t = T) {}
 union Uxxx {}
 
 struct Xstruct {}
@@ -17,19 +17,19 @@ union MixedUnion {u8,str,x=type}
 
 
 
-struct GenXstruct(type Tx) {}
-struct GenYstruct(type Tx) {u8,u8,u8}
+struct GenXstruct(Tx = type) {}
+struct GenYstruct(Tx = type) {u8,u8,u8}
 
-struct GenNamedStruct(type Tx) {x=type}
-struct GenMixedStruct(type Tx) {u8,str,x=type}
+struct GenNamedStruct(Tx = type) {x=type}
+struct GenMixedStruct(Tx = type) {u8,str,x=type}
 
 --unions
 
-union GenXunion(type Tx) {}
-union GenYunion(type Tx) {u8,u8,u8}
+union GenXunion(Tx = type) {}
+union GenYunion(Tx = type) {u8,u8,u8}
 
-union GenNamedUnion(type Tx) {x=type}
-union GenMixedUnion(type Tx) {u8,str,x=type}
+union GenNamedUnion(Tx = type) {x=type}
+union GenMixedUnion(Tx = type) {u8,str,x=type}
 
 ex struct ExStru{}
 ex union Exuni{}
