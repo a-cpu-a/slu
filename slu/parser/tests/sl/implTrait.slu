@@ -1,7 +1,7 @@
 
 ex trait Xd : Xt(1) {const Y = 100}
-trait(T=type) Xt where T: Hello {const Y = T}
-trait(T=type) Xtw : Xt(0) where T: Hello {const Y = T}
+trait Xt(T=type) where T: Hello {const Y = T}
+trait Xtw(T=type) : Xt(0) where T: Hello {const Y = T}
 
 ex impl P {const Y = 5}
 ex impl Q() {const Y = 5}
