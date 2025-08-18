@@ -1140,8 +1140,9 @@ namespace slu::parse
 			{
 				if (var.exported) out.add("ex ");
 				out.add("trait ")
-					.add(out.db.asSv(var.name));
+					.add(out.db.asSv(var.name)).add('(');
 				genParamList(out, var.params, false);
+				out.add(')');
 				if (var.whereSelf.has_value())
 				{
 					out.add(": ");
@@ -1159,9 +1160,9 @@ namespace slu::parse
 			{
 				if (var.exported) out.add("ex ");
 				if (var.deferChecking) out.add("defer ");
-				out.add("impl");
+				out.add("impl(");
 				genParamList(out, var.params, false);
-				out.add(' ');
+				out.add(") ");
 				if (var.forTrait.has_value())
 				{
 					genTraitExpr(out, *var.forTrait);
