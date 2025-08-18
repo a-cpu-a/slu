@@ -24,8 +24,6 @@
 
 namespace slu::paint
 {
-	using parse::sluSyn;
-
 	template<bool SKIP_SPACE = true>
 	inline void paintString(AnySemOutput auto& se, const std::string_view sv,const Position end,const Tok tint) 
 	{
@@ -189,13 +187,10 @@ namespace slu::paint
 				paintUnOpItem(se, i);
 		}
 		paintExprData<nameTok>(se, itm.data, tint);
-		if constexpr (Se::settings() & sluSyn)
+		if (unOps)
 		{
-			if (unOps)
-			{
-				for (const auto& i : itm.postUnOps)
-					paintPostUnOp(se, i);
-			}
+			for (const auto& i : itm.postUnOps)
+				paintPostUnOp(se, i);
 		}
 	}
 	template<Tok nameTok=Tok::NAME,AnySemOutput Se>
@@ -217,8 +212,7 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, ")");
 		},
 		varcase(const parse::ExprType::Deref&) {
-			if constexpr (Se::settings() & sluSyn)
-				paintExpr(se, *var.v);
+			paintExpr(se, *var.v);
 			paintKw<Tok::DEREF>(se, ".*");
 		},
 		varcase(const parse::ExprType::Index<Se>&) {
@@ -283,12 +277,10 @@ namespace slu::paint
 			paintIfCond<true>(se, var);
 		},
 		varcase(const parse::ExprType::Lifetime&) {
-			if constexpr (Se::settings() & sluSyn)
-				paintLifetime(se, var);
+			paintLifetime(se, var);
 		},
 		varcase(const parse::ExprType::TraitExpr&) {
-			if constexpr (Se::settings() & sluSyn)
-				paintTraitExpr(se, var);
+			paintTraitExpr(se, var);
 		},
 		varcase(const parse::ExprType::Table<Se>&) {
 			paintTable<nameTok>(se, var);
@@ -305,52 +297,35 @@ namespace slu::paint
 		},
 		varcase(const parse::ExprType::Err&) {
 			paintKw<Tok::GEN_OP>(se, "~~");
-			if constexpr (Se::settings() & sluSyn)
-				paintTypeExpr(se, *var.err, tint);
+			paintTypeExpr(se, *var.err, tint);
 		},
 		varcase(const parse::ExprType::Slice&) {
 			paintKw<Tok::GEN_OP>(se, "[");
-			if constexpr (Se::settings() & sluSyn)
-				paintTypeExpr(se, *var.v);
+			paintTypeExpr(se, *var.v);
 			paintKw<Tok::GEN_OP>(se, "]");
 		},
 		varcase(const parse::ExprType::Struct&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::CON_STAT>(se, "struct");
-				paintTable<Tok::NAME_TYPE>(se, var.fields);
-			}
+			paintKw<Tok::CON_STAT>(se, "struct");
+			paintTable<Tok::NAME_TYPE>(se, var.fields);
 		},
 		varcase(const parse::ExprType::Union&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::CON_STAT>(se, "union");
-				paintTable<Tok::NAME_TYPE>(se, var.fields);
-			}
+			paintKw<Tok::CON_STAT>(se, "union");
+			paintTable<Tok::NAME_TYPE>(se, var.fields);
 		},
 		varcase(const parse::ExprType::Dyn&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::DYN>(se, "dyn");
-				paintTraitExpr(se, var.expr);
-			}
+			paintKw<Tok::DYN>(se, "dyn");
+			paintTraitExpr(se, var.expr);
 		},
 		varcase(const parse::ExprType::Impl&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::IMPL>(se, "impl");
-				paintTraitExpr(se, var.expr);
-			}
+			paintKw<Tok::IMPL>(se, "impl");
+			paintTraitExpr(se, var.expr);
 		},
 		varcase(const parse::ExprType::FnType&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintSafety(se, var.safety);
-				paintKw<Tok::FN_STAT>(se, "fn");
-				paintTypeExpr(se, *var.argType);
-				paintKw<Tok::GEN_OP>(se, "->");
-				paintTypeExpr(se, *var.retType);
-			}
+			paintSafety(se, var.safety);
+			paintKw<Tok::FN_STAT>(se, "fn");
+			paintTypeExpr(se, *var.argType);
+			paintKw<Tok::GEN_OP>(se, "->");
+			paintTypeExpr(se, *var.retType);
 		}
 		);
 	}
@@ -497,21 +472,6 @@ namespace slu::paint
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
 	}
-	template<bool isLocal,Tok nameTok, AnySemOutput Se>
-	inline void paintPatOrNamelist(Se& se, const auto& itm)
-	{
-		if constexpr (Se::settings() & sluSyn)
-			paintPat<isLocal,nameTok>(se, itm);
-		else
-		{
-			if constexpr (std::same_as<std::remove_cvref_t<decltype(itm)>, parse::MpItmId<Se>>)
-				paintName<Tok::NAME>(se, itm);
-			else if constexpr (std::same_as<std::remove_cvref_t<decltype(itm)>, parse::AttribNameList<Se>>)
-				paintAttribNameList<Tok::NAME>(se, itm);
-			else
-				paintNameList<Tok::NAME>(se, itm);
-		}
-	}
 	template<AnySemOutput Se>
 	inline void paintArgs(Se& se, const parse::Args<Se>& itm)
 	{
@@ -532,25 +492,14 @@ namespace slu::paint
 	template<bool forCond,AnySemOutput Se>
 	inline void paintEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluSyn)
-		{
-			paintBlock(se, itm);
-			skipSpace(se);
-			paintKw<Tok::BRACES>(se, "}");
-		}
-		else
-		{
-			paintBlock(se, itm);
-			paintKw<forCond? Tok::COND_STAT : Tok::END_STAT>(se, "end");
-		}
+		paintBlock(se, itm);
+		skipSpace(se);
+		paintKw<Tok::BRACES>(se, "}");
 	}
 	template<AnySemOutput Se>
 	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluSyn)
-			paintKw<Tok::BRACES>(se, "{");
-		else
-			paintKw<Tok::COND_STAT>(se, "do");
+		paintKw<Tok::BRACES>(se, "{");
 		paintEndBlock<true>(se, itm);
 	}
 	template<AnySemOutput Se>
@@ -581,59 +530,44 @@ namespace slu::paint
 			break;
 		}
 	}
-	template<bool DO_END,AnySemOutput Se>
+	template<AnySemOutput Se>
 	inline void paintStatOrRet(Se& se, const parse::Block<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluSyn)
+		skipSpace(se);
+		bool hadBrace = false;
+		if (se.in.peek() == '{')
 		{
-			skipSpace(se);
-			bool hadBrace = false;
-			if (se.in.peek() == '{')
-			{
-				hadBrace = true;
-				paintKw<Tok::BRACES>(se, "{");
-			}
-
-			paintBlock(se, itm);
-
-			if(hadBrace)
-				paintKw<Tok::BRACES>(se, "}");
-			return;
+			hadBrace = true;
+			paintKw<Tok::BRACES>(se, "{");
 		}
-		if constexpr(DO_END)
-			paintDoEndBlock(se, itm);
-		else
-			paintBlock(se, itm);
+
+		paintBlock(se, itm);
+
+		if (hadBrace)
+			paintKw<Tok::BRACES>(se, "}");
+		return;
 	}
-	template<bool DO_END, AnySemOutput Se>
+	template<AnySemOutput Se>
 	inline void paintSoeOrBlock(Se& se, const parse::SoeOrBlock<Se>& itm)
 	{
-		if constexpr (Se::settings() & sluSyn)
-		{
-			ezmatch(itm)(
-			varcase(const parse::SoeType::Block<Se>&) {
-				paintStatOrRet<DO_END>(se, var);
-			},
-			varcase(const parse::SoeType::Expr<Se>&) {
-				paintKw<Tok::GEN_OP>(se, "=>");
-				paintExpr(se, *var);
-			}
-			);
+		ezmatch(itm)(
+		varcase(const parse::SoeType::Block<Se>&) {
+			paintStatOrRet(se, var);
+		},
+		varcase(const parse::SoeType::Expr<Se>&) {
+			paintKw<Tok::GEN_OP>(se, "=>");
+			paintExpr(se, *var);
 		}
-		else
-			paintStatOrRet<DO_END>(se, itm);
+		);
 	}
 	template<AnySemOutput Se>
 	inline void paintParamList(Se& se, const parse::ParamList<Se>& itm,const bool hasVarArgParam)
 	{
 		for (const parse::Parameter<Se>& i : itm)
 		{
-			paintNameOrLocal<Se::settings()& sluSyn>(se, i.name);
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::PAT_RESTRICT>(se, "=");
-				paintTypeExpr(se, i.type);
-			}
+			paintNameOrLocal<true>(se, i.name);
+			paintKw<Tok::PAT_RESTRICT>(se, "=");
+			paintTypeExpr(se, i.type);
 
 			if (&i != &itm.back() || hasVarArgParam)
 				paintKw<Tok::PUNCTUATION>(se, ",");
@@ -651,11 +585,8 @@ namespace slu::paint
 	template<AnySemOutput Se>
 	inline void paintFuncDecl(Se& se, const parse::ParamList<Se>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::ExprV<true>>>& retType, const parse::MpItmId<Se> name, const lang::ExportData exported,const parse::OptSafety safety, const Position pos = {}, const bool fnKw = false)
 	{
-		if constexpr (Se::settings() & sluSyn)
-		{
-			paintExportData<Tok::FN_STAT>(se,exported);
-			paintSafety(se, safety);
-		}
+		paintExportData<Tok::FN_STAT>(se, exported);
+		paintSafety(se, safety);
 		if (fnKw)
 			paintKw<Tok::FN_STAT>(se, "fn");
 		else
@@ -673,13 +604,10 @@ namespace slu::paint
 
 		paintKw<Tok::GEN_OP>(se, ")");
 
-		if constexpr (Se::settings() & sluSyn)
+		if (retType.has_value())
 		{
-			if (retType.has_value())
-			{
-				paintKw<Tok::GEN_OP>(se, "->");
-				paintTypeExpr(se, **retType);
-			}
+			paintKw<Tok::GEN_OP>(se, "->");
+			paintTypeExpr(se, **retType);
 		}
 	}
 	template<bool isDecl,AnySemOutput Se>
@@ -687,21 +615,12 @@ namespace slu::paint
 	{
 		if constexpr (isDecl)
 		{
-			if constexpr (Se::settings() & sluSyn)
-			{
-				se.pushLocals(itm.local2Mp);
-				paintFuncDecl(se, itm.params, itm.hasVarArgParam, itm.retType,
-					itm.name, itm.exported, itm.safety, itm.place, fnKw);
-				se.popLocals();
-			}
-			else
-				paintFuncDecl(se, itm.params, itm.hasVarArgParam, {},
-					itm.name, false, parse::OptSafety::DEFAULT, itm.place, fnKw);
+			se.pushLocals(itm.local2Mp);
+			paintFuncDecl(se, itm.params, itm.hasVarArgParam, itm.retType,
+				itm.name, itm.exported, itm.safety, itm.place, fnKw);
+			se.popLocals();
 		} else {
-			if constexpr (Se::settings() & sluSyn)
-				paintFuncDef(se, itm.func, itm.name, itm.exported, itm.place, fnKw);
-			else
-				paintFuncDef(se, itm.func, itm.name, false, itm.place, fnKw);
+			paintFuncDef(se, itm.func, itm.name, itm.exported, itm.place, fnKw);
 		}
 	}
 	//Pos must be valid, unless the name is empty
@@ -711,27 +630,17 @@ namespace slu::paint
 		std::optional<std::unique_ptr<parse::ExprV<true>>> emptyTy{};
 		const std::optional<std::unique_ptr<parse::ExprV<true>>>* retType;
 		parse::OptSafety safety;
-		if constexpr (Se::settings()&sluSyn)
-		{
-			retType = &func.retType;
-			safety = func.safety;
-			se.pushLocals(func.local2Mp);
-		}
-		else
-		{
-			retType = &emptyTy;
-			safety = parse::OptSafety::DEFAULT;
-		}
+		retType = &func.retType;
+		safety = func.safety;
+		se.pushLocals(func.local2Mp);
 
 		paintFuncDecl(se, func.params, func.hasVarArgParam,*retType, name, exported, safety, pos, fnKw);
-		if constexpr (Se::settings() & sluSyn)
-			paintKw<Tok::BRACES>(se, "{");
+		paintKw<Tok::BRACES>(se, "{");
 
 		//No do, for functions in lua
 		paintEndBlock<false>(se, func.block);
 
-		if constexpr (Se::settings() & sluSyn)
-			se.popLocals();
+		se.popLocals();
 	}
 	template<bool isExpr,AnySemOutput Se>
 	inline void paintIfCond(Se& se,
@@ -741,34 +650,19 @@ namespace slu::paint
 		paintKw<Tok::COND_STAT>(se, "if");
 		paintExpr(se, *itm.cond);
 
-		if constexpr (!(Se::settings() & sluSyn))
-			paintKw<Tok::COND_STAT>(se, "then");
-
-		paintSoeOrBlock<false>(se, *itm.bl);
+		paintSoeOrBlock(se, *itm.bl);
 		for (const auto& [cond, bl] : itm.elseIfs)
 		{
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintKw<Tok::COND_STAT>(se, "else");
-				paintKw<Tok::COND_STAT>(se, "if");
-				paintExpr(se, cond);
-			}
-			else
-			{
-				paintKw<Tok::COND_STAT>(se, "elseif");
-				paintExpr(se, cond);
-				paintKw<Tok::COND_STAT>(se, "then");
-			}
-			paintSoeOrBlock<false>(se, bl);
+			paintKw<Tok::COND_STAT>(se, "else");
+			paintKw<Tok::COND_STAT>(se, "if");
+			paintExpr(se, cond);
+			paintSoeOrBlock(se, bl);
 		}
 		if (itm.elseBlock.has_value())
 		{
 			paintKw<Tok::COND_STAT>(se, "else");
-			paintSoeOrBlock<false>(se, **itm.elseBlock);
+			paintSoeOrBlock(se, **itm.elseBlock);
 		}
-
-		if constexpr (!(Se::settings() & sluSyn))
-			paintKw<Tok::COND_STAT>(se, "end");
 	}
 	template<AnySemOutput Se>
 	inline void paintUseVariant(Se& se, const parse::UseVariant& itm)
@@ -805,12 +699,11 @@ namespace slu::paint
 	template<bool isLocal,size_t TOK_SIZE,AnySemOutput Se>
 	inline void paintVarStat(Se& se, const auto& itm, const char(&tokChr)[TOK_SIZE])
 	{
-		if constexpr (Se::settings() & sluSyn)
-			paintExportData<Tok::VAR_STAT>(se,itm.exported);
+		paintExportData<Tok::VAR_STAT>(se,itm.exported);
 
 		paintKw<Tok::VAR_STAT>(se, tokChr);
 
-		paintPatOrNamelist<isLocal,Tok::NAME_TYPE>(se, itm.names);
+		paintPat<isLocal,Tok::NAME_TYPE>(se, itm.names);
 
 		if (itm.exprs.empty())return;
 
@@ -887,7 +780,7 @@ namespace slu::paint
 		varcase(const parse::StatementType::ForNum<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");
 
-			paintPatOrNamelist<true,Tok::NAME_TYPE>(se, var.varName);
+			paintPat<true,Tok::NAME_TYPE>(se, var.varName);
 			paintKw<Tok::ASSIGN>(se, "=");
 
 			paintExpr(se, var.start);
@@ -898,24 +791,24 @@ namespace slu::paint
 				paintKw<Tok::PUNCTUATION>(se, ",");
 				paintExpr(se, *var.step);
 			}
-			paintStatOrRet<true>(se, var.bl);
+			paintStatOrRet(se, var.bl);
 		},
 		varcase(const parse::StatementType::ForIn<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");
-			paintPatOrNamelist<true,Tok::NAME_TYPE>(se, var.varNames);
+			paintPat<true,Tok::NAME_TYPE>(se, var.varNames);
 			paintKw<Tok::IN>(se, "in");
 			paintExprOrList(se, var.exprs);
 
-			paintStatOrRet<true>(se, var.bl);
+			paintStatOrRet(se, var.bl);
 		},
 		varcase(const parse::StatementType::While<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "while");
 			paintExpr(se, var.cond);
-			paintStatOrRet<true>(se, var.bl);
+			paintStatOrRet(se, var.bl);
 		},
 		varcase(const parse::StatementType::RepeatUntil<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "repeat");
-			paintStatOrRet<false>(se, var.bl);
+			paintStatOrRet(se, var.bl);
 			paintKw<Tok::COND_STAT>(se, "until");
 			paintExpr(se, var.cond);
 		},
@@ -982,22 +875,16 @@ namespace slu::paint
 		// Slu
 
 		varcase(const parse::StatementType::Struct&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				se.pushLocals(var.local2Mp);
-				paintStructBasic(se, var, "struct");
-				paintTable<Tok::NAME_TYPE>(se, var.type);
-				se.popLocals();
-			}
+			se.pushLocals(var.local2Mp);
+			paintStructBasic(se, var, "struct");
+			paintTable<Tok::NAME_TYPE>(se, var.type);
+			se.popLocals();
 		},
 		varcase(const parse::StatementType::Union&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				se.pushLocals(var.local2Mp);
-				paintStructBasic(se, var, "union");
-				paintTable<Tok::NAME_TYPE>(se, var.type);
-				se.popLocals();
-			}
+			se.pushLocals(var.local2Mp);
+			paintStructBasic(se, var, "union");
+			paintTable<Tok::NAME_TYPE>(se, var.type);
+			se.popLocals();
 		},
 
 		varcase(const parse::StatementType::Drop<Se>&) {
@@ -1005,48 +892,42 @@ namespace slu::paint
 			paintExpr(se, var.expr);
 		},
 		varcase(const parse::StatementType::Trait&) {
-			if constexpr (Se::settings() & sluSyn)
+			paintExportData<Tok::IMPL>(se, var.exported);
+			paintKw<Tok::IMPL>(se, "trait");
+			paintName<Tok::NAME_TRAIT>(se, var.name);
+			paintParamList(se, var.params, false);
+			if (var.whereSelf.has_value())
 			{
-				paintExportData<Tok::IMPL>(se, var.exported);
-				paintKw<Tok::IMPL>(se, "trait");
-				paintName<Tok::NAME_TRAIT>(se, var.name);
-				paintParamList(se, var.params, false);
-				if (var.whereSelf.has_value())
-				{
-					paintKw<Tok::GEN_OP>(se, ":");
-					paintTraitExpr(se, *var.whereSelf);
-				}
-				paintWhereClauses(se, var.clauses);
-				paintKw<Tok::BRACES>(se, "{");
-				for (const auto& i : var.itms)
-					paintStat(se, i);
-				paintKw<Tok::BRACES>(se, "}");
+				paintKw<Tok::GEN_OP>(se, ":");
+				paintTraitExpr(se, *var.whereSelf);
 			}
+			paintWhereClauses(se, var.clauses);
+			paintKw<Tok::BRACES>(se, "{");
+			for (const auto& i : var.itms)
+				paintStat(se, i);
+			paintKw<Tok::BRACES>(se, "}");
 		},
 		varcase(const parse::StatementType::Impl&) {
-			if constexpr (Se::settings() & sluSyn)
+			paintExportData<Tok::IMPL>(se, var.exported);
+			if (var.deferChecking) paintKw<Tok::IMPL>(se, "defer");
+			paintKw<Tok::IMPL>(se, "impl");
+
+			skipSpace(se);
+			if (se.in.peek() == '(')
+				paintParamList(se, var.params, false);
+
+			if (var.forTrait.has_value())
 			{
-				paintExportData<Tok::IMPL>(se, var.exported);
-				if (var.deferChecking) paintKw<Tok::IMPL>(se, "defer");
-				paintKw<Tok::IMPL>(se, "impl");
-
-				skipSpace(se);
-				if(se.in.peek() == '(')
-					paintParamList(se, var.params, false);
-
-				if (var.forTrait.has_value())
-				{
-					paintTraitExpr(se, *var.forTrait);
-					paintKw<Tok::IMPL>(se, "for");
-				}
-				paintExpr<Tok::NAME_TYPE>(se, var.type);
-
-				paintWhereClauses(se, var.clauses);
-				paintKw<Tok::BRACES>(se, "{");
-				for (const auto& i : var.code)
-					paintStat(se, i);
-				paintKw<Tok::BRACES>(se, "}");
+				paintTraitExpr(se, *var.forTrait);
+				paintKw<Tok::IMPL>(se, "for");
 			}
+			paintExpr<Tok::NAME_TYPE>(se, var.type);
+
+			paintWhereClauses(se, var.clauses);
+			paintKw<Tok::BRACES>(se, "{");
+			for (const auto& i : var.code)
+				paintStat(se, i);
+			paintKw<Tok::BRACES>(se, "}");
 		},
 		varcase(const parse::StatementType::ExternBlock<Se>&) {
 			paintSafety(se, var.safety);
@@ -1082,13 +963,10 @@ namespace slu::paint
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
 		varcase(const parse::StatementType::Use&) {
-			if constexpr (Se::settings() & sluSyn)
-			{
-				paintExportData<Tok::VAR_STAT>(se, var.exported);
-				paintKw<Tok::VAR_STAT>(se, "use");
-				paintMp<Tok::NAME>(se, var.base);
-				paintUseVariant(se, var.useVariant);
-			}
+			paintExportData<Tok::VAR_STAT>(se, var.exported);
+			paintKw<Tok::VAR_STAT>(se, "use");
+			paintMp<Tok::NAME>(se, var.base);
+			paintUseVariant(se, var.useVariant);
 		},
 		varcase(const parse::StatementType::Mod<Se>&) {
 			paintExportData<Tok::CON_STAT>(se, var.exported);
@@ -1129,29 +1007,31 @@ namespace slu::paint
 		return paintExpr(se, itm);
 	}
 	template<AnySemOutput Se>
-	inline void paintBlock(Se& se, const parse::Block<Se>& itm)
+	inline void paintBlock(Se& se, const parse::Block<Se>& itm,const bool scopeOwner = true)
 	{
-		skipSpace(se);
-		se.move(itm.start);
+		if(scopeOwner)
+		{
+			skipSpace(se);
+			se.move(itm.start);
+		}
 		for (const parse::Statement<Se>& stat : itm.statList)
 		{
 			paintStat(se, stat);
 		}
 		if (itm.retTy != parse::RetType::NONE)
 		{
-			bool ret = itm.retTy == parse::RetType::RETURN;
-			if constexpr(Se::settings()&sluSyn)
+			switch (itm.retTy)
 			{
-				if(!ret)
-				{
-					if(itm.retTy == parse::RetType::CONTINUE)
-						paintKw<Tok::FN_STAT>(se, "continue");
-					else
-						paintKw<Tok::FN_STAT>(se, "break");
-				}
+			case parse::RetType::RETURN:
+				paintKw<Tok::FN_STAT>(se, "return");
+				break;
+			case parse::RetType::CONTINUE:
+				paintKw<Tok::FN_STAT>(se, "continue");
+				break;
+			case parse::RetType::BREAK:
+				paintKw<Tok::FN_STAT>(se, "break");
+				break;
 			}
-			if(ret)
-				paintKw<Tok::FN_STAT>(se,"return");
 			paintExprList(se, itm.retExprs);
 
 			skipSpace(se);
@@ -1164,18 +1044,8 @@ namespace slu::paint
 	*/
 	template<AnySemOutput Se>
 	inline void paintFile(Se& se, const parse::ParsedFile<Se>& f) {
-		if constexpr (Se::settings() & sluSyn)
-		{
-			for (auto& i : f.code)
-				paintStat(se, i);
-			skipSpace(se);
-		}
-		else
-		{
-			se.pushLocals(f.local2Mp);
-			paintBlock(se, f.code);
-			skipSpace(se);
-			se.popLocals();
-		}
+		for (auto& i : f.code)
+			paintStat(se, i);
+		skipSpace(se);
 	}
 }
