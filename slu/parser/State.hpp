@@ -241,22 +241,20 @@ namespace slu::parse
 
 	//Common
 
-	//NOTE: has overload later!!!
-	template<bool isSlu>
-	struct ParameterV
+	template<bool isLocal>
+	struct Parameter
 	{
-		MpItmIdV<isSlu> name;
+		LocalOrNameV<true,isLocal> name;
+		ExprV<true> type;
 	};
-	Slu_DEF_CFG(Parameter);
 
-	template<bool isSlu>
-	using ParamListV = std::vector<ParameterV<isSlu>>;
-	Slu_DEF_CFG(ParamList);
+	template<bool isLocal>
+	using ParamList = std::vector<Parameter<isLocal>>;
 
 	template<bool isSlu>
 	struct FunctionInfoV
 	{
-		ParamListV<isSlu> params;
+		ParamList<true> params;
 		bool hasVarArgParam = false;// do params end with '...'
 	};
 	template<>
@@ -264,7 +262,7 @@ namespace slu::parse
 	{
 		std::string abi;
 		LocalsV<true> local2Mp;
-		ParamListV<true> params;
+		ParamList<true> params;
 		std::optional<BoxExprV<true>> retType;
 		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
@@ -564,12 +562,6 @@ namespace slu::parse
 		};
 	}
 
-	template<>
-	struct ParameterV<true>
-	{
-		LocalId name;
-		ExprV<true> type;
-	};
 	template<bool isLocal>
 	struct ___PatHack : PatV<true, isLocal> {};
 
@@ -614,7 +606,7 @@ namespace slu::parse
 
 	struct StructBase
 	{
-		ParamListV<true> params;
+		ParamList<true> params;
 		LocalsV<true> local2Mp;
 		TableV<true> type;
 		MpItmIdV<true> name;
@@ -805,7 +797,7 @@ namespace slu::parse
 		{
 			WhereClauses clauses;
 			MpItmIdV<true> name;
-			ParamListV<true> params;
+			ParamList<false> params;
 			StatListV<true> itms;
 			std::optional<TraitExpr> whereSelf;
 			ExportData exported = false;
@@ -813,7 +805,7 @@ namespace slu::parse
 		struct Impl
 		{
 			WhereClauses clauses;
-			ParamListV<true> params;
+			ParamList<false> params;
 			std::optional<TraitExpr> forTrait;
 			ExprV<true> type;
 			StatListV<true> code;

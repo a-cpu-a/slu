@@ -526,17 +526,14 @@ namespace slu::parse
 			out.add(obj[i]);
 		}
 	}
-	template<AnyOutput Out>
-	inline void genParamList(Out& out, const ParamList<Out>& itm,const bool hasVarArgParam)
+	template<bool isLocal, AnyOutput Out>
+	inline void genParamList(Out& out, const ParamList<isLocal>& itm,const bool hasVarArgParam)
 	{
-		for (const Parameter<Out>& par : itm)
+		for (const Parameter<isLocal>& par : itm)
 		{
-			genNameOrLocal<Out::settings()& sluSyn>(out, par.name);
-			if constexpr (Out::settings() & sluSyn)
-			{
-				out.add(" = ");
-				genExpr(out, par.type);
-			}
+			genNameOrLocal<isLocal>(out, par.name);
+			out.add(" = ");
+			genExpr(out, par.type);
 
 			if (&par != &itm.back() || hasVarArgParam)
 				out.add(", ");

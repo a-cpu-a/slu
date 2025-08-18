@@ -110,9 +110,9 @@
 namespace slu::parse
 {
 	template<bool isLocal,AnyInput In>
-	inline Parameter<In> readFuncParam(In& in)
+	inline Parameter<isLocal> readFuncParam(In& in)
 	{
-		Parameter<In> p;
+		Parameter<isLocal> p;
 		skipSpace(in);
 		p.name = in.genData.template resolveNewName<isLocal>(readName(in));
 		requireToken(in, "=");

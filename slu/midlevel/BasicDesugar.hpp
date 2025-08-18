@@ -112,7 +112,7 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret,std::vector<parse::Parameter<Cfg>>& params,parse::ExportData exported,const bool hasCode)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret, parse::ParamList<true>& params,parse::ExportData exported,const bool hasCode)
 		{
 			auto& localMp = *mpDataStack.back();
 

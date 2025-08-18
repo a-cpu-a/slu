@@ -157,7 +157,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		}
 		return 2;
 	}
-	catch (const slu::parse::ParseFailError& e)
+	catch (const slu::parse::ParseFailError&)
 		//catch (const std::bad_alloc& err)
 	{
 		if (invert)return 2;

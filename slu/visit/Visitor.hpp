@@ -169,7 +169,8 @@ namespace slu::visit
 
 		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId<Cfg>);
-		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<Cfg>);
+		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<true>);
+		_Slu_DEF_EMPTY_LIST(ConstParams, parse::Parameter<false>);
 	};
 
 

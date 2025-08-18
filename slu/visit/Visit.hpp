@@ -14,9 +14,9 @@
 
 namespace slu::visit
 {
-#define Slu_CALL_VISIT_FN_PRE_USER(_Name,_itm) \
+#define Slu_CALL_VISIT_FN_PRE_USER(_Name,_itm) do {\
 		if(vi.pre ## _Name (_itm)) \
-			return
+			return;} while (false)
 #define Slu_CALL_VISIT_FN_PRE_USER_LG(_Name,_itm) \
 		if constexpr (isLocal) \
 			{Slu_CALL_VISIT_FN_PRE_USER(_Name##Local,_itm);} \
@@ -27,9 +27,9 @@ namespace slu::visit
 #define Slu_CALL_VISIT_FN_PRE_LG(_Name) Slu_CALL_VISIT_FN_PRE_USER_LG(_Name,itm)
 #define Slu_CALL_VISIT_FN_PRE_VAR_LG(_Name) Slu_CALL_VISIT_FN_PRE_USER_LG(_Name,var)
 
-#define Slu_CALL_VISIT_FN_SEP(_Name,_i,_vec) \
+#define Slu_CALL_VISIT_FN_SEP(_Name,_i,_vec) do {\
 		if(&_i != &_vec.back()) \
-			vi.sep##_Name(_vec,_i)
+			vi.sep##_Name(_vec,_i); } while (false)
 #define Slu_CALL_VISIT_FN_SEP_LG(_Name,_i,_itm) \
 		if constexpr (isLocal) \
 			{Slu_CALL_VISIT_FN_SEP(_Name##Local,_i,_itm);} \
@@ -507,17 +507,26 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(Table);
 	}
 	//TODO: var-args
-	template<AnyVisitor Vi>
-	inline void visitParams(Vi& vi, parse::ParamList<Vi>& itm)
+	template<bool isLocal, AnyVisitor Vi>
+	inline void visitParams(Vi& vi, parse::ParamList<isLocal>& itm)
 	{
-		Slu_CALL_VISIT_FN_PRE(Params);
-		for (auto& i : itm)
+		if constexpr (isLocal)
+			Slu_CALL_VISIT_FN_PRE(Params);
+		else
+			Slu_CALL_VISIT_FN_PRE(ConstParams);
+		for (parse::Parameter<isLocal>& i : itm)
 		{
-			visitNameOrLocal<true>(vi, i.name);
+			visitNameOrLocal<isLocal>(vi, i.name);
 			visitTypeExpr(vi, i.type);
-			Slu_CALL_VISIT_FN_SEP(Params, i, itm);
+			if constexpr (isLocal)
+				Slu_CALL_VISIT_FN_SEP(Params, i, itm);
+			else
+				Slu_CALL_VISIT_FN_SEP(ConstParams, i, itm);
 		}
-		Slu_CALL_VISIT_FN_POST(Params);
+		if constexpr (isLocal)
+			Slu_CALL_VISIT_FN_POST(Params);
+		else
+			Slu_CALL_VISIT_FN_POST(ConstParams);
 	}
 	template<AnyVisitor Vi>
 	inline void visitWhereClauses(Vi& vi, parse::WhereClauses& itm)

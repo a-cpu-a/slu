@@ -15,9 +15,9 @@ namespace slu::parse
 {
 	//Doesnt check (, starts after it too.
 	template<bool isLocal, AnyInput In>
-	inline ParamList<In> readParamList(In& in)
+	inline ParamList<isLocal> readParamList(In& in)
 	{
-		ParamList<In> res;
+		ParamList<isLocal> res;
 		skipSpace(in);
 
 		if(in.peek()==')')
