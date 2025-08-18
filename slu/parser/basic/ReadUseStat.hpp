@@ -21,8 +21,17 @@ namespace slu::parse
 			StatementType::Use res{};
 			res.exported = exported;
 
+			bool root = false;
+			skipSpace(in);
+			if(in.peek()==':')
+			{
+				requireToken<false>(in, ":>");//Modpath root
+				requireToken(in, "::");
+				root = true;
+			}
+
 			ModPath mp = readModPath(in);//Moved @ IMPORT
-			res.base = in.genData.resolveName(mp);
+			res.base = root? in.genData.resolveRootName(mp) :in.genData.resolveName(mp);
 
 			if (in.peek() == ':')
 			{
