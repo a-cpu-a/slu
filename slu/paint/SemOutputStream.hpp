@@ -186,8 +186,10 @@ namespace slu::paint
 	template<class Converter>
 	constexpr uint32_t basicTokBlend(const Tok tok, const Tok overlayTok)
 	{
-		const uint32_t to = Converter::tok2Col(overlayTok);
 		const uint32_t from = Converter::tok2Col(tok);
+		if(overlayTok == Tok::NONE)
+			return from; //no overlay, just return the color
+		const uint32_t to = Converter::tok2Col(overlayTok);
 
 		const uint8_t t = 100;
 		const uint8_t s = 0xFF - t;

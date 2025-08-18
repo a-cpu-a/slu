@@ -30,7 +30,7 @@ namespace slu::paint
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
 
-		se.template add<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
+		se.template add<Tok::STRING_OUT>(tint);
 		const char fChar = se.in.get();
 		if (fChar == '[')
 		{
@@ -38,19 +38,19 @@ namespace slu::paint
 			while (se.in.peek() == '=')
 			{
 				level++;
-				se.template add<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
+				se.template add<Tok::STRING_OUT>(tint);
 				se.in.skip();
 			}
-			se.template add<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
+			se.template add<Tok::STRING_OUT>(tint);
 			se.in.skip();
 
 			se.template move<Tok::STRING>(end);
-			se.template replPrev<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint,level+2);
+			se.template replPrev<Tok::STRING_OUT>(tint,level+2);
 		}
 		else
 		{
 			se.template move<Tok::STRING>(end);
-			se.template replPrev<Tok::STRING_OUT>(tint == Tok::NONE ? Tok::STRING_OUT : tint);
+			se.template replPrev<Tok::STRING_OUT>(tint);
 		}
 	}
 	template<bool SKIP_SPACE = true>
@@ -64,7 +64,7 @@ namespace slu::paint
 		bool hex = ch == 'x' || ch == 'X';
 		if (hex || ch == 'O' || ch == 'o' || ch == 'd' || ch == 'D')
 		{
-			se.template add<Tok::NUMBER_KIND>(tint == Tok::NONE ? Tok::NUMBER_KIND : tint,2);
+			se.template add<Tok::NUMBER_KIND>(tint,2);
 			se.in.skip(2);
 		}
 		bool wasUscore = false;
@@ -81,12 +81,12 @@ namespace slu::paint
 			if (!hex && (chr == 'e' || chr == 'E')
 				|| hex && (chr == 'p' || chr == 'P'))
 			{
-				se.template add<Tok::NUMBER_KIND>(tint == Tok::NONE ? Tok::NUMBER_KIND : tint, 1);
+				se.template add<Tok::NUMBER_KIND>(tint, 1);
 				se.in.skip();
 				const char maybeSign = se.in.peek();
 				if (maybeSign == '+' || maybeSign == '-')
 				{
-					se.template add<Tok::NUMBER_KIND>(tint == Tok::NONE ? Tok::NUMBER_KIND : tint, 1);
+					se.template add<Tok::NUMBER_KIND>(tint, 1);
 					se.in.skip();
 				}
 				continue;
@@ -104,7 +104,7 @@ namespace slu::paint
 			if (chr!='.' && chr!='_' && !(hex && parse::isHexDigitChar(chr)) && !parse::isDigitChar(chr))
 				break;
 			
-			se.template add<Tok::NUMBER>(tint == Tok::NONE ? Tok::NUMBER : tint);
+			se.template add<Tok::NUMBER>(tint);
 			se.in.skip();
 		}
 		if (parseType)
@@ -113,7 +113,7 @@ namespace slu::paint
 			{
 				if (parse::isValidNameChar(se.in.peek()))
 				{
-					se.template add<Tok::NUMBER_TYPE>(tint == Tok::NONE ? Tok::NUMBER_TYPE : tint);
+					se.template add<Tok::NUMBER_TYPE>(tint);
 					se.in.skip();
 				}
 				else
@@ -335,10 +335,8 @@ namespace slu::paint
 		skipSpace(se);
 		if(parse::checkToken(se.in,":>"))
 		{
-			paintKw<Tok::MP_ROOT,
-				overlayTok == Tok::NONE ? Tok::MP_ROOT : overlayTok>(se, ":>");
-			paintKw<Tok::MP,
-				overlayTok == Tok::NONE ? Tok::MP : overlayTok>(se, "::");
+			paintKw<Tok::MP_ROOT, overlayTok>(se, ":>");
+			paintKw<Tok::MP, overlayTok>(se, "::");
 			return;
 		}
 		const lang::ViewModPath mp = se.in.genData.asVmp(itm);
@@ -346,28 +344,20 @@ namespace slu::paint
 		{
 			if(i=="self")
 			{
-				paintKw<Tok::VAR_STAT,
-					overlayTok == Tok::NONE ? Tok::VAR_STAT : overlayTok
-				>(se, "self");
+				paintKw<Tok::VAR_STAT, overlayTok>(se, "self");
 			}
 			else if(i=="Self" || i=="crate")
 			{
-				paintSv<Tok::CON_STAT,
-					overlayTok == Tok::NONE ? Tok::CON_STAT : overlayTok
-				>(se, i);
+				paintSv<Tok::CON_STAT, overlayTok>(se, i);
 			}
 			else
 			{
-				paintSv<tok,
-					overlayTok == Tok::NONE ? tok : overlayTok
-				>(se, i);
+				paintSv<tok, overlayTok>(se, i);
 			}
 
 			if (&i != &mp.back())
 			{
-				paintKw<Tok::MP,
-					overlayTok == Tok::NONE ? Tok::MP : overlayTok
-				>(se, "::");
+				paintKw<Tok::MP, overlayTok>(se, "::");
 			}
 		}
 	}
