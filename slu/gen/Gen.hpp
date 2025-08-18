@@ -679,10 +679,17 @@ namespace slu::parse
 		else
 			v = (out.db.asSv(obj));
 		if (v.starts_with('$'))
-			out.add("--[=[ ");
-		out.add(v);
-		if (v.starts_with('$'))
+		{
+			out.add("--[=[ $0x");
+			uint64_t synId = (uint64_t(v[1]) << 56) | (uint64_t(v[2]) << 48)
+				| (uint64_t(v[3]) << 40) | (uint64_t(v[4]) << 32)
+				| (uint64_t(v[5]) << 24) | (uint64_t(v[6]) << 16)
+				| (uint64_t(v[7]) << 8) | v[8];
+			writeU64Hex(out, synId);
 			out.add(" ]=]");
+			return;
+		}
+		out.add(v);
 	}
 	template<bool isLocal,AnyOutput Out>
 	inline void genPat(Out& out, const Pat<Out, isLocal>& obj)
