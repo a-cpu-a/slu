@@ -1,4 +1,5 @@
 
+defer impl Pd {const Y = 5}
 ex trait Xd : Xt(1) {const Y = 100}
 trait Xt(T=type) where T: Hello {const Y = T}
 trait Xtw(T=type) : Xt(0) where T: Hello {const Y = T}
@@ -8,7 +9,6 @@ ex impl Q() {const Y = 5}
 impl X for Y {const Y = 5}
 impl() (X) for Z {const Y = 5}
 
-defer impl Pd {const Y = 5}
 defer impl Qd() {const Y = 5}
 ex defer impl Xd for Yd {const Y = 5}
 ex defer impl() (Xd) for Zd {const Y = 5}
@@ -19,7 +19,7 @@ ex impl(T=type) Xt for Yt {const Y = T}
 impl(T=type) (Xt) for Zt {const Y = T}
 
 
-impl P where Self:H {const Y = 6}
-impl Xt for Yt where Self:H {const Y = 4}
-impl(T=type) Xt where T:H {const Y = T}
+unsafe impl P where Self:H {const Y = 6}
+ex unsafe impl Xt for Yt where Self:H {const Y = 4}
+unsafe defer impl(T=type) Xt where T:H {const Y = T}
 impl Ws7 where Self:Xt(7) {const Y = 5}

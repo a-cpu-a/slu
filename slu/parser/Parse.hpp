@@ -777,8 +777,13 @@ namespace slu::parse
 			}
 			if (checkReadTextToken(in, "defer"))
 			{
-				if (readIchStat<isLoop>(in, place, false, OptSafety::DEFAULT, true, allowVarArg))
-					return;
+				skipSpace(in);
+				if(in.peek() == 'i')
+				{
+					if (readIchStat<isLoop>(in, place, false, OptSafety::DEFAULT, true, allowVarArg))
+						return;
+				}
+				throwExpectedImplAfterDefer(in);
 			}
 			break;
 		case 'g'://goto?
