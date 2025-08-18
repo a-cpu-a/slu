@@ -184,9 +184,13 @@ namespace slu::parse
 	inline void writeU64Hex(AnyOutput auto& out, const uint64_t v) {
 		for (size_t i = 0; i < 16; i++)
 		{
-			const uint8_t c = (uint64_t(v) >> (60 - 4 * i)) & 0xF;
+			const uint64_t val = (uint64_t(v) >> (60 - 4 * i));
+			if (val == 0)continue;
+			const uint8_t c = val & 0xF;
 			out.add(numToHex(c));
 		}
+		if(v==0)
+			out.add('0');
 	}
 
 	template<AnyOutput Out>
