@@ -598,7 +598,6 @@ namespace slu::paint
 
 		paintKw<Tok::GEN_OP>(se, "(");
 		paintParamList(se, params, hasVarArgParam);
-
 		paintKw<Tok::GEN_OP>(se, ")");
 
 		if (retType.has_value())
@@ -892,7 +891,14 @@ namespace slu::paint
 			paintExportData<Tok::IMPL>(se, var.exported);
 			paintKw<Tok::IMPL>(se, "trait");
 			paintName<Tok::NAME_TRAIT>(se, var.name);
-			paintParamList(se, var.params, false);
+
+			skipSpace(se);
+			if (se.in.peek() == '(')
+			{
+				paintKw<Tok::GEN_OP>(se, "(");
+				paintParamList(se, var.params, false);
+				paintKw<Tok::GEN_OP>(se, ")");
+			}
 			if (var.whereSelf.has_value())
 			{
 				paintKw<Tok::GEN_OP>(se, ":");
@@ -906,12 +912,17 @@ namespace slu::paint
 		},
 		varcase(const parse::StatementType::Impl&) {
 			paintExportData<Tok::IMPL>(se, var.exported);
+			paintSafety(se, var.isUnsafe ? parse::OptSafety::UNSAFE : parse::OptSafety::DEFAULT);
 			if (var.deferChecking) paintKw<Tok::IMPL>(se, "defer");
 			paintKw<Tok::IMPL>(se, "impl");
 
 			skipSpace(se);
 			if (se.in.peek() == '(')
+			{
+				paintKw<Tok::GEN_OP>(se, "(");
 				paintParamList(se, var.params, false);
+				paintKw<Tok::GEN_OP>(se, ")");
+			}
 
 			if (var.forTrait.has_value())
 			{
