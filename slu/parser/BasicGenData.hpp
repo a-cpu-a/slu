@@ -656,6 +656,7 @@ namespace slu::parse
 					{
 						if(mpDb.data->mps[i.mp.id].id2Name[i.id.val]==name)
 							return LocalId{ id };
+						id++;
 					}
 				}
 				const std::optional<size_t> v = resolveLocalOpt(name);

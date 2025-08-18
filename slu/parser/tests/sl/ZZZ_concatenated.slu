@@ -1,3 +1,7 @@
+fn l(_=0,val=0){
+	j(val);
+}
+
 const 1+{k} v = 0
 
 fn _(){
