@@ -405,7 +405,7 @@ namespace slu::parse
 
 			for (const std::string& s : mp.path)
 			{
-				if(s.front()!='$')
+				if(!s.starts_with('$'))
 					res.push_back(s);
 			}
 			res.push_back(mp.id2Name[v.id.val]);
