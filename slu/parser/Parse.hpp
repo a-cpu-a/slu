@@ -369,7 +369,7 @@ namespace slu::parse
 					if (checkReadTextToken(in, "defer"))
 					{
 						skipSpace(in);
-						if (in.get() == 'i')
+						if (in.peek() == 'i')
 						{
 							if (readIchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, true, false))
 								return true;
@@ -847,7 +847,7 @@ namespace slu::parse
 					if (checkReadTextToken(in, "defer"))
 					{
 						skipSpace(in);
-						if (in.get() == 'i')
+						if (in.peek() == 'i')
 						{
 							if (readIchStat<isLoop>(in, place, true, OptSafety::DEFAULT, true, allowVarArg))
 								return;
