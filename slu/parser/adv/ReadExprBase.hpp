@@ -311,6 +311,7 @@ namespace slu::parse
 								name
 							);
 							endsWithArgs = true;
+							break;
 						}
 					}
 					else
@@ -324,6 +325,7 @@ namespace slu::parse
 								name
 							);
 							endsWithArgs = true;
+							break;
 						}
 					}
 					
