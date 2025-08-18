@@ -109,12 +109,12 @@
 
 namespace slu::parse
 {
-	template<AnyInput In>
+	template<bool isLocal,AnyInput In>
 	inline Parameter<In> readFuncParam(In& in)
 	{
 		Parameter<In> p;
 		skipSpace(in);
-		p.name = in.genData.template resolveNewName<true>(readName(in));
+		p.name = in.genData.template resolveNewName<isLocal>(readName(in));
 		requireToken(in, "=");
 		p.type = readExpr(in, false);
 		return p;
@@ -143,7 +143,7 @@ namespace slu::parse
 		}
 		else if (ch != ')')
 		{//must have non-empty namelist
-			ret.params.emplace_back(readFuncParam(in));
+			ret.params.emplace_back(readFuncParam<true>(in));
 
 			while (checkReadToken(in, ","))
 			{
@@ -153,7 +153,7 @@ namespace slu::parse
 					//ret.hasVarArgParam = true;
 					//break;//cant have anything after the ... arg
 				}
-				ret.params.emplace_back(readFuncParam(in));
+				ret.params.emplace_back(readFuncParam<true>(in));
 			}
 		}
 
@@ -267,7 +267,7 @@ namespace slu::parse
 			if (in.peek() == '(')
 			{
 				in.skip();
-				res.params = readParamList(in);
+				res.params = readParamList<false>(in);
 				skipSpace(in);
 			}
 			if (in.peek() == ':')
@@ -317,7 +317,7 @@ namespace slu::parse
 				if (in.peek() == '(')
 				{
 					in.skip();
-					res.params = readParamList(in);
+					res.params = readParamList<false>(in);
 				}
 				TraitExpr traitOrType = readTraitExpr(in);
 				if (checkReadTextToken(in, "for"))

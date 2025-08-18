@@ -14,7 +14,7 @@
 namespace slu::parse
 {
 	//Doesnt check (, starts after it too.
-	template<AnyInput In>
+	template<bool isLocal, AnyInput In>
 	inline ParamList<In> readParamList(In& in)
 	{
 		ParamList<In> res;
@@ -26,10 +26,10 @@ namespace slu::parse
 			return res;
 		}
 
-		res.emplace_back(readFuncParam(in));
+		res.emplace_back(readFuncParam<isLocal>(in));
 
 		while (checkReadToken(in, ","))
-			res.emplace_back(readFuncParam(in));
+			res.emplace_back(readFuncParam<isLocal>(in));
 
 		requireToken(in, ")");
 
@@ -49,7 +49,7 @@ namespace slu::parse
 		{
 			in.skip();
 
-			res.params = readParamList(in);
+			res.params = readParamList<true>(in);
 			skipSpace(in);
 		}
 		requireToken(in, "{");
