@@ -19,22 +19,6 @@
 
 void ____test()
 {
-
-	slu::parse::VecInput in;
-	const auto f = slu::parse::parseFile(in);
-
-	slu::parse::Output out;
-	out.db = std::move(in.genData.mpDb);
-	slu::parse::genFile(out, {});
-
-	slu::paint::SemOutput semOut(in);
-
-	slu::paint::paintFile(semOut, f);
-	slu::paint::toHtml(semOut, true);
-
-
-
-
 	slu::parse::VecInput in2{ slu::parse::sluCommon };
 	slu::parse::BasicMpDbData mpDb;
 	in2.genData.mpDb = { &mpDb };
