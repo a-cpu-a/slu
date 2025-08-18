@@ -480,11 +480,6 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genArgs(Out& out, const Args<Out>& itm)
 	{
-		//if (!arg.funcName.empty())
-		//{
-		//	out.add(':')
-		//		.add(out.db.asSv(arg.funcName));
-		//}
 		ezmatch(itm)(
 		varcase(const ArgsType::ExprList<Out>&) {
 			out.add('(');
@@ -515,31 +510,6 @@ namespace slu::parse
 		genArgs(out, itm.args);
 	}
 
-	/*template<AnyOutput Out>
-	inline void genSubVar(Out& out, const SubVar<Out>& obj)
-	{
-		for (const ArgFuncCall<Out>& arg : obj.funcCalls)
-		{
-			genArgFuncCall(out, arg);
-		}
-		ezmatch(obj.idx)(
-		varcase(const SubVarType::Expr<Out>&) {
-			out.add('[');
-			genExpr(out, var);
-			out.add(']');
-		},
-		varcase(const SubVarType::NAME<Out>&) {
-			const std::string_view txt = out.db.asSv(var.idx);
-			if (txt.empty())return;
-			out.add('.')
-				.add(txt);
-		},
-		varcase(const SubVarType::Deref) {
-			out.add(".*");
-		}
-		);
-	}*/
-
 	template<AnyOutput Out>
 	inline void genModPath(Out& out, const lang::ViewModPath& obj)
 	{
@@ -552,30 +522,6 @@ namespace slu::parse
 			out.add(obj[i]);
 		}
 	}
-	//template<AnyOutput Out>
-	//inline void genVar(Out& out, const Var<Out>& obj)
-	//{
-	//	ezmatch(obj.base)(
-	//	varcase(const BaseVarType::Root) {
-	//		out.add(":>");
-	//	},
-	//	varcase(const BaseVarType::Local) {
-	//		//TODO
-	//	},
-	//	varcase(const BaseVarType::NAME<Out>&) {
-	//		out.add(out.db.asSv(var.v));
-	//	},
-	//	varcase(const BaseVarType::Expr<Out>&) {
-	//		out.add('(');
-	//		genExpr(out, var);
-	//		out.add(')');
-	//	}
-	//	);
-	//	for (const SubVar<Out>& sub :  obj.sub)
-	//	{
-	//		genSubVar(out, sub);
-	//	}
-	//}
 	template<AnyOutput Out>
 	inline void genParamList(Out& out, const ParamList<Out>& itm,const bool hasVarArgParam)
 	{
