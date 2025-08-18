@@ -53,12 +53,11 @@ namespace slu::parse
 		}
 	}
 	//Will NOT skip space!!!
-	template<size_t TOK_SIZE>
-	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false)
+	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const std::string_view tok, const bool nameLike = false, const bool readIfGood = false)
 	{
 		size_t off = 0;
 
-		for (size_t i = 0; i < TOK_SIZE - 1; i++)//skip null
+		for (size_t i = 0; i < tok.size(); i++)//skip null
 		{
 			if (in.isOob(off))
 				return false;
@@ -87,7 +86,16 @@ namespace slu::parse
 	}
 	//Will NOT skip space!!!
 	template<size_t TOK_SIZE>
+	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false) {
+		return checkToken(in, std::string_view(tok, TOK_SIZE - 1), nameLike, readIfGood);
+	}
+	//Will NOT skip space!!!
+	template<size_t TOK_SIZE>
 	[[nodiscard]] inline bool checkTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
+		return checkToken(in, tok, true);
+	}
+	//Will NOT skip space!!!
+	[[nodiscard]] inline bool checkTextToken(AnyInput auto& in, const std::string_view tok) {
 		return checkToken(in, tok, true);
 	}
 

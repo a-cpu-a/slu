@@ -337,28 +337,34 @@ namespace slu::paint
 		{
 			paintKw<Tok::MP_ROOT, overlayTok>(se, ":>");
 			paintKw<Tok::MP, overlayTok>(se, "::");
-			return;
 		}
 		const lang::ViewModPath mp = se.in.genData.asVmp(itm);
-		for (auto& i : mp)
+		for (size_t i = 0; i < mp.size();)
 		{
-			if(i=="self")
-			{
+			if (parse::checkTextToken(se.in, "self"))
 				paintKw<Tok::VAR_STAT, overlayTok>(se, "self");
-			}
-			else if(i=="Self" || i=="crate")
-			{
-				paintSv<Tok::CON_STAT, overlayTok>(se, i);
-			}
+			else if (parse::checkTextToken(se.in, "Self"))
+				paintKw<Tok::CON_STAT, overlayTok>(se, "Self");
+			else if (parse::checkTextToken(se.in, "crate"))
+				paintKw<Tok::CON_STAT, overlayTok>(se, "crate");
 			else
 			{
-				paintSv<tok, overlayTok>(se, i);
+				if(parse::checkTextToken(se.in,mp[i]))
+					paintSv<tok, overlayTok>(se, mp[i]);
+				else
+				{
+					i++; 
+					continue;
+				}
+				i++;
 			}
+			if (i >= mp.size())
+				break;
 
-			if (&i != &mp.back())
-			{
+			if (parse::checkToken(se.in, "::"))
 				paintKw<Tok::MP, overlayTok>(se, "::");
-			}
+			else
+				break;
 		}
 	}
 	template<bool isLocal, Tok nameTok, AnySemOutput Se>
