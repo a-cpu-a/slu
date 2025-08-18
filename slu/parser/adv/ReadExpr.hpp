@@ -462,7 +462,7 @@ namespace slu::parse
 		ExprType::MultiOp<In> resData{};
 
 		resData.first = std::make_unique<Expr<In>>(std::move(basicRes));
-		resData.extra.emplace_back(firstBinOp, readExpr<IS_BASIC,FOR_PAT>(in,allowVarArg,false));
+		resData.extra.emplace_back(firstBinOp, readExpr<IS_BASIC>(in,allowVarArg,false));
 
 		while (true)
 		{
@@ -476,7 +476,7 @@ namespace slu::parse
 			if (binOp == BinOpType::NONE)
 				break;
 
-			resData.extra.emplace_back(binOp, readExpr<IS_BASIC, FOR_PAT>(in,allowVarArg,false));
+			resData.extra.emplace_back(binOp, readExpr<IS_BASIC>(in,allowVarArg,false));
 		}
 		Expr<In> ret;
 		ret.place = startPos;
