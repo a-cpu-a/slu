@@ -42,7 +42,7 @@ namespace slu::mpc
 	consteval MpcItm mkItm(lang::ModPathId mp, size_t localId, std::string_view str) {
 		return MpcItm{ .itm = {lang::LocalObjId{localId},mp},.name = str };
 	}
-	constexpr auto MP_UNKNOWN = mkMp<0>({},0);
+	constexpr auto MP_UNKNOWN = mkMp<0>({""sv}, 0);
 	constexpr auto MP_POOLED = MP_UNKNOWN;
 	constexpr auto MP_STD = mkMp<1>({"std"sv}, 1);
 	constexpr auto MP_STD_BOOL = mkMp<2>({"std"sv,"bool"sv}, 2);
