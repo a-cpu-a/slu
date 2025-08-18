@@ -113,16 +113,10 @@ namespace slu::parse
 	inline Parameter<In> readFuncParam(In& in)
 	{
 		Parameter<In> p;
-		if constexpr (In::settings() & sluSyn)
-		{
-			skipSpace(in);
-			p.name = in.genData.template resolveNewName<true>(readName(in));
-			requireToken(in, "=");
-			p.type = readExpr(in, false);
-		}
-		else
-			p.name = in.genData.resolveUnknown(readName(in));
-		
+		skipSpace(in);
+		p.name = in.genData.template resolveNewName<true>(readName(in));
+		requireToken(in, "=");
+		p.type = readExpr(in, false);
 		return p;
 	}
 
@@ -143,10 +137,9 @@ namespace slu::parse
 
 		if (ch == '.')
 		{
-			if constexpr (In::settings() & sluSyn)
-				throwUnexpectedVarArgs(in);
-			requireToken(in, "...");
-			ret.hasVarArgParam = true;
+			throwUnexpectedVarArgs(in);
+			//requireToken(in, "...");
+			//ret.hasVarArgParam = true;
 		}
 		else if (ch != ')')
 		{//must have non-empty namelist
@@ -156,21 +149,18 @@ namespace slu::parse
 			{
 				if (checkReadToken(in, "..."))
 				{
-					if constexpr (In::settings() & sluSyn)
-						throwUnexpectedVarArgs(in);
-					ret.hasVarArgParam = true;
-					break;//cant have anything after the ... arg
+					throwUnexpectedVarArgs(in);
+					//ret.hasVarArgParam = true;
+					//break;//cant have anything after the ... arg
 				}
 				ret.params.emplace_back(readFuncParam(in));
 			}
 		}
 
 		requireToken(in, ")");
-		if constexpr (In::settings() & sluSyn)
-		{
-			if (checkReadToken(in,"->"))
-				ret.retType = std::make_unique<Expr<In>>(readExpr<true>(in,false));
-		}
+		if (checkReadToken(in, "->"))
+			ret.retType = std::make_unique<Expr<In>>(readExpr<true>(in, false));
+
 		return ret;
 	}
 	//Pair{fn,hasError}
@@ -178,8 +168,7 @@ namespace slu::parse
 	inline std::pair<std::variant<Function<In>, FunctionInfo<In>>,bool> readFuncBody(In& in,std::optional<std::string> funcName)
 	{
 		Position place = in.getLoc();
-		if constexpr (In::settings() & sluSyn)
-			in.genData.pushLocalScope();
+		in.genData.pushLocalScope();
 
 		if (funcName.has_value())
 			in.genData.pushScope(in.getLoc(),std::move(*funcName));
@@ -187,51 +176,27 @@ namespace slu::parse
 			in.genData.pushAnonScope(in.getLoc());
 
 		FunctionInfo<In> fi = readFuncInfo(in);
-		if constexpr (In::settings()&sluSyn)
+		skipSpace(in);
+		if (!in || (in.peek() != '{'))//no { found?
 		{
-			skipSpace(in);
-			if (!in || (in.peek() != '{'))//no { found?
-			{
-				fi.local2Mp = in.genData.popLocalScope();
-				in.genData.popScope(in.getLoc());//TODO: maybe add it to the func info?
-				return { std::move(fi), false };//No block, just the info
-			}
+			fi.local2Mp = in.genData.popLocalScope();
+			in.genData.popScope(in.getLoc());//TODO: maybe add it to the func info?
+			return { std::move(fi), false };//No block, just the info
 		}
+
 		Function<In> func = { std::move(fi) };
 
-		if constexpr (In::settings() & sluSyn)
+		try
 		{
-			try {
-				requireToken(in, "{");
-				func.block = readBlock<false>(in, func.hasVarArgParam, false);
-				requireToken(in, "}");
-				func.local2Mp = in.genData.popLocalScope();
-			} catch(const ParseError&)
-			{
-				func.local2Mp = in.genData.popLocalScope();
-				throw;
-			}
+			requireToken(in, "{");
+			func.block = readBlock<false>(in, func.hasVarArgParam, false);
+			requireToken(in, "}");
+			func.local2Mp = in.genData.popLocalScope();
 		}
-		else
+		catch (const ParseError&)
 		{
-			try
-			{
-				func.block = readBlock<false>(in, func.hasVarArgParam, false);
-			}
-			catch (const ParseError& e)
-			{
-				in.handleError(e.m);
-
-				if (recoverErrorTextToken(in, "end"))
-					return { std::move(func),true };// Found it, recovered!
-
-				//End of stream, and no found end's, maybe the error is a missing "end"?
-				throw FailedRecoveryError(std::format(
-					"Missing " LUACC_SINGLE_STRING("end") ", maybe for " LC_function " at {} ?",
-					errorLocStr(in, place)
-				));
-			}
-			requireToken(in, "end");
+			func.local2Mp = in.genData.popLocalScope();
+			throw;
 		}
 		return { std::move(func), false };
 	}
@@ -239,32 +204,24 @@ namespace slu::parse
 	template<bool isLoop, AnyInput In>
 	inline Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
 	{
-		if constexpr(In::settings() & sluSyn)
+		skipSpace(in);
+		if (in.peek() == '{')
 		{
-			skipSpace(in);
-			if (in.peek() == '{')
-			{
-				in.skip();
-				return readBlockNoStartCheck<isLoop>(in,allowVarArg,true);
-			}
-
-			in.genData.pushAnonScope(in.getLoc());//readBlock also pushes!
-
-			if (readReturn<isLoop>(in, allowVarArg))
-				return in.genData.popScope(in.getLoc());
-			//Basic Statement + ';'
-
-			readStatement<isLoop>(in, allowVarArg);
-
-			Block<In> bl = in.genData.popScope(in.getLoc());
-
-			readOptToken(in, ";");
-
-			return bl;
+			in.skip();
+			return readBlockNoStartCheck<isLoop>(in, allowVarArg, true);
 		}
-		requireToken(in, "do");
-		Block<In> bl = readBlock<isLoop>(in,allowVarArg, true);
-		requireToken(in, "end");
+
+		in.genData.pushAnonScope(in.getLoc());//readBlock also pushes!
+
+		if (readReturn<isLoop>(in, allowVarArg))
+			return in.genData.popScope(in.getLoc());
+		//Basic Statement + ';'
+
+		readStatement<isLoop>(in, allowVarArg);
+
+		Block<In> bl = in.genData.popScope(in.getLoc());
+
+		readOptToken(in, ";");
 
 		return bl;
 	}
@@ -347,43 +304,40 @@ namespace slu::parse
 			}
 			break;
 		case 'm':
-			if constexpr (In::settings()&sluSyn)
+			if (checkReadTextToken(in, "impl"))
 			{
-				if (checkReadTextToken(in, "impl"))
+				if (safety == OptSafety::SAFE)
+					throwUnexpectedSafety(in, place);
+
+				StatementType::Impl res;
+				res.exported = exported;
+				res.deferChecking = hasDefer;
+				res.isUnsafe = safety == OptSafety::UNSAFE;
+				skipSpace(in);
+				if (in.get() == '(')
 				{
-					if (safety == OptSafety::SAFE)
-						throwUnexpectedSafety(in, place);
-
-					StatementType::Impl res;
-					res.exported = exported;
-					res.deferChecking = hasDefer;
-					res.isUnsafe = safety == OptSafety::UNSAFE;
-					skipSpace(in);
-					if (in.get() == '(')
-					{
-						in.skip();
-						res.params = readParamList(in);
-					}
-					TraitExpr traitOrType = readTraitExpr(in);
-					if (checkReadTextToken(in, "for"))
-					{
-						res.forTrait = std::move(traitOrType);
-						res.type = readExpr<true>(in, false);
-					}
-					else
-					{
-						if (traitOrType.traitCombo.size() != 1)
-							throwExpectedTypeExpr(in);
-						res.type = std::move(traitOrType.traitCombo[0]);
-					}
-					readWhereClauses(in, res.clauses);
-
-					requireToken(in, "{");
-					res.code = readGlobStatList<true>(in);
-					requireToken(in, "}");
-					in.genData.addStat(place, std::move(res));
-					return true;
+					in.skip();
+					res.params = readParamList(in);
 				}
+				TraitExpr traitOrType = readTraitExpr(in);
+				if (checkReadTextToken(in, "for"))
+				{
+					res.forTrait = std::move(traitOrType);
+					res.type = readExpr<true>(in, false);
+				}
+				else
+				{
+					if (traitOrType.traitCombo.size() != 1)
+						throwExpectedTypeExpr(in);
+					res.type = std::move(traitOrType.traitCombo[0]);
+				}
+				readWhereClauses(in, res.clauses);
+
+				requireToken(in, "{");
+				res.code = readGlobStatList<true>(in);
+				requireToken(in, "}");
+				in.genData.addStat(place, std::move(res));
+				return true;
 			}
 			break;
 		}
@@ -498,15 +452,12 @@ namespace slu::parse
 		switch (ch2)
 		{
 		case 'n':
-			if constexpr (In::settings() & sluSyn)
+			if (checkReadTextToken(in, "fn"))
 			{
-				if (checkReadTextToken(in, "fn"))
-				{
-					readFunctionStatement<isLoop, StatementType::Fn<In>,StatementType::FnDecl<In>>(
-						in, place, allowVarArg, exported, safety
-					);
-					return true;
-				}
+				readFunctionStatement<isLoop, StatementType::Fn<In>, StatementType::FnDecl<In>>(
+					in, place, allowVarArg, exported, safety
+				);
+				return true;
 			}
 			break;
 		case 'u':
@@ -519,11 +470,8 @@ namespace slu::parse
 			}
 			break;
 		case 'o':
-			if constexpr (In::settings() & sluSyn)
-			{
-				if (exported || safety!=OptSafety::DEFAULT)
-					break;
-			}
+			if (exported || safety != OptSafety::DEFAULT)
+				break;
 			if (checkReadTextToken(in, "for"))
 			{
 				/*
@@ -531,38 +479,25 @@ namespace slu::parse
 				 for namelist in explist do block end |
 				*/
 
-				Sel<In::settings()& sluSyn, NameList<In>, PatV<true,true>> names;
-				if constexpr (In::settings() & sluSyn)
-				{
-					skipSpace(in);
-					names = readPat<true>(in, true);
-				}
-				else
-					names = readNameList(in);
+				PatV<true, true> names;
+				skipSpace(in);
+				names = readPat<true>(in, true);
 
 				bool isNumeric = false;
 
-				if constexpr (In::settings() & sluSyn)
-					isNumeric = checkReadToken(in, "=");
-				else//1 name, then MAYBE equal
-					isNumeric = names.size() == 1 && checkReadToken(in, "=");
+				isNumeric = checkReadToken(in, "=");
 				if (isNumeric)
 				{
 					StatementType::ForNum<In> res{};
-					if constexpr (In::settings() & sluSyn)
-						res.varName = std::move(names);
-					else
-						res.varName = names[0];
+					res.varName = std::move(names);
 
 					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
 					res.start = readExpr(in, allowVarArg);
 					requireToken(in, ",");
-					res.end = readExpr<In::settings() & sluSyn>(in, allowVarArg);
+					res.end = readExpr<true>(in, allowVarArg);
 
 					if (checkReadToken(in, ","))
-						res.step = readExpr<In::settings() & sluSyn>(in, allowVarArg);
-
-
+						res.step = readExpr<true>(in, allowVarArg);
 
 					res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
 
@@ -576,10 +511,7 @@ namespace slu::parse
 				res.varNames = std::move(names);
 
 				requireToken(in, "in");
-				if constexpr (In::settings() & sluSyn)
-					res.exprs = readExpr<true>(in, allowVarArg);
-				else
-					res.exprs = readExprList(in, allowVarArg);
+				res.exprs = readExpr<true>(in, allowVarArg);
 
 
 				res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
@@ -603,33 +535,15 @@ namespace slu::parse
 		switch (ch2)
 		{
 		case 'e':
-			if constexpr (In::settings() & sluSyn)
+			if (checkReadTextToken(in, "let"))
 			{
-				if (checkReadTextToken(in, "let"))
-				{
-					readVarStatement<true, isLoop, StatementType::Let<In>>(in, place, allowVarArg, exported);
-					return true;
-				}
+				readVarStatement<true, isLoop, StatementType::Let<In>>(in, place, allowVarArg, exported);
+				return true;
 			}
 			break;
 		case 'o':
 			if (checkReadTextToken(in, "local"))
 			{
-				/*
-					local function Name funcbody |
-					local attnamelist [‘=’ explist]
-				*/
-				if constexpr (!(In::settings() & sluSyn))
-				{
-					if (checkReadTextToken(in, "function"))
-					{ // local function Name funcbody
-						//NOTE: no real function decl, as `local function` is not in slu.
-						readFunctionStatement<isLoop, StatementType::LocalFunctionDef<In>,StatementType::FunctionDecl<In>>(
-							in, place, allowVarArg, false,OptSafety::DEFAULT
-						);
-						return true;
-					}
-				}
 				// Local Variable
 				readVarStatement<true, isLoop, StatementType::Local<In>>(in, place, allowVarArg, exported);
 				return true;
@@ -719,10 +633,7 @@ namespace slu::parse
 	{
 		StatT res{};
 		std::string name;//moved @ readFuncBody
-		if constexpr (In::settings() & sluSyn)
-			name = readName(in);
-		else
-			name = readFuncName(in);
+		name = readName(in);
 		res.name = in.genData.addLocalObj(name);
 		res.place = in.getLoc();
 
@@ -738,12 +649,8 @@ namespace slu::parse
 					DeclStatT declRes{ std::move(var) };
 					declRes.name = res.name;
 					declRes.place = res.place;
-
-					if constexpr (In::settings() & sluSyn)
-					{
-						declRes.exported = exported;
-						declRes.safety = safety;
-					}
+					declRes.exported = exported;
+					declRes.safety = safety;
 
 					in.genData.addStat(place, std::move(declRes));
 					return true;
@@ -768,11 +675,8 @@ namespace slu::parse
 			));
 		}
 
-		if constexpr (In::settings() & sluSyn)
-		{
-			res.exported = exported;
-			res.func.safety = safety;
-		}
+		res.exported = exported;
+		res.func.safety = safety;
 
 		return in.genData.addStat(place, std::move(res));
 	}
@@ -784,42 +688,21 @@ namespace slu::parse
 
 		res.cond = mayBoxFrom<forExpr>(readBasicExpr(in, allowVarArg));
 
-		if constexpr (In::settings() & sluSyn)
+		res.bl = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
+
+		while (checkReadTextToken(in, "else"))
 		{
-			res.bl = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
-
-			while (checkReadTextToken(in, "else"))
+			if (checkReadTextToken(in, "if"))
 			{
-				if (checkReadTextToken(in, "if"))
-				{
-					Expr<In> elExpr = readBasicExpr(in, allowVarArg);
-					Soe<In> elBlock = readSoe<isLoop, false>(in, allowVarArg);
-
-					res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
-					continue;
-				}
-
-				res.elseBlock = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
-				break;
-			}
-		}
-		else
-		{
-			requireToken(in, "then");
-			res.bl = wontBox(readBlock<isLoop>(in, allowVarArg,true));
-			while (checkReadTextToken(in, "elseif"))
-			{
-				Expr<In> elExpr = readExpr(in, allowVarArg);
-				requireToken(in, "then");
-				Block<In> elBlock = readBlock<isLoop>(in, allowVarArg, true);
+				Expr<In> elExpr = readBasicExpr(in, allowVarArg);
+				Soe<In> elBlock = readSoe<isLoop, false>(in, allowVarArg);
 
 				res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
+				continue;
 			}
 
-			if (checkReadTextToken(in, "else"))
-				res.elseBlock = wontBox(readBlock<isLoop>(in, allowVarArg, true));
-
-			requireToken(in, "end");
+			res.elseBlock = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
+			break;
 		}
 		return res;
 	}
@@ -827,16 +710,11 @@ namespace slu::parse
 	inline void readVarStatement(In& in, const Position place, const bool allowVarArg, const ExportData exported)
 	{
 		StatT res;
-		if constexpr (In::settings() & sluSyn)
-		{
-			skipSpace(in);
-			res.names = readPat<isLocal>(in, true);
-			res.exported = exported;
-			if constexpr (!isLocal)
-				in.genData.pushLocalScope();
-		}
-		else
-			res.names = readAttNameList(in);
+		skipSpace(in);
+		res.names = readPat<isLocal>(in, true);
+		res.exported = exported;
+		if constexpr (!isLocal)
+			in.genData.pushLocalScope();
 
 		if (checkReadToken(in, "="))
 		{// [‘=’ explist]
@@ -867,11 +745,8 @@ namespace slu::parse
 			in.skip();
 			return in.genData.addStat(place, StatementType::Semicol{});
 		case ':'://may be label
-			if constexpr (In::settings() & sluSyn)
-			{
-				if(in.peekAt(1) == '>')
-					break;//Not a label
-			}
+			if (in.peekAt(1) == '>')
+				break;//Not a label
 			return readLabel(in, place);
 
 		case 'f'://for?, function?, fn?
@@ -884,59 +759,26 @@ namespace slu::parse
 
 			break;
 		case 'c'://const comptime?
-			if constexpr (In::settings() & sluSyn)
-			{
-				if(readCchStat<isLoop>(in, place, false, allowVarArg))
-					return;
-			}
+			if (readCchStat<isLoop>(in, place, false, allowVarArg))
+				return;
 			break;
 		case '{':// ‘{’ block ‘}’
-			if constexpr (In::settings() & sluSyn)
-			{
-				in.skip();//Skip ‘{’
-				return in.genData.addStat(place,
-					StatementType::Block<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
-				);
-			}
+			in.skip();//Skip ‘{’
+			return in.genData.addStat(place,
+				StatementType::Block<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg, true))
+			);
 			break;
 		case 'd'://do?
-			if constexpr (In::settings() & sluSyn)
+			if (checkReadTextToken(in, "drop"))
 			{
-				if (checkReadTextToken(in, "drop"))
-				{
-					return in.genData.addStat(place,
-						StatementType::Drop<In>(readExpr(in,allowVarArg))
-					);
-				}
-				if (checkReadTextToken(in, "defer"))
-				{
-					if (readIchStat<isLoop>(in, place, false,OptSafety::DEFAULT, true, allowVarArg))
-						return;
-				}
+				return in.genData.addStat(place,
+					StatementType::Drop<In>(readExpr(in, allowVarArg))
+				);
 			}
-			else
+			if (checkReadTextToken(in, "defer"))
 			{
-				if (checkReadTextToken(in, "do")) // ‘do’ block ‘end’
-				{
-					return in.genData.addStat(place,
-						StatementType::Block<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg,true))
-					);
-				}
-			}
-			break;
-		case 'b'://break?
-			if constexpr (!(In::settings() & sluSyn))
-			{
-				if (checkReadTextToken(in, "break"))
-				{
-					if constexpr (!isLoop)
-					{
-						in.handleError(std::format(
-							"Break used outside of loop{}"
-							, errorLocStr(in)));
-					}
-					return in.genData.addStat(place, StatementType::Break{});
-				}
+				if (readIchStat<isLoop>(in, place, false, OptSafety::DEFAULT, true, allowVarArg))
+					return;
 			}
 			break;
 		case 'g'://goto?
@@ -963,10 +805,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "repeat"))
 			{ // repeat block until exp
 				Block<In> bl;
-				if constexpr (In::settings() & sluSyn)
-					bl = readDoOrStatOrRet<true>(in, allowVarArg);
-				else
-					bl = readBlock<true>(in, allowVarArg, true);
+				bl = readDoOrStatOrRet<true>(in, allowVarArg);
 				requireToken(in, "until");
 				Expr<In> expr = readExpr(in,allowVarArg);
 
@@ -982,93 +821,79 @@ namespace slu::parse
 
 			//Slu
 		case 'e'://ex ...?
-			if constexpr (In::settings() & sluSyn)
+			if (checkReadTextToken(in, "ex"))
 			{
-				if (checkReadTextToken(in, "ex"))
+				skipSpace(in);
+				switch (in.peek())
 				{
-					skipSpace(in);
-					switch (in.peek())
+				case 'f'://fn? function?
+					if (readFchStat<isLoop>(in, place, true, OptSafety::DEFAULT, allowVarArg))
+						return;
+					break;
+				case 't'://trait?
+					if (readTchStat<isLoop>(in, place, true))
+						return;
+					break;
+				case 'i'://impl?
+					if (readIchStat<isLoop>(in, place, true, OptSafety::DEFAULT, false, allowVarArg))
+						return;
+					break;
+				case 'd'://defer impl?
+					if (checkReadTextToken(in, "defer"))
 					{
-					case 'f'://fn? function?
-						if (readFchStat<isLoop>(in, place, true, OptSafety::DEFAULT, allowVarArg))
-							return;
-						break;
-					case 't'://trait?
-						if (readTchStat<isLoop>(in, place, true))
-							return;
-						break;
-					case 'i'://impl?
-						if (readIchStat<isLoop>(in, place,  true,OptSafety::DEFAULT,false,allowVarArg))
-							return;
-						break;
-					case 'd'://defer impl?
-						if (checkReadTextToken(in, "defer"))
+						skipSpace(in);
+						if (in.get() == 'i')
 						{
-							skipSpace(in);
-							if(in.get()=='i')
-							{
-								if (readIchStat<isLoop>(in, place,  true,OptSafety::DEFAULT, true, allowVarArg))
-									return;
-							}
-							throwExpectedImplAfterDefer(in);
+							if (readIchStat<isLoop>(in, place, true, OptSafety::DEFAULT, true, allowVarArg))
+								return;
 						}
-						break;
-					case 'l'://let? local?
-						if (readLchStat<isLoop>(in, place, true, allowVarArg))
-							return;
-						break;
-					case 'c'://const? comptime?
-						if (readCchStat<isLoop>(in, place, true, allowVarArg))
-							return;
-						break;
-					case 'u'://use? unsafe?
-						if (readUchStat<isLoop>(in, place, true))
-							return;
-						break;
-					case 's'://safe? struct?
-						if (readSchStat<isLoop>(in, place, true))
-							return;
-						break;
-					case 'm'://mod?
-						if (readModStat(in, place, true))
-							return;
-						break;
-					default:
-						break;
+						throwExpectedImplAfterDefer(in);
 					}
-					throwExpectedExportable(in);
+					break;
+				case 'l'://let? local?
+					if (readLchStat<isLoop>(in, place, true, allowVarArg))
+						return;
+					break;
+				case 'c'://const? comptime?
+					if (readCchStat<isLoop>(in, place, true, allowVarArg))
+						return;
+					break;
+				case 'u'://use? unsafe?
+					if (readUchStat<isLoop>(in, place, true))
+						return;
+					break;
+				case 's'://safe? struct?
+					if (readSchStat<isLoop>(in, place, true))
+						return;
+					break;
+				case 'm'://mod?
+					if (readModStat(in, place, true))
+						return;
+					break;
+				default:
+					break;
 				}
-				else if (readEchStat<isLoop>(in, place, OptSafety::DEFAULT, allowVarArg))
-					return;
+				throwExpectedExportable(in);
 			}
+			else if (readEchStat<isLoop>(in, place, OptSafety::DEFAULT, allowVarArg))
+				return;
+			
 			break;
 		case 's'://safe? struct?
-			if constexpr (In::settings() & sluSyn)
-			{
-				if(readSchStat<isLoop>(in, place,false))
-					return;
-			}
+			if (readSchStat<isLoop>(in, place, false))
+				return;
 			break;
 		case 'u'://use? unsafe?
-			if constexpr (In::settings() & sluSyn)
-			{
-				if (readUchStat<isLoop>(in, place, false))
-					return;
-			}
+			if (readUchStat<isLoop>(in, place, false))
+				return;
 			break;
 		case 'm'://mod?
-			if constexpr (In::settings() & sluSyn)
-			{
-				if (readModStat(in, place, false))
-					return;
-			}
+			if (readModStat(in, place, false))
+				return;
 			break;
 		case 't'://trait?
-			if constexpr (In::settings() & sluSyn)
-			{
-				if (readTchStat<isLoop>(in, place, false))
-					return;
-			}
+			if (readTchStat<isLoop>(in, place, false))
+				return;
 			break;
 		default://none of the above...
 			break;
@@ -1086,19 +911,12 @@ namespace slu::parse
 	template<AnyInput In>
 	inline ParsedFile<In> parseFile(In& in)
 	{
-		if constexpr (!(In::settings() & sluSyn))
-			in.genData.pushLocalScope();
 		try
 		{
 			ParsedFile<In> res;
-			if constexpr (In::settings() & sluSyn)
-			{
-				auto [sl, mp] = readStatList<false>(in, false, true);
-				res.code = std::move(sl);
-				res.mp = mp;
-			}
-			else
-				res.code = readBlock<false>(in, true, true);
+			auto [sl, mp] = readStatList<false>(in, false, true);
+			res.code = std::move(sl);
+			res.mp = mp;
 
 			_ASSERT(in.genData.scopes.empty());
 
@@ -1116,8 +934,6 @@ namespace slu::parse
 					"{}"
 					, in.peek(), errorLocStr(in)));
 			}
-			if constexpr (!(In::settings() & sluSyn))
-				res.local2Mp = in.genData.popLocalScope();
 			return  std::move(res);
 		}
 		catch (const BasicParseError& e)
