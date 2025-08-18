@@ -513,12 +513,16 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genModPath(Out& out, const lang::ViewModPath& obj)
 	{
-		if(!obj[0].empty())
+		bool unresolved = obj[0].empty();
+		if(!unresolved)
+		{
 			out.add(":>::");
-		out.add(obj[0]);
+			out.add(obj[0]);
+		}
 		for (size_t i = 1; i < obj.size(); i++)
 		{
-			out.add("::");
+			if(!unresolved || i!=1)
+				out.add("::");
 			out.add(obj[i]);
 		}
 	}
