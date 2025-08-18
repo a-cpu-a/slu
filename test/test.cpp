@@ -150,12 +150,14 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		if (!invert || e.what() == "Test failed")
 		{
 			logErr("In file {}:", path.string());
+			if(e.what() != "Test failed")
+				logErr("Error msg: {}", e.what());
 			logErr("Test failed : {::}", in.handledErrors);
 			return 1;
 		}
 		return 2;
 	}
-	catch (const slu::parse::ParseFailError&)
+	catch (const slu::parse::ParseFailError& e)
 		//catch (const std::bad_alloc& err)
 	{
 		if (invert)return 2;
