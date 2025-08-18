@@ -264,13 +264,13 @@ namespace slu::parse
 			res.name = in.genData.addLocalObj(name);
 			in.genData.pushScope(in.getLoc(), std::move(name));
 			skipSpace(in);
-			if (in.get() == '(')
+			if (in.peek() == '(')
 			{
 				in.skip();
 				res.params = readParamList(in);
 				skipSpace(in);
 			}
-			if (in.get() == ':')
+			if (in.peek() == ':')
 			{
 				in.skip();
 				res.whereSelf = readTraitExpr(in);
@@ -314,7 +314,7 @@ namespace slu::parse
 				res.deferChecking = hasDefer;
 				res.isUnsafe = safety == OptSafety::UNSAFE;
 				skipSpace(in);
-				if (in.get() == '(')
+				if (in.peek() == '(')
 				{
 					in.skip();
 					res.params = readParamList(in);
