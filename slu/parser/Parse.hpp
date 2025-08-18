@@ -711,10 +711,10 @@ namespace slu::parse
 	{
 		StatT res;
 		skipSpace(in);
-		res.names = readPat<isLocal>(in, true);
-		res.exported = exported;
 		if constexpr (!isLocal)
 			in.genData.pushLocalScope();
+		res.names = readPat<isLocal>(in, true);
+		res.exported = exported;
 
 		if (checkReadToken(in, "="))
 		{// [‘=’ explist]
