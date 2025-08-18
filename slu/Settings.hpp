@@ -81,13 +81,11 @@ namespace slu::parse
 	inline constexpr auto _NAME = _C_ ## _NAME()
 
 	//Parser only:
-	_Slu_MAKE_SETTING_CVAR(spacedFuncCallStrForm);
 	_Slu_MAKE_SETTING_CVAR(noIntOverflow);
 	_Slu_MAKE_SETTING_CVAR(sluSyn);
 	_Slu_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
 
-	constexpr auto sluCommon = spacedFuncCallStrForm
-		| noIntOverflow 
+	constexpr auto sluCommon = noIntOverflow 
 		| sluSyn
 		| numberSpacing;
 

@@ -179,7 +179,7 @@ namespace slu::parse
 				std::move(extraItems)...
 		};
 	}
-
+	//Doesnt skip space.
 	template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
 	inline T parsePrefixExprVar(In& in, const bool allowVarArg, char firstChar)
 	{
@@ -193,6 +193,7 @@ namespace slu::parse
 		*/
 
 		std::vector<ExprData<In>> varData;
+		Position varPlace = in.getLoc();
 		bool endsWithArgs = false;
 		bool varDataNeedsSubThing = false;
 		
@@ -211,7 +212,7 @@ namespace slu::parse
 			firstRun = false;
 
 			if (!in)
-				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, endsWithArgs, varDataNeedsSubThing,0);
+				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, endsWithArgs, varDataNeedsSubThing, 0);
 
 			opType = in.peek();
 			switch (opType)
@@ -229,8 +230,8 @@ namespace slu::parse
 					in.skip();//skip comma
 
 					varData.emplace_back();
-
 					skipSpace(in);
+					varPlace = in.getLoc();
 					skipped = parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
 					break;
 				}
@@ -252,51 +253,16 @@ namespace slu::parse
 					res.exprs = readExprList(in,allowVarArg);
 					return res;
 				}
-			case ':'://Self funccall
-			{
-				if constexpr (In::settings() & sluSyn)
-					goto exit;
-				if (in.peekAt(1) == ':') //is label            /* || in.peekAt(1) == '>' */   / '::' / ':>'
-					goto exit;
-
-				Position wrapPlace = in.getLoc();
-
-				in.skip();//skip colon
-				PoolString method = in.genData.poolStr(readName(in));
-
-				const bool skippedAfterName = skipSpace(in);
-
-				if constexpr (in.settings() & spacedFuncCallStrForm)
-				{
-					if (!skippedAfterName)
-						throwSpaceMissingBeforeString(in);
-				}
-				varData.back() = wrapExpr<ExprType::SelfCall<In>, true, In>(
-					wrapPlace,
-					std::move(varData.back()),
-					readArgs(in, allowVarArg),
-					method
-				);
-				endsWithArgs = true;
-				break;
-			}
 			case '{':
 				if constexpr (BASIC_ARGS)
 					goto exit;
 				[[fallthrough]];
 			case '"':
 			case '\'':
-				if constexpr (in.settings() & spacedFuncCallStrForm)
-				{
-					if (opType!='{' && !skipped)
-						throwSpaceMissingBeforeString(in);
-				}
-				[[fallthrough]];
 			case '('://Funccall
 			{
-				Position wrapPlace = in.getLoc();
 				varData.back() = wrapExpr<ExprType::Call<In>, true, In>(
-					wrapPlace,
+					varPlace,
 					std::move(varData.back()),
 					readArgs(in, allowVarArg)
 				);
@@ -310,7 +276,6 @@ namespace slu::parse
 					if (in.peekAt(1) == '.') //is concat or range (..)
 						goto exit;
 				}
-				Position wrapPlace = in.getLoc();
 				if constexpr (In::settings() & sluSyn)
 				{
 					if (in.peekAt(1) == '*')
@@ -318,7 +283,7 @@ namespace slu::parse
 						in.skip(2);
 
 						varData.back() = wrapExpr<ExprType::Deref, true, In>(
-							wrapPlace,
+							varPlace,
 							std::move(varData.back())
 						);
 						varDataNeedsSubThing = false;
@@ -330,10 +295,42 @@ namespace slu::parse
 
 				PoolString name = in.genData.poolStr(readSluTuplableName(in));
 
-				//TODO: allow self-calls here.
+				skipSpace(in);
+				if (in)
+				{//Self call handling.
+					const char ch2 = in.peek();
+					if (ch2 == '[')
+					{
+						const char ch3 = in.peekAt(1);
+						if (ch3 == '[' || ch3 == '=')
+						{
+							varData.back() = wrapExpr<ExprType::SelfCall<In>, true, In>(
+								varPlace,
+								std::move(varData.back()),
+								readArgs(in, allowVarArg),
+								name
+							);
+							endsWithArgs = true;
+						}
+					}
+					else
+					{
+						if (ch2 == '\'' || ch2 == '"' || ch2 == '{' || ch2 == '(')
+						{
+							varData.back() = wrapExpr<ExprType::SelfCall<In>, true, In>(
+								varPlace,
+								std::move(varData.back()),
+								readArgs(in, allowVarArg),
+								name
+							);
+							endsWithArgs = true;
+						}
+					}
+					
+				}
 
 				varData.back() = wrapExpr<ExprType::Field<In>, true, In>(
-					wrapPlace,
+					varPlace,
 					std::move(varData.back()),
 					name
 				);
@@ -344,18 +341,12 @@ namespace slu::parse
 			}
 			case '[':// Arr-index
 			{
-				Position wrapPlace = in.getLoc();
 				const char secondCh = in.peekAt(1);
 
 				if (secondCh == '[' || secondCh == '=')//is multi-line string?
 				{
-					if constexpr (in.settings() & spacedFuncCallStrForm)
-					{
-						if (!skipped)
-							throwSpaceMissingBeforeString(in);
-					}
 					varData.back() = wrapExpr<ExprType::Call<In>, true,In>(
-						wrapPlace,
+						varPlace,
 						std::move(varData.back()),
 						readArgs(in, allowVarArg)
 					);
@@ -368,7 +359,7 @@ namespace slu::parse
 				requireToken(in, "]");
 
 				varData.back() = wrapExpr<ExprType::Index<In>, true, In>(
-					wrapPlace,
+					varPlace,
 					std::move(varData.back()),
 					mayBoxFrom<true>(std::move(idx))
 				);
