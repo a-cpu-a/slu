@@ -55,7 +55,6 @@ inline void saveBin(const std::string& path, const std::vector<uint8_t>& data)
 	out.write(reinterpret_cast<const char*>(data.data()), data.size());
 }
 
-template<bool slu>
 inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool invert)
 {
 	const bool wrapItInFn = path.stem().string().ends_with(".$block");
@@ -77,14 +76,14 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		srcCode.erase(srcCode.begin(), srcCode.begin() + i - 1);
 	}
 
-	using Settings = slu::parse::Sel<slu, slu::parse::Setting<void>, decltype(slu::parse::sluCommon)>;
+	using Settings = decltype(slu::parse::sluCommon);
 
 	slu::parse::BasicMpDbData dbData;
 	slu::parse::VecInput<Settings> in;
 	in.fName = pathStr;
 	in.text = srcCode;
-	if constexpr (slu)
-		in.genData.mpDb.data = &dbData;
+	in.genData.mpDb.data = &dbData;
+	in.genData.totalMp = {"testmp"};
 
 	try
 	{
@@ -114,8 +113,8 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		saveBin((path.parent_path() / "_TEST_OUT" / (path.filename().string() + ".d")).string(), out.text);
 
 		slu::parse::VecInput<Settings> in2;
-		if constexpr (slu)
-			in2.genData.mpDb.data = &dbData;
+		in2.genData.mpDb.data = &dbData;
+		in2.genData.totalMp = { "testmp" };
 		in2.fName = pathStr;
 		in2.text = out.text;
 		in2.restart();
@@ -174,9 +173,9 @@ int main()
 	//const auto x =slu::spec::extract_and_merge_ebnf_blocks("C:/libraries/lua/lua-5.4.4/src/slua/spec/");
 
 
-	const bool TEST_SPEED = false;
+	constexpr bool TEST_SPEED = false;
 
-	if (TEST_SPEED)
+	if constexpr (TEST_SPEED)
 	{
 		const std::vector<uint8_t> srcCode = getBin("C:/libraries/lua/lua-5.4.4/src/slu/parser/tests/libs/luaunit.lua");
 
@@ -203,13 +202,6 @@ int main()
 		return 0;
 	}
 
-	std::u8string src = u8"return ... + 4456.546456 & not c89'igma\\z  333'  \n\n\r\r";
-
-	slu::parse::VecInput in;
-	in.fName = "Test.lua";
-	in.text = std::bit_cast<std::span<const uint8_t>>(std::span(src));
-
-	slu::parse::ParsedFile<decltype(in)> f = slu::parse::parseFile(in);
 
 	const std::string_view p2 = "C:/libraries/lua/lua-5.4.4/src/slu/ext/lua/testes";
 	const std::string_view p = "C:/libraries/lua/lua-5.4.4/src/slu/parser/tests";
@@ -222,16 +214,11 @@ int main()
 		if (dir_entry.is_directory())
 			continue;
 		const std::filesystem::path ext = dir_entry.path().extension();
-		const bool invert = ext == ".notlua" || ext == ".notslu";
-		if (ext != ".lua" && ext != ".slu" && !invert)
+		const bool invert = ext == ".notslu";
+		if (ext != ".slu" && !invert)
 			continue;
-		const bool slu = ext.string().ends_with("slu");
 
-		uint8_t res;
-		if (slu)
-			res = testSluOnFile<true>(dir_entry.path(), invert);
-		else
-			res = testSluOnFile<false>(dir_entry.path(), invert);
+		uint8_t res = testSluOnFile(dir_entry.path(), invert);
 
 		total += (invert || res == 1) ? 1 : 2;
 		failed += res == 2 ? 0 : 1;
@@ -241,23 +228,18 @@ int main()
 		if (dir_entry.is_directory())
 			continue;
 		const std::filesystem::path ext = dir_entry.path().extension();
-		const bool invert = ext == ".notlua" || ext == ".notslu";
-		if (ext != ".lua" && ext != ".slu" && !invert)
+		const bool invert = ext == ".notslu";
+		if (ext != ".slu" && !invert)
 			continue;
-		const bool slu = ext.string().ends_with("slu");
 
-		uint8_t res;
-		if (slu)
-			res = testSluOnFile<true>(dir_entry.path(), invert);
-		else
-			res = testSluOnFile<false>(dir_entry.path(), invert);
+		uint8_t res = testSluOnFile(dir_entry.path(), invert);
 
 		total += (invert || res == 1) ? 1 : 2;
 		failed += res == 2 ? 0 : 1;
 	}
 
 	log(
-		"Test completed, total("
+		"Tests completed, total("
 		LUACC_NUM_COL("{}")
 		") failed("
 		LUACC_NUM_COL("{}")
