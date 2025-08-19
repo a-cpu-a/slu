@@ -1,5 +1,0 @@
-function x()
-	function y()
-		function z()
-	end
-end

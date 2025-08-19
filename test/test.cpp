@@ -205,27 +205,12 @@ int main()
 	}
 
 
-	const std::string_view p2 = "C:/libraries/lua/lua-5.4.4/src/slu/ext/lua/testes";
 	const std::string_view p = "C:/libraries/lua/lua-5.4.4/src/slu/parser/tests";
 
 	size_t total = 0;
 	size_t failed = 0;
 
 	for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ p })
-	{
-		if (dir_entry.is_directory())
-			continue;
-		const std::filesystem::path ext = dir_entry.path().extension();
-		const bool invert = ext == ".notslu";
-		if (ext != ".slu" && !invert)
-			continue;
-
-		uint8_t res = testSluOnFile(dir_entry.path(), invert);
-
-		total += (invert || res == 1) ? 1 : 2;
-		failed += res == 2 ? 0 : 1;
-	}
-	for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ p2 })
 	{
 		if (dir_entry.is_directory())
 			continue;
