@@ -516,7 +516,7 @@ namespace slu::comp::mico
 
 			if (funcItmOrNull == nullptr)
 			{
-				funcItmOrNull = &parse::getItm<const parse::ItmType::Fn>(
+				funcItmOrNull = &parse::getItm<parse::ItmType::Fn>(
 					conv.sharedDb, name
 				);
 			}
@@ -783,7 +783,7 @@ namespace slu::comp::mico
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());
 
-			const parse::ItmType::Fn& funcItm = parse::getItm<const parse::ItmType::Fn>(
+			const parse::ItmType::Fn& funcItm = parse::getItm<parse::ItmType::Fn>(
 				conv.sharedDb, var.name
 			);
 			const bool cAbi = funcItm.abi == "C"sv;

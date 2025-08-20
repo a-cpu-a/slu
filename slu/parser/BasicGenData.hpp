@@ -311,18 +311,17 @@ namespace slu::parse
 		}
 	};
 	template<class T>
-	inline T& getItm(auto& mpDb,const MpItmIdV<true> name)
+	inline const T& getItm(const BasicMpDbData& mpDb,const MpItmIdV<true> name)
 	{
-		Itm& itm = mpDb.getItm(name); //Ensure that the item exists
-		return ezmatch(itm)(
-		[&]<class T2>(const auto&)->T& {
-				throw std::runtime_error("Expected item type " + std::string(T::NAME) + ", but got " + std::string(T2::NAME));
+		return *ezmatch(mpDb.getItm(name))(
+		[&]<class T2>(const T2& var)->const T* {
+			throw std::runtime_error("Expected item type " + std::string(T::NAME) + ", but got " + std::string(T2::NAME));
 		},
-		varcase(const ItmType::Alias&)->T& {
-				return getItm<T>(mpDb, var.usedThing);
+		varcase(const ItmType::Alias&)->const T* {
+			return &getItm<T>(mpDb, var.usedThing);
 		},
-		varcase(T&)->T& {
-				return var;
+		varcase(const T&)->const T* {
+			return &var;
 		}
 		);
 	}
