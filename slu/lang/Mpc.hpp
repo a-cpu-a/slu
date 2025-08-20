@@ -96,6 +96,8 @@ namespace slu::mpc
 	_X(STR,"str") _SEP \
 	_X(CHAR,"char") _SEP \
 \
+	_X(UNIT,"Unit") _SEP \
+\
 	_X(U8,"u8") _SEP \
 	_X(I8,"i8") _SEP \
 	_X(U16,"u16") _SEP \

@@ -229,7 +229,7 @@ namespace slu::comp::mico
 				return mlir::MemRefType::get({ 1 }, i32Type, {}, 0);
 			return i32Type;
 		}
-		if (name == conv.sharedDb.getItm({ "std","void" }))
+		if (name == mpc::STD_UNIT)
 			return mlir::NoneType::get(&conv.context);
 
 		throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
