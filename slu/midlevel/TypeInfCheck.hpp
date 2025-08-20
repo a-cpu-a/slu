@@ -618,7 +618,9 @@ namespace slu::mlvl
 				throw std::runtime_error("TODO: type inference for func call on non-global var.");
 
 			parse::MpItmId<Cfg> funcName = std::get<parse::ExprType::Global<Cfg>>(itm.v->data);
-			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(mpDb.getItm(funcName));
+			const parse::ItmType::Fn& funcItm = parse::getItm<const parse::ItmType::Fn>(
+				mpDb, funcName
+			);
 
 			parse::ArgsType::ExprList<Cfg>& args = std::get<parse::ArgsType::ExprList<Cfg>>(itm.args);
 			//Restrict arg exprs to match types in funcItm.

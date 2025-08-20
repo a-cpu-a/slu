@@ -86,11 +86,16 @@ namespace slu::parse
 	};
 	namespace ItmType
 	{
+		using namespace std::string_view_literals;
+
 		//Applied to anon/synthetic/private? stuff
-		using Unknown = std::monostate;
+		struct Unknown {
+			constexpr static std::string_view NAME = "unknown"sv;
+		};
 
 		struct Fn
 		{
+			constexpr static std::string_view NAME = "function"sv;
 			std::string abi;
 			ResolvedType ret;
 			std::vector<ResolvedType> args;
@@ -99,27 +104,34 @@ namespace slu::parse
 		};
 		struct NamedTypeImpls
 		{
+			constexpr static std::string_view NAME = "unknown-type"sv;
 			std::vector<parse::MpItmIdV<true>> impls;
 		};
 		struct TypeFn : Fn, NamedTypeImpls
-		{};
+		{
+			constexpr static std::string_view NAME = "type-function"sv;
+		};
 		struct ArglessTypeVar : NamedTypeImpls
 		{
+			constexpr static std::string_view NAME = "type"sv;
 			ResolvedType ty;
 		};
 		//like basic global vars in c++!
 		struct GlobVar
 		{
+			constexpr static std::string_view NAME = "static-var"sv;
 			ResolvedType ty;
 		};
 		//No precomputation for now, instead make them act as macros
 		struct ConstVar
 		{
+			constexpr static std::string_view NAME = "const-var"sv;
 			ResolvedType ty;
 			parse::ExprV<true> value;
 		};
 		struct Trait
 		{
+			constexpr static std::string_view NAME = "trait"sv;
 			std::vector<parse::MpItmIdV<true>> consts;
 			std::vector<TraitFn> fns;
 			parse::ExportData exported;
@@ -127,14 +139,18 @@ namespace slu::parse
 		};
 		struct Impl
 		{
+			constexpr static std::string_view NAME = "impl"sv;
 			parse::ExportData exported;
 			//TODO: impl data (params, impl-consts, impl-fn's, where clauses)
 		};
 		struct Alias//TODO something for ::* use's
 		{
+			constexpr static std::string_view NAME = "alias"sv;
 			lang::MpItmIdV<true> usedThing;
 		};
-		struct Module{};
+		struct Module{
+			constexpr static std::string_view NAME = "module"sv;
+		};
 	}
 	using Itm = std::variant<
 		ItmType::Unknown,
@@ -294,6 +310,23 @@ namespace slu::parse
 			return mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
 	};
+	template<class T>
+	inline T& getItm(auto& mpDb,const MpItmIdV<true> name)
+	{
+		Itm& itm = mpDb.getItm(name); //Ensure that the item exists
+		return ezmatch(itm)(
+		[&]<class T2>(const auto&)->T& {
+				throw std::runtime_error("Expected item type " + std::string(T::NAME) + ", but got " + std::string(T2::NAME));
+		},
+		varcase(const ItmType::Alias&)->T& {
+				return getItm<T>(mpDb, var.usedThing);
+		},
+		varcase(T&)->T& {
+				return var;
+		}
+		);
+	}
+
 	struct LuaMpDb
 	{
 		std::unordered_map<std::string, LocalObjId> name2Id;

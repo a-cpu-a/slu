@@ -516,8 +516,9 @@ namespace slu::comp::mico
 
 			if (funcItmOrNull == nullptr)
 			{
-				const parse::Itm& rawItm = conv.sharedDb.getItm(name);
-				funcItmOrNull = &std::get<parse::ItmType::Fn>(rawItm);
+				funcItmOrNull = &parse::getItm<const parse::ItmType::Fn>(
+					conv.sharedDb, name
+				);
 			}
 			const parse::ItmType::Fn& funcItm = *funcItmOrNull;
 
@@ -782,8 +783,9 @@ namespace slu::comp::mico
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());
 
-			const parse::Itm& rawItm = conv.sharedDb.getItm(var.name);
-			const parse::ItmType::Fn& funcItm = std::get<parse::ItmType::Fn>(rawItm);
+			const parse::ItmType::Fn& funcItm = parse::getItm<const parse::ItmType::Fn>(
+				conv.sharedDb, var.name
+			);
 			const bool cAbi = funcItm.abi == "C"sv;
 
 			GlobalElement* funcInfo = getOrDeclFn(conv, var.name, itm.place, &funcItm);
