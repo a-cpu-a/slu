@@ -451,9 +451,7 @@ namespace slu::mlvl
 		{
 			VisitTypeBuilder& editTy = exprTypeStack.back();
 			handleVisTyBuilder(editTy,
-				[&](const parse::ResolvedType& var) {
-					throw std::runtime_error("Error, found resolved type, expected a local var.");
-				},
+				[&](const parse::ResolvedType& var) {},
 				[&](LocalVarInfo& var) {
 					if constexpr (std::same_as<T, TmpVar>)
 						var.use.tmpLocals.push_back(itm); 
