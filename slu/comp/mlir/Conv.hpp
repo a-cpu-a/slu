@@ -531,7 +531,7 @@ namespace slu::comp::mico
 			{
 				GlobElemTy::Fn* v = ezmatch(*funcInfo)(
 				varcase(GlobElemTy::Alias)->GlobElemTy::Fn* {
-					realName = name;
+					realName = var.realName;
 					return nullptr;
 				},
 				varcase(GlobElemTy::Fn&) {
