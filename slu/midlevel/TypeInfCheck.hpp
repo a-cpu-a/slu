@@ -738,7 +738,7 @@ namespace slu::mlvl
 			localsStack.push_back(&itm);
 
 			localsDataStack.emplace_back();
-			localsDataStack.back().reserve(itm.names.size());
+			localsDataStack.back().resize(itm.names.size());
 
 			itm.types.resize(itm.names.size());
 			for (size_t i = 0; i < itm.names.size(); i++)
