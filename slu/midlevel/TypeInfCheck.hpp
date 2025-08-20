@@ -885,11 +885,11 @@ namespace slu::mlvl
 								if (!tyNameOpt)
 									throw std::runtime_error("TODO: error logging, found non bool expr");
 								parse::MpItmIdV<true> tyName = *tyNameOpt;
-								if (tyName == mpDb.getItm({ "std","bool" }))
+								if (tyName == mpc::STD_BOOL)
 									canTrue = canFalse = true;
-								else if (tyName == mpDb.getItm({ "std","bool", "true" }))
+								else if (tyName == mpc::STD_BOOL_TRUE)
 									canTrue = true;
-								else if (tyName == mpDb.getItm({ "std","bool", "false" }))
+								else if (tyName == mpc::STD_BOOL_FALSE)
 									canFalse = true;
 								else
 									throw std::runtime_error("TODO: error logging, found non bool expr");
