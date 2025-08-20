@@ -514,15 +514,17 @@ namespace slu::comp::mico
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());
 
+			parse::MpItmIdV<true> realName = name;
 			if (funcItmOrNull == nullptr)
 			{
+				realName = parse::resolveAlias(conv.sharedDb, name);
 				funcItmOrNull = &parse::getItm<parse::ItmType::Fn>(
-					conv.sharedDb, name
+					conv.sharedDb, realName
 				);
 			}
 			const parse::ItmType::Fn& funcItm = *funcItmOrNull;
 
-			auto mangledName = mangleFuncName(conv, funcItm.abi, name);
+			auto mangledName = mangleFuncName(conv, funcItm.abi, realName);
 
 			llvm::SmallVector<mlir::Type> argTypes;
 			for (const parse::ResolvedType& i : funcItm.args)
@@ -546,6 +548,8 @@ namespace slu::comp::mico
 				nullptr, nullptr, false
 			);
 			funcInfo = conv.addElement(name, funcOp, funcItm.abi);
+			if(name!= realName)
+				funcInfo = conv.addElement(realName, funcOp, funcItm.abi);
 		}
 		return funcInfo;
 	}

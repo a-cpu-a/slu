@@ -4,6 +4,9 @@
 
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
+
+use std::_println
+
 ex fn main() -> {}
 {
 	let mut &:>::std::str s = --[=[Implicit conv from "H...0" to &str]=] "Hello world! \u{1F600} x.x\x00";
@@ -12,9 +15,9 @@ ex fn main() -> {}
 	--:>::std::_println(self::MSG)
 	--self::_println("Hello world!")
 	
-	:>::std::_println(s);
+	_println(s);
 	s = --[=[Implicit conv]=] "I have stolen the show! 😈\x00";
-	:>::std::_println(s);
+	_println(s);
 	
-	:>::std::_println(--[=[Implicit conversion]=] "called helloWorld()\x00");
+	_println(--[=[Implicit conversion]=] "called helloWorld()\x00");
 }

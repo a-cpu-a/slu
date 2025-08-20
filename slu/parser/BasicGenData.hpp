@@ -310,18 +310,29 @@ namespace slu::parse
 			return mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
 	};
-	template<class T>
+	template<class T, bool followAlias=false>
 	inline const T& getItm(const BasicMpDbData& mpDb,const MpItmIdV<true> name)
 	{
 		return *ezmatch(mpDb.getItm(name))(
 		[&]<class T2>(const T2& var)->const T* {
 			throw std::runtime_error("Expected item type " + std::string(T::NAME) + ", but got " + std::string(T2::NAME));
 		},
-		varcase(const ItmType::Alias&)->const T* {
-			return &getItm<T>(mpDb, var.usedThing);
+		varcase(const ItmType::Alias&)->const T* requires(followAlias) {
+			return &getItm<T, followAlias>(mpDb, var.usedThing);
 		},
 		varcase(const T&)->const T* {
 			return &var;
+		}
+		);
+	}
+	inline MpItmIdV<true> resolveAlias(const BasicMpDbData& mpDb,const MpItmIdV<true> name)
+	{
+		return ezmatch(mpDb.getItm(name))(
+		varcase(const auto&) {
+			return name;
+		},
+		varcase(const ItmType::Alias&) {
+			return resolveAlias(mpDb, var.usedThing);
 		}
 		);
 	}
