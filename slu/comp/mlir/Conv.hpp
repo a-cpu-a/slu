@@ -87,14 +87,22 @@ namespace slu::comp::mico
 		std::vector<LocalStackVal> values;
 	};
 
-	struct GlobalElement
+	namespace GlobElemTy
 	{
-		//TODO: mlir::Value, type, function, etc
-		mlir::func::FuncOp func;
-		std::string_view abi;
-	};
+		struct Fn
+		{
+			mlir::func::FuncOp func;
+			std::string_view abi;
+		};
+		struct Alias {
+			lang::MpItmIdV<true> realName;
+		};
+		//TODO: mlir::Value, type, etc
+	}
+
+	using GlobElem = std::variant<GlobElemTy::Fn, GlobElemTy::Alias>;
 	//localObj2CachedData
-	using MpElementInfo = std::unordered_map<size_t, GlobalElement>;
+	using MpElementInfo = std::unordered_map<size_t, GlobElem>;
 
 	struct ConvData : CommonConvData
 	{
@@ -112,7 +120,7 @@ namespace slu::comp::mico
 			localsStack.emplace_back(itmCount);
 			localsStack.back().values.resize(itmCount);
 		}
-		GlobalElement* getElement(const lang::MpItmIdV<true> name)
+		GlobElem* getElement(const lang::MpItmIdV<true> name)
 		{
 			if(name.mp.id>= mp2Elements.size())
 				return nullptr;//not found
@@ -122,13 +130,21 @@ namespace slu::comp::mico
 				return nullptr;//not found
 			return &it->second;
 		}
-		GlobalElement* addElement(const lang::MpItmIdV<true> name, mlir::func::FuncOp func, std::string_view abi)
+		GlobElemTy::Fn* addElem(const lang::MpItmIdV<true> name, mlir::func::FuncOp func, std::string_view abi)
 		{
 			if (name.mp.id >= mp2Elements.size())
 				mp2Elements.resize(name.mp.id + 1);
 			auto& mp = mp2Elements[name.mp.id];
-			mp[name.id.val] = {.func= func,.abi=abi};
-			return &mp[name.id.val];
+			mp[name.id.val] = GlobElemTy::Fn{.func= func,.abi=abi};
+			return &std::get<GlobElemTy::Fn>(mp[name.id.val]);
+		}
+		GlobElemTy::Alias* addElem(const lang::MpItmIdV<true> name, const lang::MpItmIdV<true> realName)
+		{
+			if (name.mp.id >= mp2Elements.size())
+				mp2Elements.resize(name.mp.id + 1);
+			auto& mp = mp2Elements[name.mp.id];
+			mp[name.id.val] = GlobElemTy::Alias{.realName = realName };
+			return &std::get<GlobElemTy::Alias>(mp[name.id.val]);
 		}
 	};
 	//Forward declare!
@@ -503,55 +519,77 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatementType::SafeLabel>;
 
 
-	inline GlobalElement* getOrDeclFn(ConvData& conv,parse::MpItmIdV<true> name,parse::Position place, const parse::ItmType::Fn* funcItmOrNull)
+	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,parse::MpItmIdV<true> name,parse::Position place, const parse::ItmType::Fn* funcItmOrNull)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
 
-		GlobalElement* funcInfo = conv.getElement(name);
-		if (funcInfo == nullptr)
+		parse::MpItmIdV<true> realName = name;
 		{
-			mlir::OpBuilder::InsertionGuard guard(builder);
-			builder.setInsertionPointToStart(conv.module.getBody());
-
-			parse::MpItmIdV<true> realName = name;
-			if (funcItmOrNull == nullptr)
+			GlobElem* funcInfo = conv.getElement(realName);
+			if (funcInfo != nullptr)
 			{
-				realName = parse::resolveAlias(conv.sharedDb, name);
-				funcItmOrNull = &parse::getItm<parse::ItmType::Fn>(
-					conv.sharedDb, realName
+				GlobElemTy::Fn* v = ezmatch(*funcInfo)(
+				varcase(GlobElemTy::Alias)->GlobElemTy::Fn* {
+					realName = name;
+					return nullptr;
+				},
+				varcase(GlobElemTy::Fn&) {
+					return &var;
+				}
 				);
-			}
-			const parse::ItmType::Fn& funcItm = *funcItmOrNull;
+				if (v != nullptr)
+					return v;
 
-			auto mangledName = mangleFuncName(conv, funcItm.abi, realName);
-
-			llvm::SmallVector<mlir::Type> argTypes;
-			for (const parse::ResolvedType& i : funcItm.args)
-			{
-				if (i.size != 0)
-					argTypes.push_back(convType(conv, i, funcItm.abi));
+				funcInfo = conv.getElement(realName);
+				return &std::get<GlobElemTy::Fn>(*funcInfo);
 			}
-			llvm::SmallVector<mlir::Type, 1> retTypes;
-			if (funcItm.ret.size != 0)
-			{
-				if (funcItm.abi == "C"sv)
-					retTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
-				else//output by ref.
-					argTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
-			}
-
-			mlir::func::FuncOp funcOp = mlir::func::FuncOp::create(builder,
-				convPos(conv, place), mangledName.sv(),
-				mlir::FunctionType::get(mc, argTypes, retTypes),
-				getExportAttr(conv, false),
-				nullptr, nullptr, false
-			);
-			funcInfo = conv.addElement(name, funcOp, funcItm.abi);
-			if(name!= realName)
-				funcInfo = conv.addElement(realName, funcOp, funcItm.abi);
 		}
-		return funcInfo;
+
+		mlir::OpBuilder::InsertionGuard guard(builder);
+		builder.setInsertionPointToStart(conv.module.getBody());
+
+		if (funcItmOrNull == nullptr)
+		{
+			realName = parse::resolveAlias(conv.sharedDb, realName);
+			if (realName != name)
+			{
+				GlobElem* funcInfo = conv.getElement(realName);
+				if (funcInfo != nullptr)
+					return &std::get<GlobElemTy::Fn>(*funcInfo);//todo: require it to be fn once other stuff is added.
+			}
+			funcItmOrNull = &parse::getItm<parse::ItmType::Fn>(
+				conv.sharedDb, realName
+			);
+		}
+		const parse::ItmType::Fn& funcItm = *funcItmOrNull;
+
+		auto mangledName = mangleFuncName(conv, funcItm.abi, realName);
+
+		llvm::SmallVector<mlir::Type> argTypes;
+		for (const parse::ResolvedType& i : funcItm.args)
+		{
+			if (i.size != 0)
+				argTypes.push_back(convType(conv, i, funcItm.abi));
+		}
+		llvm::SmallVector<mlir::Type, 1> retTypes;
+		if (funcItm.ret.size != 0)
+		{
+			if (funcItm.abi == "C"sv)
+				retTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
+			else//output by ref.
+				argTypes.push_back(convType(conv, funcItm.ret, funcItm.abi));
+		}
+
+		mlir::func::FuncOp funcOp = mlir::func::FuncOp::create(builder,
+			convPos(conv, place), mangledName.sv(),
+			mlir::FunctionType::get(mc, argTypes, retTypes),
+			getExportAttr(conv, false),
+			nullptr, nullptr, false
+		);
+		if (name != realName)
+			conv.addElem(name, realName);
+		return conv.addElem(realName, funcOp, funcItm.abi);
 	}
 	// Returns if region isnt terminated.
 	inline bool convBlock(ConvData& conv,const parse::BlockV<true>& itm)
@@ -733,7 +771,7 @@ namespace slu::comp::mico
 		varcase(const parse::StatementType::CallV<true>&) {
 
 			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
-			GlobalElement* funcInfo = getOrDeclFn(conv,name,itm.place,nullptr);
+			GlobElemTy::Fn* funcInfo = getOrDeclFn(conv,name,itm.place,nullptr);
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//It cant be the other types, as they are alreadt desugared!
@@ -792,7 +830,7 @@ namespace slu::comp::mico
 			);
 			const bool cAbi = funcItm.abi == "C"sv;
 
-			GlobalElement* funcInfo = getOrDeclFn(conv, var.name, itm.place, &funcItm);
+			GlobElemTy::Fn* funcInfo = getOrDeclFn(conv, var.name, itm.place, &funcItm);
 			if(funcItm.exported)
 				funcInfo->func.setPublic();
 
