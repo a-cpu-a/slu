@@ -135,8 +135,8 @@ namespace slu::mlvl
 		varcase(parse::ExprType::SelfCallV<true>&&)->parse::ResolvedType {
 			//TODO: resolve basic ops, jit all else.
 			auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
-			if(expArgs.size()!=1)
-				throw std::runtime_error("TODO: self call type expressions with >1 arg.");
+			if(expArgs.size()!=0)
+				throw std::runtime_error("TODO: self call type expressions with >0 arg.");
 
 			parse::ResolvedType rt= resolveTypeExpr(mpDb, std::move(*var.v));
 
