@@ -85,7 +85,7 @@ namespace slu::mlvl
 		varcase(parse::ExprType::ParensV<true>&&) {
 			return resolveTypeExpr(mpDb,std::move(*var));
 		},
-		varcase(const parse::ExprType::Inferr) {
+		varcase(const parse::ExprType::Infer) {
 			return parse::ResolvedType::getInferred();
 		},
 		varcase(parse::ExprType::String&&){

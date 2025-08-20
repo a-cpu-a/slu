@@ -292,7 +292,7 @@ namespace slu::paint
 			Slu_panic("Pat type prefix leaked outside of pattern parsing!");
 		},
 
-		varcase(const parse::ExprType::Inferr) {
+		varcase(const parse::ExprType::Infer) {
 			paintKw<Tok::GEN_OP>(se, "?");
 		},
 		varcase(const parse::ExprType::Err&) {

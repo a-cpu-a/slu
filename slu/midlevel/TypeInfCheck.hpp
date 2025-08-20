@@ -485,7 +485,7 @@ namespace slu::mlvl
 			return false;
 		}
 
-		bool preInferr(parse::ExprType::Inferr itm) {
+		bool preInferr(parse::ExprType::Infer itm) {
 			throw std::runtime_error("TODO: type-check/inferr type of '?', it might be a error or just 'type'.");
 		}
 		bool preOpenRange(parse::ExprType::OpenRange itm) {
@@ -1132,7 +1132,7 @@ namespace slu::mlvl
 		}
 	};
 
-	inline void typeInferrAndCheck(const parse::BasicMpDbData& mpDbData,
+	inline void typeInferAndCheck(const parse::BasicMpDbData& mpDbData,
 		std::span<parse::StatementV<true>> module)
 	{
 		TypeInfCheckVisitor vi{ {}, mpDbData };

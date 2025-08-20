@@ -111,7 +111,7 @@ namespace slu::parse
 				if(!in.isOob(1) && !isValidNameChar(in.peekAt(1)))
 				{
 					in.skip();
-					basicRes.data = ExprType::Inferr{};
+					basicRes.data = ExprType::Infer{};
 					break;
 				}
 			}

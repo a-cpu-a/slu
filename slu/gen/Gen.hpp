@@ -398,7 +398,7 @@ namespace slu::parse
 			out.add(" -"sv).add(parse::u128ToStr(var.lo, var.hi));
 		},
 
-		varcase(const ExprType::Inferr) {
+		varcase(const ExprType::Infer) {
 			out.add('?');
 		},
 		varcase(const ExprType::Dyn&) {

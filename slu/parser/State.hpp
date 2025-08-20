@@ -320,7 +320,7 @@ namespace slu::parse
 
 		struct PatTypePrefix {};
 
-		struct Inferr {};
+		struct Infer {};
 		struct Struct
 		{
 			TableV<true> fields;
@@ -395,7 +395,7 @@ namespace slu::parse
 
 		// types
 
-		ExprType::Inferr,
+		ExprType::Infer,
 		ExprType::Struct,
 		ExprType::Union,
 		ExprType::Dyn,

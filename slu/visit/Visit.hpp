@@ -440,8 +440,8 @@ namespace slu::visit
 		varcase(parse::ExprType::Err&) {
 			visitTypeExpr(vi, *var.err);
 		},
-		varcase(const parse::ExprType::Inferr) {
-			Slu_CALL_VISIT_FN_PRE_VAR(Inferr);
+		varcase(const parse::ExprType::Infer) {
+			Slu_CALL_VISIT_FN_PRE_VAR(Infer);
 		},
 		varcase(parse::ExprType::Dyn&) {
 			visitTraitExpr(vi, var.expr);
