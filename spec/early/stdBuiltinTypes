@@ -1,0 +1,92 @@
+#
+# Dependencies: basic, type 
+#
+
+Integer Type {
+	Kinda like `Int(-U128_MAX, U128_MAX)`, but without the utilities?
+	
+	No definition exists, as it is a compiler builtin. (under the hood its just a i129, to support i128 & u128)
+	`struct Integer;`
+}
+
+Int Type {
+	The integer/(literal) types.
+	
+	Its a zst, if MIN == MAX.
+	
+	No definition exists, as it is a compiler builtin. (under the hood its just the smallest mlir/llvm iN... type that can fit all the numbers)
+	`struct fn Int(MIN = Integer,MAX = Integer);`
+	
+	Int(0,0) == 0 as type
+	Int(0,255) == 0..255 as type
+}
+
+FloatType Enum {
+	F32
+	F64
+	--maybe more one day.
+}
+FloatLit Type {
+	The float literal types.
+	
+	No definition exists, as it is a compiler builtin. (under the hood its the correct float type)
+	`struct fn FloatLit(KIND = FloatType);`
+}
+
+Float Type {
+	The float literal types.
+	Always a zst
+	
+	No definition exists, as it is a compiler builtin.
+	`struct Float(VAL = FloatLit(KIND),KIND = FloatType) {}`
+}
+
+StringLit Type {
+	The any string literal type.
+	
+	No definition exists, as it is a compiler builtin. (under the hood its just std::String)
+	`struct StringLit;`
+}
+
+Str Type {
+	The string literal types.
+	Always a zst
+	
+	`struct Str(VAL = StringLiteral) {}`
+}
+
+Slice Type {
+	The slice type.
+	
+	No definition exists, as it is a compiler builtin. (under the hood it may have a ptr, multiple lengths and strides... or be a zst)
+	`struct fn Slice(T = type);`
+}
+
+Ref and Ptr Types {
+	The ref and ptr types.
+	
+	No definition exists, as it is a compiler builtin. (under the hood it may have a vtable, ptr, ... or even be a zst)
+	`struct fn Ref(T = type);`
+	`struct fn RefConst(T = type);`
+	`struct fn RefMut(T = type);`
+	`struct fn RefShare(T = type);`
+	`struct fn Ptr(T = type);`
+	`struct fn PtrConst(T = type);`
+	`struct fn PtrMut(T = type);`
+	`struct fn PtrShare(T = type);`
+}
+
+Struct Type {
+	The struct literal types.
+	`struct fn Struct(???);`
+}
+
+Union Type {
+	The union literal types.
+	`struct fn Union(???);`
+}
+
+Variant Type {
+	A variant/union of multiple types.
+	`struct fn Variant(???);`
+}
