@@ -540,11 +540,11 @@ namespace slu::visit
 	}
 
 	template<AnyVisitor Vi>
-	inline void visitStat(Vi& vi, parse::Statement<Vi>& itm)
+	inline void visitStat(Vi& vi, parse::Stat<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Stat);
 		ezmatch(itm.data)(
-		varcase(parse::StatementType::Assign<Vi>&) {
+		varcase(parse::StatType::Assign<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Assign);
 			for (auto& i : var.vars)
 			{
@@ -553,14 +553,14 @@ namespace slu::visit
 			visitExprList(vi, var.exprs);
 			Slu_CALL_VISIT_FN_POST_VAR(Assign);
 		},
-		varcase(parse::StatementType::Local<Vi>&) {
+		varcase(parse::StatType::Local<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(LocalVar);
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
 			visitExprList(vi, var.exprs);
 			Slu_CALL_VISIT_FN_POST_VAR(LocalVar);
 		},
-		varcase(parse::StatementType::CanonicLocal&) {
+		varcase(parse::StatType::CanonicLocal&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(CanonicLocal);
 			visitExported(vi, var.exported);
 			//visitTypeExpr(vi, var.type); //TODO: resolved type visit?
@@ -568,7 +568,7 @@ namespace slu::visit
 			visitExpr(vi, var.value);
 			Slu_CALL_VISIT_FN_POST_VAR(CanonicLocal);
 		},
-		varcase(parse::StatementType::CanonicGlobal&) {
+		varcase(parse::StatType::CanonicGlobal&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(CanonicGlobal);
 			visitExported(vi, var.exported);
 			//visitTypeExpr(vi, var.type); //TODO: resolved type visit?
@@ -578,14 +578,14 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 			Slu_CALL_VISIT_FN_POST_VAR(CanonicGlobal);
 		},
-		varcase(parse::StatementType::Let<Vi>&) {
+		varcase(parse::StatType::Let<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(LetVar);
 			visitExported(vi, var.exported);
 			visitPat<true>(vi, var.names);
 			visitExprList(vi, var.exprs);
 			Slu_CALL_VISIT_FN_POST_VAR(LetVar);
 		},
-		varcase(parse::StatementType::Const<Vi>&) {
+		varcase(parse::StatType::Const<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(ConstVar);
 			visitExported(vi, var.exported);
 			visitPat<false>(vi, var.names);
@@ -594,38 +594,38 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 			Slu_CALL_VISIT_FN_POST_VAR(ConstVar);
 		},
-		varcase(parse::StatementType::Call&) {
+		varcase(parse::StatType::Call&) {
 			visitExpr(vi, *var.v);
 			visitArgs(vi, var.args);
 			//TODO
 		},
-		varcase(parse::StatementType::SelfCall&) {
+		varcase(parse::StatType::SelfCall&) {
 			visitExpr(vi, *var.v);
 			visitName(vi, var.method);
 			visitArgs(vi, var.args);
 			//TODO
 		},
-		varcase(parse::StatementType::Block<Vi>&) {
+		varcase(parse::StatType::Block<Vi>&) {
 			visitBlock(vi, var);
 			//TODO
 		},
-		varcase(parse::StatementType::Goto<Vi>&) {
+		varcase(parse::StatType::Goto<Vi>&) {
 			//TODO
 		},
-		varcase(parse::StatementType::Label<Vi>&) {
+		varcase(parse::StatType::Label<Vi>&) {
 			//TODO
 		},
-		varcase(parse::StatementType::Use&) {
+		varcase(parse::StatType::Use&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Use);
 			visitExported(vi, var.exported);
 			visitMp(vi, var.base);
 			//TODO var.useVariant
 			Slu_CALL_VISIT_FN_POST_VAR(Use);
 		},
-		varcase(parse::StatementType::Semicol&) {
+		varcase(parse::StatType::Semicol&) {
 			//TODO
 		},
-		varcase(parse::StatementType::IfCond<Vi>&) {
+		varcase(parse::StatType::IfCond<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(IfStat);
 			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, *var.cond);
 			visitExpr(vi, *var.cond);
@@ -642,24 +642,24 @@ namespace slu::visit
 				visitSoe(vi, **var.elseBlock);
 			Slu_CALL_VISIT_FN_POST_VAR(IfStat);
 		},
-		varcase(parse::StatementType::While<Vi>&) {
+		varcase(parse::StatType::While<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, var.cond);
 			visitExpr(vi, var.cond);
 			Slu_CALL_VISIT_FN_POST_USER(AnyCond, var.cond);
 			visitBlock(vi, var.bl);
 		},
-		varcase(parse::StatementType::RepeatUntil<Vi>&) {
+		varcase(parse::StatType::RepeatUntil<Vi>&) {
 			visitBlock(vi, var.bl);
 			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, var.cond);
 			visitExpr(vi, var.cond);
 			Slu_CALL_VISIT_FN_POST_USER(AnyCond, var.cond);
 		},
-		varcase(parse::StatementType::ForIn<Vi>&) {
+		varcase(parse::StatType::ForIn<Vi>&) {
 			visitPat<true>(vi, var.varNames);
 			visitExpr(vi, var.exprs);
 			visitBlock(vi, var.bl);
 		},
-		varcase(parse::StatementType::Struct&) {
+		varcase(parse::StatType::Struct&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			Slu_CALL_VISIT_FN_PRE_USER(Locals, var.local2Mp);
@@ -667,7 +667,7 @@ namespace slu::visit
 			visitTable(vi, var.type);
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 		},
-		varcase(parse::StatementType::Union&) {
+		varcase(parse::StatType::Union&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			Slu_CALL_VISIT_FN_PRE_USER(Locals, var.local2Mp);
@@ -675,7 +675,7 @@ namespace slu::visit
 			visitTable(vi, var.type);
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 		},
-		varcase(parse::StatementType::Function&) {
+		varcase(parse::StatType::Function&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(AnyFuncDefStat);
 			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo,var.func);
 			visitExported(vi, var.exported);
@@ -690,7 +690,7 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.func.local2Mp);
 			Slu_CALL_VISIT_FN_POST_VAR(AnyFuncDefStat);
 		},
-		varcase(parse::StatementType::FunctionDecl<Vi>&) {
+		varcase(parse::StatType::FunctionDecl<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(AnyFuncDeclStat);
 			Slu_CALL_VISIT_FN_PRE_VAR(FunctionInfo);
 			visitExported(vi, var.exported);
@@ -704,28 +704,28 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_VAR(FunctionInfo);
 			Slu_CALL_VISIT_FN_POST_VAR(AnyFuncDeclStat);
 		},
-		varcase(parse::StatementType::ExternBlock<Vi>&) {
+		varcase(parse::StatType::ExternBlock<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(ExternBlock);
 			visitSafety(vi, var.safety);
 			visitString(vi, var.abi);
 			visitStatList(vi, var.stats);
 			Slu_CALL_VISIT_FN_POST_VAR(ExternBlock);
 		},
-		varcase(parse::StatementType::UnsafeBlock<Vi>&) {
+		varcase(parse::StatType::UnsafeBlock<Vi>&) {
 			visitStatList(vi, var.stats);
 		},
-		varcase(const parse::StatementType::UnsafeLabel) {
+		varcase(const parse::StatType::UnsafeLabel) {
 			//TODO
 		},
-		varcase(const parse::StatementType::SafeLabel) {
+		varcase(const parse::StatType::SafeLabel) {
 			//TODO
 		},
-		varcase(parse::StatementType::Drop<Vi>&) {
+		varcase(parse::StatType::Drop<Vi>&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Drop);
 			visitExpr(vi, var.expr);
 			Slu_CALL_VISIT_FN_POST_VAR(Drop);
 		},
-		varcase(parse::StatementType::Trait&) {
+		varcase(parse::StatType::Trait&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Trait);
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
@@ -736,7 +736,7 @@ namespace slu::visit
 			visitStatList(vi, var.itms);
 			Slu_CALL_VISIT_FN_POST_VAR(Trait);
 		},
-		varcase(parse::StatementType::Impl&) {
+		varcase(parse::StatType::Impl&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(Impl);
 			visitExported(vi, var.exported);
 			visitParams(vi, var.params);
@@ -747,12 +747,12 @@ namespace slu::visit
 			visitStatList(vi, var.code);
 			Slu_CALL_VISIT_FN_POST_VAR(Impl);
 		},
-		varcase(parse::StatementType::Mod<Vi>&) {
+		varcase(parse::StatType::Mod<Vi>&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			//TODO
 		},
-		varcase(parse::StatementType::ModAs<Vi>&) {
+		varcase(parse::StatType::ModAs<Vi>&) {
 			visitExported(vi, var.exported);
 			visitName(vi, var.name);
 			visitStatList(vi, var.code);

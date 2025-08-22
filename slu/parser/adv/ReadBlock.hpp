@@ -94,7 +94,7 @@ namespace slu::parse
 			if (in.peek() == '}')
 				break;
 
-			readStatement<false>(in, false);
+			readStat<false>(in, false);
 			skipSpace(in);
 		}
 		return in.genData.popScope(in.getLoc()).statList;
@@ -115,7 +115,7 @@ namespace slu::parse
 			if (in.peek() == '}')
 				break;
 
-			readStatement<isLoop>(in, allowVarArg);
+			readStat<isLoop>(in, allowVarArg);
 			skipSpace(in);
 		}
 		Block<In> bl = in.genData.popUnScope(in.getLoc());
@@ -156,7 +156,7 @@ namespace slu::parse
 
 			// Not some end / return keyword, must be a statement
 
-			readStatement<isLoop>(in, allowVarArg);
+			readStat<isLoop>(in, allowVarArg);
 
 			skipSpace(in);
 		}

@@ -23,7 +23,7 @@ namespace slu::parse
 
 			if (checkReadTextToken(in, "as"))
 			{
-				StatementType::ModAs<In> res{};
+				StatType::ModAs<In> res{};
 				res.exported = exported;
 				res.name = modName;
 
@@ -36,7 +36,7 @@ namespace slu::parse
 			}
 			else
 			{
-				in.genData.addStat(place, StatementType::Mod<In>{ modName, exported });
+				in.genData.addStat(place, StatType::Mod<In>{ modName, exported });
 			}
 
 			return true;

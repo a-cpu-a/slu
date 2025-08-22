@@ -44,7 +44,7 @@ namespace slu::parse
 	Slu_DEF_CFG(Table);
 
 	template<bool isSlu>
-	using StatListV = std::vector<StatementV<isSlu>>;
+	using StatListV = std::vector<StatV<isSlu>>;
 	Slu_DEF_CFG(StatList);
 
 
@@ -592,7 +592,7 @@ namespace slu::parse
 	};
 	using WhereClauses = std::vector<WhereClause>;
 
-	namespace StatementType
+	namespace StatType
 	{
 		using Semicol = std::monostate;	// ";"
 
@@ -770,65 +770,65 @@ namespace slu::parse
 	};
 
 	template<bool isSlu>
-	using StatementDataV = std::variant <
-		StatementType::Semicol,				// ";"
+	using StatDataV = std::variant <
+		StatType::Semicol,				// ";"
 
-		StatementType::AssignV<isSlu>,			// "varlist = explist"
-		StatementType::LocalV<isSlu>,	// "local attnamelist [= explist]"
-		StatementType::LetV<isSlu>,	// "let pat [= explist]"
-		StatementType::ConstV<isSlu>,	// "const pat [= explist]"
-		StatementType::CanonicLocal,
-		StatementType::CanonicGlobal,
+		StatType::AssignV<isSlu>,			// "varlist = explist"
+		StatType::LocalV<isSlu>,	// "local attnamelist [= explist]"
+		StatType::LetV<isSlu>,	// "let pat [= explist]"
+		StatType::ConstV<isSlu>,	// "const pat [= explist]"
+		StatType::CanonicLocal,
+		StatType::CanonicGlobal,
 
-		StatementType::Call,
-		StatementType::SelfCall,
+		StatType::Call,
+		StatType::SelfCall,
 
-		StatementType::LabelV<isSlu>,			// "label"
-		StatementType::GotoV<isSlu>,			// "goto Name"
-		StatementType::BlockV<isSlu>,			// "do block end"
-		StatementType::WhileV<isSlu>,		// "while exp do block end"
-		StatementType::RepeatUntilV<isSlu>,	// "repeat block until exp"
+		StatType::LabelV<isSlu>,			// "label"
+		StatType::GotoV<isSlu>,			// "goto Name"
+		StatType::BlockV<isSlu>,			// "do block end"
+		StatType::WhileV<isSlu>,		// "while exp do block end"
+		StatType::RepeatUntilV<isSlu>,	// "repeat block until exp"
 
-		StatementType::IfCondV<isSlu>,	// "if exp then block {elseif exp then block} [else block] end"
+		StatType::IfCondV<isSlu>,	// "if exp then block {elseif exp then block} [else block] end"
 
-		StatementType::ForInV<isSlu>,	// "for namelist in explist do block end"
+		StatType::ForInV<isSlu>,	// "for namelist in explist do block end"
 
-		StatementType::Function,		// "function funcname funcbody"
-		StatementType::Fn,					// "fn funcname funcbody"
+		StatType::Function,		// "function funcname funcbody"
+		StatType::Fn,					// "fn funcname funcbody"
 
-		StatementType::FunctionDeclV<isSlu>,
-		StatementType::FnDeclV<isSlu>,
+		StatType::FunctionDeclV<isSlu>,
+		StatType::FnDeclV<isSlu>,
 
-		StatementType::Struct,
-		StatementType::Union,
+		StatType::Struct,
+		StatType::Union,
 
-		StatementType::ExternBlockV<isSlu>,
+		StatType::ExternBlockV<isSlu>,
 
-		StatementType::UnsafeBlockV<isSlu>,
-		StatementType::UnsafeLabel,	// ::: unsafe :
-		StatementType::SafeLabel,		// ::: safe :
+		StatType::UnsafeBlockV<isSlu>,
+		StatType::UnsafeLabel,	// ::: unsafe :
+		StatType::SafeLabel,		// ::: safe :
 
-		StatementType::DropV<isSlu>,	// "drop" Name
-		StatementType::Trait,
-		StatementType::Impl,
+		StatType::DropV<isSlu>,	// "drop" Name
+		StatType::Trait,
+		StatType::Impl,
 
-		StatementType::Use,				// "use" ...
-		StatementType::ModV<isSlu>,		// "mod" Name
-		StatementType::ModAsV<isSlu>	// "mod" Name "as" "{" block "}"
+		StatType::Use,				// "use" ...
+		StatType::ModV<isSlu>,		// "mod" Name
+		StatType::ModAsV<isSlu>	// "mod" Name "as" "{" block "}"
 	> ;
-	Slu_DEF_CFG(StatementData);
+	Slu_DEF_CFG(StatData);
 
 	template<bool isSlu>
-	struct StatementV
+	struct StatV
 	{
-		StatementDataV<isSlu> data;
+		StatDataV<isSlu> data;
 		Position place;
 
-		StatementV() = default;
-		StatementV(StatementDataV<isSlu>&& data) :data(std::move(data)) {}
-		StatementV(const StatementV&) = delete;
-		StatementV(StatementV&&) = default;
-		StatementV& operator=(StatementV&&) = default;
+		StatV() = default;
+		StatV(StatDataV<isSlu>&& data) :data(std::move(data)) {}
+		StatV(const StatV&) = delete;
+		StatV(StatV&&) = default;
+		StatV& operator=(StatV&&) = default;
 	};
 
 	template<bool isSlu>

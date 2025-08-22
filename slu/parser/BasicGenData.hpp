@@ -638,8 +638,8 @@ namespace slu::parse
 			scopes.back().res.retExprs = std::move(expList);
 		}
 
-		constexpr void addStat(const Position place,StatementDataV<isSlu>&& data){
-			StatementV<isSlu> stat = { std::move(data) };
+		constexpr void addStat(const Position place,StatDataV<isSlu>&& data){
+			StatV<isSlu> stat = { std::move(data) };
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}

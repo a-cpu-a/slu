@@ -18,7 +18,7 @@ namespace slu::parse
 	{
 		if (checkReadTextToken(in, "use"))
 		{
-			StatementType::Use res{};
+			StatType::Use res{};
 			res.exported = exported;
 
 			bool root = false;

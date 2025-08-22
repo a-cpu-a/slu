@@ -67,7 +67,7 @@ namespace slu::mlvl
 		//TODO: consider adding a splice statement, instead of inserting statements (OR FIX THE UB FOR THAT!)
 
 
-		void postUse(parse::StatementType::Use& itm)
+		void postUse(parse::StatType::Use& itm)
 		{
 			ezmatch(itm.useVariant)(
 			varcase(parse::UseVariantType::EVERYTHING_INSIDE&) {
@@ -137,10 +137,10 @@ namespace slu::mlvl
 
 			localMp.addItm(obj, std::move(res));
 		}
-		void postAnyFuncDeclStat(parse::StatementType::FunctionDecl<Cfg>& itm) {
+		void postAnyFuncDeclStat(parse::StatType::FunctionDecl<Cfg>& itm) {
 			mkFuncStatItm(itm.name.id, std::move(itm.abi), std::move(itm.retType), itm.params,itm.exported,false);
 		}
-		void postAnyFuncDefStat(parse::StatementType::Function& itm) {
+		void postAnyFuncDefStat(parse::StatType::Function& itm) {
 			mkFuncStatItm(itm.name.id, std::move(itm.func.abi), std::move(itm.func.retType), itm.func.params, itm.exported,true);
 		}
 
@@ -189,8 +189,8 @@ namespace slu::mlvl
 
 		template<bool isLocal>
 		void addCanonicVarStat(std::vector<parse::Sel<isLocal,
-			parse::StatementType::CanonicGlobal,
-			parse::StatementType::CanonicLocal>>& out,
+			parse::StatType::CanonicGlobal,
+			parse::StatType::CanonicLocal>>& out,
 			const bool isFirstVar,
 			auto& localHolder,
 			bool exported,
@@ -288,11 +288,11 @@ namespace slu::mlvl
 		}
 
 		template<bool isLocal,class VarT>
-		void convVar(parse::Statement<Cfg>& stat,VarT& itm)
+		void convVar(parse::Stat<Cfg>& stat,VarT& itm)
 		{
 			using Canonic = parse::Sel<isLocal,
-				parse::StatementType::CanonicGlobal, 
-				parse::StatementType::CanonicLocal>;
+				parse::StatType::CanonicGlobal, 
+				parse::StatType::CanonicLocal>;
 
 			std::vector<Canonic> out;
 			std::vector<parse::PatV<true, isLocal>*> patStack;
@@ -352,13 +352,13 @@ namespace slu::mlvl
 			statList.insert(statList.end(), std::make_move_iterator(std::next(out.begin() + 1)), std::make_move_iterator(out.end()));
 		}
 
-		bool preTrait(parse::StatementType::Trait& itm) 
+		bool preTrait(parse::StatType::Trait& itm) 
 		{
 			//TODO
 			return false;
 		}
 
-		bool preImpl(parse::StatementType::Impl& itm)
+		bool preImpl(parse::StatType::Impl& itm)
 		{
 			//TODO
 			return false;
@@ -406,7 +406,7 @@ namespace slu::mlvl
 			mpStack.pop_back();
 			mpDataStack.pop_back();
 		}
-		bool preExternBlock(parse::StatementType::ExternBlock<Cfg>& itm) 
+		bool preExternBlock(parse::StatType::ExternBlock<Cfg>& itm) 
 		{
 			abiStack.push_back(std::move(itm.abi));
 			abiSafetyStack.push_back(itm.safety==parse::OptSafety::SAFE);
@@ -417,16 +417,16 @@ namespace slu::mlvl
 			abiSafetyStack.pop_back();
 			return true;//Already visited the statements inside it
 		}
-		void postStat(parse::Statement<Cfg>& itm) 
+		void postStat(parse::Stat<Cfg>& itm) 
 		{
 			/*
-			if (std::holds_alternative<parse::StatementType::ExternBlock<Cfg>>(itm.data))
+			if (std::holds_alternative<parse::StatType::ExternBlock<Cfg>>(itm.data))
 			{
 				// Unwrap the extern block
-				auto& block = std::get<parse::StatementType::ExternBlock<Cfg>>(itm.data);
+				auto& block = std::get<parse::StatType::ExternBlock<Cfg>>(itm.data);
 				if (block.stats.empty())
 				{
-					itm.data = parse::StatementType::Semicol{};
+					itm.data = parse::StatType::Semicol{};
 					return;
 				}
 
@@ -440,18 +440,18 @@ namespace slu::mlvl
 				auto& statList = *statListStack.back();
 				statList.insert(statList.end(), std::make_move_iterator(std::next(stats.begin()+1)), std::make_move_iterator(stats.end()));
 			}*/
-			if(std::holds_alternative<parse::StatementType::ModAs<Cfg>>(itm.data))
+			if(std::holds_alternative<parse::StatType::ModAs<Cfg>>(itm.data))
 			{// Unwrap the inline module
-				auto& module = std::get<parse::StatementType::ModAs<Cfg>>(itm.data);
+				auto& module = std::get<parse::StatType::ModAs<Cfg>>(itm.data);
 				inlineModules.push_back(InlineModule{ module.name, std::move(module.code) });
-				itm.data = parse::StatementType::Mod<Cfg>{module.name,module.exported};
+				itm.data = parse::StatType::Mod<Cfg>{module.name,module.exported};
 			}
-			else if (std::holds_alternative<parse::StatementType::Local<Cfg>>(itm.data))
-				convVar<true>(itm, std::get<parse::StatementType::Local<Cfg>>(itm.data));
-			else if (std::holds_alternative<parse::StatementType::Let<Cfg>>(itm.data))
-				convVar<true>(itm, std::get<parse::StatementType::Let<Cfg>>(itm.data));
-			else if (std::holds_alternative<parse::StatementType::Const<Cfg>>(itm.data))
-				convVar<false>(itm, std::get<parse::StatementType::Const<Cfg>>(itm.data));
+			else if (std::holds_alternative<parse::StatType::Local<Cfg>>(itm.data))
+				convVar<true>(itm, std::get<parse::StatType::Local<Cfg>>(itm.data));
+			else if (std::holds_alternative<parse::StatType::Let<Cfg>>(itm.data))
+				convVar<true>(itm, std::get<parse::StatType::Let<Cfg>>(itm.data));
+			else if (std::holds_alternative<parse::StatType::Const<Cfg>>(itm.data))
+				convVar<false>(itm, std::get<parse::StatType::Const<Cfg>>(itm.data));
 		}
 
 		void desugarUnOp(parse::Expr& expr,

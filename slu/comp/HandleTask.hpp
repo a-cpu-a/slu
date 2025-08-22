@@ -41,12 +41,12 @@ namespace slu::comp
 	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile, lang::HashModPathView, lang::EqualModPathView>;
 	struct FileStatList
 	{
-		std::span<const parse::Statement<InputType>> stats;
+		std::span<const parse::Stat<InputType>> stats;
 		std::string_view filePath;
 	};
 	struct MutFileStatList
 	{
-		std::span<parse::Statement<InputType>> stats;
+		std::span<parse::Stat<InputType>> stats;
 		std::string_view filePath;
 	};
 	namespace CompTaskType

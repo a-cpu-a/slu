@@ -30,19 +30,19 @@ namespace slu::parse
 		{
 			requireToken(in, ":");
 			in.genData.setUnsafe();
-			return in.genData.addStat(place, StatementType::UnsafeLabel{});
+			return in.genData.addStat(place, StatType::UnsafeLabel{});
 		}
 		else if (checkReadTextToken(in, "safe"))
 		{
 			requireToken(in, ":");
 			in.genData.setSafe();
-			return in.genData.addStat(place, StatementType::SafeLabel{});
+			return in.genData.addStat(place, StatType::SafeLabel{});
 		}
 
 		const MpItmId res = in.genData.addLocalObj(readName(in));
 
 		requireToken(in, ":");
 
-		return in.genData.addStat(place, StatementType::Label<In>{res});
+		return in.genData.addStat(place, StatType::Label<In>{res});
 	}
 }

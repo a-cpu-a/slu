@@ -757,10 +757,10 @@ namespace slu::paint
 	}
 
 	template<class T>
-	concept NonPaintableStat = std::same_as<T,parse::StatementType::CanonicLocal>
-		|| std::same_as<T, parse::StatementType::CanonicGlobal>;
+	concept NonPaintableStat = std::same_as<T,parse::StatType::CanonicLocal>
+		|| std::same_as<T, parse::StatType::CanonicGlobal>;
 	template<AnySemOutput Se>
-	inline void paintStat(Se& se, const parse::Statement<Se>& itm)
+	inline void paintStat(Se& se, const parse::Stat<Se>& itm)
 	{
 		skipSpace(se);
 		se.move(itm.place);
@@ -770,10 +770,10 @@ namespace slu::paint
 				"Non-paintable statement type found in paintStat: " + std::to_string(itm.data.index())
 			);
 		},
-		varcase(const parse::StatementType::Block<Se>&) {
+		varcase(const parse::StatType::Block<Se>&) {
 			paintDoEndBlock(se, var);
 		},
-		varcase(const parse::StatementType::ForIn<Se>&) {
+		varcase(const parse::StatType::ForIn<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");
 			paintPat<true,Tok::NAME_TYPE>(se, var.varNames);
 			paintKw<Tok::IN>(se, "in");
@@ -781,89 +781,89 @@ namespace slu::paint
 
 			paintStatOrRet(se, var.bl);
 		},
-		varcase(const parse::StatementType::While<Se>&) {
+		varcase(const parse::StatType::While<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "while");
 			paintExpr(se, var.cond);
 			paintStatOrRet(se, var.bl);
 		},
-		varcase(const parse::StatementType::RepeatUntil<Se>&) {
+		varcase(const parse::StatType::RepeatUntil<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "repeat");
 			paintStatOrRet(se, var.bl);
 			paintKw<Tok::COND_STAT>(se, "until");
 			paintExpr(se, var.cond);
 		},
-		varcase(const parse::StatementType::IfCond<Se>&) {
+		varcase(const parse::StatType::IfCond<Se>&) {
 			paintIfCond<false>(se, var);
 		},
-		varcase(const parse::StatementType::SelfCall&) {
+		varcase(const parse::StatType::SelfCall&) {
 			paintSelfCall<false>(se, var);
 		},
-		varcase(const parse::StatementType::Call&) {
+		varcase(const parse::StatType::Call&) {
 			paintCall<false>(se, var);
 		},
-		varcase(const parse::StatementType::Assign<Se>&) {
+		varcase(const parse::StatType::Assign<Se>&) {
 			for (auto& i : var.vars)
 				paintExprData(se, i);
 			paintKw<Tok::ASSIGN>(se, "=");
 			paintExprList(se, var.exprs);
 		},
-		varcase(const parse::StatementType::Local<Se>&) {
+		varcase(const parse::StatType::Local<Se>&) {
 			paintVarStat<true>(se,var, "local");
 		},
-		varcase(const parse::StatementType::Let<Se>&) {
+		varcase(const parse::StatType::Let<Se>&) {
 			paintVarStat<true>(se,var, "let");
 		},
-		varcase(const parse::StatementType::Const<Se>&) {
+		varcase(const parse::StatType::Const<Se>&) {
 			se.pushLocals(var.local2Mp);
 			paintVarStat<false>(se,var, "const");
 			se.popLocals();
 		},
 
-		varcase(const parse::StatementType::Fn&) {
+		varcase(const parse::StatType::Fn&) {
 			paintFunc<false>(se, var, true);
 		},
-		varcase(const parse::StatementType::FnDecl<Se>&) {
+		varcase(const parse::StatType::FnDecl<Se>&) {
 			paintFunc<true>(se, var, true);
 		},
-		varcase(const parse::StatementType::Function&) {
+		varcase(const parse::StatType::Function&) {
 			paintFunc<false>(se, var, false);
 		},
-		varcase(const parse::StatementType::FunctionDecl<Se>&) {
+		varcase(const parse::StatType::FunctionDecl<Se>&) {
 			paintFunc<true>(se, var, false);
 		},
-		varcase(const parse::StatementType::Semicol) {
+		varcase(const parse::StatType::Semicol) {
 			paintKw<Tok::PUNCTUATION>(se, ";");
 		},
-		varcase(const parse::StatementType::Label<Se>&) {
+		varcase(const parse::StatType::Label<Se>&) {
 			paintKw<Tok::PUNCTUATION>(se, ":::");
 			paintName<Tok::NAME_LABEL>(se, var.v);
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
-		varcase(const parse::StatementType::Goto<Se>&) {
+		varcase(const parse::StatType::Goto<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "goto");
 			paintName<Tok::NAME_LABEL>(se, var.v);
 		},
 
 		// Slu
 
-		varcase(const parse::StatementType::Struct&) {
+		varcase(const parse::StatType::Struct&) {
 			se.pushLocals(var.local2Mp);
 			paintStructBasic(se, var, "struct");
 			paintTable<Tok::NAME_TYPE>(se, var.type);
 			se.popLocals();
 		},
-		varcase(const parse::StatementType::Union&) {
+		varcase(const parse::StatType::Union&) {
 			se.pushLocals(var.local2Mp);
 			paintStructBasic(se, var, "union");
 			paintTable<Tok::NAME_TYPE>(se, var.type);
 			se.popLocals();
 		},
 
-		varcase(const parse::StatementType::Drop<Se>&) {
+		varcase(const parse::StatType::Drop<Se>&) {
 			paintKw<Tok::DROP_STAT>(se, "drop");
 			paintExpr(se, var.expr);
 		},
-		varcase(const parse::StatementType::Trait&) {
+		varcase(const parse::StatType::Trait&) {
 			paintExportData<Tok::IMPL>(se, var.exported);
 			paintKw<Tok::IMPL>(se, "trait");
 			paintName<Tok::NAME_TRAIT>(se, var.name);
@@ -886,7 +886,7 @@ namespace slu::paint
 				paintStat(se, i);
 			paintKw<Tok::BRACES>(se, "}");
 		},
-		varcase(const parse::StatementType::Impl&) {
+		varcase(const parse::StatType::Impl&) {
 			paintExportData<Tok::IMPL>(se, var.exported);
 			paintSafety(se, var.isUnsafe ? parse::OptSafety::UNSAFE : parse::OptSafety::DEFAULT);
 			if (var.deferChecking) paintKw<Tok::IMPL>(se, "defer");
@@ -913,7 +913,7 @@ namespace slu::paint
 				paintStat(se, i);
 			paintKw<Tok::BRACES>(se, "}");
 		},
-		varcase(const parse::StatementType::ExternBlock<Se>&) {
+		varcase(const parse::StatType::ExternBlock<Se>&) {
 			paintSafety(se, var.safety);
 			paintKw<Tok::FN_STAT>(se, "extern");
 			paintString(se, var.abi,var.abiEnd,Tok::FN_STAT);
@@ -929,35 +929,35 @@ namespace slu::paint
 			if (hadBrace)
 				paintKw<Tok::BRACES>(se, "}");
 		},
-		varcase(const parse::StatementType::UnsafeBlock<Se>&) {
+		varcase(const parse::StatType::UnsafeBlock<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "unsafe");
 			paintKw<Tok::BRACES>(se, "{");
 			for (auto& i : var.stats)
 				paintStat(se, i);
 			paintKw<Tok::BRACES>(se, "}");
 		},
-		varcase(const parse::StatementType::UnsafeLabel) {
+		varcase(const parse::StatType::UnsafeLabel) {
 			paintKw<Tok::PUNCTUATION>(se, ":::");
 			paintKw<Tok::FN_STAT>(se, "unsafe");
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
-		varcase(const parse::StatementType::SafeLabel) {
+		varcase(const parse::StatType::SafeLabel) {
 			paintKw<Tok::PUNCTUATION>(se, ":::");
 			paintKw<Tok::FN_STAT>(se, "safe");
 			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
-		varcase(const parse::StatementType::Use&) {
+		varcase(const parse::StatType::Use&) {
 			paintExportData<Tok::VAR_STAT>(se, var.exported);
 			paintKw<Tok::VAR_STAT>(se, "use");
 			paintMp<Tok::NAME>(se, var.base);
 			paintUseVariant(se, var.useVariant);
 		},
-		varcase(const parse::StatementType::Mod<Se>&) {
+		varcase(const parse::StatType::Mod<Se>&) {
 			paintExportData<Tok::CON_STAT>(se, var.exported);
 			paintKw<Tok::CON_STAT>(se, "mod");
 			paintName<Tok::NAME>(se, var.name);
 		},
-		varcase(const parse::StatementType::ModAs<Se>&) {
+		varcase(const parse::StatType::ModAs<Se>&) {
 			paintExportData<Tok::CON_STAT>(se, var.exported);
 			paintKw<Tok::CON_STAT>(se, "mod");
 			paintName<Tok::NAME>(se, var.name);
@@ -998,7 +998,7 @@ namespace slu::paint
 			skipSpace(se);
 			se.move(itm.start);
 		}
-		for (const parse::Statement<Se>& stat : itm.statList)
+		for (const parse::Stat<Se>& stat : itm.statList)
 		{
 			paintStat(se, stat);
 		}

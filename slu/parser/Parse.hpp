@@ -214,9 +214,9 @@ namespace slu::parse
 
 		if (readReturn<isLoop>(in, allowVarArg))
 			return in.genData.popScope(in.getLoc());
-		//Basic Statement + ';'
+		//Basic Stat + ';'
 
-		readStatement<isLoop>(in, allowVarArg);
+		readStat<isLoop>(in, allowVarArg);
 
 		Block<In> bl = in.genData.popScope(in.getLoc());
 
@@ -257,7 +257,7 @@ namespace slu::parse
 	{
 		if (checkReadTextToken(in, "trait"))
 		{
-			StatementType::Trait res;
+			StatType::Trait res;
 			res.exported = exported;
 			std::string name = readName(in);
 			res.name = in.genData.addLocalObj(name);
@@ -308,7 +308,7 @@ namespace slu::parse
 				if (safety == OptSafety::SAFE)
 					throwUnexpectedSafety(in, place);
 
-				StatementType::Impl res;
+				StatType::Impl res;
 				res.exported = exported;
 				res.deferChecking = hasDefer;
 				res.isUnsafe = safety == OptSafety::UNSAFE;
@@ -384,7 +384,7 @@ namespace slu::parse
 				{
 					in.skip();
 					in.genData.pushUnsafe();
-					StatementType::UnsafeBlock<In> res = { readStatList<isLoop>(in, false,false).first };
+					StatType::UnsafeBlock<In> res = { readStatList<isLoop>(in, false,false).first };
 					requireToken(in, "}");
 					in.genData.popSafety();
 					in.genData.addStat(place, std::move(res));
@@ -404,7 +404,7 @@ namespace slu::parse
 		case 'i':
 			if (checkReadTextToken(in, "union"))
 			{
-				readStructStat<StatementType::Union, true>(in, place, exported);
+				readStructStat<StatType::Union, true>(in, place, exported);
 				return true;
 			}
 		default:
@@ -425,7 +425,7 @@ namespace slu::parse
 			if (in.peek() == '{')
 			{
 				in.skip();
-				StatementType::ExternBlock<In> res{};
+				StatType::ExternBlock<In> res{};
 
 				res.safety = safety;
 				res.abi = std::move(abi);
@@ -453,7 +453,7 @@ namespace slu::parse
 		case 'n':
 			if (checkReadTextToken(in, "fn"))
 			{
-				readFunctionStatement<isLoop, StatementType::Fn, StatementType::FnDecl<In>>(
+				readFunctionStat<isLoop, StatType::Fn, StatType::FnDecl<In>>(
 					in, place, allowVarArg, exported, safety
 				);
 				return true;
@@ -462,7 +462,7 @@ namespace slu::parse
 		case 'u':
 			if (checkReadTextToken(in, "function"))
 			{
-				readFunctionStatement<isLoop, StatementType::Function, StatementType::FunctionDecl<In>>(
+				readFunctionStat<isLoop, StatType::Function, StatType::FunctionDecl<In>>(
 					in, place, allowVarArg, exported, safety
 				);
 				return true;
@@ -484,7 +484,7 @@ namespace slu::parse
 
 				// 'for' pat 'in' exp '{' block '}' 
 
-				StatementType::ForIn<In> res{};
+				StatType::ForIn<In> res{};
 				res.varNames = std::move(names);
 
 				requireToken(in, "in");
@@ -514,7 +514,7 @@ namespace slu::parse
 		case 'e':
 			if (checkReadTextToken(in, "let"))
 			{
-				readVarStatement<true, isLoop, StatementType::Let<In>>(in, place, allowVarArg, exported);
+				readVarStat<true, isLoop, StatType::Let<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;
@@ -522,7 +522,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "local"))
 			{
 				// Local Variable
-				readVarStatement<true, isLoop, StatementType::Local<In>>(in, place, allowVarArg, exported);
+				readVarStat<true, isLoop, StatType::Local<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;
@@ -549,7 +549,7 @@ namespace slu::parse
 		case 'n':
 			if (checkReadTextToken(in, "const"))
 			{
-				readVarStatement<false,isLoop, StatementType::Const<In>>(in, place, allowVarArg, exported);
+				readVarStat<false,isLoop, StatType::Const<In>>(in, place, allowVarArg, exported);
 				return true;
 			}
 			break;
@@ -593,7 +593,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "struct"))
 			{
 				//TODO: `struct fn`
-				readStructStat<StatementType::Struct,false>(in, place, exported);
+				readStructStat<StatType::Struct,false>(in, place, exported);
 				return true;
 			}
 			break;
@@ -604,7 +604,7 @@ namespace slu::parse
 	}
 
 	template<bool isLoop,class StatT,class DeclStatT, AnyInput In>
-	inline void readFunctionStatement(In& in, 
+	inline void readFunctionStat(In& in, 
 		const Position place, const bool allowVarArg, 
 		const ExportData exported, const OptSafety safety)
 	{
@@ -633,7 +633,7 @@ namespace slu::parse
 					return true;
 				}
 			))
-				return;//Statement was added
+				return;//Stat was added
 
 		}
 		catch (const ParseError& e)
@@ -677,7 +677,7 @@ namespace slu::parse
 		return res;
 	}
 	template<bool isLocal, bool isLoop, class StatT, AnyInput In >
-	inline void readVarStatement(In& in, const Position place, const bool allowVarArg, const ExportData exported)
+	inline void readVarStat(In& in, const Position place, const bool allowVarArg, const ExportData exported)
 	{
 		StatT res;
 		skipSpace(in);
@@ -696,7 +696,7 @@ namespace slu::parse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline void readStatement(In& in,const bool allowVarArg)
+	inline void readStat(In& in,const bool allowVarArg)
 	{
 		/*
 		 varlist ‘=’ explist |
@@ -706,14 +706,14 @@ namespace slu::parse
 		skipSpace(in);
 
 		const Position place = in.getLoc();
-		Statement<In> ret;
+		Stat<In> ret;
 
 		const char firstChar = in.peek();
 		switch (firstChar)
 		{
 		case ';':
 			in.skip();
-			return in.genData.addStat(place, StatementType::Semicol{});
+			return in.genData.addStat(place, StatType::Semicol{});
 		case ':'://may be label
 			if (in.peekAt(1) == '>')
 				break;//Not a label
@@ -735,14 +735,14 @@ namespace slu::parse
 		case '{':// ‘{’ block ‘}’
 			in.skip();//Skip ‘{’
 			return in.genData.addStat(place,
-				StatementType::Block<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg, true))
+				StatType::Block<In>(readBlockNoStartCheck<isLoop>(in, allowVarArg, true))
 			);
 			break;
 		case 'd'://do?
 			if (checkReadTextToken(in, "drop"))
 			{
 				return in.genData.addStat(place,
-					StatementType::Drop<In>(readExpr(in, allowVarArg))
+					StatType::Drop<In>(readExpr(in, allowVarArg))
 				);
 			}
 			if (checkReadTextToken(in, "defer"))
@@ -760,7 +760,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "goto"))//goto Name
 			{
 				return in.genData.addStat(place,
-					StatementType::Goto<In>(in.genData.resolveName(readName(in)))
+					StatType::Goto<In>(in.genData.resolveName(readName(in)))
 				);
 			}
 			break;
@@ -772,7 +772,7 @@ namespace slu::parse
 
 				Block<In> bl = readDoOrStatOrRet<true>(in,allowVarArg);
 				return in.genData.addStat(place, 
-					StatementType::While<In>(std::move(expr), std::move(bl))
+					StatType::While<In>(std::move(expr), std::move(bl))
 				);
 			}
 			break;
@@ -785,7 +785,7 @@ namespace slu::parse
 				Expr expr = readExpr(in,allowVarArg);
 
 				return in.genData.addStat(place, 
-					StatementType::RepeatUntil<In>({ std::move(expr), std::move(bl) })
+					StatType::RepeatUntil<In>({ std::move(expr), std::move(bl) })
 				);
 			}
 			break;
@@ -875,7 +875,7 @@ namespace slu::parse
 		}
 
 		in.genData.addStat(place, 
-			parsePrefixExprVar<StatementData<In>,false>(
+			parsePrefixExprVar<StatData<In>,false>(
 				in,allowVarArg, firstChar
 		));
 	}

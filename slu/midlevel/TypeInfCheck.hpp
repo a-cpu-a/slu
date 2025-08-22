@@ -647,10 +647,10 @@ namespace slu::mlvl
 			requireAsBool(exprTypeStack.back());
 			exprTypeStack.pop_back();
 		}
-		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
+		void postCanonicLocal(parse::StatType::CanonicLocal& itm) {
 			editLocalVar(itm.name);//TODO: restrict the type to exactly that? (unless it is inferr)
 		}
-		bool preCallStat(parse::StatementType::Call& itm) 
+		bool preCallStat(parse::StatType::Call& itm) 
 		{
 			handleCall<true,false>(itm);
 			return true;
@@ -695,10 +695,10 @@ namespace slu::mlvl
 		bool preIfExpr(parse::ExprType::IfCond<Cfg>& itm) {
 			return handleIfCond<true>(itm);
 		}
-		bool preIfStat(parse::StatementType::IfCond<Cfg>& itm) {
+		bool preIfStat(parse::StatType::IfCond<Cfg>& itm) {
 			return handleIfCond<false>(itm);
 		}
-		bool preAssign(parse::StatementType::Assign<Cfg>& itm)
+		bool preAssign(parse::StatType::Assign<Cfg>& itm)
 		{
 			for (size_t i = 0; i < itm.vars.size(); i++)
 			{
@@ -721,12 +721,12 @@ namespace slu::mlvl
 		}
 
 		//Allow any type.
-		void postDrop(parse::StatementType::Drop<Cfg>&) {
+		void postDrop(parse::StatType::Drop<Cfg>&) {
 			exprTypeStack.pop_back();
 		}
 
 		//Ignored.
-		bool preCanonicGlobal(parse::StatementType::CanonicGlobal&) {
+		bool preCanonicGlobal(parse::StatType::CanonicGlobal&) {
 			return true;
 		}
 		bool preTypeExpr(parse::Expr&) {
@@ -1132,7 +1132,7 @@ namespace slu::mlvl
 	};
 
 	inline void typeInferAndCheck(const parse::BasicMpDbData& mpDbData,
-		std::span<parse::StatementV<true>> module)
+		std::span<parse::StatV<true>> module)
 	{
 		TypeInfCheckVisitor vi{ {}, mpDbData };
 		

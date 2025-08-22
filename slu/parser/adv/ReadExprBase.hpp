@@ -142,14 +142,14 @@ namespace slu::parse
 			if (std::holds_alternative<ExprType::Call>(varData.back()))
 			{
 				ExprType::Call& start = std::get<ExprType::Call>(varData.back());
-				StatementType::Call res;
+				StatType::Call res;
 				res.args = std::move(start.args);
 				res.v = { std::move(*start.v) };
 
 				return std::move(res);
 			}
 			ExprType::SelfCall& start = std::get<ExprType::SelfCall>(varData.back());
-			StatementType::SelfCall res;
+			StatType::SelfCall res;
 			res.args = std::move(start.args);
 			res.method = start.method;
 			res.v = { std::move(*start.v) };
@@ -238,7 +238,7 @@ namespace slu::parse
 						throwExprAssignment(in);
 
 					in.skip();//skip eq
-					StatementType::Assign<In> res{};
+					StatType::Assign<In> res{};
 					res.vars = std::move(varData);
 					res.exprs = readExprList(in,allowVarArg);
 					return res;

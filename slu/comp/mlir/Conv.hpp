@@ -149,7 +149,7 @@ namespace slu::comp::mico
 	};
 	//Forward declare!
 	mlir::Value convExpr(ConvData& conv, parse::Position place, const parse::ExprDataV<true>& itm);
-	void convStat(ConvData& conv, const parse::StatementV<true>& itm);
+	void convStat(ConvData& conv, const parse::StatV<true>& itm);
 	//
 
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
@@ -506,17 +506,17 @@ namespace slu::comp::mico
 	}
 
 	template<typename T>
-	concept AnyIgnoredStatement =
-		std::same_as<T, parse::StatementType::GotoV<true>>
-		|| std::same_as<T, parse::StatementType::Semicol>
-		|| std::same_as<T, parse::StatementType::Use>
-		|| std::same_as<T, parse::StatementType::FnDeclV<true>>
-		|| std::same_as<T, parse::StatementType::FunctionDeclV<true>>
-		|| std::same_as<T, parse::StatementType::DropV<true>>
-		|| std::same_as<T, parse::StatementType::ModV<true>>
-		|| std::same_as<T, parse::StatementType::ModAsV<true>>
-		|| std::same_as<T, parse::StatementType::UnsafeLabel>
-		|| std::same_as<T, parse::StatementType::SafeLabel>;
+	concept AnyIgnoredStat =
+		std::same_as<T, parse::StatType::GotoV<true>>
+		|| std::same_as<T, parse::StatType::Semicol>
+		|| std::same_as<T, parse::StatType::Use>
+		|| std::same_as<T, parse::StatType::FnDeclV<true>>
+		|| std::same_as<T, parse::StatType::FunctionDeclV<true>>
+		|| std::same_as<T, parse::StatType::DropV<true>>
+		|| std::same_as<T, parse::StatType::ModV<true>>
+		|| std::same_as<T, parse::StatType::ModAsV<true>>
+		|| std::same_as<T, parse::StatType::UnsafeLabel>
+		|| std::same_as<T, parse::StatType::SafeLabel>;
 
 
 	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,parse::MpItmId name,parse::Position place, const parse::ItmType::Fn* funcItmOrNull)
@@ -619,7 +619,7 @@ namespace slu::comp::mico
 			}
 		);
 	}
-	inline void convStat(ConvData& conv, const parse::StatementV<true>& itm)
+	inline void convStat(ConvData& conv, const parse::StatV<true>& itm)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -629,12 +629,12 @@ namespace slu::comp::mico
 			varcase(const auto&) {
 			throw std::runtime_error("Unimplemented statement type idx(" + std::to_string(itm.data.index()) + ") (mlir conversion)");
 		},
-			varcase(const parse::StatementType::CanonicLocal&) {
+			varcase(const parse::StatType::CanonicLocal&) {
 			mlir::Value alloc = convExpr(conv, var.value.place, var.value.data);
 
 			conv.localsStack.back().values[var.name.v] = { alloc ,nullptr};
 		},
-			varcase(const parse::StatementType::RepeatUntilV<true>&) {
+			varcase(const parse::StatType::RepeatUntilV<true>&) {
 			mlir::Type i1Type = builder.getI1Type();
 			const mlir::Location loc = convPos(conv, itm.place);
 			// Initial loop-carried value: run once → %keepGoing = true
@@ -659,7 +659,7 @@ namespace slu::comp::mico
 
 			builder.setInsertionPointAfter(whileOp);
 		},
-			varcase(const parse::StatementType::WhileV<true>&) {
+			varcase(const parse::StatType::WhileV<true>&) {
 			auto whileOp = mlir::scf::WhileOp::create(builder,convPos(conv,itm.place), mlir::TypeRange{}, mlir::ValueRange{});
 
 			builder.setInsertionPointToStart(whileOp.getBeforeBody());
@@ -671,22 +671,22 @@ namespace slu::comp::mico
 
 			builder.setInsertionPointAfter(whileOp);
 		},
-		varcase(const parse::StatementType::ExternBlockV<true>&) {
+		varcase(const parse::StatType::ExternBlockV<true>&) {
 			for (const auto& i : var.stats)
 				convStat(conv, i);
 		},
-		varcase(const parse::StatementType::UnsafeBlockV<true>&) {
+		varcase(const parse::StatType::UnsafeBlockV<true>&) {
 			for (const auto& i : var.stats)
 				convStat(conv, i);
 		},
-		varcase(const parse::StatementType::BlockV<true>&) {
+		varcase(const parse::StatType::BlockV<true>&) {
 			auto scopeOp = mlir::memref::AllocaScopeOp::create(builder, convPos(conv, itm.place), mlir::TypeRange{});
 
 			builder.setInsertionPointToStart(scopeOp.getBody());
 			convBlock(conv, var);
 			builder.setInsertionPointAfter(scopeOp);
 		},
-			varcase(const parse::StatementType::IfCondV<true>&) {
+			varcase(const parse::StatType::IfCondV<true>&) {
 			
 			std::vector<mlir::Block*> yieldBlocks;
 			yieldBlocks.reserve(var.elseIfs.size() + (var.elseBlock.has_value() ? 1 : 0));
@@ -748,7 +748,7 @@ namespace slu::comp::mico
 
 			builder.setInsertionPointAfter(firstOp);
 		},
-			varcase(const parse::StatementType::AssignV<true>&) {
+			varcase(const parse::StatType::AssignV<true>&) {
 			if (var.vars.size() != 1 || var.exprs.size() != 1)
 				throw std::runtime_error("Unimplemented assign conv, vers.size or var.exprs != 1");
 
@@ -768,7 +768,7 @@ namespace slu::comp::mico
 			//mlir::memref::StoreOp::create(builder,loc, expr, memRef, mlir::ValueRange{ zeroIndex }, false);
 
 		},
-		varcase(const parse::StatementType::Call&) {
+		varcase(const parse::StatType::Call&) {
 
 			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
 			GlobElemTy::Fn* funcInfo = getOrDeclFn(conv,name,itm.place,nullptr);
@@ -795,7 +795,7 @@ namespace slu::comp::mico
 				llvm::ArrayRef<mlir::Value>{args});
 
 		},
-		varcase(const parse::StatementType::ConstV<true>&) {
+		varcase(const parse::StatType::ConstV<true>&) {
 
 			conv.addLocalStackItem(var.local2Mp.names.size());
 
@@ -820,7 +820,7 @@ namespace slu::comp::mico
 			conv.localsStack.pop_back();
 
 		},
-		varcase(const parse::StatementType::Fn&) {
+		varcase(const parse::StatType::Fn&) {
 
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());
@@ -871,7 +871,7 @@ namespace slu::comp::mico
 
 
 		//Ignore these
-		varcase(const AnyIgnoredStatement auto&) {}
+		varcase(const AnyIgnoredStat auto&) {}
 		);
 	}
 	inline void conv(ConvData& conv) {

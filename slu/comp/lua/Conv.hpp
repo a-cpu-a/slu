@@ -16,19 +16,19 @@
 namespace slu::comp::lua
 {
 	template<typename T>
-	concept AnyIgnoredStatement = 
-		std::same_as<T,parse::StatementType::GotoV<true>>
-		|| std::same_as<T,parse::StatementType::Semicol>
-		|| std::same_as<T,parse::StatementType::Use>
-		|| std::same_as<T,parse::StatementType::FnDeclV<true>>
-		|| std::same_as<T,parse::StatementType::FunctionDeclV<true>>
-		|| std::same_as<T,parse::StatementType::ExternBlockV<true>>//ignore, as desugaring will remove it
-		|| std::same_as<T,parse::StatementType::UnsafeBlockV<true>>//ignore, as desugaring will remove it
-		|| std::same_as<T,parse::StatementType::DropV<true>>
-		|| std::same_as<T,parse::StatementType::ModV<true>>
-		|| std::same_as<T,parse::StatementType::ModAsV<true>>
-		|| std::same_as<T,parse::StatementType::UnsafeLabel>
-		|| std::same_as<T,parse::StatementType::SafeLabel>;
+	concept AnyIgnoredStat = 
+		std::same_as<T,parse::StatType::GotoV<true>>
+		|| std::same_as<T,parse::StatType::Semicol>
+		|| std::same_as<T,parse::StatType::Use>
+		|| std::same_as<T,parse::StatType::FnDeclV<true>>
+		|| std::same_as<T,parse::StatType::FunctionDeclV<true>>
+		|| std::same_as<T,parse::StatType::ExternBlockV<true>>//ignore, as desugaring will remove it
+		|| std::same_as<T,parse::StatType::UnsafeBlockV<true>>//ignore, as desugaring will remove it
+		|| std::same_as<T,parse::StatType::DropV<true>>
+		|| std::same_as<T,parse::StatType::ModV<true>>
+		|| std::same_as<T,parse::StatType::ModAsV<true>>
+		|| std::same_as<T,parse::StatType::UnsafeLabel>
+		|| std::same_as<T,parse::StatType::SafeLabel>;
 
 	struct ConvData : CommonConvData
 	{
@@ -44,7 +44,7 @@ namespace slu::comp::lua
 
 
 			//Ignore these
-		varcase(const AnyIgnoredStatement auto&) {}
+		varcase(const AnyIgnoredStat auto&) {}
 		);
 	}
 	inline void conv(const ConvData& conv)
