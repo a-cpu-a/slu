@@ -88,13 +88,10 @@ namespace slu::parse
 		{
 			const UnOpType uOp = readOptUnOp(in);
 			if (uOp == UnOpType::NONE)break;
-			if constexpr (In::settings()&sluSyn)
+			if (uOp == UnOpType::TO_REF)
 			{
-				if (uOp == UnOpType::TO_REF)
-				{
-					basicRes.unOps.push_back(readToRefLifetimes(in, uOp));
-					continue;
-				}
+				basicRes.unOps.push_back(readToRefLifetimes(in, uOp));
+				continue;
 			}
 			basicRes.unOps.push_back({.type= uOp });
 		}
@@ -106,14 +103,11 @@ namespace slu::parse
 		default:
 			break;
 		case '_':
-			if constexpr (in.settings() & sluSyn)
+			if (!in.isOob(1) && !isValidNameChar(in.peekAt(1)))
 			{
-				if(!in.isOob(1) && !isValidNameChar(in.peekAt(1)))
-				{
-					in.skip();
-					basicRes.data = ExprType::Infer{};
-					break;
-				}
+				in.skip();
+				basicRes.data = ExprType::Infer{};
+				break;
 			}
 			[[fallthrough]];
 		case ')':
@@ -132,103 +126,72 @@ namespace slu::parse
 		//case '!':
 		case '|'://todo: handle as lambda
 		case '#':
-			if constexpr (in.settings() & sluSyn)
-			{
-				handleOpenRange(in,basicRes);
-			}
+			handleOpenRange(in, basicRes);
 			break;
 		case '~':
-			if constexpr (in.settings() & sluSyn)
+			if (in.peekAt(1) == '~') // '~~'
 			{
-				if (in.peekAt(1) == '~') // '~~'
-				{
-					requireToken(in, "~~");
-					basicRes.data = ExprType::Err{ std::make_unique<ExprV<true>>(readExpr<IS_BASIC>(in,allowVarArg)) };
-					break;
-				}
-			}
-			break;
-		case '/':
-			if constexpr (in.settings() & sluSyn)
-			{
-				basicRes.data = readLifetime(in);
+				requireToken(in, "~~");
+				basicRes.data = ExprType::Err{ std::make_unique<ExprV<true>>(readExpr<IS_BASIC>(in,allowVarArg)) };
 				break;
 			}
 			break;
+		case '/':
+			basicRes.data = readLifetime(in);
+			break;
 		case 'd':
-			if constexpr (in.settings() & sluSyn)
+			if (checkReadTextToken(in, "dyn"))
 			{
-				if (checkReadTextToken(in, "dyn"))
-				{
-					basicRes.data = ExprType::Dyn{readTraitExpr(in)};
-					break;
-				}
+				basicRes.data = ExprType::Dyn{ readTraitExpr(in) };
+				break;
 			}
 			break;
 		case 'i':
-			if constexpr (in.settings() & sluSyn)
+			if (checkReadTextToken(in, "impl"))
 			{
-				if (checkReadTextToken(in, "impl"))
-				{
-					basicRes.data = ExprType::Impl{readTraitExpr(in)};
-					break;
-				}
-				if (checkReadTextToken(in, "if"))
-				{
-					//TODO: isloop
-					basicRes.data = readIfCond<false, true, IS_BASIC>(
-						in, allowVarArg
-					);
-					break;
-				}
+				basicRes.data = ExprType::Impl{ readTraitExpr(in) };
+				break;
+			}
+			if (checkReadTextToken(in, "if"))
+			{
+				//TODO: isloop
+				basicRes.data = readIfCond<false, true, IS_BASIC>(
+					in, allowVarArg
+				);
+				break;
 			}
 			break;
 		case 's'://safe fn
-			if constexpr (in.settings() & sluSyn)
+			if (!checkReadTextToken(in, "safe"))
 			{
-				if (!checkReadTextToken(in, "safe"))
+				if (checkReadTextToken(in, "struct"))
 				{
-					if (checkReadTextToken(in, "struct"))
-					{
-						requireToken(in, "{");
-						basicRes.data = ExprType::Struct(readTable<false>(in, false));
-					}
-					break;
+					requireToken(in, "{");
+					basicRes.data = ExprType::Struct(readTable<false>(in, false));
 				}
-				requireToken(in, "fn");
-				basicRes.data = readFnType<IS_BASIC>(in, OptSafety::SAFE);
+				break;
 			}
+			requireToken(in, "fn");
+			basicRes.data = readFnType<IS_BASIC>(in, OptSafety::SAFE);
 			break;
 		case 'u'://unsafe fn
-			if constexpr (in.settings() & sluSyn)
+			if (!checkReadTextToken(in, "unsafe"))
 			{
-				if (!checkReadTextToken(in, "unsafe"))
+				if (checkReadTextToken(in, "union"))
 				{
-					if (checkReadTextToken(in, "union"))
-					{
-						requireToken(in, "{");
-						basicRes.data = ExprType::Union(readTable<false>(in, false));
-					}
-					break;
+					requireToken(in, "{");
+					basicRes.data = ExprType::Union(readTable<false>(in, false));
 				}
-				requireToken(in, "fn");
-				basicRes.data = readFnType<IS_BASIC>(in, OptSafety::UNSAFE);
+				break;
 			}
+			requireToken(in, "fn");
+			basicRes.data = readFnType<IS_BASIC>(in, OptSafety::UNSAFE);
 			break;
 		case 'f':
-			if constexpr(in.settings() & sluSyn)
+			if (checkReadTextToken(in, "fn"))
 			{
-				if (checkReadTextToken(in, "fn"))
-				{
-					basicRes.data = readFnType<IS_BASIC>(in, OptSafety::DEFAULT);
-					break;
-				}
-			} else {
-				if (checkReadTextToken(in, "false")) 
-				{
-					basicRes.data = ExprType::False();
-					break;
-				}
+				basicRes.data = readFnType<IS_BASIC>(in, OptSafety::DEFAULT);
+				break;
 			}
 			if (checkReadTextToken(in, "function")) 
 			{
@@ -272,44 +235,7 @@ namespace slu::parse
 				break; 
 			}
 			break;
-		case 'n':
-			if constexpr (In::settings() & sluSyn)break;
-
-			if (checkReadTextToken(in, "nil"))
-			{
-				basicRes.data = ExprType::Nil{};
-				isNilIntentional = true;
-				break;
-			}
-			break;
-		case 't':
-			if constexpr (!(In::settings() & sluSyn))
-			{
-				if (checkReadTextToken(in, "true")) 
-				{
-					basicRes.data = ExprType::True(); 
-					break; 
-				}
-			}
-			break;
-		case '.':
-			if constexpr(!(In::settings() & sluSyn))
-			{
-				if (checkReadToken(in, "..."))
-				{
-					if (!allowVarArg)
-					{
-						in.handleError(std::format(
-							"Found varargs (" LUACC_SINGLE_STRING("...") ") "
-							"outside of a vararg " LC_function " or the root " LC_function
-							"{}"
-							, errorLocStr(in)));
-					}
-					basicRes.data = ExprType::VarArgs();
-					break;
-				}
-			}
-			[[fallthrough]];//handle as numeral instead (.0123, etc)
+		case '.'://handle as numeral instead (.0123, etc)
 		case '0':
 		case '1':
 		case '2':
@@ -325,23 +251,18 @@ namespace slu::parse
 		case '"':
 		case '\'':
 		case '[':
-			if constexpr(In::settings()&sluSyn)
-			{
-				if (firstChar!='[' || in.peekAt(1) == '=')// [=....
-					basicRes.data = ExprType::String(readStringLiteral(in, firstChar),in.getLoc());
-				else
-				{// must be a slicer [x]
-					in.skip();
-
-					basicRes.data = ExprType::Slice{
-						std::make_unique<ExprV<true>>(
-							readExpr(in, allowVarArg)
-					)};
-					requireToken(in, "]");
-				}
-			}
-			else
+			if (firstChar != '[' || in.peekAt(1) == '=')// [=....
 				basicRes.data = ExprType::String(readStringLiteral(in, firstChar), in.getLoc());
+			else
+			{// must be a slicer [x]
+				in.skip();
+
+				basicRes.data = ExprType::Slice{
+					std::make_unique<ExprV<true>>(
+						readExpr(in, allowVarArg)
+				) };
+				requireToken(in, "]");
+			}
 
 			break;
 		case '{':
@@ -359,11 +280,7 @@ namespace slu::parse
 			&& std::holds_alternative<ExprType::Nil>(basicRes.data))
 		{//Prefix expr! or func-call
 
-			bool maybeRootMp = false;
-			if constexpr (In::settings() & sluSyn)
-			{
-				maybeRootMp = firstChar == ':';
-			}
+			const bool maybeRootMp = firstChar == ':';
 
 			if (!maybeRootMp && firstChar != '(' && !isValidNameStartChar(firstChar))
 				throwExpectedExpr(in);
@@ -394,56 +311,52 @@ namespace slu::parse
 
 			basicRes.data = parsePrefixExprVar<ExprData<In>,true, IS_BASIC>(in,allowVarArg, firstChar);
 		}
-		if constexpr(in.settings() & sluSyn)
-		{//Postfix op
+		while (true)
+		{
+			const PostUnOpType uOp = readOptPostUnOp<true>(in);
+			if (uOp == PostUnOpType::NONE)break;
+			basicRes.postUnOps.push_back(uOp);
+		}
 
-			while (true)
+		skipSpace(in);
+
+		if (checkToken(in, ".."))
+		{
+			//binop or postunop?
+			const size_t nextCh = weakSkipSpace(in, 2);
+			const char nextChr = in.peekAt(nextCh);
+			if (nextChr == '.')
 			{
-				const PostUnOpType uOp = readOptPostUnOp<true>(in);
-				if (uOp == PostUnOpType::NONE)break;
-				basicRes.postUnOps.push_back(uOp);
-			}
-
-			skipSpace(in);
-
-			if (checkToken(in, ".."))
-			{
-				//binop or postunop?
-				const size_t nextCh = weakSkipSpace(in, 2);
-				const char nextChr = in.peekAt(nextCh);
-				if (nextChr == '.')
-				{
-					const char dotChr = in.peekAt(nextCh + 1);
-					if(dotChr<'0' && dotChr>'9')
-					{//Is not number (.xxxx)
-						in.skip(2);
-						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
-					}
-				}
-				else if (
-					(nextChr >= 'a' && nextChr <= 'z')
-					|| (nextChr >= 'A' && nextChr <= 'Z'))
-				{
-					if (peekName<NameCatagory::MP_START>(in, nextCh) == SIZE_MAX)
-					{//Its reserved
-						in.skip(2);
-						basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
-					}
-				}
-				else if (// Not 0-9,_,",',$,[,{,(
-					(nextChr < '0' || nextChr > '9')
-					&& nextChr!='_'
-					&& nextChr!='"'
-					&& nextChr!='\''
-					&& nextChr!='$'
-					&& nextChr!='['
-					&& nextChr!='{'
-					&& nextChr!='('
-				)
-				{
+				const char dotChr = in.peekAt(nextCh + 1);
+				if (dotChr < '0' && dotChr>'9')
+				{//Is not number (.xxxx)
 					in.skip(2);
 					basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
 				}
+			}
+			else if (
+				(nextChr >= 'a' && nextChr <= 'z')
+				|| (nextChr >= 'A' && nextChr <= 'Z'))
+			{
+				if (peekName<NameCatagory::MP_START>(in, nextCh) == SIZE_MAX)
+				{//Its reserved
+					in.skip(2);
+					basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
+				}
+			}
+			else if (// Not 0-9,_,",',$,[,{,(
+				(nextChr < '0' || nextChr > '9')
+				&& nextChr != '_'
+				&& nextChr != '"'
+				&& nextChr != '\''
+				&& nextChr != '$'
+				&& nextChr != '['
+				&& nextChr != '{'
+				&& nextChr != '('
+				)
+			{
+				in.skip(2);
+				basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
 			}
 		}
 		//check bin op

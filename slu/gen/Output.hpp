@@ -79,7 +79,7 @@ namespace slu::parse
 	{
 		constexpr Output(SettingsT) {}
 		constexpr Output() = default;
-		constexpr static bool SLU_SYN = SettingsT() & sluSyn;
+		constexpr static bool SLU_SYN = true;
 
 		constexpr static SettingsT settings()
 		{

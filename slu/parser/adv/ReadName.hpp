@@ -26,6 +26,7 @@ namespace slu::parse
 	"then", "until", "while"
 
 #define _Slu_KWS \
+	_Slu_COMMON_KWS, \
 	/* freedom */\
 	"any", "has", "raw", "glob", "reloc", "concept", "nostride", \
 	/* future */\
@@ -42,27 +43,20 @@ namespace slu::parse
 #define _Slu_VERY_KWS "self", "crate", "super"
 #define _Slu_MOSTLY_KWS _Slu_VERY_KWS, "Self"
 
-	inline const std::unordered_set<std::string> RESERVED_KEYWORDS = {
-		"false", "nil", "not", "true", _Slu_COMMON_KWS
-	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU = {
-		_Slu_COMMON_KWS,
 		_Slu_KWS,
 
 		//Conditional
 		_Slu_MOSTLY_KWS, "trait",
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_BOUND_VAR = {
-		_Slu_COMMON_KWS,
 		_Slu_KWS,
 		_Slu_VERY_KWS, "trait"
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
-		_Slu_COMMON_KWS,
 		_Slu_KWS
 	};
 	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP = {
-		_Slu_COMMON_KWS,
 		_Slu_KWS,
 		_Slu_MOSTLY_KWS
 	};
@@ -80,19 +74,14 @@ namespace slu::parse
 	template<NameCatagory cata>
 	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
-		const std::unordered_set<std::string>* checkSet = &RESERVED_KEYWORDS;
+		const std::unordered_set<std::string>* checkSet = &RESERVED_KEYWORDS_SLU;
 
-		if constexpr (in.settings() & sluSyn)
-		{
-			if constexpr (cata== NameCatagory::MP_START)
-				checkSet = &RESERVED_KEYWORDS_SLU_MP_START;
-			else if constexpr (cata== NameCatagory::MP)
-				checkSet = &RESERVED_KEYWORDS_SLU_MP;
-			else if constexpr (cata== NameCatagory::BOUND_VAR)
-				checkSet = &RESERVED_KEYWORDS_SLU_BOUND_VAR;
-			else
-				checkSet = &RESERVED_KEYWORDS_SLU;
-		}
+		if constexpr (cata == NameCatagory::MP_START)
+			checkSet = &RESERVED_KEYWORDS_SLU_MP_START;
+		else if constexpr (cata == NameCatagory::MP)
+			checkSet = &RESERVED_KEYWORDS_SLU_MP;
+		else if constexpr (cata == NameCatagory::BOUND_VAR)
+			checkSet = &RESERVED_KEYWORDS_SLU_BOUND_VAR;
 
 		// Check if the resulting string is a reserved keyword
 		if (checkSet->find(n) != checkSet->end())
@@ -122,7 +111,7 @@ namespace slu::parse
 
 		const uint8_t firstChar = in.peek();
 
-		if constexpr(sluTuplable && (in.settings()&sluSyn))
+		if constexpr(sluTuplable)
 		{
 			// Ensure the first character is valid (a letter, number or underscore)
 			if (!isValidNameChar(firstChar))

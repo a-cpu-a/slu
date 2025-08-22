@@ -26,20 +26,17 @@ namespace slu::parse
 
 		requireToken(in, sel<In>("::", ":::"));
 
-		if constexpr (In::settings() & sluSyn)
+		if (checkReadTextToken(in, "unsafe"))
 		{
-			if (checkReadTextToken(in, "unsafe"))
-			{
-				requireToken(in, ":");
-				in.genData.setUnsafe();
-				return in.genData.addStat(place, StatementType::UnsafeLabel{});
-			}
-			else if (checkReadTextToken(in, "safe"))
-			{
-				requireToken(in, ":");
-				in.genData.setSafe();
-				return in.genData.addStat(place, StatementType::SafeLabel{});
-			}
+			requireToken(in, ":");
+			in.genData.setUnsafe();
+			return in.genData.addStat(place, StatementType::UnsafeLabel{});
+		}
+		else if (checkReadTextToken(in, "safe"))
+		{
+			requireToken(in, ":");
+			in.genData.setSafe();
+			return in.genData.addStat(place, StatementType::SafeLabel{});
 		}
 
 		const MpItmId<In> res = in.genData.addLocalObj(readName(in));

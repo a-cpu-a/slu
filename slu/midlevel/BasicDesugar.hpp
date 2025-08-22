@@ -41,7 +41,7 @@ namespace slu::mlvl
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
 	{
 		using Cfg = DesugarCfg;
-		static constexpr bool isSlu = Cfg::settings() & ::slu::parse::sluSyn;
+		static constexpr bool isSlu = true;
 
 		parse::BasicMpDb mpDb;
 		LazyCompute<parse::MpItmId<Cfg>> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];

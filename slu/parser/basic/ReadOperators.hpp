@@ -28,29 +28,13 @@ namespace slu::parse
 			in.skip();
 			return UnOpType::NEGATE;
 		case '!':
-			if constexpr (!(in.settings() & sluSyn))break;
 			if (typeOnly)break;
 			//if (in.peekAt(1) == '=')
 			//	break;//Its !=
 			in.skip();
 			return UnOpType::LOGICAL_NOT;
 			break;
-		case 'n':
-			if constexpr (in.settings() & sluSyn)break;
-			if (checkReadTextToken(in, "not"))
-				return UnOpType::LOGICAL_NOT;
-			break;
-		case '#':
-			if constexpr (in.settings() & sluSyn)break;
-			in.skip();
-			return UnOpType::LENGTH;
-		case '~':
-			if constexpr (in.settings() & sluSyn)break;
-			in.skip();
-			return UnOpType::BITWISE_NOT;
 		case '&':
-			if constexpr (!(in.settings() & sluSyn))break;
-
 			in.skip();
 			if (checkReadTextToken(in, "mut"))
 				return UnOpType::TO_REF_MUT;
@@ -60,8 +44,6 @@ namespace slu::parse
 				return UnOpType::TO_REF_SHARE;
 			return UnOpType::TO_REF;
 		case '*':
-			if constexpr (!(in.settings() & sluSyn))break;
-
 			in.skip();
 			if (checkReadTextToken(in, "mut"))
 				return UnOpType::TO_PTR_MUT;
@@ -72,21 +54,17 @@ namespace slu::parse
 
 			return UnOpType::TO_PTR;
 		case 'a':
-			if constexpr (!(in.settings() & sluSyn))break;
 			if (typeOnly)break;
 
 			if (checkReadTextToken(in, "alloc"))
 				return UnOpType::ALLOCATE;
 			break;
 		case '.':
-			if  constexpr (!(in.settings() & sluSyn))break;
 			if (typeOnly)break;
 			if (checkReadToken<false>(in, ".."))
 				return UnOpType::RANGE_BEFORE;
 			break;
 		case 'm':
-			if  constexpr (!(in.settings() & sluSyn))break;
-
 			if (checkReadTextToken(in, "mut"))
 				return UnOpType::MUT;
 			break;
@@ -127,22 +105,16 @@ namespace slu::parse
 		{
 		case '+':
 			in.skip();
-			if constexpr (in.settings() & sluSyn)
-			{
-				if (checkReadToken<false>(in, "+"))//++
-					return BinOpType::CONCATENATE;
-			}
+			if (checkReadToken<false>(in, "+"))//++
+				return BinOpType::CONCATENATE;
 			return BinOpType::ADD;
 		case '-':
 			in.skip();
 			return BinOpType::SUBTRACT;
 		case '*':
 			in.skip();
-			if constexpr (in.settings() & sluSyn)
-			{
-				if (checkReadToken<false>(in, "*"))//**
-					return BinOpType::ARRAY_MUL;
-			}
+			if (checkReadToken<false>(in, "*"))//**
+				return BinOpType::ARRAY_MUL;
 			return BinOpType::MULTIPLY;
 		case '/':
 			in.skip();
@@ -159,31 +131,19 @@ namespace slu::parse
 			in.skip();
 			return BinOpType::BITWISE_AND;
 		case '!':
-			if constexpr (!(in.settings() & sluSyn))break;
 			in.skip();
 			requireToken<false>(in, "=");
 			return BinOpType::NOT_EQUAL;
 			break;
 		case '~':
 			in.skip();
-			if constexpr (in.settings() & sluSyn)
-			{
-				if (checkReadToken<false>(in, "~"))//~~
-					return BinOpType::MAKE_RESULT;
-			}
-			else
-			{
-				if (checkReadToken<false>(in, "="))//~=
-					return BinOpType::NOT_EQUAL;
-			}
+			if (checkReadToken<false>(in, "~"))//~~
+				return BinOpType::MAKE_RESULT;
 			return BinOpType::BITWISE_XOR;
 		case '|':
 			in.skip();
-			if constexpr (in.settings() & sluSyn)
-			{
-				if (checkReadToken<false>(in, "|"))//||
-					return BinOpType::UNION;
-			}
+			if (checkReadToken<false>(in, "|"))//||
+				return BinOpType::UNION;
 			return BinOpType::BITWISE_OR;
 		case '>':
 			in.skip();
@@ -206,29 +166,17 @@ namespace slu::parse
 		case 'a':
 			if (checkReadTextToken(in, "and"))
 				return BinOpType::LOGICAL_AND;
-			if constexpr (in.settings() & sluSyn)
-			{
-				if (checkReadTextToken(in, "as"))
-					return BinOpType::AS;
-			}
+			if (checkReadTextToken(in, "as"))
+				return BinOpType::AS;
 			break;
 		case 'o':
 			if (checkReadTextToken(in, "or"))
 				return BinOpType::LOGICAL_OR;
 			break;
 		case '.':
-
 			if (checkReadToken<false>(in, ".."))
-			{
-				if constexpr (in.settings() & sluSyn)
-					return BinOpType::RANGE_BETWEEN;
-				else
-					return BinOpType::CONCATENATE;
-			}
+				return BinOpType::RANGE_BETWEEN;
 			break;
-
-			// Slu
-
 		}
 		return BinOpType::NONE;
 	}

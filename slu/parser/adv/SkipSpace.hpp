@@ -40,11 +40,8 @@ namespace slu::parse
 				while (in.peekAt(idx + 1 + level) == '=') level++;
 
 
-				if constexpr (in.settings() & sluSyn)
-				{
-					if (level == 0)
-						throwMultilineCommentMissingEqual(in);
-				}
+				if (level == 0)
+					throwMultilineCommentMissingEqual(in);
 
 
 				if (in.peekAt(idx + 1 + level) == '[') // Confirm multiline comment
@@ -233,7 +230,7 @@ namespace slu::parse
 						while (in.peekAt(3 + level) == '=') // Count '=' signs
 							level++;
 
-						if constexpr (SorIn::settings() & sluSyn && !isSem)
+						if constexpr (!isSem)
 						{
 							if (level == 0)
 								throwMultilineCommentMissingEqual(in);

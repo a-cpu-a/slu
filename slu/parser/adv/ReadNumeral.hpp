@@ -203,11 +203,8 @@ namespace slu::parse
 			}
 			else if (c == '.' && !hasDot && !hasExp)
 			{
-				if constexpr (In::settings()&sluSyn)
-				{
-					if (!in.isOob(1) && in.peekAt(1) == '.')
-						break;
-				}
+				if (!in.isOob(1) && in.peekAt(1) == '.')
+					break;
 				if constexpr (!ALLOW_FLOAT)
 					break;
 
@@ -268,38 +265,20 @@ namespace slu::parse
 		}
 		else
 		{
-			if constexpr (in.settings() & sluSyn)
-			{
-				ExprType::P128 n128 = hex
-					? parseHexU128(in, number)
-					: parseU128(in, number);
+			ExprType::P128 n128 = hex
+				? parseHexU128(in, number)
+				: parseU128(in, number);
 
-				if (n128.hi >> 63)
-					return n128;//I128 would be negative
+			if (n128.hi >> 63)
+				return n128;//I128 would be negative
 
-				//if (n128.hi != 0)
-				//	return DataT{ ExprType::I128::signFlipped(n128) };
+			//if (n128.hi != 0)
+			//	return DataT{ ExprType::I128::signFlipped(n128) };
 
-				if (n128.lo >> 63)//I64 would be negative
-					return ExprType::U64(n128.lo);
+			if (n128.lo >> 63)//I64 would be negative
+				return ExprType::U64(n128.lo);
 
-				return ExprType::I64(n128.lo);
-			}
-
-			if (hex)
-				return ExprType::I64(parseHexInt(in, number));
-			try
-			{
-				return ExprType::I64(std::stoll(number, nullptr, 10));
-			}
-			catch (...)
-			{
-				if constexpr (in.settings() & noIntOverflow)
-					reportIntTooBig(in, number);
-				if constexpr(ALLOW_FLOAT)
-					return ExprType::F64(std::stod(number));
-				throwUnexpectedFloat(in, number);
-			}
+			return ExprType::I64(n128.lo);
 		}
 		}
 		catch (const std::out_of_range&)

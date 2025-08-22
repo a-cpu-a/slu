@@ -389,7 +389,7 @@ namespace slu::mlvl
 	struct TypeInfCheckVisitor : visit::EmptyVisitor<TypeInfCheckCfg>
 	{
 		using Cfg = TypeInfCheckCfg;
-		static constexpr bool isSlu = Cfg::settings() & ::slu::parse::sluSyn;
+		static constexpr bool isSlu = true;
 
 		const parse::BasicMpDbData& mpDb;
 		std::vector<parse::Locals<Cfg>*> localsStack;

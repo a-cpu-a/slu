@@ -56,7 +56,7 @@ namespace slu::parse
 		AnyCfgable<T> && requires(T t) {
 
 		//{ t.genData } -> AnyGenData;
-		{ t.genData } -> AnyGenDataV<std::remove_cvref_t<T>::settings()&sluSyn>;
+		{ t.genData } -> AnyGenDataV<true>;
 
 		{ t.restart() } -> std::same_as<void>;
 

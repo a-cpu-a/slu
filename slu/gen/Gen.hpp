@@ -294,8 +294,7 @@ namespace slu::parse
 			genNameOrLocal<true>(out, var);
 		},
 		varcase(const ExprType::Deref&) {
-			if constexpr (Out::settings() & sluSyn)
-				genExpr(out, *var.v);
+			genExpr(out, *var.v);
 			out.add(".*"sv);
 		},
 		varcase(const ExprType::Index<Out>&) {
@@ -369,8 +368,7 @@ namespace slu::parse
 			out.add(".."sv);
 		},
 		varcase(const ExprType::Lifetime&) {
-			if constexpr (Out::settings() & sluSyn)
-				genLifetime(out, var);
+			genLifetime(out, var);
 		},
 		varcase(const ExprType::TraitExpr&) {
 			genTraitExpr(out, var);
@@ -877,12 +875,7 @@ namespace slu::parse
 
 			genExprParens(out, var.cond);
 
-			if constexpr (Out::settings() & sluSyn) 
-				out.newLine().add('{');
-			else
-				out.add(" do");
-
-			out.tabUpNewl();
+			out.newLine().add('{').tabUpNewl();
 
 			genBlock(out, var.bl);
 			out.unTabNewl()
@@ -891,16 +884,12 @@ namespace slu::parse
 		varcase(const StatementType::RepeatUntil<Out>&) {
 			out.add("repeat");
 
-			if constexpr (Out::settings() & sluSyn)
-				out.newLine().add('{');
-			out.tabUpNewl();
+			out.newLine().add('{').tabUpNewl();
 
 			genBlock(out, var.bl);
 			out.unTabNewl();
 
-			if constexpr (Out::settings() & sluSyn)
-				out.add('}');
-			out.add("until ");
+			out.add("} until");
 			genExpr(out, var.cond);
 			out.addNewl(';');
 

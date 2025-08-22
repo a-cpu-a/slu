@@ -62,54 +62,44 @@ namespace slu::parse
 			requireToken(in, ")");
 			return false;
 		}
-		if constexpr (In::settings() & sluSyn)
+		if (firstChar == ':')
 		{
-			if (firstChar == ':')
+			requireToken(in, ":>");//Modpath root
+			skipSpace(in);
+			if (checkToken(in, "::") && in.peekAt(2) != ':') //is '::', but not ':::'
 			{
-				requireToken(in, ":>");//Modpath root
+				in.skip(2);
 				skipSpace(in);
-				if(checkToken(in, "::") && in.peekAt(2)!=':') //is '::', but not ':::'
-				{
-					in.skip(2);
-					skipSpace(in);
-					varDataOut = ExprType::Global<In>(in.genData.resolveRootName(readModPath(in)));
-					return false;
-				}
-				else
-				{
-					varDataOut = ExprType::MpRoot{};
-					return true;
-				}
+				varDataOut = ExprType::Global<In>(in.genData.resolveRootName(readModPath(in)));
+				return false;
+			}
+			else
+			{
+				varDataOut = ExprType::MpRoot{};
+				return true;
 			}
 		}
 		// Must be Name, ... or mod path
 
-		//Lua doesnt reserve mp_start names, so doesnt matter
 		std::string start = readName<NameCatagory::MP_START>(in);
 
-		if constexpr (In::settings() & sluSyn)
+		auto [mp, skipped] = readModPath(in, std::move(start));
+
+		if (mp.size() == 1)
 		{
-			auto [mp,skipped] = readModPath(in, std::move(start));
-
-			if(mp.size()==1)
-			{
-				ezmatch(in.genData.resolveNameOrLocal(mp[0]))(
-					varcase(const LocalId) {
-					varDataOut = ExprType::Local(var);
-				},
-					varcase(const MpItmId<In>) {
-					varDataOut = ExprType::Global<In>(var);
-				}
-					);
+			ezmatch(in.genData.resolveNameOrLocal(mp[0]))(
+				varcase(const LocalId) {
+				varDataOut = ExprType::Local(var);
+			},
+				varcase(const MpItmId<In>) {
+				varDataOut = ExprType::Global<In>(var);
 			}
-			else
-				varDataOut = ExprType::Global<In>(in.genData.resolveName(mp));
-
-			return skipped;
+				);
 		}
-		//Check, cuz 'excess elements in struct initializer' happens in normal lua
-		varDataOut = ExprType::Global<In>(in.genData.resolveName(start));
-		return false;
+		else
+			varDataOut = ExprType::Global<In>(in.genData.resolveName(mp));
+
+		return skipped;
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
@@ -276,20 +266,17 @@ namespace slu::parse
 					if (in.peekAt(1) == '.') //is concat or range (..)
 						goto exit;
 				}
-				if constexpr (In::settings() & sluSyn)
+				if (in.peekAt(1) == '*')
 				{
-					if (in.peekAt(1) == '*')
-					{
-						in.skip(2);
+					in.skip(2);
 
-						varData.back() = wrapExpr<ExprType::Deref, true, In>(
-							varPlace,
-							std::move(varData.back())
-						);
-						varDataNeedsSubThing = false;
-						endsWithArgs = false;
-						break;
-					}
+					varData.back() = wrapExpr<ExprType::Deref, true, In>(
+						varPlace,
+						std::move(varData.back())
+					);
+					varDataNeedsSubThing = false;
+					endsWithArgs = false;
+					break;
 				}
 				in.skip();//skip dot
 
@@ -379,13 +366,8 @@ namespace slu::parse
 
 	template<AnyInput In>
 	inline Expr<In> readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
-		if constexpr (in.settings() & sluSyn)
-		{
-			Expr<In> ex = readExpr<true>(in, allowVarArg, readBiOp);
-			return ex;
-		}
-		else
-			return readExpr(in, allowVarArg, readBiOp);
+		Expr<In> ex = readExpr<true>(in, allowVarArg, readBiOp);
+		return ex;
 	}
 
 	template<AnyInput In>

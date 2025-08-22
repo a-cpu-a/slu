@@ -20,23 +20,7 @@ namespace slu::parse
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
 	{
-		if constexpr (in.settings() & sluSyn)
-		{
-			if (startCh == '}') return true;
-			if (startCh == 'u')
-			{
-				if (checkTextToken(in, "until"))
-					return true;
-			}
-			else if (startCh == 'e')
-			{
-				if (checkTextToken(in, "else"))
-					return true;
-
-			}
-			return false;
-		}
-
+		if (startCh == '}') return true;
 		if (startCh == 'u')
 		{
 			if (checkTextToken(in, "until"))
@@ -44,17 +28,9 @@ namespace slu::parse
 		}
 		else if (startCh == 'e')
 		{
-			const char ch1 = in.peekAt(1);
-			if (ch1 == 'n')
-			{
-				if (checkTextToken(in, "end"))
-					return true;
-			}
-			else if (ch1 == 'l')
-			{
-				if (checkTextToken(in, "else") || checkTextToken(in, "elseif"))
-					return true;
-			}
+			if (checkTextToken(in, "else"))
+				return true;
+
 		}
 		return false;
 	}
@@ -62,30 +38,27 @@ namespace slu::parse
 	template<bool isLoop, AnyInput In>
 	inline bool readReturn(In& in, const bool allowVarArg)
 	{
-		bool ret = checkReadTextToken(in, "return");
 		RetType retTy = RetType::NONE;
-		if constexpr (In::settings()&sluSyn)
+		if (checkReadTextToken(in, "return"))
+			retTy = RetType::RETURN;
+		else if (checkReadTextToken(in, "break"))
+			retTy = RetType::BREAK;
+		else if (checkReadTextToken(in, "continue"))
+			retTy = RetType::CONTINUE;
+
+		if constexpr (!isLoop)
 		{
-			if(!ret)
+			if (retTy == RetType::BREAK //TODO: allow in some more contexts.
+				|| retTy == RetType::CONTINUE)
 			{
-				if (checkReadTextToken(in, "break"))
-					retTy = RetType::BREAK;
-				else if(checkReadTextToken(in, "continue"))
-					retTy = RetType::CONTINUE;
-			}
-			if constexpr (!isLoop)
-			{
-				if (retTy!=RetType::NONE)
-				{
-					in.handleError(std::format(
-						"Break used outside of loop"
-						"{}", errorLocStr(in)));
-				}
+				in.handleError(std::format(
+					"Break used outside of loop"
+					"{}", errorLocStr(in)));
 			}
 		}
-		if (ret || retTy != RetType::NONE)
+		if (retTy != RetType::NONE)
 		{
-			in.genData.scopeReturn(ret ? RetType::RETURN : retTy);
+			in.genData.scopeReturn(retTy);
 
 			skipSpace(in);
 
@@ -171,9 +144,7 @@ namespace slu::parse
 
 			const char ch = in.peek();
 
-			bool mayReturn = ch == 'r';
-			if constexpr (In::settings() & sluSyn)
-				mayReturn = mayReturn || (ch == 'b');
+			bool mayReturn = ch == 'r' || ch == 'b' || ch == 'c';
 
 			if (mayReturn)
 			{
