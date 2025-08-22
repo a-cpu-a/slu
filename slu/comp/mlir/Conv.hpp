@@ -820,7 +820,7 @@ namespace slu::comp::mico
 			conv.localsStack.pop_back();
 
 		},
-		varcase(const parse::StatementType::FnV<true>&) {
+		varcase(const parse::StatementType::Fn&) {
 
 			mlir::OpBuilder::InsertionGuard guard(builder);
 			builder.setInsertionPointToStart(conv.module.getBody());

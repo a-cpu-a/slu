@@ -674,9 +674,7 @@ namespace slu::parse
 			ExportData exported = false;
 		};
 
-		template<bool isSlu>
-		struct FnV : Function {};
-		Slu_DEF_CFG(Fn);
+		struct Fn : Function {};
 
 		template<bool isSlu>
 		struct FunctionDeclV : FunctionInfo
@@ -822,7 +820,7 @@ namespace slu::parse
 		StatementType::ForInV<isSlu>,	// "for namelist in explist do block end"
 
 		StatementType::Function,		// "function funcname funcbody"
-		StatementType::FnV<isSlu>,					// "fn funcname funcbody"
+		StatementType::Fn,					// "fn funcname funcbody"
 
 		StatementType::FunctionDeclV<isSlu>,
 		StatementType::FnDeclV<isSlu>,

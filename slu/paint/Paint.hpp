@@ -819,7 +819,7 @@ namespace slu::paint
 			se.popLocals();
 		},
 
-		varcase(const parse::StatementType::Fn<Se>&) {
+		varcase(const parse::StatementType::Fn&) {
 			paintFunc<false>(se, var, true);
 		},
 		varcase(const parse::StatementType::FnDecl<Se>&) {

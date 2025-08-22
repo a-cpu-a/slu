@@ -907,7 +907,7 @@ namespace slu::parse
 			out.unTabNewl().addNewl('}');
 		},
 
-		varcase(const StatementType::Fn<Out>&) {
+		varcase(const StatementType::Fn&) {
 			genFunc<false>(out, var, "fn ");
 		},
 		varcase(const StatementType::FnDecl<Out>&) {

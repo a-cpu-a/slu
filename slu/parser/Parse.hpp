@@ -453,7 +453,7 @@ namespace slu::parse
 		case 'n':
 			if (checkReadTextToken(in, "fn"))
 			{
-				readFunctionStatement<isLoop, StatementType::Fn<In>, StatementType::FnDecl<In>>(
+				readFunctionStatement<isLoop, StatementType::Fn, StatementType::FnDecl<In>>(
 					in, place, allowVarArg, exported, safety
 				);
 				return true;
