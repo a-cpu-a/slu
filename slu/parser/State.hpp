@@ -658,7 +658,6 @@ namespace slu::parse
 		template<bool isSlu>
 		struct LabelV { MpItmIdV<isSlu> v; };		// "label"
 		Slu_DEF_CFG(Label);
-		struct Break {};					// "break"
 		template<bool isSlu>
 		struct GotoV { MpItmIdV<isSlu> v; };			// "goto Name"
 		Slu_DEF_CFG(Goto);
@@ -678,18 +677,6 @@ namespace slu::parse
 		template<bool isSlu>
 		using IfCondV = BaseIfCondV<isSlu, false>;
 		Slu_DEF_CFG(IfCond);
-
-		// "for Name = exp , exp [, exp] do block end"
-		template<bool isSlu>
-		struct ForNumV
-		{
-			Sel<isSlu, MpItmIdV<isSlu>, PatV<true,true>> varName;
-			ExprV<isSlu> start;
-			ExprV<isSlu> end;//inclusive
-			std::optional<ExprV<isSlu>> step;
-			BlockV<isSlu> bl;
-		};
-		Slu_DEF_CFG(ForNum);
 
 		// "for namelist in explist do block end"
 		template<bool isSlu>
@@ -861,7 +848,6 @@ namespace slu::parse
 		StatementType::SelfCallV<isSlu>,
 
 		StatementType::LabelV<isSlu>,			// "label"
-		StatementType::Break,					// "break"
 		StatementType::GotoV<isSlu>,			// "goto Name"
 		StatementType::BlockV<isSlu>,			// "do block end"
 		StatementType::WhileV<isSlu>,		// "while exp do block end"
@@ -869,7 +855,6 @@ namespace slu::parse
 
 		StatementType::IfCondV<isSlu>,	// "if exp then block {elseif exp then block} [else block] end"
 
-		StatementType::ForNumV<isSlu>,	// "for Name = exp , exp [, exp] do block end"
 		StatementType::ForInV<isSlu>,	// "for namelist in explist do block end"
 
 		StatementType::LocalFunctionDefV<isSlu>,	// "local function Name funcbody"

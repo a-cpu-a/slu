@@ -26,7 +26,6 @@ New Syntax {
 		| ‘{’ block ‘}’
 		| ‘while’ basicExp statOrRet
 		| ‘repeat’ statOrRet ‘until’ exp
-		| ‘for’ uncondDestrPat ‘=’ exp ‘,’ basicExp [‘,’ basicExp] statOrRet
 		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
 		| ‘local’ uncondDestrPat [‘=’ explist]
 

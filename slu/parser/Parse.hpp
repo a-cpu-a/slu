@@ -483,29 +483,7 @@ namespace slu::parse
 				skipSpace(in);
 				names = readPat<true>(in, true);
 
-				bool isNumeric = false;
-
-				isNumeric = checkReadToken(in, "=");
-				if (isNumeric)
-				{
-					StatementType::ForNum<In> res{};
-					res.varName = std::move(names);
-
-					// for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
-					res.start = readExpr(in, allowVarArg);
-					requireToken(in, ",");
-					res.end = readExpr<true>(in, allowVarArg);
-
-					if (checkReadToken(in, ","))
-						res.step = readExpr<true>(in, allowVarArg);
-
-					res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
-
-					in.genData.addStat(place, std::move(res));
-					return true;
-				}
-				// Generic Loop
-				// for namelist in explist do block end | 
+				// 'for' pat 'in' exp '{' block '}' 
 
 				StatementType::ForIn<In> res{};
 				res.varNames = std::move(names);

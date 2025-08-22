@@ -196,9 +196,9 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genExprParens(Out& out, const Expr<Out>& obj)
 	{
-		if constexpr (out.settings() & sluSyn) out.add('(');
+		out.add('(');
 		genExpr(out, obj);
-		if constexpr (out.settings() & sluSyn) out.add(')');
+		out.add(')');
 	}
 
 	template<AnyOutput Out>
@@ -227,14 +227,11 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genTraitExpr(Out& out, const TraitExpr& obj)
 	{
-		if constexpr(Out::settings() & sluSyn)
+		for (const parse::ExprV<true>& i : obj.traitCombo)
 		{
-			for (const parse::ExprV<true>& i : obj.traitCombo)
-			{
-				genExpr(out, i);
-				if (&i != &obj.traitCombo.back())
-					out.add(" + ");
-			}
+			genExpr(out, i);
+			if (&i != &obj.traitCombo.back())
+				out.add(" + ");
 		}
 	}
 
@@ -251,24 +248,21 @@ namespace slu::parse
 		for (const UnOpItem& t : obj)
 		{
 			out.add(getUnOpAsStr<Out>(t.type));
-			if constexpr (out.settings() & sluSyn)
+			if (t.type == UnOpType::TO_REF
+				|| t.type == UnOpType::TO_REF_MUT
+				|| t.type == UnOpType::TO_REF_CONST
+				|| t.type == UnOpType::TO_REF_SHARE)
 			{
-				if (t.type == UnOpType::TO_REF
-					|| t.type == UnOpType::TO_REF_MUT
-					|| t.type == UnOpType::TO_REF_CONST
-					|| t.type == UnOpType::TO_REF_SHARE)
-				{
-					genLifetime(out, t.life);
-					if (!t.life.empty())
-						out.add(' ');
+				genLifetime(out, t.life);
+				if (!t.life.empty())
+					out.add(' ');
 
-					if (t.type == UnOpType::TO_REF_MUT)
-						out.add("mut ");
-					else if (t.type == UnOpType::TO_REF_CONST)
-						out.add("const ");
-					else if (t.type == UnOpType::TO_REF_SHARE)
-						out.add("share ");
-				}
+				if (t.type == UnOpType::TO_REF_MUT)
+					out.add("mut ");
+				else if (t.type == UnOpType::TO_REF_CONST)
+					out.add("const ");
+				else if (t.type == UnOpType::TO_REF_SHARE)
+					out.add("share ");
 			}
 		}
 	}
@@ -277,11 +271,8 @@ namespace slu::parse
 	{
 		genUnOps(out, obj.unOps);
 		genExprData(out, obj.data);
-		if constexpr (Out::settings() & sluSyn)
-		{
-			for (const PostUnOpType t : obj.postUnOps)
-				out.add(getPostUnOpAsStr(t));
-		}
+		for (const PostUnOpType t : obj.postUnOps)
+			out.add(getPostUnOpAsStr(t));
 	}
 	template<AnyOutput Out>
 	inline void genExprData(Out& out, const ExprData<Out>& obj)
@@ -411,34 +402,27 @@ namespace slu::parse
 		},
 		varcase(const ExprType::Err&) {
 			out.add("~~"sv);
-			if constexpr (Out::settings() & sluSyn)
-				genExpr(out, *var.err);
+			genExpr(out, *var.err);
 		},
 		varcase(const ExprType::Slice&) {
 			out.add('[');
-			if constexpr (Out::settings() & sluSyn)
-				genExpr(out, *var.v);
+			genExpr(out, *var.v);
 			out.add(']');
 		},
 		varcase(const ExprType::Struct&) {
 			out.add("struct "sv);
-			if constexpr (Out::settings() & sluSyn)
-				genTable(out, var.fields);
+			genTable(out, var.fields);
 		},
 		varcase(const ExprType::Union&) {
 			out.add("union "sv);
-			if constexpr (Out::settings() & sluSyn)
-				genTable(out, var.fields);
+			genTable(out, var.fields);
 		},
 		varcase(const ExprType::FnType&) {
-			if constexpr (Out::settings() & sluSyn)
-			{
-				genSafety(out, var.safety);
-				out.add("fn "sv);
-				genExpr(out, *var.argType);
-				out.add(" -> "sv);
-				genExpr(out, *var.retType);
-			}
+			genSafety(out, var.safety);
+			out.add("fn "sv);
+			genExpr(out, *var.argType);
+			out.add(" -> "sv);
+			genExpr(out, *var.retType);
 		}
 		);
 	}
@@ -546,23 +530,18 @@ namespace slu::parse
 	{
 		if constexpr (isDecl)
 		{
-			if constexpr (Out::settings() & sluSyn)
-			{
-				genExSafety(out, itm.exported, itm.safety);
-				out.pushLocals(itm.local2Mp);
-			}
+			genExSafety(out, itm.exported, itm.safety);
+			out.pushLocals(itm.local2Mp);
 
 			out.add(kw);
 			genFuncDecl(out, itm, out.db.asSv(itm.name));
 			out.addNewl(";");
 			out.wasSemicolon = true;
-			if constexpr (Out::settings() & sluSyn)
-				out.popLocals();
+			out.popLocals();
 		}
 		else
 		{
-			if constexpr (Out::settings() & sluSyn)
-				genExSafety(out, itm.exported, itm.func.safety);
+			genExSafety(out, itm.exported, itm.func.safety);
 
 			out.add(kw);
 			genFuncDef(out, itm.func, out.db.asSv(itm.name));
@@ -576,36 +555,25 @@ namespace slu::parse
 		genParamList(out, itm.params, itm.hasVarArgParam);
 		out.add(')');
 
-		if constexpr (Out::settings() & sluSyn)
+		if (itm.retType.has_value())
 		{
-			if (itm.retType.has_value())
-			{
-				out.add(" -> ");
-				genExpr(out, **itm.retType);
-			}
+			out.add(" -> ");
+			genExpr(out, **itm.retType);
 		}
 	}
 	template<AnyOutput Out>
 	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
 	{
-		if constexpr (Out::settings() & sluSyn)
-			out.pushLocals(var.local2Mp);
-
+		out.pushLocals(var.local2Mp);
 		genFuncDecl(out, var, name);
 
-		if constexpr (out.settings() & sluSyn)
-			out.newLine().add('{');
-		out.tabUpNewl();
-
+		out.newLine().add('{').tabUpNewl();
 		genBlock(out, var.block);
-
 		out.unTabNewl()
-			.addNewl(sel<Out>("end","}"));
+			.addNewl("}")
+			.newLine();//Extra spacing
 
-		out.newLine();//Extra spacing
-
-		if constexpr (Out::settings() & sluSyn)
-			out.popLocals();
+		out.popLocals();
 	}
 
 	template<AnyOutput Out>
@@ -653,7 +621,8 @@ namespace slu::parse
 			genExpr(out, var);
 		},
 			// Fields / List
-		varcase(const auto&)requires AnyCompoundDestr<isLocal,std::remove_cvref_t<decltype(var)>> {
+		[&]<class T>(const T& var) requires AnyCompoundDestr<isLocal,T>
+		{
 			genDestrSpec(out, var.spec);
 			out.add('{').tabUpNewl();
 
@@ -761,76 +730,35 @@ namespace slu::parse
 	{
 		out.add("if ");
 
-		if constexpr (Out::settings() & sluSyn)
-		{
-			genExpr(out, *itm.cond);
-			genSoe(out, *itm.bl);
-			if constexpr (isExpr)out.add(' ');
-		}
-		else
-		{
-			genExprParens(out, *itm.cond);
-			out.add(" then").tabUpNewl();
-			genBlock(out, *itm.bl);
-		}
+		genExpr(out, *itm.cond);
+		genSoe(out, *itm.bl);
+		if constexpr (isExpr)out.add(' ');
 
 		if (!itm.elseIfs.empty())
 		{
 			for (const auto& [expr, bl] : itm.elseIfs)
 			{
-				if constexpr (!(Out::settings() & sluSyn))
-					out.unTabNewl();
 				out.add(sel<Out>("elseif ", "else if "));
 
-				if constexpr (Out::settings() & sluSyn)
-				{
-					genExpr(out, expr);
-					genSoe(out, bl);
-					if constexpr (isExpr)out.add(' ');
-				}
-				else
-				{
-					genExprParens(out, expr);
-					out.add(" then").tabUpNewl();
-					genBlock(out, bl);
-				}
+				genExpr(out, expr);
+				genSoe(out, bl);
+				if constexpr (isExpr)out.add(' ');
 			}
 		}
 		if (itm.elseBlock)
 		{
-			if constexpr (!(Out::settings() & sluSyn))
-				out.unTabNewl();
 			out.add("else");
-
-			if constexpr (Out::settings() & sluSyn)
-			{
-				genSoe(out, **itm.elseBlock);
-			}
-			else
-			{
-				out.tabUpNewl();
-				genBlock(out, **itm.elseBlock);
-			}
+			genSoe(out, **itm.elseBlock);
 		}
-
-		if constexpr (!(Out::settings() & sluSyn))
-			out.unTabNewl().addNewl("end");
 	}
 
 	template<bool isLocal,size_t N,AnyOutput Out>
 	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
 	{
-		if constexpr (Out::settings() & sluSyn)
-		{
-			if (obj.exported)
-				out.add("ex ");
-		}
+		genExSafety(out, obj.exported, OptSafety::DEFAULT);
 
 		out.add(kw);
-		if constexpr (Out::settings() & sluSyn)
-			genPat<isLocal>(out, obj.names);
-		else
-			genAtribNameList(out, obj.names);
+		genPat<isLocal>(out, obj.names);
 		if (!obj.exprs.empty())
 		{
 			out.add(" = ");
@@ -884,34 +812,28 @@ namespace slu::parse
 			out.popLocals();
 		},
 		varcase(const StatementType::CanonicLocal&) {
-			if constexpr (Out::settings() & sluSyn)
-			{
-				genExSafety(out, var.exported, OptSafety::DEFAULT);
-				out.add("let ");
-				//genExpr(out, var.type); //TODO: gen resolved types?
-				//out.add(' ');
-				genNameOrLocal<true>(out, var.name);
-				out.add(" = ");
-				genExpr(out, var.value);
-				out.addNewl(';');
-				out.wasSemicolon = true;
-			}
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			out.add("let ");
+			//genExpr(out, var.type); //TODO: gen resolved types?
+			//out.add(' ');
+			genNameOrLocal<true>(out, var.name);
+			out.add(" = ");
+			genExpr(out, var.value);
+			out.addNewl(';');
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::CanonicGlobal&) {
-			if constexpr (Out::settings() & sluSyn)
-			{
-				out.pushLocals(var.local2Mp);
-				genExSafety(out, var.exported, OptSafety::DEFAULT);
-				out.add("const ");
-				//genExpr(out, var.type); //TODO: gen resolved types?
-				//out.add(' ');
-				genNameOrLocal<false>(out, var.name);
-				out.add(" = ");
-				genExpr(out, var.value);
-				out.addNewl(';');
-				out.wasSemicolon = true;
-				out.popLocals();
-			}
+			out.pushLocals(var.local2Mp);
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			out.add("const ");
+			//genExpr(out, var.type); //TODO: gen resolved types?
+			//out.add(' ');
+			genNameOrLocal<false>(out, var.name);
+			out.add(" = ");
+			genExpr(out, var.value);
+			out.addNewl(';');
+			out.wasSemicolon = true;
+			out.popLocals();
 		},
 
 		varcase(const StatementType::Call<Out>&) {
@@ -931,10 +853,6 @@ namespace slu::parse
 				.add(out.db.asSv(var.v))
 				.addNewl(sel<Out>("::", ":"))
 				.tabUpTemp();
-		},
-		varcase(const StatementType::Break) {
-			out.addNewl("break;");
-			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::Goto<Out>&) {
 			out.add("goto ")
@@ -989,54 +907,15 @@ namespace slu::parse
 			out.newLine();//Extra spacing
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::ForNum<Out>&) {
-
-			out.add("for ");
-			if constexpr (Out::settings() & sluSyn)
-				genPat<true>(out, var.varName);
-			else
-				out.add(out.db.asSv(var.varName));
-			out.add(" = ");
-			genExpr(out, var.start);
-			out.add(", ");
-			genExpr(out, var.end);
-			if (var.step)
-			{
-				out.add(", ");
-				genExpr(out, *var.step);
-			}
-			if constexpr (Out::settings() & sluSyn)
-				out.newLine().add('{');
-			else
-				out.add(" do");
-
-			out.tabUpNewl();
-
-			genBlock(out, var.bl);
-			out.unTabNewl()
-				.addNewl(sel<Out>("end", "}"));
-		},
 		varcase(const StatementType::ForIn<Out>&) {
 			out.add("for ");
-			if constexpr (Out::settings() & sluSyn)
-				genPat<true>(out, var.varNames);
-			else
-				genNames(out, var.varNames);
+			genPat<true>(out, var.varNames);
 			out.add(" in ");
-			if constexpr (Out::settings() & sluSyn)
-				genExpr(out, var.exprs);
-			else
-				genExprList(out, var.exprs);
-
-			if constexpr (Out::settings() & sluSyn)
-				out.newLine().add('{');
-			else
-				out.add(" do");
-			out.tabUpNewl();
+			genExpr(out, var.exprs);
+			out.newLine().add('{').tabUpNewl();
 
 			genBlock(out, var.bl);
-			out.unTabNewl()
-				.addNewl(sel<Out>("end", "}"));
+			out.unTabNewl().addNewl("}");
 		},
 
 		varcase(const StatementType::Fn<Out>&) {
@@ -1060,41 +939,35 @@ namespace slu::parse
 		//Slu!
 
 		varcase(const StatementType::Struct&) {
-			if constexpr (Out::settings() & sluSyn)
+			out.pushLocals(var.local2Mp);
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			out.add("struct ").add(out.db.asSv(var.name));
+			if (!var.params.empty())
 			{
-				out.pushLocals(var.local2Mp);
-				if (var.exported)out.add("ex ");
-				out.add("struct ").add(out.db.asSv(var.name));
-				if (!var.params.empty())
-				{
-					out.add('(');
-					genParamList(out, var.params, false);
-					out.add(')');
-				}
-				out.add(' ');
-				genTable(out, var.type);
-				out.newLine();
-				out.popLocals();
+				out.add('(');
+				genParamList(out, var.params, false);
+				out.add(')');
 			}
+			out.add(' ');
+			genTable(out, var.type);
+			out.newLine();
+			out.popLocals();
 		},
 
 		varcase(const StatementType::Union&) {
-			if constexpr (Out::settings() & sluSyn)
+			out.pushLocals(var.local2Mp);
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			out.add("union ").add(out.db.asSv(var.name));
+			if (!var.params.empty())
 			{
-				out.pushLocals(var.local2Mp);
-				if (var.exported)out.add("ex ");
-				out.add("union ").add(out.db.asSv(var.name));
-				if (!var.params.empty())
-				{
-					out.add('(');
-					genParamList(out, var.params, false);
-					out.add(')');
-				}
-				out.add(' ');
-				genTable(out, var.type);
-				out.newLine();
-				out.popLocals();
+				out.add('(');
+				genParamList(out, var.params, false);
+				out.add(')');
 			}
+			out.add(' ');
+			genTable(out, var.type);
+			out.newLine();
+			out.popLocals();
 		},
 
 		varcase(const StatementType::ExternBlock<Out>&) {
@@ -1136,64 +1009,55 @@ namespace slu::parse
 			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::Trait&) {
-			if constexpr (Out::settings() & sluSyn)
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			out.add("trait ")
+				.add(out.db.asSv(var.name)).add('(');
+			genParamList(out, var.params, false);
+			out.add(')');
+			if (var.whereSelf.has_value())
 			{
-				if (var.exported) out.add("ex ");
-				out.add("trait ")
-					.add(out.db.asSv(var.name)).add('(');
-				genParamList(out, var.params, false);
-				out.add(')');
-				if (var.whereSelf.has_value())
-				{
-					out.add(": ");
-					genTraitExpr(out, *var.whereSelf);
-				}
-				genWhereClauses(out, var.clauses);
-				out.add(" {").tabUpNewl().newLine();
-				for (const auto& i : var.itms)
-					genStat(out, i);
-				out.unTabNewl().addNewl('}');
+				out.add(": ");
+				genTraitExpr(out, *var.whereSelf);
 			}
+			genWhereClauses(out, var.clauses);
+			out.add(" {").tabUpNewl().newLine();
+			for (const auto& i : var.itms)
+				genStat(out, i);
+			out.unTabNewl().addNewl('}');
 		},
 		varcase(const StatementType::Impl&) {
-			if constexpr (Out::settings() & sluSyn)
+			genExSafety(out, var.exported, var.isUnsafe?OptSafety::UNSAFE : OptSafety::DEFAULT);
+			if (var.deferChecking) out.add("defer ");
+			out.add("impl(");
+			genParamList(out, var.params, false);
+			out.add(") ");
+			if (var.forTrait.has_value())
 			{
-				if (var.exported) out.add("ex ");
-				if (var.deferChecking) out.add("defer ");
-				out.add("impl(");
-				genParamList(out, var.params, false);
-				out.add(") ");
-				if (var.forTrait.has_value())
-				{
-					genTraitExpr(out, *var.forTrait);
-					out.add(" for ");
-				}
-				genExpr(out, var.type);
-				genWhereClauses(out, var.clauses);
-				out.add(" {").tabUpNewl().newLine();
-				for (const auto& i : var.code)
-					genStat(out, i);
-				out.unTabNewl().addNewl('}');
+				genTraitExpr(out, *var.forTrait);
+				out.add(" for ");
 			}
+			genExpr(out, var.type);
+			genWhereClauses(out, var.clauses);
+			out.add(" {").tabUpNewl().newLine();
+			for (const auto& i : var.code)
+				genStat(out, i);
+			out.unTabNewl().addNewl('}');
 		},
 		varcase(const StatementType::Use&) {
-			if constexpr (Out::settings() & sluSyn)
-			{
-				if (var.exported) out.add("ex ");
-				out.add("use ");
-				genModPath(out, out.db.asVmp(var.base));
-				genUseVariant(out, var.useVariant);
-				out.addNewl(';');
-				out.wasSemicolon = true;
-			}
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			out.add("use ");
+			genModPath(out, out.db.asVmp(var.base));
+			genUseVariant(out, var.useVariant);
+			out.addNewl(';');
+			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::Mod<Out>&) {
-			if (var.exported)out.add("ex ");
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
 			out.add("mod ").add(out.db.asSv(var.name)).addNewl(';');
 			out.wasSemicolon = true;
 		},
 		varcase(const StatementType::ModAs<Out>&) {
-			if (var.exported)out.add("ex ");
+			genExSafety(out, var.exported, OptSafety::DEFAULT);
 			out.add("mod ").add(out.db.asSv(var.name)).add(" as {");
 			out.tabUpNewl().newLine();
 
@@ -1201,7 +1065,6 @@ namespace slu::parse
 				genStat(out,i);
 			out.unTabNewl().addNewl('}');
 		}
-
 		);
 	}
 
@@ -1209,20 +1072,22 @@ namespace slu::parse
 	inline void genBlock(Out& out, const Block<Out>& itm)
 	{
 		for (const Statement<Out>& s : itm.statList)
-		{
 			genStat(out, s);
-		}
 
 		if (itm.retTy != parse::RetType::NONE)
 		{
-			bool ret = itm.retTy == parse::RetType::RETURN;
-			if constexpr (Out::settings() & sluSyn)
+			switch (itm.retTy)
 			{
-				if (!ret)
-					out.add(itm.retTy == parse::RetType::CONTINUE ? "continue" : "break");
-			}
-			if (ret)
+			case parse::RetType::RETURN:
 				out.add("return");
+				break;
+			case parse::RetType::BREAK:
+				out.add("break");
+				break;
+			case parse::RetType::CONTINUE:
+				out.add("continue");
+				break;
+			}
 			if (!itm.retExprs.empty())
 			{
 				out.add(' ');
@@ -1236,16 +1101,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genFile(Out& out,const ParsedFile<Out>& obj)
 	{
-		if constexpr (Out::settings() & sluSyn)
-		{
-			for (const auto& i : obj.code)
-				genStat(out, i);
-		}
-		else
-		{
-			out.pushLocals(obj.local2Mp);
-			genBlock(out, obj.code);
-			out.popLocals();
-		}
+		for (const auto& i : obj.code)
+			genStat(out, i);
 	}
 }

@@ -773,22 +773,6 @@ namespace slu::paint
 		varcase(const parse::StatementType::Block<Se>&) {
 			paintDoEndBlock(se, var);
 		},
-		varcase(const parse::StatementType::ForNum<Se>&) {
-			paintKw<Tok::COND_STAT>(se, "for");
-
-			paintPat<true,Tok::NAME_TYPE>(se, var.varName);
-			paintKw<Tok::ASSIGN>(se, "=");
-
-			paintExpr(se, var.start);
-			paintKw<Tok::PUNCTUATION>(se, ",");
-			paintExpr(se, var.end);
-			if (var.step.has_value())
-			{
-				paintKw<Tok::PUNCTUATION>(se, ",");
-				paintExpr(se, *var.step);
-			}
-			paintStatOrRet(se, var.bl);
-		},
 		varcase(const parse::StatementType::ForIn<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "for");
 			paintPat<true,Tok::NAME_TYPE>(se, var.varNames);
@@ -850,10 +834,6 @@ namespace slu::paint
 		varcase(const parse::StatementType::LocalFunctionDef<Se>&) {
 			paintKw<Tok::FN_STAT>(se, "local");
 			paintFuncDef(se, var.func, var.name, false, var.place);
-		},
-
-		varcase(const parse::StatementType::Break) {
-			paintKw<Tok::COND_STAT>(se, "break");
 		},
 		varcase(const parse::StatementType::Semicol) {
 			paintKw<Tok::PUNCTUATION>(se, ";");

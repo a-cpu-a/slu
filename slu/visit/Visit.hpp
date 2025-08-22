@@ -612,9 +612,6 @@ namespace slu::visit
 		varcase(parse::StatementType::Goto<Vi>&) {
 			//TODO
 		},
-		varcase(parse::StatementType::Break&) {
-			//TODO
-		},
 		varcase(parse::StatementType::Label<Vi>&) {
 			//TODO
 		},
@@ -656,14 +653,6 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_PRE_USER(AnyCond, var.cond);
 			visitExpr(vi, var.cond);
 			Slu_CALL_VISIT_FN_POST_USER(AnyCond, var.cond);
-		},
-		varcase(parse::StatementType::ForNum<Vi>&) {
-			visitPat<true>(vi, var.varName);
-			visitExpr(vi, var.start);
-			visitExpr(vi, var.end);
-			if (var.step.has_value())
-				visitExpr(vi, *var.step);
-			visitBlock(vi, var.bl);
 		},
 		varcase(parse::StatementType::ForIn<Vi>&) {
 			visitPat<true>(vi, var.varNames);
