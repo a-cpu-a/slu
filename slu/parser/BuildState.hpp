@@ -10,18 +10,14 @@ namespace slu::parse
 	template<bool isSlu>
 	inline ::slu::parse::Expr mkGlobal(::slu::parse::Position place, ::slu::lang::MpItmId name)
 	{
-		return {::slu::parse::BaseExpr{
-			::slu::parse::ExprType::GlobalV<isSlu>{name},
-				place
-		} };
+		return { ::slu::parse::ExprType::GlobalV<isSlu>{name},
+				place };
 	}
 	template<bool isSlu>
 	inline ::slu::parse::Expr mkLocal(::slu::parse::Position place, ::slu::parse::LocalId name)
 	{
-		return {::slu::parse::BaseExpr{
-			::slu::parse::ExprType::Local{name},
-				place
-		} };
+		return { ::slu::parse::ExprType::Local{name},
+				place };
 	}
 	template<bool isSlu>
 	inline ::slu::parse::Expr mkNameExpr(::slu::parse::Position place, ::slu::lang::MpItmId name) {
@@ -48,10 +44,8 @@ namespace slu::parse
 		auto name,//name or local
 		::slu::parse::PoolString field)
 	{
-		return {::slu::parse::BaseExpr{
-				mkFieldIdx(place,name,field),
-				place
-		} };
+		return { mkFieldIdx(place,name,field),
+				place };
 	}
 	template<bool isSlu,bool boxed>
 	inline auto mkBoxGlobal(::slu::parse::Position place, ::slu::lang::MpItmId name) {

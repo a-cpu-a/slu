@@ -164,7 +164,7 @@ namespace slu::parse
 	{
 		return T{
 				parse::ExprUserExpr<In,boxed>{mayBoxFrom<boxed>(
-					Expr{{std::move(expr),place}}
+					Expr{std::move(expr),place}
 				)},
 				std::move(extraItems)...
 		};

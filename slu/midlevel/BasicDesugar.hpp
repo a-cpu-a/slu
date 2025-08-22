@@ -242,10 +242,7 @@ namespace slu::mlvl
 			parse::Expr te = ezmatch(spec)(
 			varcase(parse::DestrSpecType::Prefix&) 
 			{
-				auto res = parse::BaseExpr{ parse::ExprType::Infer{},place};
-				res.unOps = std::move(var);
-
-				return parse::Expr{std::move(res)};
+				return parse::Expr{ parse::ExprType::Infer{},place,std::move(var) };
 			},
 			varcase(parse::DestrSpecType::Spat&)  {
 				return std::move(var);

@@ -387,23 +387,13 @@ namespace slu::parse
 	Slu_DEF_CFG(ExprData);
 
 
-	struct BaseExpr
+
+	struct Expr
 	{
 		ExprDataV<true> data;
 		Position place;
 		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 
-		BaseExpr() = default;
-		BaseExpr(ExprDataV<true>&& data):data(std::move(data)) {}
-		BaseExpr(ExprDataV<true>&& data,Position place):data(std::move(data)),place(place) {}
-
-		BaseExpr(const BaseExpr&) = delete;
-		BaseExpr(BaseExpr&&) = default;
-		BaseExpr& operator=(BaseExpr&&) = default;
-	};
-
-	struct Expr : BaseExpr
-	{
 		SmallEnumList<PostUnOpType> postUnOps;
 
 		bool isBasicStruct() const {
@@ -411,6 +401,18 @@ namespace slu::parse
 				return false;
 			return std::holds_alternative<ExprType::TableV<true>>(this->data);
 		}
+
+		Expr() = default;
+		Expr(ExprDataV<true>&& data) 
+			:data(std::move(data)) {}
+		Expr(ExprDataV<true>&& data, Position place) 
+			:data(std::move(data)), place(place) {}
+		Expr(ExprDataV<true>&& data, Position place, std::vector<UnOpItem>&& unOps) 
+			:data(std::move(data)), place(place), unOps(std::move(unOps)) {}
+
+		Expr(const Expr&) = delete;
+		Expr(Expr&&) = default;
+		Expr& operator=(Expr&&) = default;
 	};
 
 	//Slu
