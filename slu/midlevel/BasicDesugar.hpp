@@ -367,7 +367,7 @@ namespace slu::mlvl
 			return false;
 		}
 
-		bool preFunctionInfo(parse::FunctionInfo<Cfg>& itm) 
+		bool preFunctionInfo(parse::FunctionInfo& itm) 
 		{
 			if(itm.abi.empty())
 				itm.abi = abiStack.empty() ? "Any" : abiStack.back();

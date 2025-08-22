@@ -121,13 +121,13 @@ namespace slu::parse
 	}
 
 	template<AnyInput In>
-	inline FunctionInfo<In> readFuncInfo(In& in)
+	inline FunctionInfo readFuncInfo(In& in)
 	{
 		/*
 			funcbody ::= ‘(’ [parlist] ‘)’ block end
 			parlist ::= namelist [‘,’ ‘...’] | ‘...’
 		*/
-		FunctionInfo<In> ret{};
+		FunctionInfo ret{};
 
 		requireToken(in, "(");
 
@@ -164,7 +164,7 @@ namespace slu::parse
 		return ret;
 	}
 	template<AnyInput In>
-	inline std::variant<FunctionV<true>, FunctionInfoV<true>> readFuncBody(In& in,std::optional<std::string> funcName)
+	inline std::variant<FunctionV<true>, FunctionInfo> readFuncBody(In& in,std::optional<std::string> funcName)
 	{
 		Position place = in.getLoc();
 		in.genData.pushLocalScope();
@@ -174,7 +174,7 @@ namespace slu::parse
 		else
 			in.genData.pushAnonScope(in.getLoc());
 
-		FunctionInfo<In> fi = readFuncInfo(in);
+		FunctionInfo fi = readFuncInfo(in);
 		skipSpace(in);
 		if (!in || (in.peek() != '{'))//no { found?
 		{
@@ -622,7 +622,7 @@ namespace slu::parse
 					res.func = std::move(var);
 					return false;
 				},
-				varcase(FunctionInfo<In>&&) {
+				varcase(FunctionInfo&&) {
 					DeclStatT declRes{ std::move(var) };
 					declRes.name = res.name;
 					declRes.place = res.place;

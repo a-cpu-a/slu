@@ -205,7 +205,7 @@ namespace slu::parse
 					{
 						basicRes.data = ExprType::Function<In>(std::move(var));
 					},
-					varcase(FunctionInfo<In>&&)
+					varcase(FunctionInfo&&)
 					{
 						throw UnexpectedCharacterError(std::format(
 							"Expected a " 

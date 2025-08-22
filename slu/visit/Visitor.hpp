@@ -78,7 +78,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_AUTO_LG(Pat);
 		_Slu_DEF_EMPTY_AUTO(DestrSpec);
 		_Slu_DEF_EMPTY_AUTO(Soe);
-		_Slu_DEF_EMPTY_AUTO(FunctionInfo);
+		_Slu_DEF_EMPTY_PRE_POST(FunctionInfo,parse::FunctionInfo);
 		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
 		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expr<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(TypeExpr, parse::Expr<Cfg>);

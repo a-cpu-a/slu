@@ -246,8 +246,7 @@ namespace slu::parse
 	template<bool isLocal>
 	using ParamList = std::vector<Parameter<isLocal>>;
 
-	template<bool isSlu>
-	struct FunctionInfoV
+	struct FunctionInfo
 	{
 		std::string abi;
 		LocalsV<true> local2Mp;
@@ -256,10 +255,9 @@ namespace slu::parse
 		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
 	};
-	Slu_DEF_CFG(FunctionInfo);
 
 	template<bool isSlu>
-	struct FunctionV : FunctionInfoV<isSlu>
+	struct FunctionV : FunctionInfo
 	{
 		BlockV<isSlu> block;
 	};
@@ -693,7 +691,7 @@ namespace slu::parse
 
 
 		template<bool isSlu>
-		struct FunctionDeclV : FunctionInfoV<isSlu>
+		struct FunctionDeclV : FunctionInfo
 		{
 			Position place;//Right before func-name
 			MpItmId name;

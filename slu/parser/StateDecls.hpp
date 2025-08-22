@@ -22,6 +22,8 @@
 
 namespace slu::parse
 {
+	using lang::MpItmId;
+
 	template<bool flag, class FalseT, class TrueT>
 	using Sel = std::conditional_t<flag, TrueT,FalseT>;
 
@@ -59,8 +61,6 @@ namespace slu::parse
 		return MayBox<false, T>(std::move(v));
 	}
 
-	using lang::MpItmId;
-
 	//Forward declare
 
 	template<bool isSlu> struct StatementV;
@@ -73,7 +73,7 @@ namespace slu::parse
 
 	namespace FieldType
 	{
-		//For lua only!
+		//For lua only! (currently)
 		template<bool isSlu> struct Expr2ExprV;
 		Slu_DEF_CFG(Expr2Expr);
 
@@ -90,9 +90,8 @@ namespace slu::parse
 
 	namespace ExprType
 	{
-		struct OpenRange {};	// ".."
-
-		struct String { std::string v; Position end; };	// "LiteralString"	
+		struct OpenRange {};
+		struct String { std::string v; Position end; };
 
 		// "Numeral"
 		using F64 = double;

@@ -28,14 +28,12 @@ namespace slu::lang
 
 	struct ModPathId
 	{
-		size_t id; //Id 0 -> unknownRoot
-
+		size_t id;
 		constexpr auto operator<=>(const ModPathId&)const = default;
 	};
 	struct LocalObjId
 	{
 		size_t val;
-
 		constexpr static LocalObjId newEmpty() {
 			return LocalObjId{ SIZE_MAX };
 		}
@@ -83,7 +81,6 @@ template<class T>
 		|| std::same_as<T, ViewModPath>
 		|| std::same_as<T, ModPath>;
 
-
 	struct HashModPathView
 	{
 		using is_transparent = void;
@@ -101,7 +98,6 @@ template<class T>
 			return seed;
 		}
 	};
-
 	struct EqualModPathView
 	{
 		using is_transparent = void;
