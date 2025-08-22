@@ -89,7 +89,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 	{
 		//_ASSERT(!path.filename().string().ends_with("concatenated.slu"));
 
-		slu::parse::ParsedFile<decltype(in)> f = slu::parse::parseFile(in);
+		slu::parse::ParsedFile f = slu::parse::parseFile(in);
 
 
 		if (invert)
@@ -122,7 +122,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		try
 		{
 
-			slu::parse::ParsedFile<decltype(in2)> f2 = slu::parse::parseFile(in2);
+			slu::parse::ParsedFile f2 = slu::parse::parseFile(in2);
 
 
 			slu::parse::Output<Settings> out2;
