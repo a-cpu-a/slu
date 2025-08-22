@@ -215,7 +215,7 @@ namespace slu::paint
 			paintExpr(se, *var.v);
 			paintKw<Tok::DEREF>(se, ".*");
 		},
-		varcase(const parse::ExprType::Index<Se>&) {
+		varcase(const parse::ExprType::Index&) {
 			paintExpr(se, *var.v);
 			paintKw<Tok::GEN_OP>(se, "[");
 			paintExpr(se, *var.idx);
@@ -226,10 +226,10 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, ".");
 			paintPoolStr(se, var.field);
 		},
-		varcase(const parse::ExprType::SelfCall<Se>&) {
+		varcase(const parse::ExprType::SelfCall&) {
 			paintSelfCall<true>(se, var);
 		},
-		varcase(const parse::ExprType::Call<Se>&) {
+		varcase(const parse::ExprType::Call&) {
 			paintCall<true>(se, var);
 		},
 		varcase(const parse::ExprType::MultiOp<Se>&) {
@@ -724,13 +724,13 @@ namespace slu::paint
 		}
 	}
 	template<bool boxed, AnySemOutput Se>
-	inline void paintCall(Se& se, const parse::Call<Se,boxed>& itm)
+	inline void paintCall(Se& se, const parse::Call<boxed>& itm)
 	{
 		paintExpr(se, *itm.v);
 		paintArgs(se, itm.args);
 	}
 	template<bool boxed, AnySemOutput Se>
-	inline void paintSelfCall(Se& se, const parse::SelfCall<Se,boxed>& itm)
+	inline void paintSelfCall(Se& se, const parse::SelfCall<boxed>& itm)
 	{
 		paintExpr(se, *itm.v);
 		paintKw<Tok::GEN_OP>(se, ".");
@@ -795,10 +795,10 @@ namespace slu::paint
 		varcase(const parse::StatementType::IfCond<Se>&) {
 			paintIfCond<false>(se, var);
 		},
-		varcase(const parse::StatementType::SelfCall<Se>&) {
+		varcase(const parse::StatementType::SelfCall&) {
 			paintSelfCall<false>(se, var);
 		},
-		varcase(const parse::StatementType::Call<Se>&) {
+		varcase(const parse::StatementType::Call&) {
 			paintCall<false>(se, var);
 		},
 		varcase(const parse::StatementType::Assign<Se>&) {

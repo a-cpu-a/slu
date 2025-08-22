@@ -355,7 +355,7 @@ namespace slu::visit
 			visitExpr(vi, *var.v);
 			Slu_CALL_VISIT_FN_POST_VAR(DerefExpr);
 		},
-		varcase(parse::ExprType::Index<Vi>&) {
+		varcase(parse::ExprType::Index&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(IndexExpr);
 			visitExpr(vi, *var.v);
 			visitExpr(vi, *var.idx);
@@ -367,13 +367,13 @@ namespace slu::visit
 			visitPoolString(vi, var.field);
 			Slu_CALL_VISIT_FN_POST_VAR(FieldExpr);
 		},
-		varcase(parse::ExprType::Call<Vi>&) {
+		varcase(parse::ExprType::Call&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(CallExpr);
 			visitExpr(vi, *var.v);
 			visitArgs(vi, var.args);
 			Slu_CALL_VISIT_FN_POST_VAR(CallExpr);
 		},
-		varcase(parse::ExprType::SelfCall<Vi>&) {
+		varcase(parse::ExprType::SelfCall&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(SelfCallExpr);
 			visitExpr(vi, *var.v);
 			visitName(vi, var.method);
@@ -594,12 +594,12 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 			Slu_CALL_VISIT_FN_POST_VAR(ConstVar);
 		},
-		varcase(parse::StatementType::Call<Vi>&) {
+		varcase(parse::StatementType::Call&) {
 			visitExpr(vi, *var.v);
 			visitArgs(vi, var.args);
 			//TODO
 		},
-		varcase(parse::StatementType::SelfCall<Vi>&) {
+		varcase(parse::StatementType::SelfCall&) {
 			visitExpr(vi, *var.v);
 			visitName(vi, var.method);
 			visitArgs(vi, var.args);

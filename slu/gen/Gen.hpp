@@ -297,7 +297,7 @@ namespace slu::parse
 			genExpr(out, *var.v);
 			out.add(".*"sv);
 		},
-		varcase(const ExprType::Index<Out>&) {
+		varcase(const ExprType::Index&) {
 			genExpr(out, *var.v);
 			out.add('[');
 			genExpr(out, *var.idx);
@@ -308,10 +308,10 @@ namespace slu::parse
 			out.add('.');
 			out.add(out.db.asSv(var.field));
 		},
-		varcase(const ExprType::Call<Out>&) {
+		varcase(const ExprType::Call&) {
 			genCall<true>(out, var);
 		},
-		varcase(const ExprType::SelfCall<Out>&) {
+		varcase(const ExprType::SelfCall&) {
 			genSelfCall<true>(out, var);
 		},
 		varcase(const ExprType::Nil) {
@@ -478,13 +478,13 @@ namespace slu::parse
 	}
 
 	template<bool boxed,AnyOutput Out>
-	inline void genCall(Out& out, const Call<Out,boxed>& itm)
+	inline void genCall(Out& out, const Call<boxed>& itm)
 	{
 		genExpr(out, *itm.v);
 		genArgs(out, itm.args);
 	}
 	template<bool boxed,AnyOutput Out>
-	inline void genSelfCall(Out& out, const SelfCall<Out,boxed>& itm)
+	inline void genSelfCall(Out& out, const SelfCall<boxed>& itm)
 	{
 		genExpr(out, *itm.v);
 		out.add('.')
@@ -834,12 +834,12 @@ namespace slu::parse
 			out.popLocals();
 		},
 
-		varcase(const StatementType::Call<Out>&) {
+		varcase(const StatementType::Call&) {
 			genCall<false>(out, var);
 			out.addNewl(';');
 			out.wasSemicolon = true;
 		},
-		varcase(const StatementType::SelfCall<Out>&) {
+		varcase(const StatementType::SelfCall&) {
 			genSelfCall<false>(out, var);
 			out.addNewl(';');
 			out.wasSemicolon = true;

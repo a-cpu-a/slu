@@ -138,26 +138,22 @@ namespace slu::parse
 	>;
 
 
-	template<bool isSlu,bool boxed>
-	struct ExprUserExprV {
+	template<bool boxed>
+	struct ExprUserExpr {
 		MayBox<boxed, Expr> v;
 		parse::ResolvedType ty;
 	};
-	Slu_DEF_CFG2(ExprUserExpr,boxed);
 
-	template<bool isSlu, bool boxed> // exp args
-	struct CallV : ExprUserExprV<isSlu, boxed>
-	{
+	template<bool boxed> // exp args
+	struct Call : ExprUserExpr<boxed> {
 		Args args;
 	};
-	Slu_DEF_CFG2(Call, boxed);
-	template<bool isSlu, bool boxed> //Lua: exp ":" Name args //Slu: exp "." Name args
-	struct SelfCallV : ExprUserExprV<isSlu, boxed>
+	template<bool boxed> // exp "." Name args
+	struct SelfCall : ExprUserExpr<boxed>
 	{
 		Args args;
 		MpItmId method;//may be unresolved, or itm=trait-fn, or itm=fn
 	};
-	Slu_DEF_CFG2(SelfCall, boxed);
 
 	namespace ExprType
 	{
@@ -171,26 +167,20 @@ namespace slu::parse
 		using ParensV = BoxExpr;
 		Slu_DEF_CFG(Parens);
 
-		struct Deref : ExprUserExprV<true, true> {};// exp ".*"
+		struct Deref : ExprUserExpr<true> {};// exp ".*"
 
-		template<bool isSlu> // exp "[" exp "]"
-		struct IndexV : ExprUserExprV<isSlu, true> {
+		struct Index : ExprUserExpr<true> {// exp "[" exp "]"
 			MayBox<true,Expr> idx;
 		};
-		Slu_DEF_CFG(Index);
 
 		template<bool isSlu> // exp "." Name
-		struct FieldV : ExprUserExprV<isSlu, true> {
+		struct FieldV : ExprUserExpr<true> {
 			PoolString field;
 		};
 		Slu_DEF_CFG(Field);
 
-		template<bool isSlu>
-		using CallV = parse::CallV<isSlu, true>;
-		Slu_DEF_CFG(Call);
-		template<bool isSlu>
-		using SelfCallV = parse::SelfCallV<isSlu, true>;
-		Slu_DEF_CFG(SelfCall);
+		using Call = parse::Call<true>;
+		using SelfCall = parse::SelfCall<true>;
 	}
 
 	struct TupleName
@@ -351,10 +341,10 @@ namespace slu::parse
 		ExprType::ParensV<isSlu>,
 		ExprType::Deref,
 
-		ExprType::IndexV<isSlu>,
+		ExprType::Index,
 		ExprType::FieldV<isSlu>,
-		ExprType::CallV<isSlu>,
-		ExprType::SelfCallV<isSlu>,
+		ExprType::Call,
+		ExprType::SelfCall,
 
 		// Slu
 
@@ -610,12 +600,8 @@ namespace slu::parse
 		struct AssignV { std::vector<ExprDataV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG(Assign);
 
-		template<bool isSlu>
-		using CallV = parse::CallV<isSlu, false>;
-		Slu_DEF_CFG(Call);
-		template<bool isSlu>
-		using SelfCallV = parse::SelfCallV<isSlu, false>;
-		Slu_DEF_CFG(SelfCall);
+		using Call = parse::Call<false>;
+		using SelfCall = parse::SelfCall<false>;
 
 
 		template<bool isSlu>
@@ -794,8 +780,8 @@ namespace slu::parse
 		StatementType::CanonicLocal,
 		StatementType::CanonicGlobal,
 
-		StatementType::CallV<isSlu>,
-		StatementType::SelfCallV<isSlu>,
+		StatementType::Call,
+		StatementType::SelfCall,
 
 		StatementType::LabelV<isSlu>,			// "label"
 		StatementType::GotoV<isSlu>,			// "goto Name"

@@ -523,7 +523,7 @@ namespace slu::mlvl
 		void postDerefExpr(parse::ExprType::Deref& itm) {
 			//TODO: could be deref or deref-mut or ... lol
 		}
-		bool preIndexExpr(parse::ExprType::Index<Cfg>& itm) {
+		bool preIndexExpr(parse::ExprType::Index& itm) {
 			//TODO: need to finalize spec first?
 			return true;
 		}
@@ -551,7 +551,7 @@ namespace slu::mlvl
 			TmpVar resId = tmpVars.size();
 			tmpVars.emplace_back(&itm.ty).edit = FieldGet{ .name = itm.field,.selfArg = resId };
 		}
-		bool preCallExpr(parse::ExprType::Call<Cfg>& itm) {
+		bool preCallExpr(parse::ExprType::Call& itm) {
 			handleCall<false, true>(itm);
 			return true;
 		}
@@ -569,7 +569,7 @@ namespace slu::mlvl
 			auto& argList = std::get<parse::ArgsType::ExprList<Cfg>>(args);
 			//TODO: check arg use types
 		}
-		bool preSelfCallExpr(parse::ExprType::SelfCall<Cfg>& itm) 
+		bool preSelfCallExpr(parse::ExprType::SelfCall& itm) 
 		{
 			visit::visitExpr(*this, *itm.v);
 			auto& tmpVars = tmpLocalsDataStack.back();
@@ -608,7 +608,7 @@ namespace slu::mlvl
 		//
 
 		template<bool voidOutput,bool boxed>
-		void handleCall(parse::Call<Cfg,boxed>& itm) {
+		void handleCall(parse::Call<boxed>& itm) {
 			if (!std::holds_alternative<parse::ArgsType::ExprList<Cfg>>(itm.args))
 				throw std::runtime_error("TODO: type inference for func call with complex args.");
 
@@ -650,7 +650,7 @@ namespace slu::mlvl
 		void postCanonicLocal(parse::StatementType::CanonicLocal& itm) {
 			editLocalVar(itm.name);//TODO: restrict the type to exactly that? (unless it is inferr)
 		}
-		bool preCallStat(parse::StatementType::Call<Cfg>& itm) 
+		bool preCallStat(parse::StatementType::Call& itm) 
 		{
 			handleCall<true,false>(itm);
 			return true;

@@ -85,10 +85,10 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(TableExpr, parse::ExprType::Table<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(GlobalExpr, parse::ExprType::Global<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(DerefExpr, parse::ExprType::Deref);
-		_Slu_DEF_EMPTY_PRE_POST(IndexExpr, parse::ExprType::Index<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(IndexExpr, parse::ExprType::Index);
 		_Slu_DEF_EMPTY_PRE_POST(FieldExpr, parse::ExprType::Field<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(CallExpr, parse::ExprType::Call<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(SelfCallExpr, parse::ExprType::SelfCall<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(CallExpr, parse::ExprType::Call);
+		_Slu_DEF_EMPTY_PRE_POST(SelfCallExpr, parse::ExprType::SelfCall);
 		_Slu_DEF_EMPTY_PRE_POST(TraitExpr, parse::TraitExpr);
 		_Slu_DEF_EMPTY_PRE_POST(ExprString, parse::ExprType::String);
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MultiOp<Cfg>);
@@ -112,8 +112,8 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(CanonicLocal, parse::StatementType::CanonicLocal);
 		_Slu_DEF_EMPTY_PRE_POST(CanonicGlobal, parse::StatementType::CanonicGlobal);
 		_Slu_DEF_EMPTY_PRE_POST(Drop, parse::StatementType::Drop<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(CallStat, parse::StatementType::Call<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(SelfCallStat, parse::StatementType::SelfCall<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(CallStat, parse::StatementType::Call);
+		_Slu_DEF_EMPTY_PRE_POST(SelfCallStat, parse::StatementType::SelfCall);
 		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
 
 		//Edge cases:

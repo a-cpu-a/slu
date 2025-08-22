@@ -109,13 +109,13 @@ namespace slu::mlvl
 		varcase(const parse::ExprType::Deref)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve Deref type expressions.");
 		},
-		varcase(const parse::ExprType::IndexV<true>&&)->parse::ResolvedType {
+		varcase(const parse::ExprType::Index&&)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve Index type expressions.");
 		},
 		varcase(const parse::ExprType::FieldV<true>&&)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve Field type expressions.");
 		},
-		varcase(const parse::ExprType::CallV<true>&&)->parse::ResolvedType {
+		varcase(const parse::ExprType::Call&&)->parse::ResolvedType {
 			throw std::runtime_error("TODO: resolve call type expressions.");
 		},
 		varcase(parse::ExprType::FnType&&)->parse::ResolvedType {
@@ -132,7 +132,7 @@ namespace slu::mlvl
 			throw std::runtime_error("TODO: resolve Err type expressions.");
 		},
 
-		varcase(parse::ExprType::SelfCallV<true>&&)->parse::ResolvedType {
+		varcase(parse::ExprType::SelfCall&&)->parse::ResolvedType {
 			//TODO: resolve basic ops, jit all else.
 			auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
 			if(expArgs.size()!=0)

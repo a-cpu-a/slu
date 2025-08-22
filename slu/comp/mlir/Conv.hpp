@@ -261,7 +261,7 @@ namespace slu::comp::mico
 		{
 			return tryConvBuiltinType(conv, abi, var, false);
 		},
-		varcase(const parse::ExprType::SelfCallV<true>&)
+		varcase(const parse::ExprType::SelfCall&)
 		{
 			if (var.method != conv.sharedDb.getItm({ "std","ops","Ref","ref" }))
 				throw std::runtime_error("Unimplemented type expression: " + std::string(var.method.asSv(conv.sharedDb)) + " (mlir conversion)");
@@ -270,7 +270,7 @@ namespace slu::comp::mico
 
 			return tryConvBuiltinType(conv, abi, selfName, true);
 		},
-		varcase(const parse::ExprType::CallV<true>&)->mlir::Type
+		varcase(const parse::ExprType::Call&)->mlir::Type
 		{
 			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
 			throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
@@ -768,7 +768,7 @@ namespace slu::comp::mico
 			//mlir::memref::StoreOp::create(builder,loc, expr, memRef, mlir::ValueRange{ zeroIndex }, false);
 
 		},
-		varcase(const parse::StatementType::CallV<true>&) {
+		varcase(const parse::StatementType::Call&) {
 
 			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
 			GlobElemTy::Fn* funcInfo = getOrDeclFn(conv,name,itm.place,nullptr);

@@ -139,17 +139,17 @@ namespace slu::parse
 					"{}"
 					, opType, errorLocStr(in)));
 			}
-			if (std::holds_alternative<ExprType::Call<In>>(varData.back()))
+			if (std::holds_alternative<ExprType::Call>(varData.back()))
 			{
-				ExprType::Call<In>& start = std::get<ExprType::Call<In>>(varData.back());
-				StatementType::Call<In> res;
+				ExprType::Call& start = std::get<ExprType::Call>(varData.back());
+				StatementType::Call res;
 				res.args = std::move(start.args);
 				res.v = { std::move(*start.v) };
 
 				return std::move(res);
 			}
-			ExprType::SelfCall<In>& start = std::get<ExprType::SelfCall<In>>(varData.back());
-			StatementType::SelfCall<In> res;
+			ExprType::SelfCall& start = std::get<ExprType::SelfCall>(varData.back());
+			StatementType::SelfCall res;
 			res.args = std::move(start.args);
 			res.method = start.method;
 			res.v = { std::move(*start.v) };
@@ -163,7 +163,7 @@ namespace slu::parse
 	inline T wrapExpr(Position place,ExprData<In>&& expr,Ts&&... extraItems)
 	{
 		return T{
-				parse::ExprUserExpr<In,boxed>{mayBoxFrom<boxed>(
+				parse::ExprUserExpr<boxed>{mayBoxFrom<boxed>(
 					Expr{std::move(expr),place}
 				)},
 				std::move(extraItems)...
@@ -251,7 +251,7 @@ namespace slu::parse
 			case '\'':
 			case '('://Funccall
 			{
-				varData.back() = wrapExpr<ExprType::Call<In>, true, In>(
+				varData.back() = wrapExpr<ExprType::Call, true, In>(
 					varPlace,
 					std::move(varData.back()),
 					readArgs(in, allowVarArg)
@@ -291,7 +291,7 @@ namespace slu::parse
 						const char ch3 = in.peekAt(1);
 						if (ch3 == '[' || ch3 == '=')
 						{
-							varData.back() = wrapExpr<ExprType::SelfCall<In>, true, In>(
+							varData.back() = wrapExpr<ExprType::SelfCall, true, In>(
 								varPlace,
 								std::move(varData.back()),
 								readArgs(in, allowVarArg),
@@ -305,7 +305,7 @@ namespace slu::parse
 					{
 						if (ch2 == '\'' || ch2 == '"' || ch2 == '{' || ch2 == '(')
 						{
-							varData.back() = wrapExpr<ExprType::SelfCall<In>, true, In>(
+							varData.back() = wrapExpr<ExprType::SelfCall, true, In>(
 								varPlace,
 								std::move(varData.back()),
 								readArgs(in, allowVarArg),
@@ -334,7 +334,7 @@ namespace slu::parse
 
 				if (secondCh == '[' || secondCh == '=')//is multi-line string?
 				{
-					varData.back() = wrapExpr<ExprType::Call<In>, true,In>(
+					varData.back() = wrapExpr<ExprType::Call, true,In>(
 						varPlace,
 						std::move(varData.back()),
 						readArgs(in, allowVarArg)
@@ -347,7 +347,7 @@ namespace slu::parse
 				Expr idx = readExpr(in,allowVarArg);
 				requireToken(in, "]");
 
-				varData.back() = wrapExpr<ExprType::Index<In>, true, In>(
+				varData.back() = wrapExpr<ExprType::Index, true, In>(
 					varPlace,
 					std::move(varData.back()),
 					mayBoxFrom<true>(std::move(idx))
