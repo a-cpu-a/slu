@@ -143,11 +143,6 @@ namespace slu::parse
 
 	template<bool isSlu,bool boxed>
 	struct ExprUserExprV {
-		MayBox<boxed,ExprV<isSlu>> v;
-	};
-	template<bool boxed>
-	struct ExprUserExprV<true, boxed>
-	{
 		MayBox<boxed, ExprV<true>> v;
 		parse::ResolvedType ty;
 	};
@@ -253,12 +248,6 @@ namespace slu::parse
 
 	template<bool isSlu>
 	struct FunctionInfoV
-	{
-		ParamList<true> params;
-		bool hasVarArgParam = false;// do params end with '...'
-	};
-	template<>
-	struct FunctionInfoV<true>
 	{
 		std::string abi;
 		LocalsV<true> local2Mp;
@@ -425,14 +414,11 @@ namespace slu::parse
 
 	template<bool isSlu>
 	struct ExprV : BaseExprV<isSlu>
-	{};
-	template<>
-	struct ExprV<true> : BaseExprV<true>
 	{
 		SmallEnumList<PostUnOpType> postUnOps;
 
 		bool isBasicStruct() const {
-			if(!this->unOps.empty() || !this->postUnOps.empty())
+			if (!this->unOps.empty() || !this->postUnOps.empty())
 				return false;
 			return std::holds_alternative<ExprType::TableV<true>>(this->data);
 		}
@@ -618,14 +604,9 @@ namespace slu::parse
 	};
 	template<bool isSlu>
 	struct MaybeLocalsV<isSlu,true> {};
+
 	template<bool isSlu, bool isLocal>
 	struct VarStatBaseV : MaybeLocalsV<isSlu, isLocal>
-	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
-		AttribNameListV<isSlu> names;
-		ExprListV<isSlu> exprs;
-	};
-	template<bool isLocal>
-	struct VarStatBaseV<true, isLocal> : MaybeLocalsV<true,isLocal>
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		PatV<true, isLocal> names;
 		ExprListV<true> exprs;
@@ -696,10 +677,7 @@ namespace slu::parse
 			FunctionV<isSlu> func;
 		};
 		template<bool isSlu>
-		struct FunctionV : FuncDefBase<isSlu> {};
-		template<>
-		struct FunctionV<true> : FuncDefBase<true>
-		{
+		struct FunctionV : FuncDefBase<isSlu> {
 			ExportData exported = false;
 		};
 		Slu_DEF_CFG(Function);
