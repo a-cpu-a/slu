@@ -238,7 +238,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genLifetime(Out& out, const Lifetime& obj)
 	{
-		for (MpItmId<Out> i : obj)
+		for (MpItmId i : obj)
 			out.add('/').add(out.db.asSv(i));
 	}
 
@@ -677,7 +677,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genNames(Out& out, const NameList<Out>& obj)
 	{
-		for (const MpItmId<Out>& v : obj)
+		for (const MpItmId& v : obj)
 		{
 			out.add(out.db.asSv(v));
 			if (&v != &obj.back())

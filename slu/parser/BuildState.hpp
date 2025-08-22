@@ -8,7 +8,7 @@
 namespace slu::parse
 {
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkGlobal(::slu::parse::Position place, ::slu::lang::MpItmIdV<isSlu> name)
+	inline ::slu::parse::ExprV<isSlu> mkGlobal(::slu::parse::Position place, ::slu::lang::MpItmId name)
 	{
 		return {::slu::parse::BaseExprV<isSlu>{
 			::slu::parse::ExprType::GlobalV<isSlu>{name},
@@ -24,7 +24,7 @@ namespace slu::parse
 		} };
 	}
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkNameExpr(::slu::parse::Position place, ::slu::lang::MpItmIdV<isSlu> name) {
+	inline ::slu::parse::ExprV<isSlu> mkNameExpr(::slu::parse::Position place, ::slu::lang::MpItmId name) {
 		return mkGlobal<isSlu>(place, name);
 	}
 	template<bool isSlu>
@@ -54,7 +54,7 @@ namespace slu::parse
 		} };
 	}
 	template<bool isSlu,bool boxed>
-	inline auto mkBoxGlobal(::slu::parse::Position place, ::slu::lang::MpItmIdV<isSlu> name) {
+	inline auto mkBoxGlobal(::slu::parse::Position place, ::slu::lang::MpItmId name) {
 		return ::slu::parse::mayBoxFrom<boxed>(mkGlobal<isSlu>(place,name));
 	}
 	template<bool isSlu>

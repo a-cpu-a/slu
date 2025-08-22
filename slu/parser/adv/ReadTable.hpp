@@ -52,7 +52,7 @@ namespace slu::parse
 			//check at the CORRECT position, AND that it ISNT ==
 			if (in.peekAt(spacedOffset)=='=' && in.peekAt(spacedOffset+1)!='=')
 			{
-				const MpItmId<In> name = in.genData.resolveUnknown(readName(in));
+				const MpItmId name = in.genData.resolveUnknown(readName(in));
 				skipSpace(in);
 				in.skip();// '='
 

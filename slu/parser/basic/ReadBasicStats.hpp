@@ -39,7 +39,7 @@ namespace slu::parse
 			return in.genData.addStat(place, StatementType::SafeLabel{});
 		}
 
-		const MpItmId<In> res = in.genData.addLocalObj(readName(in));
+		const MpItmId res = in.genData.addLocalObj(readName(in));
 
 		requireToken(in, ":");
 

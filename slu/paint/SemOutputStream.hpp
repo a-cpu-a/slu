@@ -150,8 +150,6 @@ namespace slu::paint
 			{ t.in } -> AnyInput;
 			{ t.out } -> std::same_as<std::vector<std::vector<typename T::SemPair>>&>;
 
-			//{ t.resolveLocal(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>&>;
-			//{ t.pushL(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>>;
 			{ t.popLocals() } -> std::same_as<void>;
 
 			{ t.move(Position()) } -> std::same_as<T&>;

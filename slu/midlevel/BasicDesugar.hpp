@@ -34,7 +34,7 @@ namespace slu::mlvl
 
 	struct InlineModule
 	{
-		lang::MpItmIdV<true> name;
+		lang::MpItmId name;
 		parse::StatListV<true> code;
 	};
 
@@ -44,9 +44,9 @@ namespace slu::mlvl
 		static constexpr bool isSlu = true;
 
 		parse::BasicMpDb mpDb;
-		LazyCompute<parse::MpItmId<Cfg>> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];
-		LazyCompute<parse::MpItmId<Cfg>> postUnOpFuncs[(size_t)parse::PostUnOpType::ENUM_SIZE];
-		LazyCompute<parse::MpItmId<Cfg>> binOpFuncs[(size_t)parse::BinOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId> postUnOpFuncs[(size_t)parse::PostUnOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId> binOpFuncs[(size_t)parse::BinOpType::ENUM_SIZE];
 
 		// Note: Implicit bottom item: 'Any' or 'Slu'
 		std::vector<std::string> abiStack;
@@ -103,7 +103,7 @@ namespace slu::mlvl
 						localMp.addItm(itm.base.id, parse::ItmType::Alias{ itm.base });
 						continue;
 					}*/
-					lang::MpItmIdV<true> nonLocal;
+					lang::MpItmId nonLocal;
 					nonLocal.mp = p->second;
 					nonLocal.id= baseMp.get(name);
 					
@@ -220,7 +220,7 @@ namespace slu::mlvl
 		//	lang::ModPathId mp = mpStack.back();
 		//	auto& mpData = mpDb.data->mps[mp.id];
 		//	lang::LocalObjId obj = { mpData.id2Name.size() };
-		//	parse::MpItmId<Cfg> name = {obj, mp};
+		//	parse::MpItmId name = {obj, mp};
 		//
 		//	std::string synName = parse::getAnonName(obj.val);
 		//
@@ -465,7 +465,7 @@ namespace slu::mlvl
 		{
 			parse::Position place = expr.place;
 			//Wrap
-			parse::MpItmId<Cfg> name;
+			parse::MpItmId name;
 			parse::Lifetime* lifetime = nullptr;
 
 			if (isSufOp)
@@ -486,7 +486,7 @@ namespace slu::mlvl
 						return mpDb.getItm(name);
 					}
 					//TODO: special handling for '?'. -> defer to after type checking / inference?
-					return parse::MpItmId<Cfg>::newEmpty();
+					return parse::MpItmId::newEmpty();
 					});
 			}
 			else

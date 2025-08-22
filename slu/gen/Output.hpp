@@ -26,8 +26,6 @@ namespace slu::parse
 
 		//{ t.db } -> std::same_as<LuaMpDb>;
 		
-		//{ t.resolveLocal(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>&>;
-		//{ t.pushL(parse::LocalId()) } -> std::same_as<parse::MpItmIdV<>>;
 		{ t.popLocals() } -> std::same_as<void>;
 
 		{ t.add(char(1)) } -> std::same_as<T&>;

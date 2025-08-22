@@ -32,7 +32,7 @@ namespace slu::mlvl
 	parse::ResolvedType resolveStructType(parse::BasicMpDb mpDb, parse::TableV<true>&& itm)
 	{
 		parse::StructRawType& res = *(new parse::StructRawType());
-		res.name = lang::MpItmIdV<true>::newEmpty();
+		res.name = lang::MpItmId::newEmpty();
 		res.fieldNames.reserve(itm.size());
 		res.fields.reserve(itm.size());
 		res.fieldOffsets.reserve(itm.size());

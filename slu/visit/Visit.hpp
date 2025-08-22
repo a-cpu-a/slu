@@ -54,7 +54,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(String);
 	}
 	template<AnyVisitor Vi>
-	inline void visitName(Vi& vi, parse::MpItmId<Vi>& itm)
+	inline void visitName(Vi& vi, parse::MpItmId& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Name);
 	}
@@ -73,7 +73,7 @@ namespace slu::visit
 			visitName(vi, itm);
 	}
 	template<AnyVisitor Vi>
-	inline void visitMp(Vi& vi, parse::MpItmId<Vi>& itm)
+	inline void visitMp(Vi& vi, parse::MpItmId& itm)
 	{
 		//TODO
 	}

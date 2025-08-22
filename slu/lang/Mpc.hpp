@@ -27,10 +27,10 @@ namespace slu::mpc
 	};
 	struct MpcItm
 	{
-		lang::MpItmIdV<true> itm;
+		lang::MpItmId itm;
 		std::string_view name;
 
-		constexpr operator lang::MpItmIdV<true>() const {
+		constexpr operator lang::MpItmId() const {
 			return itm;
 		}
 	};

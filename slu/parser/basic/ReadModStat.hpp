@@ -19,7 +19,7 @@ namespace slu::parse
 		if (checkReadTextToken(in, "mod"))
 		{
 			std::string name = readName(in);
-			const MpItmId<In> modName = in.genData.addLocalObj(name);
+			const MpItmId modName = in.genData.addLocalObj(name);
 
 			if (checkReadTextToken(in, "as"))
 			{

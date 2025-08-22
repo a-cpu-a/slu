@@ -8,8 +8,7 @@
 #include <span>
 namespace slu::lang
 {
-	template<bool isSlu>
-	struct MpItmIdV;
+	struct MpItmId;
 
 	//Mp's
 	using ModPath = std::vector<std::string>;
@@ -21,8 +20,8 @@ namespace slu::parse
 {
 	struct BasicMpDbData;
 	struct BasicMpDb;
-	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, lang::MpItmIdV<true> thiz);
-	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, lang::MpItmIdV<true> thiz);
+	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, lang::MpItmId thiz);
+	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, lang::MpItmId thiz);
 }
 namespace slu::lang
 {
@@ -43,61 +42,36 @@ namespace slu::lang
 
 		constexpr auto operator<=>(const LocalObjId&)const = default;
 	};
-
-
-	template<bool isSlu>
-	struct MpItmIdV;
-
-	template<bool isSlu>
-	struct MpItmIdCommonV
+	
+	struct MpItmId
 	{
 		LocalObjId id;// Practically a string pool lol
 		//SIZE_MAX -> empty
+		ModPathId mp;
 
-		static constexpr MpItmIdV<isSlu> newEmpty() {
-			return MpItmIdV<isSlu>{ LocalObjId{SIZE_MAX} };
+		static constexpr MpItmId newEmpty() {
+			return MpItmId{ LocalObjId{ SIZE_MAX } };
 		}
 
 		constexpr bool empty() const {
 			return id.val == SIZE_MAX;
 		}
+
 		std::string_view asSv(const auto& v) const {
-			return v.asSv({ *(const MpItmIdV<isSlu>*)this });
+			return v.asSv({ *(const MpItmId*)this });
 		}
-
-		std::string_view asSv(const parse::BasicMpDbData& v) const requires(isSlu);
-
-		constexpr auto operator<=>(const MpItmIdCommonV&)const = default;
-	};
-	
-	template<bool isSlu>
-	struct MpItmIdV : MpItmIdCommonV<false>
-	{
-		using MpItmIdCommonV<false>::newEmpty;
-
-		constexpr auto operator<=>(const MpItmIdV&)const = default;
-	};
-	template<>
-	struct MpItmIdV<true> : MpItmIdCommonV<true>
-	{
-		using MpItmIdCommonV<true>::newEmpty;
-
+		std::string_view asSv(const parse::BasicMpDbData& v) const {
+			return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *this });
+		}
 		ViewModPath asVmp(const auto& v) const {
 			return v.asVmp(*this);
 		}
 		ViewModPath asVmp(const parse::BasicMpDbData& v) const {
 			return parse::_fwdConstructBasicMpDbAsVmp(const_cast<parse::BasicMpDbData*>(&v), { *this });
 		}
-		ModPathId mp;
 
-		constexpr auto operator<=>(const MpItmIdV<true>&)const = default;
+		constexpr auto operator<=>(const MpItmId&)const = default;
 	};
-
-
-	template<bool isSlu>
-	std::string_view MpItmIdCommonV<isSlu>::asSv(const parse::BasicMpDbData& v) const requires(isSlu) {
-		return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *(const MpItmIdV<true>*)this });
-	}
 
 	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
 	using ExportData = bool;

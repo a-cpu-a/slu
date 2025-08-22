@@ -146,7 +146,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny<Cfg Slu_co true>);
 		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny<Cfg Slu_co false>);
 		_Slu_DEF_EMPTY_PRE(BlockReturn, parse::Block<Cfg>);
-		_Slu_DEF_EMPTY_PRE(Name, parse::MpItmId<Cfg>);
+		_Slu_DEF_EMPTY_PRE(Name, parse::MpItmId);
 		_Slu_DEF_EMPTY_PRE_UNIT(String, std::span<char>);
 		_Slu_DEF_EMPTY_PRE_UNIT(True, parse::ExprType::True);
 		_Slu_DEF_EMPTY_PRE_UNIT(False, parse::ExprType::False);
@@ -168,7 +168,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_SEP(DestrFieldsGlobal, std::span<parse::DestrField<Cfg Slu_co false>>, parse::DestrField<Cfg Slu_co false>);
 
 		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expr<Cfg>);
-		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId<Cfg>);
+		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId);
 		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<true>);
 		_Slu_DEF_EMPTY_LIST(ConstParams, parse::Parameter<false>);
 	};

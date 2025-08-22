@@ -51,7 +51,7 @@ namespace slu::mlvl
 				auto optName = var->elem.getStructName();
 				if(!optName.has_value())
 					return false;
-				lang::MpItmIdV<true> name = *optName;
+				lang::MpItmId name = *optName;
 
 				return name == mpc::STD_STR
 					|| name == mpc::STD_CHAR;//TODO: require 1 ch only
@@ -118,7 +118,7 @@ namespace slu::mlvl
 	}
 	bool subtypeCheck(const parse::BasicMpDbData& mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
 
-	inline bool nameMatchCheck(const parse::BasicMpDbData& mpDb,parse::MpItmIdV<true> subName, parse::MpItmIdV<true> useName)
+	inline bool nameMatchCheck(const parse::BasicMpDbData& mpDb,parse::MpItmId subName, parse::MpItmId useName)
 	{
 		if(subName == useName) return true;//Same name, so match.
 		if (subName.empty()) return true;
@@ -326,7 +326,7 @@ namespace slu::mlvl
 	struct MethodCall
 	{
 		std::vector<TmpVar> args;
-		parse::MpItmIdV<true>* name;
+		parse::MpItmId* name;
 		TmpVar selfArg;
 	};
 	struct FieldGet
@@ -339,7 +339,7 @@ namespace slu::mlvl
 		parse::ResolvedType* resolvedType = nullptr;
 
 		//std::vector<lang::LocalObjId> usedFields;
-		//std::vector<lang::MpItmIdV<true>> usedMethods;
+		//std::vector<lang::MpItmId> usedMethods;
 		//traits?
 		//???
 
@@ -557,7 +557,7 @@ namespace slu::mlvl
 		}
 		void checkTypeMethod(
 			const parse::ResolvedType& var,const parse::Args<Cfg>& args, 
-			parse::MpItmId<Cfg>& method,parse::ResolvedType& resTy)
+			parse::MpItmId& method,parse::ResolvedType& resTy)
 		{
 			//TODO: check if var impls that method & what it is
 
@@ -830,7 +830,7 @@ namespace slu::mlvl
 		}
 
 		//Returns if failed
-		bool resolveMethod(std::vector<parse::ResolvedType>& derefStack,parse::MpItmId<Cfg>& name)
+		bool resolveMethod(std::vector<parse::ResolvedType>& derefStack,parse::MpItmId& name)
 		{
 			if (derefStack.size() > 16)//TODO: config for limit
 				return true;//TODO: error
@@ -881,7 +881,7 @@ namespace slu::mlvl
 								auto tyNameOpt = otherTy.getStructName();
 								if (!tyNameOpt)
 									throw std::runtime_error("TODO: error logging, found non bool expr");
-								parse::MpItmIdV<true> tyName = *tyNameOpt;
+								parse::MpItmId tyName = *tyNameOpt;
 								if (tyName == mpc::STD_BOOL)
 									canTrue = canFalse = true;
 								else if (tyName == mpc::STD_BOOL_TRUE)

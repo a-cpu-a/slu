@@ -296,14 +296,14 @@ namespace slu::parse
 		constexpr bool isSized() const {
 			return outerSliceDims == 0 && size != UNSIZED_MARK;
 		}
-		constexpr std::optional<lang::MpItmIdV<true>> getStructName() const;
+		constexpr std::optional<lang::MpItmId> getStructName() const;
 		constexpr bool isBool() const
 		{
 			if (size > 1) return false;
 			auto optName = getStructName();
 			if (!optName.has_value()) return false;
 
-			MpItmIdV<true> name = *optName;
+			MpItmId name = *optName;
 			return name == mpc::STD_BOOL
 				|| name == mpc::STD_BOOL_FALSE
 				|| name == mpc::STD_BOOL_TRUE;
@@ -414,7 +414,7 @@ namespace slu::parse
 		std::vector<ResolvedType> fields;
 		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
 		std::vector<size_t> fieldOffsets;//Only defined for fields that have a size>0, also its in bits.
-		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
+		lang::MpItmId name;//if empty, then structural / table / tuple / array
 		//~StructRawType() {
 		//	fields.~vector();
 		//	fieldNames.~vector();
@@ -437,12 +437,12 @@ namespace slu::parse
 			return res;
 		}
 
-		static parse::RawTypeKind::Struct newNamed(lang::MpItmIdV<true> name) {
+		static parse::RawTypeKind::Struct newNamed(lang::MpItmId name) {
 			auto t = newRawTy();
 			t->name = name;
 			return t;
 		}
-		static ResolvedType newZstTy(lang::MpItmIdV<true> name) {
+		static ResolvedType newZstTy(lang::MpItmId name) {
 			return ResolvedType::getConstType(newNamed(name));
 		}
 		static parse::RawTypeKind::Struct boolStruct() {
@@ -485,7 +485,7 @@ namespace slu::parse
 	{
 		std::vector<ResolvedType> fields;
 		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
-		lang::MpItmIdV<true> name;//if empty, then structural / table / tuple / array
+		lang::MpItmId name;//if empty, then structural / table / tuple / array
 
 		static RawTypeKind::Union newRawTy() {
 			auto& elems = *(new UnionRawType());
@@ -516,7 +516,7 @@ namespace slu::parse
 	};
 	struct RefSigil
 	{
-		lang::MpItmIdV<true> life;
+		lang::MpItmId life;
 		UnOpType refType;
 
 		constexpr auto operator<=>(const RefSigil&) const = default;
@@ -575,7 +575,7 @@ namespace slu::parse
 		delete it;
 	}
 
-	constexpr std::optional<lang::MpItmIdV<true>> ResolvedType::getStructName() const
+	constexpr std::optional<lang::MpItmId> ResolvedType::getStructName() const
 	{
 		if (outerSliceDims != 0) return std::nullopt;
 		if (!std::holds_alternative<RawTypeKind::Struct>(base))

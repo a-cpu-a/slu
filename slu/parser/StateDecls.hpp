@@ -59,8 +59,7 @@ namespace slu::parse
 		return MayBox<false, T>(std::move(v));
 	}
 
-	//Mp ref
-	template<AnyCfgable CfgT> using MpItmId = lang::MpItmIdV<true>;
+	using lang::MpItmId;
 
 	//Forward declare
 
@@ -105,7 +104,6 @@ namespace slu::parse
 		using M128 = Integer128<false, true>;
 	}
 
-	using slu::lang::MpItmIdV;
 	using slu::lang::ModPath;
 	using slu::lang::ModPathView;
 	using slu::lang::ExportData;

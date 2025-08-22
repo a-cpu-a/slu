@@ -95,7 +95,7 @@ namespace slu::comp::mico
 			std::string_view abi;
 		};
 		struct Alias {
-			lang::MpItmIdV<true> realName;
+			lang::MpItmId realName;
 		};
 		//TODO: mlir::Value, type, etc
 	}
@@ -120,7 +120,7 @@ namespace slu::comp::mico
 			localsStack.emplace_back(itmCount);
 			localsStack.back().values.resize(itmCount);
 		}
-		GlobElem* getElement(const lang::MpItmIdV<true> name)
+		GlobElem* getElement(const lang::MpItmId name)
 		{
 			if(name.mp.id>= mp2Elements.size())
 				return nullptr;//not found
@@ -130,7 +130,7 @@ namespace slu::comp::mico
 				return nullptr;//not found
 			return &it->second;
 		}
-		GlobElemTy::Fn* addElem(const lang::MpItmIdV<true> name, mlir::func::FuncOp func, std::string_view abi)
+		GlobElemTy::Fn* addElem(const lang::MpItmId name, mlir::func::FuncOp func, std::string_view abi)
 		{
 			if (name.mp.id >= mp2Elements.size())
 				mp2Elements.resize(name.mp.id + 1);
@@ -138,7 +138,7 @@ namespace slu::comp::mico
 			mp[name.id.val] = GlobElemTy::Fn{.func= func,.abi=abi};
 			return &std::get<GlobElemTy::Fn>(mp[name.id.val]);
 		}
-		GlobElemTy::Alias* addElem(const lang::MpItmIdV<true> name, const lang::MpItmIdV<true> realName)
+		GlobElemTy::Alias* addElem(const lang::MpItmId name, const lang::MpItmId realName)
 		{
 			if (name.mp.id >= mp2Elements.size())
 				mp2Elements.resize(name.mp.id + 1);
@@ -198,7 +198,7 @@ namespace slu::comp::mico
 			return std::visit([](const auto& v) { return std::string_view{ v }; }, val);
 		}
 	};
-	ViewOrStr mangleFuncName(ConvData& conv, const std::string_view abi,lang::MpItmIdV<true> name)
+	ViewOrStr mangleFuncName(ConvData& conv, const std::string_view abi,lang::MpItmId name)
 	{
 		if(abi=="C")
 			return { name.asSv(conv.sharedDb) };
@@ -225,7 +225,7 @@ namespace slu::comp::mico
 		return { std::move(res)};
 	}
 
-	mlir::Type tryConvBuiltinType(ConvData& conv, const std::string_view abi, const lang::MpItmIdV<true>& name,const bool reffed)
+	mlir::Type tryConvBuiltinType(ConvData& conv, const std::string_view abi, const lang::MpItmId& name,const bool reffed)
 	{
 		if (name == mpc::STD_STR)
 		{
@@ -519,12 +519,12 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatementType::SafeLabel>;
 
 
-	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,parse::MpItmIdV<true> name,parse::Position place, const parse::ItmType::Fn* funcItmOrNull)
+	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,parse::MpItmId name,parse::Position place, const parse::ItmType::Fn* funcItmOrNull)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
 
-		parse::MpItmIdV<true> realName = name;
+		parse::MpItmId realName = name;
 		{
 			GlobElem* funcInfo = conv.getElement(realName);
 			if (funcInfo != nullptr)

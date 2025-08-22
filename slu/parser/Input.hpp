@@ -23,16 +23,16 @@ namespace slu::parse
 #ifdef Slu_NoConcepts
 		true
 #else
-		requires(T t,lang::MpItmIdV<isSlu> v) {
+		requires(T t,lang::MpItmId v) {
 			{ t.asSv(v) } -> std::same_as<std::string_view>;
-			{ t.resolveEmpty() } -> std::same_as<lang::MpItmIdV<isSlu>>;
+			{ t.resolveEmpty() } -> std::same_as<lang::MpItmId>;
 
-			{ t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
-			{ t.resolveUnknown(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
+			{ t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmId>;
+			{ t.resolveUnknown(lang::ModPath()) } -> std::same_as<lang::MpItmId>;
 
 			//{ t.resolveNameOrLocal(std::string()) } -> std::same_as<parse::DynLocalOrNameV<isSlu>>;
-			{ t.resolveName(std::string()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
-			{ t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmIdV<isSlu>>;
+			{ t.resolveName(std::string()) } -> std::same_as<lang::MpItmId>;
+			{ t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmId>;
 	}
 #endif // Slu_NoConcepts
 	;

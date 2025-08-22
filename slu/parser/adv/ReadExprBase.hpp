@@ -91,7 +91,7 @@ namespace slu::parse
 				varcase(const LocalId) {
 				varDataOut = ExprType::Local(var);
 			},
-				varcase(const MpItmId<In>) {
+				varcase(const MpItmId) {
 				varDataOut = ExprType::Global<In>(var);
 			}
 				);
