@@ -255,13 +255,10 @@ namespace slu::parse
 		bool hasVarArgParam = false;// do params end with '...'
 		OptSafety safety = OptSafety::DEFAULT;
 	};
-
-	template<bool isSlu>
-	struct FunctionV : FunctionInfo
+	struct Function : FunctionInfo
 	{
-		BlockV<isSlu> block;
+		BlockV<true> block;
 	};
-	Slu_DEF_CFG(Function);
 
 
 
@@ -283,7 +280,6 @@ namespace slu::parse
 		struct True {};											// "true"
 		struct VarArgs {};										// "..."
 
-		using parse::FunctionV;
 		using parse::Function;
 		
 		using parse::TableV;
@@ -347,7 +343,7 @@ namespace slu::parse
 
 		ExprType::String,		// "LiteralString"
 		ExprType::VarArgs,              // "..." (varargs)
-		ExprType::FunctionV<isSlu>,			// "functiondef"
+		ExprType::Function,			// "functiondef"
 		ExprType::TableV<isSlu>,	// "tableconstructor"
 
 		ExprType::MultiOpV<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
@@ -672,23 +668,15 @@ namespace slu::parse
 		{// "function funcname funcbody"    
 			Position place;//Right after func-name
 			MpItmId name; // name may contain dots, 1 colon if !isSlu
-			FunctionV<isSlu> func;
+			Function func;
 		};
-		template<bool isSlu>
-		struct FunctionV : FuncDefBase<isSlu> {
+		struct Function : FuncDefBase<true> {
 			ExportData exported = false;
 		};
-		Slu_DEF_CFG(Function);
 
 		template<bool isSlu>
-		struct FnV : FunctionV<isSlu> {};
+		struct FnV : Function {};
 		Slu_DEF_CFG(Fn);
-
-		template<bool isSlu>
-		struct LocalFunctionDefV :FunctionV<isSlu> {};
-		Slu_DEF_CFG(LocalFunctionDef);
-		// "local function Name funcbody"
-
 
 		template<bool isSlu>
 		struct FunctionDeclV : FunctionInfo
@@ -833,8 +821,7 @@ namespace slu::parse
 
 		StatementType::ForInV<isSlu>,	// "for namelist in explist do block end"
 
-		StatementType::LocalFunctionDefV<isSlu>,	// "local function Name funcbody"
-		StatementType::FunctionV<isSlu>,		// "function funcname funcbody"
+		StatementType::Function,		// "function funcname funcbody"
 		StatementType::FnV<isSlu>,					// "fn funcname funcbody"
 
 		StatementType::FunctionDeclV<isSlu>,

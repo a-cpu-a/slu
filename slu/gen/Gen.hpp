@@ -347,7 +347,7 @@ namespace slu::parse
 		varcase(const ExprType::String&) {
 			genString(out,var.v);
 		},
-		varcase(const ExprType::Function<Out>&) {
+		varcase(const ExprType::Function&) {
 			out.add("function "sv);
 			genFuncDef(out, var,""sv);
 		},
@@ -560,7 +560,7 @@ namespace slu::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genFuncDef(Out& out, const Function<Out>& var,const std::string_view name)
+	inline void genFuncDef(Out& out, const Function& var,const std::string_view name)
 	{
 		out.pushLocals(var.local2Mp);
 		genFuncDecl(out, var, name);
@@ -914,15 +914,11 @@ namespace slu::parse
 			genFunc<true>(out, var, "fn ");
 		},
 
-		varcase(const StatementType::Function<Out>&) {
+		varcase(const StatementType::Function&) {
 			genFunc<false>(out, var, "function ");
 		},
 		varcase(const StatementType::FunctionDecl<Out>&) {
 			genFunc<true>(out, var, "function ");
-		},
-		varcase(const StatementType::LocalFunctionDef<Out>&) {
-			out.add("local function ");
-			genFuncDef(out, var.func, out.db.asSv(var.name));
 		},
 
 		//Slu!

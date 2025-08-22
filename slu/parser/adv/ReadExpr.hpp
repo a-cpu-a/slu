@@ -201,9 +201,9 @@ namespace slu::parse
 				{
 					auto fun = readFuncBody(in,std::nullopt);
 					ezmatch(std::move(fun))(
-					varcase(Function<In>&&)
+					varcase(Function&&)
 					{
-						basicRes.data = ExprType::Function<In>(std::move(var));
+						basicRes.data = ExprType::Function(std::move(var));
 					},
 					varcase(FunctionInfo&&)
 					{

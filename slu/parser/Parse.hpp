@@ -164,7 +164,7 @@ namespace slu::parse
 		return ret;
 	}
 	template<AnyInput In>
-	inline std::variant<FunctionV<true>, FunctionInfo> readFuncBody(In& in,std::optional<std::string> funcName)
+	inline std::variant<Function, FunctionInfo> readFuncBody(In& in,std::optional<std::string> funcName)
 	{
 		Position place = in.getLoc();
 		in.genData.pushLocalScope();
@@ -183,7 +183,7 @@ namespace slu::parse
 			return std::move(fi);//No block, just the info
 		}
 
-		Function<In> func = { std::move(fi) };
+		Function func = { std::move(fi) };
 
 		try
 		{
@@ -462,7 +462,7 @@ namespace slu::parse
 		case 'u':
 			if (checkReadTextToken(in, "function"))
 			{
-				readFunctionStatement<isLoop, StatementType::Function<In>, StatementType::FunctionDecl<In>>(
+				readFunctionStatement<isLoop, StatementType::Function, StatementType::FunctionDecl<In>>(
 					in, place, allowVarArg, exported, safety
 				);
 				return true;
@@ -618,7 +618,7 @@ namespace slu::parse
 		{
 			auto fun = readFuncBody(in,std::move(name));
 			if(ezmatch(std::move(fun))(
-				varcase(Function<In>&&) {
+				varcase(Function&&) {
 					res.func = std::move(var);
 					return false;
 				},

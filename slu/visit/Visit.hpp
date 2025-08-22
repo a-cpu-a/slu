@@ -410,7 +410,7 @@ namespace slu::visit
 			visitTable(vi,var);
 			Slu_CALL_VISIT_FN_POST_VAR(TableExpr);
 		},
-		varcase(parse::ExprType::Function<Vi>&) {
+		varcase(parse::ExprType::Function&) {
 			//TODO: pre post
 			Slu_CALL_VISIT_FN_PRE_VAR(FunctionInfo);
 			visitSafety(vi, var.safety);
@@ -675,7 +675,7 @@ namespace slu::visit
 			visitTable(vi, var.type);
 			Slu_CALL_VISIT_FN_POST_USER(Locals, var.local2Mp);
 		},
-		varcase(parse::StatementType::Function<Vi>&) {
+		varcase(parse::StatementType::Function&) {
 			Slu_CALL_VISIT_FN_PRE_VAR(AnyFuncDefStat);
 			Slu_CALL_VISIT_FN_PRE_USER(FunctionInfo,var.func);
 			visitExported(vi, var.exported);

@@ -285,7 +285,7 @@ namespace slu::paint
 		varcase(const parse::ExprType::Table<Se>&) {
 			paintTable<nameTok>(se, var);
 		},
-		varcase(const parse::ExprType::Function<Se>&) {
+		varcase(const parse::ExprType::Function&) {
 			paintFuncDef(se, var, parse::MpItmId::newEmpty(), false);
 		},
 		varcase(const parse::ExprType::PatTypePrefix&) {
@@ -621,7 +621,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function<Se>& func, const parse::MpItmId name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
+	inline void paintFuncDef(Se& se, const parse::Function& func, const parse::MpItmId name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
 	{
 		std::optional<std::unique_ptr<parse::ExprV<true>>> emptyTy{};
 		const std::optional<std::unique_ptr<parse::ExprV<true>>>* retType;
@@ -825,15 +825,11 @@ namespace slu::paint
 		varcase(const parse::StatementType::FnDecl<Se>&) {
 			paintFunc<true>(se, var, true);
 		},
-		varcase(const parse::StatementType::Function<Se>&) {
+		varcase(const parse::StatementType::Function&) {
 			paintFunc<false>(se, var, false);
 		},
 		varcase(const parse::StatementType::FunctionDecl<Se>&) {
 			paintFunc<true>(se, var, false);
-		},
-		varcase(const parse::StatementType::LocalFunctionDef<Se>&) {
-			paintKw<Tok::FN_STAT>(se, "local");
-			paintFuncDef(se, var.func, var.name, false, var.place);
 		},
 		varcase(const parse::StatementType::Semicol) {
 			paintKw<Tok::PUNCTUATION>(se, ";");
