@@ -787,7 +787,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(Block);
 	}
 	template<AnyVisitor Vi>
-	void visitFile(Vi& vi,parse::ParsedFile<Vi>& itm)
+	void visitFile(Vi& vi,parse::ParsedFile& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(File);
 		visitStatList(vi, itm.code);

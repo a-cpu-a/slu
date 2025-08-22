@@ -485,7 +485,6 @@ namespace slu::parse
 	template<bool isSlu>
 	struct BasicGenDataV
 	{
-		//ParsedFileV<isSlu> out; //TODO_FOR_COMPLEX_GEN_DATA: field is ComplexOutData&, and needs to be obtained from shared mutex
 		std::vector<LocalsV<isSlu>> localsStack;
 		Sel<isSlu, LuaMpDb, BasicMpDb> mpDb;
 		std::vector<BasicGenScopeV<isSlu>> scopes;

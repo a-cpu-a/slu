@@ -884,11 +884,11 @@ namespace slu::parse
 	 * @throws slu::parse::ParseFailError
 	 */
 	template<AnyInput In>
-	inline ParsedFile<In> parseFile(In& in)
+	inline ParsedFile parseFile(In& in)
 	{
 		try
 		{
-			ParsedFile<In> res;
+			ParsedFile res;
 			auto [sl, mp] = readStatList<false>(in, false, true);
 			res.code = std::move(sl);
 			res.mp = mp;

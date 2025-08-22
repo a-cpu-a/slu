@@ -396,13 +396,13 @@ namespace slu::mlvl
 			mpStack.pop_back();
 			mpDataStack.pop_back();
 		}
-		bool preFile(parse::ParsedFile<Cfg>& itm)
+		bool preFile(parse::ParsedFile& itm)
 		{
 			mpStack.push_back(itm.mp);
 			mpDataStack.push_back(&mpDb.data->mps[itm.mp.id]);
 			return false;
 		}
-		void postFile(parse::ParsedFile<Cfg>& itm) {
+		void postFile(parse::ParsedFile& itm) {
 			mpStack.pop_back();
 			mpDataStack.pop_back();
 		}
@@ -631,7 +631,7 @@ namespace slu::mlvl
 		}; 
 	};
 
-	inline std::vector<InlineModule> basicDesugar(parse::BasicMpDbData& mpDbData,parse::ParsedFileV<true>& itm)
+	inline std::vector<InlineModule> basicDesugar(parse::BasicMpDbData& mpDbData,parse::ParsedFile& itm)
 	{
 		DesugarVisitor vi{ {},parse::BasicMpDb{ &mpDbData } };
 

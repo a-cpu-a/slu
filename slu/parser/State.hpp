@@ -830,17 +830,9 @@ namespace slu::parse
 		Stat& operator=(Stat&&) = default;
 	};
 
-	template<bool isSlu>
-	struct ParsedFileV
+	struct ParsedFile
 	{
-		StatListV<isSlu> code;
+		StatListV<true> code;
 		lang::ModPathId mp;
 	};
-	template<>
-	struct ParsedFileV<false>
-	{
-		BlockV<false> code;
-		LocalsV<false> local2Mp;
-	};
-	Slu_DEF_CFG(ParsedFile);
 }

@@ -35,7 +35,7 @@ namespace slu::comp
 		lang::ModPath mp;//Only valid before MergeAstsMap!!!
 		std::string_view crateRootPath;
 		std::string path;
-		parse::ParsedFileV<true> pf;
+		parse::ParsedFile pf;
 	};
 	using GenCodeMap = std::unordered_map<uint32_t, std::vector<llvm::SmallVector<char, 0>>>;
 	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile, lang::HashModPathView, lang::EqualModPathView>;

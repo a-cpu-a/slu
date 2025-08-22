@@ -73,7 +73,7 @@ namespace slu::visit
 	_Slu_DEF_EMPTY_POST_RAW(_Name,std::span<_ElemTy>) \
 	_Slu_DEF_EMPTY_SEP(_Name,std::span<_ElemTy>,_ElemTy)
 
-		_Slu_DEF_EMPTY_PRE_POST(File, parse::ParsedFile<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(File, parse::ParsedFile);
 		_Slu_DEF_EMPTY_AUTO(Block);
 		_Slu_DEF_EMPTY_AUTO_LG(Pat);
 		_Slu_DEF_EMPTY_AUTO(Soe);

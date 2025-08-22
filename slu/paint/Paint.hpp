@@ -1027,7 +1027,7 @@ namespace slu::paint
 	Make sure to reset in first: `in.reset();`
 	*/
 	template<AnySemOutput Se>
-	inline void paintFile(Se& se, const parse::ParsedFile<Se>& f) {
+	inline void paintFile(Se& se, const parse::ParsedFile& f) {
 		for (auto& i : f.code)
 			paintStat(se, i);
 		skipSpace(se);

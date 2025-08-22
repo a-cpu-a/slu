@@ -1084,7 +1084,7 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genFile(Out& out,const ParsedFile<Out>& obj)
+	inline void genFile(Out& out,const ParsedFile& obj)
 	{
 		for (const auto& i : obj.code)
 			genStat(out, i);
