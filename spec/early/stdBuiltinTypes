@@ -3,7 +3,7 @@
 #
 
 Integer Type {
-	Kinda like `Int(-U128_MAX, U128_MAX)`, but without the utilities?
+	Kinda like `Int(-U128_MAX..U128_MAX)`, but without the utilities?
 	
 	No definition exists, as it is a compiler builtin. (under the hood its just a i129, to support i128 & u128)
 	`struct Integer;`
@@ -12,13 +12,20 @@ Integer Type {
 Int Type {
 	The integer/(literal) types.
 	
-	Its a zst, if MIN == MAX.
+	Its a zst, if RANGE.min == RANGE.max.
+	
+	This type has special inference rules:
+	Any overlapping / adjacent Int types will merge, if there is a gap, then a error is thrown, so:
+	`1..1, 2..2 => 1..2`
+	`1..2, 2..3 => 1..3`
+	`1..1, 3..3 => ERROR!`
+	`1..1, 3..3, 2..2 => 1..3`
 	
 	No definition exists, as it is a compiler builtin. (under the hood its just the smallest mlir/llvm iN... type that can fit all the numbers)
-	`struct fn Int(MIN = Integer,MAX = Integer);`
+	`struct fn Int(RANGE = Range(Integer,Integer));`
 	
-	Int(0,0) == 0 as type
-	Int(0,255) == 0..255 as type
+	Int(0..0) == 0 as type
+	Int(0..255) == 0..255 as type
 }
 
 FloatType Enum {
@@ -78,15 +85,21 @@ Ref and Ptr Types {
 
 Struct Type {
 	The struct literal types.
+	
+	No definition exists, as it is a compiler builtin. (under the hood its basically just a int)
 	`struct fn Struct(???);`
 }
 
 Union Type {
 	The union literal types.
+	
+	No definition exists, as it is a compiler builtin. (under the hood its basically just a int)
 	`struct fn Union(???);`
 }
 
 Variant Type {
 	A variant/union of multiple types.
+	
+	No definition exists, as it is a compiler builtin. (under the hood its basically just a int)
 	`struct fn Variant(???);`
 }
