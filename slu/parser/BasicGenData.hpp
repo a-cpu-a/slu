@@ -336,42 +336,6 @@ namespace slu::parse
 		}
 		);
 	}
-
-	struct LuaMpDb
-	{
-		std::unordered_map<std::string, LocalObjId> name2Id;
-		std::vector<std::string> id2Name;
-
-		LocalObjId get(const std::string& v)
-		{
-			if (!name2Id.contains(v))
-			{
-				const size_t res = id2Name.size();
-
-				name2Id[v] = { res };
-				id2Name.emplace_back(v);
-
-				return { res };
-			}
-			return name2Id[v];
-		}
-
-		std::string_view asSv(const MpItmId v) const {
-			if (v.id.val == SIZE_MAX)
-				return {};//empty
-			return id2Name[v.id.val];
-		}
-		std::string_view asSv(const PoolString v) const {
-			if (v.val == SIZE_MAX)
-				return {};//empty
-			return id2Name[v.val];
-		}
-		lang::ViewModPath asVmp(const MpItmId v) const {
-			if (v.id.val == SIZE_MAX)
-				return {};//empty
-			return { id2Name[v.id.val] };
-		}
-	};
 	struct BasicMpDb
 	{
 		BasicMpDbData* data;
@@ -486,7 +450,7 @@ namespace slu::parse
 	struct BasicGenDataV
 	{
 		std::vector<LocalsV<isSlu>> localsStack;
-		Sel<isSlu, LuaMpDb, BasicMpDb> mpDb;
+		BasicMpDb mpDb;
 		std::vector<BasicGenScopeV<isSlu>> scopes;
 		std::vector<LocalId> anonScopeCounts;
 		ModPath totalMp;

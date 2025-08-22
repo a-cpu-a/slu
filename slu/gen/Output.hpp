@@ -85,7 +85,7 @@ namespace slu::parse
 		}
 
 
-		Sel<SLU_SYN, LuaMpDb, BasicMpDb> db;
+		BasicMpDb db;
 		std::vector<const parse::LocalsV<SLU_SYN>*> localStack;
 
 		std::vector<uint8_t> text;
