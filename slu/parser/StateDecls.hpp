@@ -62,8 +62,6 @@ namespace slu::parse
 	//Mp ref
 	template<AnyCfgable CfgT> using MpItmId = lang::MpItmIdV<true>;
 
-
-
 	//Forward declare
 
 	template<bool isSlu> struct StatementV;
@@ -107,15 +105,11 @@ namespace slu::parse
 		using M128 = Integer128<false, true>;
 	}
 
-	// Slu
-
 	using slu::lang::MpItmIdV;
 	using slu::lang::ModPath;
 	using slu::lang::ModPathView;
 	using slu::lang::ExportData;
 	using SubModPath = std::vector<std::string>;
 
-
 	using PoolString = lang::LocalObjId;//implicitly unknown mp.
-
 }

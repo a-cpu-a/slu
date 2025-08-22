@@ -34,17 +34,15 @@ namespace slu::parse
 		BITWISE_OR,     // "|"
 		SHIFT_RIGHT,    // ">>"
 		SHIFT_LEFT,     // "<<"
-		CONCATENATE,    // ".." or "++"
+		CONCATENATE,    // "++"
 		LESS_THAN,      // "<"
 		LESS_EQUAL,     // "<="
 		GREATER_THAN,   // ">"
 		GREATER_EQUAL,  // ">="
 		EQUAL,          // "=="
-		NOT_EQUAL,      // "~="
+		NOT_EQUAL,      // "!="
 		LOGICAL_AND,    // "and"
 		LOGICAL_OR,     // "or"
-
-		// Slu
 
 		ARRAY_MUL,		// "**"
 		RANGE_BETWEEN,	// ".."
@@ -63,11 +61,7 @@ namespace slu::parse
 		NONE,
 
 		NEGATE,        // "-"
-		LOGICAL_NOT,   // "not"
-		LENGTH,        // "#"
-		BITWISE_NOT,   // "~"
-
-		//Slu
+		LOGICAL_NOT,   // "!"
 
 		RANGE_BEFORE,	// ".."
 

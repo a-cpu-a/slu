@@ -44,7 +44,7 @@ namespace slu::parse
 	constexpr auto mkUnOpNames(bool forTrait)
 	{
 		std::array<std::array<char,10>, (size_t)UnOpType::ENUM_SIZE> res = {
-			"neg","not", "_len", "_bitNot",
+			"neg","not",
 
 			"rangeMax\0",//!!!
 

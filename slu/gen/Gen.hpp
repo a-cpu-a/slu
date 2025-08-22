@@ -39,6 +39,7 @@ namespace slu::parse
 			return "^"sv;
 		case BinOpType::MODULO:
 			return "%"sv;
+
 		case BinOpType::BITWISE_AND:
 			return "&"sv;
 		case BinOpType::BITWISE_XOR:
@@ -49,8 +50,7 @@ namespace slu::parse
 			return ">>"sv;
 		case BinOpType::SHIFT_LEFT:
 			return "<<"sv;
-		case BinOpType::CONCATENATE:
-			return "++"sv;
+
 		case BinOpType::LESS_THAN:
 			return "<"sv;
 		case BinOpType::LESS_EQUAL:
@@ -59,15 +59,19 @@ namespace slu::parse
 			return ">"sv;
 		case BinOpType::GREATER_EQUAL:
 			return ">="sv;
+
 		case BinOpType::EQUAL:
 			return "=="sv;
 		case BinOpType::NOT_EQUAL:
 			return "!="sv;
+
 		case BinOpType::LOGICAL_AND:
 			return "and"sv;
 		case BinOpType::LOGICAL_OR:
 			return "or"sv;
-			// Slu
+
+		case BinOpType::CONCATENATE:
+			return "++"sv;
 		case BinOpType::ARRAY_MUL:
 			return "**"sv;
 		case BinOpType::RANGE_BETWEEN:
@@ -76,6 +80,7 @@ namespace slu::parse
 			return "~~"sv;
 		case BinOpType::UNION:
 			return "||"sv;
+
 		case BinOpType::AS:
 			return "as"sv;
 		default:
@@ -93,14 +98,9 @@ namespace slu::parse
 			return " -"sv;//TODO: elide space, when there is one already
 		case UnOpType::LOGICAL_NOT:
 			return "!"sv;
-		case UnOpType::LENGTH:
-			return "#"sv;
-		case UnOpType::BITWISE_NOT:
-			return "~"sv;
-			// Slu
+
 		case UnOpType::RANGE_BEFORE:
 			return ".."sv;
-
 		case UnOpType::ALLOCATE:
 			return " alloc "sv;
 

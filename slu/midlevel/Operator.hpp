@@ -17,13 +17,12 @@ namespace slu::mlvl
 	enum class Assoc : uint8_t { LEFT, RIGHT };
 
 
-	template<bool isLua>
 	constexpr uint8_t precedence(parse::BinOpType op) {
 		switch (op)
 		{
 		case parse::BinOpType::EXPONENT: return 90;
 
-		case parse::BinOpType::MODULO: if constexpr (!isLua)return 70;
+		case parse::BinOpType::MODULO: return 70;
 
 		case parse::BinOpType::DIVIDE:
 		case parse::BinOpType::FLOOR_DIVIDE:
@@ -36,22 +35,18 @@ namespace slu::mlvl
 		case parse::BinOpType::SHIFT_LEFT: 
 		case parse::BinOpType::SHIFT_RIGHT: return 50;
 
-		case parse::BinOpType::BITWISE_OR:if constexpr (isLua)return 40;
-		case parse::BinOpType::BITWISE_XOR:if constexpr (isLua)return 41;
+		case parse::BinOpType::BITWISE_OR:
+		case parse::BinOpType::BITWISE_XOR:
 		case parse::BinOpType::BITWISE_AND: return 42;
 
-			//Slu
-		case parse::BinOpType::RANGE_BETWEEN: if constexpr (!isLua)return 30;
-			break;
+		case parse::BinOpType::RANGE_BETWEEN: return 30;
 
-			//Lua
-		case parse::BinOpType::CONCATENATE:if constexpr (!isLua) return 20;
-			return 55;//Lua, between +- and << >>
+		case parse::BinOpType::CONCATENATE: return 20;
 
 		case parse::BinOpType::GREATER_EQUAL:
 		case parse::BinOpType::GREATER_THAN:
 		case parse::BinOpType::LESS_EQUAL:
-		case parse::BinOpType::LESS_THAN: if constexpr(!isLua)return 11;
+		case parse::BinOpType::LESS_THAN: return 11;
 
 		case parse::BinOpType::EQUAL:
 		case parse::BinOpType::NOT_EQUAL: return 10;
@@ -60,37 +55,26 @@ namespace slu::mlvl
 		case parse::BinOpType::LOGICAL_AND: return 6;
 		case parse::BinOpType::LOGICAL_OR: return 5;
 
-			//Slu
-		case parse::BinOpType::ARRAY_MUL: if constexpr (!isLua)return 21;
-			break;
-		case parse::BinOpType::MAKE_RESULT: if constexpr (!isLua)return 15;
-			break;
-		case parse::BinOpType::UNION: if constexpr (!isLua)return 17;
-			break;
-		case parse::BinOpType::AS: if constexpr (!isLua)return 13;
-			break;
+		case parse::BinOpType::ARRAY_MUL: return 21;
+		case parse::BinOpType::MAKE_RESULT: return 15;
+		case parse::BinOpType::UNION: return 17;
+		case parse::BinOpType::AS: return 13;
 
 		case parse::BinOpType::NONE:
 			break;
 		}
 		Slu_panic("Unknown operator, no precedence<slu>(BinOpType) defined");
 	}
-	template<bool isLua>
 	constexpr uint8_t precedence(const parse::UnOpItem& op) {
 		switch (op.type)
 		{
 			//Slu
-		case parse::UnOpType::RANGE_BEFORE:	if constexpr (!isLua)return 30;//same as range between
-		case parse::UnOpType::ALLOCATE:if constexpr (!isLua)return 0;
+		case parse::UnOpType::RANGE_BEFORE:	return 30;//same as range between
+		case parse::UnOpType::ALLOCATE:return 0;
 			break;
-			//Lua
-		case parse::UnOpType::LENGTH:        // "#"
-		case parse::UnOpType::BITWISE_NOT:   // "~"
-			if constexpr (!isLua)break;//Not in slu
 		case parse::UnOpType::NEGATE:        // "-"
 		case parse::UnOpType::LOGICAL_NOT:   // "not"
 			return 85;//Between exponent and mul, div, ..
-			//Slu
 		case parse::UnOpType::TO_REF:			// "&"
 		case parse::UnOpType::TO_REF_CONST:		// "&const"
 		case parse::UnOpType::TO_REF_SHARE:		// "&share"
@@ -101,7 +85,6 @@ namespace slu::mlvl
 		case parse::UnOpType::TO_PTR_MUT:		// "*mut"
 			//Pseudo, only for type prefixes
 		case parse::UnOpType::MUT:				// "mut"
-			if constexpr (isLua)break;
 			return 85;//Between exponent and mul, div, ..
 			//
 		case parse::UnOpType::NONE:
@@ -109,9 +92,7 @@ namespace slu::mlvl
 		}
 		Slu_panic("Unknown operator, no precedence<slu>(UnOpItem) defined");
 	}
-	template<bool isLua>
 	constexpr uint8_t precedence(parse::PostUnOpType op) {
-		static_assert(!isLua);
 		switch (op)
 		{
 		case parse::PostUnOpType::PROPOGATE_ERR:
@@ -125,11 +106,7 @@ namespace slu::mlvl
 		Slu_panic("Unknown operator, no precedence<slu>(PostUnOpType) defined");
 	}
 
-	template<bool isLua>
 	constexpr Assoc associativity(parse::BinOpType op) {
-		if constexpr (isLua)
-			return op == parse::BinOpType::EXPONENT ? Assoc::RIGHT : Assoc::LEFT;
-
 		switch (op)
 		{
 		case parse::BinOpType::EXPONENT:
@@ -158,19 +135,17 @@ namespace slu::mlvl
 		size_t used = false;
 	};
 
-	template<bool isLua>
 	constexpr uint8_t calcPrecedence(auto p, const auto& end)
 	{
 		uint8_t prec = 0;
 		while (p!=end)
 		{
-			prec = std::max(prec, precedence<isLua>(*p));
+			prec = std::max(prec, precedence(*p));
 			p++;
 		}
 		return prec;
 	}
 
-	template<bool isLua>
 	constexpr void consumeUnOps(std::vector<MultiOpOrderEntry>& unOps,const auto& item,const size_t itemIdx, ExprUnOpsEntry& entry,const bool onLeftSide,const uint8_t minPrecedence)
 	{
 		if (!entry.used)
@@ -191,8 +166,8 @@ namespace slu::mlvl
 			const bool preAlive = pPre != item.unOps.crend();
 			const bool sufAlive = pSuf != item.postUnOps.cend();
 
-			const uint8_t prePrec = preAlive ? calcPrecedence<isLua>(pPre, item.unOps.crend()) : 0;
-			const uint8_t sufPrec = sufAlive ? calcPrecedence<isLua>(pSuf, item.postUnOps.cend()) : 0;
+			const uint8_t prePrec = preAlive ? calcPrecedence(pPre, item.unOps.crend()) : 0;
+			const uint8_t sufPrec = sufAlive ? calcPrecedence(pSuf, item.postUnOps.cend()) : 0;
 
 			if (sufAlive && (!preAlive || sufPrec > prePrec))
 			{
@@ -220,7 +195,6 @@ namespace slu::mlvl
 	// Store parse::BinOpType in `extra[...].first`
 	// Store std::vector<parse::UnOpItem> in `extra[...].second.unOps`
 	// Store std::vector<parse::PostUnOpType> in `extra[...].second.postUnOps`
-	template<bool isLua>
 	constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m)
 	{
 		/*
@@ -249,32 +223,11 @@ namespace slu::mlvl
 
 		std::vector<MultiOpOrderEntry> ops;
 
-		//First entry
-		/*size_t j = 0;
-		for (const auto& un : m.first.unOps)
-		{
-			ops.push_back({ 0,j++, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
-		}
-		j = 0;
-		for (const auto post : m.first.postUnOps)
-		{
-			ops.push_back({ 0,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
-		}*/
 		// Add binary ops
 		for (size_t i = 0; i < m.extra.size(); ++i)
 		{
 			auto& bin = m.extra[i].first;
-			ops.push_back({ i+1,0, OpKind::BinOp, precedence<isLua>(bin), associativity<isLua>(bin) });
-			/*j = 0;
-			for (const auto& un : m.extra[i].second.unOps)
-			{
-				ops.push_back({ i,j++, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
-			}
-			j = 0;
-			for (const auto post : m.extra[i].second.postUnOps)
-			{
-				ops.push_back({ i,j++, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
-			}*/
+			ops.push_back({ i+1,0, OpKind::BinOp, precedence(bin), associativity(bin) });
 		}
 
 		std::sort(ops.begin(), ops.end(), [](const MultiOpOrderEntry& a, const MultiOpOrderEntry& b) {
@@ -314,37 +267,13 @@ namespace slu::mlvl
 			ExprUnOpsEntry& ent1 = lAssoc ? leftEntry : rightEntry;
 			ExprUnOpsEntry& ent2 = lAssoc ? rightEntry : leftEntry;
 
-			consumeUnOps<isLua>(unOps[i],item1, item1Idx, ent1, lAssoc,e.precedence);
-			consumeUnOps<isLua>(unOps[i],item2, item2Idx, ent2,!lAssoc,e.precedence);
+			consumeUnOps(unOps[i],item1, item1Idx, ent1, lAssoc,e.precedence);
+			consumeUnOps(unOps[i],item2, item2Idx, ent2,!lAssoc,e.precedence);
 		}
 		//Consume first, last expr un ops if needed.
 		// min op prec is 0xFF, to mark the opposite sides as not usable.
-		consumeUnOps<isLua>(unOpsLast, *m.first,0, exprUnOps.front(), false, 0xFF);
-		consumeUnOps<isLua>(unOpsLast, m.extra.back().second,m.extra.size(), exprUnOps.back(), true, 0xFF);
-
-		/*
-		size_t j = 0;
-		for (const auto& un : m.first.unOps)
-		{
-			unOps.push_back({ 0,j++,b, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
-		}
-		j = 0;
-		for (const auto post : m.first.postUnOps)
-		{
-			unOps.push_back({ 0,j++,b, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
-		}*/
-
-			/*
-			j = 0;
-			for (const auto& un : m.extra[i.index].second.unOps)
-			{
-				unOps.push_back({ i.index,j++,b, OpKind::UnOp, precedence<isLua>(un),Assoc::RIGHT });
-			}
-			j = 0;
-			for (const auto post : m.extra[i.index].second.postUnOps)
-			{
-				unOps.push_back({ i.index,j++,b, OpKind::PostUnOp, precedence<isLua>(post),Assoc::LEFT });
-			}*/
+		consumeUnOps(unOpsLast, *m.first,0, exprUnOps.front(), false, 0xFF);
+		consumeUnOps(unOpsLast, m.extra.back().second,m.extra.size(), exprUnOps.back(), true, 0xFF);
 
 		std::vector<MultiOpOrderEntry> opsRes;
 		opsRes.reserve(ops.size() + unOpCount);
@@ -381,7 +310,7 @@ namespace slu::mlvl
 
 		for (size_t i = 0; i < res.size(); i++)
 		{
-			if(precedence<false>(expr.unOps[unOpIdx]) >= precedence<false>(expr.postUnOps.at(postUnOpIdx)))
+			if(precedence(expr.unOps[unOpIdx]) >= precedence(expr.postUnOps.at(postUnOpIdx)))
 			{
 				res[i] = false; // UnOp
 				unOpIdx--;
@@ -404,31 +333,4 @@ namespace slu::mlvl
 		}
 		return res;
 	}
-	/*
-	struct UnOpOrderEntry
-	{
-		size_t index;
-		bool isPost; // false = unOp, true = postUnOp
-		uint8_t precedence;
-	};
-	template<bool isLua>
-	constexpr std::vector<size_t> unaryOpOrderTodo(const auto& expr) 
-	{
-		//TODO: this doesnt handle mixed order on one side, assoc of both.
-		std::vector<UnOpOrderEntry> ops;
-
-		for (size_t i = 0; i < expr.unOps.size(); ++i)
-		{
-			ops.push_back({ i, false, precedence<isLua>(expr.unOps[i]) });
-		}
-		for (size_t i = 0; i < expr.postUnOps.size(); ++i)
-		{
-			ops.push_back({ i, true, precedence<isLua>(expr.postUnOps[i]) });
-		}
-
-		std::sort(ops.begin(), ops.end(), [](const UnOpOrderEntry& a, const UnOpOrderEntry& b) {
-			return a.precedence > b.precedence; // Higher precedence first
-		});
-		return ops;
-	}*/
 }

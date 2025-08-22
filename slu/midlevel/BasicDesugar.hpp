@@ -543,7 +543,7 @@ namespace slu::mlvl
 				_ASSERT(itm.unOps.empty());
 				_ASSERT(itm.postUnOps.empty());
 				MultiOp& ops = std::get<MultiOp>(itm.data);
-				auto order = multiOpOrder<false>(ops);
+				auto order = multiOpOrder(ops);
 
 				std::vector<ExprT> expStack;
 				for (auto& i : order)

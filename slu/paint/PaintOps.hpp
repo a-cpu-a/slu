@@ -133,17 +133,11 @@ namespace slu::paint
 	{
 		switch (itm.type)
 		{
-		case parse::UnOpType::BITWISE_NOT:
-			paintKw<Tok::GEN_OP>(se, "~");
-			break;
 		case parse::UnOpType::LOGICAL_NOT:
 			paintKw<Tok::GEN_OP>(se, "!");
 			break;
 		case parse::UnOpType::NEGATE:
 			paintKw<Tok::GEN_OP>(se, "-");
-			break;
-		case parse::UnOpType::LENGTH:
-			paintKw<Tok::GEN_OP>(se, "#");
 			break;
 		case parse::UnOpType::ALLOCATE:
 			paintKw<Tok::GEN_OP>(se, "alloc");
