@@ -3,13 +3,6 @@ for u8 i in 1..100 {}
 for u8 i in 1..max {}
 for u8 i in getRange() {}
 
-
---1..100 in steps of 1
-for u8 i = 1,100 {}
-for u8 i = 1,100,1 {}
---100..1 in steps of -1
-for u8 i = 100,1,-1 {}
-
 for {i,v} in getVec() {}
 for {k,_} in myVec() {}
 for KvPair{k,v} in getIter() {}

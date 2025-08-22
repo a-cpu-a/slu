@@ -341,13 +341,6 @@ for u8 i in 1..100 {}
 for u8 i in 1..max {}
 for u8 i in getRange() {}
 
-
---1..100 in steps of 1
-for u8 i = 1,100 {}
-for u8 i = 1,100,1 {}
---100..1 in steps of -1
-for u8 i = 100,1,-1 {}
-
 for {i,v} in getVec() {}
 for {k,_} in myVec() {}
 for KvPair{k,v} in getIter() {}
@@ -548,11 +541,8 @@ let {aa_N3,b_N3,c_N3} = {1,2,3};
 
 let u8x3 {aa_U8arr3_,b_U8arr3,c_U8arr3} = {1,2,3};for i in 1..1{}
 
-
-for i=1,1{}
-
-
-for i=1,1,1{}x.1=1
+for i in 1..1{}
+x.1=1
 
 
 let{|1|x}=0

@@ -175,34 +175,34 @@ int main()
 	//const auto x =slu::spec::extract_and_merge_ebnf_blocks("C:/libraries/lua/lua-5.4.4/src/slua/spec/");
 
 
-	constexpr bool TEST_SPEED = false;
+	//constexpr bool TEST_SPEED = false;
 
-	if constexpr (TEST_SPEED)
-	{
-		const std::vector<uint8_t> srcCode = getBin("C:/libraries/lua/lua-5.4.4/src/slu/parser/tests/libs/luaunit.lua");
+	//if constexpr (TEST_SPEED)
+	//{
+	//	const std::vector<uint8_t> srcCode = getBin("C:/libraries/lua/lua-5.4.4/src/slu/parser/tests/libs/luaunit.lua");
 
-		slu::parse::VecInput in;
-		in.fName = "Test";
-		in.text = srcCode;
+	//	slu::parse::VecInput in;
+	//	in.fName = "Test";
+	//	in.text = srcCode;
 
-		const auto startTime = std::chrono::system_clock::now();
+	//	const auto startTime = std::chrono::system_clock::now();
 
-		for (size_t i = 0; i < 1000; i++)
-		{
-			in.restart();
-			in.genData = {};
+	//	for (size_t i = 0; i < 1000; i++)
+	//	{
+	//		in.restart();
+	//		in.genData = {};
 
-			slu::parse::parseFile(in);
-		}
+	//		slu::parse::parseFile(in);
+	//	}
 
-		const auto endTime = std::chrono::system_clock::now();
+	//	const auto endTime = std::chrono::system_clock::now();
 
-		const auto timeDif = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);// <=104ms, 1014154
+	//	const auto timeDif = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);// <=104ms, 1014154
 
-		log("Time taken: {}", timeDif);
-		log("MB/s: {}", (srcCode.size() * 1000.0) * timeDif.count() / 1000000.0 * 0.000001);// div(mb), mul(us 2 s)
-		return 0;
-	}
+	//	log("Time taken: {}", timeDif);
+	//	log("MB/s: {}", (srcCode.size() * 1000.0) * timeDif.count() / 1000000.0 * 0.000001);// div(mb), mul(us 2 s)
+	//	return 0;
+	//}
 
 
 	const std::string_view p = "C:/libraries/lua/lua-5.4.4/src/slu/parser/tests";
