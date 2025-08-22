@@ -127,7 +127,7 @@ namespace slu::parse
 		{
 			constexpr static std::string_view NAME = "const-var"sv;
 			ResolvedType ty;
-			parse::ExprV<true> value;
+			parse::Expr value;
 		};
 		struct Trait
 		{

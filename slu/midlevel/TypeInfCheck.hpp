@@ -477,7 +477,7 @@ namespace slu::mlvl
 		}
 
 
-		bool preExpr(parse::Expr<Cfg>& itm)
+		bool preExpr(parse::Expr& itm)
 		{
 			exprTypeStack.emplace_back();
 			return false;
@@ -556,7 +556,7 @@ namespace slu::mlvl
 			return true;
 		}
 		void checkTypeMethod(
-			const parse::ResolvedType& var,const parse::Args<Cfg>& args, 
+			const parse::ResolvedType& var,const parse::Args& args, 
 			parse::MpItmId& method,parse::ResolvedType& resTy)
 		{
 			//TODO: check if var impls that method & what it is
@@ -643,7 +643,7 @@ namespace slu::mlvl
 		}
 
 		//Restrictions.
-		void postAnyCond(parse::Expr<Cfg>& itm) {
+		void postAnyCond(parse::Expr& itm) {
 			requireAsBool(exprTypeStack.back());
 			exprTypeStack.pop_back();
 		}
@@ -658,7 +658,7 @@ namespace slu::mlvl
 		void handleSoe(TmpVar resId,parse::SoeOrBlock<Cfg>& itm)
 		{
 			ezmatch(itm)(
-			varcase(parse::SoeType::Expr<Cfg>&) {
+			varcase(parse::SoeType::Expr&) {
 				visit::visitExpr(*this, *var);
 				editLocalVar(resId);
 			},
@@ -729,7 +729,7 @@ namespace slu::mlvl
 		bool preCanonicGlobal(parse::StatementType::CanonicGlobal&) {
 			return true;
 		}
-		bool preTypeExpr(parse::Expr<Cfg>&) {
+		bool preTypeExpr(parse::Expr&) {
 			return true;
 		}
 		//Stack stuff.

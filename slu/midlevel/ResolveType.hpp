@@ -7,20 +7,20 @@
 
 namespace slu::mlvl
 {
-	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type);
+	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::Expr&& type);
 
 	void handleTypeExprField(parse::BasicMpDb mpDb, size_t& nameIdx, parse::FieldV<true>& field,auto& res)
 	{
 		ezmatch(std::move(field))(
-			ezcase(parse::FieldType::ExprV<true> && fi) {
+			ezcase(parse::FieldType::Expr && fi) {
 			res.fieldNames.emplace_back("0x" + parse::u64ToStr(nameIdx++));
 			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi)));
 		},
-			ezcase(parse::FieldType::Name2ExprV<true> && fi) {
+			ezcase(parse::FieldType::Name2Expr && fi) {
 			res.fieldNames.emplace_back(fi.idx.asSv(mpDb));
 			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi.v)));
 		},
-			ezcase(parse::FieldType::Expr2ExprV<true> && fi) {
+			ezcase(parse::FieldType::Expr2Expr && fi) {
 			throw std::runtime_error("FieldType::Expr2ExprV type resolution: TODO not implemented: jit the expression");
 		},
 			ezcase(const parse::FieldType::NONE _) {
@@ -79,7 +79,7 @@ namespace slu::mlvl
 			.alignmentData = maxAlign
 		};
 	}
-	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::ExprV<true>&& type)
+	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::Expr&& type)
 	{
 		parse::ResolvedType resTy = ezmatch(std::move(type.data))(
 		varcase(parse::ExprType::ParensV<true>&&) {

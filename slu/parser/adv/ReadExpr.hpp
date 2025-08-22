@@ -59,7 +59,7 @@ namespace slu::parse
 	}
 
 	template<AnyInput In>
-	inline void handleOpenRange(In& in, Expr<In>& basicRes)
+	inline void handleOpenRange(In& in, Expr& basicRes)
 	{
 		if (basicRes.unOps.empty())return;
 
@@ -71,7 +71,7 @@ namespace slu::parse
 	}
 
 	template<bool IS_BASIC=false,bool FOR_PAT=false,AnyInput In>
-	inline Expr<In> readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
+	inline Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
@@ -80,7 +80,7 @@ namespace slu::parse
 		const Position startPos = in.getLoc();
 
 		bool isNilIntentional = false;
-		Expr<In> basicRes;
+		Expr basicRes;
 		basicRes.place = startPos;
 
 
@@ -132,7 +132,7 @@ namespace slu::parse
 			if (in.peekAt(1) == '~') // '~~'
 			{
 				requireToken(in, "~~");
-				basicRes.data = ExprType::Err{ std::make_unique<ExprV<true>>(readExpr<IS_BASIC>(in,allowVarArg)) };
+				basicRes.data = ExprType::Err{ std::make_unique<Expr>(readExpr<IS_BASIC>(in,allowVarArg)) };
 				break;
 			}
 			break;
@@ -250,7 +250,7 @@ namespace slu::parse
 				in.skip();
 
 				basicRes.data = ExprType::Slice{
-					std::make_unique<ExprV<true>>(
+					std::make_unique<Expr>(
 						readExpr(in, allowVarArg)
 				) };
 				requireToken(in, "]");
@@ -366,7 +366,7 @@ namespace slu::parse
 
 		ExprType::MultiOp<In> resData{};
 
-		resData.first = std::make_unique<Expr<In>>(std::move(basicRes));
+		resData.first = std::make_unique<Expr>(std::move(basicRes));
 		resData.extra.emplace_back(firstBinOp, readExpr<IS_BASIC>(in,allowVarArg,false));
 
 		while (true)
@@ -383,7 +383,7 @@ namespace slu::parse
 
 			resData.extra.emplace_back(binOp, readExpr<IS_BASIC>(in,allowVarArg,false));
 		}
-		Expr<In> ret;
+		Expr ret;
 		ret.place = startPos;
 		ret.data = std::move(resData);
 

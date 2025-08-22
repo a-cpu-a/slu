@@ -66,26 +66,19 @@ namespace slu::parse
 	template<bool isSlu> struct StatementV;
 	Slu_DEF_CFG(Statement);
 
-	template<bool isSlu> struct ExprV;
-	Slu_DEF_CFG(Expr);
-	template<bool isSlu>
-	using BoxExprV = std::unique_ptr<ExprV<isSlu>>;
+	struct Expr;
+	using BoxExpr = std::unique_ptr<Expr>;
 
 	namespace FieldType
 	{
 		//For lua only! (currently)
-		template<bool isSlu> struct Expr2ExprV;
-		Slu_DEF_CFG(Expr2Expr);
-
-		template<bool isSlu> struct Name2ExprV;
-		Slu_DEF_CFG(Name2Expr);
-
-		using parse::ExprV;
+		struct Expr2Expr;
+		struct Name2Expr;
 		using parse::Expr;
 	}
 
 	template<bool isSlu>
-	using ExprListV = std::vector<ExprV<isSlu>>;
+	using ExprListV = std::vector<Expr>;
 	Slu_DEF_CFG(ExprList);
 
 	namespace ExprType

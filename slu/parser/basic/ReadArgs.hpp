@@ -15,7 +15,7 @@ namespace slu::parse
 {
 	//Doesnt skip space, the current character must be a valid args starter
 	template<AnyInput In>
-	inline Args<In> readArgs(In& in, const bool allowVarArg)
+	inline Args readArgs(In& in, const bool allowVarArg)
 	{
 		const char ch = in.peek();
 		if (ch == '"' || ch == '\'' || ch == '[')

@@ -250,7 +250,7 @@ namespace slu::comp::mico
 
 		throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
 	}
-	mlir::Type convTypeHack(ConvData& conv,const std::string_view abi,const parse::ExprV<true>& expr)
+	mlir::Type convTypeHack(ConvData& conv,const std::string_view abi,const parse::Expr& expr)
 	{
 		return ezmatch(expr.data)(
 		varcase(const auto&)->mlir::Type
@@ -609,7 +609,7 @@ namespace slu::comp::mico
 	inline std::optional<mlir::Value> convSoeOrBlock(ConvData& conv, const parse::SoeOrBlockV<true>& itm)
 	{
 		return ezmatch(itm)(
-			varcase(const parse::SoeType::ExprV<true>&)->std::optional<mlir::Value> {
+			varcase(const parse::SoeType::Expr&)->std::optional<mlir::Value> {
 				return convExpr(conv, var->place,var->data);
 			},
 			varcase(const parse::SoeType::BlockV<true>&)->std::optional<mlir::Value> {
@@ -693,7 +693,7 @@ namespace slu::comp::mico
 			size_t elIfIdx = 0;
 			mlir::scf::IfOp firstOp;
 			do {
-				const parse::ExprV<true>* cond;
+				const parse::Expr* cond;
 				const parse::SoeOrBlockV<true>* bl;
 				mlir::Location loc = nullptr;
 				bool hasMore = false;

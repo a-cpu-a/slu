@@ -8,27 +8,27 @@
 namespace slu::parse
 {
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkGlobal(::slu::parse::Position place, ::slu::lang::MpItmId name)
+	inline ::slu::parse::Expr mkGlobal(::slu::parse::Position place, ::slu::lang::MpItmId name)
 	{
-		return {::slu::parse::BaseExprV<isSlu>{
+		return {::slu::parse::BaseExpr{
 			::slu::parse::ExprType::GlobalV<isSlu>{name},
 				place
 		} };
 	}
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkLocal(::slu::parse::Position place, ::slu::parse::LocalId name)
+	inline ::slu::parse::Expr mkLocal(::slu::parse::Position place, ::slu::parse::LocalId name)
 	{
-		return {::slu::parse::BaseExprV<isSlu>{
+		return {::slu::parse::BaseExpr{
 			::slu::parse::ExprType::Local{name},
 				place
 		} };
 	}
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkNameExpr(::slu::parse::Position place, ::slu::lang::MpItmId name) {
+	inline ::slu::parse::Expr mkNameExpr(::slu::parse::Position place, ::slu::lang::MpItmId name) {
 		return mkGlobal<isSlu>(place, name);
 	}
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkNameExpr(::slu::parse::Position place, ::slu::parse::LocalId name) {
+	inline ::slu::parse::Expr mkNameExpr(::slu::parse::Position place, ::slu::parse::LocalId name) {
 		return mkLocal<isSlu>(place, name);
 	}
 	template<bool isSlu>
@@ -43,12 +43,12 @@ namespace slu::parse
 					field};
 	}
 	template<bool isSlu>
-	inline ::slu::parse::ExprV<isSlu> mkFieldIdxExpr(
+	inline ::slu::parse::Expr mkFieldIdxExpr(
 		::slu::parse::Position place, 
 		auto name,//name or local
 		::slu::parse::PoolString field)
 	{
-		return {::slu::parse::BaseExprV<isSlu>{
+		return {::slu::parse::BaseExpr{
 				mkFieldIdx(place,name,field),
 				place
 		} };
@@ -57,10 +57,9 @@ namespace slu::parse
 	inline auto mkBoxGlobal(::slu::parse::Position place, ::slu::lang::MpItmId name) {
 		return ::slu::parse::mayBoxFrom<boxed>(mkGlobal<isSlu>(place,name));
 	}
-	template<bool isSlu>
-	inline ::slu::parse::TableV<isSlu> mkTbl(::slu::parse::ExprListV<isSlu>&& exprs)
+	inline ::slu::parse::TableV<true> mkTbl(::slu::parse::ExprListV<true>&& exprs)
 	{
-		::slu::parse::TableV<isSlu> tc;
+		::slu::parse::TableV<true> tc;
 		tc.reserve(exprs.size());
 		for (auto& i : exprs)
 		{

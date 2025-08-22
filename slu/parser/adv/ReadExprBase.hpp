@@ -57,7 +57,7 @@ namespace slu::parse
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
 			in.skip();
-			varDataOut = ExprType::Parens<In>(std::make_unique<Expr<In>>(readExpr(in, allowVarArg)));
+			varDataOut = ExprType::Parens<In>(std::make_unique<Expr>(readExpr(in, allowVarArg)));
 			varDataNeedsSubThing = true;
 			requireToken(in, ")");
 			return false;
@@ -164,7 +164,7 @@ namespace slu::parse
 	{
 		return T{
 				parse::ExprUserExpr<In,boxed>{mayBoxFrom<boxed>(
-					Expr<In>{{std::move(expr),place}}
+					Expr{{std::move(expr),place}}
 				)},
 				std::move(extraItems)...
 		};
@@ -344,7 +344,7 @@ namespace slu::parse
 				}
 
 				in.skip();//skip first char
-				Expr<In> idx = readExpr(in,allowVarArg);
+				Expr idx = readExpr(in,allowVarArg);
 				requireToken(in, "]");
 
 				varData.back() = wrapExpr<ExprType::Index<In>, true, In>(
@@ -365,8 +365,8 @@ namespace slu::parse
 	}
 
 	template<AnyInput In>
-	inline Expr<In> readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
-		Expr<In> ex = readExpr<true>(in, allowVarArg, readBiOp);
+	inline Expr readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
+		Expr ex = readExpr<true>(in, allowVarArg, readBiOp);
 		return ex;
 	}
 

@@ -30,7 +30,7 @@ namespace slu::parse
 
 		/*if (checkReadToken(in, "["))
 		{
-			FieldType::Expr2Expr<In> res{};
+			FieldType::Expr2Expr res{};
 
 			res.idx = readExpr(in, allowVarArg);
 
@@ -56,11 +56,11 @@ namespace slu::parse
 				skipSpace(in);
 				in.skip();// '='
 
-				return FieldType::Name2Expr<In>(name, readExpr(in,allowVarArg));
+				return FieldType::Name2Expr(name, readExpr(in,allowVarArg));
 			}
 		}
 
-		return FieldType::Expr<In>(readExpr(in,allowVarArg));
+		return FieldType::Expr(readExpr(in,allowVarArg));
 	}
 
 	//Will NOT check the first char '{' !!!

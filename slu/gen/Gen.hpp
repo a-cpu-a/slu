@@ -157,20 +157,20 @@ namespace slu::parse
 			ezmatch(f)(
 			varcase(const FieldType::NONE) { _ASSERT(false); },
 
-			varcase(const FieldType::Expr2Expr<Out>&) {
+			varcase(const FieldType::Expr2Expr&) {
 				out.addIndent();
 				out.add('[');
 				genExpr(out, var.idx);
 				out.add("] = ");
 				genExpr(out, var.v);
 			},
-			varcase(const FieldType::Name2Expr<Out>&) {
+			varcase(const FieldType::Name2Expr&) {
 				out.addIndent();
 				out.add(out.db.asSv(var.idx))
 					.add(" = ");
 				genExpr(out, var.v);
 			},
-			varcase(const FieldType::Expr<Out>&) {
+			varcase(const FieldType::Expr&) {
 				out.addIndent();
 				genExpr(out, var);
 			}
@@ -194,7 +194,7 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genExprParens(Out& out, const Expr<Out>& obj)
+	inline void genExprParens(Out& out, const Expr& obj)
 	{
 		out.add('(');
 		genExpr(out, obj);
@@ -227,7 +227,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genTraitExpr(Out& out, const TraitExpr& obj)
 	{
-		for (const parse::ExprV<true>& i : obj.traitCombo)
+		for (const parse::Expr& i : obj.traitCombo)
 		{
 			genExpr(out, i);
 			if (&i != &obj.traitCombo.back())
@@ -267,7 +267,7 @@ namespace slu::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genExpr(Out& out, const Expr<Out>& obj)
+	inline void genExpr(Out& out, const Expr& obj)
 	{
 		genUnOps(out, obj.unOps);
 		genExprData(out, obj.data);
@@ -427,7 +427,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genExprList(Out& out, const ExprList<Out>& obj)
 	{
-		for (const Expr<Out>& e : obj)
+		for (const Expr& e : obj)
 		{
 			genExpr(out, e);
 			if (&e != &obj.back())
@@ -460,7 +460,7 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genArgs(Out& out, const Args<Out>& itm)
+	inline void genArgs(Out& out, const Args& itm)
 	{
 		ezmatch(itm)(
 		varcase(const ArgsType::ExprList<Out>&) {
@@ -575,10 +575,10 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genDestrSpec(Out& out, const DestrSpec<Out>& obj)
+	inline void genDestrSpec(Out& out, const DestrSpec& obj)
 	{
 		ezmatch(obj)(
-		varcase(const DestrSpecType::Spat<Out>&) {
+		varcase(const DestrSpecType::Spat&) {
 			genExpr(out, var);
 			out.add(' ');
 		},
@@ -716,7 +716,7 @@ namespace slu::parse
 			genBlock(out, var);
 			out.unTabNewl().add('}');
 		},
-		varcase(const parse::SoeType::Expr<Out>&) {
+		varcase(const parse::SoeType::Expr&) {
 			out.add(" => ");
 			genExpr(out, *var);
 		}

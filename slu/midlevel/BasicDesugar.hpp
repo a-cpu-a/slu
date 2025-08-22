@@ -112,7 +112,7 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::ExprV<true>>>&& ret, parse::ParamList<true>& params,parse::ExportData exported,const bool hasCode)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::Expr>>&& ret, parse::ParamList<true>& params,parse::ExportData exported,const bool hasCode)
 		{
 			auto& localMp = *mpDataStack.back();
 
@@ -196,7 +196,7 @@ namespace slu::mlvl
 			bool exported,
 			parse::ResolvedType&& type,
 			parse::LocalOrName<Cfg, isLocal> name,
-			parse::Expr<Cfg>&& expr)
+			parse::Expr&& expr)
 		{
 			if constexpr (isLocal)
 			{
@@ -237,17 +237,17 @@ namespace slu::mlvl
 		//	else
 		//		return name;
 		//}
-		parse::ResolvedType destrSpec2Type(parse::Position place,parse::DestrSpec<Cfg>&& spec)
+		parse::ResolvedType destrSpec2Type(parse::Position place,parse::DestrSpec&& spec)
 		{
-			parse::ExprV<true> te = ezmatch(spec)(
+			parse::Expr te = ezmatch(spec)(
 			varcase(parse::DestrSpecType::Prefix&) 
 			{
-				auto res = parse::BaseExprV<true>{ parse::ExprType::Infer{},place};
+				auto res = parse::BaseExpr{ parse::ExprType::Infer{},place};
 				res.unOps = std::move(var);
 
-				return parse::ExprV<true>{std::move(res)};
+				return parse::Expr{std::move(res)};
 			},
-			varcase(parse::DestrSpecType::Spat<Cfg>&)  {
+			varcase(parse::DestrSpecType::Spat&)  {
 				return std::move(var);
 			}
 			);
@@ -261,7 +261,7 @@ namespace slu::mlvl
 			std::vector<parse::ExprData<Cfg>>& exprStack,
 			const bool first,
 			auto& localHolder,
-			parse::Expr<Cfg>&& expr,
+			parse::Expr&& expr,
 			bool exported,
 			T& itm) requires(parse::AnyCompoundDestr<isLocal,T>)
 		{
@@ -308,7 +308,7 @@ namespace slu::mlvl
 
 			bool first = true;
 			do {
-				parse::Expr<Cfg> expr;
+				parse::Expr expr;
 				expr.place = stat.place;
 				expr.data = std::move(exprStack.back());
 				exprStack.pop_back();
@@ -457,7 +457,7 @@ namespace slu::mlvl
 				convVar<false>(itm, std::get<parse::StatementType::Const<Cfg>>(itm.data));
 		}
 
-		void desugarUnOp(parse::Expr<Cfg>& expr,
+		void desugarUnOp(parse::Expr& expr,
 			std::vector<parse::UnOpItem>& unOps, 
 			parse::SmallEnumList<parse::PostUnOpType>& postUnOps,
 			size_t opIdx,
@@ -519,7 +519,7 @@ namespace slu::mlvl
 
 			if (lifetime != nullptr)
 			{
-				parse::Expr<Cfg> lifetimeExpr;
+				parse::Expr lifetimeExpr;
 				lifetimeExpr.place = place;
 				lifetimeExpr.data = parse::ExprType::Lifetime{ std::move(*lifetime) };
 				list.emplace_back(std::move(lifetimeExpr));
@@ -533,7 +533,7 @@ namespace slu::mlvl
 			expr.place = place;
 		}
 
-		using ExprT = parse::Expr<Cfg>;
+		using ExprT = parse::Expr;
 		bool preExpr(ExprT& itm)
 		{
 			using MultiOp = parse::ExprType::MultiOp<Cfg>;

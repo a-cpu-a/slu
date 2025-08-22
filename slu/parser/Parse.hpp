@@ -159,7 +159,7 @@ namespace slu::parse
 
 		requireToken(in, ")");
 		if (checkReadToken(in, "->"))
-			ret.retType = std::make_unique<Expr<In>>(readExpr<true>(in, false));
+			ret.retType = std::make_unique<Expr>(readExpr<true>(in, false));
 
 		return ret;
 	}
@@ -230,7 +230,7 @@ namespace slu::parse
 	{
 		if (checkReadToken(in, "=>"))
 		{
-			return std::make_unique<Expr<In>>(readExpr<BASIC>(in, allowVarArg));
+			return std::make_unique<Expr>(readExpr<BASIC>(in, allowVarArg));
 		}
 		return readDoOrStatOrRet<isLoop>(in, allowVarArg);
 	}
@@ -664,7 +664,7 @@ namespace slu::parse
 		{
 			if (checkReadTextToken(in, "if"))
 			{
-				Expr<In> elExpr = readBasicExpr(in, allowVarArg);
+				Expr elExpr = readBasicExpr(in, allowVarArg);
 				Soe<In> elBlock = readSoe<isLoop, false>(in, allowVarArg);
 
 				res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
@@ -768,7 +768,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "while"))
 			{ // while exp do block end
 
-				Expr<In> expr = readBasicExpr(in,allowVarArg);
+				Expr expr = readBasicExpr(in,allowVarArg);
 
 				Block<In> bl = readDoOrStatOrRet<true>(in,allowVarArg);
 				return in.genData.addStat(place, 
@@ -782,7 +782,7 @@ namespace slu::parse
 				Block<In> bl;
 				bl = readDoOrStatOrRet<true>(in, allowVarArg);
 				requireToken(in, "until");
-				Expr<In> expr = readExpr(in,allowVarArg);
+				Expr expr = readExpr(in,allowVarArg);
 
 				return in.genData.addStat(place, 
 					StatementType::RepeatUntil<In>({ std::move(expr), std::move(bl) })

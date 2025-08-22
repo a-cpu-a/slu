@@ -110,7 +110,7 @@ namespace slu::parse
 			return PatType::DestrAny<In, isLocal>{in.genData.template resolveNewSynName<isLocal>()};
 		}
 
-		Expr<In> expr = readExpr<true,true>(in, false);
+		Expr expr = readExpr<true,true>(in, false);
 
 		if (std::holds_alternative<ExprType::PatTypePrefix>(expr.data))
 		{

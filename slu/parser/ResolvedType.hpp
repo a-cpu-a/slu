@@ -69,7 +69,7 @@ namespace slu::parse
 	{
 		using Inferred = std::monostate;
 		struct TypeError {};
-		using Unresolved = std::unique_ptr<parse::ExprV<true>>;
+		using Unresolved = std::unique_ptr<parse::Expr>;
 
 		using String = std::string;
 

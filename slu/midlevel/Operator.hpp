@@ -292,7 +292,7 @@ namespace slu::mlvl
 	}
 
 	/// @returns the order of unary operations as a vector of bools, where true means post-unary operation
-	constexpr std::vector<bool> unaryOpOrder(const parse::ExprV<true>& expr)
+	constexpr std::vector<bool> unaryOpOrder(const parse::Expr& expr)
 	{
 		size_t opCount = expr.postUnOps.size() + expr.unOps.size();
 		if(expr.postUnOps.empty() || expr.unOps.empty())

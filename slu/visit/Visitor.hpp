@@ -76,12 +76,12 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(File, parse::ParsedFile<Cfg>);
 		_Slu_DEF_EMPTY_AUTO(Block);
 		_Slu_DEF_EMPTY_AUTO_LG(Pat);
-		_Slu_DEF_EMPTY_AUTO(DestrSpec);
 		_Slu_DEF_EMPTY_AUTO(Soe);
+		_Slu_DEF_EMPTY_PRE_POST(DestrSpec,parse::DestrSpec);
 		_Slu_DEF_EMPTY_PRE_POST(FunctionInfo,parse::FunctionInfo);
 		_Slu_DEF_EMPTY_PRE_POST(Lifetime, parse::Lifetime);
-		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expr<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(TypeExpr, parse::Expr<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(Expr, parse::Expr);
+		_Slu_DEF_EMPTY_PRE_POST(TypeExpr, parse::Expr);
 		_Slu_DEF_EMPTY_PRE_POST(TableExpr, parse::ExprType::Table<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(GlobalExpr, parse::ExprType::Global<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(DerefExpr, parse::ExprType::Deref);
@@ -102,7 +102,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(Trait, parse::StatementType::Trait);
 		_Slu_DEF_EMPTY_PRE_POST(Impl, parse::StatementType::Impl);
 		_Slu_DEF_EMPTY_PRE_POST(Use, parse::StatementType::Use);
-		_Slu_DEF_EMPTY_PRE_POST(AnyCond, parse::Expr<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(AnyCond, parse::Expr);
 		_Slu_DEF_EMPTY_PRE_POST(IfExpr, parse::ExprType::IfCond<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(IfStat, parse::StatementType::IfCond<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(ExternBlock, parse::StatementType::ExternBlock<Cfg>);
@@ -167,7 +167,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_SEP(DestrFieldsLocal, std::span<parse::DestrField<Cfg Slu_co true>>, parse::DestrField<Cfg Slu_co true>);
 		_Slu_DEF_EMPTY_SEP(DestrFieldsGlobal, std::span<parse::DestrField<Cfg Slu_co false>>, parse::DestrField<Cfg Slu_co false>);
 
-		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expr<Cfg>);
+		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expr);
 		_Slu_DEF_EMPTY_LIST(NameList, parse::MpItmId);
 		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<true>);
 		_Slu_DEF_EMPTY_LIST(ConstParams, parse::Parameter<false>);
