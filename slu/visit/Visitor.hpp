@@ -94,7 +94,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(MultiOp, parse::ExprType::MultiOp<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Table, parse::Table<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(Locals, parse::Locals<Cfg>);
-		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Stat<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(Stat, parse::Stat);
 		_Slu_DEF_EMPTY_PRE_POST(DestrSimple, parse::PatType::Simple<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(LocalVar, parse::StatType::Local<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(LetVar, parse::StatType::Let<Cfg>);

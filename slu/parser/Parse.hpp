@@ -706,7 +706,7 @@ namespace slu::parse
 		skipSpace(in);
 
 		const Position place = in.getLoc();
-		Stat<In> ret;
+		Stat ret;
 
 		const char firstChar = in.peek();
 		switch (firstChar)

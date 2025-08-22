@@ -15,7 +15,7 @@ namespace slu::comp
 	{
 		const CompCfg& cfg;
 		const parse::BasicMpDbData& sharedDb;
-		const parse::StatV<true>* stat;
+		const parse::Stat* stat;
 		std::string_view filePath;
 	};
 }

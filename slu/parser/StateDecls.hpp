@@ -62,10 +62,7 @@ namespace slu::parse
 	}
 
 	//Forward declare
-
-	template<bool isSlu> struct StatV;
-	Slu_DEF_CFG(Stat);
-
+	struct Stat;
 	struct Expr;
 	using BoxExpr = std::unique_ptr<Expr>;
 

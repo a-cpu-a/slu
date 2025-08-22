@@ -639,7 +639,7 @@ namespace slu::parse
 		}
 
 		constexpr void addStat(const Position place,StatDataV<isSlu>&& data){
-			StatV<isSlu> stat = { std::move(data) };
+			Stat stat = { std::move(data) };
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}

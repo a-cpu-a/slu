@@ -760,7 +760,7 @@ namespace slu::paint
 	concept NonPaintableStat = std::same_as<T,parse::StatType::CanonicLocal>
 		|| std::same_as<T, parse::StatType::CanonicGlobal>;
 	template<AnySemOutput Se>
-	inline void paintStat(Se& se, const parse::Stat<Se>& itm)
+	inline void paintStat(Se& se, const parse::Stat& itm)
 	{
 		skipSpace(se);
 		se.move(itm.place);
@@ -998,7 +998,7 @@ namespace slu::paint
 			skipSpace(se);
 			se.move(itm.start);
 		}
-		for (const parse::Stat<Se>& stat : itm.statList)
+		for (const parse::Stat& stat : itm.statList)
 		{
 			paintStat(se, stat);
 		}

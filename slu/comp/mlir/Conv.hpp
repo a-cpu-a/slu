@@ -149,7 +149,7 @@ namespace slu::comp::mico
 	};
 	//Forward declare!
 	mlir::Value convExpr(ConvData& conv, parse::Position place, const parse::ExprDataV<true>& itm);
-	void convStat(ConvData& conv, const parse::StatV<true>& itm);
+	void convStat(ConvData& conv, const parse::Stat& itm);
 	//
 
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
@@ -619,7 +619,7 @@ namespace slu::comp::mico
 			}
 		);
 	}
-	inline void convStat(ConvData& conv, const parse::StatV<true>& itm)
+	inline void convStat(ConvData& conv, const parse::Stat& itm)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;

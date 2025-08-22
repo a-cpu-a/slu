@@ -44,7 +44,7 @@ namespace slu::parse
 	Slu_DEF_CFG(Table);
 
 	template<bool isSlu>
-	using StatListV = std::vector<StatV<isSlu>>;
+	using StatListV = std::vector<Stat>;
 	Slu_DEF_CFG(StatList);
 
 
@@ -818,17 +818,16 @@ namespace slu::parse
 	> ;
 	Slu_DEF_CFG(StatData);
 
-	template<bool isSlu>
-	struct StatV
+	struct Stat
 	{
-		StatDataV<isSlu> data;
+		StatDataV<true> data;
 		Position place;
 
-		StatV() = default;
-		StatV(StatDataV<isSlu>&& data) :data(std::move(data)) {}
-		StatV(const StatV&) = delete;
-		StatV(StatV&&) = default;
-		StatV& operator=(StatV&&) = default;
+		Stat() = default;
+		Stat(StatDataV<true>&& data) :data(std::move(data)) {}
+		Stat(const Stat&) = delete;
+		Stat(Stat&&) = default;
+		Stat& operator=(Stat&&) = default;
 	};
 
 	template<bool isSlu>

@@ -780,7 +780,7 @@ namespace slu::parse
 		}
 	}
 	template<AnyOutput Out>
-	inline void genStat(Out& out, const Stat<Out>& obj)
+	inline void genStat(Out& out, const Stat& obj)
 	{
 		ezmatch(obj.data)(
 
@@ -1056,7 +1056,7 @@ namespace slu::parse
 	template<AnyOutput Out>
 	inline void genBlock(Out& out, const Block<Out>& itm)
 	{
-		for (const Stat<Out>& s : itm.statList)
+		for (const Stat& s : itm.statList)
 			genStat(out, s);
 
 		if (itm.retTy != parse::RetType::NONE)

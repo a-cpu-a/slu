@@ -288,7 +288,7 @@ namespace slu::mlvl
 		}
 
 		template<bool isLocal,class VarT>
-		void convVar(parse::Stat<Cfg>& stat,VarT& itm)
+		void convVar(parse::Stat& stat,VarT& itm)
 		{
 			using Canonic = parse::Sel<isLocal,
 				parse::StatType::CanonicGlobal, 
@@ -417,7 +417,7 @@ namespace slu::mlvl
 			abiSafetyStack.pop_back();
 			return true;//Already visited the statements inside it
 		}
-		void postStat(parse::Stat<Cfg>& itm) 
+		void postStat(parse::Stat& itm) 
 		{
 			/*
 			if (std::holds_alternative<parse::StatType::ExternBlock<Cfg>>(itm.data))

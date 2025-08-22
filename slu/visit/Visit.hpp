@@ -540,7 +540,7 @@ namespace slu::visit
 	}
 
 	template<AnyVisitor Vi>
-	inline void visitStat(Vi& vi, parse::Stat<Vi>& itm)
+	inline void visitStat(Vi& vi, parse::Stat& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Stat);
 		ezmatch(itm.data)(
