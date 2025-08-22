@@ -24,7 +24,7 @@ namespace slu::parse
 		//label ::= ‘::’ Name ‘::’
 		//SL label ::= ‘:::’ Name ‘:’
 
-		requireToken(in, sel<In>("::", ":::"));
+		requireToken(in, ":::");
 
 		if (checkReadTextToken(in, "unsafe"))
 		{
@@ -41,7 +41,7 @@ namespace slu::parse
 
 		const MpItmId<In> res = in.genData.addLocalObj(readName(in));
 
-		requireToken(in, sel<In>("::", ":"));
+		requireToken(in, ":");
 
 		return in.genData.addStat(place, StatementType::Label<In>{res});
 	}

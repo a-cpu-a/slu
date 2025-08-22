@@ -163,9 +163,8 @@ namespace slu::parse
 
 		return ret;
 	}
-	//Pair{fn,hasError}
 	template<AnyInput In>
-	inline std::pair<std::variant<Function<In>, FunctionInfo<In>>,bool> readFuncBody(In& in,std::optional<std::string> funcName)
+	inline std::variant<FunctionV<true>, FunctionInfoV<true>> readFuncBody(In& in,std::optional<std::string> funcName)
 	{
 		Position place = in.getLoc();
 		in.genData.pushLocalScope();
@@ -181,7 +180,7 @@ namespace slu::parse
 		{
 			fi.local2Mp = in.genData.popLocalScope();
 			in.genData.popScope(in.getLoc());//TODO: maybe add it to the func info?
-			return { std::move(fi), false };//No block, just the info
+			return std::move(fi);//No block, just the info
 		}
 
 		Function<In> func = { std::move(fi) };
@@ -198,7 +197,7 @@ namespace slu::parse
 			func.local2Mp = in.genData.popLocalScope();
 			throw;
 		}
-		return { std::move(func), false };
+		return std::move(func);
 	}
 
 	template<bool isLoop, AnyInput In>
@@ -617,7 +616,7 @@ namespace slu::parse
 
 		try
 		{
-			auto [fun, err] = readFuncBody(in,std::move(name));
+			auto fun = readFuncBody(in,std::move(name));
 			if(ezmatch(std::move(fun))(
 				varcase(Function<In>&&) {
 					res.func = std::move(var);
@@ -634,15 +633,8 @@ namespace slu::parse
 					return true;
 				}
 			))
-				return;//Staement was added
+				return;//Statement was added
 
-			if (err)
-			{
-				in.handleError(std::format(
-					"In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-					in.genData.asSv(res.name), errorLocStr(in, res.place)
-				));
-			}
 		}
 		catch (const ParseError& e)
 		{

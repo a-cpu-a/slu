@@ -22,24 +22,12 @@
 
 namespace slu::parse
 {
-	template<AnyCfgable CfgT, template<bool> class T>
-	using SelV = T<CfgT::settings()& sluSyn>;
+	template<bool flag, class FalseT, class TrueT>
+	using Sel = std::conditional_t<flag, TrueT,FalseT>;
 
-	template<bool isSlu, class T, class SlT>
-	using Sel = std::conditional_t<isSlu, SlT, T>;
+#define Slu_DEF_CFG(_Name) template<class CfgT> using _Name = _Name ## V<true>
+#define Slu_DEF_CFG2(_Name,_ArgName) template<class CfgT,bool _ArgName> using _Name =_Name ## V<true, _ArgName>
 
-#define Slu_DEF_CFG(_Name) template<AnyCfgable CfgT> using _Name = SelV<CfgT, _Name ## V>
-#define Slu_DEF_CFG2(_Name,_ArgName) template<AnyCfgable CfgT,bool _ArgName> using _Name =Sel<CfgT::settings()& sluSyn, _Name ## V<false, _ArgName>, _Name ## V<true, _ArgName>>
-#define Slu_DEF_CFG_CAPS(_NAME) template<AnyCfgable CfgT> using _NAME = SelV<CfgT, _NAME ## v>
-
-	template<AnyCfgable Cfg, size_t TOK_SIZE, size_t TOK_SIZE2>
-	consteval const auto& sel(const char(&tok)[TOK_SIZE], const char(&sluTok)[TOK_SIZE2])
-	{
-		if constexpr (Cfg::settings() & sluSyn)
-			return sluTok;
-		else
-			return tok;
-	}
 	template<bool boxed, class T>
 	struct MayBox
 	{
@@ -72,7 +60,7 @@ namespace slu::parse
 	}
 
 	//Mp ref
-	template<AnyCfgable CfgT> using MpItmId = SelV<CfgT, lang::MpItmIdV>;
+	template<AnyCfgable CfgT> using MpItmId = lang::MpItmIdV<true>;
 
 
 

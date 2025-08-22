@@ -23,8 +23,6 @@
 
 namespace slu::paint
 {
-	using parse::sluSyn;
-
 	inline bool skipSpace(AnySemOutput auto& se) {
 		return parse::skipSpace(se);//TODO: identify TODO's FIXME's WIP's, etc
 	}

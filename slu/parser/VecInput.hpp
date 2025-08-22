@@ -30,7 +30,7 @@ namespace slu::parse
 			return SettingsT();
 		}
 
-		BasicGenDataV<SettingsT()& sluSyn> genData;
+		BasicGenDataV<true> genData;
 
 		std::vector<std::string> handledErrors;
 

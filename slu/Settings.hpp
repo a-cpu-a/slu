@@ -82,11 +82,9 @@ namespace slu::parse
 
 	//Parser only:
 	_Slu_MAKE_SETTING_CVAR(noIntOverflow);
-	_Slu_MAKE_SETTING_CVAR(sluSyn);
 	_Slu_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
 
 	constexpr auto sluCommon = noIntOverflow 
-		| sluSyn
 		| numberSpacing;
 
 #undef _Slu_MAKE_SETTING_CVAR

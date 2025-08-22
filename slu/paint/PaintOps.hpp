@@ -63,7 +63,7 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, ">>");
 			break;
 		case parse::BinOpType::CONCATENATE:
-			paintKw<Tok::GEN_OP>(se, parse::sel<Se>("..", "++"));
+			paintKw<Tok::GEN_OP>(se, "++");
 			break;
 		case parse::BinOpType::LESS_THAN:
 			paintKw<Tok::GEN_OP>(se, "<");
@@ -81,7 +81,7 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, "==");
 			break;
 		case parse::BinOpType::NOT_EQUAL:
-			paintKw<Tok::GEN_OP>(se, parse::sel<Se>("~=", "!="));
+			paintKw<Tok::GEN_OP>(se, "!=");
 			break;
 		case parse::BinOpType::LOGICAL_AND:
 			paintKw<Tok::AND>(se, "and");
@@ -137,7 +137,7 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, "~");
 			break;
 		case parse::UnOpType::LOGICAL_NOT:
-			paintKw<Tok::GEN_OP>(se, parse::sel<Se>("not", "!"));
+			paintKw<Tok::GEN_OP>(se, "!");
 			break;
 		case parse::UnOpType::NEGATE:
 			paintKw<Tok::GEN_OP>(se, "-");

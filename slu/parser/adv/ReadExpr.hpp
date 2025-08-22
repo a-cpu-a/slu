@@ -199,19 +199,11 @@ namespace slu::parse
 
 				try
 				{
-					auto [fun, err] = readFuncBody(in,std::nullopt);
+					auto fun = readFuncBody(in,std::nullopt);
 					ezmatch(std::move(fun))(
 					varcase(Function<In>&&)
 					{
 						basicRes.data = ExprType::Function<In>(std::move(var));
-						if (err)
-						{
-
-							in.handleError(std::format(
-								"In lambda " LC_function " at {}",
-								errorLocStr(in, place)
-							));
-						}
 					},
 					varcase(FunctionInfo<In>&&)
 					{

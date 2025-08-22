@@ -167,7 +167,7 @@ namespace slu::parse
 	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg,const bool pushScope)
 	{
 		Block<In> bl = readBlock<isLoop>(in, allowVarArg, pushScope);
-		requireToken(in, sel<In>("end", "}"));
+		requireToken(in, "}");
 
 		return bl;
 	}

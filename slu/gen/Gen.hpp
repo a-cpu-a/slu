@@ -50,7 +50,7 @@ namespace slu::parse
 		case BinOpType::SHIFT_LEFT:
 			return "<<"sv;
 		case BinOpType::CONCATENATE:
-			return sel<Out>("..", "++");
+			return "++"sv;
 		case BinOpType::LESS_THAN:
 			return "<"sv;
 		case BinOpType::LESS_EQUAL:
@@ -62,7 +62,7 @@ namespace slu::parse
 		case BinOpType::EQUAL:
 			return "=="sv;
 		case BinOpType::NOT_EQUAL:
-			return sel<Out>("~=", "!=");
+			return "!="sv;
 		case BinOpType::LOGICAL_AND:
 			return "and"sv;
 		case BinOpType::LOGICAL_OR:
@@ -92,7 +92,7 @@ namespace slu::parse
 		case UnOpType::NEGATE:
 			return " -"sv;//TODO: elide space, when there is one already
 		case UnOpType::LOGICAL_NOT:
-			return sel<Out>(" not ", "!");
+			return "!"sv;
 		case UnOpType::LENGTH:
 			return "#"sv;
 		case UnOpType::BITWISE_NOT:
@@ -487,7 +487,7 @@ namespace slu::parse
 	inline void genSelfCall(Out& out, const SelfCall<Out,boxed>& itm)
 	{
 		genExpr(out, *itm.v);
-		out.add(sel<Out>(":","."))
+		out.add('.')
 			.add(out.db.asSv(itm.method));
 		genArgs(out, itm.args);
 	}
@@ -736,7 +736,7 @@ namespace slu::parse
 		{
 			for (const auto& [expr, bl] : itm.elseIfs)
 			{
-				out.add(sel<Out>("elseif ", "else if "));
+				out.add("else if ");
 
 				genExpr(out, expr);
 				genSoe(out, bl);
@@ -847,9 +847,9 @@ namespace slu::parse
 
 		varcase(const StatementType::Label<Out>&) {
 			out.unTabTemp()
-				.add(sel<Out>("::", ":::"))
+				.add(":::")
 				.add(out.db.asSv(var.v))
-				.addNewl(sel<Out>("::", ":"))
+				.addNewl(':')
 				.tabUpTemp();
 		},
 		varcase(const StatementType::Goto<Out>&) {
@@ -860,11 +860,11 @@ namespace slu::parse
 		},
 		varcase(const StatementType::Block<Out>&) {
 			out.newLine();//Extra spacing
-			out.add(sel<Out>("do","{"))
+			out.add('{')
 				.tabUpNewl();
 			genBlock(out, var);
 			out.unTabNewl()
-				.addNewl(sel<Out>("end", "}"));
+				.addNewl('}');
 		},
 		varcase(const StatementType::IfCond<Out>&) {
 			genIfCond<false>(out, var);
@@ -879,7 +879,7 @@ namespace slu::parse
 
 			genBlock(out, var.bl);
 			out.unTabNewl()
-				.addNewl(sel<Out>("end","}"));
+				.addNewl('}');
 		},
 		varcase(const StatementType::RepeatUntil<Out>&) {
 			out.add("repeat");
@@ -904,7 +904,7 @@ namespace slu::parse
 			out.newLine().add('{').tabUpNewl();
 
 			genBlock(out, var.bl);
-			out.unTabNewl().addNewl("}");
+			out.unTabNewl().addNewl('}');
 		},
 
 		varcase(const StatementType::Fn<Out>&) {

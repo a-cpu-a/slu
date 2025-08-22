@@ -733,7 +733,7 @@ namespace slu::paint
 	inline void paintSelfCall(Se& se, const parse::SelfCall<Se,boxed>& itm)
 	{
 		paintExpr(se, *itm.v);
-		paintKw<Tok::GEN_OP>(se, parse::sel<Se>(":", "."));
+		paintKw<Tok::GEN_OP>(se, ".");
 		paintName(se, itm.method);
 		paintArgs(se, itm.args);
 	}
@@ -839,9 +839,9 @@ namespace slu::paint
 			paintKw<Tok::PUNCTUATION>(se, ";");
 		},
 		varcase(const parse::StatementType::Label<Se>&) {
-			paintKw<Tok::PUNCTUATION>(se, parse::sel<Se>("::", ":::"));
+			paintKw<Tok::PUNCTUATION>(se, ":::");
 			paintName<Tok::NAME_LABEL>(se, var.v);
-			paintKw<Tok::PUNCTUATION>(se, parse::sel<Se>("::", ":"));
+			paintKw<Tok::PUNCTUATION>(se, ":");
 		},
 		varcase(const parse::StatementType::Goto<Se>&) {
 			paintKw<Tok::COND_STAT>(se, "goto");
