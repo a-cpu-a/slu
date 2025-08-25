@@ -7,8 +7,8 @@
 #include <vector>
 #include <optional>
 #include <variant>
-#include <slu/parser/State.hpp>
-#include <slu/parser/BuildState.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/BuildState.hpp>
 import slu.ast.op_info;
 import slu.lang.basic_state;
 #include <slu/visit/Visit.hpp>

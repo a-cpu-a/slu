@@ -13,8 +13,8 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slu/parser/State.hpp>
-#include <slu/parser/Input.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/Input.hpp>
 
 namespace slu::parse
 {

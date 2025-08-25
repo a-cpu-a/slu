@@ -11,8 +11,8 @@
 
 #include <slu/ext/CppMatch.hpp>
 import slu.lang.basic_state;
-#include <slu/parser/State.hpp>
-#include <slu/parser/BuildState.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/BuildState.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/ResolveType.hpp>
 

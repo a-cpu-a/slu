@@ -13,7 +13,7 @@ import a_cpu_a.mtx;
 import slu.lang.basic_state;
 #include <slu/midlevel/BasicDesugar.hpp>
 #include <slu/midlevel/TypeInfCheck.hpp>
-#include <slu/parser/SimpleErrors.hpp>
+#include <slu/parse/SimpleErrors.hpp>
 
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/mlir/Conv.hpp>

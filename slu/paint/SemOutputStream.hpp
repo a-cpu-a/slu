@@ -13,9 +13,9 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.settings;
-#include <slu/parser/Input.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/ManageNewline.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/ManageNewline.hpp>
 
 namespace slu::paint
 {

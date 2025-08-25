@@ -3,8 +3,8 @@
 */
 #pragma once
 
-#include <slu/parser/SimpleErrors.hpp>
-#include <slu/parser/Input.hpp>
+#include <slu/parse/SimpleErrors.hpp>
+#include <slu/parse/Input.hpp>
 
 namespace slu::parse
 {

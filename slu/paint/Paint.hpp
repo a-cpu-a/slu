@@ -12,10 +12,10 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slu/ext/CppMatch.hpp>
-#include <slu/parser/Input.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/adv/SkipSpace.hpp>
-#include <slu/parser/VecInput.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/adv/SkipSpace.hpp>
+#include <slu/parse/VecInput.hpp>
 import slu.char_info;
 import slu.settings;
 #include <slu/paint/SemOutputStream.hpp>

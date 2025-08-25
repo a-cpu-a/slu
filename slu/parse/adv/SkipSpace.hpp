@@ -9,8 +9,8 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slu/parser/Input.hpp>
-#include <slu/parser/ManageNewline.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/ManageNewline.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::parse

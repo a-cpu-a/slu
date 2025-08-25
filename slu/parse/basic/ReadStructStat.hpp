@@ -5,11 +5,11 @@
 
 #include <cstdint>
 
-#include <slu/parser/State.hpp>
-#include <slu/parser/Input.hpp>
-#include <slu/parser/adv/SkipSpace.hpp>
-#include <slu/parser/adv/RequireToken.hpp>
-#include <slu/parser/adv/ReadName.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/adv/SkipSpace.hpp>
+#include <slu/parse/adv/RequireToken.hpp>
+#include <slu/parse/adv/ReadName.hpp>
 
 namespace slu::parse
 {

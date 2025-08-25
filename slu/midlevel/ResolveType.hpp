@@ -3,7 +3,7 @@
 */
 #pragma once
 
-#include <slu/parser/BasicGenData.hpp>
+#include <slu/parse/BasicGenData.hpp>
 
 namespace slu::mlvl
 {

@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <numeric>
 
-#include <slu/parser/State.hpp>
+#include <slu/parse/State.hpp>
 
 namespace slu::mlvl
 {

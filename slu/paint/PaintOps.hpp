@@ -12,9 +12,9 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slu/ext/CppMatch.hpp>
-#include <slu/parser/Input.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/VecInput.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/VecInput.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::paint

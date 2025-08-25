@@ -1,5 +1,5 @@
 ﻿
-add_subdirectory(parser)
+add_subdirectory(parse)
 
 add_library(slu 
 	SluBuildTest.cpp settings.ixx char_info.ixx big_int.ixx 

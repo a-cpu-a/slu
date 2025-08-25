@@ -10,10 +10,10 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slu/parser/State.hpp>
-#include <slu/parser/Input.hpp>
-#include <slu/parser/adv/SkipSpace.hpp>
-#include <slu/parser/adv/RequireToken.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/adv/SkipSpace.hpp>
+#include <slu/parse/adv/RequireToken.hpp>
 
 namespace slu::parse
 {
