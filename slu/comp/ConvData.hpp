@@ -3,7 +3,7 @@
 */
 #pragma once
 
-#include <slu/parse/State.hpp>
+import slu.ast.state;
 #include <slu/parse/BasicGenData.hpp>
 
 #include <slu/comp/CompCfg.hpp>

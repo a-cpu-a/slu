@@ -4,14 +4,14 @@
 */
 #include <string>
 #include <unordered_map>
-#include <variant>
 #include <algorithm>
 #include <numeric>
 #include <iterator>
 
 #include <slu/Panic.hpp>
-#include <slu/parse/State.hpp>
 export module slu.ast.op_order;
+import slu.ast.enums;
+import slu.ast.state;
 
 namespace slu::ast
 {

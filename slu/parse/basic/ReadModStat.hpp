@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-#include <slu/parse/State.hpp>
+import slu.ast.state;
 import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/parse/adv/RequireToken.hpp>

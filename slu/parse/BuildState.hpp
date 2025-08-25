@@ -3,7 +3,7 @@
 */
 #pragma once
 
-#include <slu/parse/State.hpp>
+import slu.ast.state;
 
 namespace slu::parse
 {

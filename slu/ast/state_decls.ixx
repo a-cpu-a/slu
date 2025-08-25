@@ -2,13 +2,14 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
-#include <span>
-#include <vector>
 #include <optional>
 #include <memory>
-#include <variant>
+#include <span>
+#include <string>
+#include <vector>
+
 export module slu.ast.state_decls;
+
 import slu.big_int;
 import slu.ast.pos;
 import slu.lang.basic_state;

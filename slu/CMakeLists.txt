@@ -7,6 +7,7 @@ add_library(slu
 	ext/mtx.ixx 
 	"ast/pos.ixx"
 	"ast/type.ixx"
+	"ast/state.ixx"
 	"ast/state_decls.ixx"
 	"ast/op_order.ixx"
 	"ast/small_enum_list.ixx"

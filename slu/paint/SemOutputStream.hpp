@@ -14,8 +14,8 @@
 
 import slu.settings;
 import slu.ast.pos;
+import slu.ast.state;
 import slu.parse.input;
-#include <slu/parse/State.hpp>
 import slu.parse.manage_newl;
 
 namespace slu::paint

@@ -12,7 +12,7 @@
 
 import slu.parse.errors.kw;
 import slu.parse.input;
-#include <slu/parse/State.hpp>
+import slu.ast.state;
 
 #include "basic/ReadArgs.hpp"
 #include "basic/ReadMiscNames.hpp"

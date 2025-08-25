@@ -9,7 +9,7 @@
 #include <vector>
 
 import slu.settings;
-#include <slu/parse/State.hpp>
+import slu.ast.state;
 #include <slu/visit/Visitor.hpp>
 
 namespace slu::visit

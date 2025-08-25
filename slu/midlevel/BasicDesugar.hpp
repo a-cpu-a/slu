@@ -7,10 +7,11 @@
 #include <vector>
 #include <optional>
 #include <variant>
-#include <slu/parse/State.hpp>
+
 #include <slu/parse/BuildState.hpp>
 import slu.ast.op_info;
 import slu.ast.op_order;
+import slu.ast.state;
 import slu.lang.basic_state;
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/ResolveType.hpp>

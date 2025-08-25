@@ -1,21 +1,17 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
-#include <string>
-#include <span>
-#include <vector>
 #include <optional>
 #include <memory>
-#include <variant>
+#include <span>
 #include <stdexcept>
+#include <string>
+#include <variant>
+#include <vector>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.ast.state;
 
-#include <slu/ext/CppMatch.hpp>
 import slu.ast.enums;
 import slu.ast.pos;
 import slu.ast.small_enum_list;
@@ -26,12 +22,12 @@ import slu.parse.input;
 
 namespace slu::parse
 {
-#define Slu_DEF_CFG(_Name) template<class CfgT> using _Name = _Name ## V<true>
-#define Slu_DEF_CFG2(_Name,_ArgName) template<class CfgT,bool _ArgName> using _Name =_Name ## V<true, _ArgName>
+#define Slu_DEF_CFG(_Name) export template<class CfgT> using _Name = _Name ## V<true>
+#define Slu_DEF_CFG2(_Name,_ArgName) export template<class CfgT,bool _ArgName> using _Name =_Name ## V<true, _ArgName>
 
-	namespace FieldType { using NONE = std::monostate; }
+	namespace FieldType { export using NONE = std::monostate; }
 
-	template<bool isSlu>
+	export template<bool isSlu>
 	using FieldV = std::variant<
 		FieldType::NONE,// Here, so variant has a default value (DO NOT USE)
 
@@ -43,25 +39,25 @@ namespace slu::parse
 
 
 	// ‘{’ [fieldlist] ‘}’
-	template<bool isSlu>
+	export template<bool isSlu>
 	using TableV = std::vector<FieldV<isSlu>>;
 	Slu_DEF_CFG(Table);
 
-	template<bool isSlu>
+	export template<bool isSlu>
 	using StatListV = std::vector<Stat>;
 	Slu_DEF_CFG(StatList);
 
 
-	struct LocalId
+	export struct LocalId
 	{
 		size_t v = SIZE_MAX;
 		constexpr bool empty() const { return v == SIZE_MAX; }
 		constexpr static parse::LocalId newEmpty() { return parse::LocalId(); }
 	};
-	template<bool isSlu, bool isLocal>
+	export template<bool isSlu, bool isLocal>
 	using LocalOrNameV = Sel<isLocal, lang::MpItmId, parse::LocalId>;
 	Slu_DEF_CFG2(LocalOrName, isLocal);
-	template<bool isSlu>
+	export template<bool isSlu>
 	struct LocalsV
 	{
 		std::vector<lang::MpItmId> names;
@@ -69,10 +65,10 @@ namespace slu::parse
 	};
 	Slu_DEF_CFG(Locals);
 
-	template<bool isSlu>
+	export template<bool isSlu>
 	using DynLocalOrNameV = std::variant<lang::MpItmId, parse::LocalId>;
 
-	enum class RetType : uint8_t
+	export enum class RetType : uint8_t
 	{
 		NONE,
 		RETURN,
@@ -80,7 +76,7 @@ namespace slu::parse
 		CONTINUE
 	};
 
-	template<bool isSlu>
+	export template<bool isSlu>
 	struct BlockV
 	{
 		StatListV<isSlu> statList;
@@ -106,52 +102,52 @@ namespace slu::parse
 
 	namespace SoeType
 	{
-		template<bool isSlu>
+		export template<bool isSlu>
 		using BlockV = BlockV<isSlu>;
 		Slu_DEF_CFG(Block);
 
-		using Expr = BoxExpr;
+		export using Expr = BoxExpr;
 	}
-	template<bool isSlu>
+	export template<bool isSlu>
 	using SoeV = std::variant<
 		SoeType::BlockV<isSlu>,
 		SoeType::Expr
 	>;
 	Slu_DEF_CFG(Soe);
 
-	template<bool isSlu> using SoeOrBlockV = Sel<isSlu, BlockV<isSlu>, SoeV<isSlu>>;
+	export template<bool isSlu> using SoeOrBlockV = Sel<isSlu, BlockV<isSlu>, SoeV<isSlu>>;
 	Slu_DEF_CFG(SoeOrBlock);
 
-	template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<SoeV<isSlu>>>;
+	export template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<SoeV<isSlu>>>;
 	Slu_DEF_CFG(SoeBoxOrBlock);
 
 	namespace ArgsType
 	{
-		using parse::ExprList;
+		export using parse::ExprList;
 
-		using parse::TableV;
-		using parse::Table;
+		export using parse::TableV;
+		export using parse::Table;
 
-		struct String { std::string v; ast::Position end; };// "LiteralString"
+		export struct String { std::string v; ast::Position end; };// "LiteralString"
 	};
-	using Args = std::variant<
+	export using Args = std::variant<
 		ArgsType::ExprList,
 		ArgsType::TableV<true>,
 		ArgsType::String
 	>;
 
 
-	template<bool boxed>
+	export template<bool boxed>
 	struct ExprUserExpr {
 		MayBox<boxed, Expr> v;
 		parse::ResolvedType ty;
 	};
 
-	template<bool boxed> // exp args
+	export template<bool boxed> // exp args
 	struct Call : ExprUserExpr<boxed> {
 		Args args;
 	};
-	template<bool boxed> // exp "." Name args
+	export template<bool boxed> // exp "." Name args
 	struct SelfCall : ExprUserExpr<boxed>
 	{
 		Args args;
@@ -160,33 +156,33 @@ namespace slu::parse
 
 	namespace ExprType
 	{
-		struct MpRoot {};		// ":>"
-		using Local = parse::LocalId;
-		template<bool isSlu>
+		export struct MpRoot {};		// ":>"
+		export using Local = parse::LocalId;
+		export template<bool isSlu>
 		using GlobalV = lang::MpItmId;
 		Slu_DEF_CFG(Global);
 
-		template<bool isSlu> // "(" exp ")"
+		export template<bool isSlu> // "(" exp ")"
 		using ParensV = BoxExpr;
 		Slu_DEF_CFG(Parens);
 
-		struct Deref : ExprUserExpr<true> {};// exp ".*"
+		export struct Deref : ExprUserExpr<true> {};// exp ".*"
 
-		struct Index : ExprUserExpr<true> {// exp "[" exp "]"
+		export struct Index : ExprUserExpr<true> {// exp "[" exp "]"
 			MayBox<true,Expr> idx;
 		};
 
-		template<bool isSlu> // exp "." Name
+		export template<bool isSlu> // exp "." Name
 		struct FieldV : ExprUserExpr<true> {
 			lang::PoolString field;
 		};
 		Slu_DEF_CFG(Field);
 
-		using Call = parse::Call<true>;
-		using SelfCall = parse::SelfCall<true>;
+		export using Call = parse::Call<true>;
+		export using SelfCall = parse::SelfCall<true>;
 	}
 
-	struct TupleName
+	export struct TupleName
 	{
 		uint64_t lo = 0; uint64_t hi = 0;
 		constexpr TupleName() = default;
@@ -199,44 +195,44 @@ namespace slu::parse
 			: lo(v.lo), hi(v.hi) {}
 	};
 
-	template<class T>
+	export template<class T>
 	concept Any128BitInt =
 		std::same_as<T, ExprType::P128>
 		|| std::same_as<T, ExprType::M128>;
-	template<class T>
+	export template<class T>
 	concept Any64BitInt =
 		std::same_as<T, ExprType::U64>
 		|| std::same_as<T, ExprType::I64>;
 
 	//Slu
-	using Lifetime = std::vector<lang::MpItmId>;
-	struct UnOpItem
+	export using Lifetime = std::vector<lang::MpItmId>;
+	export struct UnOpItem
 	{
 		Lifetime life;
 		ast::UnOpType type;
 	};
 
-	struct TraitExpr
+	export struct TraitExpr
 	{
 		std::vector<Expr> traitCombo;
 		ast::Position place;
 	};
-	using TypePrefix = std::vector<UnOpItem>;
+	export using TypePrefix = std::vector<UnOpItem>;
 
 
 	//Common
 
-	template<bool isLocal>
+	export template<bool isLocal>
 	struct Parameter
 	{
 		LocalOrNameV<true,isLocal> name;
 		Expr type;
 	};
 
-	template<bool isLocal>
+	export template<bool isLocal>
 	using ParamList = std::vector<Parameter<isLocal>>;
 
-	struct FunctionInfo
+	export struct FunctionInfo
 	{
 		std::string abi;
 		LocalsV<true> local2Mp;
@@ -245,14 +241,14 @@ namespace slu::parse
 		bool hasVarArgParam = false;// do params end with '...'
 		ast::OptSafety safety = ast::OptSafety::DEFAULT;
 	};
-	struct Function : FunctionInfo
+	export struct Function : FunctionInfo
 	{
 		BlockV<true> block;
 	};
 
 
 
-	template<bool isSlu, bool boxIt>
+	export template<bool isSlu, bool boxIt>
 	struct BaseIfCondV
 	{
 		std::vector<std::pair<Expr, SoeOrBlockV<isSlu>>> elseIfs;
@@ -265,18 +261,18 @@ namespace slu::parse
 
 	namespace ExprType
 	{
-		using Nil = std::monostate;								// "nil"
-		struct False {};										// "false"
-		struct True {};											// "true"
-		struct VarArgs {};										// "..."
+		export using Nil = std::monostate;	// "nil"
+		export struct False {};				// "false"
+		export struct True {};				// "true"
+		export struct VarArgs {};			// "..."
 
-		using parse::Function;
+		export using parse::Function;
 		
-		using parse::TableV;
-		using parse::Table;
+		export using parse::TableV;
+		export using parse::Table;
 
 		//unOps is always empty for this type
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct MultiOpV
 		{
 			BoxExpr first;
@@ -284,46 +280,46 @@ namespace slu::parse
 		};      // "exp binop exp"
 		Slu_DEF_CFG(MultiOp);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		using IfCondV = BaseIfCondV<isSlu, true>;
 		Slu_DEF_CFG(IfCond);
 
-		using parse::Lifetime;	// " '/' var" {'/' var"}
-		using parse::TraitExpr;
+		export using parse::Lifetime;	// " '/' var" {'/' var"}
+		export using parse::TraitExpr;
 
-		struct PatTypePrefix {};
+		export struct PatTypePrefix {};
 
-		struct Infer {};
-		struct Struct
+		export struct Infer {};
+		export struct Struct
 		{
 			TableV<true> fields;
 		};
-		struct Union
+		export struct Union
 		{
 			TableV<true> fields;
 		};
-		struct FnType
+		export struct FnType
 		{
 			BoxExpr argType;
 			BoxExpr retType;
 			ast::OptSafety safety = ast::OptSafety::DEFAULT;
 		};
-		struct Dyn {
+		export struct Dyn {
 			parse::TraitExpr expr;
 		};
-		struct Impl {
+		export struct Impl {
 			parse::TraitExpr expr;
 		};
-		struct Slice {
+		export struct Slice {
 			BoxExpr v;
 		};
-		struct Err
+		export struct Err
 		{
 			BoxExpr err;
 		};
 	}
 
-	template<bool isSlu>
+	export template<bool isSlu>
 	using ExprDataV = std::variant <
 		ExprType::Nil,                  // "nil"
 		ExprType::False,                // "false"
@@ -381,7 +377,7 @@ namespace slu::parse
 
 
 
-	struct Expr
+	export struct Expr
 	{
 		ExprDataV<true> data;
 		ast::Position place;
@@ -413,67 +409,67 @@ namespace slu::parse
 
 	// match patterns
 
-	using NdPat = Expr;
+	export using NdPat = Expr;
 
 	namespace DestrSpecType
 	{
-		using Spat = parse::NdPat;
-		using Prefix = TypePrefix;
+		export using Spat = parse::NdPat;
+		export using Prefix = TypePrefix;
 	}
-	using DestrSpec = std::variant<
+	export using DestrSpec = std::variant<
 		DestrSpecType::Spat,
 		DestrSpecType::Prefix
 	>;
 	namespace DestrPatType
 	{
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		using AnyV = LocalOrNameV<isSlu,isLocal>;
 		Slu_DEF_CFG2(Any, isLocal);
 
-		template<bool isSlu, bool isLocal> struct FieldsV;
+		export template<bool isSlu, bool isLocal> struct FieldsV;
 		Slu_DEF_CFG2(Fields, isLocal);
-		template<bool isSlu, bool isLocal> struct ListV;
+		export template<bool isSlu, bool isLocal> struct ListV;
 		Slu_DEF_CFG2(List, isLocal);
 
-		template<bool isSlu, bool isLocal>struct NameV;
+		export template<bool isSlu, bool isLocal>struct NameV;
 		Slu_DEF_CFG2(Name, isLocal);
-		template<bool isSlu, bool isLocal>struct NameRestrictV;
+		export template<bool isSlu, bool isLocal>struct NameRestrictV;
 		Slu_DEF_CFG2(NameRestrict, isLocal);
 	}
 
 	namespace PatType
 	{
 		//x or y or z
-		template<bool isSlu>
+		export template<bool isSlu>
 		using SimpleV = NdPat;
 		Slu_DEF_CFG(Simple);
 
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		using DestrAnyV = DestrPatType::AnyV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrAny, isLocal);
 
-		template<bool isSlu,bool isLocal>
+		export template<bool isSlu,bool isLocal>
 		using DestrFieldsV = DestrPatType::FieldsV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrFields, isLocal);
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		using DestrListV = DestrPatType::ListV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrList, isLocal);
 
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		using DestrNameV = DestrPatType::NameV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrName, isLocal);
 
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		using DestrNameRestrictV = DestrPatType::NameRestrictV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrNameRestrict, isLocal);
 	}
-	template<bool isLocal,typename T>
+	export template<bool isLocal,typename T>
 	concept AnyCompoundDestr =
 		std::same_as<std::remove_cv_t<T>, DestrPatType::FieldsV<true, isLocal>>
 		|| std::same_as<std::remove_cv_t<T>, DestrPatType::ListV<true, isLocal>>;
 
 
-	template<bool isSlu,bool isLocal>
+	export template<bool isSlu,bool isLocal>
 	using PatV = std::variant<
 		PatType::DestrAnyV<isSlu, isLocal>,
 
@@ -487,7 +483,7 @@ namespace slu::parse
 	>;
 	Slu_DEF_CFG2(Pat, isLocal);
 
-	template<bool isSlu, bool isLocal>
+	export template<bool isSlu, bool isLocal>
 	struct DestrFieldV
 	{
 		lang::PoolString name;// |(...)| thingy
@@ -496,7 +492,7 @@ namespace slu::parse
 	Slu_DEF_CFG2(DestrField,isLocal);
 	namespace DestrPatType
 	{
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		struct FieldsV
 		{
 			DestrSpec spec;
@@ -504,7 +500,7 @@ namespace slu::parse
 			std::vector<DestrFieldV<isSlu, isLocal>> items;
 			LocalOrNameV<isSlu, isLocal> name;//May be synthetic
 		};
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		struct ListV
 		{
 			DestrSpec spec;
@@ -513,59 +509,59 @@ namespace slu::parse
 			LocalOrNameV<isSlu,isLocal> name;//May be synthetic
 		};
 
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		struct NameV
 		{
 			LocalOrNameV<isSlu, isLocal> name;
 			DestrSpec spec;
 		};
-		template<bool isSlu, bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		struct NameRestrictV : NameV<isSlu, isLocal>
 		{
 			NdPat restriction;
 		};
 	}
 
-	template<bool isLocal>
+	export template<bool isLocal>
 	struct ___PatHack : PatV<true, isLocal> {};
 
 	//Common
 
 	namespace FieldType
 	{
-		struct Expr2Expr { parse::Expr idx; parse::Expr v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		struct Name2Expr { lang::MpItmId idx; parse::Expr v; };	// "Name ‘=’ exp"
+		export struct Expr2Expr { parse::Expr idx; parse::Expr v; };		// "‘[’ exp ‘]’ ‘=’ exp"
+		export struct Name2Expr { lang::MpItmId idx; parse::Expr v; };	// "Name ‘=’ exp"
 	}
 
-	template<bool isSlu>
+	export template<bool isSlu>
 	struct AttribNameV
 	{
 		lang::MpItmId name;
 		std::string attrib;//empty -> no attrib
 	};
 	Slu_DEF_CFG(AttribName);
-	template<bool isSlu>
+	export template<bool isSlu>
 	using AttribNameListV = std::vector<AttribNameV<isSlu>>;
 	Slu_DEF_CFG(AttribNameList);
-	template<bool isSlu>
+	export template<bool isSlu>
 	using NameListV = std::vector<lang::MpItmId>;
 	Slu_DEF_CFG(NameList);
 
 	namespace UseVariantType
 	{
-		using EVERYTHING_INSIDE = std::monostate;//use x::*;
-		struct IMPORT { lang::MpItmId name; };// use x::y; //name is inside this mp, base is the imported path.
-		using AS_NAME = lang::MpItmId;//use x as y;
-		using LIST_OF_STUFF = std::vector<lang::MpItmId>;//use x::{self, ...}
+		export using EVERYTHING_INSIDE = std::monostate;//use x::*;
+		export struct IMPORT { lang::MpItmId name; };// use x::y; //name is inside this mp, base is the imported path.
+		export using AS_NAME = lang::MpItmId;//use x as y;
+		export using LIST_OF_STUFF = std::vector<lang::MpItmId>;//use x::{self, ...}
 	}
-	using UseVariant = std::variant<
+	export using UseVariant = std::variant<
 		UseVariantType::EVERYTHING_INSIDE,
 		UseVariantType::AS_NAME,
 		UseVariantType::IMPORT,
 		UseVariantType::LIST_OF_STUFF
 	>;
 
-	struct StructBase
+	export struct StructBase
 	{
 		ParamList<true> params;
 		LocalsV<true> local2Mp;
@@ -573,14 +569,14 @@ namespace slu::parse
 		lang::MpItmId name;
 		lang::ExportData exported = false;
 	};
-	template<bool isSlu, bool isLocal>
+	export template<bool isSlu, bool isLocal>
 	struct MaybeLocalsV {
 		LocalsV<isSlu> local2Mp;
 	};
-	template<bool isSlu>
+	export template<bool isSlu>
 	struct MaybeLocalsV<isSlu,true> {};
 
-	template<bool isSlu, bool isLocal>
+	export template<bool isSlu, bool isLocal>
 	struct VarStatBaseV : MaybeLocalsV<isSlu, isLocal>
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		PatV<true, isLocal> names;
@@ -588,50 +584,50 @@ namespace slu::parse
 		lang::ExportData exported = false;
 	};
 
-	struct WhereClause
+	export struct WhereClause
 	{
 		TraitExpr bound;
 		lang::MpItmId var;
 	};
-	using WhereClauses = std::vector<WhereClause>;
+	export using WhereClauses = std::vector<WhereClause>;
 
 	namespace StatType
 	{
-		using Semicol = std::monostate;	// ";"
+		export using Semicol = std::monostate;	// ";"
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct AssignV { std::vector<ExprDataV<isSlu>> vars; ExprList exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG(Assign);
 
-		using Call = parse::Call<false>;
-		using SelfCall = parse::SelfCall<false>;
+		export using Call = parse::Call<false>;
+		export using SelfCall = parse::SelfCall<false>;
 
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct LabelV { lang::MpItmId v; };		// "label"
 		Slu_DEF_CFG(Label);
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct GotoV { lang::MpItmId v; };			// "goto Name"
 		Slu_DEF_CFG(Goto);
 
-		using parse::BlockV;// "do block end"
-		using parse::Block;
+		export using parse::BlockV;// "do block end"
+		export using parse::Block;
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct WhileV { Expr cond; BlockV<isSlu> bl; };		// "while exp do block end"
 		Slu_DEF_CFG(While);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct RepeatUntilV :WhileV<isSlu> {};						// "repeat block until exp"
 		Slu_DEF_CFG(RepeatUntil);
 
 		// "if exp then block {elseif exp then block} [else block] end"
-		template<bool isSlu>
+		export template<bool isSlu>
 		using IfCondV = BaseIfCondV<isSlu, false>;
 		Slu_DEF_CFG(IfCond);
 
 		// "for namelist in explist do block end"
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct ForInV
 		{
 			Sel<isSlu, NameListV<isSlu>, PatV<true, true>> varNames;
@@ -640,20 +636,20 @@ namespace slu::parse
 		};
 		Slu_DEF_CFG(ForIn);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct FuncDefBase
 		{// "function funcname funcbody"    
 			ast::Position place;//Right after func-name
 			lang::MpItmId name; // name may contain dots, 1 colon if !isSlu
 			Function func;
 		};
-		struct Function : FuncDefBase<true> {
+		export struct Function : FuncDefBase<true> {
 			lang::ExportData exported = false;
 		};
 
-		struct Fn : Function {};
+		export struct Fn : Function {};
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct FunctionDeclV : FunctionInfo
 		{
 			ast::Position place;//Right before func-name
@@ -662,32 +658,32 @@ namespace slu::parse
 		};
 		Slu_DEF_CFG(FunctionDecl);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct FnDeclV : FunctionDeclV<isSlu> {};
 		Slu_DEF_CFG(FnDecl);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		using LocalV = VarStatBaseV<isSlu,true>;
 		Slu_DEF_CFG(Local);
 
 		// Slu
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct LetV : LocalV<isSlu> {};
 		Slu_DEF_CFG(Let);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		using ConstV = VarStatBaseV<isSlu, false>;
 		Slu_DEF_CFG(Const);
 
-		struct CanonicLocal
+		export struct CanonicLocal
 		{
 			ResolvedType type;
 			parse::LocalId name;
 			Expr value;
 			lang::ExportData exported = false;
 		};
-		struct CanonicGlobal
+		export struct CanonicGlobal
 		{
 			ResolvedType type;
 			LocalsV<true> local2Mp;
@@ -697,10 +693,10 @@ namespace slu::parse
 		};
 
 
-		struct Struct : StructBase {};
-		struct Union : StructBase {};
+		export struct Struct : StructBase {};
+		export struct Union : StructBase {};
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct ExternBlockV
 		{
 			StatListV<isSlu> stats;
@@ -710,16 +706,16 @@ namespace slu::parse
 		};
 		Slu_DEF_CFG(ExternBlock);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct UnsafeBlockV {
 			StatListV<isSlu> stats;
 		};	// "unsafe {...}"
 		Slu_DEF_CFG(UnsafeBlock);
 
-		struct UnsafeLabel {};
-		struct SafeLabel {};
+		export struct UnsafeLabel {};
+		export struct SafeLabel {};
 
-		struct Trait
+		export struct Trait
 		{
 			WhereClauses clauses;
 			lang::MpItmId name;
@@ -728,7 +724,7 @@ namespace slu::parse
 			std::optional<TraitExpr> whereSelf;
 			lang::ExportData exported = false;
 		};
-		struct Impl
+		export struct Impl
 		{
 			WhereClauses clauses;
 			ParamList<false> params;
@@ -740,7 +736,7 @@ namespace slu::parse
 			bool isUnsafe	   : 1 = false;
 		};
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct DropV
 		{
 			Expr expr;
@@ -748,14 +744,14 @@ namespace slu::parse
 		Slu_DEF_CFG(Drop);
 
 
-		struct Use
+		export struct Use
 		{
 			lang::MpItmId base;//the aliased/imported thing, or modpath base
 			UseVariant useVariant;
 			lang::ExportData exported = false;
 		};
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct ModV
 		{
 			lang::MpItmId name;
@@ -763,16 +759,15 @@ namespace slu::parse
 		};
 		Slu_DEF_CFG(Mod);
 
-		template<bool isSlu>
+		export template<bool isSlu>
 		struct ModAsV : ModV<isSlu>
 		{
 			StatListV<isSlu> code;
 		};
 		Slu_DEF_CFG(ModAs);
-
 	};
 
-	template<bool isSlu>
+	export template<bool isSlu>
 	using StatDataV = std::variant <
 		StatType::Semicol,				// ";"
 
@@ -821,7 +816,7 @@ namespace slu::parse
 	> ;
 	Slu_DEF_CFG(StatData);
 
-	struct Stat
+	export struct Stat
 	{
 		StatDataV<true> data;
 		ast::Position place;
@@ -833,7 +828,7 @@ namespace slu::parse
 		Stat& operator=(Stat&&) = default;
 	};
 
-	struct ParsedFile
+	export struct ParsedFile
 	{
 		StatListV<true> code;
 		lang::ModPathId mp;

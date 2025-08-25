@@ -11,11 +11,11 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slu/parse/State.hpp>
+import slu.char_info;
+import slu.ast.state;
 import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/parse/adv/RequireToken.hpp>
-import slu.char_info;
 #include <slu/parse/adv/ReadNumeral.hpp>
 
 namespace slu::parse
