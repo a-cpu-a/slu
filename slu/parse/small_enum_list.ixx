@@ -1,18 +1,19 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <memory>
 
+#include <slu/Panic.hpp>
+export module slu.parse.small_enum_list;
+
 import slu.ast.enums;
-#include <slu/ErrorType.hpp>
 
 namespace slu::parse
 {
 	//TODO: reuse this code more... later
 
-	template<class T>
+	export template<class T>
 	struct SmallEnumList
 	{
 		static_assert(sizeof(T) == 1);

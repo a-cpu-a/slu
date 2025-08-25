@@ -21,6 +21,7 @@ import slu.settings;
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/PaintOps.hpp>
 #include <slu/paint/PaintBasics.hpp>
+#include <slu/Panic.hpp>
 
 namespace slu::paint
 {

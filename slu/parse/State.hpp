@@ -17,8 +17,8 @@
 #include <slu/ext/CppMatch.hpp>
 import slu.ast.enums;
 import slu.lang.basic_state;
-#include "SmallEnumList.hpp"
 import slu.parse.input;
+import slu.parse.small_enum_list;
 #include "StateDecls.hpp"
 #include "ResolvedType.hpp"
 

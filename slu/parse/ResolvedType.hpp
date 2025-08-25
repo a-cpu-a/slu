@@ -10,6 +10,8 @@
 #include <memory>
 #include <variant>
 #include <map>
+#include <bit>
+#include <stdexcept>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -20,8 +22,8 @@ import slu.lang.basic_state;
 #include <slu/lang/Mpc.hpp>
 import slu.big_int;
 import slu.ast.enums;
-#include "SmallEnumList.hpp"
 import slu.parse.input;
+import slu.parse.small_enum_list;
 #include "StateDecls.hpp"
 
 namespace slu::parse
