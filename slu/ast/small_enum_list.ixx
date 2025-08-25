@@ -5,11 +5,10 @@
 #include <memory>
 
 #include <slu/Panic.hpp>
-export module slu.parse.small_enum_list;
-
+export module slu.ast.small_enum_list;
 import slu.ast.enums;
 
-namespace slu::parse
+namespace slu::ast
 {
 	//TODO: reuse this code more... later
 

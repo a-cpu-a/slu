@@ -6,6 +6,7 @@ add_library(slu
 	lang/basic_state.ixx 
 	ext/mtx.ixx 
 	"ast/pos.ixx"
+	"ast/small_enum_list.ixx"
 	ast/enums.ixx 
 	ast/op_info.ixx
 )

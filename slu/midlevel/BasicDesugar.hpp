@@ -456,7 +456,7 @@ namespace slu::mlvl
 
 		void desugarUnOp(parse::Expr& expr,
 			std::vector<parse::UnOpItem>& unOps, 
-			parse::SmallEnumList<ast::PostUnOpType>& postUnOps,
+			ast::SmallEnumList<ast::PostUnOpType>& postUnOps,
 			size_t opIdx,
 			bool isSufOp)
 		{
@@ -619,7 +619,7 @@ namespace slu::mlvl
 				const std::vector<bool> order = unaryOpOrder(itm);
 
 				std::vector<parse::UnOpItem> preOps = std::move(itm.unOps);
-				parse::SmallEnumList<ast::PostUnOpType> sufOps = std::move(itm.postUnOps);
+				ast::SmallEnumList<ast::PostUnOpType> sufOps = std::move(itm.postUnOps);
 
 				size_t preIdx=0;
 				size_t sufIdx=0;

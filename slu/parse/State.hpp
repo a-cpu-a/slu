@@ -16,9 +16,9 @@
 
 #include <slu/ext/CppMatch.hpp>
 import slu.ast.enums;
+import slu.ast.small_enum_list;
 import slu.lang.basic_state;
 import slu.parse.input;
-import slu.parse.small_enum_list;
 #include "StateDecls.hpp"
 #include "ResolvedType.hpp"
 
@@ -383,7 +383,7 @@ namespace slu::parse
 		ast::Position place;
 		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 
-		SmallEnumList<ast::PostUnOpType> postUnOps;
+		ast::SmallEnumList<ast::PostUnOpType> postUnOps;
 
 		bool isBasicStruct() const {
 			if (!this->unOps.empty() || !this->postUnOps.empty())

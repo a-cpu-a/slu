@@ -22,8 +22,8 @@ import slu.lang.basic_state;
 #include <slu/lang/Mpc.hpp>
 import slu.big_int;
 import slu.ast.enums;
+import slu.ast.small_enum_list;
 import slu.parse.input;
-import slu.parse.small_enum_list;
 #include "StateDecls.hpp"
 
 namespace slu::parse
