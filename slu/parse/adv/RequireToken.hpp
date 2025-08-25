@@ -13,7 +13,7 @@
 
 #include <slu/parse/State.hpp>
 import slu.parse.input;
-#include <slu/parse/SimpleErrors.hpp>
+import slu.parse.error;
 #include <slu/parse/adv/SkipSpace.hpp>
 import slu.char_info;
 

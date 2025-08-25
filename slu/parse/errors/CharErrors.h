@@ -3,7 +3,7 @@
 */
 #pragma once
 
-#include <slu/parse/SimpleErrors.hpp>
+import slu.parse.error;
 import slu.parse.input;
 
 namespace slu::parse
