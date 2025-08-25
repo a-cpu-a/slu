@@ -26,7 +26,7 @@ import slu.settings;
 namespace slu::paint
 {
 	template<bool SKIP_SPACE = true>
-	inline void paintString(AnySemOutput auto& se, const std::string_view sv,const Position end,const Tok tint) 
+	inline void paintString(AnySemOutput auto& se, const std::string_view sv,const ast::Position end,const Tok tint) 
 	{
 		if constexpr (SKIP_SPACE)
 			skipSpace(se);
@@ -581,7 +581,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDecl(Se& se, const parse::ParamList<true>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const parse::MpItmId name, const lang::ExportData exported,const ast::OptSafety safety, const Position pos = {}, const bool fnKw = false)
+	inline void paintFuncDecl(Se& se, const parse::ParamList<true>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const parse::MpItmId name, const lang::ExportData exported,const ast::OptSafety safety, const ast::Position pos = {}, const bool fnKw = false)
 	{
 		paintExportData<Tok::FN_STAT>(se, exported);
 		paintSafety(se, safety);
@@ -622,7 +622,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function& func, const parse::MpItmId name,const lang::ExportData exported, const Position pos = {},const bool fnKw=false)
+	inline void paintFuncDef(Se& se, const parse::Function& func, const parse::MpItmId name,const lang::ExportData exported, const ast::Position pos = {},const bool fnKw=false)
 	{
 		std::optional<std::unique_ptr<parse::Expr>> emptyTy{};
 		const std::optional<std::unique_ptr<parse::Expr>>* retType;

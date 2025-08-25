@@ -2,8 +2,8 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-export module slu.parse.pos;
-namespace slu::parse
+export module slu.ast.pos;
+namespace slu::ast
 {
 	export struct Position
 	{

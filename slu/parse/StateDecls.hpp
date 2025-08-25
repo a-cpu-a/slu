@@ -12,9 +12,9 @@
 
 #include <slu/ext/CppMatch.hpp>
 import slu.big_int;
+import slu.ast.pos;
 import slu.lang.basic_state;
 import slu.parse.input;
-import slu.parse.pos;
 
 namespace slu::parse
 {
@@ -77,7 +77,7 @@ namespace slu::parse
 	namespace ExprType
 	{
 		struct OpenRange {};
-		struct String { std::string v; Position end; };
+		struct String { std::string v; ast::Position end; };
 
 		// "Numeral"
 		using F64 = double;

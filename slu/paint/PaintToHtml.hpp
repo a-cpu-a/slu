@@ -14,9 +14,7 @@
 
 import slu.parse.input;
 #include <slu/parse/State.hpp>
-#include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/paint/SemOutputStream.hpp>
-#include <slu/paint/Paint.hpp>
 
 namespace slu::paint
 {
@@ -136,7 +134,7 @@ namespace slu::paint
 		parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 		while (se.in)
 		{
-			const parse::Position loc = se.in.getLoc();
+			const ast::Position loc = se.in.getLoc();
 			const char ch = se.in.get();
 
 			//Already skipping

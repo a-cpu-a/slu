@@ -160,7 +160,7 @@ namespace slu::parse
 			return std::move(varData.back());
 	}
 	template<class T,bool boxed, AnyInput In,class... Ts>
-	inline T wrapExpr(Position place,ExprData<In>&& expr,Ts&&... extraItems)
+	inline T wrapExpr(ast::Position place,ExprData<In>&& expr,Ts&&... extraItems)
 	{
 		return T{
 				parse::ExprUserExpr<boxed>{mayBoxFrom<boxed>(
@@ -183,7 +183,7 @@ namespace slu::parse
 		*/
 
 		std::vector<ExprData<In>> varData;
-		Position varPlace = in.getLoc();
+		ast::Position varPlace = in.getLoc();
 		bool endsWithArgs = false;
 		bool varDataNeedsSubThing = false;
 		

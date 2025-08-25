@@ -19,7 +19,7 @@ import slu.parse.input;
 namespace slu::parse
 {
 	template<AnyInput In>
-	inline void readLabel(In& in, const Position place)
+	inline void readLabel(In& in, const ast::Position place)
 	{
 		//label ::= ‘::’ Name ‘::’
 		//SL label ::= ‘:::’ Name ‘:’

@@ -13,6 +13,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.settings;
+import slu.ast.pos;
 import slu.parse.input;
 #include <slu/parse/State.hpp>
 import slu.parse.manage_newl;
@@ -20,11 +21,8 @@ import slu.parse.manage_newl;
 namespace slu::paint
 {
 	using parse::AnyCfgable;
-	using parse::AnyInput;
 	using parse::AnySettings;
 	using parse::Setting;
-
-	using parse::Position;
 
 	//ms sad
 #undef IN
@@ -147,13 +145,13 @@ namespace slu::paint
 
 		//{ t.db } -> std::same_as<LuaMpDb>;
 
-			{ t.in } -> AnyInput;
+			{ t.in } -> parse::AnyInput;
 			{ t.out } -> std::same_as<std::vector<std::vector<typename T::SemPair>>&>;
 
 			{ t.popLocals() } -> std::same_as<void>;
 
-			{ t.move(Position()) } -> std::same_as<T&>;
-			{ t.template move<Tok::WHITESPACE>(Position()) } -> std::same_as<T&>;
+			{ t.move(ast::Position()) } -> std::same_as<T&>;
+			{ t.template move<Tok::WHITESPACE>(ast::Position()) } -> std::same_as<T&>;
 
 			{ t.add(Tok::WHITESPACE) } -> std::same_as<T&>;
 			{ t.add(Tok::WHITESPACE,Tok::WHITESPACE) } -> std::same_as<T&>;
@@ -221,7 +219,7 @@ namespace slu::paint
 	};
 
 	//Converter::from(Tok,Tok) -> SemPair
-	template<AnyInput In,class Converter= ColorConverter>
+	template<parse::AnyInput In,class Converter = ColorConverter>
 	struct SemOutput
 	{
 		//Possible a color, likely u16 or u32
@@ -250,7 +248,7 @@ namespace slu::paint
 
 		SemOutput& addRaw(const SemPair p, size_t count = 1)
 		{
-			Position loc = in.getLoc();
+			ast::Position loc = in.getLoc();
 			//in.skip(count);
 			if (out.size() <= loc.line-1)
 				out.resize(loc.line);
@@ -310,7 +308,7 @@ namespace slu::paint
 		}
 
 		template<Tok t>
-		SemOutput& move(Position p) 
+		SemOutput& move(ast::Position p)
 		{
 			parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 
@@ -319,7 +317,7 @@ namespace slu::paint
 			// handle newlines, while moving towards 'p'
 			while (in)
 			{
-				Position loc = in.getLoc();
+				ast::Position loc = in.getLoc();
 
 				if (loc.index == p.index && loc.line == p.line)
 					break;
@@ -338,7 +336,7 @@ namespace slu::paint
 			}
 			return *this;
 		}
-		SemOutput& move(Position p) {
+		SemOutput& move(ast::Position p) {
 			return move<Tok::WHITESPACE>(p);
 		}
 	};

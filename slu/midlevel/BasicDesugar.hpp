@@ -237,7 +237,7 @@ namespace slu::mlvl
 		//	else
 		//		return name;
 		//}
-		parse::ResolvedType destrSpec2Type(parse::Position place,parse::DestrSpec&& spec)
+		parse::ResolvedType destrSpec2Type(ast::Position place,parse::DestrSpec&& spec)
 		{
 			parse::Expr te = ezmatch(spec)(
 			varcase(parse::DestrSpecType::Prefix&) 
@@ -252,7 +252,7 @@ namespace slu::mlvl
 			return resolveTypeExpr(mpDb,std::move(te));
 		}
 		template<bool isLocal,bool isFields,class T>
-		void convDestrLists(parse::Position place,
+		void convDestrLists(ast::Position place,
 			auto& out,
 			std::vector<parse::PatV<true, isLocal>*>& patStack,
 			std::vector<parse::ExprData<Cfg>>& exprStack,
@@ -460,7 +460,7 @@ namespace slu::mlvl
 			size_t opIdx,
 			bool isSufOp)
 		{
-			parse::Position place = expr.place;
+			ast::Position place = expr.place;
 			//Wrap
 			parse::MpItmId name;
 			parse::Lifetime* lifetime = nullptr;
@@ -566,7 +566,7 @@ namespace slu::mlvl
 						auto expr2 = std::move(expStack.back());
 						expStack.pop_back();
 						auto& expr1 = expStack.back();
-						parse::Position place = expr1.place;
+						ast::Position place = expr1.place;
 
 						parse::ExprType::SelfCall call;
 						parse::ArgsType::ExprList<Cfg> list;

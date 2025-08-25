@@ -14,7 +14,7 @@ import slu.parse.input;
 namespace slu::parse
 {
 	template<AnyInput In>
-	inline bool readUseStat(In& in, const Position place, const ExportData exported)
+	inline bool readUseStat(In& in, const ast::Position place, const ExportData exported)
 	{
 		if (checkReadTextToken(in, "use"))
 		{

@@ -83,8 +83,8 @@ namespace slu::parse
 
 		lang::ModPathId mp;
 
-		Position start;
-		Position end;
+		ast::Position start;
+		ast::Position end;
 
 		RetType retTy = RetType::NONE;
 
@@ -128,7 +128,7 @@ namespace slu::parse
 		using parse::TableV;
 		using parse::Table;
 
-		struct String { std::string v; Position end; };// "LiteralString"
+		struct String { std::string v; ast::Position end; };// "LiteralString"
 	};
 	using Args = std::variant<
 		ArgsType::ExprListV<true>,
@@ -215,7 +215,7 @@ namespace slu::parse
 	struct TraitExpr
 	{
 		std::vector<Expr> traitCombo;
-		Position place;
+		ast::Position place;
 	};
 	using TypePrefix = std::vector<UnOpItem>;
 
@@ -380,7 +380,7 @@ namespace slu::parse
 	struct Expr
 	{
 		ExprDataV<true> data;
-		Position place;
+		ast::Position place;
 		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 
 		SmallEnumList<ast::PostUnOpType> postUnOps;
@@ -394,9 +394,9 @@ namespace slu::parse
 		Expr() = default;
 		Expr(ExprDataV<true>&& data) 
 			:data(std::move(data)) {}
-		Expr(ExprDataV<true>&& data, Position place) 
+		Expr(ExprDataV<true>&& data, ast::Position place) 
 			:data(std::move(data)), place(place) {}
-		Expr(ExprDataV<true>&& data, Position place, std::vector<UnOpItem>&& unOps) 
+		Expr(ExprDataV<true>&& data, ast::Position place, std::vector<UnOpItem>&& unOps) 
 			:data(std::move(data)), place(place), unOps(std::move(unOps)) {}
 
 		Expr(const Expr&) = delete;
@@ -639,7 +639,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FuncDefBase
 		{// "function funcname funcbody"    
-			Position place;//Right after func-name
+			ast::Position place;//Right after func-name
 			MpItmId name; // name may contain dots, 1 colon if !isSlu
 			Function func;
 		};
@@ -652,7 +652,7 @@ namespace slu::parse
 		template<bool isSlu>
 		struct FunctionDeclV : FunctionInfo
 		{
-			Position place;//Right before func-name
+			ast::Position place;//Right before func-name
 			MpItmId name;
 			ExportData exported = false;
 		};
@@ -701,7 +701,7 @@ namespace slu::parse
 		{
 			StatListV<isSlu> stats;
 			std::string abi;
-			Position abiEnd;
+			ast::Position abiEnd;
 			ast::OptSafety safety = ast::OptSafety::DEFAULT;
 		};
 		Slu_DEF_CFG(ExternBlock);
@@ -820,7 +820,7 @@ namespace slu::parse
 	struct Stat
 	{
 		StatDataV<true> data;
-		Position place;
+		ast::Position place;
 
 		Stat() = default;
 		Stat(StatDataV<true>&& data) :data(std::move(data)) {}

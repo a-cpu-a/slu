@@ -24,7 +24,7 @@ namespace slu::parse
 			", at"
 			"{}", errorLocStr(in)));
 	}
-	inline void throwUnexpectedSafety(AnyInput auto& in, const Position pos)
+	inline void throwUnexpectedSafety(AnyInput auto& in, const ast::Position pos)
 	{
 		throw UnexpectedKeywordError(std::format(
 			"Unexpected safe/unsafe, at"

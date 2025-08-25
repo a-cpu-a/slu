@@ -16,7 +16,7 @@ namespace slu::parse
 
 	//Returns if newline was added
 	export template <bool skipPreNl>
-	bool manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
+	bool manageNewlineState(const char ch, ParseNewlineState& nlState, parse::AnyInput auto& in)
 	{
 		switch (nlState)
 		{

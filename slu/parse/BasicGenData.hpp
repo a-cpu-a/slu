@@ -22,7 +22,6 @@ namespace slu::parse
 	using lang::ModPathId;
 	using lang::AnyMp;
 
-
 	const size_t NORMAL_SCOPE = SIZE_MAX;
 	const size_t UNSCOPE = SIZE_MAX-1;
 	const size_t GLOBAL_SCOPE = SIZE_MAX-2;
@@ -528,7 +527,7 @@ namespace slu::parse
 		}
 
 		//For impl, lambda, scope, doExpr, things named '_'
-		constexpr void pushAnonScope(const Position start)
+		constexpr void pushAnonScope(const ast::Position start)
 		{
 			const size_t id = anonScopeCounts.back().v++;
 			const std::string name = getAnonName(id);
@@ -540,7 +539,7 @@ namespace slu::parse
 			anonScopeCounts.emplace_back(0);
 		}
 		//For extern/unsafe blocks
-		constexpr void pushUnScope(const Position start,const bool isGlobal)
+		constexpr void pushUnScope(const ast::Position start,const bool isGlobal)
 		{
 			const size_t id = isGlobal ? GLOBAL_SCOPE : UNSCOPE;
 
@@ -552,7 +551,7 @@ namespace slu::parse
 				anonScopeCounts.push_back(anonScopeCounts.back());
 		}
 		//For func, macro, inline_mod, type?, ???
-		constexpr void pushScope(const Position start,std::string&& name) {
+		constexpr void pushScope(const ast::Position start,std::string&& name) {
 			//addLocalObj(name);
 
 			totalMp.push_back(std::move(name));
@@ -565,7 +564,7 @@ namespace slu::parse
 			localsStack.pop_back();
 			return std::move(res);
 		}
-		BlockV<isSlu> popScope(const Position end) {
+		BlockV<isSlu> popScope(const ast::Position end) {
 			BlockV<isSlu> res = std::move(scopes.back().res);
 			res.end = end;
 			if constexpr(isSlu)
@@ -575,7 +574,7 @@ namespace slu::parse
 			anonScopeCounts.pop_back();
 			return res;
 		}
-		BlockV<isSlu> popUnScope(const Position end) {
+		BlockV<isSlu> popUnScope(const ast::Position end) {
 			BlockV<isSlu> res = std::move(scopes.back().res);
 			res.end = end;
 			bool isGlobal = scopes.back().anonId == GLOBAL_SCOPE;
@@ -601,7 +600,7 @@ namespace slu::parse
 			scopes.back().res.retExprs = std::move(expList);
 		}
 
-		constexpr void addStat(const Position place,StatDataV<isSlu>&& data){
+		constexpr void addStat(const ast::Position place,StatDataV<isSlu>&& data){
 			Stat stat = { std::move(data) };
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));

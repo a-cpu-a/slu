@@ -13,7 +13,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.settings;
-import slu.parse.pos;
+import slu.ast.pos;
 import slu.parse.input;
 #include "BasicGenData.hpp"
 
@@ -133,7 +133,7 @@ namespace slu::parse
 		std::string_view fileName() const {
 			return fName;
 		}
-		Position getLoc() const {
+		ast::Position getLoc() const {
 			return { curLine,curLinePos };
 		}
 		void newLine() {

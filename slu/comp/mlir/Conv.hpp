@@ -147,14 +147,14 @@ namespace slu::comp::mico
 		}
 	};
 	//Forward declare!
-	mlir::Value convExpr(ConvData& conv, parse::Position place, const parse::ExprDataV<true>& itm);
+	mlir::Value convExpr(ConvData& conv, ast::Position place, const parse::ExprDataV<true>& itm);
 	void convStat(ConvData& conv, const parse::Stat& itm);
 	//
 
 	mlir::StringAttr getExportAttr(ConvData& conv,const bool exported) {
 		return exported ? mlir::StringAttr() : conv.privVis;
 	}
-	mlir::Location convPos(ConvData& conv,parse::Position p)
+	mlir::Location convPos(ConvData& conv,ast::Position p)
 	{
 		return mlir::FileLineColLoc::get(
 			&conv.context,
@@ -335,7 +335,7 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::ExprType::False>
 		|| std::same_as<T, parse::ExprType::Nil>
 		|| std::same_as<T, parse::ExprType::MultiOpV<true>>;//already desugared
-	inline mlir::Value convAny64(ConvData& conv, parse::Position place, const parse::Any64BitInt auto itm)
+	inline mlir::Value convAny64(ConvData& conv, ast::Position place, const parse::Any64BitInt auto itm)
 	{
 		mlir::OpBuilder& builder = conv.builder;
 		auto i64Type = builder.getI64Type();
@@ -343,7 +343,7 @@ namespace slu::comp::mico
 			convPos(conv, place), i64Type, mlir::IntegerAttr::get(i64Type, (int64_t)itm)
 		);
 	}
-	inline mlir::Value convAny128(ConvData& conv, parse::Position place, const parse::Any128BitInt auto itm)
+	inline mlir::Value convAny128(ConvData& conv, ast::Position place, const parse::Any128BitInt auto itm)
 	{
 		mlir::OpBuilder& builder = conv.builder;
 		auto i128Type = builder.getIntegerType(128);
@@ -352,7 +352,7 @@ namespace slu::comp::mico
 			convPos(conv, place), i128Type, mlir::IntegerAttr::get(i128Type, apVal)
 		);
 	}
-	inline mlir::Value convExpr(ConvData& conv,parse::Position place, const parse::ExprDataV<true>& itm)
+	inline mlir::Value convExpr(ConvData& conv,ast::Position place, const parse::ExprDataV<true>& itm)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
@@ -518,7 +518,7 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatType::SafeLabel>;
 
 
-	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,parse::MpItmId name,parse::Position place, const parse::ItmType::Fn* funcItmOrNull)
+	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,parse::MpItmId name,ast::Position place, const parse::ItmType::Fn* funcItmOrNull)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;

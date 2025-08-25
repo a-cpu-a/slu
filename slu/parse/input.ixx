@@ -11,8 +11,8 @@
 export module slu.parse.input;
 
 import slu.settings;
+import slu.ast.pos;
 import slu.lang.basic_state;
-import slu.parse.pos;
 
 namespace slu::parse
 {
@@ -77,7 +77,7 @@ namespace slu::parse
 		//Error output
 
 		{ t.fileName() } -> std::same_as<std::string_view>;
-		{ t.getLoc() } -> std::same_as<Position>;
+		{ t.getLoc() } -> std::same_as<ast::Position>;
 
 		//Management
 		{ t.newLine() } -> std::same_as<void>;
@@ -88,7 +88,7 @@ namespace slu::parse
 #endif // Slu_NoConcepts
 	;
 
-	export std::string errorLocStr(const AnyInput auto& in,const Position pos) {
+	export std::string errorLocStr(const AnyInput auto& in,const ast::Position pos) {
 		return std::format(
 			" {}:" 
 			LUACC_NUM_COL("{}")

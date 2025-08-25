@@ -77,7 +77,7 @@ namespace slu::parse
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
 			| prefixexp | tableconstructor | exp binop exp | unop exp
 		*/
-		const Position startPos = in.getLoc();
+		const ast::Position startPos = in.getLoc();
 
 		bool isNilIntentional = false;
 		Expr basicRes;
@@ -195,7 +195,7 @@ namespace slu::parse
 			}
 			if (checkReadTextToken(in, "function")) 
 			{
-				const Position place = in.getLoc();
+				const ast::Position place = in.getLoc();
 
 				try
 				{
