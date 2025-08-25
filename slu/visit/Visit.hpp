@@ -8,8 +8,8 @@
 #include <format>
 #include <vector>
 
+import slu.settings;
 #include <slu/parser/State.hpp>
-#include <slu/Settings.hpp>
 #include <slu/visit/Visitor.hpp>
 
 namespace slu::visit

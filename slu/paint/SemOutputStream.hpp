@@ -12,7 +12,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slu/Settings.hpp>
+import slu.settings;
 #include <slu/parser/Input.hpp>
 #include <slu/parser/State.hpp>
 #include <slu/parser/ManageNewline.hpp>

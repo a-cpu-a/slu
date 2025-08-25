@@ -8,8 +8,8 @@
 #include <format>
 #include <vector>
 
+import slu.settings;
 #include <slu/parser/State.hpp>
-#include <slu/Settings.hpp>
 
 #define Slu_co ,
 

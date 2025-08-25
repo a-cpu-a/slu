@@ -1,15 +1,15 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <type_traits>
 
+export module slu.settings;
+
 namespace slu::parse
 {
-
-	template<class THIS, class... SettingTs>
+	export template<class THIS, class... SettingTs>
 	struct Setting : SettingTs...
 	{
 		constexpr static Setting settings() { return Setting(); }
@@ -63,7 +63,7 @@ namespace slu::parse
 		using v = std::true_type;
 	};
 
-	template<class T>
+	export template<class T>
 	concept AnySettings = _AnySetting_impl<std::remove_cvref_t<T>>::v::value;
 
 #define _Slu_MAKE_SETTING_CVAR(_NAME) \
@@ -78,13 +78,13 @@ namespace slu::parse
 			return r; \
 		} \
 	}; \
-	inline constexpr auto _NAME = _C_ ## _NAME()
+	export constexpr auto _NAME = _C_ ## _NAME()
 
 	//Parser only:
 	_Slu_MAKE_SETTING_CVAR(noIntOverflow);
 	_Slu_MAKE_SETTING_CVAR(numberSpacing); // stuff like: 100_100
 
-	constexpr auto sluCommon = noIntOverflow 
+	export constexpr auto sluCommon = noIntOverflow
 		| numberSpacing;
 
 #undef _Slu_MAKE_SETTING_CVAR
@@ -92,7 +92,7 @@ namespace slu::parse
 #ifdef Slu_NoConcepts
 #define AnyCfgable class
 #else
-	template<class T>
+	export template<class T>
 	concept AnyCfgable = requires(T t) {
 		{ t.settings() } -> AnySettings;
 	};
