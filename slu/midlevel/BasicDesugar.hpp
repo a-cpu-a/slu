@@ -10,9 +10,9 @@
 #include <slu/parse/State.hpp>
 #include <slu/parse/BuildState.hpp>
 import slu.ast.op_info;
+import slu.ast.op_order;
 import slu.lang.basic_state;
 #include <slu/visit/Visit.hpp>
-#include <slu/midlevel/Operator.hpp>
 #include <slu/midlevel/ResolveType.hpp>
 
 namespace slu::mlvl
@@ -540,14 +540,14 @@ namespace slu::mlvl
 				_ASSERT(itm.unOps.empty());
 				_ASSERT(itm.postUnOps.empty());
 				MultiOp& ops = std::get<MultiOp>(itm.data);
-				auto order = multiOpOrder(ops);
+				auto order = ast::multiOpOrder(ops);
 
 				std::vector<ExprT> expStack;
 				for (auto& i : order)
 				{
 					switch (i.kind)
 					{
-					case OpKind::Expr:
+					case ast::OpKind::Expr:
 					{
 						ExprT& parent = i.index == 0 ? *ops.first : ops.extra[i.index - 1].second;
 
@@ -557,7 +557,7 @@ namespace slu::mlvl
 						visit::visitExpr(*this, newExpr);
 						break;
 					}
-					case OpKind::BinOp:
+					case ast::OpKind::BinOp:
 					{
 						//create a new expression for the binary operator
 
@@ -602,11 +602,11 @@ namespace slu::mlvl
 						expr1.place = place;
 						break;
 					}
-					case OpKind::UnOp:
-					case OpKind::PostUnOp:
+					case ast::OpKind::UnOp:
+					case ast::OpKind::PostUnOp:
 					{
 						auto& opSrcExpr = expStack[i.index];
-						desugarUnOp(expStack.back(), opSrcExpr.unOps, opSrcExpr.postUnOps,i.opIdx, i.kind==OpKind::PostUnOp);
+						desugarUnOp(expStack.back(), opSrcExpr.unOps, opSrcExpr.postUnOps,i.opIdx, i.kind== ast::OpKind::PostUnOp);
 						break;
 					}
 					};
@@ -616,7 +616,7 @@ namespace slu::mlvl
 			}
 			else
 			{//Desugar un/post ops alone.
-				const std::vector<bool> order = unaryOpOrder(itm);
+				const std::vector<bool> order = ast::unaryOpOrder(itm);
 
 				std::vector<parse::UnOpItem> preOps = std::move(itm.unOps);
 				ast::SmallEnumList<ast::PostUnOpType> sufOps = std::move(itm.postUnOps);
@@ -625,7 +625,6 @@ namespace slu::mlvl
 				size_t sufIdx=0;
 				for (const bool isSufOp : order)
 					desugarUnOp(itm, preOps, sufOps, isSufOp ? (sufIdx++) : (preIdx++), isSufOp);
-
 			}
 			return false;
 		}; 

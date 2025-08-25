@@ -1,22 +1,23 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <unordered_map>
 #include <variant>
 #include <algorithm>
 #include <numeric>
+#include <iterator>
 
+#include <slu/Panic.hpp>
 #include <slu/parse/State.hpp>
+export module slu.ast.op_order;
 
-namespace slu::mlvl
+namespace slu::ast
 {
-	enum class Assoc : uint8_t { LEFT, RIGHT };
+	export enum class Assoc : uint8_t { LEFT, RIGHT };
 
-
-	constexpr uint8_t precedence(ast::BinOpType op) {
+	export constexpr uint8_t precedence(ast::BinOpType op) {
 		switch (op)
 		{
 		case ast::BinOpType::EXPONENT: return 90;
@@ -64,7 +65,7 @@ namespace slu::mlvl
 		}
 		Slu_panic("Unknown operator, no precedence<slu>(BinOpType) defined");
 	}
-	constexpr uint8_t precedence(const parse::UnOpItem& op) {
+	export constexpr uint8_t precedence(const parse::UnOpItem& op) {
 		switch (op.type)
 		{
 			//Slu
@@ -91,7 +92,7 @@ namespace slu::mlvl
 		}
 		Slu_panic("Unknown operator, no precedence<slu>(UnOpItem) defined");
 	}
-	constexpr uint8_t precedence(ast::PostUnOpType op) {
+	export constexpr uint8_t precedence(ast::PostUnOpType op) {
 		switch (op)
 		{
 		case ast::PostUnOpType::PROPOGATE_ERR:
@@ -105,7 +106,7 @@ namespace slu::mlvl
 		Slu_panic("Unknown operator, no precedence<slu>(PostUnOpType) defined");
 	}
 
-	constexpr Assoc associativity(ast::BinOpType op) {
+	export constexpr Assoc associativity(ast::BinOpType op) {
 		switch (op)
 		{
 		case ast::BinOpType::EXPONENT:
@@ -118,8 +119,8 @@ namespace slu::mlvl
 		}
 	}
 
-	enum class OpKind : uint8_t { BinOp, UnOp, PostUnOp,Expr };
-	struct MultiOpOrderEntry
+	export enum class OpKind : uint8_t { BinOp, UnOp, PostUnOp,Expr };
+	export struct MultiOpOrderEntry
 	{
 		size_t index;
 		size_t opIdx;
@@ -194,7 +195,7 @@ namespace slu::mlvl
 	// Store ast::BinOpType in `extra[...].first`
 	// Store std::vector<parse::UnOpItem> in `extra[...].second.unOps`
 	// Store std::vector<ast::PostUnOpType> in `extra[...].second.postUnOps`
-	constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m)
+	export constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m)
 	{
 		/*
 
@@ -291,7 +292,7 @@ namespace slu::mlvl
 	}
 
 	/// @returns the order of unary operations as a vector of bools, where true means post-unary operation
-	constexpr std::vector<bool> unaryOpOrder(const parse::Expr& expr)
+	export constexpr std::vector<bool> unaryOpOrder(const parse::Expr& expr)
 	{
 		size_t opCount = expr.postUnOps.size() + expr.unOps.size();
 		if(expr.postUnOps.empty() || expr.unOps.empty())
