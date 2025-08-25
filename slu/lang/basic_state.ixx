@@ -32,26 +32,26 @@ namespace slu::lang
 	export struct ModPathId
 	{
 		size_t id;
-		constexpr auto operator<=>(const ModPathId&)const = default;
+		constexpr auto operator<=>(const lang::ModPathId&)const = default;
 	};
 	export struct LocalObjId
 	{
 		size_t val;
-		constexpr static LocalObjId newEmpty() {
-			return LocalObjId{ SIZE_MAX };
+		constexpr static lang::LocalObjId newEmpty() {
+			return lang::LocalObjId{ SIZE_MAX };
 		}
 
-		constexpr auto operator<=>(const LocalObjId&)const = default;
+		constexpr auto operator<=>(const lang::LocalObjId&)const = default;
 	};
 	
 	export struct MpItmId
 	{
-		LocalObjId id;// Practically a string pool lol
+		lang::LocalObjId id;// Practically a string pool lol
 		//SIZE_MAX -> empty
-		ModPathId mp;
+		lang::ModPathId mp;
 
-		static constexpr MpItmId newEmpty() {
-			return MpItmId{ LocalObjId{ SIZE_MAX } };
+		static constexpr lang::MpItmId newEmpty() {
+			return lang::MpItmId{ lang::LocalObjId{ SIZE_MAX } };
 		}
 
 		constexpr bool empty() const {
@@ -59,7 +59,7 @@ namespace slu::lang
 		}
 
 		std::string_view asSv(const auto& v) const {
-			return v.asSv({ *(const MpItmId*)this });
+			return v.asSv({ *(const lang::MpItmId*)this });
 		}
 		std::string_view asSv(const parse::BasicMpDbData& v) const {
 			return parse::_fwdConstructBasicMpDbAsSv(const_cast<parse::BasicMpDbData*>(&v), { *this });
@@ -71,18 +71,19 @@ namespace slu::lang
 			return parse::_fwdConstructBasicMpDbAsVmp(const_cast<parse::BasicMpDbData*>(&v), { *this });
 		}
 
-		constexpr auto operator<=>(const MpItmId&)const = default;
+		constexpr auto operator<=>(const lang::MpItmId&)const = default;
 	};
+	export using PoolString = lang::LocalObjId;//implicitly unknown mp.
 
 	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
 	export using ExportData = bool;
 
 	export template<class T>
 	concept AnyMp = 
-		std::same_as<T, ModPathView>
+		std::same_as<T, lang::ModPathView>
 		|| std::same_as<T, ViewModPathView>
 		|| std::same_as<T, ViewModPath>
-		|| std::same_as<T, ModPath>;
+		|| std::same_as<T, lang::ModPath>;
 
 	export struct HashModPathView
 	{

@@ -118,7 +118,7 @@ namespace slu::mlvl
 	}
 	bool subtypeCheck(const parse::BasicMpDbData& mpDb, const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
 
-	inline bool nameMatchCheck(const parse::BasicMpDbData& mpDb,parse::MpItmId subName, parse::MpItmId useName)
+	inline bool nameMatchCheck(const parse::BasicMpDbData& mpDb,lang::MpItmId subName, lang::MpItmId useName)
 	{
 		if(subName == useName) return true;//Same name, so match.
 		if (subName.empty()) return true;
@@ -326,12 +326,12 @@ namespace slu::mlvl
 	struct MethodCall
 	{
 		std::vector<TmpVar> args;
-		parse::MpItmId* name;
+		lang::MpItmId* name;
 		TmpVar selfArg;
 	};
 	struct FieldGet
 	{
-		parse::PoolString name;
+		lang::PoolString name;
 		TmpVar selfArg;
 	};
 	struct LocalVarInfo
@@ -373,11 +373,11 @@ namespace slu::mlvl
 
 	struct BreakPoint
 	{
-		parse::PoolString name;//empty -> not named.
+		lang::PoolString name;//empty -> not named.
 		TmpVar out;// size-max -> scope limiter.
 
 		static constexpr BreakPoint newScopeLimiter() {
-			return BreakPoint{ parse::PoolString::newEmpty(), SIZE_MAX};
+			return BreakPoint{ lang::PoolString::newEmpty(), SIZE_MAX};
 		}
 
 		constexpr bool scopeLimiter() const
@@ -557,7 +557,7 @@ namespace slu::mlvl
 		}
 		void checkTypeMethod(
 			const parse::ResolvedType& var,const parse::Args& args, 
-			parse::MpItmId& method,parse::ResolvedType& resTy)
+			lang::MpItmId& method,parse::ResolvedType& resTy)
 		{
 			//TODO: check if var impls that method & what it is
 
@@ -830,7 +830,7 @@ namespace slu::mlvl
 		}
 
 		//Returns if failed
-		bool resolveMethod(std::vector<parse::ResolvedType>& derefStack,parse::MpItmId& name)
+		bool resolveMethod(std::vector<parse::ResolvedType>& derefStack,lang::MpItmId& name)
 		{
 			if (derefStack.size() > 16)//TODO: config for limit
 				return true;//TODO: error
@@ -881,7 +881,7 @@ namespace slu::mlvl
 								auto tyNameOpt = otherTy.getStructName();
 								if (!tyNameOpt)
 									throw std::runtime_error("TODO: error logging, found non bool expr");
-								parse::MpItmId tyName = *tyNameOpt;
+								lang::MpItmId tyName = *tyNameOpt;
 								if (tyName == mpc::STD_BOOL)
 									canTrue = canFalse = true;
 								else if (tyName == mpc::STD_BOOL_TRUE)

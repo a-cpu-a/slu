@@ -287,7 +287,7 @@ namespace slu::paint
 			paintTable<nameTok>(se, var);
 		},
 		varcase(const parse::ExprType::Function&) {
-			paintFuncDef(se, var, parse::MpItmId::newEmpty(), false);
+			paintFuncDef(se, var, lang::MpItmId::newEmpty(), false);
 		},
 		varcase(const parse::ExprType::PatTypePrefix&) {
 			Slu_panic("Pat type prefix leaked outside of pattern parsing!");
@@ -331,7 +331,7 @@ namespace slu::paint
 		);
 	}
 	template<Tok tok, Tok overlayTok=Tok::NONE,AnySemOutput Se>
-	inline void paintMp(Se& se, const parse::MpItmId& itm)
+	inline void paintMp(Se& se, const lang::MpItmId& itm)
 	{
 		skipSpace(se);
 		if(parse::checkToken(se.in,":>"))
@@ -442,9 +442,9 @@ namespace slu::paint
 		);
 	}
 	template<Tok tok, AnySemOutput Se>
-	inline void paintNameList(Se& se, const std::vector<parse::MpItmId>& itm)
+	inline void paintNameList(Se& se, const std::vector<lang::MpItmId>& itm)
 	{
-		for (const parse::MpItmId& i : itm)
+		for (const lang::MpItmId& i : itm)
 		{
 			paintName<tok>(se, i);
 
@@ -574,14 +574,14 @@ namespace slu::paint
 			paintKw<Tok::PUNCTUATION>(se, "...");
 	}
 	template<Tok baseCol,AnySemOutput Se>
-	inline void paintExportData(Se& se, parse::ExportData exported)
+	inline void paintExportData(Se& se, lang::ExportData exported)
 	{
 		if (exported)
 			paintKw<baseCol, Tok::EX_TINT>(se, "ex");
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDecl(Se& se, const parse::ParamList<true>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const parse::MpItmId name, const lang::ExportData exported,const ast::OptSafety safety, const ast::Position pos = {}, const bool fnKw = false)
+	inline void paintFuncDecl(Se& se, const parse::ParamList<true>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const lang::MpItmId name, const lang::ExportData exported,const ast::OptSafety safety, const ast::Position pos = {}, const bool fnKw = false)
 	{
 		paintExportData<Tok::FN_STAT>(se, exported);
 		paintSafety(se, safety);
@@ -622,7 +622,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function& func, const parse::MpItmId name,const lang::ExportData exported, const ast::Position pos = {},const bool fnKw=false)
+	inline void paintFuncDef(Se& se, const parse::Function& func, const lang::MpItmId name,const lang::ExportData exported, const ast::Position pos = {},const bool fnKw=false)
 	{
 		std::optional<std::unique_ptr<parse::Expr>> emptyTy{};
 		const std::optional<std::unique_ptr<parse::Expr>>* retType;
@@ -682,7 +682,7 @@ namespace slu::paint
 		varcase(const parse::UseVariantType::LIST_OF_STUFF&) {
 			paintKw<Tok::MP>(se, "::");
 			paintKw<Tok::BRACES>(se, "{");
-			for (const parse::MpItmId& i : var)
+			for (const lang::MpItmId& i : var)
 			{
 				paintMp<Tok::NAME>(se, i);
 

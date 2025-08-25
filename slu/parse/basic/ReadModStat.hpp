@@ -14,12 +14,12 @@ import slu.parse.input;
 namespace slu::parse
 {
 	template<AnyInput In>
-	inline bool readModStat(In& in, const ast::Position place, const ExportData exported)
+	inline bool readModStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
 			std::string name = readName(in);
-			const MpItmId modName = in.genData.addLocalObj(name);
+			const lang::MpItmId modName = in.genData.addLocalObj(name);
 
 			if (checkReadTextToken(in, "as"))
 			{

@@ -18,9 +18,6 @@ import slu.parse.input;
 
 namespace slu::parse
 {
-	using lang::LocalObjId;
-	using lang::ModPathId;
-	using lang::AnyMp;
 
 	const size_t NORMAL_SCOPE = SIZE_MAX;
 	const size_t UNSCOPE = SIZE_MAX-1;
@@ -77,10 +74,10 @@ namespace slu::parse
 
 	struct TraitFn
 	{
-		parse::MpItmId name;
+		lang::MpItmId name;
 		std::vector<ResolvedType> args;
 		ResolvedType ret;
-		parse::ExportData exported;
+		lang::ExportData exported;
 
 	};
 	namespace ItmType
@@ -98,13 +95,13 @@ namespace slu::parse
 			std::string abi;
 			ResolvedType ret;
 			std::vector<ResolvedType> args;
-			std::vector<LocalId> argLocals;//Only for non decl functions
-			parse::ExportData exported;
+			std::vector<parse::LocalId> argLocals;//Only for non decl functions
+			lang::ExportData exported;
 		};
 		struct NamedTypeImpls
 		{
 			constexpr static std::string_view NAME = "unknown-type"sv;
-			std::vector<parse::MpItmId> impls;
+			std::vector<lang::MpItmId> impls;
 		};
 		struct TypeFn : Fn, NamedTypeImpls
 		{
@@ -131,15 +128,15 @@ namespace slu::parse
 		struct Trait
 		{
 			constexpr static std::string_view NAME = "trait"sv;
-			std::vector<parse::MpItmId> consts;
+			std::vector<lang::MpItmId> consts;
 			std::vector<TraitFn> fns;
-			parse::ExportData exported;
+			lang::ExportData exported;
 			//TODO: where clauses
 		};
 		struct Impl
 		{
 			constexpr static std::string_view NAME = "impl"sv;
-			parse::ExportData exported;
+			lang::ExportData exported;
 			//TODO: impl data (params, impl-consts, impl-fn's, where clauses)
 		};
 		struct Alias//TODO something for ::* use's
@@ -165,25 +162,25 @@ namespace slu::parse
 		ItmType::Module
 	>;
 
-	using MpItmName2Obj = std::unordered_map<std::string, LocalObjId, _ew_string_haah, _ew_string_eq>;
+	using MpItmName2Obj = std::unordered_map<std::string, lang::LocalObjId, _ew_string_haah, _ew_string_eq>;
 	struct BasicModPathData
 	{
-		ModPath path;
+		lang::ModPath path;
 		MpItmName2Obj name2Id;
 		std::vector<std::string> id2Name;
-		std::vector<Itm> id2Itm;
+		std::vector<parse::Itm> id2Itm;
 
-		void addItm(LocalObjId obj,Itm&& v)
+		void addItm(lang::LocalObjId obj,Itm&& v)
 		{
 			if (id2Itm.size() <= obj.val)
 				id2Itm.resize(obj.val + 1);
 			id2Itm[obj.val] = std::move(v);
 		}
 
-		LocalObjId at(const std::string_view name) const {
+		lang::LocalObjId at(const std::string_view name) const {
 			return name2Id.find(name)->second;
 		}
-		LocalObjId get(std::string_view name)
+		lang::LocalObjId get(std::string_view name)
 		{
 			auto p = name2Id.find(name);
 			if (p == name2Id.end())
@@ -197,7 +194,7 @@ namespace slu::parse
 			}
 			return p->second;
 		}
-		LocalObjId get(std::string&& name)
+		lang::LocalObjId get(std::string&& name)
 		{
 			auto p = name2Id.find(name);
 			if (p == name2Id.end())
@@ -213,12 +210,12 @@ namespace slu::parse
 		}
 
 		BasicModPathData() = default;
-		BasicModPathData(ModPath&& path) :path(std::move(path)) {}
+		BasicModPathData(lang::ModPath&& path) :path(std::move(path)) {}
 		BasicModPathData(const BasicModPathData&) = delete;
 		BasicModPathData(BasicModPathData&&) = default;
 		BasicModPathData& operator=(BasicModPathData&&) = default;
 	};
-	using Mp2MpIdMap = std::unordered_map<ModPath, ModPathId, lang::HashModPathView, lang::EqualModPathView>;
+	using Mp2MpIdMap = std::unordered_map<lang::ModPath, lang::ModPathId, lang::HashModPathView, lang::EqualModPathView>;
 	template<size_t N>
 	inline void initMpData(Mp2MpIdMap& mp2Id,BasicModPathData& mp, const mpc::MpcMp<N>& data,size_t itmCount)
 	{
@@ -237,7 +234,7 @@ namespace slu::parse
 	struct BasicMpDbData
 	{
 		Mp2MpIdMap mp2Id;
-		std::vector<BasicModPathData> mps;
+		std::vector<parse::BasicModPathData> mps;
 
 		BasicMpDbData() {
 			using namespace std::string_view_literals;
@@ -266,51 +263,51 @@ namespace slu::parse
 #undef _Slu_INIT_MP
 		}
 
-		const Itm& getItm(const MpItmId name) const {
+		const Itm& getItm(const lang::MpItmId name) const {
 			return mps[name.mp.id].id2Itm[name.id.val];
 		}
 
 		//Returns empty if not found
-		const PoolString getPoolStr(std::string_view txt) const {
+		const lang::PoolString getPoolStr(std::string_view txt) const {
 			auto p = mps[mpc::MP_UNKNOWN.idx()].name2Id.find(txt);
 			if (p == mps[mpc::MP_UNKNOWN.idx()].name2Id.end())
-				return PoolString::newEmpty();
-			return PoolString{ p->second };
+				return lang::PoolString::newEmpty();
+			return lang::PoolString{ p->second };
 		}
 
-		ModPath getMp(const MpItmId name)const 
+		lang::ModPath getMp(const lang::MpItmId name)const
 		{
 			const BasicModPathData& data = mps[name.mp.id];
-			ModPath res;
+			lang::ModPath res;
 			res.reserve(data.path.size() + 1);
 			res.insert(res.end(), data.path.begin(), data.path.end());
 			res.push_back(data.id2Name[name.id.val]);
 			return res;
 		}
 
-		MpItmId getItm(const AnyMp auto& path) const
+		lang::MpItmId getItm(const lang::AnyMp auto& path) const
 		{
 			if (path.size() == 1)
 			{
 				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
 			}
-			MpItmId res;
+			lang::MpItmId res;
 			res.mp = mp2Id.find(path.subspan(0, path.size() - 1))->second;
 			res.id = mps[res.mp.id].at(path.back());
 			return res;
 		}
-		MpItmId getItm(const std::initializer_list<std::string_view>& path) const {
+		lang::MpItmId getItm(const std::initializer_list<std::string_view>& path) const {
 			return getItm((lang::ViewModPathView)path);
 		}
 
-		std::string_view getSv(const PoolString v) const {
+		std::string_view getSv(const lang::PoolString v) const {
 			if (v.val == SIZE_MAX)
 				return {};//empty
 			return mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
 	};
 	template<class T, bool followAlias=false>
-	inline const T& getItm(const BasicMpDbData& mpDb,const MpItmId name)
+	inline const T& getItm(const BasicMpDbData& mpDb,const lang::MpItmId name)
 	{
 		return *ezmatch(mpDb.getItm(name))(
 		[&]<class T2>(const T2& var)->const T* {
@@ -324,7 +321,7 @@ namespace slu::parse
 		}
 		);
 	}
-	inline MpItmId resolveAlias(const BasicMpDbData& mpDb,const MpItmId name)
+	inline lang::MpItmId resolveAlias(const BasicMpDbData& mpDb,const lang::MpItmId name)
 	{
 		return ezmatch(mpDb.getItm(name))(
 		varcase(const auto&) {
@@ -339,69 +336,68 @@ namespace slu::parse
 	{
 		BasicMpDbData* data;
 
-
-		bool isUnknown(MpItmId n) const
+		bool isUnknown(lang::MpItmId n) const
 		{
 			if (n.mp.id == mpc::MP_UNKNOWN.idx())
 				return true;//Hardcoded as always unknown.
 			//Else: check if first part is empty
 			return data->mps[n.mp.id].path[0].empty();
 		}
-		PoolString poolStr(const std::string_view name) {
+		lang::PoolString poolStr(const std::string_view name) {
 			return data->mps[mpc::MP_UNKNOWN.idx()].get(name);
 		}
-		MpItmId resolveUnknown(const std::string_view name) {
-			return MpItmId{poolStr(name), { mpc::MP_UNKNOWN.idx() }};
+		lang::MpItmId resolveUnknown(const std::string_view name) {
+			return lang::MpItmId{poolStr(name), { mpc::MP_UNKNOWN.idx() }};
 		}
 
 		template<bool unknown>
-		ModPathId get(const ModPathView path)
+		lang::ModPathId get(const lang::ModPathView path)
 		{
 			if (!data->mp2Id.contains(path))
 			{
 				const size_t res = data->mps.size();
 
-				data->mp2Id.emplace(ModPath(path.begin(), path.end()), res);
+				data->mp2Id.emplace(lang::ModPath(path.begin(), path.end()), res);
 
 				if constexpr (unknown)
 				{
-					ModPath tmp;
+					lang::ModPath tmp;
 					tmp.reserve(1 + path.size());
 					tmp.push_back("");
 					tmp.insert(tmp.end(),path.begin(), path.end());
 					data->mps.emplace_back(std::move(tmp));
 				}
 				else
-					data->mps.emplace_back(ModPath(path.begin(), path.end()));
+					data->mps.emplace_back(lang::ModPath(path.begin(), path.end()));
 
 				return { res };
 			}
 			return data->mp2Id.find(path)->second;
 		}
 
-		MpItmId getItm(const ModPathView path)
+		lang::MpItmId getItm(const lang::ModPathView path)
 		{
 			if (path.size() == 1)
 			{
 				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
 			}
-			MpItmId res;
+			lang::MpItmId res;
 			res.mp = get<false>(path.subspan(0,path.size()-1));
 			res.id = data->mps[res.mp.id].get(path.back());
 			return res;
 		}
 
-		std::string_view asSv(const MpItmId v) const {
+		std::string_view asSv(const lang::MpItmId v) const {
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
 			return data->mps[v.mp.id].id2Name[v.id.val];
 		}
-		std::string_view asSv(const PoolString v) const {
+		std::string_view asSv(const lang::PoolString v) const {
 			if (v.val == SIZE_MAX)
 				return {};//empty
 			return data->mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
-		lang::ViewModPath asVmp(const MpItmId v) const {
+		lang::ViewModPath asVmp(const lang::MpItmId v) const {
 			if (v.id.val == SIZE_MAX)
 				return {};//empty
 			const BasicModPathData& mp = data->mps[v.mp.id];
@@ -420,11 +416,11 @@ namespace slu::parse
 		}
 	};
 
-	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, MpItmId thiz){
+	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, lang::MpItmId thiz){
 		return BasicMpDb{ data }.asSv(thiz);
 	}
 
-	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, MpItmId thiz){
+	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, lang::MpItmId thiz){
 		return BasicMpDb{ data }.asVmp(thiz);
 	}
 
@@ -451,8 +447,8 @@ namespace slu::parse
 		std::vector<LocalsV<isSlu>> localsStack;
 		BasicMpDb mpDb;
 		std::vector<BasicGenScopeV<isSlu>> scopes;
-		std::vector<LocalId> anonScopeCounts;
-		ModPath totalMp;
+		std::vector<parse::LocalId> anonScopeCounts;
+		lang::ModPath totalMp;
 
 		/*
 		All local names (no ::'s) are defined in THIS file, or from a `use ::*` (potentialy std::prelude::*)
@@ -475,13 +471,13 @@ namespace slu::parse
 
 		*/
 
-		std::string_view asSv(const PoolString id) const {
+		std::string_view asSv(const lang::PoolString id) const {
 			return mpDb.asSv(id);
 		}
-		std::string_view asSv(const MpItmId id) const {
+		std::string_view asSv(const lang::MpItmId id) const {
 			return mpDb.asSv(id);
 		}
-		lang::ViewModPath asVmp(const MpItmId v) const {
+		lang::ViewModPath asVmp(const lang::MpItmId v) const {
 			return { mpDb.asVmp(v)};
 		}
 
@@ -605,7 +601,7 @@ namespace slu::parse
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}
-		constexpr MpItmId addLocalObj(const std::string& name)
+		constexpr lang::MpItmId addLocalObj(const std::string& name)
 		{
 			size_t mpPopCount = 0;
 			for (auto& i : std::views::reverse(scopes))
@@ -615,10 +611,10 @@ namespace slu::parse
 					i.objs.push_back(name);
 					if constexpr (isSlu)
 					{
-						auto mpView = ModPathView(totalMp).subspan(0, totalMp.size() - mpPopCount);
-						ModPathId mp = mpDb.template get<false>(mpView);
-						LocalObjId id = mpDb.data->mps[mp.id].get(name);
-						return MpItmId{id, mp};
+						auto mpView = lang::ModPathView(totalMp).subspan(0, totalMp.size() - mpPopCount);
+						lang::ModPathId mp = mpDb.template get<false>(mpView);
+						lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
+						return lang::MpItmId{id, mp};
 					}
 					else
 						return resolveUnknown(name);
@@ -667,28 +663,28 @@ namespace slu::parse
 				const std::optional<size_t> v = resolveLocalOpt(name);
 				if (v.has_value())
 				{
-					ModPathId mp = mpDb.template get<false>(
-						ModPathView(totalMp).subspan(0, totalMp.size() -  *v)
+					lang::ModPathId mp = mpDb.template get<false>(
+						lang::ModPathView(totalMp).subspan(0, totalMp.size() -  *v)
 					);
-					LocalObjId id = mpDb.data->mps[mp.id].get(name);
-					return MpItmId{id, mp};
+					lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
+					return lang::MpItmId{id, mp};
 				}
 			}
 			return resolveUnknown(name);
 		}
-		constexpr MpItmId resolveName(const std::string& name)
+		constexpr lang::MpItmId resolveName(const std::string& name)
 		{
 			if constexpr (isSlu)
 			{
 				return ezmatch(resolveNameOrLocal(name))(
-					varcase(const LocalId) { return localsStack.back().names[var.v]; },
-					varcase(const MpItmId) {return var;	}
+					varcase(const parse::LocalId) { return localsStack.back().names[var.v]; },
+					varcase(const lang::MpItmId) {return var;	}
 					);
 			}
 			else
 				return resolveNameOrLocal(name);
 		}
-		constexpr MpItmId resolveRootName(const ModPath& name) {
+		constexpr lang::MpItmId resolveRootName(const lang::ModPath& name) {
 			return mpDb.getItm(name);// Create if needed, and return it
 		}
 		constexpr size_t countScopes() const
@@ -703,7 +699,7 @@ namespace slu::parse
 			}
 			return val;
 		}
-		constexpr MpItmId resolveName(const ModPath& name)
+		constexpr lang::MpItmId resolveName(const lang::ModPath& name)
 		{
 			if (name.size() == 1)
 				return resolveName(name[0]);//handles self implicitly!!!
@@ -726,7 +722,7 @@ namespace slu::parse
 
 			if (v.has_value())
 			{
-				ModPath mpSum;
+				lang::ModPath mpSum;
 				mpSum.reserve((totalMp.size() - *v) + (name.size() - 2));
 
 				for (size_t i = 0; i < totalMp.size() - *v; i++)
@@ -734,10 +730,10 @@ namespace slu::parse
 				for (size_t i = remFirst?1:0; i < name.size()-1; i++)
 					mpSum.push_back(name[i]);
 
-				ModPathId mp = mpDb.template get<false>(ModPathView(mpSum));
+				lang::ModPathId mp = mpDb.template get<false>(lang::ModPathView(mpSum));
 
-				LocalObjId id = mpDb.data->mps[mp.id].get(name.back());
-				return MpItmId{id,mp};
+				lang::LocalObjId id = mpDb.data->mps[mp.id].get(name.back());
+				return lang::MpItmId{id,mp};
 			}
 			return resolveUnknown(name);
 		}
@@ -752,7 +748,7 @@ namespace slu::parse
 			{
 				auto& stack = localsStack.back();
 				stack.names.push_back(n);
-				return LocalId(stack.names.size() - 1);
+				return parse::LocalId(stack.names.size() - 1);
 			}
 			else
 				return n;
@@ -767,40 +763,40 @@ namespace slu::parse
 			{
 				auto& stack = localsStack.back();
 				stack.names.push_back(n);
-				return LocalId(stack.names.size() - 1);
+				return parse::LocalId(stack.names.size() - 1);
 			}
 			else
 				return n;
 		}
 		// .XXX, XXX, :XXX
-		constexpr MpItmId resolveUnknown(const std::string& name)
+		constexpr lang::MpItmId resolveUnknown(const std::string& name)
 		{
 			if constexpr(isSlu)
 				return mpDb.resolveUnknown(name);
 			else
 			{
-				LocalObjId id = mpDb.get(name);
-				return MpItmId{id};
+				lang::LocalObjId id = mpDb.get(name);
+				return lang::MpItmId{id};
 			}
 		}
-		PoolString poolStr(std::string&& name) 
+		lang::PoolString poolStr(std::string&& name)
 		{
 			if constexpr (isSlu)
 				return mpDb.data->mps[mpc::MP_UNKNOWN.idx()].get(std::move(name));
 			else
 				return mpDb.get(std::move(name));
 		}
-		constexpr MpItmId resolveUnknown(const ModPath& name)
+		constexpr lang::MpItmId resolveUnknown(const lang::ModPath& name)
 		{
-			ModPathId mp = mpDb.template get<true>(
-				ModPathView(name).subspan(0, name.size() - 1) // All but last elem
+			lang::ModPathId mp = mpDb.template get<true>(
+				lang::ModPathView(name).subspan(0, name.size() - 1) // All but last elem
 			);
-			LocalObjId id = mpDb.data->mps[mp.id].get(name.back());
-			return MpItmId{id,mp};
+			lang::LocalObjId id = mpDb.data->mps[mp.id].get(name.back());
+			return lang::MpItmId{id,mp};
 		}
-		constexpr MpItmId resolveEmpty()
+		constexpr lang::MpItmId resolveEmpty()
 		{
-			return MpItmId::newEmpty();
+			return lang::MpItmId::newEmpty();
 		}
 	};
 }

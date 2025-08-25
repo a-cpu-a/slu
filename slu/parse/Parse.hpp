@@ -253,7 +253,7 @@ namespace slu::parse
 		}
 	}
 	template<bool isLoop,AnyInput In>
-	inline bool readTchStat(In& in, const ast::Position place, const ExportData exported)
+	inline bool readTchStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (checkReadTextToken(in, "trait"))
 		{
@@ -285,7 +285,7 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline bool readIchStat(In& in, const ast::Position place, const ExportData exported, const ast::OptSafety safety,const bool hasDefer,const bool allowVarArg)
+	inline bool readIchStat(In& in, const ast::Position place, const lang::ExportData exported, const ast::OptSafety safety,const bool hasDefer,const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
@@ -344,7 +344,7 @@ namespace slu::parse
 	}
 
 	template<bool isLoop,AnyInput In>
-	inline bool readUchStat(In& in, const ast::Position place, const ExportData exported)
+	inline bool readUchStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (in.isOob(2))
 			return false;
@@ -443,7 +443,7 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline bool readFchStat(In& in, const ast::Position place, const ExportData exported,const ast::OptSafety safety, const bool allowVarArg)
+	inline bool readFchStat(In& in, const ast::Position place, const lang::ExportData exported,const ast::OptSafety safety, const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
@@ -503,7 +503,7 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline bool readLchStat(In& in, const ast::Position place, const ExportData exported, const bool allowVarArg)
+	inline bool readLchStat(In& in, const ast::Position place, const lang::ExportData exported, const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
@@ -533,7 +533,7 @@ namespace slu::parse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline bool readCchStat(In& in, const ast::Position place, const ExportData exported, const bool allowVarArg)
+	inline bool readCchStat(In& in, const ast::Position place, const lang::ExportData exported, const bool allowVarArg)
 	{
 		if (in.isOob(2))
 			return false;
@@ -561,7 +561,7 @@ namespace slu::parse
 
 
 	template<bool isLoop,AnyInput In>
-	inline bool readSchStat(In& in, const ast::Position place, const ExportData exported)
+	inline bool readSchStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (in.isOob(1))
 			return false;
@@ -606,7 +606,7 @@ namespace slu::parse
 	template<bool isLoop,class StatT,class DeclStatT, AnyInput In>
 	inline void readFunctionStat(In& in, 
 		const ast::Position place, const bool allowVarArg, 
-		const ExportData exported, const ast::OptSafety safety)
+		const lang::ExportData exported, const ast::OptSafety safety)
 	{
 		StatT res{};
 		std::string name;//moved @ readFuncBody
@@ -677,7 +677,7 @@ namespace slu::parse
 		return res;
 	}
 	template<bool isLocal, bool isLoop, class StatT, AnyInput In >
-	inline void readVarStat(In& in, const ast::Position place, const bool allowVarArg, const ExportData exported)
+	inline void readVarStat(In& in, const ast::Position place, const bool allowVarArg, const lang::ExportData exported)
 	{
 		StatT res;
 		skipSpace(in);

@@ -31,7 +31,7 @@ namespace slu::parse
 	inline ::slu::parse::ExprDataV<isSlu> mkFieldIdx(
 		::slu::ast::Position place,
 		auto name,//name or local
-		::slu::parse::PoolString field)
+		::slu::lang::PoolString field)
 	{
 		return 
 			::slu::parse::ExprType::FieldV<isSlu>{
@@ -42,7 +42,7 @@ namespace slu::parse
 	inline ::slu::parse::Expr mkFieldIdxExpr(
 		::slu::ast::Position place, 
 		auto name,//name or local
-		::slu::parse::PoolString field)
+		::slu::lang::PoolString field)
 	{
 		return { mkFieldIdx(place,name,field),
 				place };

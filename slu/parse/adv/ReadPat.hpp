@@ -39,7 +39,7 @@ namespace slu::parse
 			{
 				requireToken(in, "|");
 				skipSpace(in);
-				PoolString fieldName = in.genData.poolStr(readSluTuplableName(in));
+				lang::PoolString fieldName = in.genData.poolStr(readSluTuplableName(in));
 				requireToken(in, "|");
 				skipSpace(in);
 

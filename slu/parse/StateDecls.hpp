@@ -17,8 +17,6 @@ import slu.parse.input;
 
 namespace slu::parse
 {
-	using lang::MpItmId;
-
 	template<bool flag, class FalseT, class TrueT>
 	using Sel = std::conditional_t<flag, TrueT,FalseT>;
 
@@ -57,6 +55,7 @@ namespace slu::parse
 	struct Stat;
 	struct Expr;
 	using BoxExpr = std::unique_ptr<Expr>;
+	using ExprList = std::vector<Expr>;
 
 	namespace FieldType
 	{
@@ -65,9 +64,6 @@ namespace slu::parse
 		struct Name2Expr;
 		using parse::Expr;
 	}
-
-	using ExprList = std::vector<Expr>;
-
 	namespace ExprType
 	{
 		struct OpenRange {};
@@ -82,11 +78,5 @@ namespace slu::parse
 		using P128 = Integer128<false>;
 		using M128 = Integer128<false, true>;
 	}
-
-	using slu::lang::ModPath;
-	using slu::lang::ModPathView;
-	using slu::lang::ExportData;
 	using SubModPath = std::vector<std::string>;
-
-	using PoolString = lang::LocalObjId;//implicitly unknown mp.
 }

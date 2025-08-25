@@ -52,16 +52,16 @@ namespace slu::paint
 		se.in.skip(name.size());
 	}
 	template<Tok tok, Tok overlayTok, bool SKIP_SPACE = true, AnySemOutput Se>
-	inline void paintName(Se& se, const parse::MpItmId& f) {
+	inline void paintName(Se& se, const lang::MpItmId& f) {
 		const std::string_view name = se.in.genData.asSv(f);
 		paintName<tok, tok, SKIP_SPACE>(se, name);
 	}
 	template<Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
-	inline void paintName(Se& se, const parse::MpItmId& f) {
+	inline void paintName(Se& se, const lang::MpItmId& f) {
 		paintName<tok, tok, SKIP_SPACE>(se, f);
 	}
 	template<Tok tok = Tok::NAME, bool SKIP_SPACE = true, AnySemOutput Se>
-	inline void paintPoolStr(Se& se, const parse::PoolString f) {
+	inline void paintPoolStr(Se& se, const lang::PoolString f) {
 		const std::string_view name = se.in.genData.asSv(f);
 		paintName<tok, tok, SKIP_SPACE>(se, name);
 	}

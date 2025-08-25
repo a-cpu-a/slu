@@ -44,9 +44,9 @@ namespace slu::mlvl
 		static constexpr bool isSlu = true;
 
 		parse::BasicMpDb mpDb;
-		LazyCompute<parse::MpItmId> unOpFuncs[(size_t)ast::UnOpType::ENUM_SIZE];
-		LazyCompute<parse::MpItmId> postUnOpFuncs[(size_t)ast::PostUnOpType::ENUM_SIZE];
-		LazyCompute<parse::MpItmId> binOpFuncs[(size_t)ast::BinOpType::ENUM_SIZE];
+		LazyCompute<lang::MpItmId> unOpFuncs[(size_t)ast::UnOpType::ENUM_SIZE];
+		LazyCompute<lang::MpItmId> postUnOpFuncs[(size_t)ast::PostUnOpType::ENUM_SIZE];
+		LazyCompute<lang::MpItmId> binOpFuncs[(size_t)ast::BinOpType::ENUM_SIZE];
 
 		// Note: Implicit bottom item: 'Any' or 'Slu'
 		std::vector<std::string> abiStack;
@@ -112,7 +112,7 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::Expr>>&& ret, parse::ParamList<true>& params,parse::ExportData exported,const bool hasCode)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::Expr>>&& ret, parse::ParamList<true>& params,lang::ExportData exported,const bool hasCode)
 		{
 			auto& localMp = *mpDataStack.back();
 
@@ -220,7 +220,7 @@ namespace slu::mlvl
 		//	lang::ModPathId mp = mpStack.back();
 		//	auto& mpData = mpDb.data->mps[mp.id];
 		//	lang::LocalObjId obj = { mpData.id2Name.size() };
-		//	parse::MpItmId name = {obj, mp};
+		//	lang::MpItmId name = {obj, mp};
 		//
 		//	std::string synName = parse::getAnonName(obj.val);
 		//
@@ -281,7 +281,7 @@ namespace slu::mlvl
 					patStack.push_back(&i);
 				for (size_t i = 0; i < itm.items.size(); i++)
 				{
-					parse::PoolString index = mpDb.poolStr("0x" + parse::u64ToStr(i));
+					lang::PoolString index = mpDb.poolStr("0x" + parse::u64ToStr(i));
 					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place, itm.name, index));
 				}
 			}
@@ -462,7 +462,7 @@ namespace slu::mlvl
 		{
 			ast::Position place = expr.place;
 			//Wrap
-			parse::MpItmId name;
+			lang::MpItmId name;
 			parse::Lifetime* lifetime = nullptr;
 
 			if (isSufOp)
@@ -483,7 +483,7 @@ namespace slu::mlvl
 						return mpDb.getItm(name);
 					}
 					//TODO: special handling for '?'. -> defer to after type checking / inference?
-					return parse::MpItmId::newEmpty();
+					return lang::MpItmId::newEmpty();
 					});
 			}
 			else

@@ -518,12 +518,12 @@ namespace slu::comp::mico
 		|| std::same_as<T, parse::StatType::SafeLabel>;
 
 
-	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,parse::MpItmId name,ast::Position place, const parse::ItmType::Fn* funcItmOrNull)
+	inline GlobElemTy::Fn* getOrDeclFn(ConvData& conv,lang::MpItmId name,ast::Position place, const parse::ItmType::Fn* funcItmOrNull)
 	{
 		auto* mc = &conv.context;
 		mlir::OpBuilder& builder = conv.builder;
 
-		parse::MpItmId realName = name;
+		lang::MpItmId realName = name;
 		{
 			GlobElem* funcInfo = conv.getElement(realName);
 			if (funcInfo != nullptr)

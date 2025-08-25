@@ -304,7 +304,7 @@ namespace slu::parse
 			auto optName = getStructName();
 			if (!optName.has_value()) return false;
 
-			MpItmId name = *optName;
+			lang::MpItmId name = *optName;
 			return name == mpc::STD_BOOL
 				|| name == mpc::STD_BOOL_FALSE
 				|| name == mpc::STD_BOOL_TRUE;

@@ -36,7 +36,7 @@ namespace slu::parse
 		return res;
 	}
 	template<class T,bool structOnly,AnyInput In>
-	inline void readStructStat(In& in, const ast::Position place, const ExportData exported)
+	inline void readStructStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		in.genData.pushLocalScope();
 		T res{};

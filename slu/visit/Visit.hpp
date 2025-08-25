@@ -54,12 +54,12 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(String);
 	}
 	template<AnyVisitor Vi>
-	inline void visitName(Vi& vi, parse::MpItmId& itm)
+	inline void visitName(Vi& vi, lang::MpItmId& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Name);
 	}
 	template<AnyVisitor Vi>
-	inline void visitPoolString(Vi& vi, parse::PoolString& itm)
+	inline void visitPoolString(Vi& vi, lang::PoolString& itm)
 	{
 		//TODO
 	}
@@ -73,12 +73,12 @@ namespace slu::visit
 			visitName(vi, itm);
 	}
 	template<AnyVisitor Vi>
-	inline void visitMp(Vi& vi, parse::MpItmId& itm)
+	inline void visitMp(Vi& vi, lang::MpItmId& itm)
 	{
 		//TODO
 	}
 	template<AnyVisitor Vi>
-	inline void visitExported(Vi& vi, const parse::ExportData itm)
+	inline void visitExported(Vi& vi, const lang::ExportData itm)
 	{
 		//TODO
 	}

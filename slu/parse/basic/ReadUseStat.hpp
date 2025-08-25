@@ -14,7 +14,7 @@ import slu.parse.input;
 namespace slu::parse
 {
 	template<AnyInput In>
-	inline bool readUseStat(In& in, const ast::Position place, const ExportData exported)
+	inline bool readUseStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (checkReadTextToken(in, "use"))
 		{
@@ -30,7 +30,7 @@ namespace slu::parse
 				root = true;
 			}
 
-			ModPath mp = readModPath(in);//Moved @ IMPORT
+			lang::ModPath mp = readModPath(in);//Moved @ IMPORT
 			res.base = root? in.genData.resolveRootName(mp) :in.genData.resolveName(mp);
 
 			if (in.peek() == ':')

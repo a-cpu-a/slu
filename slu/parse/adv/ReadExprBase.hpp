@@ -22,9 +22,9 @@ import slu.parse.input;
 namespace slu::parse
 {
 	template<AnyInput In>
-	inline std::pair<ModPath,bool> readModPath(In& in,const std::string& start)
+	inline std::pair<lang::ModPath,bool> readModPath(In& in,const std::string& start)
 	{
-		ModPath mp = { start };
+		lang::ModPath mp = { start };
 		bool skipped = skipSpace(in);
 		while (checkToken(in, "::"))
 		{
@@ -40,7 +40,7 @@ namespace slu::parse
 		return { mp, skipped };
 	}
 	template<AnyInput In>
-	inline ModPath readModPath(In& in) {
+	inline lang::ModPath readModPath(In& in) {
 		return readModPath(in, readName<NameCatagory::MP_START>(in)).first;
 	}
 	//Unlike readModPath, doesnt have the ability to do things like `self::xyz`
@@ -87,10 +87,10 @@ namespace slu::parse
 		if (mp.size() == 1)
 		{
 			ezmatch(in.genData.resolveNameOrLocal(mp[0]))(
-				varcase(const LocalId) {
+				varcase(const parse::LocalId) {
 				varDataOut = ExprType::Local(var);
 			},
-				varcase(const MpItmId) {
+				varcase(const lang::MpItmId) {
 				varDataOut = ExprType::Global<In>(var);
 			}
 				);
@@ -279,7 +279,7 @@ namespace slu::parse
 				}
 				in.skip();//skip dot
 
-				PoolString name = in.genData.poolStr(readSluTuplableName(in));
+				lang::PoolString name = in.genData.poolStr(readSluTuplableName(in));
 
 				skipSpace(in);
 				if (in)

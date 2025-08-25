@@ -54,21 +54,21 @@ namespace slu::parse
 	{
 		size_t v = SIZE_MAX;
 		constexpr bool empty() const { return v == SIZE_MAX; }
-		constexpr static LocalId newEmpty() { return LocalId(); }
+		constexpr static parse::LocalId newEmpty() { return parse::LocalId(); }
 	};
 	template<bool isSlu, bool isLocal>
-	using LocalOrNameV = Sel<isLocal, MpItmId, LocalId>;
+	using LocalOrNameV = Sel<isLocal, lang::MpItmId, parse::LocalId>;
 	Slu_DEF_CFG2(LocalOrName, isLocal);
 	template<bool isSlu>
 	struct LocalsV
 	{
-		std::vector<MpItmId> names;
+		std::vector<lang::MpItmId> names;
 		std::vector<parse::ResolvedType> types;//Empty until type checking.
 	};
 	Slu_DEF_CFG(Locals);
 
 	template<bool isSlu>
-	using DynLocalOrNameV = std::variant<MpItmId, LocalId>;
+	using DynLocalOrNameV = std::variant<lang::MpItmId, parse::LocalId>;
 
 	enum class RetType : uint8_t
 	{
@@ -153,15 +153,15 @@ namespace slu::parse
 	struct SelfCall : ExprUserExpr<boxed>
 	{
 		Args args;
-		MpItmId method;//may be unresolved, or itm=trait-fn, or itm=fn
+		lang::MpItmId method;//may be unresolved, or itm=trait-fn, or itm=fn
 	};
 
 	namespace ExprType
 	{
 		struct MpRoot {};		// ":>"
-		using Local = LocalId;
+		using Local = parse::LocalId;
 		template<bool isSlu>
-		using GlobalV = MpItmId;
+		using GlobalV = lang::MpItmId;
 		Slu_DEF_CFG(Global);
 
 		template<bool isSlu> // "(" exp ")"
@@ -176,7 +176,7 @@ namespace slu::parse
 
 		template<bool isSlu> // exp "." Name
 		struct FieldV : ExprUserExpr<true> {
-			PoolString field;
+			lang::PoolString field;
 		};
 		Slu_DEF_CFG(Field);
 
@@ -207,7 +207,7 @@ namespace slu::parse
 		|| std::same_as<T, ExprType::I64>;
 
 	//Slu
-	using Lifetime = std::vector<MpItmId>;
+	using Lifetime = std::vector<lang::MpItmId>;
 	struct UnOpItem
 	{
 		Lifetime life;
@@ -488,7 +488,7 @@ namespace slu::parse
 	template<bool isSlu, bool isLocal>
 	struct DestrFieldV
 	{
-		PoolString name;// |(...)| thingy
+		lang::PoolString name;// |(...)| thingy
 		PatV<isSlu,isLocal> pat;//May be any type of pattern
 	};
 	Slu_DEF_CFG2(DestrField,isLocal);
@@ -532,13 +532,13 @@ namespace slu::parse
 	namespace FieldType
 	{
 		struct Expr2Expr { parse::Expr idx; parse::Expr v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		struct Name2Expr { MpItmId idx; parse::Expr v; };	// "Name ‘=’ exp"
+		struct Name2Expr { lang::MpItmId idx; parse::Expr v; };	// "Name ‘=’ exp"
 	}
 
 	template<bool isSlu>
 	struct AttribNameV
 	{
-		MpItmId name;
+		lang::MpItmId name;
 		std::string attrib;//empty -> no attrib
 	};
 	Slu_DEF_CFG(AttribName);
@@ -546,15 +546,15 @@ namespace slu::parse
 	using AttribNameListV = std::vector<AttribNameV<isSlu>>;
 	Slu_DEF_CFG(AttribNameList);
 	template<bool isSlu>
-	using NameListV = std::vector<MpItmId>;
+	using NameListV = std::vector<lang::MpItmId>;
 	Slu_DEF_CFG(NameList);
 
 	namespace UseVariantType
 	{
 		using EVERYTHING_INSIDE = std::monostate;//use x::*;
-		struct IMPORT { MpItmId name; };// use x::y; //name is inside this mp, base is the imported path.
-		using AS_NAME = MpItmId;//use x as y;
-		using LIST_OF_STUFF = std::vector<MpItmId>;//use x::{self, ...}
+		struct IMPORT { lang::MpItmId name; };// use x::y; //name is inside this mp, base is the imported path.
+		using AS_NAME = lang::MpItmId;//use x as y;
+		using LIST_OF_STUFF = std::vector<lang::MpItmId>;//use x::{self, ...}
 	}
 	using UseVariant = std::variant<
 		UseVariantType::EVERYTHING_INSIDE,
@@ -568,8 +568,8 @@ namespace slu::parse
 		ParamList<true> params;
 		LocalsV<true> local2Mp;
 		TableV<true> type;
-		MpItmId name;
-		ExportData exported = false;
+		lang::MpItmId name;
+		lang::ExportData exported = false;
 	};
 	template<bool isSlu, bool isLocal>
 	struct MaybeLocalsV {
@@ -583,13 +583,13 @@ namespace slu::parse
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		PatV<true, isLocal> names;
 		ExprList exprs;
-		ExportData exported = false;
+		lang::ExportData exported = false;
 	};
 
 	struct WhereClause
 	{
 		TraitExpr bound;
-		MpItmId var;
+		lang::MpItmId var;
 	};
 	using WhereClauses = std::vector<WhereClause>;
 
@@ -606,10 +606,10 @@ namespace slu::parse
 
 
 		template<bool isSlu>
-		struct LabelV { MpItmId v; };		// "label"
+		struct LabelV { lang::MpItmId v; };		// "label"
 		Slu_DEF_CFG(Label);
 		template<bool isSlu>
-		struct GotoV { MpItmId v; };			// "goto Name"
+		struct GotoV { lang::MpItmId v; };			// "goto Name"
 		Slu_DEF_CFG(Goto);
 
 		using parse::BlockV;// "do block end"
@@ -642,11 +642,11 @@ namespace slu::parse
 		struct FuncDefBase
 		{// "function funcname funcbody"    
 			ast::Position place;//Right after func-name
-			MpItmId name; // name may contain dots, 1 colon if !isSlu
+			lang::MpItmId name; // name may contain dots, 1 colon if !isSlu
 			Function func;
 		};
 		struct Function : FuncDefBase<true> {
-			ExportData exported = false;
+			lang::ExportData exported = false;
 		};
 
 		struct Fn : Function {};
@@ -655,8 +655,8 @@ namespace slu::parse
 		struct FunctionDeclV : FunctionInfo
 		{
 			ast::Position place;//Right before func-name
-			MpItmId name;
-			ExportData exported = false;
+			lang::MpItmId name;
+			lang::ExportData exported = false;
 		};
 		Slu_DEF_CFG(FunctionDecl);
 
@@ -681,17 +681,17 @@ namespace slu::parse
 		struct CanonicLocal
 		{
 			ResolvedType type;
-			LocalId name;
+			parse::LocalId name;
 			Expr value;
-			ExportData exported = false;
+			lang::ExportData exported = false;
 		};
 		struct CanonicGlobal
 		{
 			ResolvedType type;
 			LocalsV<true> local2Mp;
-			MpItmId name;
+			lang::MpItmId name;
 			Expr value;
-			ExportData exported = false;
+			lang::ExportData exported = false;
 		};
 
 
@@ -720,11 +720,11 @@ namespace slu::parse
 		struct Trait
 		{
 			WhereClauses clauses;
-			MpItmId name;
+			lang::MpItmId name;
 			ParamList<false> params;
 			StatListV<true> itms;
 			std::optional<TraitExpr> whereSelf;
-			ExportData exported = false;
+			lang::ExportData exported = false;
 		};
 		struct Impl
 		{
@@ -733,7 +733,7 @@ namespace slu::parse
 			std::optional<TraitExpr> forTrait;
 			Expr type;
 			StatListV<true> code;
-			ExportData exported: 1 = false;
+			lang::ExportData exported: 1 = false;
 			bool deferChecking : 1 = false;
 			bool isUnsafe	   : 1 = false;
 		};
@@ -748,16 +748,16 @@ namespace slu::parse
 
 		struct Use
 		{
-			MpItmId base;//the aliased/imported thing, or modpath base
+			lang::MpItmId base;//the aliased/imported thing, or modpath base
 			UseVariant useVariant;
-			ExportData exported = false;
+			lang::ExportData exported = false;
 		};
 
 		template<bool isSlu>
 		struct ModV
 		{
-			MpItmId name;
-			ExportData exported = false;
+			lang::MpItmId name;
+			lang::ExportData exported = false;
 		};
 		Slu_DEF_CFG(Mod);
 
