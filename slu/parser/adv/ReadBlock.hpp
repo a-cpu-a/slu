@@ -13,7 +13,6 @@
 #include <slu/parser/Input.hpp>
 #include <slu/parser/adv/SkipSpace.hpp>
 #include <slu/parser/adv/RequireToken.hpp>
-#include <slu/parser/basic/CharInfo.hpp>
 
 namespace slu::parse
 {

@@ -10,7 +10,7 @@
 #include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
 #include <slu/parser/BuildState.hpp>
-#include <slu/parser/OpTraits.hpp>
+import slu.ast.op_info;
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/Operator.hpp>
 #include <slu/midlevel/ResolveType.hpp>
@@ -478,8 +478,8 @@ namespace slu::mlvl
 						name.reserve(4);
 						name.emplace_back("std");
 						name.emplace_back("ops");
-						name.emplace_back(parse::postUnOpTraitNames[traitIdx]);
-						name.emplace_back(parse::postUnOpNames[traitIdx]);
+						name.emplace_back(ast::postUnOpTraitNames[traitIdx]);
+						name.emplace_back(ast::postUnOpNames[traitIdx]);
 						return mpDb.getItm(name);
 					}
 					//TODO: special handling for '?'. -> defer to after type checking / inference?
@@ -496,8 +496,8 @@ namespace slu::mlvl
 					name.reserve(4);
 					name.emplace_back("std");
 					name.emplace_back("ops");
-					name.emplace_back(parse::unOpTraitNames[traitIdx]);
-					name.emplace_back(parse::unOpNames[traitIdx]);
+					name.emplace_back(ast::unOpTraitNames[traitIdx]);
+					name.emplace_back(ast::unOpNames[traitIdx]);
 					return mpDb.getItm(name);
 					});
 				if (!op.life.empty())
@@ -591,8 +591,8 @@ namespace slu::mlvl
 								name.emplace_back("cmp");
 							else
 								name.emplace_back("ops");
-							name.emplace_back(parse::binOpTraitNames[traitIdx]);
-							name.emplace_back(parse::binOpNames[traitIdx]);
+							name.emplace_back(ast::binOpTraitNames[traitIdx]);
+							name.emplace_back(ast::binOpNames[traitIdx]);
 							return mpDb.getItm(name);
 						});
 

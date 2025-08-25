@@ -186,7 +186,7 @@ namespace slu::comp::mico
 		uint64_t v = conv.nextPrivTmpId++;
 		for (size_t i = 0; i < 8; i++)
 		{
-			res.store[3 + i] = parse::numToHex(v & 0xF);
+			res.store[3 + i] = slu::numToHex(v & 0xF);
 			v >>= 4;
 		}
 		return res;

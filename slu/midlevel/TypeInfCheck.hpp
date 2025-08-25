@@ -12,7 +12,6 @@
 #include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
 #include <slu/parser/BuildState.hpp>
-#include <slu/parser/OpTraits.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/ResolveType.hpp>
 

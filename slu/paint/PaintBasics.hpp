@@ -17,7 +17,6 @@
 #include <slu/parser/State.hpp>
 #include <slu/parser/adv/SkipSpace.hpp>
 #include <slu/parser/VecInput.hpp>
-#include <slu/parser/basic/CharInfo.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/PaintOps.hpp>
 
@@ -36,7 +35,7 @@ namespace slu::paint
 			while (se.in)
 			{
 				const char ch = se.in.peek();
-				if (!parse::isValidNameChar(ch))
+				if (!slu::isValidNameChar(ch))
 					break;
 				se.template add<tok, overlayTok>(1);
 				se.in.skip();

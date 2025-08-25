@@ -15,7 +15,7 @@
 #include <slu/parser/Input.hpp>
 #include <slu/parser/SimpleErrors.hpp>
 #include <slu/parser/adv/SkipSpace.hpp>
-#include <slu/parser/basic/CharInfo.hpp>
+import slu.char_info;
 
 namespace slu::parse
 {

@@ -16,7 +16,6 @@
 #include <slu/parser/Input.hpp>
 #include <slu/parser/State.hpp>
 #include <slu/parser/VecInput.hpp>
-#include <slu/parser/basic/CharInfo.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::paint

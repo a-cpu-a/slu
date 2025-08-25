@@ -15,7 +15,7 @@
 #include <slu/parser/Input.hpp>
 #include <slu/parser/adv/SkipSpace.hpp>
 #include <slu/parser/adv/RequireToken.hpp>
-#include <slu/parser/basic/CharInfo.hpp>
+import slu.char_info;
 #include <slu/parser/adv/ReadNumeral.hpp>
 
 namespace slu::parse

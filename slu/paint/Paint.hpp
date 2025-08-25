@@ -17,7 +17,7 @@
 #include <slu/parser/State.hpp>
 #include <slu/parser/adv/SkipSpace.hpp>
 #include <slu/parser/VecInput.hpp>
-#include <slu/parser/basic/CharInfo.hpp>
+import slu.char_info;
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/PaintOps.hpp>
 #include <slu/paint/PaintBasics.hpp>
@@ -72,7 +72,7 @@ namespace slu::paint
 		while (se.in)
 		{
 			const char chr = se.in.peek();
-			if (wasUscore && chr!='_' && (!hex || !parse::isHexDigitChar(chr)) && parse::isValidNameStartChar(chr))
+			if (wasUscore && chr!='_' && (!hex || !slu::isHexDigitChar(chr)) && slu::isValidNameStartChar(chr))
 			{
 				parseType = true;
 				break;
@@ -101,7 +101,7 @@ namespace slu::paint
 					break;
 			}
 
-			if (chr!='.' && chr!='_' && !(hex && parse::isHexDigitChar(chr)) && !parse::isDigitChar(chr))
+			if (chr!='.' && chr!='_' && !(hex && slu::isHexDigitChar(chr)) && !slu::isDigitChar(chr))
 				break;
 			
 			se.template add<Tok::NUMBER>(tint);
@@ -111,7 +111,7 @@ namespace slu::paint
 		{
 			while (se.in)
 			{
-				if (parse::isValidNameChar(se.in.peek()))
+				if (slu::isValidNameChar(se.in.peek()))
 				{
 					se.template add<Tok::NUMBER_TYPE>(tint);
 					se.in.skip();

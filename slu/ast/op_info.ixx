@@ -1,17 +1,19 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <array>
 #include <string_view>
-import slu.ast.enums;
-#include <slu/parser/basic/CharInfo.hpp>
 
-namespace slu::parse
+export module slu.ast.op_info;
+
+import slu.ast.enums;
+import slu.char_info;
+
+namespace slu::ast
 {
-	constexpr char RANGE_OP_TRAIT_NAME[] = "Boundable";
+	export constexpr char RANGE_OP_TRAIT_NAME[] = "Boundable";
 
 	// All the names with '_' or marked with !!! are special, so these lists are not exactly for them
 	// Note: due to how ascii works _ turns to ?
@@ -20,7 +22,7 @@ namespace slu::parse
 		if (forTrait)
 		{
 			for (auto& i : res)
-				i[0] = parse::toUpperCase(i[0]);
+				i[0] = slu::toUpperCase(i[0]);
 		}
 	}
 	constexpr auto nameArraysToSvs(auto& arrays)
@@ -118,16 +120,16 @@ namespace slu::parse
 
 	constexpr auto storeUnOpNames = mkUnOpNames(false);
 	constexpr auto storeUnOpTraitNames = mkUnOpNames(true);
-	constexpr auto unOpNames = nameArraysToSvs(storeUnOpNames);
-	constexpr auto unOpTraitNames = nameArraysToSvs(storeUnOpTraitNames);
+	export constexpr auto unOpNames = nameArraysToSvs(storeUnOpNames);
+	export constexpr auto unOpTraitNames = nameArraysToSvs(storeUnOpTraitNames);
 	
 	constexpr auto storePostUnOpNames = mkPostUnOpNames(false);
 	constexpr auto storePostUnOpTraitNames = mkPostUnOpNames(true);
-	constexpr auto postUnOpNames = nameArraysToSvs(storePostUnOpNames);
-	constexpr auto postUnOpTraitNames = nameArraysToSvs(storePostUnOpTraitNames);
+	export constexpr auto postUnOpNames = nameArraysToSvs(storePostUnOpNames);
+	export constexpr auto postUnOpTraitNames = nameArraysToSvs(storePostUnOpTraitNames);
 
 	constexpr auto storeBinOpNames = mkBinOpNames(false);
 	constexpr auto storeBinOpTraitNames = mkBinOpNames(true);
-	constexpr auto binOpNames = nameArraysToSvs(storeBinOpNames);
-	constexpr auto binOpTraitNames = nameArraysToSvs(storeBinOpTraitNames);
+	export constexpr auto binOpNames = nameArraysToSvs(storeBinOpNames);
+	export constexpr auto binOpTraitNames = nameArraysToSvs(storeBinOpTraitNames);
 }

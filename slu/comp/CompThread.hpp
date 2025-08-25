@@ -96,19 +96,19 @@ namespace slu::comp
 		{
 			lang::ModPath mp{ "std","ops" };
 			parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
-			for (auto& i : parse::unOpTraitNames)
+			for (auto& i : ast::unOpTraitNames)
 			{
 				mp.emplace_back(i);
 				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
 				mp.pop_back();
 			}
-			for (auto& i : parse::binOpTraitNames)
+			for (auto& i : ast::binOpTraitNames)
 			{
 				mp.emplace_back(i);
 				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
 				mp.pop_back();
 			}
-			for (auto& i : parse::postUnOpTraitNames)
+			for (auto& i : ast::postUnOpTraitNames)
 			{
 				mp.emplace_back(i);
 				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
