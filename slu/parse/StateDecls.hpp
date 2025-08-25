@@ -17,7 +17,8 @@
 #include <slu/ext/CppMatch.hpp>
 import slu.big_int;
 import slu.lang.basic_state;
-#include "Input.hpp"
+import slu.parse.input;
+import slu.parse.pos;
 
 namespace slu::parse
 {

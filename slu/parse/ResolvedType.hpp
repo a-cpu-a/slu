@@ -21,7 +21,7 @@ import slu.lang.basic_state;
 import slu.big_int;
 import slu.ast.enums;
 #include "SmallEnumList.hpp"
-#include "Input.hpp"
+import slu.parse.input;
 #include "StateDecls.hpp"
 
 namespace slu::parse

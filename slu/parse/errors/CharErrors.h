@@ -4,7 +4,7 @@
 #pragma once
 
 #include <slu/parse/SimpleErrors.hpp>
-#include <slu/parse/Input.hpp>
+import slu.parse.input;
 
 namespace slu::parse
 {

@@ -14,7 +14,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slu/parse/State.hpp>
-#include <slu/parse/Input.hpp>
+import slu.parse.input;
 
 namespace slu::parse
 {

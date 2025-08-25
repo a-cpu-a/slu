@@ -12,7 +12,7 @@
 
 #include <slu/ext/CppMatch.hpp>
 #include <slu/parse/State.hpp>
-#include <slu/parse/Input.hpp>
+import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/parse/adv/RequireToken.hpp>
 #include <slu/parse/adv/ReadStringLiteral.hpp>

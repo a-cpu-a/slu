@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿/*
+** See Copyright Notice inside Include.hpp
+*/
+#pragma once
 
 #define LUACC_COL_HEADER "\x1b[38;5;" //ansi color
 

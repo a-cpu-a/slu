@@ -18,7 +18,7 @@
 import slu.ast.enums;
 import slu.lang.basic_state;
 #include "SmallEnumList.hpp"
-#include "Input.hpp"
+import slu.parse.input;
 #include "StateDecls.hpp"
 #include "ResolvedType.hpp"
 

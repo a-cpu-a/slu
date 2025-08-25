@@ -12,7 +12,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slu/parse/State.hpp>
-#include <slu/parse/Input.hpp>
+import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/parse/adv/RequireToken.hpp>
 

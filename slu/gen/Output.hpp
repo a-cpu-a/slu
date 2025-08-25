@@ -12,7 +12,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.settings;
-#include <slu/parse/Input.hpp>
+import slu.parse.input;
 
 namespace slu::parse
 {

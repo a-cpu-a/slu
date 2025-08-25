@@ -14,7 +14,7 @@
 
 import slu.settings;
 import slu.parse.pos;
-#include "Input.hpp"
+import slu.parse.input;
 #include "BasicGenData.hpp"
 
 namespace slu::parse

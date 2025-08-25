@@ -1,24 +1,22 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
 
 #include <string>
 #include <span>
 #include <format>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+#include <slu/Ansi.hpp>
+export module slu.parse.input;
 
 import slu.settings;
 import slu.lang.basic_state;
 import slu.parse.pos;
-#include <slu/Ansi.hpp>
 
 namespace slu::parse
 {
-	template<class T, bool isSlu>
+	export template<class T, bool isSlu>
 	concept AnyGenDataV =
 #ifdef Slu_NoConcepts
 		true
@@ -47,7 +45,7 @@ namespace slu::parse
 	;*/
 	
 	//Here, so streamed inputs can be made
-	template<class T>
+	export template<class T>
 	concept AnyInput =
 #ifdef Slu_NoConcepts
 		true
@@ -74,9 +72,7 @@ namespace slu::parse
 		/* Returns true, while stream still has stuff */
 		//{ (bool)t } -> std::same_as<bool>; //Crashes intelisense
 
-
 		{ t.isOob((size_t)100) } -> std::same_as<bool>;
-
 
 		//Error output
 
@@ -92,7 +88,7 @@ namespace slu::parse
 #endif // Slu_NoConcepts
 	;
 
-	inline std::string errorLocStr(const AnyInput auto& in,const Position pos) {
+	export std::string errorLocStr(const AnyInput auto& in,const Position pos) {
 		return std::format(
 			" {}:" 
 			LUACC_NUM_COL("{}")
@@ -104,11 +100,11 @@ namespace slu::parse
 		);
 			//" " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
 	}
-	inline std::string errorLocStr(const AnyInput auto& in) {
+	export std::string errorLocStr(const AnyInput auto& in) {
 		return errorLocStr(in,in.getLoc());
 	}
 
-	struct EndOfStreamError : std::exception
+	export struct EndOfStreamError : std::exception
 	{
 		std::string m;
 		EndOfStreamError(const AnyInput auto& in) :m(std::format("Unexpected end of stream.{}",errorLocStr(in))) {}
