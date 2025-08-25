@@ -89,9 +89,8 @@ target_link_libraries(slu-compiler-api
 	lldELF
 	lldWasm
 )
-
-target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../x64/Debug/Slu.lib)
-target_link_libraries(slu-compiler-api optimized ${PROJECT_SOURCE_DIR}/../../x64/Release/Slu.lib)
+target_link_libraries(slu-compiler-api debug ${PROJECT_SOURCE_DIR}/../../out/build/x64-Debug/slu/slu.lib)
+target_link_libraries(slu-compiler-api optimized ${PROJECT_SOURCE_DIR}/../../out/build/x64-Release/slu/slu.lib)
 target_link_libraries(slu-compiler-api ${PROJECT_SOURCE_DIR}/../../slu/mlir/build/slu-dialect.lib)
 
 add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
