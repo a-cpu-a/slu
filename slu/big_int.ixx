@@ -6,7 +6,7 @@
 #include <compare>
 #include <bit>
 
-export module slu.BigInt;
+export module slu.big_int;
 
 namespace slu
 {

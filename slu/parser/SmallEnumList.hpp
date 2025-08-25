@@ -5,7 +5,7 @@
 
 #include <memory>
 
-#include "Enums.hpp"
+import slu.ast.enums;
 #include <slu/ErrorType.hpp>
 
 namespace slu::parse

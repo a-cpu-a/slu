@@ -17,7 +17,7 @@
 #include <slu/ext/CppMatch.hpp>
 #include <slu/ext/ExtendVariant.hpp>
 #include <slu/lang/BasicState.hpp>
-#include "Enums.hpp"
+import slu.ast.enums;
 #include "SmallEnumList.hpp"
 #include "Input.hpp"
 #include "StateDecls.hpp"

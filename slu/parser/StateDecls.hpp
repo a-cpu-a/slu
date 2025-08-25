@@ -17,7 +17,7 @@
 #include <slu/ext/CppMatch.hpp>
 #include <slu/ext/ExtendVariant.hpp>
 #include <slu/lang/BasicState.hpp>
-import slu.BigInt;
+import slu.big_int;
 #include "Input.hpp"
 
 namespace slu::parse

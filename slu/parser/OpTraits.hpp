@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <array>
 #include <string_view>
-#include <slu/parser/Enums.hpp>
+import slu.ast.enums;
 #include <slu/parser/basic/CharInfo.hpp>
 
 namespace slu::parse

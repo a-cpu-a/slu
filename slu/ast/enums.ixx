@@ -1,24 +1,21 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.ast.enums;
 
 namespace slu::parse
 {
-	enum class OptSafety : uint8_t
+	export enum class OptSafety : uint8_t
 	{
 		DEFAULT,
 		SAFE,
 		UNSAFE
 	};
 
-	enum class BinOpType : uint8_t
+	export enum class BinOpType : uint8_t
 	{
 		NONE,
 
@@ -56,7 +53,7 @@ namespace slu::parse
 		ENUM_SIZE = AS - 1+1
 	};
 
-	enum class UnOpType : uint8_t
+	export enum class UnOpType : uint8_t
 	{
 		NONE,
 
@@ -84,7 +81,7 @@ namespace slu::parse
 		ENUM_SIZE = MUT
 	};
 
-	enum class PostUnOpType : uint8_t
+	export enum class PostUnOpType : uint8_t
 	{
 		NONE,
 
