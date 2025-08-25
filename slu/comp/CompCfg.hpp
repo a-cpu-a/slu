@@ -6,11 +6,11 @@
 #include <string>
 #include <vector>
 #include <optional>
-
-#include <slu/lang/BasicState.hpp>
+#include <span>
 
 namespace slu::comp
 {
+	using ModPathView = std::span<const std::string>;
 	//
 	// All views / spans are only required to live as long as the call.
 	// The compiler wont emit `../`, so there is no need to sanitize them for that (except by you in rootPaths)
@@ -28,13 +28,13 @@ namespace slu::comp
 		// If it would need to call to some dll, or external code, it is likely not safe
 		bool comptimeSafe : 1 = false;
 
-		lang::ModPathView root;
+		ModPathView root;
 
 		//TODO: choose a type for the list (string?) (mod path?)
-		using GetItemListFn = std::vector<int>(*)(const lang::ModPathView& path);
+		using GetItemListFn = std::vector<int>(*)(const ModPathView& path);
 		GetItemListFn getItemListPtr;
 
-		using ItemBoolFn = bool(*)(const lang::ModPathView& path);
+		using ItemBoolFn = bool(*)(const ModPathView& path);
 		ItemBoolFn itemExistsPtr;
 	};
 	struct TmpFile

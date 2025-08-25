@@ -3,9 +3,8 @@
 */
 #pragma once
 
-#include <slu/lang/BasicState.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/BasicGenData.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/BasicGenData.hpp>
 
 #include <slu/comp/CompCfg.hpp>
 

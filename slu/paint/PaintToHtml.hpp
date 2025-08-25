@@ -12,10 +12,9 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slu/Settings.hpp>
-#include <slu/parser/Input.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/adv/SkipSpace.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/Paint.hpp>
 

@@ -67,8 +67,7 @@ LLD_HAS_DRIVER(coff);
 
 #pragma warning(pop)
 
-#include <slu/lang/BasicState.hpp>
-
+import slu.lang.basic_state;
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/ConvData.hpp>
 
@@ -186,7 +185,7 @@ namespace slu::comp::mico
 		uint64_t v = conv.nextPrivTmpId++;
 		for (size_t i = 0; i < 8; i++)
 		{
-			res.store[3 + i] = parse::numToHex(v & 0xF);
+			res.store[3 + i] = slu::numToHex(v & 0xF);
 			v >>= 4;
 		}
 		return res;

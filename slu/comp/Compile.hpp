@@ -8,16 +8,15 @@
 #include <optional>
 #include <thread>
 #include <variant>
-#include <slu/ext/Mtx.hpp>
 
-#include <slu/lang/BasicState.hpp>
-
+import a_cpu_a.mtx;
+import slu.lang.basic_state;
 #include <slu/comp/CompThread.hpp>
 #include <slu/comp/CompInclude.hpp>
 
 namespace slu::comp
 {
-	inline void waitForTasksToComplete(Mutex<size_t>& tasksLeft, std::condition_variable& cvMain)
+	inline void waitForTasksToComplete(a_cpu_a::Mutex<size_t>& tasksLeft, std::condition_variable& cvMain)
 	{
 		std::unique_lock tasksLeftLock(tasksLeft.lock);
 		if (tasksLeft.v != 0)
@@ -25,8 +24,8 @@ namespace slu::comp
 	}
 	inline void submitTask(const CompCfg& cfg,
 		uint32_t taskId,
-		Mutex<std::vector<CompTask>>& tasks,
-		Mutex<size_t>& tasksLeft,
+		a_cpu_a::Mutex<std::vector<CompTask>>& tasks,
+		a_cpu_a::Mutex<size_t>& tasksLeft,
 		std::condition_variable& cv,
 		std::condition_variable& cvMain,
 
@@ -51,8 +50,8 @@ namespace slu::comp
 	}
 	inline void submitConsensusTask(const CompCfg& cfg,
 		uint32_t taskId,
-		Mutex<std::vector<CompTask>>& tasks,
-		Mutex<size_t>& tasksLeft,
+		a_cpu_a::Mutex<std::vector<CompTask>>& tasks,
+		a_cpu_a::Mutex<size_t>& tasksLeft,
 		std::condition_variable& cv,
 		std::condition_variable& cvMain,
 
@@ -86,8 +85,8 @@ namespace slu::comp
 		llvm::InitializeAllAsmPrinters();
 
 		uint32_t nextTaskId = 1;
-		Mutex<std::vector<CompTask>> tasks;
-		Mutex<size_t> tasksLeft = 0;
+		a_cpu_a::Mutex<std::vector<CompTask>> tasks;
+		a_cpu_a::Mutex<size_t> tasksLeft = 0;
 
 		std::condition_variable cv;
 		std::condition_variable cvMain;//Uses tasksLeft.lock!!
@@ -165,7 +164,7 @@ namespace slu::comp
 		}
 		_ASSERT(tasksLeft.v == 0);
 
-		RwLock<parse::BasicMpDbData> sharedDb;
+		a_cpu_a::RwLock<parse::BasicMpDbData> sharedDb;
 
 		// unify asts using sharedDb
 		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,

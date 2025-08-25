@@ -6,8 +6,8 @@
 //#define Slu_NoConcepts
 
 #include <slu/ext/lua/luaconf.h>
-#include <slu/parser/Parse.hpp>
-#include <slu/parser/VecInput.hpp>
+#include <slu/parse/Parse.hpp>
+#include <slu/parse/VecInput.hpp>
 #include <slu/paint/Paint.hpp>
 #include <slu/paint/PaintToHtml.hpp>
 #include <slu/visit/Visit.hpp>

@@ -8,13 +8,12 @@
 #include <optional>
 #include <thread>
 #include <variant>
-#include <slu/ext/Mtx.hpp>
+import a_cpu_a.mtx;
 #include <slu/ext/CppMatch.hpp>
-
-#include <slu/lang/BasicState.hpp>
+import slu.lang.basic_state;
 #include <slu/midlevel/BasicDesugar.hpp>
 #include <slu/midlevel/TypeInfCheck.hpp>
-#include <slu/parser/SimpleErrors.hpp>
+#include <slu/parse/SimpleErrors.hpp>
 
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/mlir/Conv.hpp>
@@ -54,7 +53,7 @@ namespace slu::comp
 		using ParseFiles = std::vector<SluFile>;
 		struct ConsensusUnifyAsts
 		{
-			RwLock<parse::BasicMpDbData>* sharedDb;//stored on main thread.
+			a_cpu_a::RwLock<parse::BasicMpDbData>* sharedDb;//stored on main thread.
 			bool firstToArive = true; //if true, then you dont need to do any logic, just replace it
 		};
 		using ConsensusMergeAsts = MergeAstsMap*;

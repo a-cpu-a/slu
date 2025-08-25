@@ -8,8 +8,8 @@
 #include <format>
 #include <vector>
 
-#include <slu/parser/State.hpp>
-#include <slu/Settings.hpp>
+import slu.settings;
+#include <slu/parse/State.hpp>
 
 #define Slu_co ,
 
@@ -141,8 +141,8 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE(UnOpConst, parse::UnOpItem);
 		_Slu_DEF_EMPTY_PRE(UnOpShare, parse::UnOpItem);
 		//Pre only:
-		_Slu_DEF_EMPTY_PRE_UNIT(PostUnOp, parse::PostUnOpType);
-		_Slu_DEF_EMPTY_PRE_UNIT(BinOp, parse::BinOpType);
+		_Slu_DEF_EMPTY_PRE_UNIT(PostUnOp, ast::PostUnOpType);
+		_Slu_DEF_EMPTY_PRE_UNIT(BinOp, ast::BinOpType);
 		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny<Cfg Slu_co true>);
 		_Slu_DEF_EMPTY_PRE_UNIT(DestrAny, parse::PatType::DestrAny<Cfg Slu_co false>);
 		_Slu_DEF_EMPTY_PRE(BlockReturn, parse::Block<Cfg>);

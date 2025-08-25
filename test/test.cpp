@@ -6,7 +6,7 @@
 #include <span>
 #include <fstream>
 #include <iostream>
-#include <slu/parser/Parse.hpp>
+#include <slu/parse/Parse.hpp>
 #include <slu/paint/Paint.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/StyledColorConverter.hpp>
@@ -179,7 +179,7 @@ int main()
 
 	//if constexpr (TEST_SPEED)
 	//{
-	//	const std::vector<uint8_t> srcCode = getBin("C:/libraries/lua/lua-5.4.4/src/slu/parser/tests/libs/luaunit.lua");
+	//	const std::vector<uint8_t> srcCode = getBin("C:/libraries/lua/lua-5.4.4/src/slu/parse/tests/libs/luaunit.lua");
 
 	//	slu::parse::VecInput in;
 	//	in.fName = "Test";
@@ -205,7 +205,7 @@ int main()
 	//}
 
 
-	const std::string_view p = "C:/libraries/lua/lua-5.4.4/src/slu/parser/tests";
+	const std::string_view p = "C:/libraries/lua/lua-5.4.4/src/slu/parse/tests";
 
 	size_t total = 0;
 	size_t failed = 0;

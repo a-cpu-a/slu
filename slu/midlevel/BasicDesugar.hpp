@@ -7,10 +7,10 @@
 #include <vector>
 #include <optional>
 #include <variant>
-#include <slu/lang/BasicState.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/BuildState.hpp>
-#include <slu/parser/OpTraits.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/BuildState.hpp>
+import slu.ast.op_info;
+import slu.lang.basic_state;
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/Operator.hpp>
 #include <slu/midlevel/ResolveType.hpp>
@@ -44,9 +44,9 @@ namespace slu::mlvl
 		static constexpr bool isSlu = true;
 
 		parse::BasicMpDb mpDb;
-		LazyCompute<parse::MpItmId> unOpFuncs[(size_t)parse::UnOpType::ENUM_SIZE];
-		LazyCompute<parse::MpItmId> postUnOpFuncs[(size_t)parse::PostUnOpType::ENUM_SIZE];
-		LazyCompute<parse::MpItmId> binOpFuncs[(size_t)parse::BinOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId> unOpFuncs[(size_t)ast::UnOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId> postUnOpFuncs[(size_t)ast::PostUnOpType::ENUM_SIZE];
+		LazyCompute<parse::MpItmId> binOpFuncs[(size_t)ast::BinOpType::ENUM_SIZE];
 
 		// Note: Implicit bottom item: 'Any' or 'Slu'
 		std::vector<std::string> abiStack;
@@ -409,7 +409,7 @@ namespace slu::mlvl
 		bool preExternBlock(parse::StatType::ExternBlock<Cfg>& itm) 
 		{
 			abiStack.push_back(std::move(itm.abi));
-			abiSafetyStack.push_back(itm.safety==parse::OptSafety::SAFE);
+			abiSafetyStack.push_back(itm.safety==ast::OptSafety::SAFE);
 
 			visit::visitStatList(*this,itm.stats);
 
@@ -456,7 +456,7 @@ namespace slu::mlvl
 
 		void desugarUnOp(parse::Expr& expr,
 			std::vector<parse::UnOpItem>& unOps, 
-			parse::SmallEnumList<parse::PostUnOpType>& postUnOps,
+			parse::SmallEnumList<ast::PostUnOpType>& postUnOps,
 			size_t opIdx,
 			bool isSufOp)
 		{
@@ -467,19 +467,19 @@ namespace slu::mlvl
 
 			if (isSufOp)
 			{
-				parse::PostUnOpType op = postUnOps.at(opIdx);
+				ast::PostUnOpType op = postUnOps.at(opIdx);
 				const size_t traitIdx = (size_t)op - 1; //-1 for none
 
 				name = postUnOpFuncs[traitIdx].get([&] {
 					//TODO: implement post-unop func name selection
-					if (op != parse::PostUnOpType::PROPOGATE_ERR)
+					if (op != ast::PostUnOpType::PROPOGATE_ERR)
 					{
 						lang::ModPath name;
 						name.reserve(4);
 						name.emplace_back("std");
 						name.emplace_back("ops");
-						name.emplace_back(parse::postUnOpTraitNames[traitIdx]);
-						name.emplace_back(parse::postUnOpNames[traitIdx]);
+						name.emplace_back(ast::postUnOpTraitNames[traitIdx]);
+						name.emplace_back(ast::postUnOpNames[traitIdx]);
 						return mpDb.getItm(name);
 					}
 					//TODO: special handling for '?'. -> defer to after type checking / inference?
@@ -496,16 +496,16 @@ namespace slu::mlvl
 					name.reserve(4);
 					name.emplace_back("std");
 					name.emplace_back("ops");
-					name.emplace_back(parse::unOpTraitNames[traitIdx]);
-					name.emplace_back(parse::unOpNames[traitIdx]);
+					name.emplace_back(ast::unOpTraitNames[traitIdx]);
+					name.emplace_back(ast::unOpNames[traitIdx]);
 					return mpDb.getItm(name);
 					});
 				if (!op.life.empty())
 				{
-					_ASSERT(op.type == parse::UnOpType::TO_REF
-						|| op.type == parse::UnOpType::TO_REF_MUT
-						|| op.type == parse::UnOpType::TO_REF_CONST
-						|| op.type == parse::UnOpType::TO_REF_SHARE);
+					_ASSERT(op.type == ast::UnOpType::TO_REF
+						|| op.type == ast::UnOpType::TO_REF_MUT
+						|| op.type == ast::UnOpType::TO_REF_CONST
+						|| op.type == ast::UnOpType::TO_REF_SHARE);
 					lifetime = &op.life;
 				}
 				//Else: its inferred, or doesnt exist
@@ -574,25 +574,25 @@ namespace slu::mlvl
 						list.emplace_back(std::move(expr2));
 						call.args = std::move(list);
 
-						parse::BinOpType op = ops.extra[i.index - 1].first;
+						ast::BinOpType op = ops.extra[i.index - 1].first;
 						const size_t traitIdx = (size_t)op - 1; //-1 for none
 
 						call.method = binOpFuncs[traitIdx].get([&] {
 							lang::ModPath name;
 							name.reserve(4);
 							name.emplace_back("std");
-							bool isOrd = op == parse::BinOpType::LESS_THAN
-								|| op == parse::BinOpType::LESS_EQUAL
-								|| op == parse::BinOpType::GREATER_THAN
-								|| op == parse::BinOpType::GREATER_EQUAL;
-							bool isEq = op == parse::BinOpType::EQUAL
-								|| op == parse::BinOpType::NOT_EQUAL;
+							bool isOrd = op == ast::BinOpType::LESS_THAN
+								|| op == ast::BinOpType::LESS_EQUAL
+								|| op == ast::BinOpType::GREATER_THAN
+								|| op == ast::BinOpType::GREATER_EQUAL;
+							bool isEq = op == ast::BinOpType::EQUAL
+								|| op == ast::BinOpType::NOT_EQUAL;
 							if (isOrd || isEq)
 								name.emplace_back("cmp");
 							else
 								name.emplace_back("ops");
-							name.emplace_back(parse::binOpTraitNames[traitIdx]);
-							name.emplace_back(parse::binOpNames[traitIdx]);
+							name.emplace_back(ast::binOpTraitNames[traitIdx]);
+							name.emplace_back(ast::binOpNames[traitIdx]);
 							return mpDb.getItm(name);
 						});
 
@@ -619,7 +619,7 @@ namespace slu::mlvl
 				const std::vector<bool> order = unaryOpOrder(itm);
 
 				std::vector<parse::UnOpItem> preOps = std::move(itm.unOps);
-				parse::SmallEnumList<parse::PostUnOpType> sufOps = std::move(itm.postUnOps);
+				parse::SmallEnumList<ast::PostUnOpType> sufOps = std::move(itm.postUnOps);
 
 				size_t preIdx=0;
 				size_t sufIdx=0;

@@ -1,4 +1,4 @@
-#
+﻿#
 # Dependencies: basic
 #
 
@@ -17,7 +17,7 @@ Naming Conventions {
 	J. Word -> JWord --2 capitals, as word is not a acronym.
 	A Func -> AFunc --A is ment as the word 'a', not some acronym
 	
-	Crates use snake_case in code, and kebab-case outside of it.
+	Crates and modules use snake_case in code, and kebab-case outside of it.
 	
 	Structs, enums, enum variants, traits and unions are treated as constants that store types.
 	Arguments and fields are treated as variables.

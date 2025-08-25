@@ -8,11 +8,11 @@
 #include <optional>
 #include <variant>
 #include <algorithm>
+
 #include <slu/ext/CppMatch.hpp>
-#include <slu/lang/BasicState.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/BuildState.hpp>
-#include <slu/parser/OpTraits.hpp>
+import slu.lang.basic_state;
+#include <slu/parse/State.hpp>
+#include <slu/parse/BuildState.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/ResolveType.hpp>
 
@@ -46,7 +46,7 @@ namespace slu::mlvl
 				if(var->chain.size()!=1)
 					return false;
 				//TODO: check lifetime
-				if(var->chain[0].refType!=parse::UnOpType::TO_REF)
+				if(var->chain[0].refType!=ast::UnOpType::TO_REF)
 					return false;
 				auto optName = var->elem.getStructName();
 				if(!optName.has_value())

@@ -8,8 +8,8 @@
 #include <format>
 #include <vector>
 
-#include <slu/parser/State.hpp>
-#include <slu/Settings.hpp>
+import slu.settings;
+#include <slu/parse/State.hpp>
 #include <slu/visit/Visitor.hpp>
 
 namespace slu::visit
@@ -83,7 +83,7 @@ namespace slu::visit
 		//TODO
 	}
 	template<AnyVisitor Vi>
-	inline void visitSafety(Vi& vi, const parse::OptSafety itm)
+	inline void visitSafety(Vi& vi, const ast::OptSafety itm)
 	{
 		//TODO
 	}
@@ -249,7 +249,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(Lifetime);
 	}
 	template<AnyVisitor Vi>
-	inline void visitBinOp(Vi& vi, const parse::BinOpType itm) {
+	inline void visitBinOp(Vi& vi, const ast::BinOpType itm) {
 		Slu_CALL_VISIT_FN_PRE(BinOp);
 	}
 	template<AnyVisitor Vi>
@@ -258,24 +258,24 @@ namespace slu::visit
 		for (auto& itm :list)
 		{
 			Slu_CALL_VISIT_FN_PRE(UnOp);
-			if (itm.type == parse::UnOpType::TO_REF
-				|| itm.type == parse::UnOpType::TO_REF_MUT
-				|| itm.type == parse::UnOpType::TO_REF_CONST
-				|| itm.type == parse::UnOpType::TO_REF_SHARE)
+			if (itm.type == ast::UnOpType::TO_REF
+				|| itm.type == ast::UnOpType::TO_REF_MUT
+				|| itm.type == ast::UnOpType::TO_REF_CONST
+				|| itm.type == ast::UnOpType::TO_REF_SHARE)
 			{
 				visitLifetime(vi, itm.life);
-				if (itm.type == parse::UnOpType::TO_REF_MUT)
+				if (itm.type == ast::UnOpType::TO_REF_MUT)
 					Slu_CALL_VISIT_FN_PRE(UnOpMut);
-				else if (itm.type == parse::UnOpType::TO_REF_CONST)
+				else if (itm.type == ast::UnOpType::TO_REF_CONST)
 					Slu_CALL_VISIT_FN_PRE(UnOpConst);
-				else if (itm.type == parse::UnOpType::TO_REF_SHARE)
+				else if (itm.type == ast::UnOpType::TO_REF_SHARE)
 					Slu_CALL_VISIT_FN_PRE(UnOpShare);
 			}
 			Slu_CALL_VISIT_FN_POST(UnOp);
 		}
 	}
 	template<AnyVisitor Vi>
-	inline void visitPostUnOps(Vi& vi, std::span<const parse::PostUnOpType> list) 
+	inline void visitPostUnOps(Vi& vi, std::span<const ast::PostUnOpType> list) 
 	{
 		for (auto& itm : list) {
 			Slu_CALL_VISIT_FN_PRE(PostUnOp);
@@ -287,7 +287,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_PRE(Expr);
 		visitUnOps(vi, itm.unOps);
 		visitExprData(vi, itm.data);
-		visitPostUnOps(vi, std::span<const parse::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
+		visitPostUnOps(vi, std::span<const ast::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
 		Slu_CALL_VISIT_FN_POST(Expr);
 	}
 	template<AnyVisitor Vi>

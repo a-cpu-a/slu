@@ -8,23 +8,20 @@
 #include <optional>
 #include <thread>
 #include <variant>
-#include <slu/ext/Mtx.hpp>
 
-#include <slu/lang/BasicState.hpp>
-
+import a_cpu_a.mtx;
+import slu.lang.basic_state;
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/HandleTask.hpp>
 
 namespace slu::comp
 {
-
-
 	inline void poolThread(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
 		std::condition_variable& cv,
 		std::condition_variable& cvMain,
-		Mutex<size_t>& tasksLeft,
-		Mutex<std::vector<CompTask>>& tasks
+		a_cpu_a::Mutex<size_t>& tasksLeft,
+		a_cpu_a::Mutex<std::vector<CompTask>>& tasks
 	)
 	{
 		uint32_t lastTask = 0;
@@ -96,19 +93,19 @@ namespace slu::comp
 		{
 			lang::ModPath mp{ "std","ops" };
 			parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
-			for (auto& i : parse::unOpTraitNames)
+			for (auto& i : ast::unOpTraitNames)
 			{
 				mp.emplace_back(i);
 				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
 				mp.pop_back();
 			}
-			for (auto& i : parse::binOpTraitNames)
+			for (auto& i : ast::binOpTraitNames)
 			{
 				mp.emplace_back(i);
 				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);
 				mp.pop_back();
 			}
-			for (auto& i : parse::postUnOpTraitNames)
+			for (auto& i : ast::postUnOpTraitNames)
 			{
 				mp.emplace_back(i);
 				parse::BasicMpDb{ &state.mpDb }.get<false>(mp);

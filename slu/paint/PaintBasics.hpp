@@ -11,13 +11,11 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-#include <slu/Settings.hpp>
 #include <slu/ext/CppMatch.hpp>
-#include <slu/parser/Input.hpp>
-#include <slu/parser/State.hpp>
-#include <slu/parser/adv/SkipSpace.hpp>
-#include <slu/parser/VecInput.hpp>
-#include <slu/parser/basic/CharInfo.hpp>
+#include <slu/parse/Input.hpp>
+#include <slu/parse/State.hpp>
+#include <slu/parse/adv/SkipSpace.hpp>
+#include <slu/parse/VecInput.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/PaintOps.hpp>
 
@@ -36,7 +34,7 @@ namespace slu::paint
 			while (se.in)
 			{
 				const char ch = se.in.peek();
-				if (!parse::isValidNameChar(ch))
+				if (!slu::isValidNameChar(ch))
 					break;
 				se.template add<tok, overlayTok>(1);
 				se.in.skip();
