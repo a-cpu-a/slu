@@ -512,7 +512,7 @@ namespace slu::mlvl
 			}
 			
 			parse::ExprType::SelfCall call;
-			parse::ArgsType::ExprList<Cfg> list;
+			parse::ArgsType::ExprList list;
 
 			if (lifetime != nullptr)
 			{
@@ -569,7 +569,7 @@ namespace slu::mlvl
 						ast::Position place = expr1.place;
 
 						parse::ExprType::SelfCall call;
-						parse::ArgsType::ExprList<Cfg> list;
+						parse::ArgsType::ExprList list;
 						call.v = parse::mayBoxFrom<true>(std::move(expr1));
 						list.emplace_back(std::move(expr2));
 						call.args = std::move(list);

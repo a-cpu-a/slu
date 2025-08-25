@@ -274,7 +274,7 @@ namespace slu::comp::mico
 			auto name = std::get<parse::ExprType::GlobalV<true>>(var.v->data);
 			throw std::runtime_error("Unimplemented type expression: " + std::string(name.asSv(conv.sharedDb)) + " (mlir conversion)");
 			
-			//const auto& expArgs = std::get<parse::ArgsType::ExprListV<true>>(var.args);
+			//const auto& expArgs = std::get<parse::ArgsType::ExprList>(var.args);
 			//const auto& firstArgExpr = expArgs.front();
 			//const auto& firstArg = std::get<parse::ExprType::GlobalV<true>>(firstArgExpr.data);
 			//
@@ -774,7 +774,7 @@ namespace slu::comp::mico
 
 			auto llvmPtrType = mlir::LLVM::LLVMPointerType::get(mc);
 			//It cant be the other types, as they are alreadt desugared!
-			auto& argList = std::get<parse::ArgsType::ExprListV<true>>(var.args);
+			auto& argList = std::get<parse::ArgsType::ExprList>(var.args);
 			std::vector<mlir::Value> args;
 			args.reserve(argList.size());
 			for (const auto& i : argList)

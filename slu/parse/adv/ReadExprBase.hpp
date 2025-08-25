@@ -370,12 +370,12 @@ namespace slu::parse
 	}
 
 	template<AnyInput In>
-	inline ExprList<In> readExprList(In& in, const bool allowVarArg)
+	inline ExprList readExprList(In& in, const bool allowVarArg)
 	{
 		/*
 			explist ::= exp {‘,’ exp}
 		*/
-		ExprList<In> ret{};
+		ExprList ret{};
 		ret.emplace_back(readExpr(in, allowVarArg));
 
 		while (checkReadToken(in, ","))

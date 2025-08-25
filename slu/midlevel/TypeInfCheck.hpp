@@ -566,7 +566,7 @@ namespace slu::mlvl
 			//TODO: if method is a trait-fn, then: ???
 			//TODO: impl/builtin-impl found for method
 
-			auto& argList = std::get<parse::ArgsType::ExprList<Cfg>>(args);
+			auto& argList = std::get<parse::ArgsType::ExprList>(args);
 			//TODO: check arg use types
 		}
 		bool preSelfCallExpr(parse::ExprType::SelfCall& itm) 
@@ -581,7 +581,7 @@ namespace slu::mlvl
 			//Tmp var for each arg.
 			//tmp var for output
 
-			auto& argList = std::get<parse::ArgsType::ExprList<Cfg>>(itm.args);
+			auto& argList = std::get<parse::ArgsType::ExprList>(itm.args);
 			std::vector<TmpVar> args;
 			for (auto& i : argList)
 			{
@@ -609,7 +609,7 @@ namespace slu::mlvl
 
 		template<bool voidOutput,bool boxed>
 		void handleCall(parse::Call<boxed>& itm) {
-			if (!std::holds_alternative<parse::ArgsType::ExprList<Cfg>>(itm.args))
+			if (!std::holds_alternative<parse::ArgsType::ExprList>(itm.args))
 				throw std::runtime_error("TODO: type inference for func call with complex args.");
 
 			if (!std::holds_alternative<parse::ExprType::Global<Cfg>>(itm.v->data))
@@ -619,7 +619,7 @@ namespace slu::mlvl
 				mpDb, std::get<parse::ExprType::Global<Cfg>>(itm.v->data)
 			);
 
-			parse::ArgsType::ExprList<Cfg>& args = std::get<parse::ArgsType::ExprList<Cfg>>(itm.args);
+			parse::ArgsType::ExprList& args = std::get<parse::ArgsType::ExprList>(itm.args);
 			//Restrict arg exprs to match types in funcItm.
 			for (size_t i = args.size(); i > 0; i++)
 			{

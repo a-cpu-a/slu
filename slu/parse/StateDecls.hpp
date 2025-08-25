@@ -22,9 +22,6 @@ namespace slu::parse
 	template<bool flag, class FalseT, class TrueT>
 	using Sel = std::conditional_t<flag, TrueT,FalseT>;
 
-#define Slu_DEF_CFG(_Name) template<class CfgT> using _Name = _Name ## V<true>
-#define Slu_DEF_CFG2(_Name,_ArgName) template<class CfgT,bool _ArgName> using _Name =_Name ## V<true, _ArgName>
-
 	template<bool boxed, class T>
 	struct MayBox
 	{
@@ -69,9 +66,7 @@ namespace slu::parse
 		using parse::Expr;
 	}
 
-	template<bool isSlu>
-	using ExprListV = std::vector<Expr>;
-	Slu_DEF_CFG(ExprList);
+	using ExprList = std::vector<Expr>;
 
 	namespace ExprType
 	{

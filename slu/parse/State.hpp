@@ -24,6 +24,9 @@ import slu.parse.input;
 
 namespace slu::parse
 {
+#define Slu_DEF_CFG(_Name) template<class CfgT> using _Name = _Name ## V<true>
+#define Slu_DEF_CFG2(_Name,_ArgName) template<class CfgT,bool _ArgName> using _Name =_Name ## V<true, _ArgName>
+
 	namespace FieldType { using NONE = std::monostate; }
 
 	template<bool isSlu>
@@ -79,7 +82,7 @@ namespace slu::parse
 	struct BlockV
 	{
 		StatListV<isSlu> statList;
-		ExprListV<isSlu> retExprs;// May contain 0 elements
+		ExprList retExprs;// May contain 0 elements
 
 		lang::ModPathId mp;
 
@@ -122,7 +125,6 @@ namespace slu::parse
 
 	namespace ArgsType
 	{
-		using parse::ExprListV;
 		using parse::ExprList;
 
 		using parse::TableV;
@@ -131,7 +133,7 @@ namespace slu::parse
 		struct String { std::string v; ast::Position end; };// "LiteralString"
 	};
 	using Args = std::variant<
-		ArgsType::ExprListV<true>,
+		ArgsType::ExprList,
 		ArgsType::TableV<true>,
 		ArgsType::String
 	>;
@@ -580,7 +582,7 @@ namespace slu::parse
 	struct VarStatBaseV : MaybeLocalsV<isSlu, isLocal>
 	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
 		PatV<true, isLocal> names;
-		ExprListV<true> exprs;
+		ExprList exprs;
 		ExportData exported = false;
 	};
 
@@ -596,7 +598,7 @@ namespace slu::parse
 		using Semicol = std::monostate;	// ";"
 
 		template<bool isSlu>
-		struct AssignV { std::vector<ExprDataV<isSlu>> vars; ExprListV<isSlu> exprs; };// "varlist = explist" //e.size must be > 0
+		struct AssignV { std::vector<ExprDataV<isSlu>> vars; ExprList exprs; };// "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG(Assign);
 
 		using Call = parse::Call<false>;
@@ -631,7 +633,7 @@ namespace slu::parse
 		struct ForInV
 		{
 			Sel<isSlu, NameListV<isSlu>, PatV<true, true>> varNames;
-			Sel<isSlu, ExprListV<isSlu>, Expr> exprs;//size must be > 0
+			Sel<isSlu, ExprList, Expr> exprs;//size must be > 0
 			BlockV<isSlu> bl;
 		};
 		Slu_DEF_CFG(ForIn);

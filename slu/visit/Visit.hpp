@@ -466,7 +466,7 @@ namespace slu::visit
 		);
 	}
 	template<AnyVisitor Vi>
-	inline void visitExprList(Vi& vi, parse::ExprList<Vi>& itm)
+	inline void visitExprList(Vi& vi, parse::ExprList& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(ExprList);
 		for (auto& i : itm)
@@ -480,7 +480,7 @@ namespace slu::visit
 	inline void visitArgs(Vi& vi, parse::Args& itm)
 	{
 		ezmatch(itm)(
-		varcase(parse::ArgsType::ExprList<Vi>&) { visitExprList(vi, var); },
+		varcase(parse::ArgsType::ExprList&) { visitExprList(vi, var); },
 		varcase(parse::ArgsType::Table<Vi>&) {	  visitTable(vi, var); },
 		varcase(parse::ArgsType::String&) {		  visitString(vi,var.v); }
 		);

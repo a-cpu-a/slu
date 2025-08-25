@@ -473,7 +473,7 @@ namespace slu::paint
 	inline void paintArgs(Se& se, const parse::Args& itm)
 	{
 		ezmatch(itm)(
-			varcase(const parse::ArgsType::ExprList<Se>&) {
+			varcase(const parse::ArgsType::ExprList&) {
 			paintKw<Tok::GEN_OP>(se, "(");
 			paintExprList(se, var);
 			paintKw<Tok::GEN_OP>(se, ")");
@@ -973,7 +973,7 @@ namespace slu::paint
 		);
 	}
 	template<AnySemOutput Se>
-	inline void paintExprList(Se& se, const parse::ExprList<Se>& itm)
+	inline void paintExprList(Se& se, const parse::ExprList& itm)
 	{
 		for (const parse::Expr& i : itm)
 		{
@@ -984,7 +984,7 @@ namespace slu::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintExprOrList(Se& se, const parse::ExprList<Se>& itm) {
+	inline void paintExprOrList(Se& se, const parse::ExprList& itm) {
 		return paintExprList(se, itm);
 	}
 	template<AnySemOutput Se>

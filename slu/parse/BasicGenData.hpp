@@ -596,7 +596,7 @@ namespace slu::parse
 			scopes.back().res.retTy = ty;
 		}
 		// Make sure to run no args `scopeReturn()` first!
-		void scopeReturn(ExprListV<isSlu>&& expList) {
+		void scopeReturn(ExprList&& expList) {
 			scopes.back().res.retExprs = std::move(expList);
 		}
 

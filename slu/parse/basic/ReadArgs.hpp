@@ -26,7 +26,7 @@ namespace slu::parse
 		{
 			in.skip();//skip start
 			skipSpace(in);
-			ArgsType::ExprList<In> res{};
+			ArgsType::ExprList res{};
 			if (in.peek() == ')')// Check if 0 args
 			{
 				in.skip();

@@ -51,7 +51,7 @@ namespace slu::parse
 	inline auto mkBoxGlobal(::slu::ast::Position place, ::slu::lang::MpItmId name) {
 		return ::slu::parse::mayBoxFrom<boxed>(mkGlobal<isSlu>(place,name));
 	}
-	inline ::slu::parse::TableV<true> mkTbl(::slu::parse::ExprListV<true>&& exprs)
+	inline ::slu::parse::TableV<true> mkTbl(::slu::parse::ExprList&& exprs)
 	{
 		::slu::parse::TableV<true> tc;
 		tc.reserve(exprs.size());

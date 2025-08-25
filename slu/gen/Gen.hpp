@@ -425,7 +425,7 @@ namespace slu::parse
 		);
 	}
 	template<AnyOutput Out>
-	inline void genExprList(Out& out, const ExprList<Out>& obj)
+	inline void genExprList(Out& out, const ExprList& obj)
 	{
 		for (const Expr& e : obj)
 		{
@@ -463,7 +463,7 @@ namespace slu::parse
 	inline void genArgs(Out& out, const Args& itm)
 	{
 		ezmatch(itm)(
-		varcase(const ArgsType::ExprList<Out>&) {
+		varcase(const ArgsType::ExprList&) {
 			out.add('(');
 			genExprList(out, var);
 			out.add(')');
