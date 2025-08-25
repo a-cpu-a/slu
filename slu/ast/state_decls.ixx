@@ -1,26 +1,25 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <vector>
 #include <optional>
 #include <memory>
 #include <variant>
-
+export module slu.ast.state_decls;
 import slu.big_int;
 import slu.ast.pos;
 import slu.lang.basic_state;
 import slu.parse.input;
 
-namespace slu::parse
+namespace slu::parse //TODO: ast
 {
-	template<bool flag, class FalseT, class TrueT>
+	export template<bool flag, class FalseT, class TrueT>
 	using Sel = std::conditional_t<flag, TrueT,FalseT>;
 
-	template<bool boxed, class T>
+	export template<bool boxed, class T>
 	struct MayBox
 	{
 		Sel<boxed, T, std::unique_ptr<T>> v;
@@ -38,7 +37,7 @@ namespace slu::parse
 		T* operator->() { return &get(); }
 		const T* operator->() const { return &get(); }
 	};
-	template<bool boxed, class T>
+	export template<bool boxed, class T>
 	constexpr auto mayBoxFrom(T&& v)
 	{
 		if constexpr (boxed)
@@ -46,37 +45,41 @@ namespace slu::parse
 		else
 			return MayBox<false, T>(std::move(v));
 	}
-	template<class T>
+	export template<class T>
 	constexpr MayBox<false, T> wontBox(T&& v) {
 		return MayBox<false, T>(std::move(v));
 	}
 
 	//Forward declare
-	struct Stat;
-	struct Expr;
-	using BoxExpr = std::unique_ptr<Expr>;
-	using ExprList = std::vector<Expr>;
+	extern "C++" {
+		export struct Stat;
+		export struct Expr;
+	}
+	export using BoxExpr = std::unique_ptr<Expr>;
+	export using ExprList = std::vector<Expr>;
 
 	namespace FieldType
 	{
 		//For lua only! (currently)
-		struct Expr2Expr;
-		struct Name2Expr;
-		using parse::Expr;
+		extern "C++" {
+			export struct Expr2Expr;
+			export struct Name2Expr;
+		}
+		export using parse::Expr;
 	}
 	namespace ExprType
 	{
-		struct OpenRange {};
-		struct String { std::string v; ast::Position end; };
+		export struct OpenRange {};
+		export struct String { std::string v; ast::Position end; };
 
 		// "Numeral"
-		using F64 = double;
-		using I64 = int64_t;
+		export using F64 = double;
+		export using I64 = int64_t;
 
 		//u64,i128,u128, for slu only
-		using U64 = uint64_t;
-		using P128 = Integer128<false>;
-		using M128 = Integer128<false, true>;
+		export using U64 = uint64_t;
+		export using P128 = Integer128<false>;
+		export using M128 = Integer128<false, true>;
 	}
-	using SubModPath = std::vector<std::string>;
+	export using SubModPath = std::vector<std::string>;
 }

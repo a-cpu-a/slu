@@ -23,8 +23,8 @@ import slu.lang.basic_state;
 import slu.big_int;
 import slu.ast.enums;
 import slu.ast.small_enum_list;
+import slu.ast.state_decls;
 import slu.parse.input;
-#include "StateDecls.hpp"
 
 namespace slu::parse
 {
