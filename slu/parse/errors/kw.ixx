@@ -1,14 +1,16 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
+#include <format>
+#include <slu/Ansi.hpp>
+export module slu.parse.errors.kw;
 import slu.parse.error;
 import slu.parse.input;
 
 namespace slu::parse
 {
-	inline void throwExpectedExportable(AnyInput auto& in)
+	export void throwExpectedExportable(AnyInput auto& in)
 	{
 		throw UnexpectedKeywordError(std::format(
 			"Expected exportable statment after " 
@@ -16,7 +18,7 @@ namespace slu::parse
 			", at"
 			"{}", errorLocStr(in)));
 	}
-	inline void throwExpectedImplAfterDefer(AnyInput auto& in)
+	export void throwExpectedImplAfterDefer(AnyInput auto& in)
 	{
 		throw UnexpectedKeywordError(std::format(
 			"Expected impl statment after " 
@@ -24,14 +26,14 @@ namespace slu::parse
 			", at"
 			"{}", errorLocStr(in)));
 	}
-	inline void throwUnexpectedSafety(AnyInput auto& in, const ast::Position pos)
+	export void throwUnexpectedSafety(AnyInput auto& in, const ast::Position pos)
 	{
 		throw UnexpectedKeywordError(std::format(
 			"Unexpected safe/unsafe, at"
 			"{}"
 			, errorLocStr(in,pos)));
 	}
-	inline void throwExpectedSafeable(AnyInput auto& in)
+	export void throwExpectedSafeable(AnyInput auto& in)
 	{
 		throw UnexpectedKeywordError(std::format(
 			"Expected markable statment after " 
@@ -40,7 +42,7 @@ namespace slu::parse
 			"{}"
 			, errorLocStr(in)));
 	}
-	inline void throwExpectedUnsafeable(AnyInput auto& in)
+	export void throwExpectedUnsafeable(AnyInput auto& in)
 	{
 		throw UnexpectedKeywordError(std::format(
 			"Expected markable statment after " 
@@ -49,7 +51,7 @@ namespace slu::parse
 			"{}"
 			, errorLocStr(in)));
 	}
-	inline void throwExpectedExternable(AnyInput auto& in)
+	export void throwExpectedExternable(AnyInput auto& in)
 	{
 		throw UnexpectedKeywordError(std::format(
 			"Expected markable statment after " 

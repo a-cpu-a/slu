@@ -10,6 +10,7 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+import slu.parse.errors.kw;
 import slu.parse.input;
 #include <slu/parse/State.hpp>
 
@@ -28,7 +29,6 @@ import slu.parse.input;
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"
 #include "adv/ReadPat.hpp"
-#include "errors/KwErrors.h"
 
 
 

@@ -18,7 +18,6 @@ import slu.parse.input;
 #include <slu/parse/adv/ReadStringLiteral.hpp>
 #include <slu/parse/adv/ReadNumeral.hpp>
 #include <slu/parse/basic/ReadOperators.hpp>
-#include <slu/parse/errors/CharErrors.h>
 
 namespace slu::parse
 {

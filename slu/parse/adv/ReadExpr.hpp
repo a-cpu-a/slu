@@ -13,13 +13,13 @@
 
 #include <slu/parse/State.hpp>
 import slu.parse.input;
+import slu.parse.errors.char_errors;
 #include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/parse/adv/ReadExprBase.hpp>
 #include <slu/parse/adv/RequireToken.hpp>
 #include <slu/parse/adv/ReadStringLiteral.hpp>
 #include <slu/parse/adv/ReadNumeral.hpp>
 #include <slu/parse/basic/ReadOperators.hpp>
-#include <slu/parse/errors/CharErrors.h>
 #include <slu/parse/adv/ReadTraitExpr.hpp>
 #include <slu/parse/adv/ReadTypeExpr.hpp>
 

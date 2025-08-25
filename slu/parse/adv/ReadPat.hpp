@@ -18,7 +18,6 @@ import slu.parse.input;
 #include <slu/parse/adv/RequireToken.hpp>
 #include <slu/parse/adv/ReadTypeExpr.hpp>
 #include <slu/parse/adv/ReadName.hpp>
-#include <slu/parse/errors/CharErrors.h>
 
 namespace slu::parse
 {

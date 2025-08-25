@@ -16,7 +16,6 @@ import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/parse/adv/ReadExprBase.hpp>
 #include <slu/parse/adv/RequireToken.hpp>
-#include <slu/parse/errors/CharErrors.h>
 
 namespace slu::parse
 {

@@ -19,8 +19,6 @@ import slu.parse.input;
 #include <slu/parse/adv/ReadExpr.hpp>
 #include <slu/parse/adv/ReadTable.hpp>
 #include <slu/parse/adv/ReadTraitExpr.hpp>
-#include <slu/parse/errors/CharErrors.h>
-#include <slu/parse/errors/KwErrors.h>
 
 namespace slu::parse
 {

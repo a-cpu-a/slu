@@ -1,14 +1,16 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
+#include <format>
+#include <slu/Ansi.hpp>
+export module slu.parse.errors.char_errors;
 import slu.parse.error;
 import slu.parse.input;
 
 namespace slu::parse
 {
-	inline void throwMultilineCommentMissingEqual(AnyInput auto& in)
+	export void throwMultilineCommentMissingEqual(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(
 			"Expected multiline comment, to have atleast "
@@ -20,7 +22,7 @@ namespace slu::parse
 			+ errorLocStr(in)
 		);
 	}
-	inline void throwUnexpectedVarArgs(AnyInput auto& in)
+	export void throwUnexpectedVarArgs(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Varargs "
@@ -30,7 +32,7 @@ namespace slu::parse
 			, errorLocStr(in)
 		));
 	}
-	inline void throwExpectedTraitExpr(AnyInput auto& in)
+	export void throwExpectedTraitExpr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected trait expression at"
@@ -38,7 +40,7 @@ namespace slu::parse
 			, errorLocStr(in)
 		));
 	}
-	inline void throwExpectedStructOrAssign(AnyInput auto& in)
+	export void throwExpectedStructOrAssign(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected struct or assignment at"
@@ -46,7 +48,7 @@ namespace slu::parse
 			, errorLocStr(in)
 		));
 	}
-	inline void throwExpectedPatDestr(AnyInput auto& in)
+	export void throwExpectedPatDestr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected pattern destructuring for "
@@ -56,7 +58,7 @@ namespace slu::parse
 			, errorLocStr(in)
 		));
 	}
-	inline void throwExpectedTypeExpr(AnyInput auto& in)
+	export void throwExpectedTypeExpr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected type expression at"
@@ -64,7 +66,7 @@ namespace slu::parse
 			, errorLocStr(in)
 		));
 	}
-	inline void throwExpectedExpr(AnyInput auto& in)
+	export void throwExpectedExpr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected expression at"
@@ -72,14 +74,14 @@ namespace slu::parse
 			, errorLocStr(in)
 		));
 	}
-	inline void throwSpaceMissingBeforeString(AnyInput auto& in)
+	export void throwSpaceMissingBeforeString(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected space before " LC_string " argument, at"
 			"{}"
 			, errorLocStr(in)));
 	}
-	inline void throwSemicolMissingAfterStat(AnyInput auto& in)
+	export void throwSemicolMissingAfterStat(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Expected semicolon (" 
@@ -88,14 +90,14 @@ namespace slu::parse
 			"{}"
 			, errorLocStr(in)));
 	}
-	inline void throwVarlistInExpr(AnyInput auto& in)
+	export void throwVarlistInExpr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
 			"Found list of variables inside expression"
 			"{}"
 			, errorLocStr(in)));
 	}
-	inline void throwRawExpr(AnyInput auto& in)
+	export void throwRawExpr(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(
 			"Raw expressions are " LC_not " allowed, expected assignment or " LC_function " call"
@@ -104,13 +106,13 @@ namespace slu::parse
 
 	//Varlist
 
-	inline void throwFuncCallInVarList(AnyInput auto& in)
+	export void throwFuncCallInVarList(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(
 			"Cant assign to " LC_function " call (Found in variable list)"
 			+ errorLocStr(in));
 	}
-	inline void throwExprInVarList(AnyInput auto& in)
+	export void throwExprInVarList(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(
 			"Cant assign to expression (Found in variable list)"
@@ -119,28 +121,28 @@ namespace slu::parse
 
 	//Assign
 
-	inline void throwFuncCallAssignment(AnyInput auto& in)
+	export void throwFuncCallAssignment(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(
 			"Cant assign to " LC_function " call, found "
 			LUACC_SINGLE_STRING("=") " at"
 			+ errorLocStr(in));
 	}
-	inline void throwExprAssignment(AnyInput auto& in)
+	export void throwExprAssignment(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(
 			"Cant assign to expression, found "
 			LUACC_SINGLE_STRING("=") " at"
 			+ errorLocStr(in));
 	}
-	inline void reportIntTooBig(AnyInput auto& in,const std::string_view str)
+	export void reportIntTooBig(AnyInput auto& in,const std::string_view str)
 	{
 		in.handleError(std::format(
 			LC_Integer " is too big, "
 			LUACC_SINGLE_STRING("{}") " at"
 			"{}", str, errorLocStr(in)));
 	}
-	inline void throwUnexpectedFloat(AnyInput auto& in,const std::string_view str)
+	export void throwUnexpectedFloat(AnyInput auto& in,const std::string_view str)
 	{
 		in.handleError(std::format(
 			"Expected " LC_integer ", found "
