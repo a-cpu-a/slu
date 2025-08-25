@@ -17,7 +17,7 @@
 
 #include <slu/ext/CppMatch.hpp>
 import slu.lang.basic_state;
-#include <slu/lang/Mpc.hpp>
+import slu.lang.mpc;
 import slu.big_int;
 import slu.ast.enums;
 #include "SmallEnumList.hpp"
