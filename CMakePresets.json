@@ -58,26 +58,6 @@
       }
     },
     {
-      "name": "clang-debug",
-      "displayName": "Clang Debug",
-      "inherits": "windows-base",
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang.exe",
-        "CMAKE_CXX_COMPILER": "clang++.exe",
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "IS_DEBUG": true
-      }
-    },
-    {
-      "name": "clang-release",
-      "displayName": "Clang Release",
-      "inherits": "clang-debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "IS_DEBUG": false
-      }
-    },
-    {
       "name": "linux-debug",
       "displayName": "Linux Debug",
       "generator": "Ninja",

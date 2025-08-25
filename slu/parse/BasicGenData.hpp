@@ -14,8 +14,7 @@
 
 #include <slu/parse/State.hpp>
 #include <slu/parse/Input.hpp>
-#include <slu/lang/MpcMacros.hpp>
-import slu.lang.mpc;
+#include <slu/lang/Mpc.hpp>
 
 namespace slu::parse
 {
