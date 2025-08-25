@@ -13,7 +13,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.settings;
-import slu.parse.position;
+import slu.parse.pos;
 #include "Input.hpp"
 #include "BasicGenData.hpp"
 
