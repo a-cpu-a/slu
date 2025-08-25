@@ -1,6 +1,4 @@
-﻿#pragma once
-#ifndef _HGUARD__A_CPU_A__Mtx_hpp__LIB
-#define _HGUARD__A_CPU_A__Mtx_hpp__LIB
+﻿module;
 /*
 MIT License
 
@@ -24,29 +22,32 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
+#ifdef _ALWAYS_USE_IMPORT_STD
+import std;
+#else
 #include <mutex>
 #include <shared_mutex>
-
-template<class T>
-struct Mutex
-{
-	std::mutex lock;
-	T v;
-
-	Mutex(const T& v) :v(v) {}
-	Mutex(T&& v) :v(std::move(v)) {}
-	Mutex() =default;
-};
-
-template<class T>
-struct RwLock
-{
-	std::shared_mutex lock;
-	T v;
-
-	RwLock(const T& v) :v(v) {}
-	RwLock(T&& v) :v(std::move(v)) {}
-	RwLock() =default;
-};
 #endif
+export module a_cpu_a.mtx;
+namespace a_cpu_a
+{
+	export template<class T>
+	struct Mutex
+	{
+		std::mutex lock;
+		T v;
+		Mutex(const T& v) :v(v) {}
+		Mutex(T&& v) :v(std::move(v)) {}
+		Mutex() = default;
+	};
+	export template<class T>
+	struct RwLock
+	{
+		std::shared_mutex lock;
+		T v;
+		RwLock(const T& v) :v(v) {}
+		RwLock(T&& v) :v(std::move(v)) {}
+		RwLock() = default;
+	};
+
+}

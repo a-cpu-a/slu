@@ -8,7 +8,7 @@
 #include <optional>
 #include <thread>
 #include <variant>
-#include <slu/ext/Mtx.hpp>
+import a_cpu_a.mtx;
 
 #include <slu/lang/BasicState.hpp>
 
@@ -17,14 +17,12 @@
 
 namespace slu::comp
 {
-
-
 	inline void poolThread(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
 		std::condition_variable& cv,
 		std::condition_variable& cvMain,
-		Mutex<size_t>& tasksLeft,
-		Mutex<std::vector<CompTask>>& tasks
+		a_cpu_a::Mutex<size_t>& tasksLeft,
+		a_cpu_a::Mutex<std::vector<CompTask>>& tasks
 	)
 	{
 		uint32_t lastTask = 0;
