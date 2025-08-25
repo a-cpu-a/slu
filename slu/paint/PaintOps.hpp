@@ -22,109 +22,109 @@
 namespace slu::paint
 {
 	template<AnySemOutput Se>
-	inline void paintBinOp(Se& se, const parse::BinOpType& itm)
+	inline void paintBinOp(Se& se, const ast::BinOpType& itm)
 	{
 		switch (itm)
 		{
-		case parse::BinOpType::ADD:
+		case ast::BinOpType::ADD:
 			paintKw<Tok::GEN_OP>(se, "+");
 			break;
-		case parse::BinOpType::SUBTRACT:
+		case ast::BinOpType::SUBTRACT:
 			paintKw<Tok::GEN_OP>(se, "-");
 			break;
-		case parse::BinOpType::MULTIPLY:
+		case ast::BinOpType::MULTIPLY:
 			paintKw<Tok::GEN_OP>(se, "*");
 			break;
-		case parse::BinOpType::DIVIDE:
+		case ast::BinOpType::DIVIDE:
 			paintKw<Tok::GEN_OP>(se, "/");
 			break;
-		case parse::BinOpType::FLOOR_DIVIDE:
+		case ast::BinOpType::FLOOR_DIVIDE:
 			paintKw<Tok::GEN_OP>(se, "//");
 			break;
-		case parse::BinOpType::MODULO:
+		case ast::BinOpType::MODULO:
 			paintKw<Tok::GEN_OP>(se, "%");
 			break;
-		case parse::BinOpType::EXPONENT:
+		case ast::BinOpType::EXPONENT:
 			paintKw<Tok::GEN_OP>(se, "^");
 			break;
-		case parse::BinOpType::BITWISE_AND:
+		case ast::BinOpType::BITWISE_AND:
 			paintKw<Tok::GEN_OP>(se, "&");
 			break;
-		case parse::BinOpType::BITWISE_OR:
+		case ast::BinOpType::BITWISE_OR:
 			paintKw<Tok::GEN_OP>(se, "|");
 			break;
-		case parse::BinOpType::BITWISE_XOR:
+		case ast::BinOpType::BITWISE_XOR:
 			paintKw<Tok::GEN_OP>(se, "~");
 			break;
-		case parse::BinOpType::SHIFT_LEFT:
+		case ast::BinOpType::SHIFT_LEFT:
 			paintKw<Tok::GEN_OP>(se, "<<");
 			break;
-		case parse::BinOpType::SHIFT_RIGHT:
+		case ast::BinOpType::SHIFT_RIGHT:
 			paintKw<Tok::GEN_OP>(se, ">>");
 			break;
-		case parse::BinOpType::CONCATENATE:
+		case ast::BinOpType::CONCATENATE:
 			paintKw<Tok::GEN_OP>(se, "++");
 			break;
-		case parse::BinOpType::LESS_THAN:
+		case ast::BinOpType::LESS_THAN:
 			paintKw<Tok::GEN_OP>(se, "<");
 			break;
-		case parse::BinOpType::LESS_EQUAL:
+		case ast::BinOpType::LESS_EQUAL:
 			paintKw<Tok::GEN_OP>(se, "<=");
 			break;
-		case parse::BinOpType::GREATER_THAN:
+		case ast::BinOpType::GREATER_THAN:
 			paintKw<Tok::GEN_OP>(se, ">");
 			break;
-		case parse::BinOpType::GREATER_EQUAL:
+		case ast::BinOpType::GREATER_EQUAL:
 			paintKw<Tok::GEN_OP>(se, ">=");
 			break;
-		case parse::BinOpType::EQUAL:
+		case ast::BinOpType::EQUAL:
 			paintKw<Tok::GEN_OP>(se, "==");
 			break;
-		case parse::BinOpType::NOT_EQUAL:
+		case ast::BinOpType::NOT_EQUAL:
 			paintKw<Tok::GEN_OP>(se, "!=");
 			break;
-		case parse::BinOpType::LOGICAL_AND:
+		case ast::BinOpType::LOGICAL_AND:
 			paintKw<Tok::AND>(se, "and");
 			break;
-		case parse::BinOpType::LOGICAL_OR:
+		case ast::BinOpType::LOGICAL_OR:
 			paintKw<Tok::OR>(se, "or");
 			break;
 			//Slu:
-		case parse::BinOpType::ARRAY_MUL:
+		case ast::BinOpType::ARRAY_MUL:
 			paintKw<Tok::ARRAY_MUL>(se, "**");
 			break;
-		case parse::BinOpType::RANGE_BETWEEN:
+		case ast::BinOpType::RANGE_BETWEEN:
 			paintKw<Tok::RANGE>(se, "..");
 			break;
-		case parse::BinOpType::MAKE_RESULT:
+		case ast::BinOpType::MAKE_RESULT:
 			paintKw<Tok::GEN_OP>(se, "~~");
 			break;
-		case parse::BinOpType::UNION:
+		case ast::BinOpType::UNION:
 			paintKw<Tok::GEN_OP>(se, "||");
 			break;
-		case parse::BinOpType::AS:
+		case ast::BinOpType::AS:
 			paintKw<Tok::AS>(se, "as");
 			break;
-		case parse::BinOpType::NONE:
+		case ast::BinOpType::NONE:
 			break;
 		}
 
 	}
 	template<AnySemOutput Se>
-	inline void paintPostUnOp(Se& se, const parse::PostUnOpType& itm)
+	inline void paintPostUnOp(Se& se, const ast::PostUnOpType& itm)
 	{
 		switch (itm)
 		{
-		case parse::PostUnOpType::RANGE_AFTER:
+		case ast::PostUnOpType::RANGE_AFTER:
 			paintKw<Tok::RANGE>(se, "..");
 			break;
-		case parse::PostUnOpType::DEREF:
+		case ast::PostUnOpType::DEREF:
 			paintKw<Tok::DEREF>(se, ".*");
 			break;
-		case parse::PostUnOpType::PROPOGATE_ERR:
+		case ast::PostUnOpType::PROPOGATE_ERR:
 			paintKw<Tok::GEN_OP>(se, "?");
 			break;
-		case parse::PostUnOpType::NONE:
+		case ast::PostUnOpType::NONE:
 			break;
 		}
 	}
@@ -133,58 +133,58 @@ namespace slu::paint
 	{
 		switch (itm.type)
 		{
-		case parse::UnOpType::LOGICAL_NOT:
+		case ast::UnOpType::LOGICAL_NOT:
 			paintKw<Tok::GEN_OP>(se, "!");
 			break;
-		case parse::UnOpType::NEGATE:
+		case ast::UnOpType::NEGATE:
 			paintKw<Tok::GEN_OP>(se, "-");
 			break;
-		case parse::UnOpType::ALLOCATE:
+		case ast::UnOpType::ALLOCATE:
 			paintKw<Tok::GEN_OP>(se, "alloc");
 			break;
-		case parse::UnOpType::RANGE_BEFORE:
+		case ast::UnOpType::RANGE_BEFORE:
 			paintKw<Tok::RANGE>(se, "..");
 			break;
-		case parse::UnOpType::MUT:
+		case ast::UnOpType::MUT:
 			paintKw<Tok::MUT>(se, "mut");
 			break;
 
-		case parse::UnOpType::TO_PTR:
+		case ast::UnOpType::TO_PTR:
 			paintKw<Tok::PTR>(se, "*");
 			break;
-		case parse::UnOpType::TO_PTR_CONST:
+		case ast::UnOpType::TO_PTR_CONST:
 			paintKw<Tok::PTR_CONST>(se, "*");
 			paintKw<Tok::PTR_CONST>(se, "const");
 			break;
-		case parse::UnOpType::TO_PTR_MUT:
+		case ast::UnOpType::TO_PTR_MUT:
 			paintKw<Tok::PTR_MUT>(se, "*");
 			paintKw<Tok::PTR_MUT>(se, "mut");
 			break;
-		case parse::UnOpType::TO_PTR_SHARE:
+		case ast::UnOpType::TO_PTR_SHARE:
 			paintKw<Tok::PTR_SHARE>(se, "*");
 			paintKw<Tok::PTR_SHARE>(se, "share");
 			break;
 
-		case parse::UnOpType::TO_REF:
+		case ast::UnOpType::TO_REF:
 			paintKw<Tok::REF>(se, "&");
 			paintLifetime(se, itm.life);
 			break;
-		case parse::UnOpType::TO_REF_MUT:
+		case ast::UnOpType::TO_REF_MUT:
 			paintKw<Tok::REF_MUT>(se, "&");
 			paintLifetime(se, itm.life);
 			paintKw<Tok::REF_MUT>(se, "mut");
 			break;
-		case parse::UnOpType::TO_REF_CONST:
+		case ast::UnOpType::TO_REF_CONST:
 			paintKw<Tok::REF_CONST>(se, "&");
 			paintLifetime(se, itm.life);
 			paintKw<Tok::REF_CONST>(se, "const");
 			break;
-		case parse::UnOpType::TO_REF_SHARE:
+		case ast::UnOpType::TO_REF_SHARE:
 			paintKw<Tok::REF_SHARE>(se, "&");
 			paintLifetime(se, itm.life);
 			paintKw<Tok::REF_SHARE>(se, "share");
 			break;
-		case parse::UnOpType::NONE:
+		case ast::UnOpType::NONE:
 			break;
 		}
 	}

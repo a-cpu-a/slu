@@ -17,50 +17,50 @@ namespace slu::mlvl
 	enum class Assoc : uint8_t { LEFT, RIGHT };
 
 
-	constexpr uint8_t precedence(parse::BinOpType op) {
+	constexpr uint8_t precedence(ast::BinOpType op) {
 		switch (op)
 		{
-		case parse::BinOpType::EXPONENT: return 90;
+		case ast::BinOpType::EXPONENT: return 90;
 
-		case parse::BinOpType::MODULO: return 70;
+		case ast::BinOpType::MODULO: return 70;
 
-		case parse::BinOpType::DIVIDE:
-		case parse::BinOpType::FLOOR_DIVIDE:
-		case parse::BinOpType::MULTIPLY: return 80;
-
-
-		case parse::BinOpType::SUBTRACT:
-		case parse::BinOpType::ADD: return 60;
-
-		case parse::BinOpType::SHIFT_LEFT: 
-		case parse::BinOpType::SHIFT_RIGHT: return 50;
-
-		case parse::BinOpType::BITWISE_OR:
-		case parse::BinOpType::BITWISE_XOR:
-		case parse::BinOpType::BITWISE_AND: return 42;
-
-		case parse::BinOpType::RANGE_BETWEEN: return 30;
-
-		case parse::BinOpType::CONCATENATE: return 20;
-
-		case parse::BinOpType::GREATER_EQUAL:
-		case parse::BinOpType::GREATER_THAN:
-		case parse::BinOpType::LESS_EQUAL:
-		case parse::BinOpType::LESS_THAN: return 11;
-
-		case parse::BinOpType::EQUAL:
-		case parse::BinOpType::NOT_EQUAL: return 10;
+		case ast::BinOpType::DIVIDE:
+		case ast::BinOpType::FLOOR_DIVIDE:
+		case ast::BinOpType::MULTIPLY: return 80;
 
 
-		case parse::BinOpType::LOGICAL_AND: return 6;
-		case parse::BinOpType::LOGICAL_OR: return 5;
+		case ast::BinOpType::SUBTRACT:
+		case ast::BinOpType::ADD: return 60;
 
-		case parse::BinOpType::ARRAY_MUL: return 21;
-		case parse::BinOpType::MAKE_RESULT: return 15;
-		case parse::BinOpType::UNION: return 17;
-		case parse::BinOpType::AS: return 13;
+		case ast::BinOpType::SHIFT_LEFT: 
+		case ast::BinOpType::SHIFT_RIGHT: return 50;
 
-		case parse::BinOpType::NONE:
+		case ast::BinOpType::BITWISE_OR:
+		case ast::BinOpType::BITWISE_XOR:
+		case ast::BinOpType::BITWISE_AND: return 42;
+
+		case ast::BinOpType::RANGE_BETWEEN: return 30;
+
+		case ast::BinOpType::CONCATENATE: return 20;
+
+		case ast::BinOpType::GREATER_EQUAL:
+		case ast::BinOpType::GREATER_THAN:
+		case ast::BinOpType::LESS_EQUAL:
+		case ast::BinOpType::LESS_THAN: return 11;
+
+		case ast::BinOpType::EQUAL:
+		case ast::BinOpType::NOT_EQUAL: return 10;
+
+
+		case ast::BinOpType::LOGICAL_AND: return 6;
+		case ast::BinOpType::LOGICAL_OR: return 5;
+
+		case ast::BinOpType::ARRAY_MUL: return 21;
+		case ast::BinOpType::MAKE_RESULT: return 15;
+		case ast::BinOpType::UNION: return 17;
+		case ast::BinOpType::AS: return 13;
+
+		case ast::BinOpType::NONE:
 			break;
 		}
 		Slu_panic("Unknown operator, no precedence<slu>(BinOpType) defined");
@@ -69,50 +69,50 @@ namespace slu::mlvl
 		switch (op.type)
 		{
 			//Slu
-		case parse::UnOpType::RANGE_BEFORE:	return 30;//same as range between
-		case parse::UnOpType::ALLOCATE:return 0;
+		case ast::UnOpType::RANGE_BEFORE:	return 30;//same as range between
+		case ast::UnOpType::ALLOCATE:return 0;
 			break;
-		case parse::UnOpType::NEGATE:        // "-"
-		case parse::UnOpType::LOGICAL_NOT:   // "not"
+		case ast::UnOpType::NEGATE:        // "-"
+		case ast::UnOpType::LOGICAL_NOT:   // "not"
 			return 85;//Between exponent and mul, div, ..
-		case parse::UnOpType::TO_REF:			// "&"
-		case parse::UnOpType::TO_REF_CONST:		// "&const"
-		case parse::UnOpType::TO_REF_SHARE:		// "&share"
-		case parse::UnOpType::TO_REF_MUT:		// "&mut"
-		case parse::UnOpType::TO_PTR:			// "*"
-		case parse::UnOpType::TO_PTR_CONST:		// "*const"
-		case parse::UnOpType::TO_PTR_SHARE:		// "*share"
-		case parse::UnOpType::TO_PTR_MUT:		// "*mut"
+		case ast::UnOpType::TO_REF:			// "&"
+		case ast::UnOpType::TO_REF_CONST:		// "&const"
+		case ast::UnOpType::TO_REF_SHARE:		// "&share"
+		case ast::UnOpType::TO_REF_MUT:		// "&mut"
+		case ast::UnOpType::TO_PTR:			// "*"
+		case ast::UnOpType::TO_PTR_CONST:		// "*const"
+		case ast::UnOpType::TO_PTR_SHARE:		// "*share"
+		case ast::UnOpType::TO_PTR_MUT:		// "*mut"
 			//Pseudo, only for type prefixes
-		case parse::UnOpType::MUT:				// "mut"
+		case ast::UnOpType::MUT:				// "mut"
 			return 85;//Between exponent and mul, div, ..
 			//
-		case parse::UnOpType::NONE:
+		case ast::UnOpType::NONE:
 			break;
 		}
 		Slu_panic("Unknown operator, no precedence<slu>(UnOpItem) defined");
 	}
-	constexpr uint8_t precedence(parse::PostUnOpType op) {
+	constexpr uint8_t precedence(ast::PostUnOpType op) {
 		switch (op)
 		{
-		case parse::PostUnOpType::PROPOGATE_ERR:
-		case parse::PostUnOpType::DEREF:return 100;//above exponent
+		case ast::PostUnOpType::PROPOGATE_ERR:
+		case ast::PostUnOpType::DEREF:return 100;//above exponent
 
-		case parse::PostUnOpType::RANGE_AFTER: return 30;//same as range between
+		case ast::PostUnOpType::RANGE_AFTER: return 30;//same as range between
 
-		case parse::PostUnOpType::NONE:
+		case ast::PostUnOpType::NONE:
 			break;
 		}
 		Slu_panic("Unknown operator, no precedence<slu>(PostUnOpType) defined");
 	}
 
-	constexpr Assoc associativity(parse::BinOpType op) {
+	constexpr Assoc associativity(ast::BinOpType op) {
 		switch (op)
 		{
-		case parse::BinOpType::EXPONENT:
-		case parse::BinOpType::SHIFT_LEFT:
-		case parse::BinOpType::SHIFT_RIGHT:
-		case parse::BinOpType::ARRAY_MUL:
+		case ast::BinOpType::EXPONENT:
+		case ast::BinOpType::SHIFT_LEFT:
+		case ast::BinOpType::SHIFT_RIGHT:
+		case ast::BinOpType::ARRAY_MUL:
 			return Assoc::RIGHT;
 		default:
 			return Assoc::LEFT;
@@ -192,9 +192,9 @@ namespace slu::mlvl
 	}
 
 	// Returns the order of operations as indices into `extra`
-	// Store parse::BinOpType in `extra[...].first`
+	// Store ast::BinOpType in `extra[...].first`
 	// Store std::vector<parse::UnOpItem> in `extra[...].second.unOps`
-	// Store std::vector<parse::PostUnOpType> in `extra[...].second.postUnOps`
+	// Store std::vector<ast::PostUnOpType> in `extra[...].second.postUnOps`
 	constexpr std::vector<MultiOpOrderEntry> multiOpOrder(const auto& m)
 	{
 		/*

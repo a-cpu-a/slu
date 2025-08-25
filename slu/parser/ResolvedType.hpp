@@ -517,7 +517,7 @@ namespace slu::parse
 	struct RefSigil
 	{
 		lang::MpItmId life;
-		UnOpType refType;
+		ast::UnOpType refType;
 
 		constexpr auto operator<=>(const RefSigil&) const = default;
 	};
@@ -527,7 +527,7 @@ namespace slu::parse
 		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
 
 		static ResolvedType newPtrTy(parse::ResolvedType&& t) {
-			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=UnOpType::TO_PTR} }));
+			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=ast::UnOpType::TO_PTR} }));
 			return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
 		}
 		static RawTypeKind::RefChain newRawTy() {
@@ -545,7 +545,7 @@ namespace slu::parse
 	struct RefSliceRawType
 	{
 		ResolvedType elem;//dims stored in here.
-		UnOpType refType;
+		ast::UnOpType refType;
 
 		static RawTypeKind::RefSlice newRawTy() {
 			auto& elems = *(new RefSliceRawType());

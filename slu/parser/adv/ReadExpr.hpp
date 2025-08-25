@@ -38,7 +38,7 @@ namespace slu::parse
 		return res;
 	}
 	template<AnyInput In>
-	inline UnOpItem readToRefLifetimes(In& in, UnOpType uOp)
+	inline UnOpItem readToRefLifetimes(In& in, ast::UnOpType uOp)
 	{
 		skipSpace(in);
 		if (in.peek() == '/')
@@ -47,11 +47,11 @@ namespace slu::parse
 			Lifetime res = readLifetime(in);
 
 			if (checkReadTextToken(in, "mut"))
-				uOp = UnOpType::TO_REF_MUT;
+				uOp = ast::UnOpType::TO_REF_MUT;
 			else if (checkReadTextToken(in, "const"))
-				uOp = UnOpType::TO_REF_CONST;
+				uOp = ast::UnOpType::TO_REF_CONST;
 			else if (checkReadTextToken(in, "share"))
-				uOp = UnOpType::TO_REF_SHARE;
+				uOp = ast::UnOpType::TO_REF_SHARE;
 
 			return { std::move(res),uOp };
 		}
@@ -63,7 +63,7 @@ namespace slu::parse
 	{
 		if (basicRes.unOps.empty())return;
 
-		if (basicRes.unOps.back().type == UnOpType::RANGE_BEFORE)
+		if (basicRes.unOps.back().type == ast::UnOpType::RANGE_BEFORE)
 		{
 			basicRes.unOps.erase(basicRes.unOps.end());
 			basicRes.data = ExprType::OpenRange();
@@ -86,9 +86,9 @@ namespace slu::parse
 
 		while (true)
 		{
-			const UnOpType uOp = readOptUnOp(in);
-			if (uOp == UnOpType::NONE)break;
-			if (uOp == UnOpType::TO_REF)
+			const ast::UnOpType uOp = readOptUnOp(in);
+			if (uOp == ast::UnOpType::NONE)break;
+			if (uOp == ast::UnOpType::TO_REF)
 			{
 				basicRes.unOps.push_back(readToRefLifetimes(in, uOp));
 				continue;
@@ -172,7 +172,7 @@ namespace slu::parse
 				break;
 			}
 			requireToken(in, "fn");
-			basicRes.data = readFnType<IS_BASIC>(in, OptSafety::SAFE);
+			basicRes.data = readFnType<IS_BASIC>(in, ast::OptSafety::SAFE);
 			break;
 		case 'u'://unsafe fn
 			if (!checkReadTextToken(in, "unsafe"))
@@ -185,12 +185,12 @@ namespace slu::parse
 				break;
 			}
 			requireToken(in, "fn");
-			basicRes.data = readFnType<IS_BASIC>(in, OptSafety::UNSAFE);
+			basicRes.data = readFnType<IS_BASIC>(in, ast::OptSafety::UNSAFE);
 			break;
 		case 'f':
 			if (checkReadTextToken(in, "fn"))
 			{
-				basicRes.data = readFnType<IS_BASIC>(in, OptSafety::DEFAULT);
+				basicRes.data = readFnType<IS_BASIC>(in, ast::OptSafety::DEFAULT);
 				break;
 			}
 			if (checkReadTextToken(in, "function")) 
@@ -305,8 +305,8 @@ namespace slu::parse
 		}
 		while (true)
 		{
-			const PostUnOpType uOp = readOptPostUnOp<true>(in);
-			if (uOp == PostUnOpType::NONE)break;
+			const ast::PostUnOpType uOp = readOptPostUnOp<true>(in);
+			if (uOp == ast::PostUnOpType::NONE)break;
 			basicRes.postUnOps.push_back(uOp);
 		}
 
@@ -323,7 +323,7 @@ namespace slu::parse
 				if (dotChr < '0' && dotChr>'9')
 				{//Is not number (.xxxx)
 					in.skip(2);
-					basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
+					basicRes.postUnOps.push_back(ast::PostUnOpType::RANGE_AFTER);
 				}
 			}
 			else if (
@@ -333,7 +333,7 @@ namespace slu::parse
 				if (peekName<NameCatagory::MP_START>(in, nextCh) == SIZE_MAX)
 				{//Its reserved
 					in.skip(2);
-					basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
+					basicRes.postUnOps.push_back(ast::PostUnOpType::RANGE_AFTER);
 				}
 			}
 			else if (// Not 0-9,_,",',$,[,{,(
@@ -348,7 +348,7 @@ namespace slu::parse
 				)
 			{
 				in.skip(2);
-				basicRes.postUnOps.push_back(PostUnOpType::RANGE_AFTER);
+				basicRes.postUnOps.push_back(ast::PostUnOpType::RANGE_AFTER);
 			}
 		}
 		//check bin op
@@ -359,9 +359,9 @@ namespace slu::parse
 		if(!in)
 			return basicRes;//File ended
 
-		const BinOpType firstBinOp = readOptBinOp(in);
+		const ast::BinOpType firstBinOp = readOptBinOp(in);
 
-		if (firstBinOp == BinOpType::NONE)
+		if (firstBinOp == ast::BinOpType::NONE)
 			return basicRes;
 
 		ExprType::MultiOp<In> resData{};
@@ -376,9 +376,9 @@ namespace slu::parse
 			if (!in)
 				break;//File ended
 
-			const BinOpType binOp = readOptBinOp(in);
+			const ast::BinOpType binOp = readOptBinOp(in);
 
-			if (binOp == BinOpType::NONE)
+			if (binOp == ast::BinOpType::NONE)
 				break;
 
 			resData.extra.emplace_back(binOp, readExpr<IS_BASIC>(in,allowVarArg,false));

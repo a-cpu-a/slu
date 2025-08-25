@@ -285,14 +285,14 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline bool readIchStat(In& in, const Position place, const ExportData exported, const OptSafety safety,const bool hasDefer,const bool allowVarArg)
+	inline bool readIchStat(In& in, const Position place, const ExportData exported, const ast::OptSafety safety,const bool hasDefer,const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
 		switch (in.peekAt(1))
 		{
 		case 'f':
-			if (safety == OptSafety::DEFAULT && !hasDefer && !exported 
+			if (safety == ast::OptSafety::DEFAULT && !hasDefer && !exported 
 				&& checkReadTextToken(in, "if"))
 			{ // if exp then block {elseif exp then block} [else block] end
 				in.genData.addStat(place,
@@ -305,13 +305,13 @@ namespace slu::parse
 		case 'm':
 			if (checkReadTextToken(in, "impl"))
 			{
-				if (safety == OptSafety::SAFE)
+				if (safety == ast::OptSafety::SAFE)
 					throwUnexpectedSafety(in, place);
 
 				StatType::Impl res;
 				res.exported = exported;
 				res.deferChecking = hasDefer;
-				res.isUnsafe = safety == OptSafety::UNSAFE;
+				res.isUnsafe = safety == ast::OptSafety::UNSAFE;
 				skipSpace(in);
 				if (in.peek() == '(')
 				{
@@ -361,7 +361,7 @@ namespace slu::parse
 				switch (in.peek())
 				{
 				case 'i':
-					if (readIchStat<isLoop>(in, place, exported, OptSafety::UNSAFE,false, false))
+					if (readIchStat<isLoop>(in, place, exported, ast::OptSafety::UNSAFE,false, false))
 						return true;
 					break;
 				case 'd'://defer impl?
@@ -370,14 +370,14 @@ namespace slu::parse
 						skipSpace(in);
 						if (in.peek() == 'i')
 						{
-							if (readIchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, true, false))
+							if (readIchStat<isLoop>(in, place, exported, ast::OptSafety::UNSAFE, true, false))
 								return true;
 						}
 						throwExpectedImplAfterDefer(in);
 					}
 					break;
 				case 'f':
-					if (readFchStat<isLoop>(in, place, exported, OptSafety::UNSAFE, false))
+					if (readFchStat<isLoop>(in, place, exported, ast::OptSafety::UNSAFE, false))
 						return true;
 					break;
 				case '{':
@@ -391,7 +391,7 @@ namespace slu::parse
 					return true;
 				}
 				case 'e':
-					if (!exported && readEchStat<isLoop>(in, place, OptSafety::UNSAFE, false))
+					if (!exported && readEchStat<isLoop>(in, place, ast::OptSafety::UNSAFE, false))
 						return true;
 					break;
 				case 't'://unsafe traits?
@@ -414,7 +414,7 @@ namespace slu::parse
 	}
 
 	template<bool isLoop, AnyInput In>
-	inline bool readEchStat(In& in, const Position place, const OptSafety safety, const bool allowVarArg)
+	inline bool readEchStat(In& in, const Position place, const ast::OptSafety safety, const bool allowVarArg)
 	{
 		if(checkReadTextToken(in,"extern"))
 		{
@@ -443,7 +443,7 @@ namespace slu::parse
 		return false;
 	}
 	template<bool isLoop, AnyInput In>
-	inline bool readFchStat(In& in, const Position place, const ExportData exported,const OptSafety safety, const bool allowVarArg)
+	inline bool readFchStat(In& in, const Position place, const ExportData exported,const ast::OptSafety safety, const bool allowVarArg)
 	{
 		if (in.isOob(1))
 			return false;
@@ -469,7 +469,7 @@ namespace slu::parse
 			}
 			break;
 		case 'o':
-			if (exported || safety != OptSafety::DEFAULT)
+			if (exported || safety != ast::OptSafety::DEFAULT)
 				break;
 			if (checkReadTextToken(in, "for"))
 			{
@@ -576,11 +576,11 @@ namespace slu::parse
 				switch (in.peek())
 				{
 				case 'e':
-					if(!exported && readEchStat<isLoop>(in,place, OptSafety::SAFE, false))
+					if(!exported && readEchStat<isLoop>(in,place, ast::OptSafety::SAFE, false))
 						return true;
 					break;
 				case 'f':
-					if (readFchStat<isLoop>(in, place, exported, OptSafety::SAFE, false))
+					if (readFchStat<isLoop>(in, place, exported, ast::OptSafety::SAFE, false))
 						return true;
 					break;
 				default:
@@ -606,7 +606,7 @@ namespace slu::parse
 	template<bool isLoop,class StatT,class DeclStatT, AnyInput In>
 	inline void readFunctionStat(In& in, 
 		const Position place, const bool allowVarArg, 
-		const ExportData exported, const OptSafety safety)
+		const ExportData exported, const ast::OptSafety safety)
 	{
 		StatT res{};
 		std::string name;//moved @ readFuncBody
@@ -720,7 +720,7 @@ namespace slu::parse
 			return readLabel(in, place);
 
 		case 'f'://for?, function?, fn?
-			if(readFchStat<isLoop>(in, place, false,OptSafety::DEFAULT, allowVarArg))
+			if(readFchStat<isLoop>(in, place, false, ast::OptSafety::DEFAULT, allowVarArg))
 				return;
 			break;
 		case 'l'://local?
@@ -750,7 +750,7 @@ namespace slu::parse
 				skipSpace(in);
 				if(in.peek() == 'i')
 				{
-					if (readIchStat<isLoop>(in, place, false, OptSafety::DEFAULT, true, allowVarArg))
+					if (readIchStat<isLoop>(in, place, false, ast::OptSafety::DEFAULT, true, allowVarArg))
 						return;
 				}
 				throwExpectedImplAfterDefer(in);
@@ -790,7 +790,7 @@ namespace slu::parse
 			}
 			break;
 		case 'i'://if? impl?
-			if (readIchStat<isLoop>(in, place, false,OptSafety::DEFAULT,false, allowVarArg))
+			if (readIchStat<isLoop>(in, place, false, ast::OptSafety::DEFAULT,false, allowVarArg))
 				return;
 			break;
 
@@ -802,7 +802,7 @@ namespace slu::parse
 				switch (in.peek())
 				{
 				case 'f'://fn? function?
-					if (readFchStat<isLoop>(in, place, true, OptSafety::DEFAULT, allowVarArg))
+					if (readFchStat<isLoop>(in, place, true, ast::OptSafety::DEFAULT, allowVarArg))
 						return;
 					break;
 				case 't'://trait?
@@ -810,7 +810,7 @@ namespace slu::parse
 						return;
 					break;
 				case 'i'://impl?
-					if (readIchStat<isLoop>(in, place, true, OptSafety::DEFAULT, false, allowVarArg))
+					if (readIchStat<isLoop>(in, place, true, ast::OptSafety::DEFAULT, false, allowVarArg))
 						return;
 					break;
 				case 'd'://defer impl?
@@ -819,7 +819,7 @@ namespace slu::parse
 						skipSpace(in);
 						if (in.peek() == 'i')
 						{
-							if (readIchStat<isLoop>(in, place, true, OptSafety::DEFAULT, true, allowVarArg))
+							if (readIchStat<isLoop>(in, place, true, ast::OptSafety::DEFAULT, true, allowVarArg))
 								return;
 						}
 						throwExpectedImplAfterDefer(in);
@@ -850,7 +850,7 @@ namespace slu::parse
 				}
 				throwExpectedExportable(in);
 			}
-			else if (readEchStat<isLoop>(in, place, OptSafety::DEFAULT, allowVarArg))
+			else if (readEchStat<isLoop>(in, place, ast::OptSafety::DEFAULT, allowVarArg))
 				return;
 			
 			break;

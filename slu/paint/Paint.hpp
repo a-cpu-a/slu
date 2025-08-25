@@ -511,17 +511,17 @@ namespace slu::paint
 		}
 	}
 	template<AnySemOutput Se>
-	inline void paintSafety(Se& se, const parse::OptSafety itm)
+	inline void paintSafety(Se& se, const ast::OptSafety itm)
 	{
 		switch (itm)
 		{
-		case parse::OptSafety::SAFE:
+		case ast::OptSafety::SAFE:
 			paintKw<Tok::FN_STAT>(se, "safe");
 			break;
-		case parse::OptSafety::UNSAFE:
+		case ast::OptSafety::UNSAFE:
 			paintKw<Tok::FN_STAT>(se, "unsafe");
 			break;
-		case parse::OptSafety::DEFAULT:
+		case ast::OptSafety::DEFAULT:
 		default:
 			break;
 		}
@@ -580,7 +580,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDecl(Se& se, const parse::ParamList<true>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const parse::MpItmId name, const lang::ExportData exported,const parse::OptSafety safety, const Position pos = {}, const bool fnKw = false)
+	inline void paintFuncDecl(Se& se, const parse::ParamList<true>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const parse::MpItmId name, const lang::ExportData exported,const ast::OptSafety safety, const Position pos = {}, const bool fnKw = false)
 	{
 		paintExportData<Tok::FN_STAT>(se, exported);
 		paintSafety(se, safety);
@@ -625,7 +625,7 @@ namespace slu::paint
 	{
 		std::optional<std::unique_ptr<parse::Expr>> emptyTy{};
 		const std::optional<std::unique_ptr<parse::Expr>>* retType;
-		parse::OptSafety safety;
+		ast::OptSafety safety;
 		retType = &func.retType;
 		safety = func.safety;
 		se.pushLocals(func.local2Mp);
@@ -888,7 +888,7 @@ namespace slu::paint
 		},
 		varcase(const parse::StatType::Impl&) {
 			paintExportData<Tok::IMPL>(se, var.exported);
-			paintSafety(se, var.isUnsafe ? parse::OptSafety::UNSAFE : parse::OptSafety::DEFAULT);
+			paintSafety(se, var.isUnsafe ? ast::OptSafety::UNSAFE : ast::OptSafety::DEFAULT);
 			if (var.deferChecking) paintKw<Tok::IMPL>(se, "defer");
 			paintKw<Tok::IMPL>(se, "impl");
 

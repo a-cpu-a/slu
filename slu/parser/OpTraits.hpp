@@ -43,7 +43,7 @@ namespace slu::parse
 	}
 	constexpr auto mkUnOpNames(bool forTrait)
 	{
-		std::array<std::array<char,10>, (size_t)UnOpType::ENUM_SIZE> res = {
+		std::array<std::array<char,10>, (size_t)ast::UnOpType::ENUM_SIZE> res = {
 			"neg","not",
 
 			"rangeMax\0",//!!!
@@ -56,26 +56,26 @@ namespace slu::parse
 		handleTraitCase(res,forTrait);
 		if (forTrait)
 		{
-			rewriteNameArrayElement(res, UnOpType::RANGE_BEFORE, RANGE_OP_TRAIT_NAME);
+			rewriteNameArrayElement(res, ast::UnOpType::RANGE_BEFORE, RANGE_OP_TRAIT_NAME);
 		}
 		return res;
 	}
 	constexpr auto mkPostUnOpNames(bool forTrait)
 	{
-		std::array<std::array<char,10>, (size_t)PostUnOpType::ENUM_SIZE> res = {
+		std::array<std::array<char,10>, (size_t)ast::PostUnOpType::ENUM_SIZE> res = {
 			"rangeMin\0",//!!!
 			"deref", "_try"
 		};
 		handleTraitCase(res,forTrait);
 		if (forTrait)
 		{
-			rewriteNameArrayElement(res, PostUnOpType::RANGE_AFTER, RANGE_OP_TRAIT_NAME);
+			rewriteNameArrayElement(res, ast::PostUnOpType::RANGE_AFTER, RANGE_OP_TRAIT_NAME);
 		}
 		return res;
 	}
 	constexpr auto mkBinOpNames(bool forTrait)
 	{
-		std::array<std::array<char,14>, (size_t)BinOpType::ENUM_SIZE> res = {
+		std::array<std::array<char,14>, (size_t)ast::BinOpType::ENUM_SIZE> res = {
 			"add","sub", "mul", "div","flrDiv", "pow", "rem",
 			"bitAnd", "bitXor", "bitOr", "shr", "shl",
 			"concat",
@@ -94,19 +94,19 @@ namespace slu::parse
 		handleTraitCase(res,forTrait);
 		if (forTrait)
 		{
-			rewriteNameArrayElement(res,BinOpType::RANGE_BETWEEN, RANGE_OP_TRAIT_NAME);
+			rewriteNameArrayElement(res, ast::BinOpType::RANGE_BETWEEN, RANGE_OP_TRAIT_NAME);
 			auto ltgtTraitName = "PartialOrd";
-			rewriteNameArrayElement(res, BinOpType::LESS_THAN, ltgtTraitName);
-			rewriteNameArrayElement(res, BinOpType::GREATER_THAN, ltgtTraitName);
-			rewriteNameArrayElement(res, BinOpType::LESS_EQUAL, ltgtTraitName);
-			rewriteNameArrayElement(res, BinOpType::GREATER_EQUAL, ltgtTraitName);
+			rewriteNameArrayElement(res, ast::BinOpType::LESS_THAN, ltgtTraitName);
+			rewriteNameArrayElement(res, ast::BinOpType::GREATER_THAN, ltgtTraitName);
+			rewriteNameArrayElement(res, ast::BinOpType::LESS_EQUAL, ltgtTraitName);
+			rewriteNameArrayElement(res, ast::BinOpType::GREATER_EQUAL, ltgtTraitName);
 			auto eqTraitName = "PartialEq";
-			rewriteNameArrayElement(res, BinOpType::EQUAL, eqTraitName);
-			rewriteNameArrayElement(res, BinOpType::NOT_EQUAL, eqTraitName);
+			rewriteNameArrayElement(res, ast::BinOpType::EQUAL, eqTraitName);
+			rewriteNameArrayElement(res, ast::BinOpType::NOT_EQUAL, eqTraitName);
 		}
 		else
 		{
-			auto& asStr = res[((size_t)BinOpType::AS) - 1];
+			auto& asStr = res[((size_t)ast::BinOpType::AS) - 1];
 			asStr[2] = 'T';
 			asStr[3] = 'y';
 			asStr[4] = 'p';

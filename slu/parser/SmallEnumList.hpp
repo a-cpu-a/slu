@@ -272,5 +272,5 @@ namespace slu::parse
 			return *this;
 		}
 	};
-	static_assert(sizeof(SmallEnumList<UnOpType>) == 16);
+	static_assert(sizeof(SmallEnumList<ast::UnOpType>) == 16);
 }

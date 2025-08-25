@@ -27,7 +27,7 @@ namespace slu::parse
 	//No space skip!
 	//YOU parse the 'fn'
 	template<bool isBasic,AnyInput In>
-	inline ExprType::FnType readFnType(In& in, const OptSafety safety)
+	inline ExprType::FnType readFnType(In& in, const ast::OptSafety safety)
 	{// [safety] "fn" typeExp "->" typeExp
 		ExprType::FnType res{};
 		res.safety = safety;

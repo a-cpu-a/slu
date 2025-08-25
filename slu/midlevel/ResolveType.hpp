@@ -147,11 +147,11 @@ namespace slu::mlvl
 				rt.hasMut = true;
 				return rt;
 			}
-			parse::UnOpType op;
+			ast::UnOpType op;
 			if(var.method == mpDb.data->getItm({ "std","ops","Ref","ref" }))
-				op = parse::UnOpType::TO_REF;
+				op = ast::UnOpType::TO_REF;
 			else if (var.method == mpDb.data->getItm({ "std","ops","Ptr","ptr" }))
-				op = parse::UnOpType::TO_PTR;
+				op = ast::UnOpType::TO_PTR;
 			else
 				throw std::runtime_error("Unimplemented type expression: " + std::string(var.method.asSv(mpDb)) + " (type resolution)");
 
@@ -183,7 +183,7 @@ namespace slu::mlvl
 			return parse::ResolvedType{
 				.base = parse::RawTypeKind::RefChain{new parse::RefChainRawType{
 					.elem = std::move(rt),
-					.chain = { parse::RefSigil{.refType = parse::UnOpType::TO_REF}}
+					.chain = { parse::RefSigil{.refType = ast::UnOpType::TO_REF}}
 				}},
 				.size = sz,
 				.alignmentData = parse::alignDataFromSize(sz)

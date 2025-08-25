@@ -6,7 +6,7 @@
 
 export module slu.ast.enums;
 
-namespace slu::parse
+namespace slu::ast
 {
 	export enum class OptSafety : uint8_t
 	{

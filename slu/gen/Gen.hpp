@@ -20,68 +20,68 @@
 namespace slu::parse
 {
 	template<AnyCfgable Out>
-	inline std::string_view getBinOpAsStr(const BinOpType t)
+	inline std::string_view getBinOpAsStr(const ast::BinOpType t)
 	{
 		using namespace std::literals;
 		switch (t)
 		{
-		case BinOpType::ADD:
+		case ast::BinOpType::ADD:
 			return "+"sv;
-		case BinOpType::SUBTRACT:
+		case ast::BinOpType::SUBTRACT:
 			return "-"sv;
-		case BinOpType::MULTIPLY:
+		case ast::BinOpType::MULTIPLY:
 			return "*"sv;
-		case BinOpType::DIVIDE:
+		case ast::BinOpType::DIVIDE:
 			return "/"sv;
-		case BinOpType::FLOOR_DIVIDE:
+		case ast::BinOpType::FLOOR_DIVIDE:
 			return "//"sv;
-		case BinOpType::EXPONENT:
+		case ast::BinOpType::EXPONENT:
 			return "^"sv;
-		case BinOpType::MODULO:
+		case ast::BinOpType::MODULO:
 			return "%"sv;
 
-		case BinOpType::BITWISE_AND:
+		case ast::BinOpType::BITWISE_AND:
 			return "&"sv;
-		case BinOpType::BITWISE_XOR:
+		case ast::BinOpType::BITWISE_XOR:
 			return "~"sv;
-		case BinOpType::BITWISE_OR:
+		case ast::BinOpType::BITWISE_OR:
 			return "|"sv;
-		case BinOpType::SHIFT_RIGHT:
+		case ast::BinOpType::SHIFT_RIGHT:
 			return ">>"sv;
-		case BinOpType::SHIFT_LEFT:
+		case ast::BinOpType::SHIFT_LEFT:
 			return "<<"sv;
 
-		case BinOpType::LESS_THAN:
+		case ast::BinOpType::LESS_THAN:
 			return "<"sv;
-		case BinOpType::LESS_EQUAL:
+		case ast::BinOpType::LESS_EQUAL:
 			return "<="sv;
-		case BinOpType::GREATER_THAN:
+		case ast::BinOpType::GREATER_THAN:
 			return ">"sv;
-		case BinOpType::GREATER_EQUAL:
+		case ast::BinOpType::GREATER_EQUAL:
 			return ">="sv;
 
-		case BinOpType::EQUAL:
+		case ast::BinOpType::EQUAL:
 			return "=="sv;
-		case BinOpType::NOT_EQUAL:
+		case ast::BinOpType::NOT_EQUAL:
 			return "!="sv;
 
-		case BinOpType::LOGICAL_AND:
+		case ast::BinOpType::LOGICAL_AND:
 			return "and"sv;
-		case BinOpType::LOGICAL_OR:
+		case ast::BinOpType::LOGICAL_OR:
 			return "or"sv;
 
-		case BinOpType::CONCATENATE:
+		case ast::BinOpType::CONCATENATE:
 			return "++"sv;
-		case BinOpType::ARRAY_MUL:
+		case ast::BinOpType::ARRAY_MUL:
 			return "**"sv;
-		case BinOpType::RANGE_BETWEEN:
+		case ast::BinOpType::RANGE_BETWEEN:
 			return ".."sv;
-		case BinOpType::MAKE_RESULT:
+		case ast::BinOpType::MAKE_RESULT:
 			return "~~"sv;
-		case BinOpType::UNION:
+		case ast::BinOpType::UNION:
 			return "||"sv;
 
-		case BinOpType::AS:
+		case ast::BinOpType::AS:
 			return "as"sv;
 		default:
 			_ASSERT(false);
@@ -89,56 +89,56 @@ namespace slu::parse
 		}
 	}
 	template<AnyCfgable Out>
-	inline std::string_view getUnOpAsStr(const UnOpType t)
+	inline std::string_view getUnOpAsStr(const ast::UnOpType t)
 	{
 		using namespace std::literals;
 		switch (t)
 		{
-		case UnOpType::NEGATE:
+		case ast::UnOpType::NEGATE:
 			return " -"sv;//TODO: elide space, when there is one already
-		case UnOpType::LOGICAL_NOT:
+		case ast::UnOpType::LOGICAL_NOT:
 			return "!"sv;
 
-		case UnOpType::RANGE_BEFORE:
+		case ast::UnOpType::RANGE_BEFORE:
 			return ".."sv;
-		case UnOpType::ALLOCATE:
+		case ast::UnOpType::ALLOCATE:
 			return " alloc "sv;
 
-		case UnOpType::TO_REF_MUT:
-		case UnOpType::TO_REF_CONST:
-		case UnOpType::TO_REF_SHARE:
+		case ast::UnOpType::TO_REF_MUT:
+		case ast::UnOpType::TO_REF_CONST:
+		case ast::UnOpType::TO_REF_SHARE:
 			//mut or whatever missing, as lifetimes need to be added
-		case UnOpType::TO_REF:
+		case ast::UnOpType::TO_REF:
 			return "&"sv;
 
-		case UnOpType::TO_PTR:
+		case ast::UnOpType::TO_PTR:
 			return "*"sv;
-		case UnOpType::TO_PTR_CONST:
+		case ast::UnOpType::TO_PTR_CONST:
 			return "*const "sv;
-		case UnOpType::TO_PTR_SHARE:
+		case ast::UnOpType::TO_PTR_SHARE:
 			return "*share "sv;
-		case UnOpType::TO_PTR_MUT:
+		case ast::UnOpType::TO_PTR_MUT:
 			return "*mut "sv;
 
-		case UnOpType::MUT:
+		case ast::UnOpType::MUT:
 			return " mut "sv;
 		default:
 			_ASSERT(false);
 			return "<ERROR>"sv;
 		}
 	}
-	inline std::string_view getPostUnOpAsStr(const PostUnOpType t)
+	inline std::string_view getPostUnOpAsStr(const ast::PostUnOpType t)
 	{
 		using namespace std::literals;
 		switch (t)
 		{
 			// Slu
-		case PostUnOpType::RANGE_AFTER:
+		case ast::PostUnOpType::RANGE_AFTER:
 			return ".. "sv;
 
-		case PostUnOpType::DEREF:
+		case ast::PostUnOpType::DEREF:
 			return ".*"sv;
-		case PostUnOpType::PROPOGATE_ERR:
+		case ast::PostUnOpType::PROPOGATE_ERR:
 			return "?"sv;
 		default:
 			_ASSERT(false);
@@ -202,23 +202,23 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genSafety(Out& out, const OptSafety& obj)
+	inline void genSafety(Out& out, const ast::OptSafety& obj)
 	{
 		switch (obj)
 		{
-		case OptSafety::DEFAULT:
+		case ast::OptSafety::DEFAULT:
 			break;
-		case OptSafety::SAFE:
+		case ast::OptSafety::SAFE:
 			out.add("safe ");
 			break;
-		case OptSafety::UNSAFE:
+		case ast::OptSafety::UNSAFE:
 			out.add("unsafe ");
 			break;
 		}
 	}
 
 	template<AnyOutput Out>
-	inline void genExSafety(Out& out,const bool exported, const OptSafety& safety)
+	inline void genExSafety(Out& out,const bool exported, const ast::OptSafety& safety)
 	{
 		if (exported)out.add("ex ");
 		genSafety(out, safety);
@@ -248,20 +248,20 @@ namespace slu::parse
 		for (const UnOpItem& t : obj)
 		{
 			out.add(getUnOpAsStr<Out>(t.type));
-			if (t.type == UnOpType::TO_REF
-				|| t.type == UnOpType::TO_REF_MUT
-				|| t.type == UnOpType::TO_REF_CONST
-				|| t.type == UnOpType::TO_REF_SHARE)
+			if (t.type == ast::UnOpType::TO_REF
+				|| t.type == ast::UnOpType::TO_REF_MUT
+				|| t.type == ast::UnOpType::TO_REF_CONST
+				|| t.type == ast::UnOpType::TO_REF_SHARE)
 			{
 				genLifetime(out, t.life);
 				if (!t.life.empty())
 					out.add(' ');
 
-				if (t.type == UnOpType::TO_REF_MUT)
+				if (t.type == ast::UnOpType::TO_REF_MUT)
 					out.add("mut ");
-				else if (t.type == UnOpType::TO_REF_CONST)
+				else if (t.type == ast::UnOpType::TO_REF_CONST)
 					out.add("const ");
-				else if (t.type == UnOpType::TO_REF_SHARE)
+				else if (t.type == ast::UnOpType::TO_REF_SHARE)
 					out.add("share ");
 			}
 		}
@@ -271,7 +271,7 @@ namespace slu::parse
 	{
 		genUnOps(out, obj.unOps);
 		genExprData(out, obj.data);
-		for (const PostUnOpType t : obj.postUnOps)
+		for (const ast::PostUnOpType t : obj.postUnOps)
 			out.add(getPostUnOpAsStr(t));
 	}
 	template<AnyOutput Out>
@@ -753,7 +753,7 @@ namespace slu::parse
 	template<bool isLocal,size_t N,AnyOutput Out>
 	inline void genVarStat(Out& out, const auto& obj,const char(&kw)[N])
 	{
-		genExSafety(out, obj.exported, OptSafety::DEFAULT);
+		genExSafety(out, obj.exported, ast::OptSafety::DEFAULT);
 
 		out.add(kw);
 		genPat<isLocal>(out, obj.names);
@@ -810,7 +810,7 @@ namespace slu::parse
 			out.popLocals();
 		},
 		varcase(const StatType::CanonicLocal&) {
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("let ");
 			//genExpr(out, var.type); //TODO: gen resolved types?
 			//out.add(' ');
@@ -822,7 +822,7 @@ namespace slu::parse
 		},
 		varcase(const StatType::CanonicGlobal&) {
 			out.pushLocals(var.local2Mp);
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("const ");
 			//genExpr(out, var.type); //TODO: gen resolved types?
 			//out.add(' ');
@@ -925,7 +925,7 @@ namespace slu::parse
 
 		varcase(const StatType::Struct&) {
 			out.pushLocals(var.local2Mp);
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("struct ").add(out.db.asSv(var.name));
 			if (!var.params.empty())
 			{
@@ -941,7 +941,7 @@ namespace slu::parse
 
 		varcase(const StatType::Union&) {
 			out.pushLocals(var.local2Mp);
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("union ").add(out.db.asSv(var.name));
 			if (!var.params.empty())
 			{
@@ -994,7 +994,7 @@ namespace slu::parse
 			out.wasSemicolon = true;
 		},
 		varcase(const StatType::Trait&) {
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("trait ")
 				.add(out.db.asSv(var.name)).add('(');
 			genParamList(out, var.params, false);
@@ -1011,7 +1011,7 @@ namespace slu::parse
 			out.unTabNewl().addNewl('}');
 		},
 		varcase(const StatType::Impl&) {
-			genExSafety(out, var.exported, var.isUnsafe?OptSafety::UNSAFE : OptSafety::DEFAULT);
+			genExSafety(out, var.exported, var.isUnsafe? ast::OptSafety::UNSAFE : ast::OptSafety::DEFAULT);
 			if (var.deferChecking) out.add("defer ");
 			out.add("impl(");
 			genParamList(out, var.params, false);
@@ -1029,7 +1029,7 @@ namespace slu::parse
 			out.unTabNewl().addNewl('}');
 		},
 		varcase(const StatType::Use&) {
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("use ");
 			genModPath(out, out.db.asVmp(var.base));
 			genUseVariant(out, var.useVariant);
@@ -1037,12 +1037,12 @@ namespace slu::parse
 			out.wasSemicolon = true;
 		},
 		varcase(const StatType::Mod<Out>&) {
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("mod ").add(out.db.asSv(var.name)).addNewl(';');
 			out.wasSemicolon = true;
 		},
 		varcase(const StatType::ModAs<Out>&) {
-			genExSafety(out, var.exported, OptSafety::DEFAULT);
+			genExSafety(out, var.exported, ast::OptSafety::DEFAULT);
 			out.add("mod ").add(out.db.asSv(var.name)).add(" as {");
 			out.tabUpNewl().newLine();
 

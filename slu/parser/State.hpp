@@ -210,7 +210,7 @@ namespace slu::parse
 	struct UnOpItem
 	{
 		Lifetime life;
-		UnOpType type;
+		ast::UnOpType type;
 	};
 
 	struct TraitExpr
@@ -240,7 +240,7 @@ namespace slu::parse
 		ParamList<true> params;
 		std::optional<BoxExpr> retType;
 		bool hasVarArgParam = false;// do params end with '...'
-		OptSafety safety = OptSafety::DEFAULT;
+		ast::OptSafety safety = ast::OptSafety::DEFAULT;
 	};
 	struct Function : FunctionInfo
 	{
@@ -277,7 +277,7 @@ namespace slu::parse
 		struct MultiOpV
 		{
 			BoxExpr first;
-			std::vector<std::pair<BinOpType, Expr>> extra;//size>=1
+			std::vector<std::pair<ast::BinOpType, Expr>> extra;//size>=1
 		};      // "exp binop exp"
 		Slu_DEF_CFG(MultiOp);
 
@@ -303,7 +303,7 @@ namespace slu::parse
 		{
 			BoxExpr argType;
 			BoxExpr retType;
-			OptSafety safety = OptSafety::DEFAULT;
+			ast::OptSafety safety = ast::OptSafety::DEFAULT;
 		};
 		struct Dyn {
 			parse::TraitExpr expr;
@@ -384,7 +384,7 @@ namespace slu::parse
 		Position place;
 		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
 
-		SmallEnumList<PostUnOpType> postUnOps;
+		SmallEnumList<ast::PostUnOpType> postUnOps;
 
 		bool isBasicStruct() const {
 			if (!this->unOps.empty() || !this->postUnOps.empty())
@@ -703,7 +703,7 @@ namespace slu::parse
 			StatListV<isSlu> stats;
 			std::string abi;
 			Position abiEnd;
-			OptSafety safety = OptSafety::DEFAULT;
+			ast::OptSafety safety = ast::OptSafety::DEFAULT;
 		};
 		Slu_DEF_CFG(ExternBlock);
 
