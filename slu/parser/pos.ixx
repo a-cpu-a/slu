@@ -1,12 +1,11 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
-
+export module slu.parse.pos;
 namespace slu::parse
 {
-	struct Position
+	export struct Position
 	{
 		size_t line;
 		size_t index;//Oops 0 based! TODO: fix that!

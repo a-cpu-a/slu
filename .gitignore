@@ -27,7 +27,7 @@ temp
 **/_deps
 **/CMakeUserPresets.json
 
-
+*.pdb
 **/.vs
 *.sln
 *.vcxproj*

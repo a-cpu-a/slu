@@ -13,8 +13,8 @@
 
 import slu.settings;
 import slu.lang.basic_state;
+import slu.parse.position;
 #include <slu/Ansi.hpp>
-#include "Position.hpp"
 
 namespace slu::parse
 {
