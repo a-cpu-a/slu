@@ -12,7 +12,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slu/Settings.hpp>
-#include <slu/lang/BasicState.hpp>
+import slu.lang.basic_state;
 #include <slu/Ansi.hpp>
 #include "Position.hpp"
 

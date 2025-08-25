@@ -6,7 +6,8 @@
 #include <string>
 #include <cstdint>
 #include <array>
-#include <slu/lang/BasicState.hpp>
+
+import slu.lang.basic_state;
 
 namespace slu::mpc
 {

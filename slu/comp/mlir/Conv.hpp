@@ -67,8 +67,7 @@ LLD_HAS_DRIVER(coff);
 
 #pragma warning(pop)
 
-#include <slu/lang/BasicState.hpp>
-
+import slu.lang.basic_state;
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/ConvData.hpp>
 

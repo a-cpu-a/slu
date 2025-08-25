@@ -6,8 +6,7 @@
 #include <string>
 #include <vector>
 #include <optional>
-
-#include <slu/lang/BasicState.hpp>
+import slu.lang.basic_state;
 
 namespace slu::comp
 {

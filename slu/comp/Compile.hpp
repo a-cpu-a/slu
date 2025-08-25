@@ -8,9 +8,9 @@
 #include <optional>
 #include <thread>
 #include <variant>
-import a_cpu_a.mtx;
-#include <slu/lang/BasicState.hpp>
 
+import a_cpu_a.mtx;
+import slu.lang.basic_state;
 #include <slu/comp/CompThread.hpp>
 #include <slu/comp/CompInclude.hpp>
 

@@ -10,7 +10,6 @@
 #include <numeric>
 
 #include <slu/parser/State.hpp>
-#include <slu/lang/BasicState.hpp>
 
 namespace slu::mlvl
 {

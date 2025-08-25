@@ -10,8 +10,7 @@
 #include <variant>
 import a_cpu_a.mtx;
 #include <slu/ext/CppMatch.hpp>
-
-#include <slu/lang/BasicState.hpp>
+import slu.lang.basic_state;
 #include <slu/midlevel/BasicDesugar.hpp>
 #include <slu/midlevel/TypeInfCheck.hpp>
 #include <slu/parser/SimpleErrors.hpp>

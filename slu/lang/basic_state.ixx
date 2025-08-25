@@ -1,21 +1,24 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
 
 #include <string>
 #include <vector>
 #include <span>
+export module slu.lang.basic_state;
+
 namespace slu::lang
 {
 	struct MpItmId;
 
 	//Mp's
-	using ModPath = std::vector<std::string>;
-	using ModPathView = std::span<const std::string>;
-	using ViewModPath = std::vector<std::string_view>;
-	using ViewModPathView = std::span<const std::string_view>;
+	export using ModPath = std::vector<std::string>;
+	export using ModPathView = std::span<const std::string>;
+	export using ViewModPath = std::vector<std::string_view>;
+	export using ViewModPathView = std::span<const std::string_view>;
 }
+extern "C++" {
 namespace slu::parse
 {
 	struct BasicMpDbData;
@@ -23,15 +26,15 @@ namespace slu::parse
 	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, lang::MpItmId thiz);
 	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, lang::MpItmId thiz);
 }
+}
 namespace slu::lang
 {
-
-	struct ModPathId
+	export struct ModPathId
 	{
 		size_t id;
 		constexpr auto operator<=>(const ModPathId&)const = default;
 	};
-	struct LocalObjId
+	export struct LocalObjId
 	{
 		size_t val;
 		constexpr static LocalObjId newEmpty() {
@@ -41,7 +44,7 @@ namespace slu::lang
 		constexpr auto operator<=>(const LocalObjId&)const = default;
 	};
 	
-	struct MpItmId
+	export struct MpItmId
 	{
 		LocalObjId id;// Practically a string pool lol
 		//SIZE_MAX -> empty
@@ -72,16 +75,16 @@ namespace slu::lang
 	};
 
 	//Might in the future also contain data about other stuff, like export control (crate,self,tests,...).
-	using ExportData = bool;
+	export using ExportData = bool;
 
-template<class T>
+	export template<class T>
 	concept AnyMp = 
 		std::same_as<T, ModPathView>
 		|| std::same_as<T, ViewModPathView>
 		|| std::same_as<T, ViewModPath>
 		|| std::same_as<T, ModPath>;
 
-	struct HashModPathView
+	export struct HashModPathView
 	{
 		using is_transparent = void;
 		template<AnyMp T>
@@ -98,7 +101,7 @@ template<class T>
 			return seed;
 		}
 	};
-	struct EqualModPathView
+	export struct EqualModPathView
 	{
 		using is_transparent = void;
 		constexpr bool operator()(const AnyMp auto& lhs, const AnyMp auto& rhs)const {

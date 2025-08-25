@@ -15,8 +15,8 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 #include <slu/ext/CppMatch.hpp>
-#include <slu/lang/BasicState.hpp>
 import slu.ast.enums;
+import slu.lang.basic_state;
 #include "SmallEnumList.hpp"
 #include "Input.hpp"
 #include "StateDecls.hpp"

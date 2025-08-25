@@ -8,7 +8,6 @@
 #include <optional>
 #include <thread>
 #include <variant>
-#include <slu/lang/BasicState.hpp>
 
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/ConvData.hpp>

@@ -3,7 +3,6 @@
 */
 #pragma once
 
-#include <slu/lang/BasicState.hpp>
 #include <slu/parser/State.hpp>
 #include <slu/parser/BasicGenData.hpp>
 

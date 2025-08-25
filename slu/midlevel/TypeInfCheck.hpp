@@ -8,8 +8,9 @@
 #include <optional>
 #include <variant>
 #include <algorithm>
+
 #include <slu/ext/CppMatch.hpp>
-#include <slu/lang/BasicState.hpp>
+import slu.lang.basic_state;
 #include <slu/parser/State.hpp>
 #include <slu/parser/BuildState.hpp>
 #include <slu/visit/Visit.hpp>
