@@ -19,7 +19,7 @@
 #include <slu/ext/ExtendVariant.hpp>
 #include <slu/lang/BasicState.hpp>
 #include <slu/lang/Mpc.hpp>
-#include <slu/BigInt.hpp>
+import slu.BigInt;
 #include "Enums.hpp"
 #include "SmallEnumList.hpp"
 #include "Input.hpp"

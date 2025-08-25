@@ -1,19 +1,16 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
+#include <cstdint>
+#include <compare>
+#include <bit>
 
-#include <span>
-#include <vector>
-#include <memory>
-#include <variant>
-
-#include <slu/ext/CppMatch.hpp>
-#include <slu/ext/ExtendVariant.hpp>
+export module slu.BigInt;
 
 namespace slu
 {
-	template<bool SIGNED, bool NEGATIVIZED = false>
+	export template<bool SIGNED, bool NEGATIVIZED = false>
 	struct Integer128
 	{
 		uint64_t lo = 0;
