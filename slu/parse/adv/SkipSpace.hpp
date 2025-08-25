@@ -10,7 +10,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.parse.input;
-#include <slu/parse/ManageNewline.hpp>
+import slu.parse.manage_newl;
 #include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::parse

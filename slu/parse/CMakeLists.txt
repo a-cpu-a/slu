@@ -1,4 +1,5 @@
 ﻿
 add_library(slu-parse 
 	"input.ixx"
+	"manage_newl.ixx"
 	"pos.ixx" )

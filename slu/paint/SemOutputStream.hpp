@@ -15,7 +15,7 @@
 import slu.settings;
 import slu.parse.input;
 #include <slu/parse/State.hpp>
-#include <slu/parse/ManageNewline.hpp>
+import slu.parse.manage_newl;
 
 namespace slu::paint
 {

@@ -1,27 +1,22 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
-
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
+export module slu.parse.manage_newl;
 import slu.parse.input;
 
 namespace slu::parse
 {
-	enum class ParseNewlineState : uint8_t
+	export enum class ParseNewlineState : uint8_t
 	{
 		NONE,
 		CARI,
 	};
 
 	//Returns if newline was added
-	template <bool skipPreNl>
-	inline bool manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
+	export template <bool skipPreNl>
+	bool manageNewlineState(const char ch, ParseNewlineState& nlState, AnyInput auto& in)
 	{
 		switch (nlState)
 		{
