@@ -9,6 +9,7 @@
 #include <optional>
 #include <memory>
 #include <variant>
+#include <stdexcept>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -19,9 +20,9 @@ import slu.ast.enums;
 import slu.ast.pos;
 import slu.ast.small_enum_list;
 import slu.ast.state_decls;
+import slu.ast.type;
 import slu.lang.basic_state;
 import slu.parse.input;
-#include "ResolvedType.hpp"
 
 namespace slu::parse
 {

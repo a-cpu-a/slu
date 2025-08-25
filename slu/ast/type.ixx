@@ -1,8 +1,7 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <vector>
@@ -13,83 +12,90 @@
 #include <bit>
 #include <stdexcept>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
 #include <slu/ext/CppMatch.hpp>
-import slu.lang.basic_state;
 #include <slu/lang/Mpc.hpp>
+export module slu.ast.type;
 import slu.big_int;
 import slu.ast.enums;
 import slu.ast.small_enum_list;
 import slu.ast.state_decls;
+import slu.lang.basic_state;
 import slu.parse.input;
 
-namespace slu::parse
+namespace slu::parse //TODO: ast
 {
+	extern "C++" {
 	struct ResolvedType;
+	}
 }
 
 namespace slu::mlvl
 {
+	extern "C++" {
 	bool nearExactCheck(const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
+	}
 }
 
-namespace slu::parse
+namespace slu::parse //TODO: ast
 {
-	inline const size_t TYPE_RES_SIZE_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
-	inline const size_t TYPE_RES_PTR_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
+	export constexpr size_t TYPE_RES_SIZE_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
+	export constexpr size_t TYPE_RES_PTR_SIZE = 64;//TODO: unhardcode this, allow 8 bits too.
 
-	struct StructRawType;
-	struct UnionRawType;
-	struct VariantRawType;
-	struct RefChainRawType;
-	struct RefSliceRawType;
-	struct DelStructRawType
+	export struct StructRawType;
+	export struct UnionRawType;
+	export struct VariantRawType;
+	export struct RefChainRawType;
+	export struct RefSliceRawType;
+	export struct DelStructRawType
 	{
 		void operator()(StructRawType* it) const noexcept;
 	};
-	struct DelUnionRawType
+	export struct DelUnionRawType
 	{
 		void operator()(UnionRawType* it) const noexcept;
 	};
-	struct DelVariantRawType
+	export struct DelVariantRawType
 	{
 		void operator()(VariantRawType* it) const noexcept;
 	};
-	struct DelRefChainRawType
+	export struct DelRefChainRawType
 	{
 		void operator()(RefChainRawType* it) const noexcept;
 	};
-	struct DelRefSliceRawType
+	export struct DelRefSliceRawType
 	{
 		void operator()(RefSliceRawType* it) const noexcept;
 	};
+	extern "C++" {
+		export struct DelExpr
+		{
+			void operator()(parse::Expr* it) const noexcept;
+		};
+	}
 	namespace RawTypeKind
 	{
-		using Inferred = std::monostate;
-		struct TypeError {};
-		using Unresolved = std::unique_ptr<parse::Expr>;
+		export using Inferred = std::monostate;
+		export struct TypeError {};
+		export using Unresolved = std::unique_ptr<parse::Expr, DelExpr>;
 
-		using String = std::string;
+		export using String = std::string;
 
-		using Float64 = ExprType::F64;
+		export using Float64 = ExprType::F64;
 
-		using Pos128 = ExprType::P128;
-		using Neg128 = ExprType::M128;
-		using Uint64 = ExprType::U64;
-		using Int64 = ExprType::I64;
+		export using Pos128 = ExprType::P128;
+		export using Neg128 = ExprType::M128;
+		export using Uint64 = ExprType::U64;
+		export using Int64 = ExprType::I64;
 	}
-	template <class T>
+	export template <class T>
 	concept Any128Int = std::same_as<T, parse::RawTypeKind::Pos128>
 		|| std::same_as<T, parse::RawTypeKind::Neg128>;
-	template <class T>
+	export template <class T>
 	concept AnyRawInt = std::same_as<T, parse::RawTypeKind::Uint64>
 		|| std::same_as<T, parse::RawTypeKind::Int64>
 		|| Any128Int<T>;
 
-	template <bool NEG_MIN, bool NEG_MAX>
+	export template <bool NEG_MIN, bool NEG_MAX>
 	struct Range128
 	{
 		Integer128<false, NEG_MIN> min;
@@ -107,11 +113,11 @@ namespace slu::parse
 
 	namespace RawTypeKind
 	{
-		using Range128Pp = Range128<false, false>;
-		using Range128Np = Range128<true, false>;
-		using Range128Nn = Range128<true, true>;
+		export using Range128Pp = Range128<false, false>;
+		export using Range128Np = Range128<true, false>;
+		export using Range128Nn = Range128<true, true>;
 
-		struct Range64
+		export struct Range64
 		{
 			Int64 min;
 			Int64 max;
@@ -136,13 +142,13 @@ namespace slu::parse
 			}
 			constexpr auto operator<=>(const Range64&) const = default;
 		};
-		using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
-		using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
-		using Struct = std::unique_ptr<StructRawType, DelStructRawType>;
-		using RefChain = std::unique_ptr<RefChainRawType, DelRefChainRawType>;
-		using RefSlice = std::unique_ptr<RefSliceRawType, DelRefSliceRawType>;
+		export using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
+		export using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
+		export using Struct = std::unique_ptr<StructRawType, DelStructRawType>;
+		export using RefChain = std::unique_ptr<RefChainRawType, DelRefChainRawType>;
+		export using RefSlice = std::unique_ptr<RefSliceRawType, DelRefSliceRawType>;
 	}
-	using RawType = std::variant <
+	export using RawType = std::variant <
 		RawTypeKind::TypeError,
 		RawTypeKind::Inferred,
 		RawTypeKind::Unresolved,
@@ -164,27 +170,27 @@ namespace slu::parse
 		RawTypeKind::RefSlice
 	>;
 
-	template <class T>
+	export template <class T>
 	concept AnyRawRange = std::same_as<T, parse::RawTypeKind::Range64>
 		|| std::same_as<T, parse::RawTypeKind::Range128Nn>
 		|| std::same_as<T, parse::RawTypeKind::Range128Pp>
 		|| std::same_as<T, parse::RawTypeKind::Range128Np>;
-	using Range129 = std::variant<
+	export using Range129 = std::variant<
 		parse::RawTypeKind::Range128Pp,
 		parse::RawTypeKind::Range128Np,
 		parse::RawTypeKind::Range128Nn
 	>;
 
-	constexpr uint64_t abs(int64_t v)
+	export constexpr uint64_t abs(int64_t v)
 	{
 		if (v == INT64_MIN)
 			return INT64_MAX + 1ULL;
 		return v < 0 ? -v : v;
 	}
-	constexpr auto r129Get(const Range129& v, auto&& visitor) {
+	export constexpr auto r129Get(const Range129& v, auto&& visitor) {
 		return std::visit(std::move(visitor), v);
 	}
-	template <class MinT, class MaxT>
+	export template <class MinT, class MaxT>
 	constexpr auto r129From(const MinT& min, const MaxT& max) {
 		constexpr bool minP = std::same_as<MinT, Integer128<false, false>>;
 		constexpr bool maxP = std::same_as<MaxT, Integer128<false, false>>;
@@ -198,22 +204,22 @@ namespace slu::parse
 		else
 			return RawTypeKind::Range128Nn{ .min = min, .max = max };
 	}
-	constexpr Range129 range129FromInt(uint64_t v) {
+	export constexpr Range129 range129FromInt(uint64_t v) {
 		return RawTypeKind::Range128Pp{ .min = v, .max = v };
 	}
-	constexpr Range129 range129FromInt(int64_t v) {
+	export constexpr Range129 range129FromInt(int64_t v) {
 		if (v < 0)
 			return RawTypeKind::Range128Nn{ .min = abs(v), .max = abs(v) };
 		return range129FromInt((uint64_t)v);
 	}
-	constexpr Range129 range129FromInt(Any128Int auto v)
+	export constexpr Range129 range129FromInt(Any128Int auto v)
 	{
 		if constexpr (std::same_as<decltype(v), RawTypeKind::Neg128>)
 			return RawTypeKind::Range128Nn{ .min = v, .max = v };
 		else
 			return RawTypeKind::Range128Pp{ .min = v, .max = v };
 	}
-	constexpr Range129 range129From64(const RawTypeKind::Range64 v)
+	export constexpr Range129 range129From64(const RawTypeKind::Range64 v)
 	{
 		if (v.min < 0)
 		{
@@ -224,7 +230,7 @@ namespace slu::parse
 		_ASSERT(v.max >= 0);
 		return RawTypeKind::Range128Pp{ .min = (uint64_t)v.min, .max = (uint64_t)v.max };
 	}
-	constexpr size_t calcRangeBits(const RawTypeKind::Range64 range)
+	export constexpr size_t calcRangeBits(const RawTypeKind::Range64 range)
 	{
 		uint64_t vals;//implicit +1.
 		if (range.min < 0)
@@ -239,7 +245,7 @@ namespace slu::parse
 			vals = range.max - range.min;
 		return std::bit_width(vals);
 	}
-	template<AnyRawRange T>
+	export template<AnyRawRange T>
 	constexpr size_t calcRangeBits(const T& range)
 	{
 		constexpr bool minP = std::same_as<T, RawTypeKind::Range128Pp>;
@@ -255,12 +261,12 @@ namespace slu::parse
 			return (range.min.abs() - range.max.abs()).bitWidth();
 	}
 
-	template <class T>
+	export template <class T>
 	concept AnyRawIntOrRange = AnyRawInt<T> || AnyRawRange<T>;
 
-	RawType cloneRawType(const RawType& t);
+	export RawType cloneRawType(const RawType& t);
 
-	constexpr uint8_t alignDataFromSize(size_t bits)
+	export constexpr uint8_t alignDataFromSize(size_t bits)
 	{
 		if (bits == 0)
 			return 0;
@@ -269,7 +275,8 @@ namespace slu::parse
 		return 7;
 	}
 
-	struct ResolvedType
+	extern "C++" {
+		export struct ResolvedType
 	{
 		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50) - 1;
 		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK - 1;
@@ -348,7 +355,8 @@ namespace slu::parse
 			return res;
 		}
 	};
-	struct VariantRawType
+	}
+	export struct VariantRawType
 	{
 		std::vector<ResolvedType> options;
 
@@ -410,7 +418,7 @@ namespace slu::parse
 			return true;
 		}
 	};
-	struct StructRawType
+	export struct StructRawType
 	{
 		std::vector<ResolvedType> fields;
 		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
@@ -482,7 +490,7 @@ namespace slu::parse
 			return true;
 		}
 	};
-	struct UnionRawType
+	export struct UnionRawType
 	{
 		std::vector<ResolvedType> fields;
 		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
@@ -515,14 +523,14 @@ namespace slu::parse
 			return true;
 		}
 	};
-	struct RefSigil
+	export struct RefSigil
 	{
 		lang::MpItmId life;
 		ast::UnOpType refType;
 
 		constexpr auto operator<=>(const RefSigil&) const = default;
 	};
-	struct RefChainRawType
+	export struct RefChainRawType
 	{
 		ResolvedType elem;
 		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
@@ -543,7 +551,7 @@ namespace slu::parse
 			return res;
 		}
 	};
-	struct RefSliceRawType
+	export struct RefSliceRawType
 	{
 		ResolvedType elem;//dims stored in here.
 		ast::UnOpType refType;
@@ -560,30 +568,35 @@ namespace slu::parse
 			return res;
 		}
 	};
-	void ::slu::parse::DelStructRawType::operator()(StructRawType* it) const noexcept {
+	export void ::slu::parse::DelStructRawType::operator()(StructRawType* it) const noexcept {
 		delete it;
 	}
-	void ::slu::parse::DelUnionRawType::operator()(UnionRawType* it) const noexcept {
+	export void ::slu::parse::DelUnionRawType::operator()(UnionRawType* it) const noexcept {
 		delete it;
 	}
-	void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
+	export void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
 		delete it;
 	}
-	void ::slu::parse::DelRefChainRawType::operator()(RefChainRawType* it) const noexcept {
+	export void ::slu::parse::DelRefChainRawType::operator()(RefChainRawType* it) const noexcept {
 		delete it;
 	}
-	void ::slu::parse::DelRefSliceRawType::operator()(RefSliceRawType* it) const noexcept {
+	export void ::slu::parse::DelRefSliceRawType::operator()(RefSliceRawType* it) const noexcept {
 		delete it;
+	}
+	extern "C++" {
+		export void ::slu::parse::DelExpr::operator()(parse::Expr* it) const noexcept {
+			delete it;
+		}
 	}
 
-	constexpr std::optional<lang::MpItmId> ResolvedType::getStructName() const
+	export constexpr std::optional<lang::MpItmId> ResolvedType::getStructName() const
 	{
 		if (outerSliceDims != 0) return std::nullopt;
 		if (!std::holds_alternative<RawTypeKind::Struct>(base))
 			return std::nullopt;
 		return std::get<RawTypeKind::Struct>(base)->name;
 	}
-	inline RawType cloneRawType(const RawType& t)
+	export RawType cloneRawType(const RawType& t)
 	{
 		return ezmatch(t)(
 			varcase(const auto&) { return RawType{ var }; },
