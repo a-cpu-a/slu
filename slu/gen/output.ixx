@@ -1,23 +1,21 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <vector>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
+export module slu.gen.output;
 import slu.settings;
+import slu.ast.mp_data;
+import slu.ast.state;
 import slu.parse.input;
 
-namespace slu::parse
+namespace slu::parse //TODO: gen
 {
 	//Here, so streamed outputs can be made
-	template<class T>
+	export template<class T>
 	concept AnyOutput =
 #ifdef Slu_NoConcepts
 		true
@@ -72,7 +70,7 @@ namespace slu::parse
 		}
 	}
 
-	template<AnySettings SettingsT = Setting<void>>
+	export template<AnySettings SettingsT = Setting<void>>
 	struct Output
 	{
 		constexpr Output(SettingsT) {}

@@ -7,14 +7,10 @@
 #include <unordered_set>
 #include <string_view>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
-import slu.ast.state;
-#include <slu/parse/Parse.hpp>
 #include <slu/ext/CppMatch.hpp>
-#include <slu/gen/Output.hpp>
+import slu.ast.state;
+import slu.gen.output;
+#include <slu/parse/Parse.hpp>
 
 namespace slu::parse
 {

@@ -15,5 +15,6 @@ add_library(slu
 	"ast/state.ixx"
 	"ast/op_order.ixx"
 	"ast/mp_data.ixx"
+	"gen/output.ixx"
 	SluBuildTest.cpp
 )
