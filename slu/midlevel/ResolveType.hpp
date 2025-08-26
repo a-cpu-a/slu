@@ -3,7 +3,8 @@
 */
 #pragma once
 
-#include <slu/parse/BasicGenData.hpp>
+import slu.ast.mp_data;
+import slu.lang.mpc;
 
 namespace slu::mlvl
 {

@@ -3,9 +3,8 @@
 */
 #pragma once
 
+import slu.ast.mp_data;
 import slu.ast.state;
-#include <slu/parse/BasicGenData.hpp>
-
 #include <slu/comp/CompCfg.hpp>
 
 namespace slu::comp

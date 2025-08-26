@@ -13,9 +13,9 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.settings;
+import slu.ast.mp_data;
 import slu.ast.pos;
 import slu.parse.input;
-#include "BasicGenData.hpp"
 
 namespace slu::parse
 {

@@ -12,6 +12,7 @@
 #include <slu/ext/CppMatch.hpp>
 import slu.ast.state;
 import slu.lang.basic_state;
+import slu.lang.mpc;
 #include <slu/parse/BuildState.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/ResolveType.hpp>

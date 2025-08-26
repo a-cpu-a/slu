@@ -11,6 +11,7 @@
 #include <slu/parse/BuildState.hpp>
 import slu.ast.op_info;
 import slu.ast.op_order;
+import slu.ast.mp_data;
 import slu.ast.state;
 import slu.lang.basic_state;
 #include <slu/visit/Visit.hpp>

@@ -1,28 +1,28 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <ranges>
 #include <unordered_map>
 #include <ranges>
+#include <string>
+#include <stdexcept>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
+#include <slu/ext/CppMatch.hpp>
+#include <slu/lang/MpcMacros.hpp>
+export module slu.ast.mp_data;
 import slu.ast.state;
+import slu.ast.type;
+import slu.lang.basic_state;
 import slu.lang.mpc;
 import slu.parse.input;
-#include <slu/lang/MpcMacros.hpp>
 
-namespace slu::parse
+namespace slu::parse //TODO: ast
 {
-
-	const size_t NORMAL_SCOPE = SIZE_MAX;
-	const size_t UNSCOPE = SIZE_MAX-1;
-	const size_t GLOBAL_SCOPE = SIZE_MAX-2;
+	constexpr size_t NORMAL_SCOPE = SIZE_MAX;
+	constexpr size_t UNSCOPE = SIZE_MAX-1;
+	constexpr size_t GLOBAL_SCOPE = SIZE_MAX-2;
 
 	/*
 		Names starting with $ are anonymous, and are followed by 8 raw bytes (representing anon name id)
@@ -73,7 +73,7 @@ namespace slu::parse
 		}
 	};
 
-	struct TraitFn
+	export struct TraitFn
 	{
 		lang::MpItmId name;
 		std::vector<ResolvedType> args;
@@ -86,11 +86,11 @@ namespace slu::parse
 		using namespace std::string_view_literals;
 
 		//Applied to anon/synthetic/private? stuff
-		struct Unknown {
+		export struct Unknown {
 			constexpr static std::string_view NAME = "unknown"sv;
 		};
 
-		struct Fn
+		export struct Fn
 		{
 			constexpr static std::string_view NAME = "function"sv;
 			std::string abi;
@@ -99,34 +99,34 @@ namespace slu::parse
 			std::vector<parse::LocalId> argLocals;//Only for non decl functions
 			lang::ExportData exported;
 		};
-		struct NamedTypeImpls
+		export struct NamedTypeImpls
 		{
 			constexpr static std::string_view NAME = "unknown-type"sv;
 			std::vector<lang::MpItmId> impls;
 		};
-		struct TypeFn : Fn, NamedTypeImpls
+		export struct TypeFn : Fn, NamedTypeImpls
 		{
 			constexpr static std::string_view NAME = "type-function"sv;
 		};
-		struct ArglessTypeVar : NamedTypeImpls
+		export struct ArglessTypeVar : NamedTypeImpls
 		{
 			constexpr static std::string_view NAME = "type"sv;
 			ResolvedType ty;
 		};
 		//like basic global vars in c++!
-		struct GlobVar
+		export struct GlobVar
 		{
 			constexpr static std::string_view NAME = "static-var"sv;
 			ResolvedType ty;
 		};
 		//No precomputation for now, instead make them act as macros
-		struct ConstVar
+		export struct ConstVar
 		{
 			constexpr static std::string_view NAME = "const-var"sv;
 			ResolvedType ty;
 			parse::Expr value;
 		};
-		struct Trait
+		export struct Trait
 		{
 			constexpr static std::string_view NAME = "trait"sv;
 			std::vector<lang::MpItmId> consts;
@@ -134,22 +134,22 @@ namespace slu::parse
 			lang::ExportData exported;
 			//TODO: where clauses
 		};
-		struct Impl
+		export struct Impl
 		{
 			constexpr static std::string_view NAME = "impl"sv;
 			lang::ExportData exported;
 			//TODO: impl data (params, impl-consts, impl-fn's, where clauses)
 		};
-		struct Alias//TODO something for ::* use's
+		export struct Alias//TODO something for ::* use's
 		{
 			constexpr static std::string_view NAME = "alias"sv;
 			lang::MpItmId usedThing;
 		};
-		struct Module{
+		export struct Module{
 			constexpr static std::string_view NAME = "module"sv;
 		};
 	}
-	using Itm = std::variant<
+	export using Itm = std::variant<
 		ItmType::Unknown,
 		ItmType::Fn,
 		ItmType::NamedTypeImpls, // Used temporarily while a type is not defined, but does have impl's
@@ -163,8 +163,8 @@ namespace slu::parse
 		ItmType::Module
 	>;
 
-	using MpItmName2Obj = std::unordered_map<std::string, lang::LocalObjId, _ew_string_haah, _ew_string_eq>;
-	struct BasicModPathData
+	export using MpItmName2Obj = std::unordered_map<std::string, lang::LocalObjId, _ew_string_haah, _ew_string_eq>;
+	export struct BasicModPathData
 	{
 		lang::ModPath path;
 		MpItmName2Obj name2Id;
@@ -216,7 +216,7 @@ namespace slu::parse
 		BasicModPathData(BasicModPathData&&) = default;
 		BasicModPathData& operator=(BasicModPathData&&) = default;
 	};
-	using Mp2MpIdMap = std::unordered_map<lang::ModPath, lang::ModPathId, lang::HashModPathView, lang::EqualModPathView>;
+	export using Mp2MpIdMap = std::unordered_map<lang::ModPath, lang::ModPathId, lang::HashModPathView, lang::EqualModPathView>;
 	template<size_t N>
 	inline void initMpData(Mp2MpIdMap& mp2Id,BasicModPathData& mp, const mpc::MpcMp<N>& data,size_t itmCount)
 	{
@@ -232,7 +232,7 @@ namespace slu::parse
 		if (!data.mp.empty())
 			mp2Id[mp.path] = data.id;
 	}
-	struct BasicMpDbData
+	export struct BasicMpDbData
 	{
 		Mp2MpIdMap mp2Id;
 		std::vector<parse::BasicModPathData> mps;
@@ -307,7 +307,7 @@ namespace slu::parse
 			return mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
 	};
-	template<class T, bool followAlias=false>
+	export template<class T, bool followAlias=false>
 	inline const T& getItm(const BasicMpDbData& mpDb,const lang::MpItmId name)
 	{
 		return *ezmatch(mpDb.getItm(name))(
@@ -322,7 +322,7 @@ namespace slu::parse
 		}
 		);
 	}
-	inline lang::MpItmId resolveAlias(const BasicMpDbData& mpDb,const lang::MpItmId name)
+	export inline lang::MpItmId resolveAlias(const BasicMpDbData& mpDb,const lang::MpItmId name)
 	{
 		return ezmatch(mpDb.getItm(name))(
 		varcase(const auto&) {
@@ -333,7 +333,7 @@ namespace slu::parse
 		}
 		);
 	}
-	struct BasicMpDb
+	export struct BasicMpDb
 	{
 		BasicMpDbData* data;
 
@@ -442,7 +442,7 @@ namespace slu::parse
 		BlockV<isSlu> res;
 
 	};
-	template<bool isSlu>
+	export template<bool isSlu>
 	struct BasicGenDataV
 	{
 		std::vector<LocalsV<isSlu>> localsStack;
