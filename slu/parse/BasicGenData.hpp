@@ -13,8 +13,9 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.ast.state;
+import slu.lang.mpc;
 import slu.parse.input;
-#include <slu/lang/Mpc.hpp>
+#include <slu/lang/MpcMacros.hpp>
 
 namespace slu::parse
 {

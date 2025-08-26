@@ -4,6 +4,7 @@ add_subdirectory(parse)
 add_library(slu 
 	SluBuildTest.cpp settings.ixx char_info.ixx big_int.ixx 
 	lang/basic_state.ixx 
+	lang/mpc.ixx 
 	ext/mtx.ixx 
 	"ast/pos.ixx"
 	"ast/type.ixx"

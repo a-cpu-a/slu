@@ -13,13 +13,13 @@
 #include <stdexcept>
 
 #include <slu/ext/CppMatch.hpp>
-#include <slu/lang/Mpc.hpp>
 export module slu.ast.type;
 import slu.big_int;
 import slu.ast.enums;
 import slu.ast.small_enum_list;
 import slu.ast.state_decls;
 import slu.lang.basic_state;
+import slu.lang.mpc;
 import slu.parse.input;
 
 namespace slu::parse //TODO: ast

@@ -6,6 +6,7 @@
 //#define Slu_NoConcepts
 
 #include <variant>
+#include <array>
 
 #include <slu/ext/lua/luaconf.h>
 #include <slu/parse/Parse.hpp>
