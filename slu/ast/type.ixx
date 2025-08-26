@@ -536,7 +536,7 @@ namespace slu::parse //TODO: ast
 		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
 
 		static ResolvedType newPtrTy(parse::ResolvedType&& t) {
-			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=ast::UnOpType::TO_PTR} }));
+			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=ast::UnOpType::PTR} }));
 			return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
 		}
 		static RawTypeKind::RefChain newRawTy() {

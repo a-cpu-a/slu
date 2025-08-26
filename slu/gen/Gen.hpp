@@ -22,56 +22,56 @@ namespace slu::parse
 		{
 		case ast::BinOpType::ADD:
 			return "+"sv;
-		case ast::BinOpType::SUBTRACT:
+		case ast::BinOpType::SUB:
 			return "-"sv;
-		case ast::BinOpType::MULTIPLY:
+		case ast::BinOpType::MUL:
 			return "*"sv;
-		case ast::BinOpType::DIVIDE:
+		case ast::BinOpType::DIV:
 			return "/"sv;
-		case ast::BinOpType::FLOOR_DIVIDE:
+		case ast::BinOpType::FLOOR_DIV:
 			return "//"sv;
-		case ast::BinOpType::EXPONENT:
+		case ast::BinOpType::EXP:
 			return "^"sv;
-		case ast::BinOpType::MODULO:
+		case ast::BinOpType::REM:
 			return "%"sv;
 
-		case ast::BinOpType::BITWISE_AND:
+		case ast::BinOpType::BIT_AND:
 			return "&"sv;
-		case ast::BinOpType::BITWISE_XOR:
+		case ast::BinOpType::BIT_XOR:
 			return "~"sv;
-		case ast::BinOpType::BITWISE_OR:
+		case ast::BinOpType::BIT_OR:
 			return "|"sv;
-		case ast::BinOpType::SHIFT_RIGHT:
+		case ast::BinOpType::SHR:
 			return ">>"sv;
-		case ast::BinOpType::SHIFT_LEFT:
+		case ast::BinOpType::SHL:
 			return "<<"sv;
 
-		case ast::BinOpType::LESS_THAN:
+		case ast::BinOpType::LT:
 			return "<"sv;
-		case ast::BinOpType::LESS_EQUAL:
+		case ast::BinOpType::LE:
 			return "<="sv;
-		case ast::BinOpType::GREATER_THAN:
+		case ast::BinOpType::GT:
 			return ">"sv;
-		case ast::BinOpType::GREATER_EQUAL:
+		case ast::BinOpType::GE:
 			return ">="sv;
 
-		case ast::BinOpType::EQUAL:
+		case ast::BinOpType::EQ:
 			return "=="sv;
-		case ast::BinOpType::NOT_EQUAL:
+		case ast::BinOpType::NE:
 			return "!="sv;
 
-		case ast::BinOpType::LOGICAL_AND:
+		case ast::BinOpType::AND:
 			return "and"sv;
-		case ast::BinOpType::LOGICAL_OR:
+		case ast::BinOpType::OR:
 			return "or"sv;
 
-		case ast::BinOpType::CONCATENATE:
+		case ast::BinOpType::CONCAT:
 			return "++"sv;
-		case ast::BinOpType::ARRAY_MUL:
+		case ast::BinOpType::REP:
 			return "**"sv;
-		case ast::BinOpType::RANGE_BETWEEN:
+		case ast::BinOpType::RANGE:
 			return ".."sv;
-		case ast::BinOpType::MAKE_RESULT:
+		case ast::BinOpType::MK_RESULT:
 			return "~~"sv;
 		case ast::BinOpType::UNION:
 			return "||"sv;
@@ -89,33 +89,33 @@ namespace slu::parse
 		using namespace std::literals;
 		switch (t)
 		{
-		case ast::UnOpType::NEGATE:
+		case ast::UnOpType::NEG:
 			return " -"sv;//TODO: elide space, when there is one already
-		case ast::UnOpType::LOGICAL_NOT:
+		case ast::UnOpType::NOT:
 			return "!"sv;
 
 		case ast::UnOpType::RANGE_BEFORE:
 			return ".."sv;
-		case ast::UnOpType::ALLOCATE:
+		case ast::UnOpType::ALLOC:
 			return " alloc "sv;
 
-		case ast::UnOpType::TO_REF_MUT:
-		case ast::UnOpType::TO_REF_CONST:
-		case ast::UnOpType::TO_REF_SHARE:
+		case ast::UnOpType::REF_MUT:
+		case ast::UnOpType::REF_CONST:
+		case ast::UnOpType::REF_SHARE:
 			//mut or whatever missing, as lifetimes need to be added
-		case ast::UnOpType::TO_REF:
+		case ast::UnOpType::REF:
 			return "&"sv;
 
-		case ast::UnOpType::TO_PTR:
+		case ast::UnOpType::PTR:
 			return "*"sv;
-		case ast::UnOpType::TO_PTR_CONST:
+		case ast::UnOpType::PTR_CONST:
 			return "*const "sv;
-		case ast::UnOpType::TO_PTR_SHARE:
+		case ast::UnOpType::PTR_SHARE:
 			return "*share "sv;
-		case ast::UnOpType::TO_PTR_MUT:
+		case ast::UnOpType::PTR_MUT:
 			return "*mut "sv;
 
-		case ast::UnOpType::MUT:
+		case ast::UnOpType::MARK_MUT:
 			return " mut "sv;
 		default:
 			_ASSERT(false);
@@ -133,7 +133,7 @@ namespace slu::parse
 
 		case ast::PostUnOpType::DEREF:
 			return ".*"sv;
-		case ast::PostUnOpType::PROPOGATE_ERR:
+		case ast::PostUnOpType::TRY:
 			return "?"sv;
 		default:
 			_ASSERT(false);
@@ -243,20 +243,20 @@ namespace slu::parse
 		for (const UnOpItem& t : obj)
 		{
 			out.add(getUnOpAsStr<Out>(t.type));
-			if (t.type == ast::UnOpType::TO_REF
-				|| t.type == ast::UnOpType::TO_REF_MUT
-				|| t.type == ast::UnOpType::TO_REF_CONST
-				|| t.type == ast::UnOpType::TO_REF_SHARE)
+			if (t.type == ast::UnOpType::REF
+				|| t.type == ast::UnOpType::REF_MUT
+				|| t.type == ast::UnOpType::REF_CONST
+				|| t.type == ast::UnOpType::REF_SHARE)
 			{
 				genLifetime(out, t.life);
 				if (!t.life.empty())
 					out.add(' ');
 
-				if (t.type == ast::UnOpType::TO_REF_MUT)
+				if (t.type == ast::UnOpType::REF_MUT)
 					out.add("mut ");
-				else if (t.type == ast::UnOpType::TO_REF_CONST)
+				else if (t.type == ast::UnOpType::REF_CONST)
 					out.add("const ");
-				else if (t.type == ast::UnOpType::TO_REF_SHARE)
+				else if (t.type == ast::UnOpType::REF_SHARE)
 					out.add("share ");
 			}
 		}

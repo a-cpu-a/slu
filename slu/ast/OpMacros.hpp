@@ -8,60 +8,60 @@
 #define Slu_EQ_OP_TRAIT_NAME PartialEq
 
 #define Slu_UN_OPS(...) \
-	_X(NEGATE,Neg,neg) __VA_ARGS__ \
-	_X(LOGICAL_NOT,Not,not) __VA_ARGS__ \
+	_X(NEG,Neg,neg) __VA_ARGS__ \
+	_X(NOT,Not,not) __VA_ARGS__ \
 \
 	_X(RANGE_BEFORE,Slu_RANGE_OP_TRAIT_NAME,rangeMax) __VA_ARGS__ \
 \
-	_X(ALLOCATE,_Alloc,_alloc) __VA_ARGS__ \
+	_X(ALLOC,_Alloc,_alloc) __VA_ARGS__ \
 \
-	_X(TO_REF,Ref,ref) __VA_ARGS__ \
-	_X(TO_REF_MUT,RefMut,refMut) __VA_ARGS__ \
-	_X(TO_REF_CONST,RefConst,refConst) __VA_ARGS__ \
-	_X(TO_REF_SHARE,RefShare,refShare) __VA_ARGS__ \
+	_X(REF,Ref,ref) __VA_ARGS__ \
+	_X(REF_MUT,RefMut,refMut) __VA_ARGS__ \
+	_X(REF_CONST,RefConst,refConst) __VA_ARGS__ \
+	_X(REF_SHARE,RefShare,refShare) __VA_ARGS__ \
 \
-	_X(TO_PTR,Ptr,ptr) __VA_ARGS__ \
-	_X(TO_PTR_MUT, PtrMut,ptrMut) __VA_ARGS__ \
-	_X(TO_PTR_CONST,PtrConst,ptrConst) __VA_ARGS__ \
-	_X(TO_PTR_SHARE,PtrShare,ptrShare) __VA_ARGS__ \
+	_X(PTR,Ptr,ptr) __VA_ARGS__ \
+	_X(PTR_MUT, PtrMut,ptrMut) __VA_ARGS__ \
+	_X(PTR_CONST,PtrConst,ptrConst) __VA_ARGS__ \
+	_X(PTR_SHARE,PtrShare,ptrShare) __VA_ARGS__ \
 \
-	_X(MUT,MarkMut,markMut)
+	_X(MARK_MUT,MarkMut,markMut)
 
 #define Slu_POST_UN_OPS(...) \
 	_X(RANGE_AFTER,Slu_RANGE_OP_TRAIT_NAME,rangeMin) __VA_ARGS__ \
 \
 	_X(DEREF,Deref,deref) __VA_ARGS__ \
-	_X(PROPOGATE_ERR,Try,branch)
+	_X(TRY,Try,branch)
 
 #define Slu_BIN_OPS(...) \
 	_X(ADD, Add, add) __VA_ARGS__ \
-	_X(SUBTRACT, Sub, sub) __VA_ARGS__ \
-	_X(MULTIPLY, Mul, mul) __VA_ARGS__ \
-	_X(DIVIDE, Div, div) __VA_ARGS__ \
-	_X(FLOOR_DIVIDE, FloorDiv, floorDiv) __VA_ARGS__ \
-	_X(EXPONENT, Pow, pow) __VA_ARGS__ \
-	_X(MODULO, Rem, rem) __VA_ARGS__ \
+	_X(SUB, Sub, sub) __VA_ARGS__ \
+	_X(MUL, Mul, mul) __VA_ARGS__ \
+	_X(DIV, Div, div) __VA_ARGS__ \
+	_X(FLOOR_DIV, FloorDiv, floorDiv) __VA_ARGS__ \
+	_X(EXP, Pow, pow) __VA_ARGS__ \
+	_X(REM, Rem, rem) __VA_ARGS__ \
 \
-	_X(BITWISE_AND, BitAnd, bitAnd) __VA_ARGS__ \
-	_X(BITWISE_XOR, BitXor, bitXor) __VA_ARGS__ \
-	_X(BITWISE_OR, BitOr, bitOr) __VA_ARGS__ \
-	_X(SHIFT_RIGHT, Shr, shr) __VA_ARGS__ \
-	_X(SHIFT_LEFT, Shl, shl) __VA_ARGS__ \
+	_X(BIT_AND, BitAnd, bitAnd) __VA_ARGS__ \
+	_X(BIT_XOR, BitXor, bitXor) __VA_ARGS__ \
+	_X(BIT_OR, BitOr, bitOr) __VA_ARGS__ \
+	_X(SHR, Shr, shr) __VA_ARGS__ \
+	_X(SHL, Shl, shl) __VA_ARGS__ \
 \
-	_X(CONCATENATE, Concat, concat) __VA_ARGS__ \
+	_X(CONCAT, Concat, concat) __VA_ARGS__ \
 \
-	_X(LESS_THAN, Slu_LTGT_OP_TRAIT_NAME, lt) __VA_ARGS__ \
-	_X(LESS_EQUAL, Slu_LTGT_OP_TRAIT_NAME, le) __VA_ARGS__ \
-	_X(GREATER_THAN, Slu_LTGT_OP_TRAIT_NAME, gt) __VA_ARGS__ \
-	_X(GREATER_EQUAL, Slu_LTGT_OP_TRAIT_NAME, ge) __VA_ARGS__ \
-	_X(EQUAL, Slu_EQ_OP_TRAIT_NAME, eq) __VA_ARGS__ \
-	_X(NOT_EQUAL, Slu_EQ_OP_TRAIT_NAME, ne) __VA_ARGS__ \
+	_X(LT, Slu_LTGT_OP_TRAIT_NAME, lt) __VA_ARGS__ \
+	_X(LE, Slu_LTGT_OP_TRAIT_NAME, le) __VA_ARGS__ \
+	_X(GT, Slu_LTGT_OP_TRAIT_NAME, gt) __VA_ARGS__ \
+	_X(GE, Slu_LTGT_OP_TRAIT_NAME, ge) __VA_ARGS__ \
+	_X(EQ, Slu_EQ_OP_TRAIT_NAME, eq) __VA_ARGS__ \
+	_X(NE, Slu_EQ_OP_TRAIT_NAME, ne) __VA_ARGS__ \
 \
-	_X(LOGICAL_AND, And, and) __VA_ARGS__ \
-	_X(LOGICAL_OR, Or, or) __VA_ARGS__ \
+	_X(AND, And, and) __VA_ARGS__ \
+	_X(OR, Or, or) __VA_ARGS__ \
 \
-	_X(ARRAY_MUL, Rep, rep) __VA_ARGS__ \
-	_X(RANGE_BETWEEN, Slu_RANGE_OP_TRAIT_NAME, range) __VA_ARGS__ \
-	_X(MAKE_RESULT, _MkResult, _mkResult) __VA_ARGS__ \
+	_X(REP, Rep, rep) __VA_ARGS__ \
+	_X(RANGE, Slu_RANGE_OP_TRAIT_NAME, range) __VA_ARGS__ \
+	_X(MK_RESULT, _MkResult, _mkResult) __VA_ARGS__ \
 	_X(UNION, Union, union) __VA_ARGS__ \
 	_X(AS, As, asType)

@@ -27,38 +27,38 @@ namespace slu::parse
 		case '-':
 			if (typeOnly)break;
 			in.skip();
-			return ast::UnOpType::NEGATE;
+			return ast::UnOpType::NEG;
 		case '!':
 			if (typeOnly)break;
 			//if (in.peekAt(1) == '=')
 			//	break;//Its !=
 			in.skip();
-			return ast::UnOpType::LOGICAL_NOT;
+			return ast::UnOpType::NOT;
 			break;
 		case '&':
 			in.skip();
 			if (checkReadTextToken(in, "mut"))
-				return ast::UnOpType::TO_REF_MUT;
+				return ast::UnOpType::REF_MUT;
 			if (checkReadTextToken(in, "const"))
-				return ast::UnOpType::TO_REF_CONST;
+				return ast::UnOpType::REF_CONST;
 			if (checkReadTextToken(in, "share"))
-				return ast::UnOpType::TO_REF_SHARE;
-			return ast::UnOpType::TO_REF;
+				return ast::UnOpType::REF_SHARE;
+			return ast::UnOpType::REF;
 		case '*':
 			in.skip();
 			if (checkReadTextToken(in, "mut"))
-				return ast::UnOpType::TO_PTR_MUT;
+				return ast::UnOpType::PTR_MUT;
 			if (checkReadTextToken(in, "const"))
-				return ast::UnOpType::TO_PTR_CONST;
+				return ast::UnOpType::PTR_CONST;
 			if (checkReadTextToken(in, "share"))
-				return ast::UnOpType::TO_PTR_SHARE;
+				return ast::UnOpType::PTR_SHARE;
 
-			return ast::UnOpType::TO_PTR;
+			return ast::UnOpType::PTR;
 		case 'a':
 			if (typeOnly)break;
 
 			if (checkReadTextToken(in, "alloc"))
-				return ast::UnOpType::ALLOCATE;
+				return ast::UnOpType::ALLOC;
 			break;
 		case '.':
 			if (typeOnly)break;
@@ -67,7 +67,7 @@ namespace slu::parse
 			break;
 		case 'm':
 			if (checkReadTextToken(in, "mut"))
-				return ast::UnOpType::MUT;
+				return ast::UnOpType::MARK_MUT;
 			break;
 		default:
 			break;
@@ -85,7 +85,7 @@ namespace slu::parse
 			{
 			case '?':
 				in.skip();
-				return ast::PostUnOpType::PROPOGATE_ERR;
+				return ast::PostUnOpType::TRY;
 			case '.':
 				if (checkReadToken<false>(in, ".*"))
 					return ast::PostUnOpType::DEREF;
@@ -107,76 +107,76 @@ namespace slu::parse
 		case '+':
 			in.skip();
 			if (checkReadToken<false>(in, "+"))//++
-				return ast::BinOpType::CONCATENATE;
+				return ast::BinOpType::CONCAT;
 			return ast::BinOpType::ADD;
 		case '-':
 			in.skip();
-			return ast::BinOpType::SUBTRACT;
+			return ast::BinOpType::SUB;
 		case '*':
 			in.skip();
 			if (checkReadToken<false>(in, "*"))//**
-				return ast::BinOpType::ARRAY_MUL;
-			return ast::BinOpType::MULTIPLY;
+				return ast::BinOpType::REP;
+			return ast::BinOpType::MUL;
 		case '/':
 			in.skip();
 			if (checkReadToken<false>(in, "/"))// '//'
-				return ast::BinOpType::FLOOR_DIVIDE;
-			return ast::BinOpType::DIVIDE;
+				return ast::BinOpType::FLOOR_DIV;
+			return ast::BinOpType::DIV;
 		case '^':
 			in.skip();
-			return ast::BinOpType::EXPONENT;
+			return ast::BinOpType::EXP;
 		case '%':
 			in.skip();
-			return ast::BinOpType::MODULO;
+			return ast::BinOpType::REM;
 		case '&':
 			in.skip();
-			return ast::BinOpType::BITWISE_AND;
+			return ast::BinOpType::BIT_AND;
 		case '!':
 			in.skip();
 			requireToken<false>(in, "=");
-			return ast::BinOpType::NOT_EQUAL;
+			return ast::BinOpType::NE;
 			break;
 		case '~':
 			in.skip();
 			if (checkReadToken<false>(in, "~"))//~~
-				return ast::BinOpType::MAKE_RESULT;
-			return ast::BinOpType::BITWISE_XOR;
+				return ast::BinOpType::MK_RESULT;
+			return ast::BinOpType::BIT_XOR;
 		case '|':
 			in.skip();
 			if (checkReadToken<false>(in, "|"))//||
 				return ast::BinOpType::UNION;
-			return ast::BinOpType::BITWISE_OR;
+			return ast::BinOpType::BIT_OR;
 		case '>':
 			in.skip();
 			if (checkReadToken<false>(in, ">"))//>>
-				return ast::BinOpType::SHIFT_RIGHT;
+				return ast::BinOpType::SHR;
 			if (checkReadToken<false>(in, "="))//>=
-				return ast::BinOpType::GREATER_EQUAL;
-			return ast::BinOpType::GREATER_THAN;
+				return ast::BinOpType::GE;
+			return ast::BinOpType::GT;
 		case '<':
 			in.skip();
 			if (checkReadToken<false>(in, "<"))//<<
-				return ast::BinOpType::SHIFT_LEFT;
+				return ast::BinOpType::SHL;
 			if (checkReadToken<false>(in, "="))//<=
-				return ast::BinOpType::LESS_EQUAL;
-			return ast::BinOpType::LESS_THAN;
+				return ast::BinOpType::LE;
+			return ast::BinOpType::LT;
 		case '=':
 			if (checkReadToken<false>(in, "=="))
-				return ast::BinOpType::EQUAL;
+				return ast::BinOpType::EQ;
 			break;
 		case 'a':
 			if (checkReadTextToken(in, "and"))
-				return ast::BinOpType::LOGICAL_AND;
+				return ast::BinOpType::AND;
 			if (checkReadTextToken(in, "as"))
 				return ast::BinOpType::AS;
 			break;
 		case 'o':
 			if (checkReadTextToken(in, "or"))
-				return ast::BinOpType::LOGICAL_OR;
+				return ast::BinOpType::OR;
 			break;
 		case '.':
 			if (checkReadToken<false>(in, ".."))
-				return ast::BinOpType::RANGE_BETWEEN;
+				return ast::BinOpType::RANGE;
 			break;
 		}
 		return ast::BinOpType::NONE;

@@ -88,7 +88,7 @@ namespace slu::paint
 
 		TRY,// ? operator
 
-		ARRAY_MUL,
+		REP,
 
 		OR,
 		AND,

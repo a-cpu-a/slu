@@ -27,74 +27,74 @@ namespace slu::paint
 		case ast::BinOpType::ADD:
 			paintKw<Tok::GEN_OP>(se, "+");
 			break;
-		case ast::BinOpType::SUBTRACT:
+		case ast::BinOpType::SUB:
 			paintKw<Tok::GEN_OP>(se, "-");
 			break;
-		case ast::BinOpType::MULTIPLY:
+		case ast::BinOpType::MUL:
 			paintKw<Tok::GEN_OP>(se, "*");
 			break;
-		case ast::BinOpType::DIVIDE:
+		case ast::BinOpType::DIV:
 			paintKw<Tok::GEN_OP>(se, "/");
 			break;
-		case ast::BinOpType::FLOOR_DIVIDE:
+		case ast::BinOpType::FLOOR_DIV:
 			paintKw<Tok::GEN_OP>(se, "//");
 			break;
-		case ast::BinOpType::MODULO:
+		case ast::BinOpType::REM:
 			paintKw<Tok::GEN_OP>(se, "%");
 			break;
-		case ast::BinOpType::EXPONENT:
+		case ast::BinOpType::EXP:
 			paintKw<Tok::GEN_OP>(se, "^");
 			break;
-		case ast::BinOpType::BITWISE_AND:
+		case ast::BinOpType::BIT_AND:
 			paintKw<Tok::GEN_OP>(se, "&");
 			break;
-		case ast::BinOpType::BITWISE_OR:
+		case ast::BinOpType::BIT_OR:
 			paintKw<Tok::GEN_OP>(se, "|");
 			break;
-		case ast::BinOpType::BITWISE_XOR:
+		case ast::BinOpType::BIT_XOR:
 			paintKw<Tok::GEN_OP>(se, "~");
 			break;
-		case ast::BinOpType::SHIFT_LEFT:
+		case ast::BinOpType::SHL:
 			paintKw<Tok::GEN_OP>(se, "<<");
 			break;
-		case ast::BinOpType::SHIFT_RIGHT:
+		case ast::BinOpType::SHR:
 			paintKw<Tok::GEN_OP>(se, ">>");
 			break;
-		case ast::BinOpType::CONCATENATE:
+		case ast::BinOpType::CONCAT:
 			paintKw<Tok::GEN_OP>(se, "++");
 			break;
-		case ast::BinOpType::LESS_THAN:
+		case ast::BinOpType::LT:
 			paintKw<Tok::GEN_OP>(se, "<");
 			break;
-		case ast::BinOpType::LESS_EQUAL:
+		case ast::BinOpType::LE:
 			paintKw<Tok::GEN_OP>(se, "<=");
 			break;
-		case ast::BinOpType::GREATER_THAN:
+		case ast::BinOpType::GT:
 			paintKw<Tok::GEN_OP>(se, ">");
 			break;
-		case ast::BinOpType::GREATER_EQUAL:
+		case ast::BinOpType::GE:
 			paintKw<Tok::GEN_OP>(se, ">=");
 			break;
-		case ast::BinOpType::EQUAL:
+		case ast::BinOpType::EQ:
 			paintKw<Tok::GEN_OP>(se, "==");
 			break;
-		case ast::BinOpType::NOT_EQUAL:
+		case ast::BinOpType::NE:
 			paintKw<Tok::GEN_OP>(se, "!=");
 			break;
-		case ast::BinOpType::LOGICAL_AND:
+		case ast::BinOpType::AND:
 			paintKw<Tok::AND>(se, "and");
 			break;
-		case ast::BinOpType::LOGICAL_OR:
+		case ast::BinOpType::OR:
 			paintKw<Tok::OR>(se, "or");
 			break;
 			//Slu:
-		case ast::BinOpType::ARRAY_MUL:
-			paintKw<Tok::ARRAY_MUL>(se, "**");
+		case ast::BinOpType::REP:
+			paintKw<Tok::REP>(se, "**");
 			break;
-		case ast::BinOpType::RANGE_BETWEEN:
+		case ast::BinOpType::RANGE:
 			paintKw<Tok::RANGE>(se, "..");
 			break;
-		case ast::BinOpType::MAKE_RESULT:
+		case ast::BinOpType::MK_RESULT:
 			paintKw<Tok::GEN_OP>(se, "~~");
 			break;
 		case ast::BinOpType::UNION:
@@ -119,7 +119,7 @@ namespace slu::paint
 		case ast::PostUnOpType::DEREF:
 			paintKw<Tok::DEREF>(se, ".*");
 			break;
-		case ast::PostUnOpType::PROPOGATE_ERR:
+		case ast::PostUnOpType::TRY:
 			paintKw<Tok::GEN_OP>(se, "?");
 			break;
 		case ast::PostUnOpType::NONE:
@@ -131,53 +131,53 @@ namespace slu::paint
 	{
 		switch (itm.type)
 		{
-		case ast::UnOpType::LOGICAL_NOT:
+		case ast::UnOpType::NOT:
 			paintKw<Tok::GEN_OP>(se, "!");
 			break;
-		case ast::UnOpType::NEGATE:
+		case ast::UnOpType::NEG:
 			paintKw<Tok::GEN_OP>(se, "-");
 			break;
-		case ast::UnOpType::ALLOCATE:
+		case ast::UnOpType::ALLOC:
 			paintKw<Tok::GEN_OP>(se, "alloc");
 			break;
 		case ast::UnOpType::RANGE_BEFORE:
 			paintKw<Tok::RANGE>(se, "..");
 			break;
-		case ast::UnOpType::MUT:
+		case ast::UnOpType::MARK_MUT:
 			paintKw<Tok::MUT>(se, "mut");
 			break;
 
-		case ast::UnOpType::TO_PTR:
+		case ast::UnOpType::PTR:
 			paintKw<Tok::PTR>(se, "*");
 			break;
-		case ast::UnOpType::TO_PTR_CONST:
+		case ast::UnOpType::PTR_CONST:
 			paintKw<Tok::PTR_CONST>(se, "*");
 			paintKw<Tok::PTR_CONST>(se, "const");
 			break;
-		case ast::UnOpType::TO_PTR_MUT:
+		case ast::UnOpType::PTR_MUT:
 			paintKw<Tok::PTR_MUT>(se, "*");
 			paintKw<Tok::PTR_MUT>(se, "mut");
 			break;
-		case ast::UnOpType::TO_PTR_SHARE:
+		case ast::UnOpType::PTR_SHARE:
 			paintKw<Tok::PTR_SHARE>(se, "*");
 			paintKw<Tok::PTR_SHARE>(se, "share");
 			break;
 
-		case ast::UnOpType::TO_REF:
+		case ast::UnOpType::REF:
 			paintKw<Tok::REF>(se, "&");
 			paintLifetime(se, itm.life);
 			break;
-		case ast::UnOpType::TO_REF_MUT:
+		case ast::UnOpType::REF_MUT:
 			paintKw<Tok::REF_MUT>(se, "&");
 			paintLifetime(se, itm.life);
 			paintKw<Tok::REF_MUT>(se, "mut");
 			break;
-		case ast::UnOpType::TO_REF_CONST:
+		case ast::UnOpType::REF_CONST:
 			paintKw<Tok::REF_CONST>(se, "&");
 			paintLifetime(se, itm.life);
 			paintKw<Tok::REF_CONST>(se, "const");
 			break;
-		case ast::UnOpType::TO_REF_SHARE:
+		case ast::UnOpType::REF_SHARE:
 			paintKw<Tok::REF_SHARE>(se, "&");
 			paintLifetime(se, itm.life);
 			paintKw<Tok::REF_SHARE>(se, "share");

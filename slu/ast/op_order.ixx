@@ -20,43 +20,43 @@ namespace slu::ast
 	export constexpr uint8_t precedence(ast::BinOpType op) {
 		switch (op)
 		{
-		case ast::BinOpType::EXPONENT: return 90;
+		case ast::BinOpType::EXP: return 90;
 
-		case ast::BinOpType::MODULO: return 70;
+		case ast::BinOpType::REM: return 70;
 
-		case ast::BinOpType::DIVIDE:
-		case ast::BinOpType::FLOOR_DIVIDE:
-		case ast::BinOpType::MULTIPLY: return 80;
+		case ast::BinOpType::DIV:
+		case ast::BinOpType::FLOOR_DIV:
+		case ast::BinOpType::MUL: return 80;
 
 
-		case ast::BinOpType::SUBTRACT:
+		case ast::BinOpType::SUB:
 		case ast::BinOpType::ADD: return 60;
 
-		case ast::BinOpType::SHIFT_LEFT: 
-		case ast::BinOpType::SHIFT_RIGHT: return 50;
+		case ast::BinOpType::SHL: 
+		case ast::BinOpType::SHR: return 50;
 
-		case ast::BinOpType::BITWISE_OR:
-		case ast::BinOpType::BITWISE_XOR:
-		case ast::BinOpType::BITWISE_AND: return 42;
+		case ast::BinOpType::BIT_OR:
+		case ast::BinOpType::BIT_XOR:
+		case ast::BinOpType::BIT_AND: return 42;
 
-		case ast::BinOpType::RANGE_BETWEEN: return 30;
+		case ast::BinOpType::RANGE: return 30;
 
-		case ast::BinOpType::CONCATENATE: return 20;
+		case ast::BinOpType::CONCAT: return 20;
 
-		case ast::BinOpType::GREATER_EQUAL:
-		case ast::BinOpType::GREATER_THAN:
-		case ast::BinOpType::LESS_EQUAL:
-		case ast::BinOpType::LESS_THAN: return 11;
+		case ast::BinOpType::GE:
+		case ast::BinOpType::GT:
+		case ast::BinOpType::LE:
+		case ast::BinOpType::LT: return 11;
 
-		case ast::BinOpType::EQUAL:
-		case ast::BinOpType::NOT_EQUAL: return 10;
+		case ast::BinOpType::EQ:
+		case ast::BinOpType::NE: return 10;
 
 
-		case ast::BinOpType::LOGICAL_AND: return 6;
-		case ast::BinOpType::LOGICAL_OR: return 5;
+		case ast::BinOpType::AND: return 6;
+		case ast::BinOpType::OR: return 5;
 
-		case ast::BinOpType::ARRAY_MUL: return 21;
-		case ast::BinOpType::MAKE_RESULT: return 15;
+		case ast::BinOpType::REP: return 21;
+		case ast::BinOpType::MK_RESULT: return 15;
 		case ast::BinOpType::UNION: return 17;
 		case ast::BinOpType::AS: return 13;
 
@@ -70,21 +70,21 @@ namespace slu::ast
 		{
 			//Slu
 		case ast::UnOpType::RANGE_BEFORE:	return 30;//same as range between
-		case ast::UnOpType::ALLOCATE:return 0;
+		case ast::UnOpType::ALLOC:return 0;
 			break;
-		case ast::UnOpType::NEGATE:        // "-"
-		case ast::UnOpType::LOGICAL_NOT:   // "not"
+		case ast::UnOpType::NEG:        // "-"
+		case ast::UnOpType::NOT:   // "not"
 			return 85;//Between exponent and mul, div, ..
-		case ast::UnOpType::TO_REF:			// "&"
-		case ast::UnOpType::TO_REF_CONST:		// "&const"
-		case ast::UnOpType::TO_REF_SHARE:		// "&share"
-		case ast::UnOpType::TO_REF_MUT:		// "&mut"
-		case ast::UnOpType::TO_PTR:			// "*"
-		case ast::UnOpType::TO_PTR_CONST:		// "*const"
-		case ast::UnOpType::TO_PTR_SHARE:		// "*share"
-		case ast::UnOpType::TO_PTR_MUT:		// "*mut"
+		case ast::UnOpType::REF:			// "&"
+		case ast::UnOpType::REF_CONST:		// "&const"
+		case ast::UnOpType::REF_SHARE:		// "&share"
+		case ast::UnOpType::REF_MUT:		// "&mut"
+		case ast::UnOpType::PTR:			// "*"
+		case ast::UnOpType::PTR_CONST:		// "*const"
+		case ast::UnOpType::PTR_SHARE:		// "*share"
+		case ast::UnOpType::PTR_MUT:		// "*mut"
 			//Pseudo, only for type prefixes
-		case ast::UnOpType::MUT:				// "mut"
+		case ast::UnOpType::MARK_MUT:				// "mut"
 			return 85;//Between exponent and mul, div, ..
 			//
 		case ast::UnOpType::NONE:
@@ -95,7 +95,7 @@ namespace slu::ast
 	export constexpr uint8_t precedence(ast::PostUnOpType op) {
 		switch (op)
 		{
-		case ast::PostUnOpType::PROPOGATE_ERR:
+		case ast::PostUnOpType::TRY:
 		case ast::PostUnOpType::DEREF:return 100;//above exponent
 
 		case ast::PostUnOpType::RANGE_AFTER: return 30;//same as range between
@@ -109,10 +109,10 @@ namespace slu::ast
 	export constexpr Assoc associativity(ast::BinOpType op) {
 		switch (op)
 		{
-		case ast::BinOpType::EXPONENT:
-		case ast::BinOpType::SHIFT_LEFT:
-		case ast::BinOpType::SHIFT_RIGHT:
-		case ast::BinOpType::ARRAY_MUL:
+		case ast::BinOpType::EXP:
+		case ast::BinOpType::SHL:
+		case ast::BinOpType::SHR:
+		case ast::BinOpType::REP:
 			return Assoc::RIGHT;
 		default:
 			return Assoc::LEFT;

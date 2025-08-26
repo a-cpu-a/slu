@@ -258,17 +258,17 @@ namespace slu::visit
 		for (auto& itm :list)
 		{
 			Slu_CALL_VISIT_FN_PRE(UnOp);
-			if (itm.type == ast::UnOpType::TO_REF
-				|| itm.type == ast::UnOpType::TO_REF_MUT
-				|| itm.type == ast::UnOpType::TO_REF_CONST
-				|| itm.type == ast::UnOpType::TO_REF_SHARE)
+			if (itm.type == ast::UnOpType::REF
+				|| itm.type == ast::UnOpType::REF_MUT
+				|| itm.type == ast::UnOpType::REF_CONST
+				|| itm.type == ast::UnOpType::REF_SHARE)
 			{
 				visitLifetime(vi, itm.life);
-				if (itm.type == ast::UnOpType::TO_REF_MUT)
+				if (itm.type == ast::UnOpType::REF_MUT)
 					Slu_CALL_VISIT_FN_PRE(UnOpMut);
-				else if (itm.type == ast::UnOpType::TO_REF_CONST)
+				else if (itm.type == ast::UnOpType::REF_CONST)
 					Slu_CALL_VISIT_FN_PRE(UnOpConst);
-				else if (itm.type == ast::UnOpType::TO_REF_SHARE)
+				else if (itm.type == ast::UnOpType::REF_SHARE)
 					Slu_CALL_VISIT_FN_PRE(UnOpShare);
 			}
 			Slu_CALL_VISIT_FN_POST(UnOp);

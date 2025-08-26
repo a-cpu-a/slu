@@ -474,7 +474,7 @@ namespace slu::mlvl
 
 				name = postUnOpFuncs[traitIdx].get([&] {
 					//TODO: implement post-unop func name selection
-					if (op != ast::PostUnOpType::PROPOGATE_ERR)
+					if (op != ast::PostUnOpType::TRY)
 					{
 						lang::ModPath name;
 						name.reserve(4);
@@ -504,10 +504,10 @@ namespace slu::mlvl
 					});
 				if (!op.life.empty())
 				{
-					_ASSERT(op.type == ast::UnOpType::TO_REF
-						|| op.type == ast::UnOpType::TO_REF_MUT
-						|| op.type == ast::UnOpType::TO_REF_CONST
-						|| op.type == ast::UnOpType::TO_REF_SHARE);
+					_ASSERT(op.type == ast::UnOpType::REF
+						|| op.type == ast::UnOpType::REF_MUT
+						|| op.type == ast::UnOpType::REF_CONST
+						|| op.type == ast::UnOpType::REF_SHARE);
 					lifetime = &op.life;
 				}
 				//Else: its inferred, or doesnt exist
@@ -583,12 +583,12 @@ namespace slu::mlvl
 							lang::ModPath name;
 							name.reserve(4);
 							name.emplace_back("std");
-							bool isOrd = op == ast::BinOpType::LESS_THAN
-								|| op == ast::BinOpType::LESS_EQUAL
-								|| op == ast::BinOpType::GREATER_THAN
-								|| op == ast::BinOpType::GREATER_EQUAL;
-							bool isEq = op == ast::BinOpType::EQUAL
-								|| op == ast::BinOpType::NOT_EQUAL;
+							bool isOrd = op == ast::BinOpType::LT
+								|| op == ast::BinOpType::LE
+								|| op == ast::BinOpType::GT
+								|| op == ast::BinOpType::GE;
+							bool isEq = op == ast::BinOpType::EQ
+								|| op == ast::BinOpType::NE;
 							if (isOrd || isEq)
 								name.emplace_back("cmp");
 							else

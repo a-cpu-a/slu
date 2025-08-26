@@ -48,11 +48,11 @@ namespace slu::parse
 			Lifetime res = readLifetime(in);
 
 			if (checkReadTextToken(in, "mut"))
-				uOp = ast::UnOpType::TO_REF_MUT;
+				uOp = ast::UnOpType::REF_MUT;
 			else if (checkReadTextToken(in, "const"))
-				uOp = ast::UnOpType::TO_REF_CONST;
+				uOp = ast::UnOpType::REF_CONST;
 			else if (checkReadTextToken(in, "share"))
-				uOp = ast::UnOpType::TO_REF_SHARE;
+				uOp = ast::UnOpType::REF_SHARE;
 
 			return { std::move(res),uOp };
 		}
@@ -89,7 +89,7 @@ namespace slu::parse
 		{
 			const ast::UnOpType uOp = readOptUnOp(in);
 			if (uOp == ast::UnOpType::NONE)break;
-			if (uOp == ast::UnOpType::TO_REF)
+			if (uOp == ast::UnOpType::REF)
 			{
 				basicRes.unOps.push_back(readToRefLifetimes(in, uOp));
 				continue;

@@ -35,7 +35,7 @@ namespace slu::ast
 
 		//Not a real op, just the amount of unops
 		//== MUT because NONE isnt a real op.
-		ENUM_SIZE = MUT
+		ENUM_SIZE = MARK_MUT
 	};
 
 	export enum class PostUnOpType : uint8_t
@@ -46,6 +46,6 @@ namespace slu::ast
 
 		//Not a real op, just the amount of post unops
 		// -1 because NONE, +1 cuz total size
-		ENUM_SIZE = PROPOGATE_ERR+1-1
+		ENUM_SIZE = TRY+1-1
 	};
 }
