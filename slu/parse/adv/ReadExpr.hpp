@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <unordered_set>
 #include <memory>
+#include <optional>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form

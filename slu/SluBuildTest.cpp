@@ -5,6 +5,8 @@
 //Test macro, dont use, doesnt improve performace. (actually hurts it lol)
 //#define Slu_NoConcepts
 
+#include <variant>
+
 #include <slu/ext/lua/luaconf.h>
 #include <slu/parse/Parse.hpp>
 #include <slu/parse/VecInput.hpp>
