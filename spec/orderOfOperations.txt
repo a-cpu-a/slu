@@ -50,7 +50,7 @@ Order of Operations {
 	traits used for every operator
 	```
 	()		FnOnce Fn FnMut FnConst FnShare
-	_=		_Assign
+	$_$=	$_$Assign
 	..		???			(Ranged/Ranging/Bounds/Bound/Boundable/??? .range .rangeMax .rangeMin)
 	?		Try.branch
 	!		Not
@@ -75,12 +75,11 @@ Order of Operations {
 	^		Pow
 	%		Rem
 	/		Div
-	//		FlrDiv
+	//		FloorDiv
 	*		Mul
 	.*		Deref
 	
 	--internal use:
-	.*		RootDeref	(unstable)
 	*		Ptr			(unstable)
 	*const	PtrConst	(unstable)
 	*mut	PtrMut		(unstable)
@@ -93,7 +92,7 @@ Order of Operations {
 	.		----		(will consider lol)
 	as		As.asType
 	~~		----
-	||		----
+	||		Union.union
 	dyn		----
 	impl	----
 	mut		MarkMut		(unstable)
