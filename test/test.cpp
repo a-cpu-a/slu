@@ -9,8 +9,8 @@
 #include <slu/parse/Parse.hpp>
 #include <slu/paint/Paint.hpp>
 import slu.paint.sem_output;
+import slu.paint.to_html;
 #include <slu/paint/StyledColorConverter.hpp>
-#include <slu/paint/PaintToHtml.hpp>
 #include <slu/gen/Gen.hpp>
 
 template<class... Args>

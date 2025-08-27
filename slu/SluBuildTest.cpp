@@ -9,18 +9,20 @@
 #include <array>
 #include <span>
 #include <string>
+#include <utility>
 #include <string_view>
+#include <unordered_map>
 
 #include <slu/ext/lua/luaconf.h>
 #include <slu/parse/Parse.hpp>
-import slu.parse.vec_input;
 #include <slu/paint/Paint.hpp>
-#include <slu/paint/PaintToHtml.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/gen/Gen.hpp>
 #include <slu/MetaTableUtils.hpp>
 #include <slu/comp/Compile.hpp>
 #include <slu/midlevel/TypeInfCheck.hpp>
+import slu.paint.to_html;
+import slu.parse.vec_input;
 
 
 void ____test()

@@ -376,10 +376,10 @@ namespace slu::parse
 			out.add(std::to_string(var));
 		},
 		varcase(const ExprType::P128) {
-			out.add(parse::u128ToStr(var.lo, var.hi));
+			out.add(slu::u128ToStr(var.lo, var.hi));
 		},
 		varcase(const ExprType::M128) {
-			out.add(" -"sv).add(parse::u128ToStr(var.lo, var.hi));
+			out.add(" -"sv).add(slu::u128ToStr(var.lo, var.hi));
 		},
 
 		varcase(const ExprType::Infer) {

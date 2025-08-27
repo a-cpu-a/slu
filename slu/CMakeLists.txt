@@ -9,5 +9,7 @@ add_library(slu
 	ext/mtx.ixx 
 	"gen/output.ixx"
 	"paint/sem_output.ixx"
+	"paint/to_html.ixx"
+	"midlevel/hack.ixx"
 	SluBuildTest.cpp
-)
+ "num.ixx")

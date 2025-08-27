@@ -7,7 +7,6 @@
 #include <vector>
 #include <optional>
 #include <variant>
-#include <ranges>
 
 import slu.ast.make;
 import slu.ast.mp_data;
@@ -15,6 +14,7 @@ import slu.ast.op_info;
 import slu.ast.op_order;
 import slu.ast.state;
 import slu.lang.basic_state;
+import hack;
 #include <slu/visit/Visit.hpp>
 #include <slu/midlevel/ResolveType.hpp>
 
@@ -271,23 +271,7 @@ namespace slu::mlvl
 				destrSpec2Type(place, std::move(itm.spec)),
 				itm.name,
 				std::move(expr));
-			if constexpr (isFields)
-			{
-				for (auto& i : std::views::reverse(itm.items))
-					patStack.push_back(&i.pat);
-				for (auto& i : itm.items)
-					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place, itm.name, i.name));
-			}
-			else
-			{
-				for (auto& i : std::views::reverse(itm.items))
-					patStack.push_back(&i);
-				for (size_t i = 0; i < itm.items.size(); i++)
-				{
-					lang::PoolString index = mpDb.poolStr("0x" + parse::u64ToStr(i));
-					exprStack.emplace_back(parse::mkFieldIdx<isSlu>(place, itm.name, index));
-				}
-			}
+			slu::hack::hackFunc<isFields>(itm, place, mpDb, patStack, exprStack);
 		}
 
 		template<bool isLocal,class VarT>

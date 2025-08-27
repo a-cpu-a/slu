@@ -1,21 +1,20 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <vector>
-#include <unordered_map>
 #include <ranges>
+#include <utility>
+#include <unordered_map>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
+export module slu.paint.to_html;
+import slu.char_info;
 import slu.ast.state;
 import slu.paint.sem_output;
 import slu.parse.input;
+import slu.parse.manage_newl;
 
 namespace slu::paint
 {
@@ -104,7 +103,7 @@ namespace slu::paint
 	anything more complex seems to like a nestLimit of 1
 	no compression also likes high nestLimit
 	*/
-	inline std::string toHtml(AnySemOutput auto& se,const bool includeStyle,const size_t nestLimit=32) {
+	export std::string toHtml(AnySemOutput auto& se,const bool includeStyle,const size_t nestLimit=32) {
 		std::string res;
 
 		auto [cssStr, mostCommonCol] = getCssFor(se, includeStyle);

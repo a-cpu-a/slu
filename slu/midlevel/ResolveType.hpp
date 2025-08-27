@@ -14,7 +14,7 @@ namespace slu::mlvl
 	{
 		ezmatch(std::move(field))(
 			ezcase(parse::FieldType::Expr && fi) {
-			res.fieldNames.emplace_back("0x" + parse::u64ToStr(nameIdx++));
+			res.fieldNames.emplace_back("0x" + slu::u64ToStr(nameIdx++));
 			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi)));
 		},
 			ezcase(parse::FieldType::Name2Expr && fi) {

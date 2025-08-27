@@ -14,6 +14,7 @@ import slu.lang.basic_state;
 #include <slu/midlevel/BasicDesugar.hpp>
 #include <slu/midlevel/TypeInfCheck.hpp>
 import slu.parse.error;
+import slu.parse.vec_input;
 
 #include <slu/comp/CompCfg.hpp>
 #include <slu/comp/mlir/Conv.hpp>
