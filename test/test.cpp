@@ -10,7 +10,7 @@
 #include <slu/paint/Paint.hpp>
 import slu.paint.sem_output;
 import slu.paint.to_html;
-#include <slu/paint/StyledColorConverter.hpp>
+import slu.paint.basic_col_conv;
 #include <slu/gen/Gen.hpp>
 
 template<class... Args>
@@ -99,7 +99,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		else
 			log("Test success : {}", pathStr);
 
-		slu::paint::SemOutput<decltype(in), slu::paint::StyledColorConverter<false>> se = { in };
+		slu::paint::SemOutput<decltype(in), slu::paint::BasicColorConverter<false>> se = { in };
 		in.restart();
 		slu::paint::paintFile(se, f);
 		in.restart();

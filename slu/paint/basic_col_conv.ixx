@@ -1,9 +1,11 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
+#include <array>
+
+export module slu.paint.basic_col_conv;
 
 import slu.paint.sem_output;
 
@@ -13,7 +15,7 @@ namespace slu::paint
 	// (using srgb colors means that they get brightened by the gpu/whatever)
 	// (so we need to darken them to compensate)
 	template<bool SRGB>
-	struct StyledColorConverter
+	struct BasicColorConverter
 	{
 		static constexpr float pow2_2(float x) 
 		{
@@ -164,7 +166,7 @@ namespace slu::paint
 		}
 
 		static constexpr uint32_t from(const Tok tok, const Tok overlayTok) {
-			return basicTokBlend<StyledColorConverter>(tok, overlayTok);
+			return basicTokBlend<BasicColorConverter>(tok, overlayTok);
 		}
 	};
 }
