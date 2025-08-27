@@ -9,4 +9,5 @@ add_library(slu-parse
 	"com/skip_space.ixx"
 	"com/token.ixx"
 	"com/num.ixx"
+	"com/str.ixx"
 )

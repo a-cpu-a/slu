@@ -15,8 +15,8 @@ import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.num;
 import slu.parse.com.skip_space;
+import slu.parse.com.str;
 import slu.parse.com.token;
-#include <slu/parse/adv/ReadStringLiteral.hpp>
 #include <slu/parse/basic/ReadOperators.hpp>
 
 namespace slu::parse

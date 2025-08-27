@@ -1,17 +1,17 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <format>
-#include <unordered_set>
+#include <string>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+#include <slu/Ansi.hpp>
+export module slu.parse.com.str;
 
+import slu.char_info;
 import slu.ast.state;
+import slu.parse.error;
 import slu.parse.input;
 import slu.parse.manage_newl;
 import slu.parse.com.skip_space;
@@ -184,7 +184,7 @@ namespace slu::parse
 		Any byte in a literal string not explicitly affected by 
 		the previous rules represents itself.
 	*/
-	inline std::string readStringLiteral(AnyInput auto& in,const char firstTypeChar)
+	export std::string readStringLiteral(AnyInput auto& in,const char firstTypeChar)
 	{
 		in.skip();//skip firstTypeChar
 
