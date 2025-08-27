@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <compare>
 #include <span>
 export module slu.lang.basic_state;
 

@@ -1,5 +1,6 @@
 ﻿
 add_library(slu-ast 
+	"make.ixx"
 	"pos.ixx"
 	"enums.ixx" 
 	"op_info.ixx"
