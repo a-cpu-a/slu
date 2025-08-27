@@ -15,12 +15,12 @@
 
 #include <slu/Ansi.hpp>
 #include <slu/parse/Parse.hpp>
-#include <slu/paint/Paint.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/gen/Gen.hpp>
 #include <slu/MetaTableUtils.hpp>
 #include <slu/comp/Compile.hpp>
 #include <slu/mlvl/TypeInfCheck.hpp>
+import slu.paint.paint;
 import slu.paint.to_html;
 import slu.parse.vec_input;
 

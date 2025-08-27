@@ -1,27 +1,27 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <vector>
 #include <stdexcept>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
 #include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
+export module slu.paint.paint;
+
 import slu.char_info;
 import slu.settings;
+import slu.ast.enums;
 import slu.ast.state;
+import slu.ast.state_decls;
 import slu.paint.basics;
 import slu.paint.paint_ops;
 import slu.paint.sem_output;
 import slu.parse.input;
 import slu.parse.com.skip_space;
+import slu.parse.com.token;
 
 namespace slu::paint
 {
@@ -120,15 +120,6 @@ namespace slu::paint
 				else
 					break;
 			}
-		}
-	}
-	template<AnySemOutput Se>
-	inline void paintLifetime(Se& se, const parse::Lifetime& itm)
-	{
-		for (const auto& i : itm)
-		{
-			paintKw<Tok::LIFETIME_SEP>(se, "/");
-			paintName<Tok::NAME_LIFETIME>(se, i);
 		}
 	}
 	template<Tok nameTok,AnySemOutput Se>
@@ -1027,8 +1018,8 @@ namespace slu::paint
 	/*
 	Make sure to reset in first: `in.reset();`
 	*/
-	template<AnySemOutput Se>
-	inline void paintFile(Se& se, const parse::ParsedFile& f) {
+	export template<AnySemOutput Se>
+	void paintFile(Se& se, const parse::ParsedFile& f) {
 		for (auto& i : f.code)
 			paintStat(se, i);
 		skipSpace(se);

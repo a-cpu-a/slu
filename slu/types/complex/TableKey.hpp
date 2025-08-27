@@ -6,6 +6,7 @@
 #include <string>
 #include <slu/Include.hpp>
 
+#include <slu/Panic.hpp>
 #include <slu/Utils.hpp>
 #include <slu/types/Converter.hpp>
 #include <slu/types/ReadWrite.hpp>

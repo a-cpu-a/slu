@@ -8,6 +8,7 @@
 #include <format>
 #include <vector>
 
+#include <slu/Panic.hpp>
 import slu.settings;
 import slu.ast.state;
 #include <slu/visit/Visitor.hpp>

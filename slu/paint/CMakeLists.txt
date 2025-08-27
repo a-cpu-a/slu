@@ -5,4 +5,5 @@ add_library(slu-paint
 	"basic_col_conv.ixx"
 	"paint_ops.ixx"
 	"basics.ixx"
+	"paint.ixx"
 )

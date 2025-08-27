@@ -16,7 +16,17 @@ import slu.parse.input;
 namespace slu::paint
 {
 	export template<AnySemOutput Se>
-	inline void paintBinOp(Se& se, const ast::BinOpType& itm)
+	void paintLifetime(Se& se, const parse::Lifetime& itm)
+	{
+		for (const auto& i : itm)
+		{
+			paintKw<Tok::LIFETIME_SEP>(se, "/");
+			paintName<Tok::NAME_LIFETIME>(se, i);
+		}
+	}
+
+	export template<AnySemOutput Se>
+	void paintBinOp(Se& se, const ast::BinOpType& itm)
 	{
 		switch (itm)
 		{
@@ -105,7 +115,7 @@ namespace slu::paint
 
 	}
 	export template<AnySemOutput Se>
-	inline void paintPostUnOp(Se& se, const ast::PostUnOpType& itm)
+	void paintPostUnOp(Se& se, const ast::PostUnOpType& itm)
 	{
 		switch (itm)
 		{
@@ -123,7 +133,7 @@ namespace slu::paint
 		}
 	}
 	export template<AnySemOutput Se>
-	inline void paintUnOpItem(Se& se, const parse::UnOpItem& itm)
+	void paintUnOpItem(Se& se, const parse::UnOpItem& itm)
 	{
 		switch (itm.type)
 		{
