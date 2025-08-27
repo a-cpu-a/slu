@@ -10,7 +10,7 @@
 
 #include <slu/ext/lua/luaconf.h>
 #include <slu/parse/Parse.hpp>
-#include <slu/parse/VecInput.hpp>
+import slu.parse.vec_input;
 #include <slu/paint/Paint.hpp>
 #include <slu/paint/PaintToHtml.hpp>
 #include <slu/visit/Visit.hpp>

@@ -15,7 +15,6 @@
 import slu.ast.state;
 import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
-#include <slu/parse/VecInput.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/PaintOps.hpp>
 

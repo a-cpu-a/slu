@@ -4,4 +4,6 @@ add_library(slu-parse
 	"manage_newl.ixx"
 	"error.ixx"
 	"errors/char_errors.ixx"
-	"errors/kw.ixx" )
+	"errors/kw.ixx"
+	"vec_input.ixx"
+)

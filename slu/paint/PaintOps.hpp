@@ -14,7 +14,6 @@
 #include <slu/ext/CppMatch.hpp>
 import slu.ast.state;
 import slu.parse.input;
-#include <slu/parse/VecInput.hpp>
 #include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::paint
