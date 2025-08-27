@@ -30,6 +30,7 @@ function(init_target target)
 endfunction()
 
 init_target(slu)
+init_target(slu-ast)
 init_target(slu-parse)
 
 target_include_directories(slu
