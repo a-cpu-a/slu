@@ -12,7 +12,7 @@
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.skip_space;
-#include <slu/parse/adv/RequireToken.hpp>
+import slu.parse.com.token;
 
 namespace slu::parse
 {

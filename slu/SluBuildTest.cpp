@@ -13,7 +13,7 @@
 #include <string_view>
 #include <unordered_map>
 
-#include <slu/ext/lua/luaconf.h>
+#include <slu/Ansi.hpp>
 #include <slu/parse/Parse.hpp>
 #include <slu/paint/Paint.hpp>
 #include <slu/visit/Visit.hpp>

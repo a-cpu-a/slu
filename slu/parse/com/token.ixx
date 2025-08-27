@@ -1,15 +1,12 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <format>
 #include <cstdint>
-#include <slu/ext/lua/luaconf.h>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+#include <slu/Ansi.hpp>
+export module slu.parse.com.token;
 
 import slu.ast.state;
 import slu.parse.input;
@@ -19,8 +16,8 @@ import slu.char_info;
 
 namespace slu::parse
 {
-	template<bool SKIP_SPACE=true,size_t TOK_SIZE>
-	inline void requireToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
+	export template<bool SKIP_SPACE=true,size_t TOK_SIZE>
+	void requireToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
 	{
 		if constexpr(SKIP_SPACE)
 			skipSpace(in);
@@ -53,7 +50,7 @@ namespace slu::parse
 		}
 	}
 	//Will NOT skip space!!!
-	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const std::string_view tok, const bool nameLike = false, const bool readIfGood = false)
+	export [[nodiscard]] bool checkToken(AnyInput auto& in, const std::string_view tok, const bool nameLike = false, const bool readIfGood = false)
 	{
 		size_t off = 0;
 
@@ -85,34 +82,34 @@ namespace slu::parse
 		return true;
 	}
 	//Will NOT skip space!!!
-	template<size_t TOK_SIZE>
-	[[nodiscard]] inline bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false) {
+	export template<size_t TOK_SIZE>
+	[[nodiscard]] bool checkToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false, const bool readIfGood = false) {
 		return checkToken(in, std::string_view(tok, TOK_SIZE - 1), nameLike, readIfGood);
 	}
 	//Will NOT skip space!!!
-	template<size_t TOK_SIZE>
-	[[nodiscard]] inline bool checkTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
+	export template<size_t TOK_SIZE>
+	[[nodiscard]] bool checkTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
 		return checkToken(in, tok, true);
 	}
 	//Will NOT skip space!!!
-	[[nodiscard]] inline bool checkTextToken(AnyInput auto& in, const std::string_view tok) {
+	export [[nodiscard]] bool checkTextToken(AnyInput auto& in, const std::string_view tok) {
 		return checkToken(in, tok, true);
 	}
 
-	template<bool SKIP_SPACE=true,size_t TOK_SIZE>
-	[[nodiscard]] inline bool checkReadToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
+	export template<bool SKIP_SPACE=true,size_t TOK_SIZE>
+	[[nodiscard]] bool checkReadToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
 		if constexpr(SKIP_SPACE)
 			skipSpace(in);
 		return checkToken(in, tok, nameLike, true);
 	}
-	template<size_t TOK_SIZE>
-	[[nodiscard]] inline bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
+	export template<size_t TOK_SIZE>
+	[[nodiscard]] bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
 		skipSpace(in);
 		return checkToken(in, tok, true, true);
 	}
 
-	template<size_t TOK_SIZE>
-	inline void readOptToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
+	export template<size_t TOK_SIZE>
+	void readOptToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
 		(void)checkReadToken(in, tok, nameLike);
 	}
 }

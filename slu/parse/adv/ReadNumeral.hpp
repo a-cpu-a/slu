@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <unordered_set>
 #include <string>
+#include <stdexcept>
+#include <format>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
@@ -15,9 +17,10 @@ import slu.char_info;
 import slu.num;
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.parse.error;
 import slu.parse.input;
 import slu.parse.com.skip_space;
-#include <slu/parse/adv/RequireToken.hpp>
+import slu.parse.com.token;
 
 namespace slu::parse
 {

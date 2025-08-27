@@ -7,4 +7,5 @@ add_library(slu-parse
 	"errors/kw.ixx"
 	"vec_input.ixx"
 	"com/skip_space.ixx"
+	"com/token.ixx"
 )

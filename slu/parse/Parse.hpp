@@ -13,6 +13,7 @@
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.skip_space;
+import slu.parse.com.token;
 import slu.parse.errors.kw;
 
 #include "basic/ReadArgs.hpp"
@@ -22,7 +23,6 @@ import slu.parse.errors.kw;
 #include "basic/ReadUseStat.hpp"
 #include "basic/ReadStructStat.hpp"
 #include "adv/ReadName.hpp"
-#include "adv/RequireToken.hpp"
 #include "adv/ReadExpr.hpp"
 #include "adv/ReadBlock.hpp"
 #include "adv/ReadStringLiteral.hpp"
