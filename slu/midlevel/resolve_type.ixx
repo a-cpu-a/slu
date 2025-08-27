@@ -1,33 +1,43 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
+#include <compare>
+#include <variant>
+#include <utility>
+#include <stdexcept>
 
+#include <slu/ext/CppMatch.hpp>
+export module slu.mlvl.resolve_type;
+import slu.num;
 import slu.ast.mp_data;
+import slu.ast.state_decls;
+import slu.ast.state;
+import slu.ast.type;
 import slu.lang.mpc;
 
 namespace slu::mlvl
 {
-	parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::Expr&& type);
-
+	export parse::ResolvedType resolveTypeExpr(parse::BasicMpDb mpDb, parse::Expr&& type);
+	
 	void handleTypeExprField(parse::BasicMpDb mpDb, size_t& nameIdx, parse::FieldV<true>& field,auto& res)
 	{
 		ezmatch(std::move(field))(
-			ezcase(parse::FieldType::Expr && fi) {
+		ezcase(parse::FieldType::Expr&& fi) {
 			res.fieldNames.emplace_back("0x" + slu::u64ToStr(nameIdx++));
 			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi)));
 		},
-			ezcase(parse::FieldType::Name2Expr && fi) {
+		ezcase(parse::FieldType::Name2Expr&& fi) {
 			res.fieldNames.emplace_back(fi.idx.asSv(mpDb));
 			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi.v)));
 		},
-			ezcase(parse::FieldType::Expr2Expr && fi) {
+		ezcase(parse::FieldType::Expr2Expr&& fi) {
 			throw std::runtime_error("FieldType::Expr2ExprV type resolution: TODO not implemented: jit the expression");
 		},
-			ezcase(const parse::FieldType::NONE _) {
+		ezcase(const parse::FieldType::NONE _) {
 			throw std::runtime_error("FieldType::NONE should not exist in struct/union type expression.");
 		}
-			);
+		);
 	}
 
 	parse::ResolvedType resolveStructType(parse::BasicMpDb mpDb, parse::TableV<true>&& itm)
