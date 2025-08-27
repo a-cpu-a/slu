@@ -32,6 +32,10 @@ endfunction()
 init_target(slu)
 init_target(slu-ast)
 init_target(slu-parse)
+init_target(slu-lang)
+init_target(slu-mlvl)
+init_target(slu-gen)
+init_target(slu-paint)
 
 target_include_directories(slu
   PRIVATE
