@@ -6,17 +6,20 @@
 #include <cstdint>
 #include <unordered_set>
 #include <algorithm>
+#include <format>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.char_info;
+import slu.num;
 import slu.ast.state;
+import slu.parse.error;
 import slu.parse.input;
+import slu.parse.com.num;
 import slu.parse.com.skip_space;
 import slu.parse.com.token;
-#include <slu/parse/adv/ReadNumeral.hpp>
 
 namespace slu::parse
 {

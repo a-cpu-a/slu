@@ -1,17 +1,15 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <string>
 #include <stdexcept>
 #include <format>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+#include <slu/Ansi.hpp>
+export module slu.parse.com.num;
 
 import slu.char_info;
 import slu.num;
@@ -266,8 +264,8 @@ namespace slu::parse
 		throw InternalError("Failed to return from readNumeralExtra");
 	}
 
-	template<class DataT,bool ALLOW_FLOAT = true,bool allowSluType=true, AnyInput In>
-	inline DataT readNumeral(In& in, const char firstChar)
+	export template<class DataT,bool ALLOW_FLOAT = true,bool allowSluType=true, AnyInput In>
+	DataT readNumeral(In& in, const char firstChar)
 	{
 		in.skip();
 

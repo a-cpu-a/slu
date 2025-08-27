@@ -17,9 +17,9 @@ import slu.parse.input;
 import slu.parse.com.skip_space;
 import slu.parse.errors.char_errors;
 #include <slu/parse/adv/ReadExprBase.hpp>
+import slu.parse.com.num;
 import slu.parse.com.token;
 #include <slu/parse/adv/ReadStringLiteral.hpp>
-#include <slu/parse/adv/ReadNumeral.hpp>
 #include <slu/parse/basic/ReadOperators.hpp>
 #include <slu/parse/adv/ReadTraitExpr.hpp>
 #include <slu/parse/adv/ReadTypeExpr.hpp>
