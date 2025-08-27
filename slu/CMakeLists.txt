@@ -2,7 +2,7 @@
 add_subdirectory(parse)
 add_subdirectory(ast)
 add_subdirectory(lang)
-add_subdirectory(midlevel)
+add_subdirectory(mlvl)
 add_subdirectory(gen)
 add_subdirectory(paint)
 

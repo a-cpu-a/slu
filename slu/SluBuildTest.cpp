@@ -20,7 +20,7 @@
 #include <slu/gen/Gen.hpp>
 #include <slu/MetaTableUtils.hpp>
 #include <slu/comp/Compile.hpp>
-#include <slu/midlevel/TypeInfCheck.hpp>
+#include <slu/mlvl/TypeInfCheck.hpp>
 import slu.paint.to_html;
 import slu.parse.vec_input;
 
