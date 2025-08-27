@@ -16,7 +16,6 @@ import slu.ast.state;
 import slu.paint.sem_output;
 import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
-#include <slu/paint/PaintOps.hpp>
 
 namespace slu::paint
 {

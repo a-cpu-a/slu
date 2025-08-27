@@ -1,24 +1,21 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <vector>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
 #include <slu/ext/CppMatch.hpp>
+export module slu.paint.paint_ops;
+import slu.ast.enums;
 import slu.ast.state;
 import slu.paint.sem_output;
 import slu.parse.input;
 
 namespace slu::paint
 {
-	template<AnySemOutput Se>
+	export template<AnySemOutput Se>
 	inline void paintBinOp(Se& se, const ast::BinOpType& itm)
 	{
 		switch (itm)
@@ -107,7 +104,7 @@ namespace slu::paint
 		}
 
 	}
-	template<AnySemOutput Se>
+	export template<AnySemOutput Se>
 	inline void paintPostUnOp(Se& se, const ast::PostUnOpType& itm)
 	{
 		switch (itm)
@@ -125,7 +122,7 @@ namespace slu::paint
 			break;
 		}
 	}
-	template<AnySemOutput Se>
+	export template<AnySemOutput Se>
 	inline void paintUnOpItem(Se& se, const parse::UnOpItem& itm)
 	{
 		switch (itm.type)

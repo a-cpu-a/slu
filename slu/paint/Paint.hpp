@@ -11,16 +11,16 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 import slu.char_info;
 import slu.settings;
 import slu.ast.state;
+import slu.paint.paint_ops;
 import slu.paint.sem_output;
 import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
-#include <slu/paint/PaintOps.hpp>
 #include <slu/paint/PaintBasics.hpp>
-#include <slu/Panic.hpp>
 
 namespace slu::paint
 {
