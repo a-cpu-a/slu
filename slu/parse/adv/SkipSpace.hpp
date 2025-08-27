@@ -9,17 +9,13 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
+import slu.char_info;
+import slu.paint.sem_output;
 import slu.parse.input;
 import slu.parse.manage_newl;
-#include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::parse
 {
-	constexpr bool isSpaceChar(const char ch)
-	{
-		return ch == ' ' || ch == '\f' || ch == '\t' || ch == '\v' || ch == '\n' || ch == '\r';
-	}
-
 	//Returns idx of non-space/comment char
 	inline size_t weakSkipSpace(AnyInput auto& in, size_t idx)
 	{

@@ -1,17 +1,13 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <vector>
 #include <ranges>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
+export module slu.paint.sem_output;
 import slu.settings;
 import slu.ast.pos;
 import slu.ast.state;
@@ -20,14 +16,7 @@ import slu.parse.manage_newl;
 
 namespace slu::paint
 {
-	using parse::AnyCfgable;
-	using parse::AnySettings;
-	using parse::Setting;
-
-	//ms sad
-#undef IN
-
-	enum class Tok : uint8_t
+	export enum class Tok : uint8_t
 	{
 		NONE = 0,
 
@@ -77,7 +66,6 @@ namespace slu::paint
 		SPLICE_VAR,// $xxx xxx$
 
 		ANNOTATION,// @xxx @xxx{}
-
 
 		AS,
 		IN,
@@ -136,12 +124,12 @@ namespace slu::paint
 	};
 
 	//Here, so custom semantic token outputs can be made
-	template<class T>
+	export template<class T>
 	concept AnySemOutput =
 #ifdef Slu_NoConcepts
 		true
 #else
-		AnyCfgable<T> && requires(T t) {
+		parse::AnyCfgable<T> && requires(T t) {
 
 		//{ t.db } -> std::same_as<LuaMpDb>;
 
@@ -179,7 +167,7 @@ namespace slu::paint
 #endif // Slu_NoConcepts
 	;
 
-	template<class Converter>
+	export template<class Converter>
 	constexpr uint32_t basicTokBlend(const Tok tok, const Tok overlayTok)
 	{
 		const uint32_t from = Converter::tok2Col(tok);
@@ -201,7 +189,7 @@ namespace slu::paint
 			);
 	}
 
-	struct ColorConverter
+	export struct ColorConverter
 	{
 		static constexpr uint32_t tok2Col(const Tok tok)
 		{
@@ -219,7 +207,7 @@ namespace slu::paint
 	};
 
 	//Converter::from(Tok,Tok) -> SemPair
-	template<parse::AnyInput In,class Converter = ColorConverter>
+	export template<parse::AnyInput In,class Converter = ColorConverter>
 	struct SemOutput
 	{
 		//Possible a color, likely u16 or u32

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <slu/parse/Parse.hpp>
 #include <slu/paint/Paint.hpp>
-#include <slu/paint/SemOutputStream.hpp>
+import slu.paint.sem_output;
 #include <slu/paint/StyledColorConverter.hpp>
 #include <slu/paint/PaintToHtml.hpp>
 #include <slu/gen/Gen.hpp>

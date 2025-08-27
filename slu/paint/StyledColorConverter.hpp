@@ -5,7 +5,7 @@
 
 #include <cstdint>
 
-#include <slu/paint/SemOutputStream.hpp>
+import slu.paint.sem_output;
 
 namespace slu::paint
 {

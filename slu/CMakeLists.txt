@@ -8,5 +8,6 @@ add_library(slu
 	lang/mpc.ixx 
 	ext/mtx.ixx 
 	"gen/output.ixx"
+	"paint/sem_output.ixx"
 	SluBuildTest.cpp
 )

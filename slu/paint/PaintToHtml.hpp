@@ -7,14 +7,15 @@
 #include <span>
 #include <vector>
 #include <unordered_map>
+#include <ranges>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.ast.state;
+import slu.paint.sem_output;
 import slu.parse.input;
-#include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::paint
 {
@@ -144,7 +145,7 @@ namespace slu::paint
 				continue;
 			}
 
-			if (parse::isSpaceChar(ch))
+			if (slu::isSpaceChar(ch))
 			{
 				if(ch!='\r')
 					res += ch;

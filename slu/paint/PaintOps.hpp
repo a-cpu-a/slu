@@ -13,8 +13,8 @@
 
 #include <slu/ext/CppMatch.hpp>
 import slu.ast.state;
+import slu.paint.sem_output;
 import slu.parse.input;
-#include <slu/paint/SemOutputStream.hpp>
 
 namespace slu::paint
 {

@@ -8,6 +8,10 @@ export module slu.char_info;
 
 namespace slu
 {
+	export constexpr bool isSpaceChar(const char ch) {
+		return ch == ' ' || ch == '\f' || ch == '\t' || ch == '\v' || ch == '\n' || ch == '\r';
+	}
+
 	constexpr uint8_t CAPITAL_BIT = 'x' - 'X';
 	static_assert('x' - 'X' == 32);//is simple bit flip?
 

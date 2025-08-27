@@ -7,6 +7,9 @@
 
 #include <variant>
 #include <array>
+#include <span>
+#include <string>
+#include <string_view>
 
 #include <slu/ext/lua/luaconf.h>
 #include <slu/parse/Parse.hpp>

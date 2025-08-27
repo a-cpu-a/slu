@@ -15,9 +15,9 @@
 import slu.char_info;
 import slu.settings;
 import slu.ast.state;
+import slu.paint.sem_output;
 import slu.parse.input;
 #include <slu/parse/adv/SkipSpace.hpp>
-#include <slu/paint/SemOutputStream.hpp>
 #include <slu/paint/PaintOps.hpp>
 #include <slu/paint/PaintBasics.hpp>
 #include <slu/Panic.hpp>

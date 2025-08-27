@@ -7,6 +7,7 @@
 #include <vector>
 #include <optional>
 #include <variant>
+#include <ranges>
 
 import slu.ast.make;
 import slu.ast.mp_data;
