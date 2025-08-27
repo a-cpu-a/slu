@@ -5,13 +5,16 @@
 
 #include <cstdint>
 #include <unordered_set>
+#include <format>
 
 //https://www.lua.org/manual/5.4/manual.html
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.ast.state;
+import slu.parse.error;
 import slu.parse.input;
+import slu.parse.com.name;
 import slu.parse.com.skip_space;
 import slu.parse.com.str;
 import slu.parse.com.token;
@@ -23,7 +26,6 @@ import slu.parse.errors.kw;
 #include "basic/ReadModStat.hpp"
 #include "basic/ReadUseStat.hpp"
 #include "basic/ReadStructStat.hpp"
-#include "adv/ReadName.hpp"
 #include "adv/ReadExpr.hpp"
 #include "adv/ReadBlock.hpp"
 #include "adv/ReadTable.hpp"

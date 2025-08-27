@@ -13,11 +13,11 @@
 
 import slu.ast.state;
 import slu.parse.input;
+import slu.parse.com.name;
 import slu.parse.com.skip_space;
 #include <slu/parse/adv/ReadExprBase.hpp>
 import slu.parse.com.token;
 #include <slu/parse/adv/ReadTypeExpr.hpp>
-#include <slu/parse/adv/ReadName.hpp>
 
 namespace slu::parse
 {

@@ -1,16 +1,14 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <algorithm>
 #include <format>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+#include <slu/Ansi.hpp>
+export module slu.parse.com.name;
 
 import slu.char_info;
 import slu.num;
@@ -63,11 +61,8 @@ namespace slu::parse
 		_Slu_KWS,
 		_Slu_MOSTLY_KWS
 	};
-#undef _Slu_KWS
-#undef _Slu_MOSTLY_KWS
-#undef _Slu_VERY_KWS
-#undef _Slu_COMMON_KWS
-	enum class NameCatagory
+
+	export enum class NameCatagory
 	{
 		DEFAULT,
 		MP_START,
@@ -75,7 +70,7 @@ namespace slu::parse
 		BOUND_VAR
 	};
 	template<NameCatagory cata>
-	inline bool isNameInvalid(AnyInput auto& in, const std::string& n)
+	bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
 		const std::unordered_set<std::string>* checkSet = &RESERVED_KEYWORDS_SLU;
 
@@ -92,20 +87,13 @@ namespace slu::parse
 		return false;
 	}
 
-	template<NameCatagory cata =NameCatagory::DEFAULT,bool sluTuplable=false>
-	inline std::string readName(AnyInput auto& in, const bool allowError = false)
+	export template<NameCatagory cata =NameCatagory::DEFAULT,bool sluTuplable=false>
+	std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
 		Names (also called identifiers) in Lua can be any string
 		of Latin letters, Arabic-Indic digits, and underscores,
 		not beginning with a digit and not being a reserved word.
-
-		The following keywords are reserved and cannot be used as names:
-
-		 and       break     do        else      elseif    end
-		 false     for       function  goto      if        in
-		 local     nil       not       or        repeat    return
-		 then      true      until     while
 		*/
 		skipSpace(in);
 
@@ -172,27 +160,25 @@ namespace slu::parse
 
 		return res;
 	}
-	template<NameCatagory cata = NameCatagory::DEFAULT>
-	inline std::string readSluTuplableName(AnyInput auto& in, const bool allowError = false) {
+	export template<NameCatagory cata = NameCatagory::DEFAULT>
+	std::string readSluTuplableName(AnyInput auto& in, const bool allowError = false) {
 		return readName<cata,true>(in, allowError);
 	}
 
 	//No space skip!
 	//Returns SIZE_MAX, on non name inputs
 	//Otherwise, returns last peek() idx that returns a part of the name
-	template<NameCatagory cata = NameCatagory::DEFAULT>
-	inline size_t peekName(AnyInput auto& in,const size_t at = 0)
+	export template<NameCatagory cata = NameCatagory::DEFAULT>
+	size_t peekName(AnyInput auto& in,const size_t at = 0)
 	{
 		if (!in)
 			return SIZE_MAX;
-
 
 		const uint8_t firstChar = in.peekAt(at);
 
 		// Ensure the first character is valid (a letter or underscore)
 		if (!isValidNameStartChar(firstChar))
 			return SIZE_MAX;
-
 
 		std::string res;
 		res += firstChar; // Consume the first valid character
@@ -215,33 +201,5 @@ namespace slu::parse
 			return SIZE_MAX;
 
 		return i;
-	}
-
-	//uhhh, dont use?
-	template<AnyInput In>
-	inline NameList<In> readNames(In& in, const bool requires1 = true)
-	{
-		NameList<In> res;
-
-		if (requires1)
-			res.push_back(in.genData.resolveUnknown(readName(in)));
-
-		bool skipComma = !requires1;//comma wont exist if the first one doesnt exist
-		bool allowNameError = !requires1;//if the first one doesnt exist
-
-		while (skipComma || checkReadToken(in, ','))
-		{
-			skipComma = false;// Only skip first comma
-
-			const std::string str = readName(in, allowNameError);
-
-			if (allowNameError && str.empty())
-				return {};//no names
-
-			res.push_back(in.genData.resolveUnknown(str));
-
-			allowNameError = false;//not the first one anymore
-		}
-		return res;
 	}
 }
