@@ -16,7 +16,7 @@ import slu.num;
 import slu.ast.state;
 import slu.ast.state_decls;
 import slu.parse.input;
-#include <slu/parse/adv/SkipSpace.hpp>
+import slu.parse.com.skip_space;
 #include <slu/parse/adv/RequireToken.hpp>
 
 namespace slu::parse

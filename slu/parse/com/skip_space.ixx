@@ -1,13 +1,10 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.parse.com.skip_space;
 
 import slu.char_info;
 import slu.paint.sem_output;
@@ -17,7 +14,7 @@ import slu.parse.manage_newl;
 namespace slu::parse
 {
 	//Returns idx of non-space/comment char
-	inline size_t weakSkipSpace(AnyInput auto& in, size_t idx)
+	export size_t weakSkipSpace(AnyInput auto& in, size_t idx)
 	{
 		while (true)
 		{
@@ -83,7 +80,7 @@ namespace slu::parse
 	concept InputOrSemTokStream = AnyInput<T> || slu::paint::AnySemOutput<T>;
 
 	//Returns true, when idx changed
-	template<InputOrSemTokStream SorIn>
+	export template<InputOrSemTokStream SorIn>
 	inline bool skipSpace(SorIn& sOrIn)
 	{
 		constexpr bool isSem = slu::paint::AnySemOutput<SorIn>;

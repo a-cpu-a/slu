@@ -14,8 +14,8 @@
 
 import slu.ast.state;
 import slu.parse.input;
+import slu.parse.com.skip_space;
 import slu.parse.errors.char_errors;
-#include <slu/parse/adv/SkipSpace.hpp>
 #include <slu/parse/adv/ReadExprBase.hpp>
 #include <slu/parse/adv/RequireToken.hpp>
 #include <slu/parse/adv/ReadStringLiteral.hpp>

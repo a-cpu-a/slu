@@ -19,7 +19,7 @@ import slu.ast.state;
 import slu.paint.paint_ops;
 import slu.paint.sem_output;
 import slu.parse.input;
-#include <slu/parse/adv/SkipSpace.hpp>
+import slu.parse.com.skip_space;
 #include <slu/paint/PaintBasics.hpp>
 
 namespace slu::paint

@@ -10,9 +10,10 @@
 //https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
-import slu.parse.errors.kw;
-import slu.parse.input;
 import slu.ast.state;
+import slu.parse.input;
+import slu.parse.com.skip_space;
+import slu.parse.errors.kw;
 
 #include "basic/ReadArgs.hpp"
 #include "basic/ReadMiscNames.hpp"
@@ -22,7 +23,6 @@ import slu.ast.state;
 #include "basic/ReadStructStat.hpp"
 #include "adv/ReadName.hpp"
 #include "adv/RequireToken.hpp"
-#include "adv/SkipSpace.hpp"
 #include "adv/ReadExpr.hpp"
 #include "adv/ReadBlock.hpp"
 #include "adv/ReadStringLiteral.hpp"

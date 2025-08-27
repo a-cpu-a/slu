@@ -14,7 +14,7 @@
 import slu.char_info;
 import slu.ast.state;
 import slu.parse.input;
-#include <slu/parse/adv/SkipSpace.hpp>
+import slu.parse.com.skip_space;
 #include <slu/parse/adv/RequireToken.hpp>
 #include <slu/parse/adv/ReadNumeral.hpp>
 

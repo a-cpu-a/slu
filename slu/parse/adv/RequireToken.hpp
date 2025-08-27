@@ -14,7 +14,7 @@
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.error;
-#include <slu/parse/adv/SkipSpace.hpp>
+import slu.parse.com.skip_space;
 import slu.char_info;
 
 namespace slu::parse
