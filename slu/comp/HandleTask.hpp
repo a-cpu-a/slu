@@ -8,15 +8,15 @@
 #include <optional>
 #include <thread>
 #include <variant>
-import a_cpu_a.mtx;
+
 #include <slu/ext/CppMatch.hpp>
+import a_cpu_a.mtx;
+import slu.comp.cfg;
 import slu.lang.basic_state;
 import slu.mlvl.basic_desugar;
 import slu.mlvl.type_inf_check;
 import slu.parse.error;
 import slu.parse.vec_input;
-
-#include <slu/comp/CompCfg.hpp>
 #include <slu/comp/mlir/Conv.hpp>
 
 namespace slu::comp

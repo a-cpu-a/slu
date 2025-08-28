@@ -67,9 +67,9 @@ LLD_HAS_DRIVER(coff);
 #pragma warning(pop)
 
 #include <slu/ext/CppMatch.hpp>
+import slu.comp.cfg;
 import slu.comp.conv_data;
 import slu.lang.basic_state;
-#include <slu/comp/CompCfg.hpp>
 
 namespace slu::comp::mico
 {

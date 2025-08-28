@@ -1,16 +1,18 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <vector>
 #include <optional>
 #include <span>
 
+export module slu.comp.cfg;
+
+import slu.lang.basic_state;
+
 namespace slu::comp
 {
-	using ModPathView = std::span<const std::string>;
 	//
 	// All views / spans are only required to live as long as the call.
 	// The compiler wont emit `../`, so there is no need to sanitize them for that (except by you in rootPaths)
@@ -18,26 +20,24 @@ namespace slu::comp
 	// If one of your callbacks is thread-unsafe, add some mutex, because all of them will be called by many threads.
 	//
 
-
-
 	//TODO: implement compiler plugins, maybe redesign the api too.
 
 	//Used to implement external namespaces (lua::ext::*)
-	struct CompPlugin
+	export struct CompPlugin
 	{
 		// If it would need to call to some dll, or external code, it is likely not safe
 		bool comptimeSafe : 1 = false;
 
-		ModPathView root;
+		lang::ModPathView root;
 
 		//TODO: choose a type for the list (string?) (mod path?)
-		using GetItemListFn = std::vector<int>(*)(const ModPathView& path);
+		using GetItemListFn = std::vector<int>(*)(const lang::ModPathView& path);
 		GetItemListFn getItemListPtr;
 
-		using ItemBoolFn = bool(*)(const ModPathView& path);
+		using ItemBoolFn = bool(*)(const lang::ModPathView& path);
 		ItemBoolFn itemExistsPtr;
 	};
-	struct TmpFile
+	export struct TmpFile
 	{
 		std::string realPath;
 		using DestroyFn = void (*)(TmpFile& thiz);
@@ -66,7 +66,7 @@ namespace slu::comp
 		TmpFile(const TmpFile&) = default;
 		TmpFile& operator=(const TmpFile&) = default;
 	};
-	struct CompCfg
+	export struct CompCfg
 	{
 		//you need to add a newline yourself, if you need to (use println or something)
 		//Note: msg may contain nulls

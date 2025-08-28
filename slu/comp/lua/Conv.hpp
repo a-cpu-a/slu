@@ -9,7 +9,7 @@
 #include <thread>
 #include <variant>
 
-#include <slu/comp/CompCfg.hpp>
+import slu.comp.cfg;
 import slu.comp.conv_data;
 
 namespace slu::comp::lua

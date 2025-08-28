@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include <slu/comp/CompCfg.hpp>
+import slu.comp.cfg;
 
 namespace slu::comp
 {

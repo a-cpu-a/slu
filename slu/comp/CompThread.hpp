@@ -10,8 +10,8 @@
 #include <variant>
 
 import a_cpu_a.mtx;
+import slu.comp.cfg;
 import slu.lang.basic_state;
-#include <slu/comp/CompCfg.hpp>
 #include <slu/comp/HandleTask.hpp>
 
 namespace slu::comp
