@@ -1,14 +1,11 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.parse.basic.op;
 
 import slu.ast.enums;
 import slu.ast.state;
@@ -18,7 +15,7 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	inline ast::UnOpType readOptUnOp(AnyInput auto& in,const bool typeOnly=false)
+	export ast::UnOpType readOptUnOp(AnyInput auto& in,const bool typeOnly=false)
 	{
 		skipSpace(in);
 
@@ -74,8 +71,8 @@ namespace slu::parse
 		}
 		return ast::UnOpType::NONE;
 	}
-	template<bool noRangeOp>
-	inline ast::PostUnOpType readOptPostUnOp(AnyInput auto& in)
+	export template<bool noRangeOp>
+	ast::PostUnOpType readOptPostUnOp(AnyInput auto& in)
 	{
 		skipSpace(in);
 
@@ -100,7 +97,7 @@ namespace slu::parse
 		return ast::PostUnOpType::NONE;
 	}
 
-	inline ast::BinOpType readOptBinOp(AnyInput auto& in)
+	export ast::BinOpType readOptBinOp(AnyInput auto& in)
 	{
 		switch (in.peek())
 		{

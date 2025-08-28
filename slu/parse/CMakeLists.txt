@@ -8,6 +8,7 @@ add_library(slu-parse
 	"vec_input.ixx"
 	"basic/args.ixx"
 	"basic/label.ixx"
+	"basic/op.ixx"
 	"com/skip_space.ixx"
 	"com/tok.ixx"
 	"com/name.ixx"

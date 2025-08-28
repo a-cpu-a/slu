@@ -22,7 +22,6 @@ import slu.parse.com.str;
 import slu.parse.com.tok;
 import slu.parse.errors.kw;
 
-#include "basic/ReadMiscNames.hpp"
 #include "basic/ReadModStat.hpp"
 #include "basic/ReadUseStat.hpp"
 #include "basic/ReadStructStat.hpp"
