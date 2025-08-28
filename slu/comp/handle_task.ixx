@@ -19,6 +19,7 @@ import slu.settings;
 import slu.ast.state;
 import slu.ast.mp_data;
 import slu.comp.cfg;
+import slu.comp.conv_data;
 import slu.comp.mlir.conv;
 import slu.lang.basic_state;
 import slu.mlvl.basic_desugar;
