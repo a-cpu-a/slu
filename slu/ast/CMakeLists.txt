@@ -1,5 +1,7 @@
 ﻿
-add_library(slu-ast 
+target_sources(slu PRIVATE
+  FILE_SET slu_modules TYPE CXX_MODULES
+  FILES
 	"make.ixx"
 	"pos.ixx"
 	"enums.ixx" 
@@ -9,4 +11,5 @@ add_library(slu-ast
 	"type.ixx"
 	"state.ixx"
 	"op_order.ixx"
-	"mp_data.ixx" )
+	"mp_data.ixx" 
+)

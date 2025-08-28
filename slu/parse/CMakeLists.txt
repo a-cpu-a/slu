@@ -1,5 +1,7 @@
 ﻿
-add_library(slu-parse 
+target_sources(slu PRIVATE
+  FILE_SET slu_modules TYPE CXX_MODULES
+  FILES
 	"input.ixx"
 	"manage_newl.ixx"
 	"error.ixx"
@@ -23,4 +25,5 @@ add_library(slu-parse
 	"basic/use_stat.ixx"
 	"basic/fn_ty.ixx"
 	"basic/trait_expr.ixx"
- "adv/expr_decls.ixx")
+	"adv/expr_decls.ixx"
+)

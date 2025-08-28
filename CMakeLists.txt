@@ -27,33 +27,24 @@ function(init_target target)
 	  PRIVATE
 		${PROJECT_SOURCE_DIR}
 	)
+	
+	target_include_directories(${target}
+	  PRIVATE
+		"${PROJECT_SOURCE_DIR}/slu/ext/llvm/mlir/include"
+		"${PROJECT_SOURCE_DIR}/slu/ext/llvm/llvm/include"
+		"${PROJECT_SOURCE_DIR}/slu/ext/llvm/build/tools/mlir/include"
+		"${PROJECT_SOURCE_DIR}/slu/ext/llvm/build/include"
+		"${PROJECT_SOURCE_DIR}/slu/ext/llvm/lld/include"
+		"${PROJECT_SOURCE_DIR}/slu/ext/llvm/build/tools/lld/include"
+	)
 endfunction()
 
 init_target(slu)
-init_target(slu-ast)
-init_target(slu-parse)
-init_target(slu-lang)
-init_target(slu-mlvl)
-init_target(slu-gen)
-init_target(slu-paint)
+init_target(slu-testthing)
 
-#add_dependencies(slu-ast slu-lang)
-#add_dependencies(slu-gen slu-parse)
-#add_dependencies(slu-parse slu-paint)
-#add_dependencies(slu-mlvl slu-parse)
-
-target_include_directories(slu
-  PRIVATE
-	"${PROJECT_SOURCE_DIR}/slu/ext/llvm/mlir/include"
-	"${PROJECT_SOURCE_DIR}/slu/ext/llvm/llvm/include"
-	"${PROJECT_SOURCE_DIR}/slu/ext/llvm/build/tools/mlir/include"
-	"${PROJECT_SOURCE_DIR}/slu/ext/llvm/build/include"
-	"${PROJECT_SOURCE_DIR}/slu/ext/llvm/lld/include"
-	"${PROJECT_SOURCE_DIR}/slu/ext/llvm/build/tools/lld/include"
-)
 
 if (MSVC)
-  target_compile_options(slu PRIVATE /bigobj)
+  target_compile_options(slu-testthing PRIVATE /bigobj)
 endif ()
 
 # TODO: Add tests and install targets if needed.

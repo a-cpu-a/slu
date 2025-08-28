@@ -1,4 +1,6 @@
 ﻿
-add_library(slu-gen
+target_sources(slu PRIVATE
+  FILE_SET slu_modules TYPE CXX_MODULES
+  FILES
 	"output.ixx"
 )
