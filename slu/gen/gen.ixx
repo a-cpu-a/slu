@@ -1,16 +1,19 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <string_view>
 
 #include <slu/ext/CppMatch.hpp>
+export module slu.gen.gen;
+
 import slu.char_info;
 import slu.num;
+import slu.ast.enums;
 import slu.ast.state;
+import slu.ast.state_decls;
 import slu.gen.output;
 import slu.parse.parse;
 
@@ -1080,8 +1083,8 @@ namespace slu::parse
 		}
 	}
 
-	template<AnyOutput Out>
-	inline void genFile(Out& out,const ParsedFile& obj)
+	export template<AnyOutput Out>
+	void genFile(Out& out,const ParsedFile& obj)
 	{
 		for (const auto& i : obj.code)
 			genStat(out, i);

@@ -7,11 +7,11 @@
 #include <fstream>
 #include <iostream>
 #include <slu/paint/Paint.hpp>
+import slu.gen.gen;
 import slu.paint.sem_output;
 import slu.paint.to_html;
 import slu.paint.basic_col_conv;
 import slu.parse.parse;
-#include <slu/gen/Gen.hpp>
 
 template<class... Args>
 inline void log(const std::format_string<Args...> fmt, Args&&... fmtArgs)
