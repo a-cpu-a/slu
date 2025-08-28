@@ -13,6 +13,7 @@
 
 #include <slu/ext/CppMatch.hpp>
 import slu.ast.state;
+import slu.ast.state_decls;
 import slu.parse.input;
 import slu.parse.com.num;
 import slu.parse.com.skip_space;

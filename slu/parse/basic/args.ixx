@@ -1,12 +1,15 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <format>
 
+#include <slu/Ansi.hpp>
+export module slu.parse.basic.args;
+
 import slu.ast.state;
+import slu.parse.error;
 import slu.parse.input;
 import slu.parse.com.name;
 import slu.parse.com.skip_space;
@@ -15,7 +18,7 @@ import slu.parse.com.tok;
 namespace slu::parse
 {
 	//Doesnt skip space, the current character must be a valid args starter
-	template<AnyInput In>
+	export template<AnyInput In>
 	inline Args readArgs(In& in, const bool allowVarArg)
 	{
 		const char ch = in.peek();

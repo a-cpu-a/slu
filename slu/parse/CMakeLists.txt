@@ -6,6 +6,7 @@ add_library(slu-parse
 	"errors/char_errors.ixx"
 	"errors/kw.ixx"
 	"vec_input.ixx"
+	"basic/args.ixx"
 	"com/skip_space.ixx"
 	"com/tok.ixx"
 	"com/name.ixx"
