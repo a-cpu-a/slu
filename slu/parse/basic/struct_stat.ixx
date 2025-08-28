@@ -3,6 +3,7 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <cstdint>
+#include <utility>
 
 export module slu.parse.basic.struct_stat;
 

@@ -1,9 +1,11 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
+#include <utility>
+
+export module slu.parse.basic.use_stat;
 
 import slu.ast.state;
 import slu.parse.input;
@@ -13,8 +15,8 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	template<AnyInput In>
-	inline bool readUseStat(In& in, const ast::Position place, const lang::ExportData exported)
+	export template<AnyInput In>
+	bool readUseStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (checkReadTextToken(in, "use"))
 		{
