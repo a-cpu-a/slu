@@ -1,15 +1,13 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
+#include <variant>
 #include <memory>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.parse.adv.pat;
 
 import slu.char_info;
 import slu.ast.state;
@@ -22,7 +20,7 @@ import slu.parse.com.tok;
 namespace slu::parse
 {
 	template<bool isLocal, class T,bool NAMED, AnyInput In>
-	inline T readFieldsDestr(In& in, auto&& ty, const bool uncond)
+	T readFieldsDestr(In& in, auto&& ty, const bool uncond)
 		requires(AnyCompoundDestr<isLocal,T>)
 	{
 		T ret;
@@ -61,7 +59,7 @@ namespace slu::parse
 		return ret;
 	}
 	template<bool isLocal,bool IS_EXPR,AnyInput In>
-	inline Pat<In, isLocal> readPatPastExpr(In& in,auto&& ty,const bool uncond)
+	Pat<In, isLocal> readPatPastExpr(In& in,auto&& ty,const bool uncond)
 	{
 		skipSpace(in);
 
@@ -98,8 +96,8 @@ namespace slu::parse
 		return PatType::DestrName<In, isLocal>{ nameOrLocal,std::move(ty) };
 	}
 	//Will not skip space!
-	template<bool isLocal, AnyInput In>
-	inline Pat<In,isLocal> readPat(In& in, const bool uncond)
+	export template<bool isLocal, AnyInput In>
+	Pat<In,isLocal> readPat(In& in, const bool uncond)
 	{
 		const char firstChar = in.peek();
 

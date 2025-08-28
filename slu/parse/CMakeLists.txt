@@ -13,6 +13,7 @@ add_library(slu-parse
 	"com/str.ixx"
 	"adv/expr_base.ixx"
 	"adv/expr.ixx"
+	"adv/pat.ixx"
 	"basic/args.ixx"
 	"basic/label.ixx"
 	"basic/op.ixx"
