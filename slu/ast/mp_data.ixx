@@ -430,8 +430,7 @@ namespace slu::parse //TODO: ast
 		bool isSafe : 1 = false;
 		bool forPop : 1 = false;
 	};
-	template<bool isSlu>
-	struct BasicGenScopeV
+	struct BasicGenScope
 	{
 		size_t anonId;//size_max -> not anon
 
@@ -439,15 +438,14 @@ namespace slu::parse //TODO: ast
 
 		std::vector<GenSafety> safetyList;
 
-		BlockV<isSlu> res;
+		BlockV<true> res;
 
 	};
-	export template<bool isSlu>
-	struct BasicGenDataV
+	export struct BasicGenData
 	{
-		std::vector<LocalsV<isSlu>> localsStack;
+		std::vector<LocalsV<true>> localsStack;
 		BasicMpDb mpDb;
-		std::vector<BasicGenScopeV<isSlu>> scopes;
+		std::vector<BasicGenScope> scopes;
 		std::vector<parse::LocalId> anonScopeCounts;
 		lang::ModPath totalMp;
 
@@ -556,23 +554,22 @@ namespace slu::parse //TODO: ast
 			scopes.back().res.start = start;
 			anonScopeCounts.emplace_back(0);
 		}
-		constexpr LocalsV<isSlu> popLocalScope() {
+		constexpr LocalsV<true> popLocalScope() {
 			auto res = std::move(localsStack.back());
 			localsStack.pop_back();
 			return std::move(res);
 		}
-		BlockV<isSlu> popScope(const ast::Position end) {
-			BlockV<isSlu> res = std::move(scopes.back().res);
+		BlockV<true> popScope(const ast::Position end) {
+			BlockV<true> res = std::move(scopes.back().res);
 			res.end = end;
-			if constexpr(isSlu)
-				res.mp = mpDb.template get<false>(totalMp);
+			res.mp = mpDb.template get<false>(totalMp);
 			scopes.pop_back();
 			totalMp.pop_back();
 			anonScopeCounts.pop_back();
 			return res;
 		}
-		BlockV<isSlu> popUnScope(const ast::Position end) {
-			BlockV<isSlu> res = std::move(scopes.back().res);
+		BlockV<true> popUnScope(const ast::Position end) {
+			BlockV<true> res = std::move(scopes.back().res);
 			res.end = end;
 			bool isGlobal = scopes.back().anonId == GLOBAL_SCOPE;
 			scopes.pop_back();
@@ -580,8 +577,7 @@ namespace slu::parse //TODO: ast
 			anonScopeCounts.pop_back();
 			if (isGlobal)
 			{
-				if constexpr (isSlu)
-					res.mp = mpDb.template get<false>(totalMp);
+				res.mp = mpDb.template get<false>(totalMp);
 			}
 			else
 			{
@@ -597,29 +593,22 @@ namespace slu::parse //TODO: ast
 			scopes.back().res.retExprs = std::move(expList);
 		}
 
-		constexpr void addStat(const ast::Position place,StatDataV<isSlu>&& data){
+		constexpr void addStat(const ast::Position place,StatDataV<true>&& data){
 			Stat stat = { std::move(data) };
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}
 		constexpr lang::MpItmId addLocalObj(const std::string& name)
 		{
-			size_t mpPopCount = 0;
 			for (auto& i : std::views::reverse(scopes))
 			{
 				if (i.anonId != UNSCOPE)
 				{
 					i.objs.push_back(name);
-					if constexpr (isSlu)
-					{
-						auto mpView = lang::ModPathView(totalMp).subspan(0, totalMp.size() - mpPopCount);
-						lang::ModPathId mp = mpDb.template get<false>(mpView);
-						lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
-						return lang::MpItmId{id, mp};
-					}
-					else
-						return resolveUnknown(name);
-					mpPopCount++;
+					auto mpView = lang::ModPathView(totalMp).subspan(0, totalMp.size());
+					lang::ModPathId mp = mpDb.template get<false>(mpView);
+					lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
+					return lang::MpItmId{id, mp};
 				}
 			}
 			throw std::runtime_error("No scope to add local object to");
@@ -628,7 +617,7 @@ namespace slu::parse //TODO: ast
 		constexpr std::optional<size_t> resolveLocalOpt(const std::string& name)
 		{
 			size_t scopeRevId = 0;
-			for (const BasicGenScopeV<isSlu>& scope : std::views::reverse(scopes))
+			for (const BasicGenScope& scope : std::views::reverse(scopes))
 			{
 				if (scope.anonId == UNSCOPE)
 					continue;
@@ -646,46 +635,39 @@ namespace slu::parse //TODO: ast
 			return {};
 		}
 
-		constexpr DynLocalOrNameV<isSlu> resolveNameOrLocal(const std::string& name)
+		constexpr DynLocalOrNameV<true> resolveNameOrLocal(const std::string& name)
 		{// Check if its local
-			if constexpr (isSlu)
+			//either known local being indexed ORR unknown(potentially from a `use ::*`)
+			if (!localsStack.empty())
 			{
-				//either known local being indexed ORR unknown(potentially from a `use ::*`)
-				if (!localsStack.empty())
+				size_t id = 0;
+				for (auto& i : localsStack.back().names)
 				{
-					size_t id = 0;
-					for (auto& i : localsStack.back().names)
-					{
-						if(mpDb.data->mps[i.mp.id].id2Name[i.id.val]==name)
-							return LocalId{ id };
-						id++;
-					}
-				}
-				const std::optional<size_t> v = resolveLocalOpt(name);
-				if (v.has_value())
-				{
-					lang::ModPathId mp = mpDb.template get<false>(
-						lang::ModPathView(totalMp).subspan(0, totalMp.size() -  *v)
-					);
-					lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
-					return lang::MpItmId{id, mp};
+					if (mpDb.data->mps[i.mp.id].id2Name[i.id.val] == name)
+						return LocalId{ id };
+					id++;
 				}
 			}
-			return resolveUnknown(name);
+			const std::optional<size_t> v = resolveLocalOpt(name);
+			if (v.has_value())
+			{
+				lang::ModPathId mp = mpDb.template get<false>(
+					lang::ModPathView(totalMp).subspan(0, totalMp.size() - *v)
+				);
+				lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
+				return lang::MpItmId{ id, mp };
+			}
 		}
 		constexpr lang::MpItmId resolveName(const std::string& name)
 		{
-			if constexpr (isSlu)
-			{
-				return ezmatch(resolveNameOrLocal(name))(
-					varcase(const parse::LocalId) { return localsStack.back().names[var.v]; },
-					varcase(const lang::MpItmId) {return var;	}
-					);
+			return ezmatch(resolveNameOrLocal(name))(
+				varcase(const parse::LocalId) { return localsStack.back().names[var.v]; },
+				varcase(const lang::MpItmId) {
+				return var;
 			}
-			else
-				return resolveNameOrLocal(name);
+				);
 		}
-		constexpr lang::MpItmId resolveRootName(const lang::ModPath& name) {
+		lang::MpItmId resolveRootName(const lang::ModPath& name) {
 			return mpDb.getItm(name);// Create if needed, and return it
 		}
 		constexpr size_t countScopes() const
@@ -742,7 +724,7 @@ namespace slu::parse //TODO: ast
 			return localsStack.empty();
 		}
 		template<bool isLocal>
-		constexpr LocalOrNameV<isSlu,isLocal> resolveNewName(const std::string& name)
+		constexpr LocalOrNameV<true,isLocal> resolveNewName(const std::string& name)
 		{
 			auto n = addLocalObj(name);
 			if constexpr (isLocal)
@@ -755,7 +737,7 @@ namespace slu::parse //TODO: ast
 				return n;
 		}
 		template<bool isLocal>
-		constexpr LocalOrNameV<isSlu, isLocal> resolveNewSynName()
+		constexpr LocalOrNameV<true, isLocal> resolveNewSynName()
 		{
 			const size_t id = anonScopeCounts.back().v++;
 			const std::string name = getAnonName(id);
@@ -770,24 +752,13 @@ namespace slu::parse //TODO: ast
 				return n;
 		}
 		// .XXX, XXX, :XXX
-		constexpr lang::MpItmId resolveUnknown(const std::string& name)
-		{
-			if constexpr(isSlu)
-				return mpDb.resolveUnknown(name);
-			else
-			{
-				lang::LocalObjId id = mpDb.get(name);
-				return lang::MpItmId{id};
-			}
+		lang::MpItmId resolveUnknown(const std::string& name) {
+			return mpDb.resolveUnknown(name);
 		}
-		lang::PoolString poolStr(std::string&& name)
-		{
-			if constexpr (isSlu)
-				return mpDb.data->mps[mpc::MP_UNKNOWN.idx()].get(std::move(name));
-			else
-				return mpDb.get(std::move(name));
+		lang::PoolString poolStr(std::string&& name) {
+			return mpDb.data->mps[mpc::MP_UNKNOWN.idx()].get(std::move(name));
 		}
-		constexpr lang::MpItmId resolveUnknown(const lang::ModPath& name)
+		lang::MpItmId resolveUnknown(const lang::ModPath& name)
 		{
 			lang::ModPathId mp = mpDb.template get<true>(
 				lang::ModPathView(name).subspan(0, name.size() - 1) // All but last elem
@@ -795,8 +766,7 @@ namespace slu::parse //TODO: ast
 			lang::LocalObjId id = mpDb.data->mps[mp.id].get(name.back());
 			return lang::MpItmId{id,mp};
 		}
-		constexpr lang::MpItmId resolveEmpty()
-		{
+		constexpr lang::MpItmId resolveEmpty() {
 			return lang::MpItmId::newEmpty();
 		}
 	};

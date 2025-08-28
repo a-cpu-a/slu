@@ -26,7 +26,7 @@ namespace slu::parse
 			return SettingsT();
 		}
 
-		BasicGenDataV<true> genData;
+		BasicGenData genData;
 
 		std::vector<std::string> handledErrors;
 

@@ -7,6 +7,7 @@
 #include <vector>
 #include <compare>
 #include <span>
+#include <utility>
 export module slu.lang.basic_state;
 
 namespace slu::lang
