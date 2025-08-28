@@ -1,14 +1,11 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <format>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.parse.adv.block;
 
 import slu.ast.state;
 import slu.parse.input;
@@ -80,8 +77,8 @@ namespace slu::parse
 		return false;
 	}
 
-	template<bool pushAnonScope, AnyInput In>
-	inline StatList<In> readGlobStatList(In& in)
+	export template<bool pushAnonScope, AnyInput In>
+	StatList<In> readGlobStatList(In& in)
 	{
 		if constexpr (pushAnonScope)
 			in.genData.pushAnonScope(in.getLoc());
@@ -101,8 +98,8 @@ namespace slu::parse
 	}
 	//second -> nextSynName, only for isGlobal=true
 	//No start '{' check, also doesnt skip '}'!
-	template<bool isLoop, AnyInput In>
-	inline std::pair<StatList<In>,lang::ModPathId> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
+	export template<bool isLoop, AnyInput In>
+	std::pair<StatList<In>,lang::ModPathId> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
 	{
 		skipSpace(in);
 		in.genData.pushUnScope(in.getLoc(), isGlobal);
@@ -123,8 +120,8 @@ namespace slu::parse
 	}
 
 	//if not pushScope, then you will need to push it yourself!
-	template<bool isLoop, AnyInput In>
-	inline Block<In> readBlock(In& in, const bool allowVarArg,const bool pushScope)
+	export template<bool isLoop, AnyInput In>
+	Block<In> readBlock(In& in, const bool allowVarArg,const bool pushScope)
 	{
 		/*
 			block ::= {stat} [retstat]
@@ -163,8 +160,8 @@ namespace slu::parse
 		return in.genData.popScope(in.getLoc());
 	}
 
-	template<bool isLoop, AnyInput In>
-	inline Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg,const bool pushScope)
+	export template<bool isLoop, AnyInput In>
+	Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg,const bool pushScope)
 	{
 		Block<In> bl = readBlock<isLoop>(in, allowVarArg, pushScope);
 		requireToken(in, "}");

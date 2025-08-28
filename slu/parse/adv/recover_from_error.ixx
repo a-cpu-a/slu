@@ -1,15 +1,13 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.parse.adv.recover_from_error;
 
+import slu.char_info;
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.skip_space;
@@ -18,12 +16,6 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	inline bool isStrStarter(AnyInput auto& in)
-	{
-		const char ch1 = in.peek();
-		return ch1 == '=' || ch1 == '[' || ch1 == '\'' || ch1 == '"';
-	}
-
 	inline bool trySkipMultilineString(AnyInput auto& in)
 	{
 		const char ch1 = in.peekAt(1);
@@ -35,8 +27,8 @@ namespace slu::parse
 		return false;
 	}
 
-	template<size_t TOK_SIZE>
-	inline bool recoverErrorTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
+	export template<size_t TOK_SIZE>
+	bool recoverErrorTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE])
 	{
 		while (in)
 		{
@@ -69,7 +61,7 @@ namespace slu::parse
 					default:
 						goto break_loop;
 					}
-				} while (skipSpace(in) || isStrStarter(in));
+				} while (skipSpace(in) || slu::isStrStarter(in.peek()));
 			break_loop:
 				break;
 			}

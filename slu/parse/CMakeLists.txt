@@ -13,6 +13,7 @@ target_sources(slu PRIVATE
 	"com/name.ixx"
 	"com/num.ixx"
 	"com/str.ixx"
+	"adv/block.ixx"
 	"adv/expr_base.ixx"
 	"adv/expr.ixx"
 	"adv/pat.ixx"
@@ -26,4 +27,5 @@ target_sources(slu PRIVATE
 	"basic/fn_ty.ixx"
 	"basic/trait_expr.ixx"
 	"adv/expr_decls.ixx"
+	"adv/recover_from_error.ixx"
 )
