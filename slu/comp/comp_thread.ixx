@@ -9,9 +9,11 @@
 #include <variant>
 #include <mutex>
 
+#include <slu/comp/mlir/IncludeMlir.hpp>
 export module slu.comp.comp_thread;
 
 import a_cpu_a.mtx;
+import slu.ast.op_info;
 import slu.comp.cfg;
 import slu.comp.handle_task;
 import slu.lang.basic_state;

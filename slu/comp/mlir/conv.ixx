@@ -23,10 +23,6 @@ import slu.comp.conv_data;
 import slu.lang.basic_state;
 import slu.lang.mpc;
 
-LLD_HAS_DRIVER(elf);
-LLD_HAS_DRIVER(wasm);
-LLD_HAS_DRIVER(coff);
-
 namespace slu::comp::mico
 {
 	using namespace std::string_view_literals;

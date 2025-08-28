@@ -107,8 +107,8 @@ namespace slu::lang
 	{
 		using is_transparent = void;
 		constexpr bool operator()(const AnyMp auto& lhs, const AnyMp auto& rhs)const {
-			return std::equal(begin(lhs), end(lhs),
-				begin(rhs), end(rhs));
+			return std::equal(std::begin(lhs), std::end(lhs),
+				std::begin(rhs), std::end(rhs));
 		}
 	};
 }

@@ -32,8 +32,8 @@ namespace slu::parse
 		return false;
 	}
 
-	template<bool isLoop, AnyInput In>
-	inline bool readReturn(In& in, const bool allowVarArg)
+	export template<bool isLoop, AnyInput In>
+	bool readReturn(In& in, const bool allowVarArg)
 	{
 		RetType retTy = RetType::NONE;
 		if (checkReadTextToken(in, "return"))

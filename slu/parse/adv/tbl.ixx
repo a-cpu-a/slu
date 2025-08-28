@@ -14,7 +14,7 @@ import slu.ast.state;
 import slu.ast.state_decls;
 import slu.parse.error;
 import slu.parse.input;
-import slu.parse.adv.expr;
+import slu.parse.adv.expr_decls;
 import slu.parse.com.skip_space;
 import slu.parse.com.tok;
 

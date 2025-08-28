@@ -57,3 +57,7 @@
 #include <slu/mlir/SluDialect.h>
 
 #pragma warning(pop)
+
+LLD_HAS_DRIVER(elf);
+LLD_HAS_DRIVER(wasm);
+LLD_HAS_DRIVER(coff);

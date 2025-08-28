@@ -20,6 +20,7 @@ import slu.parse.error;
 import slu.parse.input;
 import slu.parse.adv.expr_decls;
 import slu.parse.adv.expr_base;
+import slu.parse.adv.tbl;
 import slu.parse.basic.fn_ty;
 import slu.parse.basic.op;
 import slu.parse.basic.trait_expr;
