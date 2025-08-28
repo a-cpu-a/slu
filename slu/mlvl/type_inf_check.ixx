@@ -1140,7 +1140,7 @@ namespace slu::mlvl
 		}
 	};
 
-	inline void typeInferAndCheck(const parse::BasicMpDbData& mpDbData,
+	export void typeInferAndCheck(const parse::BasicMpDbData& mpDbData,
 		std::span<parse::Stat> module)
 	{
 		TypeInfCheckVisitor vi{ {}, mpDbData };

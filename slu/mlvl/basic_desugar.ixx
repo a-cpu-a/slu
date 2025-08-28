@@ -1,24 +1,34 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <vector>
 #include <optional>
 #include <variant>
 #include <memory>
+#include <ranges>
+#include <stdexcept>
 
+#include <slu/ext/CppMatch.hpp>
+export module slu.mlvl.basic_desugar;
+
+import slu.num;
+import slu.settings;
+import slu.ast.enums;
 import slu.ast.make;
 import slu.ast.mp_data;
 import slu.ast.op_info;
 import slu.ast.op_order;
+import slu.ast.pos;
+import slu.ast.small_enum_list;
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.ast.type;
 import slu.lang.basic_state;
 import slu.mlvl.resolve_type;
+import slu.visit.empty;
 import slu.visit.visit;
-import hack;
 
 namespace slu::mlvl
 {
@@ -37,7 +47,7 @@ namespace slu::mlvl
 
 	using DesugarCfg = decltype(parse::sluCommon);
 
-	struct InlineModule
+	export struct InlineModule
 	{
 		lang::MpItmId name;
 		parse::StatListV<true> code;
@@ -273,7 +283,23 @@ namespace slu::mlvl
 				destrSpec2Type(place, std::move(itm.spec)),
 				itm.name,
 				std::move(expr));
-			slu::hack::hackFunc<isFields>(itm, place, mpDb, patStack, exprStack);
+			if constexpr (isFields)
+			{
+				for (auto& i : std::views::reverse(itm.items))
+					patStack.push_back(&i.pat);
+				for (auto& i : itm.items)
+					exprStack.emplace_back(parse::mkFieldIdx<true>(place, itm.name, i.name));
+			}
+			else
+			{
+				for (auto& i : std::views::reverse(itm.items))
+					patStack.push_back(&i);
+				for (size_t i = 0; i < itm.items.size(); i++)
+				{
+					lang::PoolString index = mpDb.poolStr("0x" + slu::u64ToStr(i));
+					exprStack.emplace_back(parse::mkFieldIdx<true>(place, itm.name, index));
+				}
+			}
 		}
 
 		template<bool isLocal,class VarT>
@@ -619,7 +645,7 @@ namespace slu::mlvl
 		}; 
 	};
 
-	inline std::vector<InlineModule> basicDesugar(parse::BasicMpDbData& mpDbData,parse::ParsedFile& itm)
+	export std::vector<InlineModule> basicDesugar(parse::BasicMpDbData& mpDbData,parse::ParsedFile& itm)
 	{
 		DesugarVisitor vi{ {},parse::BasicMpDb{ &mpDbData } };
 

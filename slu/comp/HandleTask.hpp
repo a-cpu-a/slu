@@ -11,7 +11,7 @@
 import a_cpu_a.mtx;
 #include <slu/ext/CppMatch.hpp>
 import slu.lang.basic_state;
-#include <slu/mlvl/BasicDesugar.hpp>
+import slu.mlvl.basic_desugar;
 import slu.mlvl.type_inf_check;
 import slu.parse.error;
 import slu.parse.vec_input;
