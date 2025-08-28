@@ -10,6 +10,11 @@ target_sources(slu PUBLIC
 	"ext/mtx.ixx"
 	"num.ixx"
 )
+target_sources(slu PRIVATE
+  FILE_SET slu_priv_modules TYPE CXX_MODULES
+  FILES
+	"test.ixx"
+)
 add_subdirectory(parse)
 add_subdirectory(comp)
 add_subdirectory(ast)
@@ -18,7 +23,3 @@ add_subdirectory(mlvl)
 add_subdirectory(gen)
 add_subdirectory(paint)
 add_subdirectory(visit)
-
-target_sources(slu PRIVATE
-	SluBuildTest.cpp
-)

@@ -5,17 +5,9 @@
 //Test macro, dont use, doesnt improve performace. (actually hurts it lol)
 //#define Slu_NoConcepts
 
-#include <variant>
-#include <array>
-#include <span>
-#include <string>
-#include <utility>
-#include <optional>
-#include <string_view>
-#include <unordered_map>
-
-
 #include <slu/Ansi.hpp>
+export module slu._test;
+
 import slu.comp.compile;
 import slu.gen.gen;
 import slu.mlvl.type_inf_check;
