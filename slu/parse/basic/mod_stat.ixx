@@ -1,9 +1,10 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
+
+export module slu.parse.basic.mod_stat;
 
 import slu.ast.state;
 import slu.parse.input;
@@ -13,8 +14,8 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	template<AnyInput In>
-	inline bool readModStat(In& in, const ast::Position place, const lang::ExportData exported)
+	export template<AnyInput In>
+	bool readModStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
