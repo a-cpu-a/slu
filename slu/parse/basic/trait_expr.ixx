@@ -6,11 +6,11 @@
 #include <unordered_set>
 #include <memory>
 
-#include <slu/parse/adv/ReadExprBase.hpp>
 export module slu.parse.basic.trait_expr;
 
 import slu.ast.state;
 import slu.parse.input;
+import slu.parse.adv.expr_base;
 import slu.parse.com.skip_space;
 import slu.parse.com.tok;
 

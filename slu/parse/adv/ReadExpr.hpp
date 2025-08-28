@@ -9,13 +9,12 @@
 #include <memory>
 #include <optional>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+//export module slu.parse.adv.expr;
 
 import slu.char_info;
 import slu.ast.state;
 import slu.parse.input;
+import slu.parse.adv.expr_base;
 import slu.parse.basic.fn_ty;
 import slu.parse.basic.op;
 import slu.parse.basic.trait_expr;
@@ -24,7 +23,6 @@ import slu.parse.com.skip_space;
 import slu.parse.com.str;
 import slu.parse.com.tok;
 import slu.parse.errors.char_errors;
-#include <slu/parse/adv/ReadExprBase.hpp>
 
 namespace slu::parse
 {

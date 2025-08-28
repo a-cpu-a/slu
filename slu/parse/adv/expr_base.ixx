@@ -1,17 +1,14 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <format>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
-
 #include <slu/ext/CppMatch.hpp>
+export module slu.parse.adv.expr_base;
+
 import slu.ast.state;
 import slu.ast.state_decls;
 import slu.parse.input;
@@ -22,8 +19,8 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	template<AnyInput In>
-	inline std::pair<lang::ModPath,bool> readModPath(In& in,const std::string& start)
+	export template<AnyInput In>
+	std::pair<lang::ModPath,bool> readModPath(In& in,const std::string& start)
 	{
 		lang::ModPath mp = { start };
 		bool skipped = skipSpace(in);
@@ -40,19 +37,19 @@ namespace slu::parse
 		}
 		return { mp, skipped };
 	}
-	template<AnyInput In>
-	inline lang::ModPath readModPath(In& in) {
+	export template<AnyInput In>
+	lang::ModPath readModPath(In& in) {
 		return readModPath(in, readName<NameCatagory::MP_START>(in)).first;
 	}
 	//Unlike readModPath, doesnt have the ability to do things like `self::xyz`
-	template<AnyInput In>
-	inline SubModPath readSubModPath(In& in) {
+	export template<AnyInput In>
+	SubModPath readSubModPath(In& in) {
 		return readModPath(in,readName(in)).first;
 	}
 
 	//Returns if skipped after
 	template<AnyInput In>
-	inline bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, ExprData<In>& varDataOut, bool& varDataNeedsSubThing)
+	bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, ExprData<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
 		{// Must be '(' exp ')'
@@ -103,7 +100,7 @@ namespace slu::parse
 	}
 
 	template<class T,bool FOR_EXPR, AnyInput In>
-	inline T returnPrefixExprVar(In& in, std::vector<ExprData<In>>& varData, const bool endsWithArgs,const bool varDataNeedsSubThing,const char opTypeCh)
+	T returnPrefixExprVar(In& in, std::vector<ExprData<In>>& varData, const bool endsWithArgs,const bool varDataNeedsSubThing,const char opTypeCh)
 	{
 		char opType[4] = "EOS";
 
@@ -160,7 +157,7 @@ namespace slu::parse
 			return std::move(varData.back());
 	}
 	template<class T,bool boxed, AnyInput In,class... Ts>
-	inline T wrapExpr(ast::Position place,ExprData<In>&& expr,Ts&&... extraItems)
+	T wrapExpr(ast::Position place,ExprData<In>&& expr,Ts&&... extraItems)
 	{
 		return T{
 				parse::ExprUserExpr<boxed>{mayBoxFrom<boxed>(
@@ -170,8 +167,8 @@ namespace slu::parse
 		};
 	}
 	//Doesnt skip space.
-	template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
-	inline T parsePrefixExprVar(In& in, const bool allowVarArg, char firstChar)
+	export template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
+	T parsePrefixExprVar(In& in, const bool allowVarArg, char firstChar)
 	{
 		/*
 			var ::= baseVar {subvar}
@@ -317,7 +314,6 @@ namespace slu::parse
 					}
 					
 				}
-
 				varData.back() = wrapExpr<ExprType::Field<In>, true, In>(
 					varPlace,
 					std::move(varData.back()),
@@ -363,14 +359,14 @@ namespace slu::parse
 		return returnPrefixExprVar<T, FOR_EXPR>(in, varData, endsWithArgs, varDataNeedsSubThing, opType);
 	}
 
-	template<AnyInput In>
-	inline Expr readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
+	export template<AnyInput In>
+	Expr readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
 		Expr ex = readExpr<true>(in, allowVarArg, readBiOp);
 		return ex;
 	}
 
-	template<AnyInput In>
-	inline ExprList readExprList(In& in, const bool allowVarArg)
+	export template<AnyInput In>
+	ExprList readExprList(In& in, const bool allowVarArg)
 	{
 		/*
 			explist ::= exp {‘,’ exp}

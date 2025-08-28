@@ -69,12 +69,6 @@ namespace slu::parse
 	template<bool skipStart=true,AnyInput In>
 	inline Table<In> readTable(In& in, const bool allowVarArg)
 	{
-		/*
-			tableconstructor ::= ‘{’ [fieldlist] ‘}’
-			fieldlist ::= field {fieldsep field} [fieldsep]
-			fieldsep ::= ‘,’ | ‘;’
-		*/
-
 		if (skipStart)
 		in.skip();//get rid of '{'
 

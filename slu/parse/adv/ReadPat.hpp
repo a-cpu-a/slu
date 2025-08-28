@@ -13,9 +13,9 @@
 
 import slu.ast.state;
 import slu.parse.input;
+import slu.parse.adv.expr_base;
 import slu.parse.com.name;
 import slu.parse.com.skip_space;
-#include <slu/parse/adv/ReadExprBase.hpp>
 import slu.parse.com.tok;
 
 namespace slu::parse
