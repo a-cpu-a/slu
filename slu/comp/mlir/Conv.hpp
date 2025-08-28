@@ -8,7 +8,6 @@
 #include <optional>
 #include <thread>
 #include <variant>
-#include <slu/ext/CppMatch.hpp>
 // Mlir / llvm includes
 #pragma warning(push)
 #pragma warning(disable : 4244)
@@ -67,9 +66,10 @@ LLD_HAS_DRIVER(coff);
 
 #pragma warning(pop)
 
+#include <slu/ext/CppMatch.hpp>
+import slu.comp.conv_data;
 import slu.lang.basic_state;
 #include <slu/comp/CompCfg.hpp>
-#include <slu/comp/ConvData.hpp>
 
 namespace slu::comp::mico
 {

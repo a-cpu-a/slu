@@ -11,6 +11,7 @@ target_sources(slu PUBLIC
 	"num.ixx"
 )
 add_subdirectory(parse)
+add_subdirectory(comp)
 add_subdirectory(ast)
 add_subdirectory(lang)
 add_subdirectory(mlvl)

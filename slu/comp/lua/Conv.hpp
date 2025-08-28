@@ -10,7 +10,7 @@
 #include <variant>
 
 #include <slu/comp/CompCfg.hpp>
-#include <slu/comp/ConvData.hpp>
+import slu.comp.conv_data;
 
 namespace slu::comp::lua
 {
