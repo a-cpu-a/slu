@@ -8,6 +8,10 @@ export module slu.char_info;
 
 namespace slu
 {
+	export constexpr bool isFieldSep(const char ch)
+	{
+		return ch == ',' || ch == ';';
+	}
 	export constexpr bool isSpaceChar(const char ch) {
 		return ch == ' ' || ch == '\f' || ch == '\t' || ch == '\v' || ch == '\n' || ch == '\r';
 	}

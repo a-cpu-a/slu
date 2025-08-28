@@ -37,6 +37,11 @@ init_target(slu-mlvl)
 init_target(slu-gen)
 init_target(slu-paint)
 
+#add_dependencies(slu-ast slu-lang)
+#add_dependencies(slu-gen slu-parse)
+#add_dependencies(slu-parse slu-paint)
+#add_dependencies(slu-mlvl slu-parse)
+
 target_include_directories(slu
   PRIVATE
 	"${PROJECT_SOURCE_DIR}/slu/ext/llvm/mlir/include"

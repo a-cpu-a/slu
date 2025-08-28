@@ -14,6 +14,7 @@ add_library(slu-parse
 	"adv/expr_base.ixx"
 	"adv/expr.ixx"
 	"adv/pat.ixx"
+	"adv/tbl.ixx"
 	"basic/args.ixx"
 	"basic/label.ixx"
 	"basic/op.ixx"

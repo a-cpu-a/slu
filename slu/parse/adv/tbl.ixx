@@ -1,18 +1,18 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <format>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+#include <slu/Ansi.hpp>
+export module slu.parse.adv.tbl;
 
+import slu.char_info;
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.parse.error;
 import slu.parse.input;
 import slu.parse.adv.expr;
 import slu.parse.com.skip_space;
@@ -20,12 +20,8 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	constexpr bool isFieldSep(const char ch)
-	{
-		return ch == ',' || ch == ';';
-	}
-	template<AnyInput In>
-	inline Field<In> readField(In& in, const bool allowVarArg)
+	export template<AnyInput In>
+	Field<In> readField(In& in, const bool allowVarArg)
 	{
 		// field :: = ‘[’ exp ‘]’ ‘ = ’ exp | Name ‘ = ’ exp | exp
 		skipSpace(in);
@@ -61,14 +57,13 @@ namespace slu::parse
 				return FieldType::Name2Expr(name, readExpr(in,allowVarArg));
 			}
 		}
-
 		return FieldType::Expr(readExpr(in,allowVarArg));
 	}
 
 	//Will NOT check the first char '{' !!!
 	//But will skip it
-	template<bool skipStart=true,AnyInput In>
-	inline Table<In> readTable(In& in, const bool allowVarArg)
+	export template<bool skipStart=true,AnyInput In>
+	Table<In> readTable(In& in, const bool allowVarArg)
 	{
 		if (skipStart)
 		in.skip();//get rid of '{'
