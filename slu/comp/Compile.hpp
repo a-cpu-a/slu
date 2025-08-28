@@ -8,12 +8,14 @@
 #include <optional>
 #include <thread>
 #include <variant>
+#include <mutex>
+#include <memory>
 
 //slu.comp.compile
 
 import a_cpu_a.mtx;
+import slu.comp.comp_thread;
 import slu.lang.basic_state;
-#include <slu/comp/CompThread.hpp>
 
 namespace slu::comp
 {

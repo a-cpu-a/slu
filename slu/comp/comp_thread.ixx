@@ -1,13 +1,15 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <vector>
 #include <optional>
 #include <thread>
 #include <variant>
+#include <mutex>
+
+export module slu.comp.comp_thread;
 
 import a_cpu_a.mtx;
 import slu.comp.cfg;
@@ -16,7 +18,7 @@ import slu.lang.basic_state;
 
 namespace slu::comp
 {
-	inline void poolThread(const CompCfg& cfg,
+	export void poolThread(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
 		std::condition_variable& cv,
 		std::condition_variable& cvMain,

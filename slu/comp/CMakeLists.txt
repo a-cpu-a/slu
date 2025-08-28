@@ -4,6 +4,7 @@ target_sources(slu PUBLIC
   FILES
 	"conv_data.ixx"
 	"handle_task.ixx"
+	"comp_thread.ixx"
 	"cfg.ixx"
 	"mlir/conv.ixx"
 )
