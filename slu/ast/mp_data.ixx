@@ -657,6 +657,7 @@ namespace slu::parse //TODO: ast
 				lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
 				return lang::MpItmId{ id, mp };
 			}
+			return resolveUnknown(name);
 		}
 		constexpr lang::MpItmId resolveName(const std::string& name)
 		{
