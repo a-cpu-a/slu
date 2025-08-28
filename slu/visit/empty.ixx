@@ -1,12 +1,13 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <format>
 #include <vector>
+
+export module slu.visit.empty;
 
 import slu.settings;
 import slu.ast.enums;
@@ -19,7 +20,7 @@ namespace slu::visit
 {
 #define Slu_esc(...) __VA_ARGS__
 
-	template<parse::AnySettings _SettingsT = parse::Setting<void>>
+	export template<parse::AnySettings _SettingsT = parse::Setting<void>>
 	struct EmptyVisitor
 	{
 		using SettingsT = _SettingsT;
@@ -180,6 +181,6 @@ namespace slu::visit
 		(bool"shouldStop" pre_) post_
 		sep_ -> commas ::'s etc
 	*/
-	template<class T>
+	export template<class T>
 	concept AnyVisitor = parse::AnyCfgable<T> && std::is_base_of_v<EmptyVisitor<typename T::SettingsT>, T>;
 }

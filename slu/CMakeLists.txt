@@ -16,6 +16,7 @@ add_subdirectory(lang)
 add_subdirectory(mlvl)
 add_subdirectory(gen)
 add_subdirectory(paint)
+add_subdirectory(visit)
 
 target_sources(slu PRIVATE
 	SluBuildTest.cpp

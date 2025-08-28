@@ -12,7 +12,7 @@
 #include <slu/ext/CppMatch.hpp>
 import slu.settings;
 import slu.ast.state;
-#include <slu/visit/Visitor.hpp>
+import slu.visit.empty;
 
 namespace slu::visit
 {
