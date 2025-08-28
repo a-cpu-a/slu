@@ -17,7 +17,6 @@
 #include <slu/parse/Parse.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/gen/Gen.hpp>
-#include <slu/MetaTableUtils.hpp>
 #include <slu/comp/Compile.hpp>
 #include <slu/mlvl/TypeInfCheck.hpp>
 import slu.paint.paint;
