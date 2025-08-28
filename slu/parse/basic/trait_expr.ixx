@@ -1,26 +1,23 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <memory>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+#include <slu/parse/adv/ReadExprBase.hpp>
+export module slu.parse.basic.trait_expr;
 
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.skip_space;
-#include <slu/parse/adv/ReadExprBase.hpp>
 import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	template<AnyInput In>
-	inline TraitExpr readTraitExpr(In& in)
+	export template<AnyInput In>
+	TraitExpr readTraitExpr(In& in)
 	{
 		skipSpace(in);
 		TraitExpr ret;

@@ -6,16 +6,15 @@
 #include <unordered_set>
 #include <memory>
 
+#include <slu/parse/adv/ReadExprBase.hpp>
+#include <slu/parse/adv/ReadExpr.hpp>
+#include <slu/parse/adv/ReadTable.hpp>
 export module slu.parse.basic.fn_ty;
 
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.skip_space;
-#include <slu/parse/adv/ReadExprBase.hpp>
 import slu.parse.com.tok;
-#include <slu/parse/adv/ReadExpr.hpp>
-#include <slu/parse/adv/ReadTable.hpp>
-#include <slu/parse/adv/ReadTraitExpr.hpp>
 
 namespace slu::parse
 {

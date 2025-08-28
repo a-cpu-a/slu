@@ -12,6 +12,8 @@ add_library(slu-parse
 	"basic/mod_stat.ixx"
 	"basic/struct_stat.ixx"
 	"basic/use_stat.ixx"
+	"basic/fn_ty.ixx"
+	"basic/trait_expr.ixx"
 	"com/skip_space.ixx"
 	"com/tok.ixx"
 	"com/name.ixx"
