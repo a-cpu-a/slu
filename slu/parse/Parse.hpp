@@ -14,6 +14,7 @@
 import slu.ast.state;
 import slu.parse.error;
 import slu.parse.input;
+import slu.parse.adv.expr;
 import slu.parse.basic.args;
 import slu.parse.basic.label;
 import slu.parse.basic.mod_stat;
@@ -25,7 +26,6 @@ import slu.parse.com.str;
 import slu.parse.com.tok;
 import slu.parse.errors.kw;
 
-#include "adv/ReadExpr.hpp"
 #include "adv/ReadBlock.hpp"
 #include "adv/ReadTable.hpp"
 #include "adv/RecoverFromError.hpp"

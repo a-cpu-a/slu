@@ -1,17 +1,18 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <format>
 #include <memory>
 #include <optional>
 
-//export module slu.parse.adv.expr;
+export module slu.parse.adv.expr;
 
 import slu.char_info;
+import slu.ast.enums;
+import slu.ast.state_decls;
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.adv.expr_base;
@@ -26,8 +27,8 @@ import slu.parse.errors.char_errors;
 
 namespace slu::parse
 {
-	template<AnyInput In>
-	inline Lifetime readLifetime(In& in)
+	export template<AnyInput In>
+	Lifetime readLifetime(In& in)
 	{
 		Lifetime res;
 		do {
@@ -71,8 +72,8 @@ namespace slu::parse
 		}
 	}
 
-	template<bool IS_BASIC=false,bool FOR_PAT=false,AnyInput In>
-	inline Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
+	export template<bool IS_BASIC=false,bool FOR_PAT=false,AnyInput In>
+	Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
 	{
 		/*
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
