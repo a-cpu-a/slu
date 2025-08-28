@@ -17,7 +17,7 @@ import slu.parse.input;
 import slu.parse.com.name;
 import slu.parse.com.skip_space;
 import slu.parse.com.str;
-import slu.parse.com.token;
+import slu.parse.com.tok;
 import slu.parse.errors.kw;
 
 #include "basic/ReadArgs.hpp"

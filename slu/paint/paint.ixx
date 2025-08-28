@@ -21,7 +21,7 @@ import slu.paint.paint_ops;
 import slu.paint.sem_output;
 import slu.parse.input;
 import slu.parse.com.skip_space;
-import slu.parse.com.token;
+import slu.parse.com.tok;
 
 namespace slu::paint
 {

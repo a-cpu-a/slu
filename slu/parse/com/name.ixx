@@ -17,7 +17,7 @@ import slu.parse.error;
 import slu.parse.input;
 import slu.parse.com.num;
 import slu.parse.com.skip_space;
-import slu.parse.com.token;
+import slu.parse.com.tok;
 
 namespace slu::parse
 {

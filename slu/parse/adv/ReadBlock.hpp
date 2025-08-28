@@ -13,7 +13,7 @@
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.skip_space;
-import slu.parse.com.token;
+import slu.parse.com.tok;
 
 namespace slu::parse
 {

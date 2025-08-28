@@ -6,7 +6,7 @@
 #include <cstdint>
 
 #include <slu/Ansi.hpp>
-export module slu.parse.com.token;
+export module slu.parse.com.tok;
 
 import slu.ast.state;
 import slu.parse.input;

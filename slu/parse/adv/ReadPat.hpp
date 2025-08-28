@@ -16,7 +16,7 @@ import slu.parse.input;
 import slu.parse.com.name;
 import slu.parse.com.skip_space;
 #include <slu/parse/adv/ReadExprBase.hpp>
-import slu.parse.com.token;
+import slu.parse.com.tok;
 #include <slu/parse/adv/ReadTypeExpr.hpp>
 
 namespace slu::parse
