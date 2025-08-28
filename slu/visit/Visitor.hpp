@@ -9,7 +9,9 @@
 #include <vector>
 
 import slu.settings;
+import slu.ast.enums;
 import slu.ast.state;
+import slu.ast.state_decls;
 
 #define Slu_co ,
 

@@ -14,14 +14,16 @@
 #include <string_view>
 #include <unordered_map>
 
+
 #include <slu/Ansi.hpp>
-#include <slu/parse/Parse.hpp>
 #include <slu/visit/Visit.hpp>
 #include <slu/gen/Gen.hpp>
 #include <slu/comp/Compile.hpp>
 #include <slu/mlvl/TypeInfCheck.hpp>
 import slu.paint.paint;
+import slu.paint.sem_output;
 import slu.paint.to_html;
+import slu.parse.parse;
 import slu.parse.vec_input;
 
 

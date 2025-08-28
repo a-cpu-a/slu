@@ -12,7 +12,7 @@ import slu.char_info;
 import slu.num;
 import slu.ast.state;
 import slu.gen.output;
-#include <slu/parse/Parse.hpp>
+import slu.parse.parse;
 
 namespace slu::parse
 {

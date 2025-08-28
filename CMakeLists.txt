@@ -40,11 +40,9 @@ function(init_target target)
 endfunction()
 
 init_target(slu)
-init_target(slu-testthing)
-
 
 if (MSVC)
-  target_compile_options(slu-testthing PRIVATE /bigobj)
+  target_compile_options(slu PRIVATE /bigobj)
 endif ()
 
 # TODO: Add tests and install targets if needed.

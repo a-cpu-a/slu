@@ -6,11 +6,11 @@
 #include <span>
 #include <fstream>
 #include <iostream>
-#include <slu/parse/Parse.hpp>
 #include <slu/paint/Paint.hpp>
 import slu.paint.sem_output;
 import slu.paint.to_html;
 import slu.paint.basic_col_conv;
+import slu.parse.parse;
 #include <slu/gen/Gen.hpp>
 
 template<class... Args>
