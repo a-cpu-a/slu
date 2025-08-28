@@ -1,8 +1,7 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <vector>
 #include <optional>
@@ -11,7 +10,7 @@
 #include <mutex>
 #include <memory>
 
-//slu.comp.compile
+export module slu.comp.compile;
 
 import a_cpu_a.mtx;
 import slu.comp.comp_thread;

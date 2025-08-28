@@ -57,9 +57,9 @@ namespace slu::comp::mico
 
 	using GlobElem = std::variant<GlobElemTy::Fn, GlobElemTy::Alias>;
 	//localObj2CachedData
-	using MpElementInfo = std::unordered_map<size_t, GlobElem>;
+	export using MpElementInfo = std::unordered_map<size_t, GlobElem>;
 
-	struct ConvData : CommonConvData
+	export struct ConvData : CommonConvData
 	{
 		std::vector<MpElementInfo>& mp2Elements;
 		mlir::MLIRContext& context;
@@ -829,7 +829,7 @@ namespace slu::comp::mico
 		varcase(const AnyIgnoredStat auto&) {}
 		);
 	}
-	inline void conv(ConvData& conv) {
+	export void conv(ConvData& conv) {
 		convStat(conv, *conv.stat);
 	}
 }

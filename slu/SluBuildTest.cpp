@@ -16,7 +16,7 @@
 
 
 #include <slu/Ansi.hpp>
-#include <slu/comp/Compile.hpp>
+import slu.comp.compile;
 import slu.gen.gen;
 import slu.mlvl.type_inf_check;
 import slu.paint.paint;

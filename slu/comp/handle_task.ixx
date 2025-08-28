@@ -17,12 +17,14 @@ export module slu.comp.handle_task;
 import a_cpu_a.mtx;
 import slu.settings;
 import slu.ast.state;
+import slu.ast.mp_data;
 import slu.comp.cfg;
 import slu.comp.mlir.conv;
 import slu.lang.basic_state;
 import slu.mlvl.basic_desugar;
 import slu.mlvl.type_inf_check;
 import slu.parse.error;
+import slu.parse.parse;
 import slu.parse.vec_input;
 
 namespace slu::comp
