@@ -31,12 +31,12 @@ namespace slu::comp::mico
 {
 	using namespace std::string_view_literals;
 
-	struct LocalStackVal
+	export struct LocalStackVal
 	{
 		mlir::Value v;
 		const parse::ResolvedType* ty;
 	};
-	struct LocalStackItm
+	export struct LocalStackItm
 	{
 		size_t itemCount;
 		std::vector<LocalStackVal> values;
@@ -44,18 +44,18 @@ namespace slu::comp::mico
 
 	namespace GlobElemTy
 	{
-		struct Fn
+		export struct Fn
 		{
 			mlir::func::FuncOp func;
 			std::string_view abi;
 		};
-		struct Alias {
+		export struct Alias {
 			lang::MpItmId realName;
 		};
 		//TODO: mlir::Value, type, etc
 	}
 
-	using GlobElem = std::variant<GlobElemTy::Fn, GlobElemTy::Alias>;
+	export using GlobElem = std::variant<GlobElemTy::Fn, GlobElemTy::Alias>;
 	//localObj2CachedData
 	export using MpElementInfo = std::unordered_map<size_t, GlobElem>;
 
