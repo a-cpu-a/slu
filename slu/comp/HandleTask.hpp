@@ -12,12 +12,12 @@
 #include <slu/ext/CppMatch.hpp>
 import a_cpu_a.mtx;
 import slu.comp.cfg;
+import slu.comp.mlir.conv;
 import slu.lang.basic_state;
 import slu.mlvl.basic_desugar;
 import slu.mlvl.type_inf_check;
 import slu.parse.error;
 import slu.parse.vec_input;
-#include <slu/comp/mlir/Conv.hpp>
 
 namespace slu::comp
 {

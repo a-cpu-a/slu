@@ -8,7 +8,7 @@
 #include <fstream>
 #include <filesystem>
 #include <random>
-#include <slu/comp/CompInclude.hpp>
+import slu.comp.compile;
 
 #include "slu-compiler-api.h"
 

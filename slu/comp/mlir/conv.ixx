@@ -1,8 +1,7 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <vector>
 #include <optional>
@@ -58,18 +57,28 @@
 #include <llvm/MC/TargetRegistry.h>
 #include <lld/Common/Driver.h>
 
-LLD_HAS_DRIVER(elf);
-LLD_HAS_DRIVER(wasm);
-LLD_HAS_DRIVER(coff);
 
 #include <slu/mlir/SluDialect.h>
 
 #pragma warning(pop)
 
 #include <slu/ext/CppMatch.hpp>
+export module slu.comp.mlir.conv;
+
+import slu.char_info;
+import slu.ast.mp_data;
+import slu.ast.pos;
+import slu.ast.state_decls;
+import slu.ast.state;
+import slu.ast.type;
 import slu.comp.cfg;
 import slu.comp.conv_data;
 import slu.lang.basic_state;
+import slu.lang.mpc;
+
+LLD_HAS_DRIVER(elf);
+LLD_HAS_DRIVER(wasm);
+LLD_HAS_DRIVER(coff);
 
 namespace slu::comp::mico
 {

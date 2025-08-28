@@ -4,4 +4,5 @@ target_sources(slu PUBLIC
   FILES
 	"conv_data.ixx"
 	"cfg.ixx"
+	"mlir/conv.ixx"
 )

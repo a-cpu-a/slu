@@ -9,13 +9,31 @@
 #include <thread>
 #include <variant>
 
+//slu.comp.compile
+
 import a_cpu_a.mtx;
 import slu.lang.basic_state;
 #include <slu/comp/CompThread.hpp>
-#include <slu/comp/CompInclude.hpp>
 
 namespace slu::comp
 {
+	export struct CodeGenEntrypoint
+	{
+		std::string entryPointFile;//path to file that defined this entry-point, or empty
+		std::string fileName;
+	};
+	//Could repr some js file, some wasm blob, a jar / class, or even some exe / dll.
+	export struct CompEntryPoint : CodeGenEntrypoint
+	{
+		std::vector<uint8_t> contents;
+	};
+	export struct CompOutput
+	{
+		std::vector<CompEntryPoint> entryPoints;
+		//TODO: info for lock file appending?
+		//TODO: info for build cache files?
+	};
+
 	inline void waitForTasksToComplete(a_cpu_a::Mutex<size_t>& tasksLeft, std::condition_variable& cvMain)
 	{
 		std::unique_lock tasksLeftLock(tasksLeft.lock);
@@ -77,7 +95,7 @@ namespace slu::comp
 		waitForTasksToComplete(tasksLeft, cvMain);
 	}
 
-	inline CompOutput compile(const CompCfg& cfg)
+	export CompOutput compile(const CompCfg& cfg)
 	{
 		llvm::InitializeAllTargets();
 		llvm::InitializeAllTargetMCs();
