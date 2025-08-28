@@ -1,15 +1,12 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 #include <memory>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.parse.basic.fn_ty;
 
 import slu.ast.state;
 import slu.parse.input;
@@ -24,8 +21,8 @@ namespace slu::parse
 {
 	//No space skip!
 	//YOU parse the 'fn'
-	template<bool isBasic,AnyInput In>
-	inline ExprType::FnType readFnType(In& in, const ast::OptSafety safety)
+	export template<bool isBasic,AnyInput In>
+	ExprType::FnType readFnType(In& in, const ast::OptSafety safety)
 	{// [safety] "fn" typeExp "->" typeExp
 		ExprType::FnType res{};
 		res.safety = safety;

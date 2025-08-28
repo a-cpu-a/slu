@@ -16,6 +16,7 @@
 import slu.char_info;
 import slu.ast.state;
 import slu.parse.input;
+import slu.parse.basic.fn_ty;
 import slu.parse.basic.op;
 import slu.parse.com.num;
 import slu.parse.com.skip_space;
@@ -24,7 +25,6 @@ import slu.parse.com.tok;
 import slu.parse.errors.char_errors;
 #include <slu/parse/adv/ReadExprBase.hpp>
 #include <slu/parse/adv/ReadTraitExpr.hpp>
-#include <slu/parse/adv/ReadTypeExpr.hpp>
 
 namespace slu::parse
 {
