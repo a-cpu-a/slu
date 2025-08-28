@@ -1,15 +1,13 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
 #include <unordered_set>
 
-//https://www.lua.org/manual/5.4/manual.html
-//https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
-//https://www.sciencedirect.com/topics/computer-science/backus-naur-form
+export module slu.parse.basic.label;
 
+import slu.ast.pos;
 import slu.ast.state;
 import slu.parse.input;
 import slu.parse.com.name;
@@ -18,8 +16,8 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	template<AnyInput In>
-	inline void readLabel(In& in, const ast::Position place)
+	export template<AnyInput In>
+	void readLabel(In& in, const ast::Position place)
 	{
 		//label ::= ‘::’ Name ‘::’
 		//SL label ::= ‘:::’ Name ‘:’
