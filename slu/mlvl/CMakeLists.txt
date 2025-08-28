@@ -4,4 +4,5 @@ target_sources(slu PUBLIC
   FILES
 	"hack.ixx"
 	"resolve_type.ixx"
+	"type_inf_check.ixx"
 )

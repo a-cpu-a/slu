@@ -5,12 +5,14 @@
 #include <cstdint>
 #include <unordered_set>
 #include <string_view>
+#include <string>
 
 #include <slu/ext/CppMatch.hpp>
 export module slu.gen.gen;
 
 import slu.char_info;
 import slu.num;
+import slu.settings;
 import slu.ast.enums;
 import slu.ast.state;
 import slu.ast.state_decls;

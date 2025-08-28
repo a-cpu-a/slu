@@ -1,20 +1,28 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <vector>
 #include <optional>
 #include <variant>
 #include <algorithm>
+#include <stdexcept>
 
 #include <slu/ext/CppMatch.hpp>
+export module slu.mlvl.type_inf_check;
+
+import slu.settings;
+import slu.ast.enums;
 import slu.ast.make;
+import slu.ast.mp_data;
 import slu.ast.state;
+import slu.ast.state_decls;
+import slu.ast.type;
 import slu.lang.basic_state;
 import slu.lang.mpc;
 import slu.mlvl.resolve_type;
+import slu.visit.empty;
 import slu.visit.visit;
 
 namespace slu::mlvl

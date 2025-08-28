@@ -17,8 +17,8 @@
 
 #include <slu/Ansi.hpp>
 #include <slu/comp/Compile.hpp>
-#include <slu/mlvl/TypeInfCheck.hpp>
 import slu.gen.gen;
+import slu.mlvl.type_inf_check;
 import slu.paint.paint;
 import slu.paint.sem_output;
 import slu.paint.to_html;
