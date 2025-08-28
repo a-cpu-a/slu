@@ -14,8 +14,8 @@ import slu.ast.make;
 import slu.ast.state;
 import slu.lang.basic_state;
 import slu.lang.mpc;
-#include <slu/visit/Visit.hpp>
 import slu.mlvl.resolve_type;
+import slu.visit.visit;
 
 namespace slu::mlvl
 {

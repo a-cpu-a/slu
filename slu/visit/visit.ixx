@@ -1,8 +1,7 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <span>
 #include <format>
@@ -10,8 +9,13 @@
 
 #include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
+export module slu.visit.visit;
+
 import slu.settings;
+import slu.ast.enums;
 import slu.ast.state;
+import slu.ast.state_decls;
+import slu.lang.basic_state;
 import slu.visit.empty;
 
 namespace slu::visit
@@ -50,23 +54,23 @@ namespace slu::visit
 #define Slu_CALL_VISIT_FN_POST_LG(_Name) Slu_CALL_VISIT_FN_POST_USER_LG(_Name,itm)
 #define Slu_CALL_VISIT_FN_POST_VAR_LG(_Name) Slu_CALL_VISIT_FN_POST_USER_LG(_Name,var)
 
-	template<AnyVisitor Vi>
-	inline void visitString(Vi& vi, std::span<char> itm)
+	export template<AnyVisitor Vi>
+	void visitString(Vi& vi, std::span<char> itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(String);
 	}
-	template<AnyVisitor Vi>
-	inline void visitName(Vi& vi, lang::MpItmId& itm)
+	export template<AnyVisitor Vi>
+	void visitName(Vi& vi, lang::MpItmId& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Name);
 	}
-	template<AnyVisitor Vi>
-	inline void visitPoolString(Vi& vi, lang::PoolString& itm)
+	export template<AnyVisitor Vi>
+	void visitPoolString(Vi& vi, lang::PoolString& itm)
 	{
 		//TODO
 	}
-	template<bool isLocal,AnyVisitor Vi>
-	inline void visitNameOrLocal(Vi& vi, parse::LocalOrName<Vi,isLocal>& itm)
+	export template<bool isLocal,AnyVisitor Vi>
+	void visitNameOrLocal(Vi& vi, parse::LocalOrName<Vi,isLocal>& itm)
 	{
 		if constexpr (isLocal)
 		{//TODO
@@ -74,23 +78,23 @@ namespace slu::visit
 		else
 			visitName(vi, itm);
 	}
-	template<AnyVisitor Vi>
-	inline void visitMp(Vi& vi, lang::MpItmId& itm)
+	export template<AnyVisitor Vi>
+	void visitMp(Vi& vi, lang::MpItmId& itm)
 	{
 		//TODO
 	}
-	template<AnyVisitor Vi>
-	inline void visitExported(Vi& vi, const lang::ExportData itm)
+	export template<AnyVisitor Vi>
+	void visitExported(Vi& vi, const lang::ExportData itm)
 	{
 		//TODO
 	}
-	template<AnyVisitor Vi>
-	inline void visitSafety(Vi& vi, const ast::OptSafety itm)
+	export template<AnyVisitor Vi>
+	void visitSafety(Vi& vi, const ast::OptSafety itm)
 	{
 		//TODO
 	}
-	template<AnyVisitor Vi>
-	inline void visitNameList(Vi& vi, parse::NameList<Vi>& itm)
+	export template<AnyVisitor Vi>
+	void visitNameList(Vi& vi, parse::NameList<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(NameList);
 		for (auto& i : itm)
@@ -100,8 +104,8 @@ namespace slu::visit
 		}
 		Slu_CALL_VISIT_FN_POST(NameList);
 	}
-	template<AnyVisitor Vi>
-	inline void visitDestrSpec(Vi& vi, parse::DestrSpec& itm)
+	export template<AnyVisitor Vi>
+	void visitDestrSpec(Vi& vi, parse::DestrSpec& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(DestrSpec);
 		ezmatch(itm)(
@@ -114,8 +118,8 @@ namespace slu::visit
 		);
 		Slu_CALL_VISIT_FN_POST(DestrSpec);
 	}
-	template<bool isLocal, AnyVisitor Vi>
-	inline void visitPat(Vi& vi, parse::Pat<Vi,isLocal>& itm)
+	export template<bool isLocal, AnyVisitor Vi>
+	void visitPat(Vi& vi, parse::Pat<Vi,isLocal>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE_LG(Pat);
 		ezmatch(itm)(
@@ -186,76 +190,41 @@ namespace slu::visit
 		);
 		Slu_CALL_VISIT_FN_POST_LG(Pat);
 	}
-	//template<AnyVisitor Vi>
-	//inline void visitVar(Vi& vi, parse::Var<Vi>& itm)
-	//{
-	//	Slu_CALL_VISIT_FN_PRE(Var);
-	//	ezmatch(itm.base)(
-	//	varcase(parse::BaseVarType::Expr&) {
-	//		Slu_CALL_VISIT_FN_PRE_VAR(BaseVarExpr);
-	//		visitExpr(vi, var);
-	//		Slu_CALL_VISIT_FN_POST_VAR(BaseVarExpr);
-	//	},
-	//	varcase(parse::BaseVarType::NAME<Vi>&) {
-	//		Slu_CALL_VISIT_FN_PRE_VAR(BaseVarName);
-	//		visitMp(vi, var.v);
-	//		Slu_CALL_VISIT_FN_POST_VAR(BaseVarName);
-	//	},
-	//	varcase(const parse::BaseVarType::Local) {
-	//		//TODO
-	//	},
-	//	varcase(const parse::BaseVarType::Root) {
-	//		Slu_CALL_VISIT_FN_PRE_VAR(BaseVarRoot);
-	//	}
-	//	);
-	//	for (auto& i : itm.sub)
-	//	{
-	//		visitArgChain(vi,i.funcCalls);
-	//		ezmatch(i.idx)(
-	//		varcase(parse::SubVarType::NAME<Vi>&) {},
-	//		varcase(parse::SubVarType::Expr&) {
-	//			visitExpr(vi, var);
-	//		},
-	//		varcase(parse::SubVarType::Deref) {}
-	//		);
-	//	}
-	//	Slu_CALL_VISIT_FN_POST(Var);
-	//}
-	template<AnyVisitor Vi>
-	inline void visitStatList(Vi& vi, parse::StatList<Vi>& itm)
+	export template<AnyVisitor Vi>
+	void visitStatList(Vi& vi, parse::StatList<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(StatList);
 		for (auto& i : itm)
 			visitStat(vi, i);
 		Slu_CALL_VISIT_FN_POST(StatList);
 	}
-	template<AnyVisitor Vi>
-	inline void visitTypeExpr(Vi& vi, parse::Expr& itm)
+	export template<AnyVisitor Vi>
+	void visitTypeExpr(Vi& vi, parse::Expr& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(TypeExpr);
 		visitExpr(vi, itm);
 		Slu_CALL_VISIT_FN_POST(TypeExpr);
 	}
-	template<AnyVisitor Vi>
-	inline void visitTraitExpr(Vi& vi, parse::TraitExpr& itm)
+	export template<AnyVisitor Vi>
+	void visitTraitExpr(Vi& vi, parse::TraitExpr& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(TraitExpr);
 		//TODO
 		Slu_CALL_VISIT_FN_POST(TraitExpr);
 	}
-	template<AnyVisitor Vi>
-	inline void visitLifetime(Vi& vi, parse::Lifetime& itm)
+	export template<AnyVisitor Vi>
+	void visitLifetime(Vi& vi, parse::Lifetime& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Lifetime);
 		//TODO
 		Slu_CALL_VISIT_FN_POST(Lifetime);
 	}
-	template<AnyVisitor Vi>
-	inline void visitBinOp(Vi& vi, const ast::BinOpType itm) {
+	export template<AnyVisitor Vi>
+	void visitBinOp(Vi& vi, const ast::BinOpType itm) {
 		Slu_CALL_VISIT_FN_PRE(BinOp);
 	}
-	template<AnyVisitor Vi>
-	inline void visitUnOps(Vi& vi, std::span<parse::UnOpItem> list) 
+	export template<AnyVisitor Vi>
+	void visitUnOps(Vi& vi, std::span<parse::UnOpItem> list) 
 	{
 		for (auto& itm :list)
 		{
@@ -276,15 +245,15 @@ namespace slu::visit
 			Slu_CALL_VISIT_FN_POST(UnOp);
 		}
 	}
-	template<AnyVisitor Vi>
-	inline void visitPostUnOps(Vi& vi, std::span<const ast::PostUnOpType> list) 
+	export template<AnyVisitor Vi>
+	void visitPostUnOps(Vi& vi, std::span<const ast::PostUnOpType> list) 
 	{
 		for (auto& itm : list) {
 			Slu_CALL_VISIT_FN_PRE(PostUnOp);
 		}
 	}
-	template<AnyVisitor Vi>
-	inline void visitExpr(Vi& vi, parse::Expr& itm)
+	export template<AnyVisitor Vi>
+	void visitExpr(Vi& vi, parse::Expr& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Expr);
 		visitUnOps(vi, itm.unOps);
@@ -292,8 +261,8 @@ namespace slu::visit
 		visitPostUnOps(vi, std::span<const ast::PostUnOpType>{ itm.postUnOps.data(), itm.postUnOps.size()});
 		Slu_CALL_VISIT_FN_POST(Expr);
 	}
-	template<AnyVisitor Vi>
-	inline void visitExprData(Vi& vi, parse::ExprData<Vi>& itm)
+	export template<AnyVisitor Vi>
+	void visitExprData(Vi& vi, parse::ExprData<Vi>& itm)
 	{
 		ezmatch(itm)(
 		varcase(const parse::ExprType::False) {
@@ -467,8 +436,8 @@ namespace slu::visit
 		}
 		);
 	}
-	template<AnyVisitor Vi>
-	inline void visitExprList(Vi& vi, parse::ExprList& itm)
+	export template<AnyVisitor Vi>
+	void visitExprList(Vi& vi, parse::ExprList& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(ExprList);
 		for (auto& i : itm)
@@ -478,8 +447,8 @@ namespace slu::visit
 		}
 		Slu_CALL_VISIT_FN_POST(ExprList);
 	}
-	template<AnyVisitor Vi>
-	inline void visitArgs(Vi& vi, parse::Args& itm)
+	export template<AnyVisitor Vi>
+	void visitArgs(Vi& vi, parse::Args& itm)
 	{
 		ezmatch(itm)(
 		varcase(parse::ArgsType::ExprList&) { visitExprList(vi, var); },
@@ -487,8 +456,8 @@ namespace slu::visit
 		varcase(parse::ArgsType::String&) {		  visitString(vi,var.v); }
 		);
 	}
-	template<AnyVisitor Vi>
-	inline void visitTable(Vi& vi, parse::Table<Vi>& itm)
+	export template<AnyVisitor Vi>
+	void visitTable(Vi& vi, parse::Table<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Table);
 		for (auto& i : itm)
@@ -509,7 +478,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(Table);
 	}
 	//TODO: var-args
-	template<bool isLocal, AnyVisitor Vi>
+	export template<bool isLocal, AnyVisitor Vi>
 	inline void visitParams(Vi& vi, parse::ParamList<isLocal>& itm)
 	{
 		if constexpr (isLocal)
@@ -530,8 +499,8 @@ namespace slu::visit
 		else
 			Slu_CALL_VISIT_FN_POST(ConstParams);
 	}
-	template<AnyVisitor Vi>
-	inline void visitWhereClauses(Vi& vi, parse::WhereClauses& itm)
+	export template<AnyVisitor Vi>
+	void visitWhereClauses(Vi& vi, parse::WhereClauses& itm)
 	{
 		for (auto& i : itm)
 		{
@@ -541,8 +510,8 @@ namespace slu::visit
 		//TODO
 	}
 
-	template<AnyVisitor Vi>
-	inline void visitStat(Vi& vi, parse::Stat& itm)
+	export template<AnyVisitor Vi>
+	void visitStat(Vi& vi, parse::Stat& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Stat);
 		ezmatch(itm.data)(
@@ -762,8 +731,8 @@ namespace slu::visit
 		);
 		Slu_CALL_VISIT_FN_POST(Stat);
 	}
-	template<AnyVisitor Vi>
-	inline void visitSoe(Vi& vi, parse::Soe<Vi>& itm)
+	export template<AnyVisitor Vi>
+	void visitSoe(Vi& vi, parse::Soe<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Soe);
 		ezmatch(itm)(
@@ -776,8 +745,8 @@ namespace slu::visit
 		);
 		Slu_CALL_VISIT_FN_POST(Soe);
 	}
-	template<AnyVisitor Vi>
-	inline void visitBlock(Vi& vi, parse::Block<Vi>& itm)
+	export template<AnyVisitor Vi>
+	void visitBlock(Vi& vi, parse::Block<Vi>& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(Block);
 		visitStatList(vi, itm.statList);
@@ -788,7 +757,7 @@ namespace slu::visit
 		}
 		Slu_CALL_VISIT_FN_POST(Block);
 	}
-	template<AnyVisitor Vi>
+	export template<AnyVisitor Vi>
 	void visitFile(Vi& vi,parse::ParsedFile& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(File);

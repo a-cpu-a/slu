@@ -17,8 +17,8 @@ import slu.ast.state;
 import slu.ast.state_decls;
 import slu.lang.basic_state;
 import slu.mlvl.resolve_type;
+import slu.visit.visit;
 import hack;
-#include <slu/visit/Visit.hpp>
 
 namespace slu::mlvl
 {
