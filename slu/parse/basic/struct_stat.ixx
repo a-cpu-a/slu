@@ -1,9 +1,10 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <cstdint>
+
+export module slu.parse.basic.struct_stat;
 
 import slu.ast.state;
 import slu.parse.input;
@@ -14,8 +15,8 @@ import slu.parse.com.tok;
 namespace slu::parse
 {
 	//Doesnt check (, starts after it too.
-	template<bool isLocal, AnyInput In>
-	inline ParamList<isLocal> readParamList(In& in)
+	export template<bool isLocal, AnyInput In>
+	ParamList<isLocal> readParamList(In& in)
 	{
 		ParamList<isLocal> res;
 		skipSpace(in);
@@ -35,8 +36,8 @@ namespace slu::parse
 
 		return res;
 	}
-	template<class T,bool structOnly,AnyInput In>
-	inline void readStructStat(In& in, const ast::Position place, const lang::ExportData exported)
+	export template<class T,bool structOnly,AnyInput In>
+	void readStructStat(In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		in.genData.pushLocalScope();
 		T res{};
