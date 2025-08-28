@@ -5,7 +5,7 @@ target_sources(slu PUBLIC
 	"conv_data.ixx"
 	"handle_task.ixx"
 	"comp_thread.ixx"
-	"comp.ixx"
+	"compile.ixx"
 	"cfg.ixx"
 	"mlir/conv.ixx"
 )
