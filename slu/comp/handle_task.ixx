@@ -1,16 +1,22 @@
-﻿/*
+﻿module;
+/*
 ** See Copyright Notice inside Include.hpp
 */
-#pragma once
-
 #include <string>
 #include <vector>
 #include <optional>
+#include <span>
 #include <thread>
 #include <variant>
+#include <unordered_map>
 
+#include <slu/comp/mlir/IncludeMlir.hpp>
 #include <slu/ext/CppMatch.hpp>
+export module slu.comp.handle_task;
+
 import a_cpu_a.mtx;
+import slu.settings;
+import slu.ast.state;
 import slu.comp.cfg;
 import slu.comp.mlir.conv;
 import slu.lang.basic_state;
@@ -24,49 +30,49 @@ namespace slu::comp
 	using SettingsType = decltype(slu::parse::sluCommon);
 	using InputType = slu::parse::VecInput<SettingsType>;
 
-	struct SluFile
+	export struct SluFile
 	{
 		std::string_view crateRootPath;
 		std::string path;
 		std::vector<uint8_t> contents;
 	};
-	struct ParsedFile
+	export struct ParsedFile
 	{
 		lang::ModPath mp;//Only valid before MergeAstsMap!!!
 		std::string_view crateRootPath;
 		std::string path;
 		parse::ParsedFile pf;
 	};
-	using GenCodeMap = std::unordered_map<uint32_t, std::vector<llvm::SmallVector<char, 0>>>;
-	using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile, lang::HashModPathView, lang::EqualModPathView>;
-	struct FileStatList
+	export using GenCodeMap = std::unordered_map<uint32_t, std::vector<llvm::SmallVector<char, 0>>>;
+	export using MergeAstsMap = std::unordered_map<lang::ModPath, ParsedFile, lang::HashModPathView, lang::EqualModPathView>;
+	export struct FileStatList
 	{
 		std::span<const parse::Stat> stats;
 		std::string_view filePath;
 	};
-	struct MutFileStatList
+	export struct MutFileStatList
 	{
 		std::span<parse::Stat> stats;
 		std::string_view filePath;
 	};
 	namespace CompTaskType
 	{
-		using ParseFiles = std::vector<SluFile>;
-		struct ConsensusUnifyAsts
+		export using ParseFiles = std::vector<SluFile>;
+		export struct ConsensusUnifyAsts
 		{
 			a_cpu_a::RwLock<parse::BasicMpDbData>* sharedDb;//stored on main thread.
 			bool firstToArive = true; //if true, then you dont need to do any logic, just replace it
 		};
-		using ConsensusMergeAsts = MergeAstsMap*;
-		struct DoCodeGen
+		export using ConsensusMergeAsts = MergeAstsMap*;
+		export struct DoCodeGen
 		{
 			std::vector<FileStatList> statements;
 			uint32_t entrypointId;
 		};
-		using TypeInfCheck = std::vector<MutFileStatList>;
-		using ConsensusMergeGenCode = GenCodeMap*;
+		export using TypeInfCheck = std::vector<MutFileStatList>;
+		export using ConsensusMergeGenCode = GenCodeMap*;
 	}
-	using CompTaskData = std::variant<
+	export using CompTaskData = std::variant<
 		CompTaskType::ParseFiles,
 		CompTaskType::ConsensusUnifyAsts,
 		CompTaskType::ConsensusMergeAsts,
@@ -74,13 +80,13 @@ namespace slu::comp
 		CompTaskType::TypeInfCheck,
 		CompTaskType::ConsensusMergeGenCode
 	>;
-	struct CompTask
+	export struct CompTask
 	{
 		CompTaskData data;
 		size_t threadsLeft : 32 = 0;
 		size_t taskId : 32 = 0;
 	};
-	struct TaskHandleStateMlir
+	export struct TaskHandleStateMlir
 	{
 		mlir::MLIRContext mc;
 		llvm::LLVMContext llvmCtx;
@@ -89,7 +95,7 @@ namespace slu::comp
 		//mlir::FrozenRewritePatternSet patterns;
 		mlir::DataLayoutEntryAttr indexLay;
 	};
-	struct TaskHandleState
+	export struct TaskHandleState
 	{
 		TaskHandleStateMlir* s;
 
@@ -152,7 +158,7 @@ namespace slu::comp
 		return res;
 	}
 
-	inline void handleTask(const CompCfg& cfg,
+	export void handleTask(const CompCfg& cfg,
 		std::atomic_bool& shouldExit,
 		TaskHandleState& state,
 		std::unique_lock<std::mutex>* taskLock,//if null, then already unlocked

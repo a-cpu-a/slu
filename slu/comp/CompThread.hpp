@@ -11,8 +11,8 @@
 
 import a_cpu_a.mtx;
 import slu.comp.cfg;
+import slu.comp.handle_task;
 import slu.lang.basic_state;
-#include <slu/comp/HandleTask.hpp>
 
 namespace slu::comp
 {
