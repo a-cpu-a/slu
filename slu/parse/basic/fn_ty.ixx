@@ -8,10 +8,10 @@
 
 export module slu.parse.basic.fn_ty;
 
+import slu.ast.enums;
 import slu.ast.state;
 import slu.parse.input;
-import slu.parse.adv.expr;
-import slu.parse.adv.expr_base;
+import slu.parse.adv.expr_decls;
 import slu.parse.com.skip_space;
 import slu.parse.com.tok;
 

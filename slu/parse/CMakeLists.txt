@@ -21,4 +21,4 @@ add_library(slu-parse
 	"basic/use_stat.ixx"
 	"basic/fn_ty.ixx"
 	"basic/trait_expr.ixx"
-)
+ "adv/expr_decls.ixx")

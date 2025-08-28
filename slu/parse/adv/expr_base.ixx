@@ -6,12 +6,16 @@
 #include <unordered_set>
 #include <format>
 
+#include <slu/Ansi.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.parse.adv.expr_base;
 
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.parse.error;
 import slu.parse.input;
+import slu.parse.adv.expr_decls;
+import slu.parse.com.name;
 import slu.parse.com.num;
 import slu.parse.com.skip_space;
 import slu.parse.com.str;
@@ -117,7 +121,7 @@ namespace slu::parse
 			if constexpr (FOR_EXPR)
 				throwVarlistInExpr(in);
 
-			throw UnexpectedCharacterError(std::format(
+			throw parse::UnexpectedCharacterError(std::format(
 				"Expected multi-assignment, since there is a list of variables, but found "
 				LUACC_SINGLE_STRING("{}")
 				"{}"
@@ -130,7 +134,7 @@ namespace slu::parse
 				if (varDataNeedsSubThing)
 					throwRawExpr(in);
 
-				throw UnexpectedCharacterError(std::format(
+				throw parse::UnexpectedCharacterError(std::format(
 					"Expected assignment or " LC_function " call, found "
 					LUACC_SINGLE_STRING("{}")
 					"{}"

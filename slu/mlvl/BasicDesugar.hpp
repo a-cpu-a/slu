@@ -7,12 +7,14 @@
 #include <vector>
 #include <optional>
 #include <variant>
+#include <memory>
 
 import slu.ast.make;
 import slu.ast.mp_data;
 import slu.ast.op_info;
 import slu.ast.op_order;
 import slu.ast.state;
+import slu.ast.state_decls;
 import slu.lang.basic_state;
 import slu.mlvl.resolve_type;
 import hack;

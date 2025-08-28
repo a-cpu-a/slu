@@ -8,6 +8,7 @@
 #include <string_view>
 
 #include <slu/ext/CppMatch.hpp>
+import slu.char_info;
 import slu.num;
 import slu.ast.state;
 import slu.gen.output;

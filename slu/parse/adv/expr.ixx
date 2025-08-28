@@ -8,17 +8,22 @@
 #include <memory>
 #include <optional>
 
+#include <slu/Ansi.hpp>
+#include <slu/ext/CppMatch.hpp>
 export module slu.parse.adv.expr;
 
 import slu.char_info;
 import slu.ast.enums;
 import slu.ast.state_decls;
 import slu.ast.state;
+import slu.parse.error;
 import slu.parse.input;
+import slu.parse.adv.expr_decls;
 import slu.parse.adv.expr_base;
 import slu.parse.basic.fn_ty;
 import slu.parse.basic.op;
 import slu.parse.basic.trait_expr;
+import slu.parse.com.name;
 import slu.parse.com.num;
 import slu.parse.com.skip_space;
 import slu.parse.com.str;
@@ -40,7 +45,7 @@ namespace slu::parse
 		return res;
 	}
 	template<AnyInput In>
-	inline UnOpItem readToRefLifetimes(In& in, ast::UnOpType uOp)
+	UnOpItem readToRefLifetimes(In& in, ast::UnOpType uOp)
 	{
 		skipSpace(in);
 		if (in.peek() == '/')
@@ -61,7 +66,7 @@ namespace slu::parse
 	}
 
 	template<AnyInput In>
-	inline void handleOpenRange(In& in, Expr& basicRes)
+	void handleOpenRange(In& in, Expr& basicRes)
 	{
 		if (basicRes.unOps.empty())return;
 
@@ -72,8 +77,8 @@ namespace slu::parse
 		}
 	}
 
-	export template<bool IS_BASIC=false,bool FOR_PAT=false,AnyInput In>
-	Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp = true)
+	export template<bool IS_BASIC,bool FOR_PAT,AnyInput In>
+	Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp)
 	{
 		/*
 			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef

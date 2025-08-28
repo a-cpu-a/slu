@@ -10,6 +10,7 @@ import slu.char_info;
 import slu.paint.sem_output;
 import slu.parse.input;
 import slu.parse.manage_newl;
+import slu.parse.errors.char_errors;
 
 namespace slu::parse
 {

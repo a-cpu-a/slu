@@ -12,6 +12,7 @@
 //https://www.sciencedirect.com/topics/computer-science/backus-naur-form
 
 import slu.ast.state;
+import slu.ast.state_decls;
 import slu.parse.input;
 import slu.parse.adv.expr;
 import slu.parse.com.skip_space;
