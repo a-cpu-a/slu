@@ -9,7 +9,7 @@
 #include <variant>
 #include <mutex>
 
-#include <slu/comp/mlir/IncludeMlir.hpp>
+//#include <slu/comp/mlir/IncludeMlir.hpp>
 export module slu.comp.comp_thread;
 
 import a_cpu_a.mtx;

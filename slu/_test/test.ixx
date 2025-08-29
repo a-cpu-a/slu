@@ -8,7 +8,7 @@
 #include <utility>
 
 #include <slu/Ansi.hpp>
-export module slu._test;
+export module slu._test.test;
 
 import slu.ast.mp_data;
 import slu.comp.compile;

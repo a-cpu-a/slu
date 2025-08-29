@@ -12,7 +12,7 @@
 #include <span>
 #include <bit>
 
-#include <slu/comp/mlir/IncludeMlir.hpp>
+//#include <slu/comp/mlir/IncludeMlir.hpp>
 export module slu.comp.compile;
 
 import a_cpu_a.mtx;

@@ -10,7 +10,7 @@
 #include <variant>
 #include <unordered_map>
 
-#include <slu/comp/mlir/IncludeMlir.hpp>
+//#include <slu/comp/mlir/IncludeMlir.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.comp.handle_task;
 

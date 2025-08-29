@@ -40,6 +40,12 @@ function(init_target target)
 endfunction()
 
 init_target(slu)
+init_target(slu-comp)
+init_target(_test-slu)
+
+target_link_libraries(slu-comp slu)
+target_link_libraries(_test-slu slu-comp)
+target_link_libraries(_test-slu slu)
 
 if (MSVC)
   target_compile_options(slu PRIVATE /bigobj)

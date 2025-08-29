@@ -8,7 +8,7 @@
 #include <thread>
 #include <variant>
 
-#include <slu/comp/mlir/IncludeMlir.hpp>
+//#include <slu/comp/mlir/IncludeMlir.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.comp.mlir.conv;
 
