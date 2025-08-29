@@ -8,6 +8,7 @@
 #include <compare>
 #include <span>
 #include <utility>
+#include <unordered_map>
 export module slu.lang.basic_state;
 
 namespace slu::lang
@@ -112,4 +113,10 @@ namespace slu::lang
 				std::begin(rhs), std::end(rhs));
 		}
 	};
+
+	void _test()
+	{
+		std::unordered_map<lang::ModPath, int, lang::HashModPathView, lang::EqualModPathView> test;
+		test[lang::ModPath{ "a", "b", "c" }] = 5;
+	}
 }

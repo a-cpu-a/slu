@@ -2,11 +2,8 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
-#include <vector>
-#include <optional>
-#include <span>
 
+//#include <slu/comp/mlir/Pch.hpp>
 export module slu.comp.cfg;
 
 import slu.lang.basic_state;

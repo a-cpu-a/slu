@@ -2,17 +2,8 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
-#include <vector>
-#include <optional>
-#include <thread>
-#include <variant>
-#include <mutex>
-#include <memory>
-#include <span>
-#include <bit>
 
-//#include <slu/comp/mlir/IncludeMlir.hpp>
+//#include <slu/comp/mlir/Pch.hpp>
 export module slu.comp.compile;
 
 import a_cpu_a.mtx;

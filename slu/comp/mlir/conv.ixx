@@ -2,14 +2,8 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
-#include <vector>
-#include <optional>
-#include <thread>
-#include <variant>
 
-//#include <slu/comp/mlir/IncludeMlir.hpp>
-#include <slu/ext/CppMatch.hpp>
+//#include <slu/comp/mlir/Pch.hpp>
 export module slu.comp.mlir.conv;
 
 import slu.char_info;

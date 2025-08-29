@@ -53,11 +53,23 @@
 #include <llvm/MC/TargetRegistry.h>
 #include <lld/Common/Driver.h>
 
+LLD_HAS_DRIVER(elf);
+LLD_HAS_DRIVER(wasm);
+LLD_HAS_DRIVER(coff);
 
 #include <slu/mlir/SluDialect.h>
 
 #pragma warning(pop)
 
-LLD_HAS_DRIVER(elf);
-LLD_HAS_DRIVER(wasm);
-LLD_HAS_DRIVER(coff);
+#include <span>
+#include <string>
+#include <vector>
+#include <optional>
+#include <thread>
+#include <variant>
+#include <mutex>
+#include <memory>
+#include <bit>
+#include <unordered_map>
+
+#include <slu/ext/CppMatch.hpp>
