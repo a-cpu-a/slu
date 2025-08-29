@@ -6,6 +6,7 @@
 //#define Slu_NoConcepts
 
 #include <utility>
+#include <functional>
 
 #include <slu/Ansi.hpp>
 export module slu._test.test;

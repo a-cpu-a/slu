@@ -108,15 +108,16 @@ namespace slu::lang
 	export struct EqualModPathView
 	{
 		using is_transparent = void;
-		constexpr bool operator()(const AnyMp auto& lhs, const AnyMp auto& rhs)const {
-			return std::equal(std::begin(lhs), std::end(lhs),
-				std::begin(rhs), std::end(rhs));
+		constexpr bool operator()(const AnyMp auto& a, const AnyMp auto& b)const {
+			
+			return std::equal(std::begin(a), std::end(a),
+				std::begin(b), std::end(b));
+			//if (a.size() != b.size()) return false;
+			//for (size_t i = 0; i < a.size(); ++i)
+			//{
+			//	if (std::string_view(a[i]) != std::string_view(b[i])) return false;
+			//}
+			//return true;
 		}
 	};
-
-	void _test()
-	{
-		std::unordered_map<lang::ModPath, int, lang::HashModPathView, lang::EqualModPathView> test;
-		test[lang::ModPath{ "a", "b", "c" }] = 5;
-	}
 }
