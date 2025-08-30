@@ -33,28 +33,24 @@ SOFTWARE.
 // Overloaded utility for std::visit
 template<class... Ts>
 struct _EzMatchOverloader : Ts... { using Ts::operator()...; };
-template<class... Ts>
-_EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
-template<class Vt,class T>
-constexpr decltype(auto) _ezMatchVisitHack(Vt&& visitor, T&& variant) {
-	if constexpr(requires(T t, Vt v) {
-		{ t.visit(v) };
-	})
-		return variant.visit(std::forward<Vt>(visitor));
-	else
-		return std::visit(std::forward<Vt>(visitor),std::forward<T>(variant));
+template<class T>
+decltype(auto) _ezMatchVisitHack(T&& _VALUE)
+{
+	return [&](auto... ez_cases) { 
+		if constexpr (requires { (_VALUE).visit; }) 
+			return std::forward<T>(_VALUE).visit(::_EzMatchOverloader{ ez_cases... });
+		else 
+			return std::visit(::_EzMatchOverloader{ ez_cases... }, std::forward<T>(_VALUE));
+	};
 }
 
-// Macro Definitions
-#define ezmatch(_VALUE) [&](auto... ez_cases) \
-		{ return ::_ezMatchVisitHack(::_EzMatchOverloader{ez_cases...}, _VALUE); }
+// ezmatch(...)(..case1.. {...}, ...)
+#define ezmatch(_VALUE) _ezMatchVisitHack(_VALUE)
 
 //Note: you need to add const and &/&& yourself
 
-//... -> type
-#define ezcase(_VAR,...) [&](__VA_ARGS__ _VAR)
-//... -> type
+//varcase(...) -> ..type.. {...}
 #define varcase(...) [&](__VA_ARGS__ var)
 
 #endif //Header guard
