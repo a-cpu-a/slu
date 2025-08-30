@@ -47,7 +47,6 @@ _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 })(_VALUE))
 
 //Note: you need to add const and &/&& yourself
-
 //varcase(...) -> ..type.. {...}
 #define varcase(...) [&](__VA_ARGS__ var)
 
