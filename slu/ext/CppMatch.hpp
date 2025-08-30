@@ -33,6 +33,8 @@ SOFTWARE.
 // Overloaded utility for std::visit
 template<class... Ts>
 struct _EzMatchOverloader : Ts... { using Ts::operator()...; };
+template<class... Ts>
+_EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
 template<class T>
 decltype(auto) _ezMatchVisitHack(T&& _VALUE)

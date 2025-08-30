@@ -966,11 +966,11 @@ namespace slu::mlvl
 						std::string_view fieldView = mpDb.getSv(var.name);
 						//TODO: auto deref
 						ezmatch(ty.base)(
-						ezcase(auto&) {
+						varcase(auto&) {
 							poison = true;
 							//TODO: msg about trying to field into something with no fields.
 						},
-						ezcase(parse::RawTypeKind::TypeError) {
+						varcase(parse::RawTypeKind::TypeError) {
 							poison = true;
 						},
 						[&]<class T>(T& var2) 

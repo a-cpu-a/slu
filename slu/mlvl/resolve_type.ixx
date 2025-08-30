@@ -23,18 +23,18 @@ namespace slu::mlvl
 	void handleTypeExprField(parse::BasicMpDb mpDb, size_t& nameIdx, parse::FieldV<true>& field,auto& res)
 	{
 		ezmatch(std::move(field))(
-		ezcase(parse::FieldType::Expr&& fi) {
+		varcase(parse::FieldType::Expr&&) {
 			res.fieldNames.emplace_back("0x" + slu::u64ToStr(nameIdx++));
-			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi)));
+			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(var)));
 		},
-		ezcase(parse::FieldType::Name2Expr&& fi) {
-			res.fieldNames.emplace_back(fi.idx.asSv(mpDb));
-			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(fi.v)));
+			varcase(parse::FieldType::Name2Expr&&) {
+			res.fieldNames.emplace_back(var.idx.asSv(mpDb));
+			res.fields.emplace_back(resolveTypeExpr(mpDb, std::move(var.v)));
 		},
-		ezcase(parse::FieldType::Expr2Expr&& fi) {
+			varcase(parse::FieldType::Expr2Expr&&) {
 			throw std::runtime_error("FieldType::Expr2ExprV type resolution: TODO not implemented: jit the expression");
 		},
-		ezcase(const parse::FieldType::NONE _) {
+			varcase(const parse::FieldType::NONE) {
 			throw std::runtime_error("FieldType::NONE should not exist in struct/union type expression.");
 		}
 		);
@@ -200,7 +200,7 @@ namespace slu::mlvl
 				.alignmentData = parse::alignDataFromSize(sz)
 			};
 		},
-		ezcase(const parse::ExprType::GlobalV<true> name)->parse::ResolvedType {
+		[&](const parse::ExprType::GlobalV<true> name)->parse::ResolvedType {
 
 			if (name == mpc::STD_STR)
 			{
