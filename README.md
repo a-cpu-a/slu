@@ -22,12 +22,12 @@ impl types are checked before any monomorphization, automatically support dyn ty
 [Spec is located here](/spec/)  
 
 ```
-fn printHelloWorld(l = impl std::Log) {
+fn printHelloWorld(l = &mut impl std::Log) {
 	l.info("Hello world!", {}); -- The {} is for formatting arugments (no arguments in this example).
 }
 fn main() 
 {
-	let impl std::Log l = std::getDefaultLogger();
-	printHelloWorld(l);
+	let mut impl std::Log l = std::getDefaultLogger();
+	printHelloWorld(&mut l);
 }
 ```
