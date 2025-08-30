@@ -1,5 +1,6 @@
+
 fn printHelloWorld(l = impl std::Log) {
-	l.println("Hello world!");
+	l.info("Hello world!", {}); -- The {} is for formatting arugments (no arguments in this example).
 }
 fn main() 
 {
