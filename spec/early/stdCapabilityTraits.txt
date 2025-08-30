@@ -1,0 +1,90 @@
+#
+# Dependencies: basic, type 
+#
+
+Capability Traits {
+	each cap trait has 3 associated functions.
+	`defaultX` -> `Option(impl X)`
+	`defaultXOrDummy` -> `impl X` -- If not found, returns a dummy implementation
+	
+	all methods take `&mut self`
+}
+
+Fs Trait {
+	
+	--Dummy version ignores all writes & says all folders are empty.
+	
+	???
+	openFile?
+	listDir?
+	mkDir?
+	mkFile?
+}
+
+Clock Trait {
+	
+	--Dummy version says now() is 0 / epoch
+	
+	now() -> ?
+	nowMilis() -> std::unit::ms(u64)?
+}
+
+Log Trait {
+	
+	--Dummy version contains empty impls for all the functions
+	--TODO: maybe err..emerg should return errors?
+	
+	emerg("fmt-str",FmtArgs) -> Unit
+	alert("fmt-str",FmtArgs) -> Unit
+	crit("fmt-str",FmtArgs) -> Unit
+	
+	err("fmt-str",FmtArgs) -> Unit
+	warn("fmt-str",FmtArgs) -> Unit
+	
+	notice("fmt-str",FmtArgs) -> Unit
+	info("fmt-str",FmtArgs) -> Unit
+	
+	dbg("fmt-str",FmtArgs) -> Unit
+}
+
+Env Trait {
+	
+	--Dummy version reports 0 env vars, no args, empty work dir.
+	
+	?unsafe? envVar(?) -> ?
+	?unsafe? setEnvVar(?) -> Unit
+	args() -> ?
+	workDir() -> ?
+}
+
+Rng Trait {
+	
+	--Dummy version ...? no dummy version?
+	
+	secure(?) -> Result? Option?
+	pseudo(?) -> ?
+}
+
+Net Trait {
+	
+	--Dummy version cant connect to anything / errors.
+	
+	tcp?
+	udp?
+	dns?
+}
+
+Sys Trait {
+	
+	--Dummy version always returns errors.
+	
+	newProc?
+	exit?
+	pid?
+	signals?
+}
+
+
+Sources {
+	https://gist.github.com/leecannon/d6f5d7e5af5881c466161270347ce84d
+}
