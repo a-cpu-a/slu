@@ -558,3 +558,12 @@ let{|0xF_0|x}=0
 x.1_0=1
 let{|1_0|x}=0
 }
+
+fn printHelloWorld(l = impl std::Log) {
+	l.println("Hello world!");
+}
+fn main() 
+{
+	let impl std::Log l = std::getDefaultLogger();
+	printHelloWorld(l);
+}

@@ -19,4 +19,15 @@ Compile-time code execution (todo: sandbox it to make it safe & deterministic: m
 Less global state by default, requiring a function call to obtain access to time, files, logging, etc. (they are trait based, allowing you to wrap and intercept uses)  
 impl types are checked before any monomorphization, automatically support dyn types where possible.  
 
-[Spec is located here](/spec/)
+[Spec is located here](/spec/)  
+
+```
+fn printHelloWorld(l = impl std::Log) {
+	l.println("Hello world!");
+}
+fn main() 
+{
+	let impl std::Log l = std::getDefaultLogger();
+	printHelloWorld(l);
+}
+```

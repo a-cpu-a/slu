@@ -1,0 +1,8 @@
+fn printHelloWorld(l = impl std::Log) {
+	l.println("Hello world!");
+}
+fn main() 
+{
+	let impl std::Log l = std::getDefaultLogger();
+	printHelloWorld(l);
+}
