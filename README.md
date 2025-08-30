@@ -27,7 +27,11 @@ fn printHelloWorld(l = &mut impl std::Log) {
 }
 fn main() 
 {
-	let mut impl std::Log l = std::getDefaultLogger();
+	-- Since logging is not always possible, you have to explicitly get a logger.
+	-- In this case we want the log message to always be shown, so we panic if there is no logger.
+	-- If logging is not important, you can use `std::getDefaultLogger()` which returns an option.
+	-- or `std::getDefaultLoggerOrDummy()` which may return a dummy implementation that voids your logs.
+	let mut impl std::Log l = std::getDefaultLoggerOrPanic();
 	printHelloWorld(&mut l);
 }
 ```
