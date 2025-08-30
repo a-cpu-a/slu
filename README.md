@@ -23,7 +23,7 @@ impl types are checked before any monomorphization, automatically support dyn ty
 
 ```
 fn printHelloWorld(l = impl std::Log) {
-	l.println("Hello world!");
+	l.info("Hello world!", {}); -- The {} is for formatting arugments (no arguments here).
 }
 fn main() 
 {
