@@ -1,0 +1,44 @@
+#
+# Dependencies: basic, type
+#
+
+New Syntax {
+	
+	stat @::= | [label] ‘while’ basicExp statOrRet
+		| [label] ‘repeat’ statOrRet ‘until’ exp
+}
+
+New Keywords {
+	while
+	repeat
+	until
+}
+
+While loop {
+	
+	Loop while a condition evaluates to true.
+	The condition is checked before running the block.
+	
+	```slu
+	while x<65
+	{
+		x = x+1;
+		printX(x);
+	}
+	```
+}
+
+Repeat loop {
+	
+	Loop while a condition evaluates to false.
+	The condition is checked at the end of the block.
+	
+	```slu
+	repeat
+	{
+		x = x+1;
+		printX(x);
+	}
+	until x==65
+	```
+}

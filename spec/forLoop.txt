@@ -1,0 +1,28 @@
+#
+# Dependencies: basic, type, comptime
+#
+
+New Syntax {
+	
+	stat @::= | [label] ‘for’ ["const"] uncondDestrPat ‘in’ basicExp statOrRet
+}
+
+New Keywords {
+	for
+	in
+}
+
+For loop {
+	
+	Loop over all elements inside some object or iterator
+	
+	```slu
+	
+	for i in 1..2
+		myFunc(i)
+	for const i in 1..2
+	{
+		let Int(i..i+1) x = 2;
+	}
+	```
+}

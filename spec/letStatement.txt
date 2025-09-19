@@ -4,9 +4,7 @@
 
 New Syntax {
 	
-	PreLet ::=
-	
-	stat @::= | OptExportPrefix PreLet "let" uncondDestrPat ["=" explist]
+	stat @::= | OptExportPrefix "let" uncondDestrPat ["=" explist]
 }
 
 New Keywords {

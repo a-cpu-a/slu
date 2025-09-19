@@ -16,18 +16,14 @@ New Syntax {
 		| var selfablecall
 		| ‘goto’ Name
 	
-	statOrExpr ::= ‘loop’ ["->" basicExp] ‘{’ block ‘}’
+	statOrExpr ::= 
 	
-	--TODO: loop exprs & stats, also move it to some new spec
-	stat ::=  basicstat
+	--TODO: parse/whatever loop exprs & stats, also move it to some new spec
+	--TODO: fix label parsing stuff
+	stat ::= basicstat
 		| globstat
 		| statOrExpr
-		| label
-		| ‘{’ block ‘}’
-		| ‘while’ basicExp statOrRet
-		| ‘repeat’ statOrRet ‘until’ exp
-		| ‘for’ uncondDestrPat ‘in’ basicExp statOrRet
-		| ‘local’ uncondDestrPat [‘=’ explist]
+		| [label] ‘{’ block ‘}’
 
 	--TODO: parse labeled breaks, parse continue too
 	retstat ::= (("return" | "break" [":" Name]) [explist]) | "continue"

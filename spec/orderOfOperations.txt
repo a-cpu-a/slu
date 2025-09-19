@@ -50,7 +50,7 @@ Order of Operations {
 	traits used for every operator
 	```
 	()		FnOnce Fn FnMut FnConst FnShare
-	$_$=	$_$Assign
+	$$=		$$Assign
 	..		???			(Ranged/Ranging/Bounds/Bound/Boundable/??? .range .rangeMax .rangeMin)
 	?		Try.branch
 	!		Not

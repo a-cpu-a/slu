@@ -1,0 +1,32 @@
+#
+# Dependencies: basic, type
+#
+
+New Syntax {
+	
+	loopExpr ::= ‘loop’ ["->" basicExp] ‘{’ block ‘}’
+	statOrExpr @::= | loopExpr
+	stat @::= | label loopExpr
+}
+
+New Keywords {
+	loop
+}
+
+Loop {
+	
+	Loop forever, until reaching a break statement that potentially returns some value.
+	
+	```slu
+	
+	loop {
+		break;
+	}
+	let x = loop {
+		break 100
+	}
+	loop {
+		--infinite
+	}
+	```
+}
