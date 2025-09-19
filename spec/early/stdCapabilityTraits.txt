@@ -10,6 +10,46 @@ Capability Traits {
 	all methods take `&mut self`
 }
 
+Debugger Trait {
+	--Dummy says !attached, and empty breakpoint fn
+	fn attached()->bool
+	fn breakpoint()
+}
+
+--TODO: how should stack traces be handled? - TODO: look into zig
+
+Panic Trait {
+	--Dummy tries to exit/terminate or just loop forever.
+	
+	--maybe a stack trace arg?
+	fn panic(msg = &str, ?)
+}
+
+Alloc Trait {
+	--Dummy version always returns oom, ignores frees.
+	
+	AlErr Struct {
+		-- can be anything, even oom, but also heap corruption, ...
+	}
+	AllocRes Enum {
+		Expand{newPtr = *share byte},		--Expands this allocation, and you move the bytes yourself if you need to. (can move the pointer to the left a bit!)
+		New{newAllocation = *share byte},	--Makes a new allocation, you free this one, and move the bytes yourself.
+		Moved{newPtr = *share byte}			--Similar to C's realloc(), yes this does allow it to be overlapping too.
+	}
+	
+	--Any 0 sized allocation may be stored as a 0 pointer.
+	--if ptr is 0, then a new allocation will be formed, always returning `AllocRes::New`
+	--If the alignment is invalid, then this will panic.
+	unsafe fn alloc(ptr = *share byte, size = usize, align = Alignment) -> AllocRes~~AlErr
+	
+	fn alignedMalloc(size = usize, align = Alignment) -> *share byte~~AlErr {unsafe{ return self.alloc(0 as *share byte,size,align)? }}
+	fn malloc(size = usize) -> *share byte~~AlErr { return self.alignedAlloc(size,Alignment::Bytes{1}) }
+	unsafe fn free(ptr = *share byte) -> Unit~~AlErr {unsafe{ self.alloc(ptr,0)? }}
+	--alloc() can be more efficient, however if you always need to move it, then this is the correct choice.
+	unsafe fn realloc(ptr = *share byte,size = usize, align = Alignment) -> *share byte~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
+	
+}
+
 Fs Trait {
 	
 	--Dummy version ignores all writes & says all folders are empty.
