@@ -291,11 +291,6 @@ namespace slu::paint
 			paintKw<Tok::GEN_OP>(se, "~~");
 			paintTypeExpr(se, *var.err, tint);
 		},
-		varcase(const parse::ExprType::Slice&) {
-			paintKw<Tok::GEN_OP>(se, "[");
-			paintKw<Tok::GEN_OP>(se, "]");
-			paintTypeExpr(se, *var.v);
-		},
 		varcase(const parse::ExprType::Struct&) {
 			paintKw<Tok::CON_STAT>(se, "struct");
 			paintTable<Tok::NAME_TYPE>(se, var.fields);

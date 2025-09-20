@@ -121,6 +121,8 @@ namespace slu::parse
 			return "*share "sv;
 		case ast::UnOpType::PTR_MUT:
 			return "*mut "sv;
+		case ast::UnOpType::SLICIFY:
+			return "[]"sv;
 
 		case ast::UnOpType::MARK_MUT:
 			return " mut "sv;
@@ -403,11 +405,6 @@ namespace slu::parse
 		varcase(const ExprType::Err&) {
 			out.add("~~"sv);
 			genExpr(out, *var.err);
-		},
-		varcase(const ExprType::Slice&) {
-			out.add('[');
-			out.add(']');
-			genExpr(out, *var.v);
 		},
 		varcase(const ExprType::Struct&) {
 			out.add("struct "sv);

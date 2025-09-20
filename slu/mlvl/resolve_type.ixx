@@ -163,8 +163,16 @@ namespace slu::mlvl
 				op = ast::UnOpType::REF;
 			else if (var.method == mpDb.data->getItm({ "std","ops","Ptr","ptr" }))
 				op = ast::UnOpType::PTR;
+			else if (var.method == mpDb.data->getItm({ "std","ops","Slicify","slicify" }))
+				op = ast::UnOpType::SLICIFY;
 			else
 				throw std::runtime_error("Unimplemented type expression: " + std::string(var.method.asSv(mpDb)) + " (type resolution)");
+
+			if (op == ast::UnOpType::SLICIFY)
+			{
+				rt.outerSliceDims++;
+				return rt;
+			}
 
 			const bool zst = rt.size == 0;
 
@@ -238,11 +246,6 @@ namespace slu::mlvl
 			}
 
 			throw std::runtime_error("TODO: resolve complex lim-prefix-expr type expressions.");
-		},
-		varcase(parse::ExprType::Slice&&)->parse::ResolvedType {
-			parse::ResolvedType rt = resolveTypeExpr(mpDb, std::move(*var.v));
-			rt.outerSliceDims++;
-			return rt;
 		},
 		varcase(parse::ExprType::Struct&&) {
 			return resolveStructType(mpDb,std::move(var.fields));

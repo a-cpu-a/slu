@@ -310,9 +310,6 @@ namespace slu::parse
 		export struct Impl {
 			parse::TraitExpr expr;
 		};
-		export struct Slice {
-			BoxExpr v;
-		};
 		export struct Err
 		{
 			BoxExpr err;
@@ -369,7 +366,6 @@ namespace slu::parse
 		ExprType::Union,
 		ExprType::Dyn,
 		ExprType::Impl,
-		ExprType::Slice,
 		ExprType::Err,
 		ExprType::FnType
 	> ;

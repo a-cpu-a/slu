@@ -70,8 +70,10 @@ namespace slu::ast
 		{
 			//Slu
 		case ast::UnOpType::RANGE_BEFORE:	return 30;//same as range between
-		case ast::UnOpType::ALLOC:return 0;
-			break;
+
+		case ast::UnOpType::MARK_MUT:
+		case ast::UnOpType::ALLOC:
+			return 0;
 		case ast::UnOpType::NEG:        // "-"
 		case ast::UnOpType::NOT:   // "not"
 			return 85;//Between exponent and mul, div, ..
@@ -83,8 +85,7 @@ namespace slu::ast
 		case ast::UnOpType::PTR_CONST:		// "*const"
 		case ast::UnOpType::PTR_SHARE:		// "*share"
 		case ast::UnOpType::PTR_MUT:		// "*mut"
-			//Pseudo, only for type prefixes
-		case ast::UnOpType::MARK_MUT:				// "mut"
+		case ast::UnOpType::SLICIFY:		// "[]"
 			return 85;//Between exponent and mul, div, ..
 			//
 		case ast::UnOpType::NONE:

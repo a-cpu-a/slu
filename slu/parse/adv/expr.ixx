@@ -251,19 +251,7 @@ namespace slu::parse
 		case '"':
 		case '\'':
 		case '[':
-			if (firstChar != '[' || in.peekAt(1) == '=')// [=....
-				basicRes.data = ExprType::String(readStringLiteral(in, firstChar), in.getLoc());
-			else
-			{// must be a slicer []x
-				in.skip();
-				requireToken(in, "]");
-
-				basicRes.data = ExprType::Slice{
-					std::make_unique<Expr>(
-						readExpr(in, allowVarArg)
-				) };
-			}
-
+			basicRes.data = ExprType::String(readStringLiteral(in, firstChar), in.getLoc());
 			break;
 		case '{':
 			if constexpr (FOR_PAT)

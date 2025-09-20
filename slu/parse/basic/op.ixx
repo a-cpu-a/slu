@@ -27,11 +27,17 @@ namespace slu::parse
 			return ast::UnOpType::NEG;
 		case '!':
 			if (typeOnly)break;
-			//if (in.peekAt(1) == '=')
-			//	break;//Its !=
 			in.skip();
 			return ast::UnOpType::NOT;
-			break;
+		case '[':
+		{
+			const char xCh = in.peekAt(1);
+			if (xCh == '=' || xCh == '[')// [=.... // [[....
+				break;// Its a string
+			in.skip();
+			requireToken(in, "]");
+			return ast::UnOpType::SLICIFY;
+		}
 		case '&':
 			in.skip();
 			if (checkReadTextToken(in, "mut"))

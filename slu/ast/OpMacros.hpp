@@ -25,6 +25,8 @@
 	_X(PTR_CONST,PtrConst,ptrConst) __VA_ARGS__ \
 	_X(PTR_SHARE,PtrShare,ptrShare) __VA_ARGS__ \
 \
+	_X(SLICIFY,Slicify,slicify) __VA_ARGS__ \
+\
 	_X(MARK_MUT,MarkMut,markMut)
 
 #define Slu_POST_UN_OPS(...) \

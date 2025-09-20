@@ -168,6 +168,10 @@ namespace slu::paint
 			paintKw<Tok::PTR_SHARE>(se, "*");
 			paintKw<Tok::PTR_SHARE>(se, "share");
 			break;
+		case ast::UnOpType::SLICIFY:
+			paintKw<Tok::GEN_OP>(se, "[");
+			paintKw<Tok::GEN_OP>(se, "]");
+			break;
 
 		case ast::UnOpType::REF:
 			paintKw<Tok::REF>(se, "&");

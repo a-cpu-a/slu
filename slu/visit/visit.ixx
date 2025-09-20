@@ -420,9 +420,6 @@ namespace slu::visit
 		varcase(parse::ExprType::Impl&) {
 			visitTraitExpr(vi, var.expr);
 		},
-		varcase(parse::ExprType::Slice&) {
-			visitExpr(vi, *var.v);
-		},
 		varcase(parse::ExprType::Struct&) {
 			visitTable(vi, var.fields);
 		},
