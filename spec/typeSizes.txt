@@ -4,14 +4,14 @@
 
 Sized Trait {
 
-	Illegal to implement manually.
+	Illegal to implement manually. (todo: a unsafe way to implement it)
 	
 	fn size(&self) -> MemSize;
 }
 UniSized Trait {
 
 	If this is present, implements Sized automatically.
-	Illegal to implement manually.
+	Illegal to implement manually. (todo: a unsafe way to implement it)
 	
 	fn uniSize() -> MemSize;
 }

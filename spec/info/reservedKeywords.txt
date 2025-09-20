@@ -23,27 +23,38 @@ New Keywords {
 	raw    		(766k)		(176k)		?
 	glob   		(..)		(..)		alternative form for global vars, instead of 'static'. A global var that is might not be stored in const-memory / is memrefed?
 	reloc  		(6.1k)		(470)		Relocate a value
+	nosize		(..)		(..)		maybe something you could add in a slice, to disable size data `[nosize]u8`, also making the type unimplemented Sized.
 	concept 	(..)		(..)		maybe c++ style template concepts
-	nostride	(..)		(..)		maybe something you could add in a slice, to disable stride data? `[nostride u8]`
+	nostride	(..)		(..)		like nosize, but to disable stride data `[nostride]u8`
+	unstrided	(..)		(..)		like nostride
 	
 
 	--Future proofing
 
 	at			(..)		(..)		maybe for ranges, fixed-point precision?
 	of			(2.5m)		(87k)		?
+	asm    		(..)		(..)		asm blocks
 	box    		(451k)		(42.2k)		?
+	out			(..)		(..)		?
 	auto		(..)		(..)		auto traits?
 	case		(352k)		(8.2k)		match case?
 	only		(745k)		(5.2k)		Different ref system
+	test		(..)		(..)		compile time tests, kinda like zig
 	with		(..)		(..)		Impl with args?
 	final  		(122k)		(7.7k)		?
+	inout		(..)		(..)		?
 	become 		(52k)		(286)		?
+	inline 		(..)		(..)		inlined loops, like zig.
 	typeof 		(44k)		(616)		?
+	discard		(..)		(..)		discard terminator like in frag shaders.
+	uniform		(..)		(..)		shader uniforms.
+	unsized		(120)		(0)			?
+	virtual		(82.9k)		(3.2k)		?
 	abstract	(14k)		(358)		?
 	comptime	(256)		(4)			comptime marker / expr
 	override	(253k)		(14.8k)		?
-	unsized		(120)		(0)			?
-	virtual		(82.9k)		(3.2k)		?
+	groupshare	(..)		(..)		something that is shared between multiple shader threads... or was it blocks?
+	groupshared	(..)		(..)		alt form of groupshare
 
 
 	--planned
