@@ -10,7 +10,7 @@
 ---Everywhere else, a valid utf 8 string.
 ---Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)
 --@Builtin{"base::type/str"} --TODO: unhack string-ness
---struct str{[u8]};
+--struct str{[]u8};
 
 
 --TODO: subtyping from char to str is not as simple as it once seemed. Remove it?

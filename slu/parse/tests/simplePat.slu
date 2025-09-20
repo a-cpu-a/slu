@@ -6,7 +6,7 @@ const _ = 3;
 const 4**{u8} __b__ = 4**{1}
 const 44**{u8} _c = 44**{1};
 const {__a,__,_c_} = {1,2,3}
-const [u8] {_a,_,c_,..} = {1,2,3}
+const []u8 {_a,_,c_,..} = {1,2,3}
 
 
 const u8x1 bbb = {1};
@@ -15,7 +15,7 @@ const &&mut u8 x3 = &&mut bb
 
 const integer x = 4;
 
-const [u8] {x7,y7,z8,..} = {0,0xF,0xFFFFFFFF};
+const []u8 {x7,y7,z8,..} = {0,0xF,0xFFFFFFFF};
 
 const {x4,y6} = 1,2.0;
 const {x5,y7} = 1,{2.0};
@@ -23,7 +23,7 @@ const {x5,y7} = 1,{2.0};
 
 const {xj,yj,zj} = 1
 
-const [u8] {__aa, ..} = {1,2,3};
+const []u8 {__aa, ..} = {1,2,3};
 
 const {aa_N3,b_N3,c_N3} = {1,2,3};
 

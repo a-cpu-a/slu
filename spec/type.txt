@@ -14,7 +14,7 @@ New Syntax {
 	typeunop ::= "&" [borrowLifetime] [shMutConst] | "*" [shMutConst]
 	
 	binop @::= | "~~" | "||"
-	unop @::= | typeunop | "alloc" | "mut"
+	unop @::= | typeunop | "alloc" | "mut" | "[" "]"
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
@@ -29,7 +29,6 @@ New Syntax {
 	
 	basicExp @::= | "dyn" traitExp
 		| "impl" traitExp
-		| "[" exp "]"
 		| "_"
 		| "struct" basicStruct --TODO parse this
 		| "union" basicStruct
@@ -224,7 +223,7 @@ Type Specifiers {
 	
 	
 	Slice {
-		Format: "[" X "]"
+		Format: "[" "]" X
 		
 		Unlike table arrays, negative or zero indices will error.
 		Out of bounds access will also error.
