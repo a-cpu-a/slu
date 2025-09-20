@@ -40,13 +40,13 @@ Alloc Trait {
 	--Any 0 sized allocation may be stored as a 0 pointer.
 	--if ptr is 0, then a new allocation will be formed, always returning `AllocRes::New`
 	--If the alignment is invalid, then this will panic.
-	unsafe fn alloc(ptr = *share byte, size = usize, align = Alignment) -> AllocRes~~AlErr
+	unsafe fn alloc(ptr = *share byte, size = MemSize, align = Alignment) -> AllocRes~~AlErr
 	
-	fn alignedMalloc(size = usize, align = Alignment) -> *share byte~~AlErr {unsafe{ return self.alloc(0 as *share byte,size,align)? }}
-	fn malloc(size = usize) -> *share byte~~AlErr { return self.alignedAlloc(size,Alignment::Bytes{1}) }
+	fn alignedMalloc(size = MemSize, align = Alignment) -> *share byte~~AlErr {unsafe{ return self.alloc(0 as *share byte,size,align)? }}
+	fn malloc(size = MemSize) -> *share byte~~AlErr { return self.alignedAlloc(size,Alignment::Bytes{1}) }
 	unsafe fn free(ptr = *share byte) -> Unit~~AlErr {unsafe{ self.alloc(ptr,0)? }}
 	--alloc() can be more efficient, however if you always need to move it, then this is the correct choice.
-	unsafe fn realloc(ptr = *share byte,size = usize, align = Alignment) -> *share byte~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
+	unsafe fn realloc(ptr = *share byte,size = MemSize, align = Alignment) -> *share byte~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
 	
 }
 

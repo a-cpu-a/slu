@@ -1,0 +1,16 @@
+#
+# Dependencies: basic, types
+#
+
+Send Trait {
+	
+	Unsafe to implement, but is implemented automatically when possible.
+	
+	Marker meaning the value is safe to move to another thread.
+}
+Sync Trait {
+	
+	Unsafe to implement, but is implemented automatically when possible.
+	
+	Marker meaning it is safe to share immutable references of the value across threads.
+}

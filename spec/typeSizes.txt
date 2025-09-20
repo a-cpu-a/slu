@@ -1,0 +1,53 @@
+#
+# Dependencies: basic, type
+#
+
+Sized Trait {
+
+	Illegal to implement manually.
+	
+	fn size(&self) -> MemSize;
+}
+UniSized Trait {
+
+	If this is present, implements Sized automatically.
+	Illegal to implement manually.
+	
+	fn uniSize() -> MemSize;
+}
+Aligned Trait {
+
+	Illegal to implement manually.
+	
+	fn alignment(&self) -> Alignment;
+}
+UniAligned Trait {
+	
+	If this is present, implements Aligned automatically.
+	Illegal to implement manually.
+	
+	fn uniAlignment() -> Alignment;
+}
+
+Type Sizes {
+	
+	Some types have no size defined at compile-time, including slices ([]T), functions and dyn types.
+	
+	If a type doesnt implement Sized, then it has no known size, meaning it is impossible to use it in some cases, like Vec.
+	
+	Just because they have no compile-time size, doesnt mean you cant store them inside a type.
+	They may be stored with a size in bytes attached.
+	
+	Sometimes there is no size attached, like when its not needed.
+	
+	Pointers/references to these types might include a size, if they are slices or maybe functions.
+	Pointers/refs to dyn's dont have such info, as its not needed, since you can use the vtable to find it out.
+	
+	`[]u8` -> slice of u8, could have any size.
+	`fn{}->Unit` -> bytes of a function, could have any size, depending on the code within it.
+	`dyn Add` -> bytes of a type that implements some trait, could have any size
+	
+	Implementation {
+		May be boxed only when its impossible/impractical to not do it. (prob jvm (only if trying to avoid jni, so call that cfg unsafe))
+	}
+}

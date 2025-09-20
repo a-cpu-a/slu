@@ -1,0 +1,15 @@
+#
+# Dependencies: basic, types
+#
+
+Erase Trait {
+
+	Illegal to implement manually.
+	
+	Marks a type as having a empty drop function or one that can be ignored.
+}
+Drop Trait {
+	method .drop(in = &mut T)
+	if T is Erase, then Drop is auto implemented. (auto impl is a empty fn)
+	otherwise, is auto implemented by dropping all members.
+}

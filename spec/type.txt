@@ -111,6 +111,15 @@ Official Types {
 	type {
 		Represents some type as a value.
 	}
+	Impl {
+		A type that implements a list of traits, eventually known at compile time.
+		By default implies `impl Drop + Relocate + Sized + Aligned`.
+		--TODO: maybe one day allow linear / higher-raii types: `impl ?Drop`
+	}
+	Dyn {
+		A type that implements a list of traits.
+		By default implies the same things as `impl` does.
+	}
 	Lifetime {
 		Represents some lifetime as a value.
 	}
