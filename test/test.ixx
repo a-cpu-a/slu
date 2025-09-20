@@ -1,17 +1,27 @@
-﻿// test.cpp : Defines the entry point for the application.
-//
+﻿module;
 
 #include <format>
 #include <filesystem>
 #include <span>
 #include <fstream>
 #include <iostream>
-#include <slu/paint/Paint.hpp>
+#include <unordered_set>
+
+#include <slu/Ansi.hpp>
+export module _test_slu.test;
+
+import slu.settings;
+import slu.ast.mp_data;
+import slu.ast.state;
 import slu.gen.gen;
+import slu.gen.output;
+import slu.paint.basic_col_conv;
+import slu.paint.paint;
 import slu.paint.sem_output;
 import slu.paint.to_html;
-import slu.paint.basic_col_conv;
+import slu.parse.error;
 import slu.parse.parse;
+import slu.parse.vec_input;
 
 template<class... Args>
 inline void log(const std::format_string<Args...> fmt, Args&&... fmtArgs)
@@ -77,6 +87,8 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 	}
 
 	using Settings = decltype(slu::parse::sluCommon);
+	using ColConv = slu::paint::BasicColorConverter<false>;
+
 
 	slu::parse::BasicMpDbData dbData;
 	slu::parse::VecInput<Settings> in;
@@ -99,7 +111,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		else
 			log("Test success : {}", pathStr);
 
-		slu::paint::SemOutput<decltype(in), slu::paint::BasicColorConverter<false>> se = { in };
+		slu::paint::SemOutput<decltype(in), ColConv> se = { in };
 		in.restart();
 		slu::paint::paintFile(se, f);
 		in.restart();
@@ -170,7 +182,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 }
 
 
-int main()
+export extern "C++" int main()
 {
 	//const auto x =slu::spec::extract_and_merge_ebnf_blocks("C:/libraries/lua/lua-5.4.4/src/slua/spec/");
 

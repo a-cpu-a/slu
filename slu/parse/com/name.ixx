@@ -47,20 +47,20 @@ namespace slu::parse
 #define _Slu_VERY_KWS "self", "crate", "super"
 #define _Slu_MOSTLY_KWS _Slu_VERY_KWS, "Self"
 
-	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU = {
+	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU = {
 		_Slu_KWS,
 
 		//Conditional
 		_Slu_MOSTLY_KWS, "trait",
 	};
-	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_BOUND_VAR = {
+	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_BOUND_VAR = {
 		_Slu_KWS,
 		_Slu_VERY_KWS, "trait"
 	};
-	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
+	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
 		_Slu_KWS
 	};
-	inline const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP = {
+	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP = {
 		_Slu_KWS,
 		_Slu_MOSTLY_KWS
 	};

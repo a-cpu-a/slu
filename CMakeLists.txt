@@ -18,7 +18,7 @@ project ("slu" LANGUAGES CXX)
 add_subdirectory(slu)
 
 function(init_target target)
-	set_property(TARGET ${target} PROPERTY CXX_STANDARD 20)
+	set_property(TARGET ${target} PROPERTY CXX_STANDARD 23)
     target_compile_options(${target} PRIVATE
         "$<$<C_COMPILER_ID:MSVC>:/utf-8>"
         "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>"
@@ -50,5 +50,22 @@ target_link_libraries(_test-slu slu)
 if (MSVC)
   target_compile_options(slu PRIVATE /bigobj)
 endif ()
+
+include(CTest)
+if(BUILD_TESTING)
+	# Example test executable
+	add_executable(test_slu)
+	target_sources(test_slu PRIVATE
+	  FILE_SET test_slu_priv_modules TYPE CXX_MODULES
+	  FILES
+		"test/test.ixx"
+	)
+	init_target(test_slu)
+	target_link_libraries(test_slu PRIVATE slu)
+	target_link_libraries(test_slu PRIVATE slu-comp)
+
+	# Register test with CTest
+	add_test(NAME SluTests COMMAND test_slu)
+endif()
 
 # TODO: Add tests and install targets if needed.

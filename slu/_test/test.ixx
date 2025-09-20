@@ -7,6 +7,7 @@
 
 #include <utility>
 #include <functional>
+#include <format>
 
 #include <slu/Ansi.hpp>
 export module slu._test.test;

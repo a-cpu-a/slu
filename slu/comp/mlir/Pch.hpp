@@ -71,5 +71,6 @@ LLD_HAS_DRIVER(coff);
 #include <memory>
 #include <bit>
 #include <unordered_map>
+#include <format>
 
 #include <slu/ext/CppMatch.hpp>
