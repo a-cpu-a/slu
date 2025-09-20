@@ -19,7 +19,7 @@ namespace slu::parse
 	inline bool trySkipMultilineString(AnyInput auto& in)
 	{
 		const char ch1 = in.peekAt(1);
-		if (ch1 == '=')
+		if (ch1 == '=' || ch1 == '[')
 		{
 			readStringLiteral(in, '[');
 			return true;

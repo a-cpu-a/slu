@@ -10,18 +10,18 @@ import slu.parse.input;
 
 namespace slu::parse
 {
-	export void throwMultilineCommentMissingEqual(AnyInput auto& in)
-	{
-		throw UnexpectedCharacterError(
-			"Expected multiline comment, to have atleast "
-			LUACC_NUM_COL("1")
-			" " LUACC_SINGLE_STRING("=")
-			" character between the "
-			LUACC_SINGLE_STRING("[")
-			" characters"
-			+ errorLocStr(in)
-		);
-	}
+	//export void throwMultilineCommentMissingEqual(AnyInput auto& in)
+	//{
+	//	throw UnexpectedCharacterError(
+	//		"Expected multiline comment, to have atleast "
+	//		LUACC_NUM_COL("1")
+	//		" " LUACC_SINGLE_STRING("=")
+	//		" character between the "
+	//		LUACC_SINGLE_STRING("[")
+	//		" characters"
+	//		+ errorLocStr(in)
+	//	);
+	//}
 	export void throwUnexpectedVarArgs(AnyInput auto& in)
 	{
 		throw UnexpectedCharacterError(std::format(
