@@ -29,10 +29,13 @@ namespace slu::parse
 #define _Slu_KWS \
 	_Slu_COMMON_KWS, \
 	/* freedom */\
-	"any", "has", "raw", "glob", "reloc", "nosize", "concept", "nostride", "unstrided", \
+	"any", "has", "raw", "glob", "reloc", "nosize", "concept", \
+	"nostride", "unstrided", \
 	/* future */\
-	"at", "of", "asm", "box", "out", "auto", "case", "only", "test", "with", "final", "inout", "become", "inline", \
-	"typeof", "discard", "uniform", "unsized", "virtual", "abstract", "comptime", "override", "groupshare", "groupshared", \
+	"at", "of", "asm", "box", "out", "auto", "case", "only", \
+	"test", "with", "final", "inout", "become", "inline", \
+	"typeof", "discard", "uniform", "unsized", "virtual", \
+	"abstract", "comptime", "override", "groupshare", "groupshared", \
 	/* todos */\
 	"gen",	"copy", "move", "async", "await", \
 	"yield", "static", "generator", \
