@@ -14,7 +14,7 @@ namespace slu::paint
 	// You are likely not using srgb for your colors.
 	// (using srgb colors means that they get brightened by the gpu/whatever)
 	// (so we need to darken them to compensate)
-	template<bool SRGB>
+	export template<bool SRGB>
 	struct BasicColorConverter
 	{
 		static constexpr float pow2_2(float x) 
