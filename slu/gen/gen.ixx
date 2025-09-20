@@ -406,8 +406,8 @@ namespace slu::parse
 		},
 		varcase(const ExprType::Slice&) {
 			out.add('[');
-			genExpr(out, *var.v);
 			out.add(']');
+			genExpr(out, *var.v);
 		},
 		varcase(const ExprType::Struct&) {
 			out.add("struct "sv);

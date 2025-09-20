@@ -20,6 +20,7 @@ New Syntax {
 	
 	--TODO: parse/whatever loop exprs & stats, also move it to some new spec
 	--TODO: fix label parsing stuff
+	--TODO: parse slicifier as a unop
 	stat ::= basicstat
 		| globstat
 		| statOrExpr

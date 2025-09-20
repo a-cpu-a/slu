@@ -36,7 +36,7 @@ Order of Operations {
 	+	-
 	% --(Not the same as most langs, modulus is bellow / * //)
 	*	/	//
-	unary operators (!	-	&   &const   &mut   &share   *   *const 	 *mut 	*share)
+	unary operators (!	-	&   &const   &mut   &share   *   *const	  *mut	 *share	  [])
 	^
 	postfix unary operators (? .*)
 	
@@ -89,6 +89,7 @@ Order of Operations {
 	&mut	RefMut		(unstable)
 	&share	RefShare	(unstable)
 	
+	[]		Slicify		(unstable)
 	.		----		(will consider lol)
 	as		As.asType
 	~~		----
