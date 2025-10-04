@@ -538,7 +538,9 @@ namespace slu::paint
 			paintStatOrRet(se, var);
 		},
 		varcase(const parse::SoeType::Expr&) {
-			paintKw<Tok::GEN_OP>(se, "=>");
+			skipSpace(se);
+			if (se.in.peek() == '=')
+				paintKw<Tok::GEN_OP>(se, "=>");
 			paintExpr(se, *var);
 		}
 		);
