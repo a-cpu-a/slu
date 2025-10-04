@@ -706,8 +706,7 @@ namespace slu::parse
 	}
 
 	template<AnyOutput Out>
-	inline void genSoe(Out& out, const parse::Soe<Out>& obj)
-
+	inline void genSoe(Out& out, const parse::Soe<Out>& obj,const bool addArrow)
 	{
 		ezmatch(obj)(
 		varcase(const parse::SoeType::Block<Out>&) {
@@ -716,7 +715,10 @@ namespace slu::parse
 			out.unTabNewl().add('}');
 		},
 		varcase(const parse::SoeType::Expr&) {
-			out.add(" => ");
+			if(addArrow)
+				out.add(" => ");
+			else
+				out.add(' ');
 			genExpr(out, *var);
 		}
 		);
@@ -728,7 +730,7 @@ namespace slu::parse
 		out.add("if ");
 
 		genExpr(out, *itm.cond);
-		genSoe(out, *itm.bl);
+		genSoe(out, *itm.bl,true);
 		if constexpr (isExpr)out.add(' ');
 
 		if (!itm.elseIfs.empty())
@@ -738,14 +740,14 @@ namespace slu::parse
 				out.add("else if ");
 
 				genExpr(out, expr);
-				genSoe(out, bl);
+				genSoe(out, bl,true);
 				if constexpr (isExpr)out.add(' ');
 			}
 		}
 		if (itm.elseBlock)
 		{
 			out.add("else");
-			genSoe(out, **itm.elseBlock);
+			genSoe(out, **itm.elseBlock,false);
 		}
 	}
 
