@@ -177,7 +177,7 @@ namespace slu::comp
 				// TODO: Parse the files, if extraThreads==0
 			}
 		}
-		Slu_assert(tasksLeft.v == 0);
+		Slu_assertOp(tasksLeft.v, ==, 0);
 
 		a_cpu_a::RwLock<parse::BasicMpDbData> sharedDb;
 

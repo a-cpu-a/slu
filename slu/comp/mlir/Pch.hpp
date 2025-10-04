@@ -72,6 +72,7 @@ LLD_HAS_DRIVER(coff);
 #include <bit>
 #include <unordered_map>
 #include <format>
+#include <print>
 
 #include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>

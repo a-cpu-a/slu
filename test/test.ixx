@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_set>
+#include <print>
 
 #include <slu/Ansi.hpp>
 export module _test_slu.test;

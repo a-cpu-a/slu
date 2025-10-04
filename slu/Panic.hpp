@@ -3,6 +3,11 @@
 */
 #pragma once
 
+#include <print>
+
+#define _Slu_PASS_THROUGH(...) __VA_ARGS__
+#define STRINGIZE(...) STRINGIZE2(__VA_ARGS__)
+#define STRINGIZE2(...) #__VA_ARGS__
 
 #if !defined(__has_builtin)
 #define __has_builtin(X) false
@@ -14,7 +19,7 @@
 #define Slu_panic(...) __builtin_trap()
 #elif defined(_MSC_VER)
 #if defined(_M_X64) || defined(_M_I86) || defined(_M_IX86)
-#define Slu_panic(...) __debugbreak();std::abort() // Smaller
+#define Slu_panic(...) std::println("Panic in " __FILE__ ":" STRINGIZE(__LINE__) " : " __VA_ARGS__);__debugbreak();std::abort() // Smaller
 #else
 #define Slu_panic(...) __fastfail(0)
 #endif
@@ -22,8 +27,11 @@
 #define Slu_panic(...) std::abort()
 #endif
 
+
 //Runtime checked!
-#define Slu_require(COND) do{if(!(COND)){Slu_panic();}}while(false)
+#define Slu_require(...) do{if(!(__VA_ARGS__)){Slu_panic();}}while(false)
+#define Slu_requireMsg(MSG,...) do{if(!(__VA_ARGS__)){Slu_panic(MSG);}}while(false)
 
 //Only in debug builds
-#define Slu_assert(COND) Slu_require(COND)
+#define Slu_assert(...) Slu_require(__VA_ARGS__)
+#define Slu_assertOp(A,OP,B) Slu_requireMsg(_Slu_PASS_THROUGH("Op failed: {} " #OP " {}", A, B),A OP B)

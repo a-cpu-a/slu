@@ -524,7 +524,7 @@ namespace slu::paint
 			paintKw<Tok::BRACES>(se, "{");
 		}
 
-		paintBlock(se, itm);
+		paintBlock(se, itm,false);
 
 		if (hadBrace)
 			paintKw<Tok::BRACES>(se, "}");

@@ -228,7 +228,7 @@ namespace slu::parse //TODO: ast
 				return RawTypeKind::Range128Nn{ .min = abs(v.min), .max = abs(v.max) };
 			return RawTypeKind::Range128Np{ .min = abs(v.min), .max = (uint64_t)v.max };
 		}
-		Slu_assert(v.max >= 0);
+		Slu_assertOp(v.max, >=, 0);
 		return RawTypeKind::Range128Pp{ .min = (uint64_t)v.min, .max = (uint64_t)v.max };
 	}
 	export constexpr size_t calcRangeBits(const RawTypeKind::Range64 range)
