@@ -10,10 +10,13 @@ Capability Traits {
 	all methods take `&mut self`
 }
 
-Debugger Trait {
-	--Dummy says !attached, and empty breakpoint fn
+Debug Trait {
+	--Dummy says !attached, and empty breakpoint fn, voids debug logs
 	fn attached()->bool
 	fn breakpoint()
+	
+	--debug logging
+	fn log("fmt-str",FmtArgs) -> Unit
 }
 
 --TODO: how should stack traces be handled? - TODO: look into zig
@@ -48,6 +51,8 @@ Alloc Trait {
 	--alloc() can be more efficient, however if you always need to move it, then this is the correct choice.
 	unsafe fn realloc(ptr = *share byte,size = MemSize, align = Alignment) -> *share byte~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
 	
+	--Report that a pointer is leaked, does not do anything, ment to be hooked with debug logging that logs this.
+	fn reportMemLeak(ptr = *share byte) -> Unit
 }
 
 Fs Trait {
@@ -83,8 +88,6 @@ Log Trait {
 	
 	notice("fmt-str",FmtArgs) -> Unit
 	info("fmt-str",FmtArgs) -> Unit
-	
-	dbg("fmt-str",FmtArgs) -> Unit
 }
 
 Env Trait {
