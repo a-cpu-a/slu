@@ -7,6 +7,7 @@
 #include <string>
 
 #include <slu/Ansi.hpp>
+#include <slu/Panic.hpp>
 export module slu.parse.com.str;
 
 import slu.char_info;
@@ -91,10 +92,10 @@ namespace slu::parse
 		}
 		else
 		{// error - use replacement character
-			_ASSERT(false);//!!
-			const uint8_t out[3] = { 0xEF,0xBF,0xBD };
-
-			return std::string(&out[0], &out[3]);
+			//const uint8_t out[3] = { 0xEF,0xBF,0xBD };
+			//
+			//return std::string(&out[0], &out[3]);
+			Slu_panic("Utf8 codepoint too big");
 		}
 	}
 	/*

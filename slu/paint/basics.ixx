@@ -6,6 +6,7 @@
 #include <span>
 #include <vector>
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.paint.basics;
 
@@ -42,7 +43,7 @@ namespace slu::paint
 
 		for (size_t i = 0; i < name.size(); i++)
 		{
-			_ASSERT(se.in.peekAt(i) == name[i]);
+			Slu_assert(se.in.peekAt(i) == name[i]);
 		}
 		se.template add<tok, overlayTok>(name.size());
 		se.in.skip(name.size());
@@ -75,7 +76,7 @@ namespace slu::paint
 			skipSpace(se);
 		for (size_t i = 0; i < TOK_SIZE - 1; i++)
 		{
-			_ASSERT(se.in.peekAt(i) == tokChr[i]);
+			Slu_assert(se.in.peekAt(i) == tokChr[i]);
 		}
 		se.template add<tok, overlayTok>(TOK_SIZE - 1);
 		se.in.skip(TOK_SIZE - 1);
@@ -91,7 +92,7 @@ namespace slu::paint
 			skipSpace(se);
 		for (size_t i = 0; i < sv.size(); i++)
 		{
-			_ASSERT(se.in.peekAt(i) == sv[i]);
+			Slu_assert(se.in.peekAt(i) == sv[i]);
 		}
 		se.template add<tok, overlayTok>(sv.size());
 		se.in.skip(sv.size());

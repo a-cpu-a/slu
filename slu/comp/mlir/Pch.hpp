@@ -73,4 +73,5 @@ LLD_HAS_DRIVER(coff);
 #include <unordered_map>
 #include <format>
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>

@@ -7,6 +7,7 @@
 #include <format>
 
 #include <slu/Ansi.hpp>
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.parse.adv.expr_base;
 
@@ -116,7 +117,7 @@ namespace slu::parse
 			opType[1] = 0;
 		}
 
-		_ASSERT(!varData.empty());
+		Slu_assert(!varData.empty());
 		if (varData.size() != 1)
 		{
 			if constexpr (FOR_EXPR)

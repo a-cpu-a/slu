@@ -12,6 +12,7 @@
 #include <bit>
 #include <stdexcept>
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.ast.type;
 import slu.big_int;
@@ -227,7 +228,7 @@ namespace slu::parse //TODO: ast
 				return RawTypeKind::Range128Nn{ .min = abs(v.min), .max = abs(v.max) };
 			return RawTypeKind::Range128Np{ .min = abs(v.min), .max = (uint64_t)v.max };
 		}
-		_ASSERT(v.max >= 0);
+		Slu_assert(v.max >= 0);
 		return RawTypeKind::Range128Pp{ .min = (uint64_t)v.min, .max = (uint64_t)v.max };
 	}
 	export constexpr size_t calcRangeBits(const RawTypeKind::Range64 range)
@@ -474,7 +475,7 @@ namespace slu::parse //TODO: ast
 			if (tr && fa)
 				return { .base = parse::RawTypeKind::Struct{boolStruct()},.size = 1,.alignmentData=alignDataFromSize(1)};
 			if (tr) return newTrueTy();
-			_ASSERT(fa);
+			Slu_assert(fa);
 			return newFalseTy();
 		}
 		bool nearlyExact(const StructRawType& o) const {

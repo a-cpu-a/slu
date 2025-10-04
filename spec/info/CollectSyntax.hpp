@@ -103,7 +103,7 @@ namespace slu::spec {
                         LineData& lData = linesData[rule.lineDataIdx];
                         if (op == "::=")
                         {
-                            _ASSERT(!rule.is_initial);
+                            Slu_assert(!rule.is_initial);
                             rule.is_initial = true;
 
                             lData.aboveSpacing = linesAbove;

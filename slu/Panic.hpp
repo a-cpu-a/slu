@@ -24,3 +24,6 @@
 
 //Runtime checked!
 #define Slu_require(COND) do{if(!(COND)){Slu_panic();}}while(false)
+
+//Only in debug builds
+#define Slu_assert(COND) Slu_require(COND)

@@ -10,6 +10,7 @@
 #include <ranges>
 #include <stdexcept>
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.mlvl.basic_desugar;
 
@@ -517,7 +518,7 @@ namespace slu::mlvl
 					});
 				if (!op.life.empty())
 				{
-					_ASSERT(op.type == ast::UnOpType::REF
+					Slu_assert(op.type == ast::UnOpType::REF
 						|| op.type == ast::UnOpType::REF_MUT
 						|| op.type == ast::UnOpType::REF_CONST
 						|| op.type == ast::UnOpType::REF_SHARE);
@@ -552,8 +553,8 @@ namespace slu::mlvl
 
 			if (std::holds_alternative<MultiOp>(itm.data))
 			{
-				_ASSERT(itm.unOps.empty());
-				_ASSERT(itm.postUnOps.empty());
+				Slu_assert(itm.unOps.empty());
+				Slu_assert(itm.postUnOps.empty());
 				MultiOp& ops = std::get<MultiOp>(itm.data);
 				auto order = ast::multiOpOrder(ops);
 

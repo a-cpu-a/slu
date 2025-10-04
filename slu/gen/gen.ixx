@@ -7,6 +7,7 @@
 #include <string_view>
 #include <string>
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.gen.gen;
 
@@ -86,8 +87,7 @@ namespace slu::parse
 		case ast::BinOpType::AS:
 			return "as"sv;
 		default:
-			_ASSERT(false);
-			return "<ERROR>"sv;
+			Slu_panic("Unknown binop");
 		}
 	}
 	template<AnyCfgable Out>
@@ -127,8 +127,7 @@ namespace slu::parse
 		case ast::UnOpType::MARK_MUT:
 			return " mut "sv;
 		default:
-			_ASSERT(false);
-			return "<ERROR>"sv;
+			Slu_panic("Unknown unop");
 		}
 	}
 	inline std::string_view getPostUnOpAsStr(const ast::PostUnOpType t)
@@ -145,8 +144,7 @@ namespace slu::parse
 		case ast::PostUnOpType::TRY:
 			return "?"sv;
 		default:
-			_ASSERT(false);
-			return "<ERROR>"sv;
+			Slu_panic("Unknown post unop");
 		}
 	}
 
@@ -159,7 +157,9 @@ namespace slu::parse
 		for (const Field<Out>& f : obj)
 		{
 			ezmatch(f)(
-			varcase(const FieldType::NONE) { _ASSERT(false); },
+			varcase(const FieldType::NONE) {
+				Slu_panic("Table field was FieldType::NONE");
+			},
 
 			varcase(const FieldType::Expr2Expr&) {
 				out.addIndent();
@@ -338,7 +338,7 @@ namespace slu::parse
 		},
 
 		varcase(const ExprType::I64) {
-			_ASSERT(!(Out::settings() & parse::noIntOverflow) || var >= 0);
+			Slu_assert(!(Out::settings() & parse::noIntOverflow) || var >= 0);
 			if (var < 0)
 			{
 				out.add("0x"sv);

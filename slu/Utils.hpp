@@ -89,7 +89,7 @@ namespace slu
 	}
 	inline int loadFunction(lua_State* L, const std::span<const uint8_t>& binData, const char* name, const bool binary = true)
 	{
-		_ASSERT(!binData.empty());
+		Slu_assert(!binData.empty());
 
 		std::pair pairData = std::pair(&binData, false);
 

@@ -7,6 +7,7 @@
 #include <format>
 
 #include <slu/Ansi.hpp>
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.parse.parse;
 
@@ -899,7 +900,7 @@ namespace slu::parse
 			res.code = std::move(sl);
 			res.mp = mp;
 
-			_ASSERT(in.genData.scopes.empty());
+			Slu_assert(in.genData.scopes.empty());
 
 			if (in.hasError())
 			{// Skip eof, as one of the errors might have caused that.

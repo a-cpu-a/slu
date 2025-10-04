@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 export module slu.mlvl.type_inf_check;
 
@@ -361,7 +362,7 @@ namespace slu::mlvl
 
 		void resolveNoCheck(parse::ResolvedType&& t)
 		{
-			_ASSERT(!resolved);
+			Slu_assert(!resolved);
 			//use.clear(); //Dont, because we check use-types after calling this func
 			//usedFields.clear();
 			//usedMethods.clear();
@@ -1078,7 +1079,7 @@ namespace slu::mlvl
 							}
 						}
 						//Make a new type that is a subtype of all the edit types (a variant or just the first element)
-						_ASSERT(!types.empty());
+						Slu_assert(!types.empty());
 						if (types.size() == 1)
 							i.resolveNoCheck(types[0]->clone());
 						else
@@ -1147,6 +1148,6 @@ namespace slu::mlvl
 		
 		for (auto& i : module)
 			visit::visitStat(vi, i);
-		_ASSERT(vi.exprTypeStack.empty());
+		Slu_assert(vi.exprTypeStack.empty());
 	}
 }

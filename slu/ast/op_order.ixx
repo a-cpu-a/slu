@@ -287,7 +287,7 @@ namespace slu::ast
 		}
 		std::move(unOpsLast.begin(), unOpsLast.end(), std::back_inserter(opsRes));
 
-		_ASSERT(opsRes.size() == ops.size() + unOpCount+1+m.extra.size());
+		Slu_assert(opsRes.size() == ops.size() + unOpCount+1+m.extra.size());
 
 		return opsRes;
 	}

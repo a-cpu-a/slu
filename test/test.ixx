@@ -99,7 +99,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 
 	try
 	{
-		//_ASSERT(!path.filename().string().ends_with("concatenated.slu"));
+		//Slu_assert(!path.filename().string().ends_with("concatenated.slu"));
 
 		slu::parse::ParsedFile f = slu::parse::parseFile(in);
 

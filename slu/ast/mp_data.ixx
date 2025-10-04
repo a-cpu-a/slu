@@ -9,6 +9,7 @@
 #include <string>
 #include <stdexcept>
 
+#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
 #include <slu/lang/MpcMacros.hpp>
 export module slu.ast.mp_data;
@@ -38,7 +39,7 @@ namespace slu::parse //TODO: ast
 	*/
 	constexpr std::string getAnonName(const size_t anonId)
 	{
-		_ASSERT(anonId != NORMAL_SCOPE && anonId != UNSCOPE && anonId != GLOBAL_SCOPE);
+		Slu_assert(anonId != NORMAL_SCOPE && anonId != UNSCOPE && anonId != GLOBAL_SCOPE);
 		std::string name(1 + sizeof(size_t), '$');
 		name[1] = uint8_t((anonId & 0xFF00000000000000) >> 56);
 		name[2] = uint8_t((anonId & 0xFF000000000000) >> 48);
