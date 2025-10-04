@@ -32,17 +32,20 @@ namespace slu::parse
 		return false;
 	}
 
-	export template<bool isLoop, AnyInput In>
-	bool readReturn(In& in, const bool allowVarArg)
+	export RetType readRetStart(AnyInput auto& in)
 	{
-		RetType retTy = RetType::NONE;
-		if (checkReadTextToken(in, "return"))
-			retTy = RetType::RETURN;
-		else if (checkReadTextToken(in, "break"))
-			retTy = RetType::BREAK;
-		else if (checkReadTextToken(in, "continue"))
-			retTy = RetType::CONTINUE;
+		if (checkReadTextToken<false>(in, "return"))
+			return RetType::RETURN;
+		else if (checkReadTextToken<false>(in, "break"))
+			return RetType::BREAK;
+		else if (checkReadTextToken<false>(in, "continue"))
+			return RetType::CONTINUE;
+		return RetType::NONE;
+	}
 
+	export template<bool isLoop, AnyInput In>
+	bool readReturnAfterStart(In& in, const bool allowVarArg, const RetType retTy)
+	{
 		if constexpr (!isLoop)
 		{
 			if (retTy == RetType::BREAK //TODO: allow in some more contexts.
@@ -75,6 +78,12 @@ namespace slu::parse
 			return true;
 		}
 		return false;
+	}
+	export template<bool isLoop>
+		bool readReturn(AnyInput auto& in, const bool allowVarArg) {
+		skipSpace(in);
+		if (!in)return false;
+		return readReturnAfterStart<isLoop>(in, allowVarArg, readRetStart(in));
 	}
 
 	export template<bool pushAnonScope, AnyInput In>

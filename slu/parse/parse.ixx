@@ -203,10 +203,8 @@ namespace slu::parse
 	export template<bool isLoop, AnyInput In>
 	Block<In> readDoOrStatOrRet(In& in, const bool allowVarArg)
 	{
-		skipSpace(in);
-		if (in.peek() == '{')
+		if (checkReadToken(in, "{"))
 		{
-			in.skip();
 			return readBlockNoStartCheck<isLoop>(in, allowVarArg, true);
 		}
 
@@ -228,11 +226,19 @@ namespace slu::parse
 	export template<bool isLoop,bool BASIC, AnyInput In>
 	Soe<In> readSoe(In& in, const bool allowVarArg)
 	{
-		if (checkReadToken(in, "=>"))
+		if (checkReadToken(in, "{"))
 		{
-			return std::make_unique<Expr>(readExpr<BASIC>(in, allowVarArg));
+			return readBlockNoStartCheck<isLoop>(in, allowVarArg, true);
 		}
-		return readDoOrStatOrRet<isLoop>(in, allowVarArg);
+		RetType ret = readRetStart(in);
+		if (ret != RetType::NONE)
+		{
+			in.genData.pushAnonScope(in.getLoc());
+			readReturnAfterStart<isLoop>(in, allowVarArg,ret);
+			return in.genData.popScope(in.getLoc());
+		}
+		readOptToken<false>(in, "=>");
+		return std::make_unique<Expr>(readExpr<BASIC>(in, allowVarArg));
 	}
 
 	template<AnyInput In>
@@ -658,20 +664,20 @@ namespace slu::parse
 
 		res.cond = mayBoxFrom<forExpr>(readBasicExpr(in, allowVarArg));
 
-		res.bl = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
+		res.bl = mayBoxFrom<forExpr>(readSoe<isLoop, BASIC>(in, allowVarArg));
 
 		while (checkReadTextToken(in, "else"))
 		{
 			if (checkReadTextToken(in, "if"))
 			{
 				Expr elExpr = readBasicExpr(in, allowVarArg);
-				Soe<In> elBlock = readSoe<isLoop, false>(in, allowVarArg);
+				Soe<In> elBlock = readSoe<isLoop, BASIC>(in, allowVarArg);
 
 				res.elseIfs.emplace_back(std::move(elExpr), std::move(elBlock));
 				continue;
 			}
 
-			res.elseBlock = mayBoxFrom<forExpr>(readSoe<isLoop, false>(in, allowVarArg));
+			res.elseBlock = mayBoxFrom<forExpr>(readSoe<isLoop, BASIC>(in, allowVarArg));
 			break;
 		}
 		return res;

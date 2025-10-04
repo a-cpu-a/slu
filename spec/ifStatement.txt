@@ -4,13 +4,12 @@
 
 New Syntax {
 	
-	statOrBasicExpr ::= (statOrRet | "=>" basicExp)
-	statOrExpr ::= (statOrRet | "=>" exp)
-	
-	ifExpRoot ::= ifcond ["->" basicExp] [statOrExpr {‘else’ ifcond statOrExpr} ‘else’ [ifcond]]
+	--In both of these, table expressions are not parsed, cuz {block} is found instead
+	statOrBasicExpr ::= (blockOrRet | ["=>"] basicExp)
+	statOrExpr ::= (blockOrRet | ["=>"] exp)
 	
 	ifcond ::= ‘if’ basicExp
-	
+	ifExpRoot ::= ifcond ["->" basicExp] [statOrExpr {‘else’ ifcond statOrExpr} ‘else’ [ifcond]]
 	
 	ifExp ::= ifExpRoot statOrExpr
 	

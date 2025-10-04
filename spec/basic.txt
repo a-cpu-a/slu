@@ -29,7 +29,8 @@ New Syntax {
 	--TODO: parse labeled breaks, parse continue too
 	retstat ::= (("return" | "break" [":" Name]) [explist]) | "continue"
 
-	statOrRet ::= retstat [‘;’] | basicstat [‘;’] | ‘{’ block ‘}’
+	blockOrRet ::= retstat [‘;’] | ‘{’ block ‘}’
+	statOrRet ::= statOrRet | basicstat [‘;’]
 	
 	
 	--TODO: maybe switch to `"'" Name ":"`, and `break "'" Name`

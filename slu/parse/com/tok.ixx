@@ -102,14 +102,15 @@ namespace slu::parse
 			skipSpace(in);
 		return checkToken(in, tok, nameLike, true);
 	}
-	export template<size_t TOK_SIZE>
+	export template<bool SKIP_SPACE = true, size_t TOK_SIZE>
 	[[nodiscard]] bool checkReadTextToken(AnyInput auto& in, const char(&tok)[TOK_SIZE]) {
-		skipSpace(in);
+		if constexpr (SKIP_SPACE)
+			skipSpace(in);
 		return checkToken(in, tok, true, true);
 	}
 
-	export template<size_t TOK_SIZE>
+	export template<bool SKIP_SPACE = true, size_t TOK_SIZE>
 	void readOptToken(AnyInput auto& in, const char(&tok)[TOK_SIZE], const bool nameLike = false) {
-		(void)checkReadToken(in, tok, nameLike);
+		(void)checkReadToken<SKIP_SPACE>(in, tok, nameLike);
 	}
 }
