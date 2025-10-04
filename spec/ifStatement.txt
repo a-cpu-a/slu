@@ -9,11 +9,9 @@ New Syntax {
 	statOrExpr ::= (blockOrRet | ["=>"] exp)
 	
 	ifcond ::= ‘if’ basicExp
-	ifExpRoot ::= ifcond ["->" basicExp] [statOrExpr {‘else’ ifcond statOrExpr} ‘else’ [ifcond]]
 	
-	ifExp ::= ifExpRoot statOrExpr
-	
-	statOrExpr @::= | ifExpRoot statOrBasicExpr
+	ifExp ::= ifcond ["->" basicExp] statOrExpr {‘else’ ifcond statOrExpr} [‘else’ (blockOrRet | exp)]
+	statOrExpr @::= | ifcond ["->" basicExp] statOrBasicExpr {‘else’ ifcond statOrBasicExpr} [‘else’ (blockOrRet | basicExp)]
 	exp @::= | ifExp
 	stat @::= | ifExp
 }
@@ -31,29 +29,29 @@ If Statement {
 	When in expressions, the return type is not decayed into a value, unless explicitly set as such, or if one of the cases would return a value.
 	```slu
 	--Both y and z are dropped, due to the possibility that x is either value.
-	drop if x => y else => z;
+	drop if x => y else z;
 	
 	--Since they dont decay unless needed, you can put the ref operator outside the if.
-	let &/y/z selected = &(if x => y else => z)
+	let &/y/z selected = &(if x => y else z)
 	```
 	
 	```slu
 
 	let x = if true -> 0..1 
-				=> 0 
-				else => 1
+			  => 0 
+			else 1
 
 	if true => 100
 	else if true => 100
 	else if true => {1,2,3}
 	else if true => {1,2,3}
-	else if true => do {do return 100;}
-	else if true => do {do return 100;}
+	else if true do {return 100;}
+	else if true do {return 100;}
 	else if true {return 100;}
 	else if true {return 100;}
 	else if true print("Hello")
 	else if true => print("Hello")
-	else		 => do {print("Hello");}
+	else		do {print("Hello");}
 	
 	if true {} else if true {} else {}
 

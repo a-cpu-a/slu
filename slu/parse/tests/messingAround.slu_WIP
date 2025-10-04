@@ -56,7 +56,7 @@ match getArgV4() -> u8 {
 		print$("b_4: {}",b_4);
 		panic$();
 	};
-	else => 100;
+	else 100;
 }
 
 

@@ -140,7 +140,7 @@ const X3 = true or true
 const X4 = []u8
 let a{|1|x}=0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF;
 
-	drop if x => y else => z
+	drop if x => y else z
 
 
 
