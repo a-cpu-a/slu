@@ -507,12 +507,20 @@ namespace slu::parse
 			out.add(obj[i]);
 		}
 	}
-	template<bool isLocal, AnyOutput Out>
-	inline void genParamList(Out& out, const ParamList<isLocal>& itm,const bool hasVarArgParam)
+	template<AnyOutput Out>
+	inline void genParamList(Out& out, const ParamList& itm,const bool hasVarArgParam)
 	{
-		for (const Parameter<isLocal>& par : itm)
+		for (const Parameter& par : itm)
 		{
-			genNameOrLocal<isLocal>(out, par.name);
+			ezmatch(par.name)(
+				varcase(const parse::LocalId&) {
+				genNameOrLocal<true>(out, var);
+			},
+				varcase(const lang::MpItmId&) {
+				out.add("const ");
+				genNameOrLocal<false>(out, var);
+			}
+			);
 			out.add(" = ");
 			genExpr(out, par.type);
 

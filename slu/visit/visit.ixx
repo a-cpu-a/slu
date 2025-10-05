@@ -475,26 +475,23 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST(Table);
 	}
 	//TODO: var-args
-	export template<bool isLocal, AnyVisitor Vi>
-	inline void visitParams(Vi& vi, parse::ParamList<isLocal>& itm)
+	export template<AnyVisitor Vi>
+	inline void visitParams(Vi& vi, parse::ParamList& itm)
 	{
-		if constexpr (isLocal)
-			Slu_CALL_VISIT_FN_PRE(Params);
-		else
-			Slu_CALL_VISIT_FN_PRE(ConstParams);
-		for (parse::Parameter<isLocal>& i : itm)
+		Slu_CALL_VISIT_FN_POST(Params);
+		for (parse::Parameter& i : itm)
 		{
-			visitNameOrLocal<isLocal>(vi, i.name);
+			ezmatch(i.name)(
+			varcase(parse::LocalId&) {
+				visitNameOrLocal<true>(vi, var);
+			},
+			varcase(lang::MpItmId&) {
+				visitNameOrLocal<false>(vi, var);
+			});
 			visitTypeExpr(vi, i.type);
-			if constexpr (isLocal)
-				Slu_CALL_VISIT_FN_SEP(Params, i, itm);
-			else
-				Slu_CALL_VISIT_FN_SEP(ConstParams, i, itm);
+			Slu_CALL_VISIT_FN_SEP(Params, i, itm);
 		}
-		if constexpr (isLocal)
-			Slu_CALL_VISIT_FN_POST(Params);
-		else
-			Slu_CALL_VISIT_FN_POST(ConstParams);
+		Slu_CALL_VISIT_FN_POST(Params);
 	}
 	export template<AnyVisitor Vi>
 	void visitWhereClauses(Vi& vi, parse::WhereClauses& itm)

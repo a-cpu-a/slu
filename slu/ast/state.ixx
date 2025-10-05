@@ -65,8 +65,7 @@ namespace slu::parse
 	};
 	Slu_DEF_CFG(Locals);
 
-	export template<bool isSlu>
-	using DynLocalOrNameV = std::variant<lang::MpItmId, parse::LocalId>;
+	export using DynLocalOrName = std::variant<lang::MpItmId, parse::LocalId>;
 
 	export enum class RetType : uint8_t
 	{
@@ -222,12 +221,6 @@ namespace slu::parse
 
 	//Common
 
-	export template<bool isLocal>
-	struct Parameter
-	{
-		LocalOrNameV<true,isLocal> name;
-		Expr type;
-	};
 	export struct SelfArg
 	{
 		ast::SmallEnumList<ast::UnOpType> specifiers;
@@ -235,16 +228,15 @@ namespace slu::parse
 
 		bool empty() const { return name.empty(); }
 	};
-
-	export template<bool isLocal>
-	using ParamList = std::vector<Parameter<isLocal>>;
+	export struct Parameter;
+	export using ParamList = std::vector<Parameter>;
 
 	export struct FunctionInfo
 	{
 		std::string abi;
 		LocalsV<true> local2Mp;
 		SelfArg selfArg;
-		ParamList<true> params;
+		ParamList params;
 		std::optional<BoxExpr> retType;
 		bool hasVarArgParam = false;// do params end with '...'
 		ast::OptSafety safety = ast::OptSafety::DEFAULT;
@@ -408,6 +400,11 @@ namespace slu::parse
 		Expr& operator=(Expr&&) = default;
 	};
 
+	struct Parameter
+	{
+		DynLocalOrName name;// name -> const, local -> not const
+		Expr type;
+	};
 	//Slu
 
 
@@ -567,7 +564,7 @@ namespace slu::parse
 
 	export struct StructBase
 	{
-		ParamList<true> params;
+		ParamList params;
 		LocalsV<true> local2Mp;
 		TableV<true> type;
 		lang::MpItmId name;
@@ -719,7 +716,7 @@ namespace slu::parse
 		{
 			WhereClauses clauses;
 			lang::MpItmId name;
-			ParamList<false> params;
+			ParamList params;
 			StatListV<true> itms;
 			std::optional<TraitExpr> whereSelf;
 			lang::ExportData exported = false;
@@ -727,7 +724,7 @@ namespace slu::parse
 		export struct Impl
 		{
 			WhereClauses clauses;
-			ParamList<false> params;
+			ParamList params;
 			std::optional<TraitExpr> forTrait;
 			Expr type;
 			StatListV<true> code;

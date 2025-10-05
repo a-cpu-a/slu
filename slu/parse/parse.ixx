@@ -145,12 +145,15 @@ namespace slu::parse
 		return specifiers;
 	}
 
-	export template<bool isLocal,AnyInput In>
-	Parameter<isLocal> readFuncParam(In& in)
+	export template<AnyInput In>
+	parse::Parameter readFuncParam(In& in)
 	{
-		Parameter<isLocal> p;
+		parse::Parameter p;
 		skipSpace(in);
-		p.name = in.genData.template resolveNewName<isLocal>(readName(in));
+		if(checkReadTextToken(in, "const"))
+			p.name = in.genData.template resolveNewName<false>(readName(in));
+		else
+			p.name = in.genData.template resolveNewName<true>(readName(in));
 		requireToken(in, "=");
 		p.type = readExpr(in, false);
 		return p;
@@ -207,7 +210,7 @@ namespace slu::parse
 		else if (ch != ')')
 		{//must have non-empty namelist
 
-			ret.params.emplace_back(readFuncParam<true>(in));
+			ret.params.emplace_back(readFuncParam(in));
 
 			while (checkReadToken(in, ","))
 			{
@@ -217,7 +220,7 @@ namespace slu::parse
 					//ret.hasVarArgParam = true;
 					//break;//cant have anything after the ... arg
 				}
-				ret.params.emplace_back(readFuncParam<true>(in));
+				ret.params.emplace_back(readFuncParam(in));
 			}
 		}
 

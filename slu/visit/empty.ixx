@@ -172,8 +172,7 @@ namespace slu::visit
 
 		_Slu_DEF_EMPTY_LIST(ExprList, parse::Expr);
 		_Slu_DEF_EMPTY_LIST(NameList, lang::MpItmId);
-		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter<true>);
-		_Slu_DEF_EMPTY_LIST(ConstParams, parse::Parameter<false>);
+		_Slu_DEF_EMPTY_LIST(Params, parse::Parameter);
 	};
 
 

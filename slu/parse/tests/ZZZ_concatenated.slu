@@ -12,8 +12,8 @@ const _type _=0
 }
 
 ex trait Xd : Xt(1) {const Y = 100}
-trait Xt(T=type) where T: Hello {const Y = T}
-trait Xtw(T=type) : Xt(0) where T: Hello {const Y = T}
+trait Xt(const T=type) where T: Hello {const Y = T}
+trait Xtw(const T=type) : Xt(0) where T: Hello {const Y = T}
 
 ex impl P {const Y = 5}
 ex impl Q() {const Y = 5}
@@ -25,15 +25,15 @@ defer impl Qd() {const Y = 5}
 ex defer impl Xd for Yd {const Y = 5}
 ex defer impl() (Xd) for Zd {const Y = 5}
 
-impl(T=type) Pt {const Y = T}
-ex impl(T=type) Qt(T) {const Y = T}
-ex impl(T=type) Xt for Yt {const Y = T}
-impl(T=type) (Xt) for Zt {const Y = T}
+impl(const T=type) Pt {const Y = T}
+ex impl(const T=type) Qt(T) {const Y = T}
+ex impl(const T=type) Xt for Yt {const Y = T}
+impl(const T=type) (Xt) for Zt {const Y = T}
 
 
 unsafe impl P where Self:H {const Y = 6}
 ex unsafe impl Xt for Yt where Self:H {const Y = 4}
-unsafe defer impl(T=type) Xt where T:H {const Y = T}
+unsafe defer impl(const T=type) Xt where T:H {const Y = T}
 impl Ws7 where Self:Xt(7) {const Y = 5}
 
 
@@ -619,4 +619,8 @@ impl Out {
 			self.genSoe(bl,false);
 		}
 	}
+}
+
+fn forLoopQ() {
+	for _ in a.1 {}
 }

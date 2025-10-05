@@ -18,7 +18,7 @@ New Syntax {
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
-	typedParam ::= Name "=" [exp]
+	typedParam ::= ["const"] Name "=" [exp]
 	paramList ::= typedParam {"," typedParam}
 	paramListSelf ::= [{("&" | "*") [shMutConst]} "self" ","] paramList
 	

@@ -128,7 +128,7 @@ namespace slu::mlvl
 			}
 			);
 		}
-		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::Expr>>&& ret, parse::ParamList<true>& params,lang::ExportData exported,const bool hasCode)
+		void mkFuncStatItm(lang::LocalObjId obj,std::string&& abi,std::optional<std::unique_ptr<parse::Expr>>&& ret, parse::ParamList& params,lang::ExportData exported,const bool hasCode)
 		{
 			auto& localMp = *mpDataStack.back();
 
@@ -147,7 +147,14 @@ namespace slu::mlvl
 			{
 				res.args.emplace_back(resolveTypeExpr(mpDb, std::move(i.type)));
 				if(hasCode)
-					res.argLocals.push_back(i.name);
+				{
+					ezmatch(i.name)(
+					varcase(const parse::LocalId&) {
+						res.argLocals.push_back(var);
+					},
+					varcase(const lang::MpItmId&) {}
+					);
+				}
 			}
 			params.clear();
 

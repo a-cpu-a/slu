@@ -636,7 +636,7 @@ namespace slu::parse //TODO: ast
 			return {};
 		}
 
-		constexpr DynLocalOrNameV<true> resolveNameOrLocal(const std::string& name)
+		constexpr DynLocalOrName resolveNameOrLocal(const std::string& name)
 		{// Check if its local
 			//either known local being indexed ORR unknown(potentially from a `use ::*`)
 			if (!localsStack.empty())

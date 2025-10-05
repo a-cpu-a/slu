@@ -545,16 +545,22 @@ namespace slu::paint
 		}
 		);
 	}
-	template<bool isLocal,AnySemOutput Se>
-	inline void paintParamList(Se& se, const parse::ParamList<isLocal>& itm,const bool hasVarArgParam)
+	template<AnySemOutput Se>
+	inline void paintParamList(Se& se, const parse::ParamList& itm,const bool hasVarArgParam)
 	{
-		for (const parse::Parameter<isLocal>& i : itm)
+		for (const parse::Parameter& i : itm)
 		{
-			paintNameOrLocal<isLocal>(se, i.name);
+			ezmatch(i.name)(
+				varcase(const parse::LocalId&) {
+				paintNameOrLocal<true>(se, var);
+			},
+				varcase(const lang::MpItmId&) {
+				paintKw<Tok::VAR_STAT>(se, "const");
+				paintNameOrLocal<false>(se, var);
+			});
 			paintKw<Tok::PAT_RESTRICT>(se, "=");
 			paintTypeExpr(se, i.type);
 			
-
 			if (&i != &itm.back() || hasVarArgParam)
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
@@ -569,7 +575,7 @@ namespace slu::paint
 	}
 	//Pos must be valid, unless the name is empty
 	template<AnySemOutput Se>
-	inline void paintFuncDecl(Se& se,const parse::SelfArg& selfArg, const parse::ParamList<true>& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const lang::MpItmId name, const lang::ExportData exported,const ast::OptSafety safety, const ast::Position pos = {}, const bool fnKw = false)
+	inline void paintFuncDecl(Se& se,const parse::SelfArg& selfArg, const parse::ParamList& params,const bool hasVarArgParam, const std::optional<std::unique_ptr<parse::Expr>>& retType, const lang::MpItmId name, const lang::ExportData exported,const ast::OptSafety safety, const ast::Position pos = {}, const bool fnKw = false)
 	{
 		paintExportData<Tok::FN_STAT>(se, exported);
 		paintSafety(se, safety);
