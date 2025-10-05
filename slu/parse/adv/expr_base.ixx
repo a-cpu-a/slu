@@ -306,7 +306,7 @@ namespace slu::parse
 					}
 					else
 					{
-						if (ch2 == '\'' || ch2 == '"' || ch2 == '{' || ch2 == '(')
+						if (ch2 == '\'' || ch2 == '"' || (!BASIC_ARGS && ch2 == '{') || ch2 == '(')
 						{
 							varData.back() = wrapExpr<ExprType::SelfCall, true, In>(
 								varPlace,

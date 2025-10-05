@@ -1,0 +1,3 @@
+fn forLoopQ() {
+	for _ in a.1 {}
+}
