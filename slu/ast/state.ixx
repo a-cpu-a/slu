@@ -587,6 +587,14 @@ namespace slu::parse
 	};
 	export using WhereClauses = std::vector<WhereClause>;
 
+	export struct SelfArg
+	{
+		ast::SmallEnumList<ast::UnOpType> specifiers;
+		parse::LocalId name;
+
+		bool empty() const { return name.empty(); }
+	};
+
 	namespace StatType
 	{
 		export using Semicol = std::monostate;	// ";"
@@ -632,14 +640,11 @@ namespace slu::parse
 		};
 		Slu_DEF_CFG(ForIn);
 
-		export template<bool isSlu>
-		struct FuncDefBase
-		{// "function funcname funcbody"    
+		export struct Function {
 			ast::Position place;//Right after func-name
-			lang::MpItmId name; // name may contain dots, 1 colon if !isSlu
-			Function func;
-		};
-		export struct Function : FuncDefBase<true> {
+			lang::MpItmId name;
+			parse::Function func;
+			SelfArg selfArg;
 			lang::ExportData exported = false;
 		};
 

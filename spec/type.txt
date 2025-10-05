@@ -20,7 +20,7 @@ New Syntax {
 	
 	typedParam ::= Name "=" [exp]
 	paramList ::= typedParam {"," typedParam}
-	paramListSelf ::= [typePrefix "self" ","] paramList
+	paramListSelf ::= [{("&" | "*") [shMutConst]} "self" ","] paramList
 	
 	tupleableName ::= Name | Integral
 	
