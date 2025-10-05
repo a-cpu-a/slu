@@ -731,18 +731,15 @@ namespace slu::parse
 
 		genExpr(out, *itm.cond);
 		genSoe(out, *itm.bl,true);
-		if constexpr (isExpr)out.add(' ');
+		if (isExpr) out.add(' ');
 
-		if (!itm.elseIfs.empty())
+		for (const auto& [expr, bl] : itm.elseIfs)
 		{
-			for (const auto& [expr, bl] : itm.elseIfs)
-			{
-				out.add("else if ");
+			out.add("else if ");
 
-				genExpr(out, expr);
-				genSoe(out, bl,true);
-				if constexpr (isExpr)out.add(' ');
-			}
+			genExpr(out, expr);
+			genSoe(out, bl, true);
+			if (isExpr) out.add(' ');
 		}
 		if (itm.elseBlock)
 		{
