@@ -549,6 +549,14 @@ namespace slu::parse
 	{
 		out.add(name);
 		out.add('(');
+		if (!itm.selfArg.empty())
+		{
+			for (const ast::UnOpType t : itm.selfArg.specifiers)
+				out.add(getUnOpAsStr<Out>(t));
+			out.add("self");
+			if (!itm.params.empty())
+				out.add(", ");
+		}
 		genParamList(out, itm.params, itm.hasVarArgParam);
 		out.add(')');
 

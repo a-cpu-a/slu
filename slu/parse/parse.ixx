@@ -11,6 +11,8 @@
 #include <slu/ext/CppMatch.hpp>
 export module slu.parse.parse;
 
+import slu.ast.enums;
+import slu.ast.small_enum_list;
 import slu.ast.state;
 import slu.parse.error;
 import slu.parse.input;
@@ -110,6 +112,39 @@ import slu.parse.errors.kw;
 
 namespace slu::parse
 {
+	export ast::SmallEnumList<ast::UnOpType> readSelfArgSpecifiers(AnyInput auto& in)
+	{
+		ast::SmallEnumList<ast::UnOpType> specifiers;
+		while (true)
+		{
+			skipSpace(in);
+			uint8_t r;
+			switch (in.peek())
+			{
+			case '&':
+				in.skip();
+				r = 0;
+				break;
+			case '*':
+				in.skip();
+				r = uint8_t(ast::UnOpType::PTR) - uint8_t(ast::UnOpType::REF);
+				break;
+			default:
+				return specifiers;
+			}
+			if (checkReadTextToken(in, "mut"))
+				r += (uint8_t)ast::UnOpType::REF_MUT;
+			else if (checkReadTextToken(in, "share"))
+				r += (uint8_t)(ast::UnOpType::REF_SHARE);
+			else if (checkReadTextToken(in, "const"))
+				r += (uint8_t)(ast::UnOpType::REF_CONST);
+			else
+				r += (uint8_t)ast::UnOpType::REF;
+			specifiers.push_back((ast::UnOpType)r);
+		}
+		return specifiers;
+	}
+
 	export template<bool isLocal,AnyInput In>
 	Parameter<isLocal> readFuncParam(In& in)
 	{
@@ -134,7 +169,34 @@ namespace slu::parse
 
 		skipSpace(in);
 
-		const char ch = in.peek();
+		char ch = in.peek();
+
+		if (ch == '&' || ch == '*' || (ch == 's' && checkTextToken(in, "self")))
+		{
+			ret.selfArg.specifiers = readSelfArgSpecifiers(in);
+			requireToken(in, "self");
+			ret.selfArg.name = in.genData.resolveNewName<true>("self");
+
+			skipSpace(in);
+
+			ch = in.peek();
+			if(ch == ',')
+			{
+				in.skip();
+				skipSpace(in);
+				ch = in.peek();
+			}
+			else if(ch != ')')
+			{
+				in.handleError(std::format(
+					"Expected "
+					LUACC_SINGLE_STRING(",") " or " 
+					LUACC_SINGLE_STRING(")") " after self argument"
+					"{}", errorLocStr(in)));
+			}
+		}
+		else
+			ret.selfArg.name = parse::LocalId::newEmpty();
 
 		if (ch == '.')
 		{
@@ -144,6 +206,7 @@ namespace slu::parse
 		}
 		else if (ch != ')')
 		{//must have non-empty namelist
+
 			ret.params.emplace_back(readFuncParam<true>(in));
 
 			while (checkReadToken(in, ","))

@@ -228,6 +228,13 @@ namespace slu::parse
 		LocalOrNameV<true,isLocal> name;
 		Expr type;
 	};
+	export struct SelfArg
+	{
+		ast::SmallEnumList<ast::UnOpType> specifiers;
+		parse::LocalId name;
+
+		bool empty() const { return name.empty(); }
+	};
 
 	export template<bool isLocal>
 	using ParamList = std::vector<Parameter<isLocal>>;
@@ -236,6 +243,7 @@ namespace slu::parse
 	{
 		std::string abi;
 		LocalsV<true> local2Mp;
+		SelfArg selfArg;
 		ParamList<true> params;
 		std::optional<BoxExpr> retType;
 		bool hasVarArgParam = false;// do params end with '...'
@@ -587,14 +595,6 @@ namespace slu::parse
 	};
 	export using WhereClauses = std::vector<WhereClause>;
 
-	export struct SelfArg
-	{
-		ast::SmallEnumList<ast::UnOpType> specifiers;
-		parse::LocalId name;
-
-		bool empty() const { return name.empty(); }
-	};
-
 	namespace StatType
 	{
 		export using Semicol = std::monostate;	// ";"
@@ -644,7 +644,6 @@ namespace slu::parse
 			ast::Position place;//Right after func-name
 			lang::MpItmId name;
 			parse::Function func;
-			SelfArg selfArg;
 			lang::ExportData exported = false;
 		};
 
