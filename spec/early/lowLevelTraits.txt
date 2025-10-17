@@ -1,0 +1,39 @@
+#
+# Dependencies: basic, annotation, containerfield, type 
+#
+
+DotIndex Trait {
+	
+	Unhardcode union and struct
+	
+	const fn dotIndex(const index = &str) -> DotField
+}
+
+LocalImplLookup Trait {
+	
+	requires HasImpl, support dyn types and also local impls too
+	
+	fn lookupLocalImpl(&self,const t=trait) -> ImplInfo
+}
+
+HasLocalImpl Trait {
+	
+	turn the local impl statements into a trait
+	
+	fn localyImpls(t=trait) -> bool
+	fn lookupLocalOneImpl(t=trait) -> Option(ImplInfo)
+}
+
+MlvlRepr Trait {
+	
+	less hardcoding here...
+	
+	fn mlvlRepr() -> MlvlType
+}
+
+ActiveItems Trait {
+	
+	support for gc?
+	
+	fn visitItems(&self,v=Fn({ActiveItem},Unit))
+}
