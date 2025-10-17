@@ -83,6 +83,19 @@ Ref and Ptr Types {
 	`struct fn PtrShare(T = type);`
 }
 
+Lifetime Type {
+	The lifetime literal types.
+	
+	No definition exists, as it is a compiler builtin. (under the hood its basically just a Vec(String))
+	`struct Lifetime;`
+}
+
+Impure Type {
+	Impure marker type, cant be created without some out of code stuff? toml stuff?
+	
+	`struct Impure {_ = struct {}}` --Includes a private field, so you cant create it
+}
+
 Struct Type {
 	The struct literal types.
 	
