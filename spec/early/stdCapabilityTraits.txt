@@ -7,16 +7,16 @@ Capability Traits {
 	`defaultX` -> `Option(impl X)`
 	`defaultXOrDummy` -> `impl X` -- If not found, returns a dummy implementation
 	
-	all methods take `&mut self`
+	all methods take `&mut self` or `&self`
 }
 
 Debug Trait {
 	--Dummy says !attached, and empty breakpoint fn, voids debug logs
-	fn attached()->bool
-	fn breakpoint()
+	fn attached(&self)->bool
+	fn breakpoint(&self)
 	
 	--debug logging
-	fn log("fmt-str",FmtArgs) -> Unit
+	fn log(&mut self, "fmt-str",FmtArgs) -> Unit
 }
 
 --TODO: how should stack traces be handled? - TODO: look into zig
@@ -25,7 +25,7 @@ Panic Trait {
 	--Dummy tries to exit/terminate or just loop forever.
 	
 	--maybe a stack trace arg?
-	fn panic(msg = &str, ?)
+	fn panic(&self,msg = &str, ?)
 }
 
 Alloc Trait {
@@ -43,16 +43,16 @@ Alloc Trait {
 	--Any 0 sized allocation may be stored as a 0 pointer.
 	--if ptr is 0, then a new allocation will be formed, always returning `AllocRes::New`
 	--If the alignment is invalid, then this will panic.
-	unsafe fn alloc(ptr = *share byte, size = MemSize, align = Alignment) -> AllocRes~~AlErr
+	unsafe fn alloc(&self, ptr = *share byte, size = MemSize, align = Alignment) -> AllocRes~~AlErr
 	
-	fn alignedMalloc(size = MemSize, align = Alignment) -> *share byte~~AlErr {unsafe{ return self.alloc(0 as *share byte,size,align)? }}
-	fn malloc(size = MemSize) -> *share byte~~AlErr { return self.alignedAlloc(size,Alignment::Bytes{1}) }
-	unsafe fn free(ptr = *share byte) -> Unit~~AlErr {unsafe{ self.alloc(ptr,0)? }}
+	fn alignedMalloc(&self, size = MemSize, align = Alignment) -> *share byte~~AlErr {unsafe{ return self.alloc(0 as *share byte,size,align)? }}
+	fn malloc(&self, size = MemSize) -> *share byte~~AlErr { return self.alignedAlloc(size,Alignment::Bytes{1}) }
+	unsafe fn free(&self, ptr = *share byte) -> Unit~~AlErr {unsafe{ self.alloc(ptr,0)? }}
 	--alloc() can be more efficient, however if you always need to move it, then this is the correct choice.
-	unsafe fn realloc(ptr = *share byte,size = MemSize, align = Alignment) -> *share byte~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
+	unsafe fn realloc(&self, ptr = *share byte,size = MemSize, align = Alignment) -> *share byte~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
 	
 	--Report that a pointer is leaked, does not do anything, ment to be hooked with debug logging that logs this.
-	fn reportMemLeak(ptr = *share byte) -> Unit
+	fn reportMemLeak(&self, ptr = *share byte) -> Unit
 }
 
 Fs Trait {
@@ -70,8 +70,9 @@ Clock Trait {
 	
 	--Dummy version says now() is 0 / epoch
 	
-	now() -> ?
-	nowMilis() -> std::unit::ms(u64)?
+	--maybe something that supports arbitrary units? maybe even arb. precision?
+	now(&self) -> ?
+	nowMilis(&self) -> std::unit::ms(u64)?
 }
 
 Log Trait {
@@ -79,15 +80,15 @@ Log Trait {
 	--Dummy version contains empty impls for all the functions
 	--TODO: maybe err..emerg should return errors?
 	
-	emerg("fmt-str",FmtArgs) -> Unit
-	alert("fmt-str",FmtArgs) -> Unit
-	crit("fmt-str",FmtArgs) -> Unit
+	emerg(&mut self, "fmt-str",FmtArgs) -> Unit
+	alert(&mut self, "fmt-str",FmtArgs) -> Unit
+	crit(&mut self, "fmt-str",FmtArgs) -> Unit
 	
-	err("fmt-str",FmtArgs) -> Unit
-	warn("fmt-str",FmtArgs) -> Unit
+	err(&mut self, "fmt-str",FmtArgs) -> Unit
+	warn(&mut self, "fmt-str",FmtArgs) -> Unit
 	
-	notice("fmt-str",FmtArgs) -> Unit
-	info("fmt-str",FmtArgs) -> Unit
+	notice(&mut self, "fmt-str",FmtArgs) -> Unit
+	info(&mut self, "fmt-str",FmtArgs) -> Unit
 }
 
 Env Trait {
