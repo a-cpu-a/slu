@@ -55,6 +55,7 @@ New Keywords {
 	override	(253k)		(14.8k)		?
 	groupshare	(..)		(..)		something that is shared between multiple shader threads... or was it blocks?
 	groupshared	(..)		(..)		alt form of groupshare
+	threadlocal (..)		(..)		thread local globals?
 
 
 	--planned
@@ -107,6 +108,7 @@ New Keywords {
 	struct 		(506k)		(62.2k)		Define a struct
 	unsafe 		(6.4k)		(372)		Mark as unsafe
 	continue 	(162k)		(4.1k)		Try looping again.
+	recursive	(..)		(..)		Recursive types.
 	
 	--Common with lua
 	

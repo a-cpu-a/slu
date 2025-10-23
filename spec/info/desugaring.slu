@@ -140,6 +140,11 @@ let u8 yD = __value2.1;
 let ? zD = __value2.2;
 drop __value2;
 -----------------------------
+let rT = recursive R &R;
+-->
+const R = ::std::RecToken(/R);
+let rT = ::std::resolveRecToken(R,::std::Ref(R))
+-----------------------------
 let String myVar = "";
 drop myVar;
 -->

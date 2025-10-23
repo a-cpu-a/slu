@@ -1,0 +1,132 @@
+--the 'struct' keyword makes this function also tag the returned type with a name (Ptr)
+struct fn Ptr(T=type) -> type {
+	return struct{
+		p=mut usize
+	};
+}
+
+const X = struct{
+	fieldA = Ptr(Y) 
+};
+const Y = struct{
+	fieldB = X --Y needs X, which needs Y, error
+};
+
+--------------
+
+fn X(Yt=type) -> type { 
+	return struct{
+		fieldA = Ptr(Yt) 
+	};
+}
+const Y = recursive Yt struct{
+	fieldB = X(Yt)
+};
+
+--------------
+
+fn X(Yt=type) -> type {
+	return struct{
+		fieldA = Ptr(Yt)
+	};
+}
+const Y = struct{
+	fieldB = X(Y) --Y needs itself, error
+};
+
+--------------Encode name into type & define temp thingy
+
+fn X(Yt=type) -> type {
+	return struct{
+		fieldA = Ptr(Yt)
+	};
+}
+const Y = struct:recName{
+	fieldB = X(recName) --Wierd but works?
+};
+
+--------------Encode name into type
+
+const X = struct{
+	fieldA = Ptr(recursive Y)
+};
+struct Y { -- a new statement that creates a named type. (just like 'struct fn' would)
+	fieldB = X
+};
+
+--------------Low level, just use a pointer-index thing
+
+const X = struct{
+	fieldA = Ptr(RecType(3))
+	-- in this specific case:
+	-- "RecType(0) = error",
+	-- "RecType(1) = Ptr(Ptr(Ptr(...",
+	-- "RecType(2) = struct{fieldA = Ptr(struct{fieldA = Ptr(...",
+	-- "RecType(3) = struct{fieldB = struct{fieldA = Ptr(struct{fieldB = struct{fieldA = Ptr(..."
+	-- "RecType(4) = ????struct{fieldB = struct{fieldA = Ptr(struct{fieldB = struct{fieldA = Ptr(...", ???? is the type containing Y, or a error if its just Y
+};
+const Y = struct{
+	fieldB = X
+};
+
+--------------
+--------------
+
+struct fn A(T=type) -> type {
+	return struct{a=B(T)}
+}
+struct fn B(T=type) -> type {
+	return struct{b=&A(T)}
+}
+const BwStr = B(&str);
+-- TypeName(type args){type impl} style syntax, so Ptr(RecType(1)) would be `Ptr(RecType(1)){p = mut usize}`, Ptr(struct{k=usize}) -> `Ptr(struct{k=usize}){p = mut usize}`
+--BwStr would be: B(&str){b=Ref(A(&str){a=RecType(3)}){refPtrLocation=usize}}
+-- the B(T) in function A would detect that it was already called, and make a rec type.
+-- (likely uses some possibly slow hidden stack argument)
+
+--------------
+
+struct fn A(BT=type) -> type {
+	return struct{a=BT}
+}
+struct fn B(T=type) -> type {
+	return recursive BT struct{b=&A(BT)}
+}
+const BwStr = B(&str);
+
+--------------
+
+fn A(BT=type) -> type {
+	return struct{a=BT}
+}
+fn B(T=type) -> type {
+	return recursive BT struct{b=&A(BT)}
+}
+const BwStr = B(&str);-- uh oh, a stack overflow failure is the correct thing to do.
+--How would you manually do the recursion instead?
+
+--------------
+--------------
+
+ex enum ExprData recursive {
+	ex False,
+	ex Do{Box(Block)}
+};
+ex struct Expr recursive {
+	data = ex mut ExprData,
+	loc = ex Loc
+};
+ex enum StatData recursive {
+	ex Semicol,
+	ex ExprStat{Expr},
+	ex BlockStat{Block}
+};
+ex struct Stat recursive {
+	data = ex mut StatData,
+	loc = ex Loc
+};
+ex struct Block recursive {
+	stats = ex mut Vec(Stat),
+	first = ex Loc,
+	last = ex Loc
+};
