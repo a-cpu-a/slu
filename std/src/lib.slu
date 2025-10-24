@@ -6,7 +6,7 @@ mod prelude;
 safe extern "C" {
 	--TODO: unhack *u8 into something like libc::Cstring.
 	--TODO: unhack i32 into something like libc::Cint.
-	fn puts(line = *:>::std::u8) -> :>::std::i32;
+	fn puts(line = :>::std::Ptr(:>::std::u8)) -> :>::std::i32;
 }
 ---Test test test !!!
 ex fn _println(text = &:>::std::str) -> {}
