@@ -12,6 +12,7 @@ New Keywords {
 	defer
 	where
 	impl
+	Self
 	for
 }
 
