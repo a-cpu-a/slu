@@ -4,12 +4,10 @@
 
 Order of Operations {
 	
-	--TODO: add compound operators for real
-	
 	
 	```
 	(pseudo) ;
-	(pseudo) = ||= ++= **= |= ~= &= <<= >>= += -= %= *= /= //= ^=
+	(pseudo) = --Maybe add compound operators: ||= ++= **= |= ~= &= <<= >>= += -= %= *= /= //= ^=
 	(pseudo) ,
 
 	unary operators (mut   alloc)
@@ -40,8 +38,8 @@ Order of Operations {
 	^
 	postfix unary operators (? .*)
 	
-	(pseudo) .	 :	 ::	  function-args
-	(pseudo) (parenthesis) [slicifier]
+	(pseudo) .	 ::	  function-args""()[[]] index[]
+	(pseudo) (parenthesis)
 	```
 	Everything is left to right, except for <<, >> and ^ which are right to left
 	(non-postfix unary operators are also right to left)
@@ -50,7 +48,7 @@ Order of Operations {
 	traits used for every operator
 	```
 	()		FnOnce Fn FnMut FnConst FnShare
-	$$=		$$Assign
+	--$$=		$$Assign
 	..		???			(Ranged/Ranging/Bounds/Bound/Boundable/??? .range .rangeMax .rangeMin)
 	?		Try.branch
 	!		Not
@@ -120,10 +118,10 @@ Order of Operations {
 	(..((1..) / 1))..
 	(..((x?)?))..
 	(..(&(..((((x?)?)?)?))))..
-	&(alloc (x ..))
-	&(alloc ((..(x?))..))
-	&(alloc (..(((x?)..) ^ 5)))
-	&(alloc ((5 ^ (..(x?)))..))
+	&(mut (x ..))
+	&(mut ((..(x?))..))
+	&(mut (..(((x?)..) ^ 5)))
+	&(mut ((5 ^ (..(x?)))..))
 	(1+1)..
 	
 	!(1 ^ (-1))
