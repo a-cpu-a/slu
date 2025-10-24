@@ -1,12 +1,12 @@
 
 
 --const type = @Builtin{"base::type/type"}0; --TODO: unhack this from the compiler
---const type u8 = 0..0xFF as type;
---const type i32 = -0x80000000..0x7FFFFFFF as type;
+--const u8 = 0..0xFF; --Or should it be Int(0..0xFF)
+--const i32 = -0x80000000..0x7FFFFFFF; --Or should it be Int(-0x80000000..0x7FFFFFFF)
 
 --struct Unit {};
 
----May be u16 in js/java/...
+---May be u16 in js/java/...?
 ---Everywhere else, a valid utf 8 string.
 ---Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)
 --@Builtin{"base::type/str"} --TODO: unhack string-ness
