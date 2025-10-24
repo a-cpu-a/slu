@@ -117,29 +117,16 @@ namespace slu::parse
 		ast::SmallEnumList<ast::UnOpType> specifiers;
 		while (true)
 		{
-			skipSpace(in);
-			uint8_t r;
-			switch (in.peek())
-			{
-			case '&':
-				in.skip();
-				r = 0;
-				break;
-			case '*':
-				in.skip();
-				r = uint8_t(ast::UnOpType::PTR) - uint8_t(ast::UnOpType::REF);
-				break;
-			default:
+			if(!checkReadToken(in, "&"))
 				return specifiers;
-			}
+
+			ast::UnOpType r = ast::UnOpType::REF;
 			if (checkReadTextToken(in, "mut"))
-				r += (uint8_t)ast::UnOpType::REF_MUT;
+				r = ast::UnOpType::REF_MUT;
 			else if (checkReadTextToken(in, "share"))
-				r += (uint8_t)(ast::UnOpType::REF_SHARE);
+				r = ast::UnOpType::REF_SHARE;
 			else if (checkReadTextToken(in, "const"))
-				r += (uint8_t)(ast::UnOpType::REF_CONST);
-			else
-				r += (uint8_t)ast::UnOpType::REF;
+				r = ast::UnOpType::REF_CONST;
 			specifiers.push_back((ast::UnOpType)r);
 		}
 		return specifiers;

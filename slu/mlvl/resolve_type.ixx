@@ -161,8 +161,8 @@ namespace slu::mlvl
 			ast::UnOpType op;
 			if(var.method == mpDb.data->getItm({ "std","ops","Ref","ref" }))
 				op = ast::UnOpType::REF;
-			else if (var.method == mpDb.data->getItm({ "std","ops","Ptr","ptr" }))
-				op = ast::UnOpType::PTR;
+			//else if (var.method == mpDb.data->getItm({ "std","ops","Ptr","ptr" }))
+			//	op = ast::UnOpType::PTR;
 			else if (var.method == mpDb.data->getItm({ "std","ops","Slicify","slicify" }))
 				op = ast::UnOpType::SLICIFY;
 			else
@@ -182,27 +182,27 @@ namespace slu::mlvl
 			{
 				size_t sz = zst ? 0 : (parse::TYPE_RES_PTR_SIZE + parse::TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims);
 
-				return parse::ResolvedType{
-					.base = parse::RawTypeKind::RefSlice{new parse::RefSliceRawType{
-						.elem=std::move(rt),
-						.refType= op
-					}},
-					.size = sz,
-					.alignmentData=parse::alignDataFromSize(sz)
-				};
+				//return parse::ResolvedType{
+				//	.base = parse::RawTypeKind::RefSlice{new parse::RefSliceRawType{
+				//		.elem=std::move(rt),
+				//		.refType= op
+				//	}},
+				//	.size = sz,
+				//	.alignmentData=parse::alignDataFromSize(sz)
+				//};
 			}
-			if (std::holds_alternative<parse::RawTypeKind::RefChain>(rt.base))
-			{
-				//If already a ref chain, then just add the sigil.
-				auto& refChain = std::get<parse::RawTypeKind::RefChain>(rt.base);
-				refChain->chain.push_back(parse::RefSigil{ .refType = op });
-				return rt;
-			}
+			//if (std::holds_alternative<parse::RawTypeKind::RefChain>(rt.base))
+			//{
+			//	//If already a ref chain, then just add the sigil.
+			//	auto& refChain = std::get<parse::RawTypeKind::RefChain>(rt.base);
+			//	refChain->chain.push_back(parse::RefSigil{ .refType = op });
+			//	return rt;
+			//}
 			size_t sz = zst ? 0 : parse::TYPE_RES_PTR_SIZE;
 			return parse::ResolvedType{
-				.base = parse::RawTypeKind::RefChain{new parse::RefChainRawType{
+				.base = parse::RawTypeKind::Ref{new parse::RefRawType{
 					.elem = std::move(rt),
-					.chain = { parse::RefSigil{.refType = ast::UnOpType::REF}}
+					.refType = ast::UnOpType::REF
 				}},
 				.size = sz,
 				.alignmentData = parse::alignDataFromSize(sz)

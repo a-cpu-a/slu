@@ -50,13 +50,11 @@ namespace slu::mlvl
 			return false;
 		},
 			//if its string, then match for ref chain. (also dont use ref chain by default as that could be T)
-		varcase(const parse::Sel<IS_STR,parse::RawTypeKind::String, parse::RawTypeKind::RefChain>&) {
+		varcase(const parse::Sel<IS_STR,parse::RawTypeKind::String, parse::RawTypeKind::Ref>&) {
 			if constexpr (IS_STR)
 			{// Subtyping into &str / &char.
-				if(var->chain.size()!=1)
-					return false;
 				//TODO: check lifetime
-				if(var->chain[0].refType!=ast::UnOpType::REF)
+				if(var->refType!=ast::UnOpType::REF)
 					return false;
 				auto optName = var->elem.getStructName();
 				if(!optName.has_value())
@@ -148,23 +146,28 @@ namespace slu::mlvl
 		if (!std::holds_alternative<T>(useTy.base)) return false;
 		return subty->nearlyExact(*std::get<T>(useTy.base));
 	}
-	inline bool subtypeCheckRefChain(const parse::RawTypeKind::RefChain& var, const parse::ResolvedType& useTy)
-	{
-		using T = parse::RawTypeKind::RefChain;
+	inline bool subtypeCheckRef(const parse::RawTypeKind::Ref& var, const parse::ResolvedType& useTy)
+	{//TODO: lifetimes
+		using T = parse::RawTypeKind::Ref;
 		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
-			if (var->chain != useTy->chain)
+			if (var->refType != useTy->refType || var->life != useTy->life)
 				return false;
 			return nearExactCheck(var->elem, useTy->elem);
 		});
 	}
-	inline bool subtypeCheckRefSlice(const parse::RawTypeKind::RefSlice& var, const parse::ResolvedType& useTy)
+	inline bool subtypeCheckPtr(const parse::RawTypeKind::Ptr& var, const parse::ResolvedType& useTy)
 	{
-		using T = parse::RawTypeKind::RefSlice;
+		using T = parse::RawTypeKind::Ptr;
 		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
-			if (var->refType != useTy->refType)
+			if (var->ptrType != useTy->ptrType)
 				return false;
-			if (var->elem.outerSliceDims != useTy->elem.outerSliceDims)
-				return false;
+			return nearExactCheck(var->elem, useTy->elem);
+		});
+	}
+	inline bool subtypeCheckSlice(const parse::RawTypeKind::Slice& var, const parse::ResolvedType& useTy)
+	{
+		using T = parse::RawTypeKind::Slice;
+		return sameCheck<T>(var, useTy, [&](const T& var, const T& useTy) {
 			return nearExactCheck(var->elem, useTy->elem);
 		});
 	}
@@ -212,11 +215,14 @@ namespace slu::mlvl
 			return nearExactCheckDeref(var,useTy);
 		},
 
-		varcase(const parse::RawTypeKind::RefChain&) {
-			return subtypeCheckRefChain(var, useTy);
+		varcase(const parse::RawTypeKind::Ref&) {
+			return subtypeCheckRef(var, useTy);
 		},
-		varcase(const parse::RawTypeKind::RefSlice&) {
-			return subtypeCheckRefSlice(var, useTy);
+		varcase(const parse::RawTypeKind::Ptr&) {
+			return subtypeCheckPtr(var, useTy);
+		},
+		varcase(const parse::RawTypeKind::Slice&) {
+			return subtypeCheckSlice(var, useTy);
 		}
 		);
 	}
@@ -301,11 +307,14 @@ namespace slu::mlvl
 			});
 		},
 
-		varcase(const parse::RawTypeKind::RefChain&) {
-			return subtypeCheckRefChain(var, useTy);
+		varcase(const parse::RawTypeKind::Ref&) {
+			return subtypeCheckRef(var, useTy);
 		},
-		varcase(const parse::RawTypeKind::RefSlice&) {
-			return subtypeCheckRefSlice(var, useTy);
+		varcase(const parse::RawTypeKind::Ptr&) {
+			return subtypeCheckPtr(var, useTy);
+		},
+		varcase(const parse::RawTypeKind::Slice&) {
+			return subtypeCheckSlice(var, useTy);
 		},
 
 		varcase(const parse::AnyRawIntOrRange auto&) {
@@ -544,8 +553,9 @@ namespace slu::mlvl
 				TmpVar varId = tmpVars.size();
 				LocalVarInfo& var = tmpVars.emplace_back(&itm.ty);
 				std::get<SubTySide>(var.edit).tys.emplace_back(
-					parse::RefChainRawType::newPtrTy(
-						parse::ResolvedType::newU8()
+					parse::PtrRawType::newTy(
+						parse::ResolvedType::newU8(),
+						ast::UnOpType::PTR
 					)
 				);
 				exprTypeStack.back() = varId;
@@ -818,10 +828,13 @@ namespace slu::mlvl
 				for (auto& j : var->options)
 					visitTypeForInference(poison, types, intRanges, j);
 			},
-				varcase(const parse::RawTypeKind::RefChain&) {
+				varcase(const parse::RawTypeKind::Ref&) {
 				addSubTypeToList(types, editTy);
 			},
-				varcase(const parse::RawTypeKind::RefSlice&) {
+				varcase(const parse::RawTypeKind::Ptr&) {
+				addSubTypeToList(types, editTy);
+			},
+				varcase(const parse::RawTypeKind::Slice&) {
 				addSubTypeToList(types, editTy);
 			},
 

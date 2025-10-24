@@ -45,8 +45,9 @@ namespace slu::parse //TODO: ast
 	export struct StructRawType;
 	export struct UnionRawType;
 	export struct VariantRawType;
-	export struct RefChainRawType;
-	export struct RefSliceRawType;
+	export struct RefRawType;
+	export struct PtrRawType;
+	export struct SliceRawType;
 	export struct DelStructRawType
 	{
 		void operator()(StructRawType* it) const noexcept;
@@ -59,13 +60,17 @@ namespace slu::parse //TODO: ast
 	{
 		void operator()(VariantRawType* it) const noexcept;
 	};
-	export struct DelRefChainRawType
+	export struct DelRefRawType
 	{
-		void operator()(RefChainRawType* it) const noexcept;
+		void operator()(RefRawType* it) const noexcept;
 	};
-	export struct DelRefSliceRawType
+	export struct DelPtrRawType
 	{
-		void operator()(RefSliceRawType* it) const noexcept;
+		void operator()(PtrRawType* it) const noexcept;
+	};
+	export struct DelSliceRawType
+	{
+		void operator()(SliceRawType* it) const noexcept;
 	};
 	extern "C++" {
 		export struct DelExpr
@@ -146,8 +151,9 @@ namespace slu::parse //TODO: ast
 		export using Variant = std::unique_ptr<VariantRawType, DelVariantRawType>;
 		export using Union = std::unique_ptr<UnionRawType, DelUnionRawType>;
 		export using Struct = std::unique_ptr<StructRawType, DelStructRawType>;
-		export using RefChain = std::unique_ptr<RefChainRawType, DelRefChainRawType>;
-		export using RefSlice = std::unique_ptr<RefSliceRawType, DelRefSliceRawType>;
+		export using Ref = std::unique_ptr<RefRawType, DelRefRawType>;
+		export using Ptr = std::unique_ptr<PtrRawType, DelPtrRawType>;
+		export using Slice = std::unique_ptr<SliceRawType, DelSliceRawType>;
 	}
 	export using RawType = std::variant <
 		RawTypeKind::TypeError,
@@ -167,8 +173,9 @@ namespace slu::parse //TODO: ast
 		RawTypeKind::Variant,
 		RawTypeKind::Union,
 		RawTypeKind::Struct,
-		RawTypeKind::RefChain,
-		RawTypeKind::RefSlice
+		RawTypeKind::Ref,
+		RawTypeKind::Ptr,
+		RawTypeKind::Slice
 	>;
 
 	export template <class T>
@@ -285,7 +292,7 @@ namespace slu::parse //TODO: ast
 		RawType base;
 		size_t size : 46;//in bits. element type size, ignoring outerSliceDims.
 		size_t alignmentData : 4 = 0;//log2(alignment in bits). 1bit .. 4096bytes
-		size_t outerSliceDims : 13 = 0;
+		size_t outerSliceDims : 13 = 0;//TODO: remove
 		size_t hasMut : 1 = false;
 
 		ResolvedType clone() const {
@@ -524,48 +531,62 @@ namespace slu::parse //TODO: ast
 			return true;
 		}
 	};
-	export struct RefSigil
+	export struct RefRawType
 	{
+		ResolvedType elem;
 		lang::MpItmId life;
 		ast::UnOpType refType;
 
-		constexpr auto operator<=>(const RefSigil&) const = default;
-	};
-	export struct RefChainRawType
-	{
-		ResolvedType elem;
-		std::vector<RefSigil> chain;//In application order, so {&share,&mut} -> &mut &share T
-
-		static ResolvedType newPtrTy(parse::ResolvedType&& t) {
-			auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=ast::UnOpType::PTR} }));
-			return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
+		//static ResolvedType newPtrTy(parse::ResolvedType&& t) {
+		//	auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=ast::UnOpType::PTR} }));
+		//	return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
+		//}
+		static RawTypeKind::Ref newRawTy() {
+			auto& elems = *(new RefRawType());
+			return RawTypeKind::Ref{ &elems };
 		}
-		static RawTypeKind::RefChain newRawTy() {
-			auto& elems = *(new RefChainRawType());
-			return RawTypeKind::RefChain{ &elems };
-		}
-		RawTypeKind::RefChain cloneRaw() const
+		RawTypeKind::Ref cloneRaw() const
 		{
-			RawTypeKind::RefChain res = newRawTy();
+			RawTypeKind::Ref res = newRawTy();
 			res->elem = elem.clone();
-			res->chain = chain;
+			res->life = life;
+			res->refType = refType;
 			return res;
 		}
 	};
-	export struct RefSliceRawType
+	export struct PtrRawType
 	{
-		ResolvedType elem;//dims stored in here.
-		ast::UnOpType refType;
+		ResolvedType elem;
+		ast::UnOpType ptrType;
 
-		static RawTypeKind::RefSlice newRawTy() {
-			auto& elems = *(new RefSliceRawType());
-			return RawTypeKind::RefSlice{ &elems };
+		static ResolvedType newTy(parse::ResolvedType&& t, ast::UnOpType ptrType) {
+			auto& val = *(new PtrRawType(std::move(t), ptrType));
+			return { .base = parse::RawTypeKind::Ptr{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
 		}
-		RawTypeKind::RefSlice cloneRaw() const
+		static RawTypeKind::Ptr newRawTy() {
+			auto& elems = *(new PtrRawType());
+			return RawTypeKind::Ptr{ &elems };
+		}
+		RawTypeKind::Ptr cloneRaw() const
 		{
-			RawTypeKind::RefSlice res = newRawTy();
+			RawTypeKind::Ptr res = newRawTy();
 			res->elem = elem.clone();
-			res->refType = refType;
+			res->ptrType = ptrType;
+			return res;
+		}
+	};
+	export struct SliceRawType
+	{
+		ResolvedType elem;
+
+		static RawTypeKind::Slice newRawTy() {
+			auto& elems = *(new SliceRawType());
+			return RawTypeKind::Slice{ &elems };
+		}
+		RawTypeKind::Slice cloneRaw() const
+		{
+			RawTypeKind::Slice res = newRawTy();
+			res->elem = elem.clone();
 			return res;
 		}
 	};
@@ -578,10 +599,13 @@ namespace slu::parse //TODO: ast
 	export void ::slu::parse::DelVariantRawType::operator()(VariantRawType* it) const noexcept {
 		delete it;
 	}
-	export void ::slu::parse::DelRefChainRawType::operator()(RefChainRawType* it) const noexcept {
+	export void ::slu::parse::DelRefRawType::operator()(RefRawType* it) const noexcept {
 		delete it;
 	}
-	export void ::slu::parse::DelRefSliceRawType::operator()(RefSliceRawType* it) const noexcept {
+	export void ::slu::parse::DelPtrRawType::operator()(PtrRawType* it) const noexcept {
+		delete it;
+	}
+	export void ::slu::parse::DelSliceRawType::operator()(SliceRawType* it) const noexcept {
 		delete it;
 	}
 	extern "C++" {
@@ -613,10 +637,13 @@ namespace slu::parse //TODO: ast
 			varcase(const RawTypeKind::Variant&) {
 			return RawType{ var->cloneRaw() };
 		},
-			varcase(const RawTypeKind::RefChain&) {
+			varcase(const RawTypeKind::Ref&) {
 			return RawType{ var->cloneRaw() };
 		},
-			varcase(const RawTypeKind::RefSlice&) {
+			varcase(const RawTypeKind::Ptr&) {
+			return RawType{ var->cloneRaw() };
+		},
+			varcase(const RawTypeKind::Slice&) {
 			return RawType{ var->cloneRaw() };
 		}
 

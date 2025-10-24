@@ -247,8 +247,11 @@ namespace slu::comp::mico
 		}
 		else
 		{
-			if (cAbi && itm.size == parse::TYPE_RES_PTR_SIZE && itm.outerSliceDims == 0 && std::holds_alternative<parse::RawTypeKind::RefChain>(itm.base))
-			{//Treat references & pointers as llvm.ptr.
+			if (cAbi && itm.size == parse::TYPE_RES_PTR_SIZE 
+				&& itm.outerSliceDims == 0 
+				&& (std::holds_alternative<parse::RawTypeKind::Ref>(itm.base)
+					|| std::holds_alternative<parse::RawTypeKind::Ptr>(itm.base)))
+			{//Treat references & ptrs as llvm.ptr.
 				elemType = mlir::LLVM::LLVMPointerType::get(&conv.context);
 			}
 			else
