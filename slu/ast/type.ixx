@@ -284,22 +284,23 @@ namespace slu::parse //TODO: ast
 	}
 
 	extern "C++" {
-		export struct ResolvedType
+	export struct ResolvedType
 	{
-		constexpr static size_t INCOMPLETE_MARK = (1ULL << 50) - 1;
+		constexpr static size_t INCOMPLETE_MARK = (1ULL << 46) - 1;// Means alignment & size unknown.
 		constexpr static size_t UNSIZED_MARK = INCOMPLETE_MARK - 1;
+		constexpr static size_t COMPUTED_ALIGN_MARK = (1 << 5) - 1;// If alignmentData is this value, then alignment is computed at runtime.
 
 		RawType base;
-		size_t size : 46;//in bits. element type size, ignoring outerSliceDims.
-		size_t alignmentData : 4 = 0;//log2(alignment in bits). 1bit .. 4096bytes
-		size_t outerSliceDims : 13 = 0;//TODO: remove
+		size_t size : 46;//in bits. element type size
+		size_t alignmentData : 5 = 0;// log2(alignment in bits). 1bit .. 134217728bytes =128MiB. //TODO: more powerful system allowing for multi-aligned types, cooler sub-byte alignments.
 		size_t hasMut : 1 = false;
+		size_t _reserved : (8 + 4) = 0;
 
 		ResolvedType clone() const {
-			return { .base = cloneRawType(base),
+			return { 
+				.base = cloneRawType(base),
 				.size = size,
 				.alignmentData = alignmentData,
-				.outerSliceDims = outerSliceDims,
 				.hasMut = hasMut 
 			};
 		}
@@ -310,7 +311,7 @@ namespace slu::parse //TODO: ast
 			return size != INCOMPLETE_MARK;
 		}
 		constexpr bool isSized() const {
-			return outerSliceDims == 0 && size != UNSIZED_MARK;
+			return size != UNSIZED_MARK;
 		}
 		constexpr std::optional<lang::MpItmId> getStructName() const;
 		constexpr bool isBool() const
@@ -337,6 +338,9 @@ namespace slu::parse //TODO: ast
 		}
 		static ResolvedType newU8() {
 			return { .base = RawTypeKind::Range64{.min=0,.max=UINT8_MAX},.size = 8,.alignmentData=alignDataFromSize(8)};
+		}
+		static ResolvedType newUtf8Unit() {
+			return { .base = RawTypeKind::Range64{.min=0,.max=0xF4},.size = 8,.alignmentData=alignDataFromSize(8)};
 		}
 		static ResolvedType newIntRange(const auto& range) {
 			const bool minIsI64 = range.min <= INT64_MAX && range.min >= INT64_MIN;
@@ -426,17 +430,43 @@ namespace slu::parse //TODO: ast
 			return true;
 		}
 	};
+	export struct SliceRawType
+	{
+		ResolvedType elem;
+
+		static RawTypeKind::Slice newRawTy() {
+			auto& elems = *(new SliceRawType());
+			return RawTypeKind::Slice{ &elems };
+		}
+		static ResolvedType newTy(parse::ResolvedType&& elem) {
+			size_t sz;
+			if (!elem.isComplete())
+				sz = ResolvedType::INCOMPLETE_MARK;
+			else if (elem.size == 0)
+				sz = TYPE_RES_SIZE_SIZE;//zst elements dont need a stride
+			else
+				sz = ResolvedType::UNSIZED_MARK;
+
+			auto& val = *(new SliceRawType(std::move(elem)));
+			return {
+				.base = parse::RawTypeKind::Slice{&val},
+				.size = sz,
+				.alignmentData = std::max((uint8_t)elem.alignmentData, alignDataFromSize(TYPE_RES_SIZE_SIZE))
+			};
+		}
+		RawTypeKind::Slice cloneRaw() const
+		{
+			RawTypeKind::Slice res = newRawTy();
+			res->elem = elem.clone();
+			return res;
+		}
+	};
 	export struct StructRawType
 	{
 		std::vector<ResolvedType> fields;
 		std::vector<std::string> fieldNames;//may be hex ints, like "0x1"
 		std::vector<size_t> fieldOffsets;//Only defined for fields that have a size>0, also its in bits.
 		lang::MpItmId name;//if empty, then structural / table / tuple / array
-		//~StructRawType() {
-		//	fields.~vector();
-		//	fieldNames.~vector();
-		//	fieldOffsets.~vector();
-		//}
 
 		static RawTypeKind::Struct newRawTy() {
 			auto& elems = *(new StructRawType());
@@ -480,10 +510,30 @@ namespace slu::parse //TODO: ast
 		}
 		static ResolvedType newBoolTy(const bool tr, const bool fa) {
 			if (tr && fa)
-				return { .base = parse::RawTypeKind::Struct{boolStruct()},.size = 1,.alignmentData=alignDataFromSize(1)};
+				return {
+				.base = parse::RawTypeKind::Struct{boolStruct()},
+				.size = 1,
+				.alignmentData=alignDataFromSize(1)
+			};
 			if (tr) return newTrueTy();
 			Slu_assert(fa);
 			return newFalseTy();
+		}
+		static parse::RawTypeKind::Struct strStruct() {
+			RawTypeKind::Struct thing = newRawTy();
+			thing->fields.emplace_back(SliceRawType::newTy(
+				ResolvedType::newUtf8Unit()
+			));
+			thing->fieldNames.push_back("0x1");
+			thing->name = mpc::STD_STR;
+			return thing;
+		}
+		static ResolvedType newStrTy() {
+			return {
+			.base = parse::RawTypeKind::Struct{strStruct()},
+			.size = ResolvedType::UNSIZED_MARK,
+			.alignmentData = alignDataFromSize(TYPE_RES_SIZE_SIZE)
+			};
 		}
 		bool nearlyExact(const StructRawType& o) const {
 			if (fields.size() != o.fields.size()) return false;
@@ -537,10 +587,6 @@ namespace slu::parse //TODO: ast
 		lang::MpItmId life;
 		ast::UnOpType refType;
 
-		//static ResolvedType newPtrTy(parse::ResolvedType&& t) {
-		//	auto& val = *(new RefChainRawType(std::move(t), { RefSigil{.refType=ast::UnOpType::PTR} }));
-		//	return { .base = parse::RawTypeKind::RefChain{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
-		//}
 		static RawTypeKind::Ref newRawTy() {
 			auto& elems = *(new RefRawType());
 			return RawTypeKind::Ref{ &elems };
@@ -561,7 +607,11 @@ namespace slu::parse //TODO: ast
 
 		static ResolvedType newTy(parse::ResolvedType&& t, ast::UnOpType ptrType) {
 			auto& val = *(new PtrRawType(std::move(t), ptrType));
-			return { .base = parse::RawTypeKind::Ptr{&val},.size = TYPE_RES_PTR_SIZE, .alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)};
+			return {
+				.base = parse::RawTypeKind::Ptr{&val},
+				.size = TYPE_RES_PTR_SIZE, 
+				.alignmentData=alignDataFromSize(TYPE_RES_PTR_SIZE)
+			};
 		}
 		static RawTypeKind::Ptr newRawTy() {
 			auto& elems = *(new PtrRawType());
@@ -572,21 +622,6 @@ namespace slu::parse //TODO: ast
 			RawTypeKind::Ptr res = newRawTy();
 			res->elem = elem.clone();
 			res->ptrType = ptrType;
-			return res;
-		}
-	};
-	export struct SliceRawType
-	{
-		ResolvedType elem;
-
-		static RawTypeKind::Slice newRawTy() {
-			auto& elems = *(new SliceRawType());
-			return RawTypeKind::Slice{ &elems };
-		}
-		RawTypeKind::Slice cloneRaw() const
-		{
-			RawTypeKind::Slice res = newRawTy();
-			res->elem = elem.clone();
 			return res;
 		}
 	};
@@ -616,7 +651,6 @@ namespace slu::parse //TODO: ast
 
 	export constexpr std::optional<lang::MpItmId> ResolvedType::getStructName() const
 	{
-		if (outerSliceDims != 0) return std::nullopt;
 		if (!std::holds_alternative<RawTypeKind::Struct>(base))
 			return std::nullopt;
 		return std::get<RawTypeKind::Struct>(base)->name;

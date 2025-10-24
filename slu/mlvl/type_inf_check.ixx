@@ -228,11 +228,6 @@ namespace slu::mlvl
 	}
 	inline bool subtypeCheck(const parse::BasicMpDbData& mpDb,const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
-		if (subty.outerSliceDims != useTy.outerSliceDims)
-			return false;//TODO: allow variant here.
-		if (subty.outerSliceDims != 0)//both have the same non-0 slice size.
-			return nearExactCheck(subty, useTy);//TODO: allow variant here.
-
 		return ezmatch(subty.base)(
 		varcase(const parse::RawTypeKind::Unresolved&)->bool {
 			throw std::runtime_error("Found unresolved type in subtype check");
@@ -270,8 +265,6 @@ namespace slu::mlvl
 
 				for (size_t i = 0; i < var->fields.size(); i++)
 				{
-					if(var->fields[i].outerSliceDims != useTy->fields[i].outerSliceDims)
-						return false;
 					if(!nearExactCheck(var->fields[i], useTy->fields[i]))
 						return false;
 					if(var->fieldNames[i] != useTy->fieldNames[i])
@@ -800,11 +793,6 @@ namespace slu::mlvl
 		{
 			if (!editTy.isComplete())
 				throw std::runtime_error("TODO: error logging, found incomplete type expr");
-			if (editTy.outerSliceDims != 0)
-			{
-				addSubTypeToList(types, editTy);
-				return;
-			}
 			ezmatch(editTy.base)(
 				varcase(const parse::RawTypeKind::Unresolved&) {
 				throw std::runtime_error("TODO: error logging, found unresolved type expr");
@@ -971,12 +959,6 @@ namespace slu::mlvl
 
 						parse::ResolvedType& ty = *selfInfo.resolvedType;
 						// check if it even has that field
-						if (ty.outerSliceDims != 0)
-						{
-							poison = true;
-							//TODO: msg about trying to field into a slice
-							return;
-						}
 						std::string_view fieldView = mpDb.getSv(var.name);
 						//TODO: auto deref
 						ezmatch(ty.base)(

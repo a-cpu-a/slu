@@ -6,15 +6,19 @@
 
 --struct Unit {};
 
+--Does not use u8, as no utf8 byte can be outside of the 0..0xF4 range, 0xC0 and 0xC1 are illegal too.
+--const Utf8Unit = 0..0xF4;
+--const Utf16Unit = u16;
+--const Utf32Unit = 0..0x10FFFF;
+
 ---May be u16 in js/java/...?
 ---Everywhere else, a valid utf 8 string.
----Uses u8, to allow for future improvements to utf8. (could have been 0..0xF4)
---@Builtin{"base::type/str"} --TODO: unhack string-ness
---struct str{[]u8};
+--@Builtin{"base::type/str"}
+--struct str{[]Utf8Unit};
 
 
---TODO: subtyping from char to str is not as simple as it once seemed. Remove it?
+--TODO: subtyping from char to str is not as simple as it once seemed, maybe remove it?
 ---Represents a 1 character sized str.
 ---Stored as just a pointer + stride pair.
---@Builtin{"base::type/char"} --TODO: unhack char-ness
---struct char{*u8,usize};
+--@Builtin{"base::type/char"}
+--struct char{Ptr(Utf8Unit),usize};

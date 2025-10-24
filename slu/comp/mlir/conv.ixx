@@ -236,21 +236,47 @@ namespace slu::comp::mico
 
 		mlir::OpBuilder& builder = conv.builder;
 
-		mlir::Type elemType;
 		const bool cAbi = abi == "C"sv;
-		const bool elemUnsized = itm.size == parse::ResolvedType::UNSIZED_MARK;
-		if(elemUnsized)
+		const bool isRefOrPtr =
+			std::holds_alternative<parse::RawTypeKind::Ref>(itm.base)
+			|| std::holds_alternative<parse::RawTypeKind::Ptr>(itm.base);
+		const bool isSlice =
+			std::holds_alternative<parse::RawTypeKind::Slice>(itm.base);
+		//parse::RawTypeKind::Slice* slicePtr = nullptr;
+		const bool isRefOrPtrToSlice = ezmatch(itm.base)(
+			varcase(const auto&) {
+			return false;
+		},
+			varcase(const parse::RawTypeKind::Ref&) {
+			if (std::holds_alternative<parse::RawTypeKind::Slice>(var->elem.base))
+			{
+				//slicePtr = &std::get<parse::RawTypeKind::Slice>(var->elem.base);
+				return true;
+			}
+			return false;
+		},
+			varcase(const parse::RawTypeKind::Ptr&) {
+			if (std::holds_alternative<parse::RawTypeKind::Slice>(var->elem.base))
+			{
+				//slicePtr = &std::get<parse::RawTypeKind::Slice>(var->elem.base);
+				return true;
+			}
+			return false;
+		}
+			);
+		const bool itmUsized = itm.size == parse::ResolvedType::UNSIZED_MARK;
+		mlir::Type elemType;
+		if(itmUsized)
 		{
 			if(cAbi)
 				throw std::runtime_error("Found unsized type in C ABI (mlir conversion)");
-			elemType = builder.getI8Type();
+			elemType = builder.getI8Type();// `? x i8`, aka byte memref
 		}
 		else
 		{
 			if (cAbi && itm.size == parse::TYPE_RES_PTR_SIZE 
-				&& itm.outerSliceDims == 0 
-				&& (std::holds_alternative<parse::RawTypeKind::Ref>(itm.base)
-					|| std::holds_alternative<parse::RawTypeKind::Ptr>(itm.base)))
+				&& !isRefOrPtrToSlice // Ensure it is not &[]Zst (it stores [] size, thats it, cuz elems are 0 bits & stride is not useful)
+				&& isRefOrPtr)
 			{//Treat references & ptrs as llvm.ptr.
 				elemType = mlir::LLVM::LLVMPointerType::get(&conv.context);
 			}
@@ -259,23 +285,12 @@ namespace slu::comp::mico
 		}
 
 		if (cAbi)
-		{
-			if (itm.outerSliceDims != 0)
-				throw std::runtime_error("Found unsized slice type in C ABI (mlir conversion)");
-			return elemType;
-		}
+			return elemType;//pass by value
 
-		//Memref {?x}elemType
+		//Memref ( 1x | ?x ) elemType
 		llvm::SmallVector<int64_t> shape;
-		if (itm.outerSliceDims == 0)
-			shape.push_back(elemUnsized? mlir::ShapedType::kDynamic :1);
-		else
-		{
-			shape.append(
-				itm.outerSliceDims + (elemUnsized ? 1 : 0),
-				mlir::ShapedType::kDynamic
-			);
-		}
+		shape.push_back(itmUsized ? mlir::ShapedType::kDynamic : 1);
+
 		return mlir::MemRefType::get(shape, elemType, {}, 0);
 	}
 	template<typename T>

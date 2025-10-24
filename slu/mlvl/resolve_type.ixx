@@ -169,39 +169,24 @@ namespace slu::mlvl
 				throw std::runtime_error("Unimplemented type expression: " + std::string(var.method.asSv(mpDb)) + " (type resolution)");
 
 			if (op == ast::UnOpType::SLICIFY)
-			{
-				rt.outerSliceDims++;
-				return rt;
-			}
+				return parse::SliceRawType::newTy(std::move(rt));
 
 			const bool zst = rt.size == 0;
 
 			//TODO apply lifetime.
 
-			if (rt.outerSliceDims != 0)
-			{
-				size_t sz = zst ? 0 : (parse::TYPE_RES_PTR_SIZE + parse::TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims);
-
-				//return parse::ResolvedType{
-				//	.base = parse::RawTypeKind::RefSlice{new parse::RefSliceRawType{
-				//		.elem=std::move(rt),
-				//		.refType= op
-				//	}},
-				//	.size = sz,
-				//	.alignmentData=parse::alignDataFromSize(sz)
-				//};
-			}
-			//if (std::holds_alternative<parse::RawTypeKind::RefChain>(rt.base))
-			//{
-			//	//If already a ref chain, then just add the sigil.
-			//	auto& refChain = std::get<parse::RawTypeKind::RefChain>(rt.base);
-			//	refChain->chain.push_back(parse::RefSigil{ .refType = op });
-			//	return rt;
-			//}
 			size_t sz = zst ? 0 : parse::TYPE_RES_PTR_SIZE;
+			if(rt.size == parse::ResolvedType::INCOMPLETE_MARK)
+				sz = parse::ResolvedType::INCOMPLETE_MARK;
+			else if (rt.size == parse::ResolvedType::UNSIZED_MARK)
+			{
+				//size_t sz = zst ? 0 : (parse::TYPE_RES_PTR_SIZE + parse::TYPE_RES_SIZE_SIZE * 2 * rt.outerSliceDims);
+				//TODO: fix slice refs.
+			}
 			return parse::ResolvedType{
 				.base = parse::RawTypeKind::Ref{new parse::RefRawType{
 					.elem = std::move(rt),
+					//.life = ???,
 					.refType = ast::UnOpType::REF
 				}},
 				.size = sz,
@@ -211,15 +196,7 @@ namespace slu::mlvl
 		[&](const parse::ExprType::GlobalV<true> name)->parse::ResolvedType {
 
 			if (name == mpc::STD_STR)
-			{
-				//TODO: this is wrong, it must be wrapped in a struct!
-				return parse::ResolvedType{
-					.base = parse::RawTypeKind::Range64{0,UINT8_MAX},
-					.size = 8,
-					.alignmentData= parse::alignDataFromSize(8),
-					.outerSliceDims=1
-				};
-			}
+				return parse::StructRawType::newStrTy();
 			if (name == mpc::STD_I32)
 			{
 				return parse::ResolvedType{
