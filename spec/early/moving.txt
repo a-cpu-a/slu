@@ -19,5 +19,4 @@ Relocate Trait {
 
 Moving {
 	Relocate's may be elided at any moment, it is not legal to rely on them happening, for example if a compiler boxes up all objects (java?), relocates might not even happen.
-	
 }
