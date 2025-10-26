@@ -20,10 +20,10 @@ Naming Conventions {
 	Crates and modules use snake_case in code, and kebab-case outside of it.
 	
 	Structs, enums, enum variants, traits and unions are treated as constants that store types.
-	Arguments and fields are treated as variables.
+	Arguments and fields are treated as variables or constants.
 	Variables uee lowerCamelCase.
-	Constants use SCREAMING_SNAKE_CASE.
-	Variables and constants use PascalCase if they store types.
+	Constants use snake_case.
+	Constants use PascalCase if they store types.
 	
 	Functions use camelCase.
 	Functions use PascalCase if they return types.
@@ -34,9 +34,9 @@ Naming Conventions {
 	my_crate
 	mod my_simd_module
 	
-	const MY_CONSTANT_VARIABLE = "Hello World!"
+	const my_constant_variable = "Hello World!"
 	let myVariable = 10
-	let MyVariableStoringAType = u8
+	let myVariableStoringAType = u8
 	const MyConstVariableStoringAType = u8
 	
 	fn myFunction()
@@ -53,7 +53,7 @@ Naming Conventions {
 	```slu
 	
 	fn formatAsR10G10B10()
-	const FORMAT_R10_G10_B10 = 10
+	const format_r10_g10_b10 = 10
 	struct ColorR10G10B10 {}
 	fn dwonloadXmlHtmlOrXhtml()
 	trait FsIo {}
