@@ -7,9 +7,10 @@ Char Usage {
 	Only used inside strings: # ` \ $
 	
 	
-	' ' -> unused
-	'X' -> used
+	' ' -> unused.
+	'X' -> used.
 	'-' -> cant ever be used.
+	'/' -> too wierd to use.
 	
 	Expressions:
 	+--------+--------+--------+
@@ -32,9 +33,9 @@ Char Usage {
 	|   (    |   X    |   X    | suffix is used as call
 	|   [    |   X    |   X    |
 	|   {    |   X    |   X    |
-	|   }    |        |   X    |
-	|   ]    |        |   X    |
-	|   )    |        |   X    |
+	|   }    |   /    |   X    |
+	|   ]    |   /    |   X    |
+	|   )    |   /    |   X    |
 	|   >=   |        |   X    |
 	|   >    |   -    |   X    | prefix, cuz of '=>' and '->'
 	|   ?    |        |   X    |
@@ -46,7 +47,7 @@ Char Usage {
 	|   ^    |        |   X    |
 	|   +    |        |   X    |
 	|   ..   |   X    |   X    |
-	|   =    |        |   X    | suffix -> == operator
+	|   =    |   -    |   X    | prefix, cuz assignment would turn into eq. suffix -> == operator
 	|   .*   |        |   X    |
 	|   or   |        |   X    |
 	|  and   |        |   X    |
@@ -59,19 +60,19 @@ Char Usage {
 	| struct |   X    |   -    |
 	|  union |   X    |   -    |
 	| alloc  |   X    |        |
-	|  ---   |   X    |        | doc comments
+	|  ---   |   X    |   X    | doc comments
 	|   --   |   X    |   X    | comments
 	|   -=   |        |   X    |
 	|   -    |   X    |   X    |
 	|  //=   |        |   X    |
 	|   /=   |        |   X    |
-	|   //   |   X    |   X    | result-err or floor-div
+	|   //   |        |   X    | floor-div
 	|   /    |   X    |   X    | lifetime, or division
 	|   *=   |        |   X    |
-	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (x ** y) not (x * *y)
+	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (x ** y) not (x * (*y))
 	|   *    |   X    |   X    |
 	|   !=   |        |        |
-	|   !    |   X    |   ~    | postfix only counts when no whitespace between, also only for for const-vars.
+	|   !    |   X    |   ~    | postfix only counts as macro-call when no whitespace between, and only for const-vars.
 	|   &=   |        |   X    |
 	|   &    |   X    |   X    |
 	|   |=   |        |   X    |
