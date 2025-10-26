@@ -14,9 +14,15 @@ Clone Trait {
 }
 Claim Trait {
 	Marks a types clone impl as implicit, so it is called instead of moving (except at the last use, where a clone would be useless).
-	The clone impl must not use panic or abort, it be O(1) and it should be useful.
+	The clone impl must not use panic or abort, it must be O(1), be either a memcpy or implement Handle.
+	Should only be implemented if copying <= 128 bits of data, and the size must be known at compile time.
 	
 	--TODO: could the name potentially be improved? "AutoCopy", "AutoClone", "ImplicitCopy", ...?
+}
+Handle Trait {
+	Contains an alias for .clone(), called "handle".
+	This should be implemented on types that have a clone that returns the same underlying value[3], instead of making a full copy.
+	(basically use on types like Rc, Arc, ...)
 }
 
 Copying {
@@ -29,4 +35,5 @@ Copying {
 Sources {
 	https://smallcultfollowing.com/babysteps/blog/2024/06/21/claim-auto-and-otherwise/
 	https://smallcultfollowing.com/babysteps/blog/2024/06/26/claim-followup-1/
+	3: https://smallcultfollowing.com/babysteps/blog/2025/10/07/the-handle-trait/#we-would-lint-and-advice-people-to-call-handle
 }
