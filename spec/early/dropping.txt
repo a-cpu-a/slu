@@ -6,7 +6,8 @@ Erase Trait {
 
 	Illegal to implement manually.
 	
-	Marks a type as having a empty drop function or one that can be ignored.
+	Marks a type as having a empty drop function or one that can always be ignored (and should be ignored when possible).
+	Its purpose is to skip calling drop when possible.
 }
 Drop Trait {
 	method .drop(in = &mut T)
