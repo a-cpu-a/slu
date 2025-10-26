@@ -10,10 +10,15 @@ Order of Operations {
 	(pseudo) = --Maybe add compound operators: ||= ++= **= |= ~= &= <<= >>= += -= %= *= /= //= ^=
 	(pseudo) ,
 
-	unary operators (mut   alloc)
+	(pseudo) else
+	
+	unary operators (mut	alloc)
 	
 	or
 	and
+	
+	(pseudo) if=>
+	
 	!=	==
 	
 	<	>	<=	 >=
@@ -38,7 +43,7 @@ Order of Operations {
 	^
 	postfix unary operators (? .*)
 	
-	(pseudo) .	 ::	  function-args""()[[]] index[]
+	(pseudo) .	 ::	  function-args""()[[]] construct{} index[]
 	(pseudo) (parenthesis)
 	```
 	Everything is left to right, except for <<, >> and ^ which are right to left
