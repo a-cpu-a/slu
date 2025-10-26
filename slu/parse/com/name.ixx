@@ -34,7 +34,7 @@ namespace slu::parse
 	/* future */\
 	"at", "of", "asm", "box", "out", "auto", "case", "only", \
 	"test", "with", "final", "inout", "become", "inline", \
-	"typeof", "discard", "uniform", "unsized", "virtual", \
+	"typeof", "default", "discard", "uniform", "unsized", "virtual", \
 	"abstract", "comptime", "override", "groupshare", "groupshared", \
 	"threadlocal", \
 	/* todos */\

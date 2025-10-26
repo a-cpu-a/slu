@@ -36,7 +36,7 @@ New Keywords {
 	asm    		(..)		(..)		asm blocks
 	box    		(451k)		(42.2k)		?
 	out			(..)		(..)		?
-	auto		(..)		(..)		auto traits?
+	auto		(..)		(..)		auto traits: https://github.com/rust-lang/rfcs/pull/3851?
 	case		(352k)		(8.2k)		match case?
 	only		(745k)		(5.2k)		Different ref system
 	test		(..)		(..)		compile time tests, kinda like zig
@@ -46,6 +46,7 @@ New Keywords {
 	become 		(52k)		(286)		?
 	inline 		(..)		(..)		inlined loops, like zig.
 	typeof 		(44k)		(616)		?
+	default		(..)		(..)		Default impls? https://rust-lang.github.io/rfcs/1210-impl-specialization.html#the-default-keyword
 	discard		(..)		(..)		discard terminator like in frag shaders.
 	uniform		(..)		(..)		shader uniforms.
 	unsized		(120)		(0)			?
