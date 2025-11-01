@@ -59,18 +59,19 @@ New types {
 	trait
 	type
 	
-	lifetime
+	Impl
+	Dyn
+	
+	Lifetime
 	
 	Unit
 	bool
 	bool::true
 	bool::false
-	NumVec
 	Any
 	str
 	char
 	String
-	Userdata
 	
 	f8
 	f16
@@ -134,14 +135,6 @@ Official Types {
 	bool::true {
 		A boolean, always true
 	}
-	NumVec {
-		a vector of numbers, ment for vectorial operations
-		```
-		const u8x4 = NumVec(4,u8);
-		--...
-		let mulRes = 100 * u8x4{4,3,2,1};
-		```
-	}
 	
 	Any {
 		Any type is allowed
@@ -156,7 +149,7 @@ Official Types {
 		On most hosts the contents are utf8, some hosts, like java & javascript use utf16, if any host uses utf8, then utf8 is used on all of them.
 	}
 	char {
-		(TODO: some magic tricks to make the syntax &char, not "char(lifetime)")
+		(TODO: some magic tricks to make the syntax &char: transparent structs?)
 		A reference to a character inside a str, immutable.
 		Must point to a valid character, because it doesnt store the size of it.
 	}
@@ -166,9 +159,6 @@ Official Types {
 		Same restrictions on content as "str".
 		
 		Creating invalid content isnt ub in itself, but some libraries or functions will not handle that correctly.
-	}
-	Userdata {
-		Special data passed from the compiler
 	}
 	f8,f16,f128 {
 		Reserved, may be used in the future.
