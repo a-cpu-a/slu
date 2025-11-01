@@ -1,0 +1,72 @@
+﻿---
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit:     80
+AlignConsecutiveTableGenBreakingDAGArgColons:
+  Enabled:         true
+AlignConsecutiveTableGenDefinitionColons:
+  Enabled:         true
+---
+Language:        Cpp
+AccessModifierOffset: -4
+AlignAfterOpenBracket: DontAlign
+AlignArrayOfStructures: Left
+AlignConsecutiveBitFields:
+  Enabled:         true
+AlignConsecutiveShortCaseStatements:
+  Enabled:         true
+  AlignCaseArrows: true
+AlignEscapedNewlines: LeftWithLastLine
+AlignOperands:   DontAlign
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: WithoutElse
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+BreakAdjacentStringLiterals: false
+BreakAfterReturnType: ExceptShortType
+BreakArrays:     false
+BreakBeforeBinaryOperators: All
+BreakBeforeBraces: Custom
+IncludeBlocks:   Regroup
+IncludeCategories:
+  - Regex:           '^((<|")(llvm|llvm-c|clang|clang-c|gtest|gmock|isl|json)\/)'
+    Priority:        0
+    SortPriority:    1
+  - Regex:           '^(<(slu)\/(ext)\/)'
+    Priority:        2
+    SortPriority:    1
+  - Regex:           '^(<(slu)\/)'
+    Priority:        2
+    SortPriority:    2
+  - Regex:           '^<.*'
+    Priority:        0
+    SortPriority:    0
+  - Regex:           '.*'
+    Priority:        2
+    SortPriority:    3
+IndentExternBlock: NoIndent
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: All
+PointerAlignment: Left
+QualifierAlignment: Leave
+RemoveBracesLLVM: false #or maybe?
+SpaceAfterTemplateKeyword: false
+SpacesInLineCommentPrefix:
+  Minimum:         0
+  Maximum:         -1
+TabWidth:        4
+UseTab:          ForIndentation
+...
+

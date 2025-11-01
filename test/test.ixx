@@ -1,12 +1,15 @@
 ﻿module;
+/*
+** See Copyright Notice inside Include.hpp
+*/
 
-#include <format>
 #include <filesystem>
-#include <span>
+#include <format>
 #include <fstream>
 #include <iostream>
-#include <unordered_set>
 #include <print>
+#include <span>
+#include <unordered_set>
 
 #include <slu/Ansi.hpp>
 export module _test_slu.test;
@@ -27,14 +30,16 @@ import slu.parse.vec_input;
 template<class... Args>
 inline void log(const std::format_string<Args...> fmt, Args&&... fmtArgs)
 {
-	std::cout << LUACC_DEFAULT << std::vformat(fmt.get(), std::make_format_args(fmtArgs...))
-		<< "\n";
+	std::cout << LUACC_DEFAULT
+	          << std::vformat(fmt.get(), std::make_format_args(fmtArgs...))
+	          << "\n";
 }
 template<class... Args>
 inline void logErr(const std::format_string<Args...> fmt, Args&&... fmtArgs)
 {
-	std::cerr << LUACC_INVALID << std::vformat(fmt.get(), std::make_format_args(fmtArgs...))
-		<< "\n";
+	std::cerr << LUACC_INVALID
+	          << std::vformat(fmt.get(), std::make_format_args(fmtArgs...))
+	          << "\n";
 }
 
 inline std::vector<uint8_t> getBin(const std::string& path)
@@ -49,15 +54,14 @@ inline std::vector<uint8_t> getBin(const std::string& path)
 	while (!in.eof())
 	{
 		const int dat = in.get();
-		if (!in.eof())
-			data.push_back((uint8_t)dat);
+		if (!in.eof()) data.push_back((uint8_t)dat);
 	}
 	return data;
 }
 
 inline void saveBin(const std::string& path, const std::vector<uint8_t>& data)
 {
-	std::ofstream out(path,std::ios::binary);
+	std::ofstream out(path, std::ios::binary);
 	if (!out)
 	{
 		logErr("Failed to open file for writing: {}", path);
@@ -66,12 +70,12 @@ inline void saveBin(const std::string& path, const std::vector<uint8_t>& data)
 	out.write(reinterpret_cast<const char*>(data.data()), data.size());
 }
 
-inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool invert)
+inline uint8_t testSluOnFile(
+    const std::filesystem::path& path, const bool invert)
 {
 	const bool wrapItInFn = path.stem().string().ends_with(".$block");
 	//fn _(){...}
-	if (wrapItInFn)
-		return 2;//TODO: implement it
+	if (wrapItInFn) return 2; //TODO: implement it
 	std::string pathStr = path.string();
 	std::vector<uint8_t> srcCode = getBin(pathStr);
 
@@ -81,8 +85,7 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		size_t i = 0;
 		while (true)
 		{
-			if (srcCode[i++] == '\n')
-				break;
+			if (srcCode[i++] == '\n') break;
 		}
 		srcCode.erase(srcCode.begin(), srcCode.begin() + i - 1);
 	}
@@ -108,11 +111,10 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		if (invert)
 		{
 			throw std::runtime_error("Test failed");
-		}
-		else
+		} else
 			log("Test success : {}", pathStr);
 
-		slu::paint::SemOutput<decltype(in), ColConv> se = { in };
+		slu::paint::SemOutput<decltype(in), ColConv> se = {in};
 		in.restart();
 		slu::paint::paintFile(se, f);
 		in.restart();
@@ -123,11 +125,14 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 		slu::parse::genFile(out, f);
 
 
-		saveBin((path.parent_path() / "_TEST_OUT" / (path.filename().string() + ".d")).string(), out.text);
+		saveBin((path.parent_path() / "_TEST_OUT"
+		            / (path.filename().string() + ".d"))
+		            .string(),
+		    out.text);
 
 		slu::parse::VecInput<Settings> in2;
 		in2.genData.mpDb.data = &dbData;
-		in2.genData.totalMp = { "testmp" };
+		in2.genData.totalMp = {"testmp"};
 		in2.fName = pathStr;
 		in2.text = out.text;
 		in2.restart();
@@ -144,36 +149,36 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 
 			if (out2.text != out.text)
 			{
-				saveBin((path.parent_path() / "_TEST_OUT" / (path.filename().string() + ".2.d")).string(), out2.text);
+				saveBin((path.parent_path() / "_TEST_OUT"
+				            / (path.filename().string() + ".2.d"))
+				            .string(),
+				    out2.text);
 
-				throw std::runtime_error("Inconsistant encode of file '" + pathStr + "'");
+				throw std::runtime_error(
+				    "Inconsistant encode of file '" + pathStr + "'");
 			}
 			log("Encode test success : {}", pathStr);
-		}
-		catch (const slu::parse::ParseFailError&)
-			//catch (const std::bad_alloc& err)
+		} catch (const slu::parse::ParseFailError&)
+		//catch (const std::bad_alloc& err)
 		{
 			logErr("In file {}:", path.string());
 			logErr("Encode test failed : {::}", in2.handledErrors);
 			return invert ? 2 : 0;
 		}
-	}
-	catch (const std::runtime_error& e)
+	} catch (const std::runtime_error& e)
 	{
 		if (!invert || e.what() == "Test failed")
 		{
 			logErr("In file {}:", path.string());
-			if(e.what() != "Test failed")
-				logErr("Error msg: {}", e.what());
+			if (e.what() != "Test failed") logErr("Error msg: {}", e.what());
 			logErr("Test failed : {::}", in.handledErrors);
 			return 1;
 		}
 		return 2;
-	}
-	catch (const slu::parse::ParseFailError&)
-		//catch (const std::bad_alloc& err)
+	} catch (const slu::parse::ParseFailError&)
+	//catch (const std::bad_alloc& err)
 	{
-		if (invert)return 2;
+		if (invert) return 2;
 
 		logErr("In file {}:", path.string());
 		logErr("Test failed : {::}", in.handledErrors);
@@ -185,52 +190,56 @@ inline uint8_t testSluOnFile(const std::filesystem::path& path, const bool inver
 
 export extern "C++" int main()
 {
-	//const auto x =slu::spec::extract_and_merge_ebnf_blocks("C:/libraries/lua/lua-5.4.4/src/slua/spec/");
+#if 0
+	const auto x = slu::spec::extract_and_merge_ebnf_blocks(
+	    "C:/libraries/lua/lua-5.4.4/src/slua/spec/");
 
+	constexpr bool TEST_SPEED = false;
 
-	//constexpr bool TEST_SPEED = false;
+	if constexpr (TEST_SPEED)
+	{
+		const std::vector<uint8_t> srcCode = getBin(
+		    "C:/libraries/lua/lua-5.4.4/src/slu/parse/tests/libs/luaunit.lua");
 
-	//if constexpr (TEST_SPEED)
-	//{
-	//	const std::vector<uint8_t> srcCode = getBin("C:/libraries/lua/lua-5.4.4/src/slu/parse/tests/libs/luaunit.lua");
+		slu::parse::VecInput in;
+		in.fName = "Test";
+		in.text = srcCode;
 
-	//	slu::parse::VecInput in;
-	//	in.fName = "Test";
-	//	in.text = srcCode;
+		const auto startTime = std::chrono::system_clock::now();
 
-	//	const auto startTime = std::chrono::system_clock::now();
+		for (size_t i = 0; i < 1000; i++)
+		{
+			in.restart();
+			in.genData = {};
 
-	//	for (size_t i = 0; i < 1000; i++)
-	//	{
-	//		in.restart();
-	//		in.genData = {};
+			slu::parse::parseFile(in);
+		}
 
-	//		slu::parse::parseFile(in);
-	//	}
+		const auto endTime = std::chrono::system_clock::now();
 
-	//	const auto endTime = std::chrono::system_clock::now();
+		const auto timeDif
+		    = std::chrono::duration_cast<std::chrono::microseconds>(
+		        endTime - startTime); // <=104ms, 1014154
 
-	//	const auto timeDif = std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime);// <=104ms, 1014154
-
-	//	log("Time taken: {}", timeDif);
-	//	log("MB/s: {}", (srcCode.size() * 1000.0) * timeDif.count() / 1000000.0 * 0.000001);// div(mb), mul(us 2 s)
-	//	return 0;
-	//}
-
+		log("Time taken: {}", timeDif);
+		log("MB/s: {}",
+		    (srcCode.size() * 1000.0) * timeDif.count() / 1000000.0
+		        * 0.000001); // div(mb), mul(us 2 s) 	return 0;
+	}
+#endif
 
 	const std::string_view p = "C:/libraries/lua/lua-5.4.4/src/slu/parse/tests";
 
 	size_t total = 0;
 	size_t failed = 0;
 
-	for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ p })
+	for (auto const& dir_entry :
+	    std::filesystem::recursive_directory_iterator{p})
 	{
-		if (dir_entry.is_directory())
-			continue;
+		if (dir_entry.is_directory()) continue;
 		const std::filesystem::path ext = dir_entry.path().extension();
 		const bool invert = ext == ".notslu";
-		if (ext != ".slu" && !invert)
-			continue;
+		if (ext != ".slu" && !invert) continue;
 
 		uint8_t res = testSluOnFile(dir_entry.path(), invert);
 
@@ -238,14 +247,9 @@ export extern "C++" int main()
 		failed += res == 2 ? 0 : 1;
 	}
 
-	log(
-		"Tests completed, total("
-		LUACC_NUM_COL("{}")
-		") failed("
-		LUACC_NUM_COL("{}")
-		") - "
-		LUACC_NUM_COL("{}") "%",
-		total, failed, 100 - double(100 * failed) / total);
+	log("Tests completed, total (" LUACC_NUM_COL(
+	        "{}") ") failed (" LUACC_NUM_COL("{}") ") - " LUACC_NUM_COL("{}") "%",
+	    total, failed, 100 - double(100 * failed) / total);
 
 
 	return (int)failed;
