@@ -9,15 +9,13 @@ Order of Operations {
 	(pseudo) ;
 	(pseudo) = --Maybe add compound operators: ||= ++= **= |= ~= &= <<= >>= += -= %= *= /= //= ^=
 	(pseudo) ,
-
-	(pseudo) else
+	
+	(pseudo) if => else
 	
 	unary operators (mut	alloc)
 	
 	or
 	and
-	
-	(pseudo) if=>
 	
 	!=	==
 	
