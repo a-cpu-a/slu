@@ -846,6 +846,8 @@ namespace slu::mlvl
 			if (derefStack.size() > 16)//TODO: config for limit
 				return true;//TODO: error
 
+			//if(name==mpc::STD_OPS_ADD_ADD)
+
 			//TODO:
 			return false;
 		}
