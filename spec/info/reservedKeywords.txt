@@ -39,11 +39,13 @@ New Keywords {
 	auto		(..)		(..)		auto traits: https://github.com/rust-lang/rfcs/pull/3851?
 	case		(352k)		(8.2k)		match case?
 	only		(745k)		(5.2k)		Different ref system
+	pure		(..)		(..)		mark external function as pure
 	test		(..)		(..)		compile time tests, kinda like zig
 	with		(..)		(..)		Impl with args?
 	final  		(122k)		(7.7k)		?
 	inout		(..)		(..)		?
 	become 		(52k)		(286)		?
+	impure		(..)		(..)		special impure arg?
 	inline 		(..)		(..)		inlined loops, like zig.
 	typeof 		(44k)		(616)		?
 	default		(..)		(..)		Default impls? https://rust-lang.github.io/rfcs/1210-impl-specialization.html#the-default-keyword
