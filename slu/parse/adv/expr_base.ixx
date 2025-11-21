@@ -3,12 +3,12 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <cstdint>
-#include <unordered_set>
 #include <format>
+#include <unordered_set>
 
+#include <slu/ext/CppMatch.hpp>
 #include <slu/Ansi.hpp>
 #include <slu/Panic.hpp>
-#include <slu/ext/CppMatch.hpp>
 export module slu.parse.adv.expr_base;
 
 import slu.ast.state;
@@ -26,9 +26,9 @@ import slu.parse.com.tok;
 namespace slu::parse
 {
 	export template<AnyInput In>
-	std::pair<lang::ModPath,bool> readModPath(In& in,const std::string& start)
+	std::pair<lang::ModPath, bool> readModPath(In& in, const std::string& start)
 	{
-		lang::ModPath mp = { start };
+		lang::ModPath mp = {start};
 		bool skipped = skipSpace(in);
 		while (checkToken(in, "::"))
 		{
@@ -36,47 +36,50 @@ namespace slu::parse
 			if (afterCcChr == ':' || afterCcChr == '*' || afterCcChr == '{')
 				break;
 
-			in.skip(2);//skip '::'
+			in.skip(2); //skip '::'
 			skipSpace(in);
 			mp.push_back(readName<NameCatagory::MP>(in));
 			skipped = skipSpace(in);
 		}
-		return { mp, skipped };
+		return {mp, skipped};
 	}
-	export template<AnyInput In>
-	lang::ModPath readModPath(In& in) {
+	export template<AnyInput In> lang::ModPath readModPath(In& in)
+	{
 		return readModPath(in, readName<NameCatagory::MP_START>(in)).first;
 	}
 	//Unlike readModPath, doesnt have the ability to do things like `self::xyz`
-	export template<AnyInput In>
-	SubModPath readSubModPath(In& in) {
-		return readModPath(in,readName(in)).first;
+	export template<AnyInput In> SubModPath readSubModPath(In& in)
+	{
+		return readModPath(in, readName(in)).first;
 	}
 
 	//Returns if skipped after
 	template<AnyInput In>
-	bool parseVarBase(In& in, const bool allowVarArg, const char firstChar, ExprData<In>& varDataOut, bool& varDataNeedsSubThing)
+	bool parseVarBase(In& in, const bool allowVarArg, const char firstChar,
+	    ExprData<In>& varDataOut, bool& varDataNeedsSubThing)
 	{
 		if (firstChar == '(')
-		{// Must be '(' exp ')'
+		{ // Must be '(' exp ')'
 			in.skip();
-			varDataOut = ExprType::Parens<In>(std::make_unique<Expr>(readExpr(in, allowVarArg)));
+			varDataOut = ExprType::Parens<In>(
+			    std::make_unique<Expr>(readExpr(in, allowVarArg)));
 			varDataNeedsSubThing = true;
 			requireToken(in, ")");
 			return false;
 		}
 		if (firstChar == ':')
 		{
-			requireToken(in, ":>");//Modpath root
+			requireToken(in, ":>"); //Modpath root
 			skipSpace(in);
-			if (checkToken(in, "::") && in.peekAt(2) != ':') //is '::', but not ':::'
+			if (checkToken(in, "::")
+			    && in.peekAt(2) != ':') //is '::', but not ':::'
 			{
 				in.skip(2);
 				skipSpace(in);
-				varDataOut = ExprType::Global<In>(in.genData.resolveRootName(readModPath(in)));
+				varDataOut = ExprType::Global<In>(
+				    in.genData.resolveRootName(readModPath(in)));
 				return false;
-			}
-			else
+			} else
 			{
 				varDataOut = ExprType::MpRoot{};
 				return true;
@@ -91,22 +94,22 @@ namespace slu::parse
 		if (mp.size() == 1)
 		{
 			ezmatch(in.genData.resolveNameOrLocal(mp[0]))(
-				varcase(const parse::LocalId) {
-				varDataOut = ExprType::Local(var);
-			},
-				varcase(const lang::MpItmId) {
-				varDataOut = ExprType::Global<In>(var);
-			}
-				);
-		}
-		else
+			    varcase(const parse::LocalId) {
+				    varDataOut = ExprType::Local(var);
+			    },
+			    varcase(const lang::MpItmId) {
+				    varDataOut = ExprType::Global<In>(var);
+			    });
+		} else
 			varDataOut = ExprType::Global<In>(in.genData.resolveName(mp));
 
 		return skipped;
 	}
 
-	template<class T,bool FOR_EXPR, AnyInput In>
-	T returnPrefixExprVar(In& in, std::vector<ExprData<In>>& varData, const bool endsWithArgs,const bool varDataNeedsSubThing,const char opTypeCh)
+	template<class T, bool FOR_EXPR, AnyInput In>
+	T returnPrefixExprVar(In& in, std::vector<ExprData<In>>& varData,
+	    const bool endsWithArgs, const bool varDataNeedsSubThing,
+	    const char opTypeCh)
 	{
 		char opType[4] = "EOS";
 
@@ -124,10 +127,9 @@ namespace slu::parse
 				throwVarlistInExpr(in);
 
 			throw parse::UnexpectedCharacterError(std::format(
-				"Expected multi-assignment, since there is a list of variables, but found "
-				LUACC_SINGLE_STRING("{}")
-				"{}"
-				, opType, errorLocStr(in)));
+			    "Expected multi-assignment, since there is a list of variables, but found " LUACC_SINGLE_STRING(
+			        "{}") "{}",
+			    opType, errorLocStr(in)));
 		}
 		if constexpr (!FOR_EXPR)
 		{
@@ -136,63 +138,62 @@ namespace slu::parse
 				if (varDataNeedsSubThing)
 					throwRawExpr(in);
 
-				throw parse::UnexpectedCharacterError(std::format(
-					"Expected assignment or " LC_function " call, found "
-					LUACC_SINGLE_STRING("{}")
-					"{}"
-					, opType, errorLocStr(in)));
+				throw parse::UnexpectedCharacterError(
+				    std::format("Expected assignment or " LC_function
+				                " call, found " LUACC_SINGLE_STRING("{}") "{}",
+				        opType, errorLocStr(in)));
 			}
 			if (std::holds_alternative<ExprType::Call>(varData.back()))
 			{
-				ExprType::Call& start = std::get<ExprType::Call>(varData.back());
+				ExprType::Call& start
+				    = std::get<ExprType::Call>(varData.back());
 				StatType::Call res;
 				res.args = std::move(start.args);
-				res.v = { std::move(*start.v) };
+				res.v = {std::move(*start.v)};
 
 				return std::move(res);
 			}
-			ExprType::SelfCall& start = std::get<ExprType::SelfCall>(varData.back());
+			ExprType::SelfCall& start
+			    = std::get<ExprType::SelfCall>(varData.back());
 			StatType::SelfCall res;
 			res.args = std::move(start.args);
 			res.method = start.method;
-			res.v = { std::move(*start.v) };
+			res.v = {std::move(*start.v)};
 
 			return std::move(res);
-		}
-		else
+		} else
 			return std::move(varData.back());
 	}
-	template<class T,bool boxed, AnyInput In,class... Ts>
-	T wrapExpr(ast::Position place,ExprData<In>&& expr,Ts&&... extraItems)
+	template<class T, bool boxed, AnyInput In, class... Ts>
+	T wrapExpr(ast::Position place, ExprData<In>&& expr, Ts&&... extraItems)
 	{
-		return T{
-				parse::ExprUserExpr<boxed>{mayBoxFrom<boxed>(
-					Expr{std::move(expr),place}
-				)},
-				std::move(extraItems)...
-		};
+		return T{parse::ExprUserExpr<boxed>{
+		             mayBoxFrom<boxed>(Expr{std::move(expr), place})},
+		    std::move(extraItems)...};
 	}
 	//Doesnt skip space.
-	export template<class T,bool FOR_EXPR, bool BASIC_ARGS = false, AnyInput In>
+	export template<class T, bool FOR_EXPR, bool BASIC_ARGS = false,
+	    AnyInput In>
 	T parsePrefixExprVar(In& in, const bool allowVarArg, char firstChar)
 	{
 		/*
-			var ::= baseVar {subvar}
+		    var ::= baseVar {subvar}
 
-			baseVar ::= Name | ‘(’ exp ‘)’ subvar
+		    baseVar ::= Name | ‘(’ exp ‘)’ subvar
 
-			funcArgs ::=  [‘:’ Name] args
-			subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
+		    funcArgs ::=  [‘:’ Name] args
+		    subvar ::= {funcArgs} ‘[’ exp ‘]’ | {funcArgs} ‘.’ Name
 		*/
 
 		std::vector<ExprData<In>> varData;
 		ast::Position varPlace = in.getLoc();
 		bool endsWithArgs = false;
 		bool varDataNeedsSubThing = false;
-		
+
 		varData.emplace_back();
 
-		bool skipped = parseVarBase(in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
+		bool skipped = parseVarBase(
+		    in, allowVarArg, firstChar, varData.back(), varDataNeedsSubThing);
 
 		bool firstRun = true;
 		char opType;
@@ -205,12 +206,13 @@ namespace slu::parse
 			firstRun = false;
 
 			if (!in)
-				return returnPrefixExprVar<T,FOR_EXPR>(in,varData, endsWithArgs, varDataNeedsSubThing, 0);
+				return returnPrefixExprVar<T, FOR_EXPR>(
+				    in, varData, endsWithArgs, varDataNeedsSubThing, 0);
 
 			opType = in.peek();
 			switch (opType)
 			{
-			case ',':// Varlist
+			case ',': // Varlist
 				if constexpr (FOR_EXPR)
 					goto exit;
 				else
@@ -220,17 +222,17 @@ namespace slu::parse
 					if (varDataNeedsSubThing)
 						throwExprInVarList(in);
 
-					in.skip();//skip comma
+					in.skip(); //skip comma
 
 					varData.emplace_back();
 					skipSpace(in);
 					varPlace = in.getLoc();
-					skipped = parseVarBase(in,allowVarArg, in.peek(), varData.back(), varDataNeedsSubThing);
+					skipped = parseVarBase(in, allowVarArg, in.peek(),
+					    varData.back(), varDataNeedsSubThing);
 					break;
 				}
-			default:
-				goto exit;
-			case '=':// Assign
+			default: goto exit;
+			case '=': // Assign
 				if constexpr (FOR_EXPR)
 					goto exit;
 				else
@@ -240,10 +242,10 @@ namespace slu::parse
 					if (varDataNeedsSubThing)
 						throwExprAssignment(in);
 
-					in.skip();//skip eq
+					in.skip(); //skip eq
 					StatType::Assign<In> res{};
 					res.vars = std::move(varData);
-					res.exprs = readExprList(in,allowVarArg);
+					res.exprs = readExprList(in, allowVarArg);
 					return res;
 				}
 			case '{':
@@ -252,17 +254,14 @@ namespace slu::parse
 				[[fallthrough]];
 			case '"':
 			case '\'':
-			case '('://Funccall
+			case '(': //Funccall
 			{
-				varData.back() = wrapExpr<ExprType::Call, true, In>(
-					varPlace,
-					std::move(varData.back()),
-					readArgs(in, allowVarArg)
-				);
+				varData.back() = wrapExpr<ExprType::Call, true, In>(varPlace,
+				    std::move(varData.back()), readArgs(in, allowVarArg));
 				endsWithArgs = true;
 				break;
 			}
-			case '.':// Index
+			case '.': // Index
 			{
 				if constexpr (FOR_EXPR)
 				{
@@ -274,86 +273,73 @@ namespace slu::parse
 					in.skip(2);
 
 					varData.back() = wrapExpr<ExprType::Deref, true, In>(
-						varPlace,
-						std::move(varData.back())
-					);
+					    varPlace, std::move(varData.back()));
 					varDataNeedsSubThing = false;
 					endsWithArgs = false;
 					break;
 				}
-				in.skip();//skip dot
+				in.skip(); //skip dot
 
-				lang::PoolString name = in.genData.poolStr(readSluTuplableName(in));
+				lang::PoolString name
+				    = in.genData.poolStr(readSluTuplableName(in));
 
 				skipSpace(in);
 				if (in)
-				{//Self call handling.
+				{ //Self call handling.
 					const char ch2 = in.peek();
 					if (ch2 == '[')
 					{
 						const char ch3 = in.peekAt(1);
 						if (ch3 == '[' || ch3 == '=')
 						{
-							varData.back() = wrapExpr<ExprType::SelfCall, true, In>(
-								varPlace,
-								std::move(varData.back()),
-								readArgs(in, allowVarArg),
-								name
-							);
+							varData.back()
+							    = wrapExpr<ExprType::SelfCall, true, In>(
+							        varPlace, std::move(varData.back()),
+							        readArgs(in, allowVarArg), name);
 							endsWithArgs = true;
 							break;
 						}
-					}
-					else
+					} else
 					{
-						if (ch2 == '\'' || ch2 == '"' || (!BASIC_ARGS && ch2 == '{') || ch2 == '(')
+						if (ch2 == '\'' || ch2 == '"'
+						    || (!BASIC_ARGS && ch2 == '{') || ch2 == '(')
 						{
-							varData.back() = wrapExpr<ExprType::SelfCall, true, In>(
-								varPlace,
-								std::move(varData.back()),
-								readArgs(in, allowVarArg),
-								name
-							);
+							varData.back()
+							    = wrapExpr<ExprType::SelfCall, true, In>(
+							        varPlace, std::move(varData.back()),
+							        readArgs(in, allowVarArg), name);
 							endsWithArgs = true;
 							break;
 						}
 					}
-					
 				}
 				varData.back() = wrapExpr<ExprType::Field<In>, true, In>(
-					varPlace,
-					std::move(varData.back()),
-					name
-				);
+				    varPlace, std::move(varData.back()), name);
 				varDataNeedsSubThing = false;
 				endsWithArgs = false;
 
 				break;
 			}
-			case '[':// Arr-index
+			case '[': // Arr-index
 			{
 				const char secondCh = in.peekAt(1);
 
-				if (secondCh == '[' || secondCh == '=')//is multi-line string?
+				if (secondCh == '[' || secondCh == '=') //is multi-line string?
 				{
-					varData.back() = wrapExpr<ExprType::Call, true,In>(
-						varPlace,
-						std::move(varData.back()),
-						readArgs(in, allowVarArg)
-					);
+					varData.back() = wrapExpr<ExprType::Call, true, In>(
+					    varPlace, std::move(varData.back()),
+					    readArgs(in, allowVarArg));
 					endsWithArgs = true;
 					break;
 				}
 
-				in.skip();//skip first char
-				Expr idx = readExpr(in,allowVarArg);
+				in.skip(); //skip first char
+				Expr idx = readExpr(in, allowVarArg);
 				requireToken(in, "]");
 
-				varData.back() = wrapExpr<ExprType::Index, true, In>(
-					varPlace,
-					std::move(varData.back()),
-					mayBoxFrom<true>(std::move(idx))
-				);
+				varData.back() = wrapExpr<ExprType::Index, true, In>(varPlace,
+				    std::move(varData.back()),
+				    mayBoxFrom<true>(std::move(idx)));
 				varDataNeedsSubThing = false;
 				endsWithArgs = false;
 				break;
@@ -362,11 +348,14 @@ namespace slu::parse
 		}
 
 	exit:
-		return returnPrefixExprVar<T, FOR_EXPR>(in, varData, endsWithArgs, varDataNeedsSubThing, opType);
+		return returnPrefixExprVar<T, FOR_EXPR>(
+		    in, varData, endsWithArgs, varDataNeedsSubThing, opType);
 	}
 
 	export template<AnyInput In>
-	Expr readBasicExpr(In& in, const bool allowVarArg, const bool readBiOp = true) {
+	Expr readBasicExpr(
+	    In& in, const bool allowVarArg, const bool readBiOp = true)
+	{
 		Expr ex = readExpr<true>(in, allowVarArg, readBiOp);
 		return ex;
 	}
@@ -375,7 +364,7 @@ namespace slu::parse
 	ExprList readExprList(In& in, const bool allowVarArg)
 	{
 		/*
-			explist ::= exp {‘,’ exp}
+		    explist ::= exp {‘,’ exp}
 		*/
 		ExprList ret{};
 		ret.emplace_back(readExpr(in, allowVarArg));
@@ -386,4 +375,4 @@ namespace slu::parse
 		}
 		return ret;
 	}
-}
+} //namespace slu::parse

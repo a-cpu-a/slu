@@ -3,13 +3,13 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <cstdint>
-#include <unordered_set>
 #include <format>
 #include <memory>
 #include <optional>
+#include <unordered_set>
 
-#include <slu/Ansi.hpp>
 #include <slu/ext/CppMatch.hpp>
+#include <slu/Ansi.hpp>
 export module slu.parse.adv.expr;
 
 import slu.char_info;
@@ -33,11 +33,11 @@ import slu.parse.errors.char_errors;
 
 namespace slu::parse
 {
-	export template<AnyInput In>
-	Lifetime readLifetime(In& in)
+	export template<AnyInput In> Lifetime readLifetime(In& in)
 	{
 		Lifetime res;
-		do {
+		do
+		{
 			in.skip();
 			res.emplace_back(in.genData.resolveName(readName(in)));
 			skipSpace(in);
@@ -45,12 +45,11 @@ namespace slu::parse
 
 		return res;
 	}
-	template<AnyInput In>
-	UnOpItem readToRefLifetimes(In& in, ast::UnOpType uOp)
+	template<AnyInput In> UnOpItem readToRefLifetimes(In& in, ast::UnOpType uOp)
 	{
 		skipSpace(in);
 		if (in.peek() == '/')
-		{// lifetime parsing, check for 'mut'
+		{ // lifetime parsing, check for 'mut'
 
 			Lifetime res = readLifetime(in);
 
@@ -61,15 +60,15 @@ namespace slu::parse
 			else if (checkReadTextToken(in, "share"))
 				uOp = ast::UnOpType::REF_SHARE;
 
-			return { std::move(res),uOp };
+			return {std::move(res), uOp};
 		}
-		return { .type = uOp };
+		return {.type = uOp};
 	}
 
-	template<AnyInput In>
-	void handleOpenRange(In& in, Expr& basicRes)
+	template<AnyInput In> void handleOpenRange(In& in, Expr& basicRes)
 	{
-		if (basicRes.unOps.empty())return;
+		if (basicRes.unOps.empty())
+			return;
 
 		if (basicRes.unOps.back().type == ast::UnOpType::RANGE_BEFORE)
 		{
@@ -78,12 +77,12 @@ namespace slu::parse
 		}
 	}
 
-	export template<bool IS_BASIC,bool FOR_PAT,AnyInput In>
+	export template<bool IS_BASIC, bool FOR_PAT, AnyInput In>
 	Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp)
 	{
 		/*
-			nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
-			| prefixexp | tableconstructor | exp binop exp | unop exp
+		    nil | false | true | Numeral | LiteralString | ‘...’ | functiondef
+		    | prefixexp | tableconstructor | exp binop exp | unop exp
 		*/
 		const ast::Position startPos = in.getLoc();
 
@@ -95,21 +94,21 @@ namespace slu::parse
 		while (true)
 		{
 			const ast::UnOpType uOp = readOptUnOp(in);
-			if (uOp == ast::UnOpType::NONE)break;
+			if (uOp == ast::UnOpType::NONE)
+				break;
 			if (uOp == ast::UnOpType::REF)
 			{
 				basicRes.unOps.push_back(readToRefLifetimes(in, uOp));
 				continue;
 			}
-			basicRes.unOps.push_back({.type= uOp });
+			basicRes.unOps.push_back({.type = uOp});
 		}
 		skipSpace(in);
 
 		const char firstChar = in.peek();
 		switch (firstChar)
 		{
-		default:
-			break;
+		default: break;
 		case '_':
 			if (!in.isOob(1) && !isValidNameChar(in.peekAt(1)))
 			{
@@ -132,63 +131,61 @@ namespace slu::parse
 		//case '&': //ref op
 		//case '*': //Maybe a deref?
 		//case '!':
-		case '|'://todo: handle as lambda
-		case '#':
-			handleOpenRange(in, basicRes);
-			break;
+		case '|': //todo: handle as lambda
+		case '#': handleOpenRange(in, basicRes); break;
 		case '~':
 			if (in.peekAt(1) == '~') // '~~'
 			{
 				requireToken(in, "~~");
-				basicRes.data = ExprType::Err{ std::make_unique<Expr>(readExpr<IS_BASIC>(in,allowVarArg)) };
+				basicRes.data = ExprType::Err{std::make_unique<Expr>(
+				    readExpr<IS_BASIC>(in, allowVarArg))};
 				break;
 			}
 			break;
-		case '/':
-			basicRes.data = readLifetime(in);
-			break;
+		case '/': basicRes.data = readLifetime(in); break;
 		case 'd':
 			if (checkReadTextToken(in, "dyn"))
 			{
-				basicRes.data = ExprType::Dyn{ readTraitExpr(in) };
+				basicRes.data = ExprType::Dyn{readTraitExpr(in)};
 				break;
 			}
 			break;
 		case 'i':
 			if (checkReadTextToken(in, "impl"))
 			{
-				basicRes.data = ExprType::Impl{ readTraitExpr(in) };
+				basicRes.data = ExprType::Impl{readTraitExpr(in)};
 				break;
 			}
 			if (checkReadTextToken(in, "if"))
 			{
 				//TODO: isloop
-				basicRes.data = readIfCond<false, true, IS_BASIC>(
-					in, allowVarArg
-				);
+				basicRes.data
+				    = readIfCond<false, true, IS_BASIC>(in, allowVarArg);
 				break;
 			}
 			break;
-		case 's'://safe fn
+		case 's': //safe fn
 			if (!checkReadTextToken(in, "safe"))
 			{
 				if (checkReadTextToken(in, "struct"))
 				{
 					requireToken(in, "{");
-					basicRes.data = ExprType::Struct(readTable<false>(in, false));
+					basicRes.data
+					    = ExprType::Struct(readTable<false>(in, false));
 				}
 				break;
 			}
 			requireToken(in, "fn");
 			basicRes.data = readFnType<IS_BASIC>(in, ast::OptSafety::SAFE);
 			break;
-		case 'u'://unsafe fn
+		case 'u': //unsafe fn
 			if (!checkReadTextToken(in, "unsafe"))
 			{
 				if (checkReadTextToken(in, "union"))
 				{
 					requireToken(in, "{");
-					basicRes.data = ExprType::Union(readTable<false>(in, false));
+					basicRes.data
+					    = ExprType::Union(readTable<false>(in, false));
 				}
 				break;
 			}
@@ -198,44 +195,39 @@ namespace slu::parse
 		case 'f':
 			if (checkReadTextToken(in, "fn"))
 			{
-				basicRes.data = readFnType<IS_BASIC>(in, ast::OptSafety::DEFAULT);
+				basicRes.data
+				    = readFnType<IS_BASIC>(in, ast::OptSafety::DEFAULT);
 				break;
 			}
-			if (checkReadTextToken(in, "function")) 
+			if (checkReadTextToken(in, "function"))
 			{
 				const ast::Position place = in.getLoc();
 
 				try
 				{
-					auto fun = readFuncBody(in,std::nullopt);
+					auto fun = readFuncBody(in, std::nullopt);
 					ezmatch(std::move(fun))(
-					varcase(Function&&)
-					{
-						basicRes.data = ExprType::Function(std::move(var));
-					},
-					varcase(FunctionInfo&&)
-					{
-						throw UnexpectedCharacterError(std::format(
-							"Expected a " 
-							LC_function 
-							" block for lambda, at"
-							"{}", errorLocStr(in, place)
-						));
-					}
-					);
-				}
-				catch (const ParseError& e)
+					    varcase(Function&&) {
+						    basicRes.data = ExprType::Function(std::move(var));
+					    },
+					    varcase(FunctionInfo&&) {
+						    throw UnexpectedCharacterError(
+						        std::format("Expected a " LC_function
+						                    " block for lambda, at"
+						                    "{}",
+						            errorLocStr(in, place)));
+					    });
+				} catch (const ParseError& e)
 				{
 					in.handleError(e.m);
-					throw ErrorWhileContext(std::format(
-						"In lambda " LC_function " at{}",
-						errorLocStr(in, place)
-					));
+					throw ErrorWhileContext(
+					    std::format("In lambda " LC_function " at{}",
+					        errorLocStr(in, place)));
 				}
-				break; 
+				break;
 			}
 			break;
-		case '.'://handle as numeral instead (.0123, etc)
+		case '.': //handle as numeral instead (.0123, etc)
 		case '0':
 		case '1':
 		case '2':
@@ -246,12 +238,13 @@ namespace slu::parse
 		case '7':
 		case '8':
 		case '9':
-			basicRes.data = readNumeral<ExprData<In>>(in,firstChar);
+			basicRes.data = readNumeral<ExprData<In>>(in, firstChar);
 			break;
 		case '"':
 		case '\'':
 		case '[':
-			basicRes.data = ExprType::String(readStringLiteral(in, firstChar), in.getLoc());
+			basicRes.data = ExprType::String(
+			    readStringLiteral(in, firstChar), in.getLoc());
 			break;
 		case '{':
 			if constexpr (FOR_PAT)
@@ -259,26 +252,26 @@ namespace slu::parse
 				handleOpenRange(in, basicRes);
 				basicRes.data = ExprType::PatTypePrefix{};
 				return basicRes;
-			}
-			else
-				basicRes.data = ExprType::Table<In>(readTable(in,allowVarArg));
+			} else
+				basicRes.data = ExprType::Table<In>(readTable(in, allowVarArg));
 			break;
 		}
 		if (!isNilIntentional
-			&& std::holds_alternative<ExprType::Nil>(basicRes.data))
-		{//Prefix expr! or func-call
+		    && std::holds_alternative<ExprType::Nil>(basicRes.data))
+		{ //Prefix expr! or func-call
 
 			const bool maybeRootMp = firstChar == ':';
 
-			if (!maybeRootMp && firstChar != '(' && !isValidNameStartChar(firstChar))
+			if (!maybeRootMp && firstChar != '('
+			    && !isValidNameStartChar(firstChar))
 				throwExpectedExpr(in);
 
 			if constexpr (FOR_PAT)
 			{
 				if (!maybeRootMp && firstChar != '(')
-				{// check if unops are a type prefix
-					size_t iterIdx = 1;//First was valid
-					
+				{                       // check if unops are a type prefix
+					size_t iterIdx = 1; //First was valid
+
 					while (isValidNameChar(in.peekAt(iterIdx)))
 						iterIdx++;
 					// Lands on non valid idx
@@ -287,9 +280,10 @@ namespace slu::parse
 					// => in = , }, BUT not ==
 					const char nextChar = in.peekAt(iterIdx);
 					if ((nextChar == '=' && in.peekAt(iterIdx + 1) != '=')
-						|| nextChar == ',' || nextChar == '}'
-						|| nextChar=='i'&&(in.peekAt(iterIdx + 1)=='n' && !isValidNameChar(in.peekAt(iterIdx + 2)))
-						)
+					    || nextChar == ',' || nextChar == '}'
+					    || nextChar == 'i'
+					        && (in.peekAt(iterIdx + 1) == 'n'
+					            && !isValidNameChar(in.peekAt(iterIdx + 2))))
 					{
 						basicRes.data = ExprType::PatTypePrefix{};
 						return basicRes;
@@ -297,12 +291,14 @@ namespace slu::parse
 				}
 			}
 
-			basicRes.data = parsePrefixExprVar<ExprData<In>,true, IS_BASIC>(in,allowVarArg, firstChar);
+			basicRes.data = parsePrefixExprVar<ExprData<In>, true, IS_BASIC>(
+			    in, allowVarArg, firstChar);
 		}
 		while (true)
 		{
 			const ast::PostUnOpType uOp = readOptPostUnOp<true>(in);
-			if (uOp == ast::PostUnOpType::NONE)break;
+			if (uOp == ast::PostUnOpType::NONE)
+				break;
 			basicRes.postUnOps.push_back(uOp);
 		}
 
@@ -316,44 +312,38 @@ namespace slu::parse
 			if (nextChr == '.')
 			{
 				const char dotChr = in.peekAt(nextCh + 1);
-				if (dotChr < '0' && dotChr>'9')
-				{//Is not number (.xxxx)
+				if (dotChr < '0' && dotChr > '9')
+				{ //Is not number (.xxxx)
 					in.skip(2);
-					basicRes.postUnOps.push_back(ast::PostUnOpType::RANGE_AFTER);
+					basicRes.postUnOps.push_back(
+					    ast::PostUnOpType::RANGE_AFTER);
 				}
-			}
-			else if (
-				(nextChr >= 'a' && nextChr <= 'z')
-				|| (nextChr >= 'A' && nextChr <= 'Z'))
+			} else if ((nextChr >= 'a' && nextChr <= 'z')
+			    || (nextChr >= 'A' && nextChr <= 'Z'))
 			{
 				if (peekName<NameCatagory::MP_START>(in, nextCh) == SIZE_MAX)
-				{//Its reserved
+				{ //Its reserved
 					in.skip(2);
-					basicRes.postUnOps.push_back(ast::PostUnOpType::RANGE_AFTER);
+					basicRes.postUnOps.push_back(
+					    ast::PostUnOpType::RANGE_AFTER);
 				}
-			}
-			else if (// Not 0-9,_,",',$,[,{,(
-				(nextChr < '0' || nextChr > '9')
-				&& nextChr != '_'
-				&& nextChr != '"'
-				&& nextChr != '\''
-				&& nextChr != '$'
-				&& nextChr != '['
-				&& nextChr != '{'
-				&& nextChr != '('
-				)
+			} else if ( // Not 0-9,_,",',$,[,{,(
+			    (nextChr < '0' || nextChr > '9') && nextChr != '_'
+			    && nextChr != '"' && nextChr != '\'' && nextChr != '$'
+			    && nextChr != '[' && nextChr != '{' && nextChr != '(')
 			{
 				in.skip(2);
 				basicRes.postUnOps.push_back(ast::PostUnOpType::RANGE_AFTER);
 			}
 		}
 		//check bin op
-		if (!readBiOp)return basicRes;
+		if (!readBiOp)
+			return basicRes;
 
 		skipSpace(in);
 
-		if(!in)
-			return basicRes;//File ended
+		if (!in)
+			return basicRes; //File ended
 
 		const ast::BinOpType firstBinOp = readOptBinOp(in);
 
@@ -363,21 +353,23 @@ namespace slu::parse
 		ExprType::MultiOp<In> resData{};
 
 		resData.first = std::make_unique<Expr>(std::move(basicRes));
-		resData.extra.emplace_back(firstBinOp, readExpr<IS_BASIC>(in,allowVarArg,false));
+		resData.extra.emplace_back(
+		    firstBinOp, readExpr<IS_BASIC>(in, allowVarArg, false));
 
 		while (true)
 		{
 			skipSpace(in);
 
 			if (!in)
-				break;//File ended
+				break; //File ended
 
 			const ast::BinOpType binOp = readOptBinOp(in);
 
 			if (binOp == ast::BinOpType::NONE)
 				break;
 
-			resData.extra.emplace_back(binOp, readExpr<IS_BASIC>(in,allowVarArg,false));
+			resData.extra.emplace_back(
+			    binOp, readExpr<IS_BASIC>(in, allowVarArg, false));
 		}
 		Expr ret;
 		ret.place = startPos;
@@ -385,4 +377,4 @@ namespace slu::parse
 
 		return ret;
 	}
-}
+} //namespace slu::parse

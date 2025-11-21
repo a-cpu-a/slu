@@ -4,13 +4,13 @@
 */
 #include <cstdint>
 #include <ranges>
-#include <utility>
-#include <unordered_map>
-#include <string>
 #include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <utility>
 
-#include <slu/Panic.hpp>
 #include <slu/ext/CppMatch.hpp>
+#include <slu/Panic.hpp>
 #include <slu/lang/MpcMacros.hpp>
 export module slu.ast.mp_data;
 import slu.ast.state;
@@ -22,24 +22,27 @@ import slu.parse.input;
 namespace slu::parse //TODO: ast
 {
 	constexpr size_t NORMAL_SCOPE = SIZE_MAX;
-	constexpr size_t UNSCOPE = SIZE_MAX-1;
-	constexpr size_t GLOBAL_SCOPE = SIZE_MAX-2;
+	constexpr size_t UNSCOPE = SIZE_MAX - 1;
+	constexpr size_t GLOBAL_SCOPE = SIZE_MAX - 2;
 
 	/*
-		Names starting with $ are anonymous, and are followed by 8 raw bytes (representing anon name id)
-		(All of those are not to be used by other modules, and are local only)
+	    Names starting with $ are anonymous, and are followed by 8 raw bytes
+	   (representing anon name id) (All of those are not to be used by other
+	   modules, and are local only)
 
-		When converting anonymous names into text, use this form: $(hex form of bytes, no leading zeros except for just 0)
+	    When converting anonymous names into text, use this form: $(hex form of
+	   bytes, no leading zeros except for just 0)
 
-		If a host asks for one of these names as text, then use one of these forms:
-			Same as for normal text or
-			__SLUANON__(hex form of bytes, same as for normal text)
+	    If a host asks for one of these names as text, then use one of these
+	   forms: Same as for normal text or
+	        __SLUANON__(hex form of bytes, same as for normal text)
 
-		(Hex forms in lowercase)
+	    (Hex forms in lowercase)
 	*/
 	constexpr std::string getAnonName(const size_t anonId)
 	{
-		Slu_assert(anonId != NORMAL_SCOPE && anonId != UNSCOPE && anonId != GLOBAL_SCOPE);
+		Slu_assert(anonId != NORMAL_SCOPE && anonId != UNSCOPE
+		    && anonId != GLOBAL_SCOPE);
 		std::string name(1 + sizeof(size_t), '$');
 		name[1] = uint8_t((anonId & 0xFF00000000000000) >> 56);
 		name[2] = uint8_t((anonId & 0xFF000000000000) >> 48);
@@ -52,24 +55,35 @@ namespace slu::parse //TODO: ast
 		return name;
 	}
 
-	struct _ew_string_haah {
+	struct _ew_string_haah
+	{
 		using is_transparent = void;
-		auto operator()(const auto& a) const noexcept {
+		auto operator()(const auto& a) const noexcept
+		{
 			return std::hash<std::string_view>{}((std::string_view)a);
 		}
 	};
-	struct _ew_string_eq {
+	struct _ew_string_eq
+	{
 		using is_transparent = void;
-		constexpr bool operator()(const std::string& a, const std::string& b) const {
+		constexpr bool operator()(
+		    const std::string& a, const std::string& b) const
+		{
 			return a == b;
 		}
-		constexpr bool operator()(const std::string_view a, const std::string_view b) const {
+		constexpr bool operator()(
+		    const std::string_view a, const std::string_view b) const
+		{
 			return a == b;
 		}
-		constexpr bool operator()(const std::string& a, const std::string_view b) const {
+		constexpr bool operator()(
+		    const std::string& a, const std::string_view b) const
+		{
 			return a == b;
 		}
-		constexpr bool operator()(const std::string_view a, const std::string& b) const {
+		constexpr bool operator()(
+		    const std::string_view a, const std::string& b) const
+		{
 			return a == b;
 		}
 	};
@@ -80,14 +94,14 @@ namespace slu::parse //TODO: ast
 		std::vector<ResolvedType> args;
 		ResolvedType ret;
 		lang::ExportData exported;
-
 	};
 	namespace ItmType
 	{
 		using namespace std::string_view_literals;
 
 		//Applied to anon/synthetic/private? stuff
-		export struct Unknown {
+		export struct Unknown
+		{
 			constexpr static std::string_view NAME = "unknown"sv;
 		};
 
@@ -97,7 +111,7 @@ namespace slu::parse //TODO: ast
 			std::string abi;
 			ResolvedType ret;
 			std::vector<ResolvedType> args;
-			std::vector<parse::LocalId> argLocals;//Only for non decl functions
+			std::vector<parse::LocalId> argLocals; //Only for non decl functions
 			lang::ExportData exported;
 		};
 		export struct NamedTypeImpls
@@ -141,30 +155,25 @@ namespace slu::parse //TODO: ast
 			lang::ExportData exported;
 			//TODO: impl data (params, impl-consts, impl-fn's, where clauses)
 		};
-		export struct Alias//TODO something for ::* use's
+		export struct Alias //TODO something for ::* use's
 		{
 			constexpr static std::string_view NAME = "alias"sv;
 			lang::MpItmId usedThing;
 		};
-		export struct Module{
+		export struct Module
+		{
 			constexpr static std::string_view NAME = "module"sv;
 		};
-	}
-	export using Itm = std::variant<
-		ItmType::Unknown,
-		ItmType::Fn,
-		ItmType::NamedTypeImpls, // Used temporarily while a type is not defined, but does have impl's
-		ItmType::TypeFn,
-		ItmType::ArglessTypeVar,
-		ItmType::GlobVar,
-		ItmType::ConstVar,
-		ItmType::Trait,
-		ItmType::Impl,
-		ItmType::Alias,
-		ItmType::Module
-	>;
+	} //namespace ItmType
+	export using Itm = std::variant<ItmType::Unknown, ItmType::Fn,
+	    ItmType::NamedTypeImpls, // Used temporarily while a type is not
+	                             // defined, but does have impl's
+	    ItmType::TypeFn, ItmType::ArglessTypeVar, ItmType::GlobVar,
+	    ItmType::ConstVar, ItmType::Trait, ItmType::Impl, ItmType::Alias,
+	    ItmType::Module>;
 
-	export using MpItmName2Obj = std::unordered_map<std::string, lang::LocalObjId, _ew_string_haah, _ew_string_eq>;
+	export using MpItmName2Obj = std::unordered_map<std::string,
+	    lang::LocalObjId, _ew_string_haah, _ew_string_eq>;
 	export struct BasicModPathData
 	{
 		lang::ModPath path;
@@ -172,14 +181,15 @@ namespace slu::parse //TODO: ast
 		std::vector<std::string> id2Name;
 		std::vector<parse::Itm> id2Itm;
 
-		void addItm(lang::LocalObjId obj,Itm&& v)
+		void addItm(lang::LocalObjId obj, Itm&& v)
 		{
 			if (id2Itm.size() <= obj.val)
 				id2Itm.resize(obj.val + 1);
 			id2Itm[obj.val] = std::move(v);
 		}
 
-		lang::LocalObjId at(const std::string_view name) const {
+		lang::LocalObjId at(const std::string_view name) const
+		{
 			return name2Id.find(name)->second;
 		}
 		lang::LocalObjId get(std::string_view name)
@@ -189,10 +199,10 @@ namespace slu::parse //TODO: ast
 			{
 				const size_t res = id2Name.size();
 
-				name2Id[std::string(name)] = { res };
+				name2Id[std::string(name)] = {res};
 				id2Name.emplace_back(name);
 
-				return { res };
+				return {res};
 			}
 			return p->second;
 		}
@@ -203,23 +213,25 @@ namespace slu::parse //TODO: ast
 			{
 				const size_t res = id2Name.size();
 
-				name2Id[std::string(name)] = { res };
+				name2Id[std::string(name)] = {res};
 				id2Name.emplace_back(std::move(name));
 
-				return { res };
+				return {res};
 			}
 			return p->second;
 		}
 
 		BasicModPathData() = default;
-		BasicModPathData(lang::ModPath&& path) :path(std::move(path)) {}
+		BasicModPathData(lang::ModPath&& path) : path(std::move(path)) {}
 		BasicModPathData(const BasicModPathData&) = delete;
 		BasicModPathData(BasicModPathData&&) = default;
 		BasicModPathData& operator=(BasicModPathData&&) = default;
 	};
-	export using Mp2MpIdMap = std::unordered_map<lang::ModPath, lang::ModPathId, lang::HashModPathView, lang::EqualModPathView>;
+	export using Mp2MpIdMap = std::unordered_map<lang::ModPath, lang::ModPathId,
+	    lang::HashModPathView, lang::EqualModPathView>;
 	template<size_t N>
-	inline void initMpData(Mp2MpIdMap& mp2Id,BasicModPathData& mp, const mpc::MpcMp<N>& data,size_t itmCount)
+	inline void initMpData(Mp2MpIdMap& mp2Id, BasicModPathData& mp,
+	    const mpc::MpcMp<N>& data, size_t itmCount)
 	{
 		mp.path.resize(data.mp.size());
 
@@ -238,46 +250,47 @@ namespace slu::parse //TODO: ast
 		Mp2MpIdMap mp2Id;
 		std::vector<parse::BasicModPathData> mps;
 
-		BasicMpDbData() {
+		BasicMpDbData()
+		{
 			using namespace std::string_view_literals;
 			mps.resize(mpc::MP_COUNT);
-#define _Slu_INIT_MP(ARG_MP) \
-	size_t i_##ARG_MP = 0; \
+#define _Slu_INIT_MP(ARG_MP)                                            \
+	size_t i_##ARG_MP = 0;                                              \
 	BasicModPathData& mp_##ARG_MP = mps[::slu::mpc::MP_##ARG_MP.idx()]; \
-	initMpData(mp2Id, mp_##ARG_MP, \
-		::slu::mpc::MP_##ARG_MP, \
-		::slu::mpc::MP_ITM_COUNT_##ARG_MP \
-	); \
+	initMpData(mp2Id, mp_##ARG_MP, ::slu::mpc::MP_##ARG_MP,             \
+	    ::slu::mpc::MP_ITM_COUNT_##ARG_MP);                             \
 	Slu_##ARG_MP##_ITEMS(;)
-#define _Slu_HANDLE_ITEM(ARG_MP,_VAR,_STR) \
-	mp_##ARG_MP.id2Name.emplace_back(_STR##sv); \
-	mp_##ARG_MP.name2Id.emplace(_STR##sv,i_##ARG_MP++)
-#define _X(_VAR,_STR) _Slu_HANDLE_ITEM(POOLED,_VAR,_STR)
+#define _Slu_HANDLE_ITEM(ARG_MP, _VAR, _STR)            \
+	mp_##ARG_MP.id2Name.emplace_back(_STR##sv);         \
+	mp_##ARG_MP.name2Id.emplace(_STR##sv, i_##ARG_MP++)
+#define _X(_VAR, _STR) _Slu_HANDLE_ITEM(POOLED, _VAR, _STR)
 			_Slu_INIT_MP(POOLED);
 #undef _X
-#define _X(_VAR,_STR) _Slu_HANDLE_ITEM(STD,_VAR,_STR)
+#define _X(_VAR, _STR) _Slu_HANDLE_ITEM(STD, _VAR, _STR)
 			_Slu_INIT_MP(STD);
 #undef _X
-#define _X(_VAR,_STR) _Slu_HANDLE_ITEM(STD_BOOL,_VAR,_STR)
+#define _X(_VAR, _STR) _Slu_HANDLE_ITEM(STD_BOOL, _VAR, _STR)
 			_Slu_INIT_MP(STD_BOOL);
 #undef _X
 #undef _Slu_HANDLE_ITEM
 #undef _Slu_INIT_MP
 		}
 
-		const Itm& getItm(const lang::MpItmId name) const {
+		const Itm& getItm(const lang::MpItmId name) const
+		{
 			return mps[name.mp.id].id2Itm[name.id.val];
 		}
 
 		//Returns empty if not found
-		const lang::PoolString getPoolStr(std::string_view txt) const {
+		const lang::PoolString getPoolStr(std::string_view txt) const
+		{
 			auto p = mps[mpc::MP_UNKNOWN.idx()].name2Id.find(txt);
 			if (p == mps[mpc::MP_UNKNOWN.idx()].name2Id.end())
 				return lang::PoolString::newEmpty();
-			return lang::PoolString{ p->second };
+			return lang::PoolString{p->second};
 		}
 
-		lang::ModPath getMp(const lang::MpItmId name)const
+		lang::ModPath getMp(const lang::MpItmId name) const
 		{
 			const BasicModPathData& data = mps[name.mp.id];
 			lang::ModPath res;
@@ -291,48 +304,48 @@ namespace slu::parse //TODO: ast
 		{
 			if (path.size() == 1)
 			{
-				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
+				throw std::runtime_error(
+				    "TODO: crate values: get item from a path with 1 element");
 			}
 			lang::MpItmId res;
 			res.mp = mp2Id.find(path.subspan(0, path.size() - 1))->second;
 			res.id = mps[res.mp.id].at(path.back());
 			return res;
 		}
-		lang::MpItmId getItm(const std::initializer_list<std::string_view>& path) const {
+		lang::MpItmId getItm(
+		    const std::initializer_list<std::string_view>& path) const
+		{
 			return getItm((lang::ViewModPathView)path);
 		}
 
-		std::string_view getSv(const lang::PoolString v) const {
+		std::string_view getSv(const lang::PoolString v) const
+		{
 			if (v.val == SIZE_MAX)
-				return {};//empty
+				return {}; //empty
 			return mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
 	};
-	export template<class T, bool followAlias=false>
-	inline const T& getItm(const BasicMpDbData& mpDb,const lang::MpItmId name)
+	export template<class T, bool followAlias = false>
+	inline const T& getItm(const BasicMpDbData& mpDb, const lang::MpItmId name)
 	{
 		return *ezmatch(mpDb.getItm(name))(
-		[&]<class T2>(const T2& var)->const T* {
-			throw std::runtime_error("Expected item type " + std::string(T::NAME) + ", but got " + std::string(T2::NAME));
-		},
-		varcase(const ItmType::Alias&)->const T* requires(followAlias) {
-			return &getItm<T, followAlias>(mpDb, var.usedThing);
-		},
-		varcase(const T&)->const T* {
-			return &var;
-		}
-		);
+		    [&]<class T2>(const T2& var) -> const T* {
+			    throw std::runtime_error("Expected item type "
+			        + std::string(T::NAME) + ", but got "
+			        + std::string(T2::NAME));
+		    },
+		    varcase(const ItmType::Alias&)->const T* requires(followAlias) {
+			    return &getItm<T, followAlias>(mpDb, var.usedThing);
+		    }, varcase(const T&)->const T* { return &var; });
 	}
-	export inline lang::MpItmId resolveAlias(const BasicMpDbData& mpDb,const lang::MpItmId name)
+	export inline lang::MpItmId resolveAlias(
+	    const BasicMpDbData& mpDb, const lang::MpItmId name)
 	{
 		return ezmatch(mpDb.getItm(name))(
-		varcase(const auto&) {
-			return name;
-		},
-		varcase(const ItmType::Alias&) {
-			return resolveAlias(mpDb, var.usedThing);
-		}
-		);
+		    varcase(const auto&) { return name; },
+		    varcase(const ItmType::Alias&) {
+			    return resolveAlias(mpDb, var.usedThing);
+		    });
 	}
 	export struct BasicMpDb
 	{
@@ -341,38 +354,40 @@ namespace slu::parse //TODO: ast
 		bool isUnknown(lang::MpItmId n) const
 		{
 			if (n.mp.id == mpc::MP_UNKNOWN.idx())
-				return true;//Hardcoded as always unknown.
+				return true; //Hardcoded as always unknown.
 			//Else: check if first part is empty
 			return data->mps[n.mp.id].path[0].empty();
 		}
-		lang::PoolString poolStr(const std::string_view name) {
+		lang::PoolString poolStr(const std::string_view name)
+		{
 			return data->mps[mpc::MP_UNKNOWN.idx()].get(name);
 		}
-		lang::MpItmId resolveUnknown(const std::string_view name) {
-			return lang::MpItmId{poolStr(name), { mpc::MP_UNKNOWN.idx() }};
+		lang::MpItmId resolveUnknown(const std::string_view name)
+		{
+			return lang::MpItmId{poolStr(name), {mpc::MP_UNKNOWN.idx()}};
 		}
 
-		template<bool unknown>
-		lang::ModPathId get(const lang::ModPathView path)
+		template<bool unknown> lang::ModPathId get(const lang::ModPathView path)
 		{
 			if (!data->mp2Id.contains(path))
 			{
 				const size_t res = data->mps.size();
 
-				data->mp2Id.emplace(lang::ModPath(path.begin(), path.end()), res);
+				data->mp2Id.emplace(
+				    lang::ModPath(path.begin(), path.end()), res);
 
 				if constexpr (unknown)
 				{
 					lang::ModPath tmp;
 					tmp.reserve(1 + path.size());
 					tmp.push_back("");
-					tmp.insert(tmp.end(),path.begin(), path.end());
+					tmp.insert(tmp.end(), path.begin(), path.end());
 					data->mps.emplace_back(std::move(tmp));
-				}
-				else
-					data->mps.emplace_back(lang::ModPath(path.begin(), path.end()));
+				} else
+					data->mps.emplace_back(
+					    lang::ModPath(path.begin(), path.end()));
 
-				return { res };
+				return {res};
 			}
 			return data->mp2Id.find(path)->second;
 		}
@@ -381,27 +396,31 @@ namespace slu::parse //TODO: ast
 		{
 			if (path.size() == 1)
 			{
-				throw std::runtime_error("TODO: crate values: get item from a path with 1 element");
+				throw std::runtime_error(
+				    "TODO: crate values: get item from a path with 1 element");
 			}
 			lang::MpItmId res;
-			res.mp = get<false>(path.subspan(0,path.size()-1));
+			res.mp = get<false>(path.subspan(0, path.size() - 1));
 			res.id = data->mps[res.mp.id].get(path.back());
 			return res;
 		}
 
-		std::string_view asSv(const lang::MpItmId v) const {
+		std::string_view asSv(const lang::MpItmId v) const
+		{
 			if (v.id.val == SIZE_MAX)
-				return {};//empty
+				return {}; //empty
 			return data->mps[v.mp.id].id2Name[v.id.val];
 		}
-		std::string_view asSv(const lang::PoolString v) const {
+		std::string_view asSv(const lang::PoolString v) const
+		{
 			if (v.val == SIZE_MAX)
-				return {};//empty
+				return {}; //empty
 			return data->mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
-		lang::ViewModPath asVmp(const lang::MpItmId v) const {
+		lang::ViewModPath asVmp(const lang::MpItmId v) const
+		{
 			if (v.id.val == SIZE_MAX)
-				return {};//empty
+				return {}; //empty
 			const BasicModPathData& mp = data->mps[v.mp.id];
 
 			lang::ViewModPath res;
@@ -409,7 +428,7 @@ namespace slu::parse //TODO: ast
 
 			for (const std::string& s : mp.path)
 			{
-				if(!s.starts_with('$'))
+				if (!s.starts_with('$'))
 					res.push_back(s);
 			}
 			res.push_back(mp.id2Name[v.id.val]);
@@ -418,12 +437,16 @@ namespace slu::parse //TODO: ast
 		}
 	};
 
-	std::string_view _fwdConstructBasicMpDbAsSv(BasicMpDbData* data, lang::MpItmId thiz){
-		return BasicMpDb{ data }.asSv(thiz);
+	std::string_view _fwdConstructBasicMpDbAsSv(
+	    BasicMpDbData* data, lang::MpItmId thiz)
+	{
+		return BasicMpDb{data}.asSv(thiz);
 	}
 
-	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(BasicMpDbData* data, lang::MpItmId thiz){
-		return BasicMpDb{ data }.asVmp(thiz);
+	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(
+	    BasicMpDbData* data, lang::MpItmId thiz)
+	{
+		return BasicMpDb{data}.asVmp(thiz);
 	}
 
 	struct GenSafety
@@ -433,14 +456,13 @@ namespace slu::parse //TODO: ast
 	};
 	struct BasicGenScope
 	{
-		size_t anonId;//size_max -> not anon
+		size_t anonId; //size_max -> not anon
 
 		std::vector<std::string> objs;
 
 		std::vector<GenSafety> safetyList;
 
 		BlockV<true> res;
-
 	};
 	export struct BasicGenData
 	{
@@ -451,12 +473,14 @@ namespace slu::parse //TODO: ast
 		lang::ModPath totalMp;
 
 		/*
-		All local names (no ::'s) are defined in THIS file, or from a `use ::*` (potentialy std::prelude::*)
-		This means any 'use' things that reference ??? stuff, can only be other global crates OR a sub-path of a `use ::*`
-		
-		Since we dont know if 'mylib' is a crate, or a module inside something that was `use ::*`-ed,
-		we have to wait until all ::* modules have been parsed.
-		OR, we have to let another pass figure it out. (The simpler option)
+		All local names (no ::'s) are defined in THIS file, or from a `use ::*`
+		(potentialy std::prelude::*) This means any 'use' things that reference
+		??? stuff, can only be other global crates OR a sub-path of a `use ::*`
+
+		Since we dont know if 'mylib' is a crate, or a module inside something
+		that was `use ::*`-ed, we have to wait until all ::* modules have been
+		parsed. OR, we have to let another pass figure it out. (The simpler
+		option)
 
 		Recursive ::* uses, might force the multi-pass aproach?
 		Or would be impossible.
@@ -464,24 +488,29 @@ namespace slu::parse //TODO: ast
 
 		How to handle 2 `use ::*`'s?
 
-		If there are 2 star uses, is it required to union both of them, into 1 symbol id?
-		Are we forced to make a new symbol after every combination of star uses? No (VVV)
-		Is it better to just use unknown_modpath?
-		^ Yes, doing so, will simplify the ability to add or remove the default used files
+		If there are 2 star uses, is it required to union both of them, into 1
+		symbol id? Are we forced to make a new symbol after every combination of
+		star uses? No (VVV) Is it better to just use unknown_modpath? ^ Yes,
+		doing so, will simplify the ability to add or remove the default used
+		files
 
 		*/
 
-		std::string_view asSv(const lang::PoolString id) const {
+		std::string_view asSv(const lang::PoolString id) const
+		{
 			return mpDb.asSv(id);
 		}
-		std::string_view asSv(const lang::MpItmId id) const {
+		std::string_view asSv(const lang::MpItmId id) const
+		{
 			return mpDb.asSv(id);
 		}
-		lang::ViewModPath asVmp(const lang::MpItmId v) const {
-			return { mpDb.asVmp(v)};
+		lang::ViewModPath asVmp(const lang::MpItmId v) const
+		{
+			return {mpDb.asVmp(v)};
 		}
 
-		constexpr void pushUnsafe() {
+		constexpr void pushUnsafe()
+		{
 			scopes.back().safetyList.emplace_back(false, true);
 		}
 		constexpr void popSafety()
@@ -495,11 +524,11 @@ namespace slu::parse //TODO: ast
 					break;
 				popCount++;
 			}
-			safetyList.erase(safetyList.end()-popCount, safetyList.end());
+			safetyList.erase(safetyList.end() - popCount, safetyList.end());
 		}
 		constexpr void setUnsafe()
 		{
-			if(!scopes.back().safetyList.empty())
+			if (!scopes.back().safetyList.empty())
 			{
 				GenSafety& gs = scopes.back().safetyList.back();
 				if (!(gs.forPop || gs.isSafe))
@@ -518,7 +547,8 @@ namespace slu::parse //TODO: ast
 			scopes.back().safetyList.emplace_back(true);
 		}
 
-		constexpr void pushLocalScope() {
+		constexpr void pushLocalScope()
+		{
 			localsStack.emplace_back();
 		}
 
@@ -535,11 +565,12 @@ namespace slu::parse //TODO: ast
 			anonScopeCounts.emplace_back(0);
 		}
 		//For extern/unsafe blocks
-		constexpr void pushUnScope(const ast::Position start,const bool isGlobal)
+		constexpr void pushUnScope(
+		    const ast::Position start, const bool isGlobal)
 		{
 			const size_t id = isGlobal ? GLOBAL_SCOPE : UNSCOPE;
 
-			scopes.push_back({ id });
+			scopes.push_back({id});
 			scopes.back().res.start = start;
 			if (isGlobal)
 				anonScopeCounts.emplace_back(0);
@@ -547,20 +578,23 @@ namespace slu::parse //TODO: ast
 				anonScopeCounts.push_back(anonScopeCounts.back());
 		}
 		//For func, macro, inline_mod, type?, ???
-		constexpr void pushScope(const ast::Position start,std::string&& name) {
+		constexpr void pushScope(const ast::Position start, std::string&& name)
+		{
 			//addLocalObj(name);
 
 			totalMp.push_back(std::move(name));
-			scopes.push_back({ NORMAL_SCOPE });
+			scopes.push_back({NORMAL_SCOPE});
 			scopes.back().res.start = start;
 			anonScopeCounts.emplace_back(0);
 		}
-		constexpr LocalsV<true> popLocalScope() {
+		constexpr LocalsV<true> popLocalScope()
+		{
 			auto res = std::move(localsStack.back());
 			localsStack.pop_back();
 			return std::move(res);
 		}
-		BlockV<true> popScope(const ast::Position end) {
+		BlockV<true> popScope(const ast::Position end)
+		{
 			BlockV<true> res = std::move(scopes.back().res);
 			res.end = end;
 			res.mp = mpDb.template get<false>(totalMp);
@@ -569,7 +603,8 @@ namespace slu::parse //TODO: ast
 			anonScopeCounts.pop_back();
 			return res;
 		}
-		BlockV<true> popUnScope(const ast::Position end) {
+		BlockV<true> popUnScope(const ast::Position end)
+		{
 			BlockV<true> res = std::move(scopes.back().res);
 			res.end = end;
 			bool isGlobal = scopes.back().anonId == GLOBAL_SCOPE;
@@ -579,23 +614,26 @@ namespace slu::parse //TODO: ast
 			if (isGlobal)
 			{
 				res.mp = mpDb.template get<false>(totalMp);
-			}
-			else
+			} else
 			{
-				anonScopeCounts.back() = nextAnonId;//Shared counter
+				anonScopeCounts.back() = nextAnonId; //Shared counter
 			}
 			return res;
 		}
-		void scopeReturn(RetType ty) {
+		void scopeReturn(RetType ty)
+		{
 			scopes.back().res.retTy = ty;
 		}
 		// Make sure to run no args `scopeReturn()` first!
-		void scopeReturn(ExprList&& expList) {
+		void scopeReturn(ExprList&& expList)
+		{
 			scopes.back().res.retExprs = std::move(expList);
 		}
 
-		constexpr void addStat(const ast::Position place,StatDataV<true>&& data){
-			Stat stat = { std::move(data) };
+		constexpr void addStat(
+		    const ast::Position place, StatDataV<true>&& data)
+		{
+			Stat stat = {std::move(data)};
 			stat.place = place;
 			scopes.back().res.statList.emplace_back(std::move(stat));
 		}
@@ -606,7 +644,8 @@ namespace slu::parse //TODO: ast
 				if (i.anonId != UNSCOPE)
 				{
 					i.objs.push_back(name);
-					auto mpView = lang::ModPathView(totalMp).subspan(0, totalMp.size());
+					auto mpView
+					    = lang::ModPathView(totalMp).subspan(0, totalMp.size());
 					lang::ModPathId mp = mpDb.template get<false>(mpView);
 					lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
 					return lang::MpItmId{id, mp};
@@ -629,7 +668,7 @@ namespace slu::parse //TODO: ast
 						return scopeRevId;
 				}
 				if (scope.anonId == GLOBAL_SCOPE)
-					break;//Dont look into other modules
+					break; //Dont look into other modules
 
 				scopeRevId++;
 			}
@@ -637,15 +676,16 @@ namespace slu::parse //TODO: ast
 		}
 
 		constexpr DynLocalOrName resolveNameOrLocal(const std::string& name)
-		{// Check if its local
-			//either known local being indexed ORR unknown(potentially from a `use ::*`)
+		{ // Check if its local
+			//either known local being indexed ORR unknown(potentially from a
+			//`use ::*`)
 			if (!localsStack.empty())
 			{
 				size_t id = 0;
 				for (auto& i : localsStack.back().names)
 				{
 					if (mpDb.data->mps[i.mp.id].id2Name[i.id.val] == name)
-						return LocalId{ id };
+						return LocalId{id};
 					id++;
 				}
 			}
@@ -653,28 +693,27 @@ namespace slu::parse //TODO: ast
 			if (v.has_value())
 			{
 				lang::ModPathId mp = mpDb.template get<false>(
-					lang::ModPathView(totalMp).subspan(0, totalMp.size() - *v)
-				);
+				    lang::ModPathView(totalMp).subspan(0, totalMp.size() - *v));
 				lang::LocalObjId id = mpDb.data->mps[mp.id].get(name);
-				return lang::MpItmId{ id, mp };
+				return lang::MpItmId{id, mp};
 			}
 			return resolveUnknown(name);
 		}
 		constexpr lang::MpItmId resolveName(const std::string& name)
 		{
 			return ezmatch(resolveNameOrLocal(name))(
-				varcase(const parse::LocalId) { return localsStack.back().names[var.v]; },
-				varcase(const lang::MpItmId) {
-				return var;
-			}
-				);
+			    varcase(const parse::LocalId) {
+				    return localsStack.back().names[var.v];
+			    },
+			    varcase(const lang::MpItmId) { return var; });
 		}
-		lang::MpItmId resolveRootName(const lang::ModPath& name) {
-			return mpDb.getItm(name);// Create if needed, and return it
+		lang::MpItmId resolveRootName(const lang::ModPath& name)
+		{
+			return mpDb.getItm(name); // Create if needed, and return it
 		}
 		constexpr size_t countScopes() const
 		{
-			size_t val=0;
+			size_t val = 0;
 			for (const auto& i : std::views::reverse(scopes))
 			{
 				if (i.anonId == GLOBAL_SCOPE)
@@ -687,18 +726,19 @@ namespace slu::parse //TODO: ast
 		constexpr lang::MpItmId resolveName(const lang::ModPath& name)
 		{
 			if (name.size() == 1)
-				return resolveName(name[0]);//handles self implicitly!!!
+				return resolveName(name[0]); //handles self implicitly!!!
 
-			//either known local being indexed, super, crate, self ORR unknown(potentially from a `use ::*`)
+			//either known local being indexed, super, crate, self ORR
+			//unknown(potentially from a `use ::*`)
 
 			std::optional<size_t> v;
 			bool remFirst = true;
 			if (name[0] == "self")
 				v = countScopes();
 			else if (name[0] == "super")
-				v = countScopes()+1;//Pop all new ones + self
+				v = countScopes() + 1; //Pop all new ones + self
 			else if (name[0] == "crate")
-				v = totalMp.size() - 1;//All but last
+				v = totalMp.size() - 1; //All but last
 			else
 			{
 				remFirst = false;
@@ -712,21 +752,24 @@ namespace slu::parse //TODO: ast
 
 				for (size_t i = 0; i < totalMp.size() - *v; i++)
 					mpSum.push_back(totalMp[i]);
-				for (size_t i = remFirst?1:0; i < name.size()-1; i++)
+				for (size_t i = remFirst ? 1 : 0; i < name.size() - 1; i++)
 					mpSum.push_back(name[i]);
 
-				lang::ModPathId mp = mpDb.template get<false>(lang::ModPathView(mpSum));
+				lang::ModPathId mp
+				    = mpDb.template get<false>(lang::ModPathView(mpSum));
 
 				lang::LocalObjId id = mpDb.data->mps[mp.id].get(name.back());
-				return lang::MpItmId{id,mp};
+				return lang::MpItmId{id, mp};
 			}
 			return resolveUnknown(name);
 		}
-		constexpr bool inGlobalLand() const {
+		constexpr bool inGlobalLand() const
+		{
 			return localsStack.empty();
 		}
 		template<bool isLocal>
-		constexpr LocalOrNameV<true,isLocal> resolveNewName(const std::string& name)
+		constexpr LocalOrNameV<true, isLocal> resolveNewName(
+		    const std::string& name)
 		{
 			auto n = addLocalObj(name);
 			if constexpr (isLocal)
@@ -734,8 +777,7 @@ namespace slu::parse //TODO: ast
 				auto& stack = localsStack.back();
 				stack.names.push_back(n);
 				return parse::LocalId(stack.names.size() - 1);
-			}
-			else
+			} else
 				return n;
 		}
 		template<bool isLocal>
@@ -749,27 +791,30 @@ namespace slu::parse //TODO: ast
 				auto& stack = localsStack.back();
 				stack.names.push_back(n);
 				return parse::LocalId(stack.names.size() - 1);
-			}
-			else
+			} else
 				return n;
 		}
 		// .XXX, XXX, :XXX
-		lang::MpItmId resolveUnknown(const std::string& name) {
+		lang::MpItmId resolveUnknown(const std::string& name)
+		{
 			return mpDb.resolveUnknown(name);
 		}
-		lang::PoolString poolStr(std::string&& name) {
+		lang::PoolString poolStr(std::string&& name)
+		{
 			return mpDb.data->mps[mpc::MP_UNKNOWN.idx()].get(std::move(name));
 		}
 		lang::MpItmId resolveUnknown(const lang::ModPath& name)
 		{
-			lang::ModPathId mp = mpDb.template get<true>(
-				lang::ModPathView(name).subspan(0, name.size() - 1) // All but last elem
-			);
+			lang::ModPathId mp
+			    = mpDb.template get<true>(lang::ModPathView(name).subspan(
+			        0, name.size() - 1) // All but last elem
+			    );
 			lang::LocalObjId id = mpDb.data->mps[mp.id].get(name.back());
-			return lang::MpItmId{id,mp};
+			return lang::MpItmId{id, mp};
 		}
-		constexpr lang::MpItmId resolveEmpty() {
+		constexpr lang::MpItmId resolveEmpty()
+		{
 			return lang::MpItmId::newEmpty();
 		}
 	};
-}
+} //namespace slu::parse

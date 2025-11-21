@@ -137,9 +137,7 @@ namespace slu::paint
 			case Tok::BIT_OR:  return col(0x4CFFDA);
 			case Tok::BIT_XOR: return col(0xFFAA72);
 			case Tok::CONCAT:  return col(0x899EC4);
-			case Tok::SIZEOF:  return col(0xA8A820);
 			case Tok::NEG:     return col(0xFF4242);
-			case Tok::BITNOT:  return col(0xFF6060);
 
 			case Tok::SHL:
 			case Tok::SHR: return col(0xFFC6FF);

@@ -16,10 +16,12 @@ namespace slu::comp
 {
 	export struct CodeGenEntrypoint
 	{
-		std::string entryPointFile;//path to file that defined this entry-point, or empty
+		//path to file that defined this entry-point, or empty
+		std::string entryPointFile;
 		std::string fileName;
 	};
-	//Could repr some js file, some wasm blob, a jar / class, or even some exe / dll.
+	//Could repr some js file, some wasm blob, a jar / class, or
+	// even some exe / dll.
 	export struct CompEntryPoint : CodeGenEntrypoint
 	{
 		std::vector<uint8_t> contents;
@@ -31,21 +33,20 @@ namespace slu::comp
 		//TODO: info for build cache files?
 	};
 
-	inline void waitForTasksToComplete(a_cpu_a::Mutex<size_t>& tasksLeft, std::condition_variable& cvMain)
+	inline void waitForTasksToComplete(
+	    a_cpu_a::Mutex<size_t>& tasksLeft, std::condition_variable& cvMain)
 	{
 		std::unique_lock tasksLeftLock(tasksLeft.lock);
 		if (tasksLeft.v != 0)
-			cvMain.wait(tasksLeftLock, [&tasksLeft] {return tasksLeft.v == 0; });
+			cvMain.wait(
+			    tasksLeftLock, [&tasksLeft] { return tasksLeft.v == 0; });
 	}
-	inline void submitTask(const CompCfg& cfg,
-		uint32_t taskId,
-		a_cpu_a::Mutex<std::vector<CompTask>>& tasks,
-		a_cpu_a::Mutex<size_t>& tasksLeft,
-		std::condition_variable& cv,
-		std::condition_variable& cvMain,
+	inline void submitTask(const CompCfg& cfg, uint32_t taskId,
+	    a_cpu_a::Mutex<std::vector<CompTask>>& tasks,
+	    a_cpu_a::Mutex<size_t>& tasksLeft, std::condition_variable& cv,
+	    std::condition_variable& cvMain,
 
-		CompTaskData&& data
-	)
+	    CompTaskData&& data)
 	{
 		CompTask task;
 		task.taskId = taskId;
@@ -63,15 +64,12 @@ namespace slu::comp
 		}
 		cv.notify_one();
 	}
-	inline void submitConsensusTask(const CompCfg& cfg,
-		uint32_t taskId,
-		a_cpu_a::Mutex<std::vector<CompTask>>& tasks,
-		a_cpu_a::Mutex<size_t>& tasksLeft,
-		std::condition_variable& cv,
-		std::condition_variable& cvMain,
+	inline void submitConsensusTask(const CompCfg& cfg, uint32_t taskId,
+	    a_cpu_a::Mutex<std::vector<CompTask>>& tasks,
+	    a_cpu_a::Mutex<size_t>& tasksLeft, std::condition_variable& cv,
+	    std::condition_variable& cvMain,
 
-		CompTaskData&& data
-	)
+	    CompTaskData&& data)
 	{
 		CompTask task;
 		task.taskId = taskId;
@@ -104,17 +102,15 @@ namespace slu::comp
 		a_cpu_a::Mutex<size_t> tasksLeft = 0;
 
 		std::condition_variable cv;
-		std::condition_variable cvMain;//Uses tasksLeft.lock!!
+		std::condition_variable cvMain; //Uses tasksLeft.lock!!
 		std::atomic_bool shouldExit = false;
 
 		std::vector<std::thread> pool;
 		for (size_t i = 0; i < cfg.extraThreadCount; i++)
 		{
-			pool.emplace_back(std::thread(poolThread, cfg,
-				std::ref(shouldExit),
-				std::ref(cv), std::ref(cvMain),
-				std::ref(tasksLeft), std::ref(tasks))
-			);
+			pool.emplace_back(
+			    std::thread(poolThread, cfg, std::ref(shouldExit), std::ref(cv),
+			        std::ref(cvMain), std::ref(tasksLeft), std::ref(tasks)));
 		}
 		{
 			// Create a list of all files to compile
@@ -125,22 +121,30 @@ namespace slu::comp
 				auto list = cfg.getFileListRecPtr(i);
 				for (std::string& file : list)
 				{
-					if (cfg.isFolderPtr(file)) continue;
-					if (!file.ends_with(".slu")) continue;
+					if (cfg.isFolderPtr(file))
+						continue;
+					if (!file.ends_with(".slu"))
+						continue;
 					auto content = cfg.getFileContentsPtr(file);
-					if (!content.has_value())continue;
+					if (!content.has_value())
+						continue;
 
-					sluFiles.emplace_back(i, std::move(file), std::move(content.value()));
+					sluFiles.emplace_back(
+					    i, std::move(file), std::move(content.value()));
 				}
 			}
 
 			if (cfg.extraThreadCount != 0)
 			{
 				size_t total = sluFiles.size();
-				size_t filesPerThread = total / (cfg.extraThreadCount * 4);// *4, because we want to use the task system a bit more.
+				size_t filesPerThread = total     // *4, because we want to use
+				    / (cfg.extraThreadCount * 4); // the task system a bit more.
 
-				// If there arent enough files for all the threads, just use 1 thread ig
-				if (filesPerThread == 0) filesPerThread = 1;
+
+				// If there arent enough files for all
+				// the threads, just use 1 thread ig
+				if (filesPerThread == 0)
+					filesPerThread = 1;
 
 				size_t baseSize = total / filesPerThread;
 				size_t remainder = total % filesPerThread;
@@ -171,8 +175,7 @@ namespace slu::comp
 
 				waitForTasksToComplete(tasksLeft, cvMain);
 				// All files parsed!
-			}
-			else
+			} else
 			{
 				// TODO: Parse the files, if extraThreads==0
 			}
@@ -183,25 +186,21 @@ namespace slu::comp
 
 		// unify asts using sharedDb
 		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
-			CompTaskType::ConsensusUnifyAsts{
-				.sharedDb = &sharedDb,
-				.firstToArive = true
-			}
-		);
+		    CompTaskType::ConsensusUnifyAsts{
+		        .sharedDb = &sharedDb, .firstToArive = true});
 		MergeAstsMap astMap;
 		submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
-			CompTaskType::ConsensusMergeAsts{ &astMap }
-		);
+		    CompTaskType::ConsensusMergeAsts{&astMap});
 		//TODO: build some kind of dep graph?
 
 		//TODO: + comptime eval (jit?)
 		//type-inference/checking
 		for (auto& [mp, file] : astMap)
-		{// Codegen on all the threads.
+		{ // Codegen on all the threads.
 			submitTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
-				CompTaskType::TypeInfCheck{ 
-					MutFileStatList{std::span{file.pf.code},file.path} 
-				});
+			    CompTaskType::TypeInfCheck{
+			        MutFileStatList{std::span{file.pf.code}, file.path}
+            });
 		}
 		waitForTasksToComplete(tasksLeft, cvMain);
 
@@ -209,15 +208,15 @@ namespace slu::comp
 		for (auto& [mp, file] : astMap)
 		{
 			if (file.path.ends_with("/main.slu"))
-				eps.push_back({ .entryPointFile = file.path, .fileName = "main.exe" });
+				eps.push_back(
+				    {.entryPointFile = file.path, .fileName = "main.exe"});
 		}
 		for (auto& [mp, file] : astMap)
-		{// Codegen on all the threads.
+		{ // Codegen on all the threads.
 			submitTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
-				CompTaskType::DoCodeGen{
-					.statements = {FileStatList{std::span{file.pf.code},file.path}},
-					.entrypointId = uint32_t(eps.size() - 1)
-				});
+			    CompTaskType::DoCodeGen{.statements
+			        = {FileStatList{std::span{file.pf.code}, file.path}},
+			        .entrypointId = uint32_t(eps.size() - 1)});
 		}
 		waitForTasksToComplete(tasksLeft, cvMain);
 
@@ -227,33 +226,34 @@ namespace slu::comp
 			mergeOut.reserve(eps.size());
 
 			submitConsensusTask(cfg, nextTaskId++, tasks, tasksLeft, cv, cvMain,
-				CompTaskType::ConsensusMergeGenCode(&mergeOut)
-			);
+			    CompTaskType::ConsensusMergeGenCode(&mergeOut));
 			uint32_t i = 0;
 			for (auto& epInfo : eps)
 			{
 				auto& mergeOutItem = mergeOut[i++];
-				CompEntryPoint epPdb{ epInfo };
+				CompEntryPoint epPdb{epInfo};
 				epPdb.fileName += ".pdb";
-				CompEntryPoint ep{ std::move(epInfo) };
+				CompEntryPoint ep{std::move(epInfo)};
 
 				lld::Result res;
 				{
 					std::vector<TmpFile> tmpFiles;
 					for (auto& v : mergeOutItem)
 					{
-						auto sp = std::span{ v };
+						auto sp = std::span{v};
 						tmpFiles.emplace_back(cfg.mkTmpFilePtr(
-							std::bit_cast<std::span<const uint8_t>>(sp) // likely a bit cursed!
-						));
+						    std::bit_cast<std::span<const uint8_t>>(
+						        sp) // likely a bit cursed!
+						    ));
 					}
-					std::vector<std::string> strArgs = { "lld-link" };
+					std::vector<std::string> strArgs = {"lld-link"};
 					for (auto& f : tmpFiles)
 						strArgs.push_back(f.realPath);
 					strArgs.push_back("kernel32.lib");
 					strArgs.push_back("libucrt.lib");
 					strArgs.push_back("libcmt.lib");
-					strArgs.push_back("/debug");;
+					strArgs.push_back("/debug");
+					;
 					auto pdbFile = cfg.mkTmpFilePtr({});
 					strArgs.push_back("/pdb:" + pdbFile.realPath);
 					strArgs.push_back("/subsystem:console");
@@ -265,12 +265,15 @@ namespace slu::comp
 					for (auto& ij : strArgs)
 						cstrArgs.push_back(ij.c_str());
 
-					const lld::DriverDef driver = { lld::Flavor::WinLink, &lld::coff::link };
+					const lld::DriverDef driver
+					    = {lld::Flavor::WinLink, &lld::coff::link};
 
 					//TODO: custom outs/errs
-					res = lld::lldMain(cstrArgs, llvm::outs(), llvm::errs(), { driver });
+					res = lld::lldMain(
+					    cstrArgs, llvm::outs(), llvm::errs(), {driver});
 					if (res.retCode != 0)
-						cfg.errPtr("Linker failed to run, error: " + std::to_string(res.retCode));
+						cfg.errPtr("Linker failed to run, error: "
+						    + std::to_string(res.retCode));
 					if (!res.canRunAgain)
 						return ret;
 					//Read from out files
@@ -290,7 +293,6 @@ namespace slu::comp
 				ret.entryPoints.emplace_back(std::move(ep));
 			}
 		}
-
 		shouldExit = true;
 		cv.notify_all();
 		for (auto& i : pool)
@@ -298,4 +300,4 @@ namespace slu::comp
 
 		return ret;
 	}
-}
+} //namespace slu::comp

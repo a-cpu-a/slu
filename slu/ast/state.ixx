@@ -2,8 +2,8 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <optional>
 #include <memory>
+#include <optional>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -22,46 +22,55 @@ import slu.parse.input;
 
 namespace slu::parse
 {
-#define Slu_DEF_CFG(_Name) export template<class CfgT> using _Name = _Name ## V<true>
-#define Slu_DEF_CFG2(_Name,_ArgName) export template<class CfgT,bool _ArgName> using _Name =_Name ## V<true, _ArgName>
+#define Slu_DEF_CFG(_Name)                                   \
+	export template<class CfgT> using _Name = _Name##V<true>
+#define Slu_DEF_CFG2(_Name, _ArgName)          \
+	export template<class CfgT, bool _ArgName> \
+	using _Name = _Name##V<true, _ArgName>
 
-	namespace FieldType { export using NONE = std::monostate; }
+	namespace FieldType
+	{
+		export using NONE = std::monostate;
+	}
 
 	export template<bool isSlu>
-	using FieldV = std::variant<
-		FieldType::NONE,// Here, so variant has a default value (DO NOT USE)
+	using FieldV = std::variant<FieldType::NONE, // Here, so variant has a
+	                                             // default value (DO NOT USE)
 
-		FieldType::Expr2Expr, // "'[' exp ']' = exp"
-		FieldType::Name2Expr, // "Name = exp"
-		FieldType::Expr       // "exp"
-	>;
+	    FieldType::Expr2Expr, // "'[' exp ']' = exp"
+	    FieldType::Name2Expr, // "Name = exp"
+	    FieldType::Expr       // "exp"
+	    >;
 	Slu_DEF_CFG(Field);
 
 
 	// ‘{’ [fieldlist] ‘}’
-	export template<bool isSlu>
-	using TableV = std::vector<FieldV<isSlu>>;
+	export template<bool isSlu> using TableV = std::vector<FieldV<isSlu>>;
 	Slu_DEF_CFG(Table);
 
-	export template<bool isSlu>
-	using StatListV = std::vector<Stat>;
+	export template<bool isSlu> using StatListV = std::vector<Stat>;
 	Slu_DEF_CFG(StatList);
 
 
 	export struct LocalId
 	{
 		size_t v = SIZE_MAX;
-		constexpr bool empty() const { return v == SIZE_MAX; }
-		constexpr static parse::LocalId newEmpty() { return parse::LocalId(); }
+		constexpr bool empty() const
+		{
+			return v == SIZE_MAX;
+		}
+		constexpr static parse::LocalId newEmpty()
+		{
+			return parse::LocalId();
+		}
 	};
 	export template<bool isSlu, bool isLocal>
 	using LocalOrNameV = Sel<isLocal, lang::MpItmId, parse::LocalId>;
 	Slu_DEF_CFG2(LocalOrName, isLocal);
-	export template<bool isSlu>
-	struct LocalsV
+	export template<bool isSlu> struct LocalsV
 	{
 		std::vector<lang::MpItmId> names;
-		std::vector<parse::ResolvedType> types;//Empty until type checking.
+		std::vector<parse::ResolvedType> types; //Empty until type checking.
 	};
 	Slu_DEF_CFG(Locals);
 
@@ -75,11 +84,10 @@ namespace slu::parse
 		CONTINUE
 	};
 
-	export template<bool isSlu>
-	struct BlockV
+	export template<bool isSlu> struct BlockV
 	{
 		StatListV<isSlu> statList;
-		ExprList retExprs;// May contain 0 elements
+		ExprList retExprs; // May contain 0 elements
 
 		lang::ModPathId mp;
 
@@ -88,7 +96,8 @@ namespace slu::parse
 
 		RetType retTy = RetType::NONE;
 
-		bool empty() const {
+		bool empty() const
+		{
 			return retTy == RetType::NONE && statList.empty();
 		}
 
@@ -101,23 +110,22 @@ namespace slu::parse
 
 	namespace SoeType
 	{
-		export template<bool isSlu>
-		using BlockV = BlockV<isSlu>;
+		export template<bool isSlu> using BlockV = BlockV<isSlu>;
 		Slu_DEF_CFG(Block);
 
 		export using Expr = BoxExpr;
-	}
+	} //namespace SoeType
 	export template<bool isSlu>
-	using SoeV = std::variant<
-		SoeType::BlockV<isSlu>,
-		SoeType::Expr
-	>;
+	using SoeV = std::variant<SoeType::BlockV<isSlu>, SoeType::Expr>;
 	Slu_DEF_CFG(Soe);
 
-	export template<bool isSlu> using SoeOrBlockV = Sel<isSlu, BlockV<isSlu>, SoeV<isSlu>>;
+	export template<bool isSlu>
+	using SoeOrBlockV = Sel<isSlu, BlockV<isSlu>, SoeV<isSlu>>;
 	Slu_DEF_CFG(SoeOrBlock);
 
-	export template<bool isSlu> using SoeBoxOrBlockV = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<SoeV<isSlu>>>;
+	export template<bool isSlu>
+	using SoeBoxOrBlockV
+	    = Sel<isSlu, BlockV<isSlu>, std::unique_ptr<SoeV<isSlu>>>;
 	Slu_DEF_CFG(SoeBoxOrBlock);
 
 	namespace ArgsType
@@ -127,81 +135,86 @@ namespace slu::parse
 		export using parse::TableV;
 		export using parse::Table;
 
-		export struct String { std::string v; ast::Position end; };// "LiteralString"
-	};
-	export using Args = std::variant<
-		ArgsType::ExprList,
-		ArgsType::TableV<true>,
-		ArgsType::String
-	>;
+		export struct String
+		{
+			std::string v;
+			ast::Position end;
+		}; // "LiteralString"
+	}; //namespace ArgsType
+	export using Args = std::variant<ArgsType::ExprList, ArgsType::TableV<true>,
+	    ArgsType::String>;
 
 
-	export template<bool boxed>
-	struct ExprUserExpr {
+	export template<bool boxed> struct ExprUserExpr
+	{
 		MayBox<boxed, Expr> v;
 		parse::ResolvedType ty;
 	};
 
 	export template<bool boxed> // exp args
-	struct Call : ExprUserExpr<boxed> {
+	struct Call : ExprUserExpr<boxed>
+	{
 		Args args;
 	};
 	export template<bool boxed> // exp "." Name args
 	struct SelfCall : ExprUserExpr<boxed>
 	{
 		Args args;
-		lang::MpItmId method;//may be unresolved, or itm=trait-fn, or itm=fn
+		lang::MpItmId method; //may be unresolved, or itm=trait-fn, or itm=fn
 	};
 
 	namespace ExprType
 	{
-		export struct MpRoot {};		// ":>"
+		export struct MpRoot
+		{}; // ":>"
 		export using Local = parse::LocalId;
-		export template<bool isSlu>
-		using GlobalV = lang::MpItmId;
+		export template<bool isSlu> using GlobalV = lang::MpItmId;
 		Slu_DEF_CFG(Global);
 
 		export template<bool isSlu> // "(" exp ")"
 		using ParensV = BoxExpr;
 		Slu_DEF_CFG(Parens);
 
-		export struct Deref : ExprUserExpr<true> {};// exp ".*"
+		export struct Deref : ExprUserExpr<true>
+		{}; // exp ".*"
 
-		export struct Index : ExprUserExpr<true> {// exp "[" exp "]"
-			MayBox<true,Expr> idx;
+		export struct Index : ExprUserExpr<true>
+		{ // exp "[" exp "]"
+			MayBox<true, Expr> idx;
 		};
 
 		export template<bool isSlu> // exp "." Name
-		struct FieldV : ExprUserExpr<true> {
+		struct FieldV : ExprUserExpr<true>
+		{
 			lang::PoolString field;
 		};
 		Slu_DEF_CFG(Field);
 
 		export using Call = parse::Call<true>;
 		export using SelfCall = parse::SelfCall<true>;
-	}
+	} //namespace ExprType
 
 	export struct TupleName
 	{
-		uint64_t lo = 0; uint64_t hi = 0;
+		uint64_t lo = 0;
+		uint64_t hi = 0;
 		constexpr TupleName() = default;
-		constexpr TupleName(ExprType::I64 v)
-			:lo(v) {}
-		constexpr TupleName(ExprType::U64 v)
-			: lo(v) {}
-		TupleName(ExprType::M128 v) { throw std::runtime_error("Cant index into tuple with negative index."); }
-		constexpr TupleName(ExprType::P128 v)
-			: lo(v.lo), hi(v.hi) {}
+		constexpr TupleName(ExprType::I64 v) : lo(v) {}
+		constexpr TupleName(ExprType::U64 v) : lo(v) {}
+		TupleName(ExprType::M128 v)
+		{
+			throw std::runtime_error(
+			    "Cant index into tuple with negative index.");
+		}
+		constexpr TupleName(ExprType::P128 v) : lo(v.lo), hi(v.hi) {}
 	};
 
 	export template<class T>
-	concept Any128BitInt =
-		std::same_as<T, ExprType::P128>
-		|| std::same_as<T, ExprType::M128>;
+	concept Any128BitInt
+	    = std::same_as<T, ExprType::P128> || std::same_as<T, ExprType::M128>;
 	export template<class T>
-	concept Any64BitInt =
-		std::same_as<T, ExprType::U64>
-		|| std::same_as<T, ExprType::I64>;
+	concept Any64BitInt
+	    = std::same_as<T, ExprType::U64> || std::same_as<T, ExprType::I64>;
 
 	//Slu
 	export using Lifetime = std::vector<lang::MpItmId>;
@@ -226,7 +239,10 @@ namespace slu::parse
 		ast::SmallEnumList<ast::UnOpType> specifiers;
 		parse::LocalId name;
 
-		bool empty() const { return name.empty(); }
+		bool empty() const
+		{
+			return name.empty();
+		}
 	};
 	export struct Parameter;
 	export using ParamList = std::vector<Parameter>;
@@ -238,7 +254,7 @@ namespace slu::parse
 		SelfArg selfArg;
 		ParamList params;
 		std::optional<BoxExpr> retType;
-		bool hasVarArgParam = false;// do params end with '...'
+		bool hasVarArgParam = false; // do params end with '...'
 		ast::OptSafety safety = ast::OptSafety::DEFAULT;
 	};
 	export struct Function : FunctionInfo
@@ -247,9 +263,7 @@ namespace slu::parse
 	};
 
 
-
-	export template<bool isSlu, bool boxIt>
-	struct BaseIfCondV
+	export template<bool isSlu, bool boxIt> struct BaseIfCondV
 	{
 		std::vector<std::pair<Expr, SoeOrBlockV<isSlu>>> elseIfs;
 		MayBox<boxIt, Expr> cond;
@@ -261,35 +275,38 @@ namespace slu::parse
 
 	namespace ExprType
 	{
-		export using Nil = std::monostate;	// "nil"
-		export struct False {};				// "false"
-		export struct True {};				// "true"
-		export struct VarArgs {};			// "..."
+		export using Nil = std::monostate; // "nil"
+		export struct False
+		{}; // "false"
+		export struct True
+		{}; // "true"
+		export struct VarArgs
+		{}; // "..."
 
 		export using parse::Function;
-		
+
 		export using parse::TableV;
 		export using parse::Table;
 
 		//unOps is always empty for this type
-		export template<bool isSlu>
-		struct MultiOpV
+		export template<bool isSlu> struct MultiOpV
 		{
 			BoxExpr first;
-			std::vector<std::pair<ast::BinOpType, Expr>> extra;//size>=1
-		};      // "exp binop exp"
+			std::vector<std::pair<ast::BinOpType, Expr>> extra; //size>=1
+		}; // "exp binop exp"
 		Slu_DEF_CFG(MultiOp);
 
-		export template<bool isSlu>
-		using IfCondV = BaseIfCondV<isSlu, true>;
+		export template<bool isSlu> using IfCondV = BaseIfCondV<isSlu, true>;
 		Slu_DEF_CFG(IfCond);
 
-		export using parse::Lifetime;	// " '/' var" {'/' var"}
+		export using parse::Lifetime; // " '/' var" {'/' var"}
 		export using parse::TraitExpr;
 
-		export struct PatTypePrefix {};
+		export struct PatTypePrefix
+		{};
 
-		export struct Infer {};
+		export struct Infer
+		{};
 		export struct Struct
 		{
 			TableV<true> fields;
@@ -304,96 +321,87 @@ namespace slu::parse
 			BoxExpr retType;
 			ast::OptSafety safety = ast::OptSafety::DEFAULT;
 		};
-		export struct Dyn {
+		export struct Dyn
+		{
 			parse::TraitExpr expr;
 		};
-		export struct Impl {
+		export struct Impl
+		{
 			parse::TraitExpr expr;
 		};
 		export struct Err
 		{
 			BoxExpr err;
 		};
-	}
+	} //namespace ExprType
 
 	export template<bool isSlu>
-	using ExprDataV = std::variant <
-		ExprType::Nil,                  // "nil"
-		ExprType::False,                // "false"
-		ExprType::True,                 // "true"
-		ExprType::F64,				// "Numeral" (e.g., a floating-point number)
-		ExprType::I64,			// "Numeral"
+	using ExprDataV = std::variant<ExprType::Nil, // "nil"
+	    ExprType::False,                          // "false"
+	    ExprType::True,                           // "true"
+	    ExprType::F64, // "Numeral" (e.g., a floating-point number)
+	    ExprType::I64, // "Numeral"
 
-		ExprType::String,		// "LiteralString"
-		ExprType::VarArgs,              // "..." (varargs)
-		ExprType::Function,			// "functiondef"
-		ExprType::TableV<isSlu>,	// "tableconstructor"
+	    ExprType::String,        // "LiteralString"
+	    ExprType::VarArgs,       // "..." (varargs)
+	    ExprType::Function,      // "functiondef"
+	    ExprType::TableV<isSlu>, // "tableconstructor"
 
-		ExprType::MultiOpV<isSlu>,		// "exp binop exp {binop exp}"  // added {binop exp}, cuz multi-op
+	    ExprType::MultiOpV<isSlu>,
 
-		ExprType::Local,
-		ExprType::GlobalV<isSlu>,
+	    ExprType::Local, ExprType::GlobalV<isSlu>,
 
-		ExprType::ParensV<isSlu>,
-		ExprType::Deref,
+	    ExprType::ParensV<isSlu>, ExprType::Deref,
 
-		ExprType::Index,
-		ExprType::FieldV<isSlu>,
-		ExprType::Call,
-		ExprType::SelfCall,
+	    ExprType::Index, ExprType::FieldV<isSlu>, ExprType::Call,
+	    ExprType::SelfCall,
 
-		// Slu
+	    // Slu
 
-		ExprType::MpRoot,
+	    ExprType::MpRoot,
 
-		ExprType::IfCondV<isSlu>,
+	    ExprType::IfCondV<isSlu>,
 
-		ExprType::OpenRange,			// ".."
+	    ExprType::OpenRange, // ".."
 
-		ExprType::U64,			// "Numeral"
-		ExprType::P128,			// "Numeral"
-		ExprType::M128,			// "Numeral"
+	    ExprType::U64,  // "Numeral"
+	    ExprType::P128, // "Numeral"
+	    ExprType::M128, // "Numeral"
 
-		ExprType::Lifetime,
-		ExprType::TraitExpr,
+	    ExprType::Lifetime, ExprType::TraitExpr,
 
-		ExprType::PatTypePrefix,
+	    ExprType::PatTypePrefix,
 
-		// types
+	    // types
 
-		ExprType::Infer,
-		ExprType::Struct,
-		ExprType::Union,
-		ExprType::Dyn,
-		ExprType::Impl,
-		ExprType::Err,
-		ExprType::FnType
-	> ;
+	    ExprType::Infer, ExprType::Struct, ExprType::Union, ExprType::Dyn,
+	    ExprType::Impl, ExprType::Err, ExprType::FnType>;
 	Slu_DEF_CFG(ExprData);
-
 
 
 	export struct Expr
 	{
 		ExprDataV<true> data;
 		ast::Position place;
-		std::vector<UnOpItem> unOps;//TODO: for lua, use small op list
-
+		std::vector<UnOpItem> unOps;
 		ast::SmallEnumList<ast::PostUnOpType> postUnOps;
 
-		bool isBasicStruct() const {
+		bool isBasicStruct() const
+		{
 			if (!this->unOps.empty() || !this->postUnOps.empty())
 				return false;
 			return std::holds_alternative<ExprType::TableV<true>>(this->data);
 		}
 
 		Expr() = default;
-		Expr(ExprDataV<true>&& data) 
-			:data(std::move(data)) {}
-		Expr(ExprDataV<true>&& data, ast::Position place) 
-			:data(std::move(data)), place(place) {}
-		Expr(ExprDataV<true>&& data, ast::Position place, std::vector<UnOpItem>&& unOps) 
-			:data(std::move(data)), place(place), unOps(std::move(unOps)) {}
+		Expr(ExprDataV<true>&& data) : data(std::move(data)) {}
+		Expr(ExprDataV<true>&& data, ast::Position place)
+		    : data(std::move(data)), place(place)
+		{}
+		Expr(ExprDataV<true>&& data, ast::Position place,
+		    std::vector<UnOpItem>&& unOps)
+		    : data(std::move(data)), place(place), unOps(std::move(unOps))
+		{}
 
 		Expr(const Expr&) = delete;
 		Expr(Expr&&) = default;
@@ -402,7 +410,7 @@ namespace slu::parse
 
 	struct Parameter
 	{
-		DynLocalOrName name;// name -> const, local -> not const
+		DynLocalOrName name; // name -> const, local -> not const
 		Expr type;
 	};
 	//Slu
@@ -416,15 +424,13 @@ namespace slu::parse
 	{
 		export using Spat = parse::NdPat;
 		export using Prefix = TypePrefix;
-	}
-	export using DestrSpec = std::variant<
-		DestrSpecType::Spat,
-		DestrSpecType::Prefix
-	>;
+	} //namespace DestrSpecType
+	export using DestrSpec
+	    = std::variant<DestrSpecType::Spat, DestrSpecType::Prefix>;
 	namespace DestrPatType
 	{
 		export template<bool isSlu, bool isLocal>
-		using AnyV = LocalOrNameV<isSlu,isLocal>;
+		using AnyV = LocalOrNameV<isSlu, isLocal>;
 		Slu_DEF_CFG2(Any, isLocal);
 
 		export template<bool isSlu, bool isLocal> struct FieldsV;
@@ -432,24 +438,23 @@ namespace slu::parse
 		export template<bool isSlu, bool isLocal> struct ListV;
 		Slu_DEF_CFG2(List, isLocal);
 
-		export template<bool isSlu, bool isLocal>struct NameV;
+		export template<bool isSlu, bool isLocal> struct NameV;
 		Slu_DEF_CFG2(Name, isLocal);
-		export template<bool isSlu, bool isLocal>struct NameRestrictV;
+		export template<bool isSlu, bool isLocal> struct NameRestrictV;
 		Slu_DEF_CFG2(NameRestrict, isLocal);
-	}
+	} //namespace DestrPatType
 
 	namespace PatType
 	{
 		//x or y or z
-		export template<bool isSlu>
-		using SimpleV = NdPat;
+		export template<bool isSlu> using SimpleV = NdPat;
 		Slu_DEF_CFG(Simple);
 
 		export template<bool isSlu, bool isLocal>
 		using DestrAnyV = DestrPatType::AnyV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrAny, isLocal);
 
-		export template<bool isSlu,bool isLocal>
+		export template<bool isSlu, bool isLocal>
 		using DestrFieldsV = DestrPatType::FieldsV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrFields, isLocal);
 		export template<bool isSlu, bool isLocal>
@@ -463,55 +468,50 @@ namespace slu::parse
 		export template<bool isSlu, bool isLocal>
 		using DestrNameRestrictV = DestrPatType::NameRestrictV<isSlu, isLocal>;
 		Slu_DEF_CFG2(DestrNameRestrict, isLocal);
-	}
-	export template<bool isLocal,typename T>
-	concept AnyCompoundDestr =
-		std::same_as<std::remove_cv_t<T>, DestrPatType::FieldsV<true, isLocal>>
-		|| std::same_as<std::remove_cv_t<T>, DestrPatType::ListV<true, isLocal>>;
+	} //namespace PatType
+	export template<bool isLocal, typename T>
+	concept AnyCompoundDestr = std::same_as<std::remove_cv_t<T>,
+	                               DestrPatType::FieldsV<true, isLocal>>
+	    || std::same_as<std::remove_cv_t<T>,
+	        DestrPatType::ListV<true, isLocal>>;
 
-
-	export template<bool isSlu,bool isLocal>
-	using PatV = std::variant<
-		PatType::DestrAnyV<isSlu, isLocal>,
-
-		PatType::SimpleV<isSlu>,
-
-		PatType::DestrFieldsV<isSlu, isLocal>,
-		PatType::DestrListV<isSlu, isLocal>,
-
-		PatType::DestrNameV<isSlu, isLocal>,
-		PatType::DestrNameRestrictV<isSlu, isLocal>
-	>;
-	Slu_DEF_CFG2(Pat, isLocal);
 
 	export template<bool isSlu, bool isLocal>
-	struct DestrFieldV
+	using PatV = std::variant<PatType::DestrAnyV<isSlu, isLocal>,
+
+	    PatType::SimpleV<isSlu>,
+
+	    PatType::DestrFieldsV<isSlu, isLocal>,
+	    PatType::DestrListV<isSlu, isLocal>,
+
+	    PatType::DestrNameV<isSlu, isLocal>,
+	    PatType::DestrNameRestrictV<isSlu, isLocal>>;
+	Slu_DEF_CFG2(Pat, isLocal);
+
+	export template<bool isSlu, bool isLocal> struct DestrFieldV
 	{
-		lang::PoolString name;// |(...)| thingy
-		PatV<isSlu,isLocal> pat;//May be any type of pattern
+		lang::PoolString name;    // |(...)| thingy
+		PatV<isSlu, isLocal> pat; //May be any type of pattern
 	};
-	Slu_DEF_CFG2(DestrField,isLocal);
+	Slu_DEF_CFG2(DestrField, isLocal);
 	namespace DestrPatType
 	{
-		export template<bool isSlu, bool isLocal>
-		struct FieldsV
+		export template<bool isSlu, bool isLocal> struct FieldsV
 		{
 			DestrSpec spec;
 			bool extraFields : 1 = false;
 			std::vector<DestrFieldV<isSlu, isLocal>> items;
-			LocalOrNameV<isSlu, isLocal> name;//May be synthetic
+			LocalOrNameV<isSlu, isLocal> name; //May be synthetic
 		};
-		export template<bool isSlu, bool isLocal>
-		struct ListV
+		export template<bool isSlu, bool isLocal> struct ListV
 		{
 			DestrSpec spec;
 			bool extraFields : 1 = false;
 			std::vector<PatV<isSlu, isLocal>> items;
-			LocalOrNameV<isSlu,isLocal> name;//May be synthetic
+			LocalOrNameV<isSlu, isLocal> name; //May be synthetic
 		};
 
-		export template<bool isSlu, bool isLocal>
-		struct NameV
+		export template<bool isSlu, bool isLocal> struct NameV
 		{
 			LocalOrNameV<isSlu, isLocal> name;
 			DestrSpec spec;
@@ -521,46 +521,53 @@ namespace slu::parse
 		{
 			NdPat restriction;
 		};
-	}
+	} //namespace DestrPatType
 
-	export template<bool isLocal>
-	struct ___PatHack : PatV<true, isLocal> {};
+	export template<bool isLocal> struct ___PatHack : PatV<true, isLocal>
+	{};
 
 	//Common
 
 	namespace FieldType
 	{
-		export struct Expr2Expr { parse::Expr idx; parse::Expr v; };		// "‘[’ exp ‘]’ ‘=’ exp"
-		export struct Name2Expr { lang::MpItmId idx; parse::Expr v; };	// "Name ‘=’ exp"
-	}
+		export struct Expr2Expr
+		{
+			parse::Expr idx;
+			parse::Expr v;
+		}; // "‘[’ exp ‘]’ ‘=’ exp"
+		export struct Name2Expr
+		{
+			lang::MpItmId idx;
+			parse::Expr v;
+		}; // "Name ‘=’ exp"
+	} //namespace FieldType
 
-	export template<bool isSlu>
-	struct AttribNameV
+	export template<bool isSlu> struct AttribNameV
 	{
 		lang::MpItmId name;
-		std::string attrib;//empty -> no attrib
+		std::string attrib; //empty -> no attrib
 	};
 	Slu_DEF_CFG(AttribName);
 	export template<bool isSlu>
 	using AttribNameListV = std::vector<AttribNameV<isSlu>>;
 	Slu_DEF_CFG(AttribNameList);
-	export template<bool isSlu>
-	using NameListV = std::vector<lang::MpItmId>;
+	export template<bool isSlu> using NameListV = std::vector<lang::MpItmId>;
 	Slu_DEF_CFG(NameList);
 
 	namespace UseVariantType
 	{
-		export using EVERYTHING_INSIDE = std::monostate;//use x::*;
-		export struct IMPORT { lang::MpItmId name; };// use x::y; //name is inside this mp, base is the imported path.
-		export using AS_NAME = lang::MpItmId;//use x as y;
-		export using LIST_OF_STUFF = std::vector<lang::MpItmId>;//use x::{self, ...}
-	}
-	export using UseVariant = std::variant<
-		UseVariantType::EVERYTHING_INSIDE,
-		UseVariantType::AS_NAME,
-		UseVariantType::IMPORT,
-		UseVariantType::LIST_OF_STUFF
-	>;
+		export using EVERYTHING_INSIDE = std::monostate; //use x::*;
+		export struct IMPORT
+		{
+			lang::MpItmId name;
+		}; // use x::y; //name is inside this mp, base is the imported path.
+		export using AS_NAME = lang::MpItmId; //use x as y;
+		export using LIST_OF_STUFF
+		    = std::vector<lang::MpItmId>; //use x::{self, ...}
+	} //namespace UseVariantType
+	export using UseVariant = std::variant<UseVariantType::EVERYTHING_INSIDE,
+	    UseVariantType::AS_NAME, UseVariantType::IMPORT,
+	    UseVariantType::LIST_OF_STUFF>;
 
 	export struct StructBase
 	{
@@ -570,16 +577,17 @@ namespace slu::parse
 		lang::MpItmId name;
 		lang::ExportData exported = false;
 	};
-	export template<bool isSlu, bool isLocal>
-	struct MaybeLocalsV {
+	export template<bool isSlu, bool isLocal> struct MaybeLocalsV
+	{
 		LocalsV<isSlu> local2Mp;
 	};
-	export template<bool isSlu>
-	struct MaybeLocalsV<isSlu,true> {};
+	export template<bool isSlu> struct MaybeLocalsV<isSlu, true>
+	{};
 
 	export template<bool isSlu, bool isLocal>
 	struct VarStatBaseV : MaybeLocalsV<isSlu, isLocal>
-	{	// "local attnamelist [= explist]" //e.size 0 means "only define, no assign"
+	{ // "local attnamelist [= explist]" //e.size 0 means "only define, no
+	  // assign"
 		PatV<true, isLocal> names;
 		ExprList exprs;
 		lang::ExportData exported = false;
@@ -594,83 +602,90 @@ namespace slu::parse
 
 	namespace StatType
 	{
-		export using Semicol = std::monostate;	// ";"
+		export using Semicol = std::monostate; // ";"
 
-		export template<bool isSlu>
-		struct AssignV { std::vector<ExprDataV<isSlu>> vars; ExprList exprs; };// "varlist = explist" //e.size must be > 0
+		export template<bool isSlu> struct AssignV
+		{
+			std::vector<ExprDataV<isSlu>> vars;
+			ExprList exprs;
+		}; // "varlist = explist" //e.size must be > 0
 		Slu_DEF_CFG(Assign);
 
 		export using Call = parse::Call<false>;
 		export using SelfCall = parse::SelfCall<false>;
 
 
-		export template<bool isSlu>
-		struct LabelV { lang::MpItmId v; };		// "label"
+		export template<bool isSlu> struct LabelV
+		{
+			lang::MpItmId v;
+		}; // "label"
 		Slu_DEF_CFG(Label);
-		export template<bool isSlu>
-		struct GotoV { lang::MpItmId v; };			// "goto Name"
+		export template<bool isSlu> struct GotoV
+		{
+			lang::MpItmId v;
+		}; // "goto Name"
 		Slu_DEF_CFG(Goto);
 
-		export using parse::BlockV;// "do block end"
+		export using parse::BlockV; // "do block end"
 		export using parse::Block;
 
-		export template<bool isSlu>
-		struct WhileV { Expr cond; BlockV<isSlu> bl; };		// "while exp do block end"
+		export template<bool isSlu> struct WhileV
+		{
+			Expr cond;
+			BlockV<isSlu> bl;
+		}; // "while exp do block end"
 		Slu_DEF_CFG(While);
 
-		export template<bool isSlu>
-		struct RepeatUntilV :WhileV<isSlu> {};						// "repeat block until exp"
+		export template<bool isSlu> struct RepeatUntilV : WhileV<isSlu>
+		{}; // "repeat block until exp"
 		Slu_DEF_CFG(RepeatUntil);
 
 		// "if exp then block {elseif exp then block} [else block] end"
-		export template<bool isSlu>
-		using IfCondV = BaseIfCondV<isSlu, false>;
+		export template<bool isSlu> using IfCondV = BaseIfCondV<isSlu, false>;
 		Slu_DEF_CFG(IfCond);
 
 		// "for namelist in explist do block end"
-		export template<bool isSlu>
-		struct ForInV
+		export template<bool isSlu> struct ForInV
 		{
 			Sel<isSlu, NameListV<isSlu>, PatV<true, true>> varNames;
-			Sel<isSlu, ExprList, Expr> exprs;//size must be > 0
+			Sel<isSlu, ExprList, Expr> exprs; //size must be > 0
 			BlockV<isSlu> bl;
 		};
 		Slu_DEF_CFG(ForIn);
 
-		export struct Function {
-			ast::Position place;//Right after func-name
+		export struct Function
+		{
+			ast::Position place; //Right after func-name
 			lang::MpItmId name;
 			parse::Function func;
 			lang::ExportData exported = false;
 		};
 
-		export struct Fn : Function {};
+		export struct Fn : Function
+		{};
 
-		export template<bool isSlu>
-		struct FunctionDeclV : FunctionInfo
+		export template<bool isSlu> struct FunctionDeclV : FunctionInfo
 		{
-			ast::Position place;//Right before func-name
+			ast::Position place; //Right before func-name
 			lang::MpItmId name;
 			lang::ExportData exported = false;
 		};
 		Slu_DEF_CFG(FunctionDecl);
 
-		export template<bool isSlu>
-		struct FnDeclV : FunctionDeclV<isSlu> {};
+		export template<bool isSlu> struct FnDeclV : FunctionDeclV<isSlu>
+		{};
 		Slu_DEF_CFG(FnDecl);
 
-		export template<bool isSlu>
-		using LocalV = VarStatBaseV<isSlu,true>;
+		export template<bool isSlu> using LocalV = VarStatBaseV<isSlu, true>;
 		Slu_DEF_CFG(Local);
 
 		// Slu
 
-		export template<bool isSlu>
-		struct LetV : LocalV<isSlu> {};
+		export template<bool isSlu> struct LetV : LocalV<isSlu>
+		{};
 		Slu_DEF_CFG(Let);
 
-		export template<bool isSlu>
-		using ConstV = VarStatBaseV<isSlu, false>;
+		export template<bool isSlu> using ConstV = VarStatBaseV<isSlu, false>;
 		Slu_DEF_CFG(Const);
 
 		export struct CanonicLocal
@@ -690,11 +705,12 @@ namespace slu::parse
 		};
 
 
-		export struct Struct : StructBase {};
-		export struct Union : StructBase {};
+		export struct Struct : StructBase
+		{};
+		export struct Union : StructBase
+		{};
 
-		export template<bool isSlu>
-		struct ExternBlockV
+		export template<bool isSlu> struct ExternBlockV
 		{
 			StatListV<isSlu> stats;
 			std::string abi;
@@ -703,14 +719,16 @@ namespace slu::parse
 		};
 		Slu_DEF_CFG(ExternBlock);
 
-		export template<bool isSlu>
-		struct UnsafeBlockV {
+		export template<bool isSlu> struct UnsafeBlockV
+		{
 			StatListV<isSlu> stats;
-		};	// "unsafe {...}"
+		}; // "unsafe {...}"
 		Slu_DEF_CFG(UnsafeBlock);
 
-		export struct UnsafeLabel {};
-		export struct SafeLabel {};
+		export struct UnsafeLabel
+		{};
+		export struct SafeLabel
+		{};
 
 		export struct Trait
 		{
@@ -728,13 +746,12 @@ namespace slu::parse
 			std::optional<TraitExpr> forTrait;
 			Expr type;
 			StatListV<true> code;
-			lang::ExportData exported: 1 = false;
-			bool deferChecking : 1 = false;
-			bool isUnsafe	   : 1 = false;
+			lang::ExportData exported : 1 = false;
+			bool deferChecking        : 1 = false;
+			bool isUnsafe             : 1 = false;
 		};
 
-		export template<bool isSlu>
-		struct DropV
+		export template<bool isSlu> struct DropV
 		{
 			Expr expr;
 		};
@@ -743,74 +760,66 @@ namespace slu::parse
 
 		export struct Use
 		{
-			lang::MpItmId base;//the aliased/imported thing, or modpath base
+			lang::MpItmId base; //the aliased/imported thing, or modpath base
 			UseVariant useVariant;
 			lang::ExportData exported = false;
 		};
 
-		export template<bool isSlu>
-		struct ModV
+		export template<bool isSlu> struct ModV
 		{
 			lang::MpItmId name;
 			lang::ExportData exported = false;
 		};
 		Slu_DEF_CFG(Mod);
 
-		export template<bool isSlu>
-		struct ModAsV : ModV<isSlu>
+		export template<bool isSlu> struct ModAsV : ModV<isSlu>
 		{
 			StatListV<isSlu> code;
 		};
 		Slu_DEF_CFG(ModAs);
-	};
+	}; //namespace StatType
 
 	export template<bool isSlu>
-	using StatDataV = std::variant <
-		StatType::Semicol,				// ";"
+	using StatDataV = std::variant<StatType::Semicol, // ";"
 
-		StatType::AssignV<isSlu>,			// "varlist = explist"
-		StatType::LocalV<isSlu>,	// "local attnamelist [= explist]"
-		StatType::LetV<isSlu>,	// "let pat [= explist]"
-		StatType::ConstV<isSlu>,	// "const pat [= explist]"
-		StatType::CanonicLocal,
-		StatType::CanonicGlobal,
+	    StatType::AssignV<isSlu>, // "varlist = explist"
+	    StatType::LocalV<isSlu>,  // "local attnamelist [= explist]"
+	    StatType::LetV<isSlu>,    // "let pat [= explist]"
+	    StatType::ConstV<isSlu>,  // "const pat [= explist]"
+	    StatType::CanonicLocal, StatType::CanonicGlobal,
 
-		StatType::Call,
-		StatType::SelfCall,
+	    StatType::Call, StatType::SelfCall,
 
-		StatType::LabelV<isSlu>,			// "label"
-		StatType::GotoV<isSlu>,			// "goto Name"
-		StatType::BlockV<isSlu>,			// "do block end"
-		StatType::WhileV<isSlu>,		// "while exp do block end"
-		StatType::RepeatUntilV<isSlu>,	// "repeat block until exp"
+	    StatType::LabelV<isSlu>,       // "label"
+	    StatType::GotoV<isSlu>,        // "goto Name"
+	    StatType::BlockV<isSlu>,       // "do block end"
+	    StatType::WhileV<isSlu>,       // "while exp do block end"
+	    StatType::RepeatUntilV<isSlu>, // "repeat block until exp"
 
-		StatType::IfCondV<isSlu>,	// "if exp then block {elseif exp then block} [else block] end"
+	    StatType::IfCondV<isSlu>,
 
-		StatType::ForInV<isSlu>,	// "for namelist in explist do block end"
+	    StatType::ForInV<isSlu>, // "for namelist in explist do block end"
 
-		StatType::Function,		// "function funcname funcbody"
-		StatType::Fn,					// "fn funcname funcbody"
+	    StatType::Function, // "function funcname funcbody"
+	    StatType::Fn,       // "fn funcname funcbody"
 
-		StatType::FunctionDeclV<isSlu>,
-		StatType::FnDeclV<isSlu>,
+	    StatType::FunctionDeclV<isSlu>, StatType::FnDeclV<isSlu>,
 
-		StatType::Struct,
-		StatType::Union,
+	    StatType::Struct, StatType::Union,
 
-		StatType::ExternBlockV<isSlu>,
+	    StatType::ExternBlockV<isSlu>,
 
-		StatType::UnsafeBlockV<isSlu>,
-		StatType::UnsafeLabel,	// ::: unsafe :
-		StatType::SafeLabel,		// ::: safe :
+	    StatType::UnsafeBlockV<isSlu>,
+	    StatType::UnsafeLabel, // ::: unsafe :
+	    StatType::SafeLabel,   // ::: safe :
 
-		StatType::DropV<isSlu>,	// "drop" Name
-		StatType::Trait,
-		StatType::Impl,
+	    StatType::DropV<isSlu>, // "drop" Name
+	    StatType::Trait, StatType::Impl,
 
-		StatType::Use,				// "use" ...
-		StatType::ModV<isSlu>,		// "mod" Name
-		StatType::ModAsV<isSlu>	// "mod" Name "as" "{" block "}"
-	> ;
+	    StatType::Use,          // "use" ...
+	    StatType::ModV<isSlu>,  // "mod" Name
+	    StatType::ModAsV<isSlu> // "mod" Name "as" "{" block "}"
+	    >;
 	Slu_DEF_CFG(StatData);
 
 	export struct Stat
@@ -819,7 +828,7 @@ namespace slu::parse
 		ast::Position place;
 
 		Stat() = default;
-		Stat(StatDataV<true>&& data) :data(std::move(data)) {}
+		Stat(StatDataV<true>&& data) : data(std::move(data)) {}
 		Stat(const Stat&) = delete;
 		Stat(Stat&&) = default;
 		Stat& operator=(Stat&&) = default;
@@ -830,4 +839,4 @@ namespace slu::parse
 		StatListV<true> code;
 		lang::ModPathId mp;
 	};
-}
+} //namespace slu::parse
