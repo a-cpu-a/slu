@@ -2,10 +2,10 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <cstdint>
-#include <unordered_set>
 #include <algorithm>
+#include <cstdint>
 #include <format>
+#include <unordered_set>
 
 #include <slu/Ansi.hpp>
 export module slu.parse.com.name;
@@ -21,10 +21,10 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-#define _Slu_COMMON_KWS \
-	"and", "break", "do", "else", "elseif", "end", "for", "function", \
-	"global", "goto", "if", "in", "local", "or", "repeat", "return", \
-	"then", "until", "while"
+#define _Slu_COMMON_KWS                                                  \
+	"and", "break", "do", "else", "elseif", "end", "for", "function",    \
+	    "global", "goto", "if", "in", "local", "or", "repeat", "return", \
+	    "then", "until", "while"
 
 #define _Slu_KWS                                                               \
 	_Slu_COMMON_KWS, /* freedom */                                             \
@@ -37,31 +37,27 @@ namespace slu::parse
 	    "threadlocal", /* todos */                                             \
 	    "gen", "copy", "move", "async", "await", "yield", "static",            \
 	    "generator", /* documented */                                          \
-	    "as", "ex", "fn", "it", "dyn", "let", "mod", "mut", "try",             \
-	    "use" "also", "drop", "enum", "impl", "loop", "safe", "alloc",         \
-	    "axiom", "catch", "const", "defer", "macro", "match", "share",         \
-	    "throw", "trans", "union", "where", "extern", "module", "struct",      \
-	    "unsafe", "continue", "recursive"
+	    "as", "ex", "fn", "it", "dyn", "let", "mod", "mut", "try", "use",      \
+	    "also", "drop", "enum", "impl", "loop", "safe", "alloc", "axiom",      \
+	    "catch", "const", "defer", "macro", "match", "share", "throw",         \
+	    "trans", "union", "where", "extern", "module", "struct", "unsafe",     \
+	    "continue", "recursive"
 #define _Slu_VERY_KWS "self", "crate", "super"
 #define _Slu_MOSTLY_KWS _Slu_VERY_KWS, "Self"
 
 	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU = {
-		_Slu_KWS,
+	    _Slu_KWS,
 
-		//Conditional
-		_Slu_MOSTLY_KWS, "trait",
+	    //Conditional
+	    _Slu_MOSTLY_KWS,
+	    "trait",
 	};
-	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_BOUND_VAR = {
-		_Slu_KWS,
-		_Slu_VERY_KWS, "trait"
-	};
-	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START = {
-		_Slu_KWS
-	};
-	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP = {
-		_Slu_KWS,
-		_Slu_MOSTLY_KWS
-	};
+	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_BOUND_VAR
+	    = {_Slu_KWS, _Slu_VERY_KWS, "trait"};
+	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP_START
+	    = {_Slu_KWS};
+	const std::unordered_set<std::string> RESERVED_KEYWORDS_SLU_MP
+	    = {_Slu_KWS, _Slu_MOSTLY_KWS};
 
 	export enum class NameCatagory
 	{
@@ -73,7 +69,8 @@ namespace slu::parse
 	template<NameCatagory cata>
 	bool isNameInvalid(AnyInput auto& in, const std::string& n)
 	{
-		const std::unordered_set<std::string>* checkSet = &RESERVED_KEYWORDS_SLU;
+		const std::unordered_set<std::string>* checkSet
+		    = &RESERVED_KEYWORDS_SLU;
 
 		if constexpr (cata == NameCatagory::MP_START)
 			checkSet = &RESERVED_KEYWORDS_SLU_MP_START;
@@ -88,7 +85,8 @@ namespace slu::parse
 		return false;
 	}
 
-	export template<NameCatagory cata =NameCatagory::DEFAULT,bool sluTuplable=false>
+	export template<NameCatagory cata = NameCatagory::DEFAULT,
+	    bool sluTuplable = false>
 	std::string readName(AnyInput auto& in, const bool allowError = false)
 	{
 		/*
@@ -99,39 +97,42 @@ namespace slu::parse
 		skipSpace(in);
 
 		if (!in)
-			throw UnexpectedFileEndError("Expected identifier/name: but file ended" + errorLocStr(in));
+		{
+			throw UnexpectedFileEndError(
+			    "Expected identifier/name: but file ended" + errorLocStr(in));
+		}
 
 		const uint8_t firstChar = in.peek();
 
-		if constexpr(sluTuplable)
+		if constexpr (sluTuplable)
 		{
-			// Ensure the first character is valid (a letter, number or underscore)
+			// Ensure the first character is valid
+			// (a letter, number or underscore)
 			if (!isValidNameChar(firstChar))
 			{
 				if (allowError)
 					return "";
 				throw UnexpectedCharacterError(std::format(
-					"Invalid identifier/"
-					LC_integer
-					"/name start: must begin with a letter, digit or underscore"
-					"{}"
-					, errorLocStr(in))
-				);
+				    "Invalid identifier/name start: must begin with a letter, digit or underscore"
+				    "{}",
+				    errorLocStr(in)));
 			}
 			if (isDigitChar(firstChar))
 			{
-				TupleName n = readNumeral<TupleName, false, false>(in, firstChar);
+				TupleName n
+				    = readNumeral<TupleName, false, false>(in, firstChar);
 				return u128ToStr(n.lo, n.hi);
 			}
-		}
-		else
+		} else
 		{
 			// Ensure the first character is valid (a letter or underscore)
 			if (!isValidNameStartChar(firstChar))
 			{
 				if (allowError)
 					return "";
-				throw UnexpectedCharacterError("Invalid identifier/name start: must begin with a letter or underscore" + errorLocStr(in));
+				throw UnexpectedCharacterError(
+				    "Invalid identifier/name start: must begin with a letter or underscore"
+				    + errorLocStr(in));
 			}
 		}
 
@@ -156,21 +157,25 @@ namespace slu::parse
 		{
 			if (allowError)
 				return "";
-			throw ReservedNameError("Invalid identifier: matches a reserved keyword" + errorLocStr(in));
+			throw ReservedNameError(
+			    "Invalid identifier: matches a reserved keyword"
+			    + errorLocStr(in));
 		}
 
 		return res;
 	}
 	export template<NameCatagory cata = NameCatagory::DEFAULT>
-	std::string readSluTuplableName(AnyInput auto& in, const bool allowError = false) {
-		return readName<cata,true>(in, allowError);
+	std::string readSluTuplableName(
+	    AnyInput auto& in, const bool allowError = false)
+	{
+		return readName<cata, true>(in, allowError);
 	}
 
 	//No space skip!
 	//Returns SIZE_MAX, on non name inputs
 	//Otherwise, returns last peek() idx that returns a part of the name
 	export template<NameCatagory cata = NameCatagory::DEFAULT>
-	size_t peekName(AnyInput auto& in,const size_t at = 0)
+	size_t peekName(AnyInput auto& in, const size_t at = 0)
 	{
 		if (!in)
 			return SIZE_MAX;
@@ -185,10 +190,10 @@ namespace slu::parse
 		res += firstChar; // Consume the first valid character
 
 		// Consume subsequent characters (letters, digits, or underscores)
-		size_t i = 1+ at;
+		size_t i = 1 + at;
 		while (!in.isOob(i))
 		{
-			const uint8_t ch = in.peekAt(i);// Starts at 1
+			const uint8_t ch = in.peekAt(i); // Starts at 1
 			if (!isValidNameChar(ch))
 				break; // Stop when a non-identifier character is found
 
@@ -203,4 +208,4 @@ namespace slu::parse
 
 		return i;
 	}
-}
+} //namespace slu::parse
