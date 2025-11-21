@@ -41,7 +41,7 @@ Order of Operations {
 	^
 	postfix unary operators (? .*)
 	
-	(pseudo) .	 ::	  function-args""()[[]] construct{} index[]
+	(pseudo) .	.:	 ::	  function-args""()[[]] construct{} index[]
 	(pseudo) (parenthesis)
 	```
 	Everything is left to right, except for <<, >> and ^ which are right to left
@@ -91,7 +91,9 @@ Order of Operations {
 	&share	RefShare	(unstable)
 	
 	[]		Slicify		(unstable)
-	.		----		(will consider lol)
+	.		----		
+	.:		----		
+	::		----		
 	as		As.asType
 	~~		----
 	||		Union.union

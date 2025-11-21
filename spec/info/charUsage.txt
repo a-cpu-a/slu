@@ -1,4 +1,4 @@
-#
+﻿#
 # Dependencies: 
 #
 
@@ -26,7 +26,6 @@ Char Usage {
 	|  0-9   |   X    |   -    |
 	|   ;    |        |   -    |
 	|   ,    |        |   -    |
-	|   .    |   X    |   X    | prefix -> number (.0)
 	|   :>   |   X    |   -    |
 	|   :    |        |   X    |
 	|   <    |        |   X    |
@@ -46,9 +45,11 @@ Char Usage {
 	|   ~    |        |   X    |
 	|   ^    |        |   X    |
 	|   +    |        |   X    |
+	|   .    |   X    |   X    | prefix -> number (.0)
 	|   ..   |   X    |   X    |
-	|   =    |   -    |   X    | prefix, cuz assignment would turn into eq. suffix -> == operator
 	|   .*   |        |   X    |
+	|   .:   |        |   X    |
+	|   =    |   -    |   X    | prefix, cuz assignment would turn into eq. suffix -> == operator
 	|   or   |        |   X    |
 	|  and   |        |   X    |
 	|   in   |        |   X    |
