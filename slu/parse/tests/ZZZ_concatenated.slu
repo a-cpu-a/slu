@@ -60,14 +60,6 @@ ex unsafe fn decl_rrmself(&&mut self)
 ex unsafe fn decl_rmrself(&mut &self) -> &mut u8
 ex unsafe fn decl_rmrmself(&mut &mut self)
 
-ex unsafe fn decl_self(self) -> &&u8
-ex unsafe fn decl_pself(*self) -> u8
-ex unsafe fn decl_pmself(*mut self)
-ex unsafe fn decl_prself(*&self)
-ex unsafe fn decl_rpmself(&*mut self)
-ex unsafe fn decl_rmpself(&mut *self) -> *share u8
-ex unsafe fn decl_rmpsself(&mut *share self)
-
 extern "Any" {
 	ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
 	ex safe fn helloWorld2() -> &mut u8 {}
