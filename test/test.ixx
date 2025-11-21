@@ -54,7 +54,8 @@ inline std::vector<uint8_t> getBin(const std::string& path)
 	while (!in.eof())
 	{
 		const int dat = in.get();
-		if (!in.eof()) data.push_back((uint8_t)dat);
+		if (!in.eof())
+			data.push_back((uint8_t)dat);
 	}
 	return data;
 }
@@ -75,7 +76,8 @@ inline uint8_t testSluOnFile(
 {
 	const bool wrapItInFn = path.stem().string().ends_with(".$block");
 	//fn _(){...}
-	if (wrapItInFn) return 2; //TODO: implement it
+	if (wrapItInFn)
+		return 2; //TODO: implement it
 	std::string pathStr = path.string();
 	std::vector<uint8_t> srcCode = getBin(pathStr);
 
@@ -85,7 +87,8 @@ inline uint8_t testSluOnFile(
 		size_t i = 0;
 		while (true)
 		{
-			if (srcCode[i++] == '\n') break;
+			if (srcCode[i++] == '\n')
+				break;
 		}
 		srcCode.erase(srcCode.begin(), srcCode.begin() + i - 1);
 	}
@@ -170,7 +173,8 @@ inline uint8_t testSluOnFile(
 		if (!invert || e.what() == "Test failed")
 		{
 			logErr("In file {}:", path.string());
-			if (e.what() != "Test failed") logErr("Error msg: {}", e.what());
+			if (e.what() != "Test failed")
+				logErr("Error msg: {}", e.what());
 			logErr("Test failed : {::}", in.handledErrors);
 			return 1;
 		}
@@ -178,7 +182,8 @@ inline uint8_t testSluOnFile(
 	} catch (const slu::parse::ParseFailError&)
 	//catch (const std::bad_alloc& err)
 	{
-		if (invert) return 2;
+		if (invert)
+			return 2;
 
 		logErr("In file {}:", path.string());
 		logErr("Test failed : {::}", in.handledErrors);
@@ -236,10 +241,12 @@ export extern "C++" int main()
 	for (auto const& dir_entry :
 	    std::filesystem::recursive_directory_iterator{p})
 	{
-		if (dir_entry.is_directory()) continue;
+		if (dir_entry.is_directory())
+			continue;
 		const std::filesystem::path ext = dir_entry.path().extension();
 		const bool invert = ext == ".notslu";
-		if (ext != ".slu" && !invert) continue;
+		if (ext != ".slu" && !invert)
+			continue;
 
 		uint8_t res = testSluOnFile(dir_entry.path(), invert);
 
