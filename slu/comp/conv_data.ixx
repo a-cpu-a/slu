@@ -19,4 +19,4 @@ namespace slu::comp
 		const parse::Stat* stat;
 		std::string_view filePath;
 	};
-}
+} //namespace slu::comp

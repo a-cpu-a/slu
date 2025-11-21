@@ -35,11 +35,10 @@ namespace slu
 		{
 			res += u64ToStr(hi);
 			res += u64ToStr<true>(lo);
-		}
-		else if (lo != 0)
+		} else if (lo != 0)
 			res += u64ToStr(lo);
 		else
 			res += '0';
 		return res;
 	}
-}
+} //namespace slu

@@ -9,8 +9,10 @@ import slu.parse.input;
 
 namespace slu::parse
 {
-	extern "C++" {
-		export template<bool IS_BASIC = false, bool FOR_PAT = false, AnyInput In>
-			parse::Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp = true);
+	extern "C++"
+	{
+	export template<bool IS_BASIC = false, bool FOR_PAT = false, AnyInput In>
+	parse::Expr readExpr(
+	    In& in, const bool allowVarArg, const bool readBiOp = true);
 	}
-}
+} //namespace slu::parse

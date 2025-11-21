@@ -16,7 +16,8 @@ import slu.parse.com.tok;
 namespace slu::parse
 {
 	export template<AnyInput In>
-	bool readUseStat(In& in, const ast::Position place, const lang::ExportData exported)
+	bool readUseStat(
+	    In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (checkReadTextToken(in, "use"))
 		{
@@ -25,15 +26,16 @@ namespace slu::parse
 
 			bool root = false;
 			skipSpace(in);
-			if(in.peek()==':')
+			if (in.peek() == ':')
 			{
-				requireToken<false>(in, ":>");//Modpath root
+				requireToken<false>(in, ":>"); //Modpath root
 				requireToken(in, "::");
 				root = true;
 			}
 
-			lang::ModPath mp = readModPath(in);//Moved @ IMPORT
-			res.base = root? in.genData.resolveRootName(mp) :in.genData.resolveName(mp);
+			lang::ModPath mp = readModPath(in); //Moved @ IMPORT
+			res.base = root ? in.genData.resolveRootName(mp)
+			                : in.genData.resolveName(mp);
 
 			if (in.peek() == ':')
 			{
@@ -41,33 +43,34 @@ namespace slu::parse
 				{
 					in.skip(3);
 					res.useVariant = UseVariantType::EVERYTHING_INSIDE{};
-				}
-				else if (in.peekAt(1) == ':' && in.peekAt(2) == '{')
+				} else if (in.peekAt(1) == ':' && in.peekAt(2) == '{')
 				{
 					in.skip(3);
 					UseVariantType::LIST_OF_STUFF list;
-					list.push_back(in.genData.addLocalObj(readName<NameCatagory::MP_START>(in)));
+					list.push_back(in.genData.addLocalObj(
+					    readName<NameCatagory::MP_START>(in)));
 					while (checkReadToken(in, ","))
 					{
-						list.push_back(in.genData.addLocalObj(readName<NameCatagory::MP_START>(in)));
+						list.push_back(in.genData.addLocalObj(
+						    readName<NameCatagory::MP_START>(in)));
 					}
 					requireToken(in, "}");
 					res.useVariant = std::move(list);
+				} else
+				{ // Neither, prob just no semicol
+					res.useVariant = UseVariantType::IMPORT{
+					    in.genData.addLocalObj(std::move(mp.back()))};
 				}
-				else
-				{// Neither, prob just no semicol
-					res.useVariant = UseVariantType::IMPORT{in.genData.addLocalObj(std::move(mp.back()))};
-				}
-			}
-			else
+			} else
 			{
 				if (checkReadTextToken(in, "as"))
 				{
-					res.useVariant = UseVariantType::AS_NAME{ in.genData.addLocalObj(readName(in))};
-				}
-				else
-				{// Prob just no semicol
-					res.useVariant = UseVariantType::IMPORT{ in.genData.addLocalObj(std::move(mp.back())) };
+					res.useVariant = UseVariantType::AS_NAME{
+					    in.genData.addLocalObj(readName(in))};
+				} else
+				{ // Prob just no semicol
+					res.useVariant = UseVariantType::IMPORT{
+					    in.genData.addLocalObj(std::move(mp.back()))};
 				}
 			}
 			in.genData.addStat(place, std::move(res));
@@ -75,4 +78,4 @@ namespace slu::parse
 		}
 		return false;
 	}
-}
+} //namespace slu::parse

@@ -2,9 +2,9 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
-#include <span>
 #include <format>
+#include <span>
+#include <string>
 #include <vector>
 
 export module slu.parse.vec_input;
@@ -15,8 +15,7 @@ import slu.parse.input;
 
 namespace slu::parse
 {
-	export template<AnySettings SettingsT = Setting<void>>
-	struct VecInput
+	export template<AnySettings SettingsT = Setting<void>> struct VecInput
 	{
 		constexpr VecInput(SettingsT) {}
 		constexpr VecInput() = default;
@@ -37,7 +36,7 @@ namespace slu::parse
 		std::span<const uint8_t> text;
 		size_t idx = 0;
 
-		void restart() 
+		void restart()
 		{
 			curLine = 1;
 			curLinePos = 0;
@@ -55,8 +54,8 @@ namespace slu::parse
 		//offset 0 is the same as peek()
 		uint8_t peekAt(const size_t offset)
 		{
-			if (idx > SIZE_MAX - offset ||	//idx + count overflows, so...
-				idx + offset >= text.size())
+			if (idx > SIZE_MAX - offset || //idx + count overflows, so...
+			    idx + offset >= text.size())
 			{
 				throw EndOfStreamError(*this);
 			}
@@ -64,11 +63,13 @@ namespace slu::parse
 			return text[idx + offset];
 		}
 
-		// span must be valid until next get(), so, any other peek()'s must not invalidate these!!!
+		// span must be valid until next get(), so, any
+		// other peek()'s must not invalidate these!!!
 		std::span<const uint8_t> peek(const size_t count)
 		{
-			if (idx > SIZE_MAX - count ||	//idx + count overflows, so...
-				idx + count > text.size())	//position after this peek() can be at text.size(), but not above it
+			if (idx > SIZE_MAX - count ||  //idx + count overflows, so...
+			    idx + count > text.size()) //position after this peek() can be
+			                               // at text.size(), but not above it
 			{
 				throw EndOfStreamError(*this);
 			}
@@ -94,11 +95,13 @@ namespace slu::parse
 			curLinePos++;
 			return text[idx++];
 		}
-		// span must be valid until next get(), so, any peek()'s must not invalidate these!!!
+		// span must be valid until next get(), so, any
+		// peek()'s must not invalidate these!!!
 		std::span<const uint8_t> get(const size_t count)
 		{
-			if (idx > SIZE_MAX - count ||	//idx + count overflows, so...
-				idx + count > text.size())	//position after this get() can be at text.size(), but not above it
+			if (idx > SIZE_MAX - count ||  //idx + count overflows, so...
+			    idx + count > text.size()) //position after this get() can be at
+			                               // text.size(), but not above it
 			{
 				throw EndOfStreamError(*this);
 			}
@@ -112,27 +115,29 @@ namespace slu::parse
 		}
 
 		/* Returns true, while stream still has stuff */
-		operator bool() const {
+		operator bool() const
+		{
 			return idx < text.size();
 		}
 		//Passing 0 is the same as (!in)
-		bool isOob(const size_t offset) const {
-			return (
-				idx > SIZE_MAX - offset ||
-				idx + offset >= text.size()
-				);
+		bool isOob(const size_t offset) const
+		{
+			return (idx > SIZE_MAX - offset || idx + offset >= text.size());
 		}
 
 
 		//Error output
 
-		std::string_view fileName() const {
+		std::string_view fileName() const
+		{
 			return fName;
 		}
-		ast::Position getLoc() const {
-			return { curLine,curLinePos };
+		ast::Position getLoc() const
+		{
+			return {curLine, curLinePos};
 		}
-		void newLine() {
+		void newLine()
+		{
 			curLine++;
 			curLinePos = 0;
 		}
@@ -147,4 +152,4 @@ namespace slu::parse
 			return !handledErrors.empty();
 		}
 	};
-}
+} //namespace slu::parse

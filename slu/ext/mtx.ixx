@@ -31,23 +31,21 @@ import std;
 export module a_cpu_a.mtx;
 namespace a_cpu_a
 {
-	export template<class T>
-	struct Mutex
+	export template<class T> struct Mutex
 	{
 		std::mutex lock;
 		T v;
-		Mutex(const T& v) :v(v) {}
-		Mutex(T&& v) :v(std::move(v)) {}
+		Mutex(const T& v) : v(v) {}
+		Mutex(T&& v) : v(std::move(v)) {}
 		Mutex() = default;
 	};
-	export template<class T>
-	struct RwLock
+	export template<class T> struct RwLock
 	{
 		std::shared_mutex lock;
 		T v;
-		RwLock(const T& v) :v(v) {}
-		RwLock(T&& v) :v(std::move(v)) {}
+		RwLock(const T& v) : v(v) {}
+		RwLock(T&& v) : v(std::move(v)) {}
 		RwLock() = default;
 	};
 
-}
+} //namespace a_cpu_a

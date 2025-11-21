@@ -15,14 +15,14 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
+
 	//Doesnt check (, starts after it too.
-	export template<bool isLocal, AnyInput In>
-	ParamList readParamList(In& in)
+	export template<bool isLocal, AnyInput In> ParamList readParamList(In& in)
 	{
 		ParamList res;
 		skipSpace(in);
 
-		if(in.peek()==')')
+		if (in.peek() == ')')
 		{
 			in.skip();
 			return res;
@@ -37,8 +37,9 @@ namespace slu::parse
 
 		return res;
 	}
-	export template<class T,bool structOnly,AnyInput In>
-	void readStructStat(In& in, const ast::Position place, const lang::ExportData exported)
+	export template<class T, bool structOnly, AnyInput In>
+	void readStructStat(
+	    In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		in.genData.pushLocalScope();
 		T res{};
@@ -60,4 +61,4 @@ namespace slu::parse
 
 		in.genData.addStat(place, std::move(res));
 	}
-}
+} //namespace slu::parse

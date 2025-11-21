@@ -3,9 +3,9 @@
 ** See Copyright Notice inside Include.hpp
 */
 
-#include <string>
-#include <span>
 #include <format>
+#include <span>
+#include <string>
 
 #include <slu/Ansi.hpp>
 export module slu.parse.input;
@@ -19,36 +19,39 @@ namespace slu::parse
 	export template<class T, bool isSlu>
 	concept AnyGenDataV =
 #ifdef Slu_NoConcepts
-		true
+	    true
 #else
-		requires(T t,lang::MpItmId v) {
-			{ t.asSv(v) } -> std::same_as<std::string_view>;
-			{ t.resolveEmpty() } -> std::same_as<lang::MpItmId>;
+	    requires(T t, lang::MpItmId v) {
+		    { t.asSv(v) } -> std::same_as<std::string_view>;
+		    { t.resolveEmpty() } -> std::same_as<lang::MpItmId>;
 
-			{ t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmId>;
-			{ t.resolveUnknown(lang::ModPath()) } -> std::same_as<lang::MpItmId>;
+		    { t.resolveUnknown(std::string()) } -> std::same_as<lang::MpItmId>;
+		    {
+			    t.resolveUnknown(lang::ModPath())
+		    } -> std::same_as<lang::MpItmId>;
 
-			//{ t.resolveNameOrLocal(std::string()) } -> std::same_as<parse::DynLocalOrNameV<isSlu>>;
-			{ t.resolveName(std::string()) } -> std::same_as<lang::MpItmId>;
-			{ t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmId>;
-	}
+		    //{ t.resolveNameOrLocal(std::string()) } ->
+		    //std::same_as<parse::DynLocalOrNameV<isSlu>>;
+		    { t.resolveName(std::string()) } -> std::same_as<lang::MpItmId>;
+		    { t.resolveName(lang::ModPath()) } -> std::same_as<lang::MpItmId>;
+	    }
 #endif // Slu_NoConcepts
-	;
+	    ;
 	/*
 	template<class T>
 	concept AnyGenData =
 #ifdef Slu_NoConcepts
-		true
+	    true
 #else
-		AnyGenDataV<T,true> || AnyGenDataV<T, false>
+	    AnyGenDataV<T,true> || AnyGenDataV<T, false>
 #endif // Slu_NoConcepts
 	;*/
-	
+
 	//Here, so streamed inputs can be made
 	export template<class T>
 	concept AnyInput =
 #ifdef Slu_NoConcepts
-		true
+	    true
 #else
 
 		AnyCfgable<T> && requires(T t) {
@@ -86,28 +89,31 @@ namespace slu::parse
 		{t.hasError() } -> std::same_as<bool>;
 	}
 #endif // Slu_NoConcepts
-	;
+	    ;
 
-	export std::string errorLocStr(const AnyInput auto& in,const ast::Position pos) {
-		return std::format(
-			" {}:" 
-			LUACC_NUM_COL("{}")
-			":" 
-			LUACC_NUM_COL("{}"),
+	export std::string errorLocStr(
+	    const AnyInput auto& in, const ast::Position pos)
+	{
+		return std::format(" {}:" LUACC_NUM_COL("{}") ":" LUACC_NUM_COL("{}"),
 
-			in.fileName(),
-			pos.line, pos.index+1
-		);
-			//" " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) + LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
+		    in.fileName(), pos.line, pos.index + 1);
+		//" " + in.fileName() + "(" LUACC_NUMBER + std::to_string(pos.line) +
+		//LUACC_DEFAULT "):" LUACC_NUMBER + std::to_string(pos.index);
 	}
-	export std::string errorLocStr(const AnyInput auto& in) {
-		return errorLocStr(in,in.getLoc());
+	export std::string errorLocStr(const AnyInput auto& in)
+	{
+		return errorLocStr(in, in.getLoc());
 	}
 
 	export struct EndOfStreamError : std::exception
 	{
 		std::string m;
-		EndOfStreamError(const AnyInput auto& in) :m(std::format("Unexpected end of stream.{}",errorLocStr(in))) {}
-		const char* what() const { return m.c_str(); }
+		EndOfStreamError(const AnyInput auto& in)
+		    : m(std::format("Unexpected end of stream.{}", errorLocStr(in)))
+		{}
+		const char* what() const
+		{
+			return m.c_str();
+		}
 	};
-}
+} //namespace slu::parse

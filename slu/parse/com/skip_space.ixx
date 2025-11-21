@@ -20,25 +20,30 @@ namespace slu::parse
 		while (true)
 		{
 			//start by skipping ez stuff
-			while (isSpaceChar(in.peekAt(idx))) { idx++; }
+			while (isSpaceChar(in.peekAt(idx)))
+			{
+				idx++;
+			}
 			//then hard stuff...
 
 			if (in.peekAt(idx) != '-' || in.peekAt(idx + 1) != '-')
 				break;
-			idx += 2;//skip --
+			idx += 2; //skip --
 
 			char ch = in.peekAt(idx);
 			if (ch == '[')
 			{
 				size_t level = 0;
-				while (in.peekAt(idx + 1 + level) == '=') level++;
+				while (in.peekAt(idx + 1 + level) == '=')
+					level++;
 
 
 				//if (level == 0)
 				//	throwMultilineCommentMissingEqual(in);
 
 
-				if (in.peekAt(idx + 1 + level) == '[') // Confirm multiline comment
+				if (in.peekAt(idx + 1 + level)
+				    == '[') // Confirm multiline comment
 				{
 					idx += 2 + level; // Skip opening '[=['
 
@@ -48,19 +53,21 @@ namespace slu::parse
 						if (in.peekAt(idx) == ']')
 						{
 							size_t closeLevel = 0;
-							while (in.peekAt(idx + 1 + closeLevel) == '=') closeLevel++;
+							while (in.peekAt(idx + 1 + closeLevel) == '=')
+								closeLevel++;
 
-							if (in.peekAt(idx + 1 + closeLevel) == ']' && closeLevel == level)
+							if (in.peekAt(idx + 1 + closeLevel) == ']'
+							    && closeLevel == level)
 							{
 								idx += 2 + closeLevel; // Skip closing ']=]'
 								break;
 							}
-							idx += 1 + closeLevel; // Skip ']=' 
+							idx += 1 + closeLevel; // Skip ']='
 							continue;
 						}
 						idx++;
 					}
-					break;//no longer single line comment
+					break; //no longer single line comment
 				}
 			}
 			// Otherwise, it's a single-line comment
@@ -68,16 +75,16 @@ namespace slu::parse
 			{
 				if (ch == '\n' || ch == '\r')
 					break;
-				idx++; // Skip until newline or multiline comment
-				ch = in.peekAt(idx);//Get next char
+				idx++;               // Skip until newline or multiline comment
+				ch = in.peekAt(idx); //Get next char
 			}
-			
+
 			//try skipping normal space again
 		}
 		return idx;
 	}
 
-	template <typename T>
+	template<typename T>
 	concept InputOrSemTokStream = AnyInput<T> || slu::paint::AnySemOutput<T>;
 
 	//Returns true, when idx changed
@@ -90,8 +97,8 @@ namespace slu::parse
 				return &sOrIn.in;
 			else
 				return &sOrIn;
-			})();
-		
+		})();
+
 		/*
 
 		Lua is a free-form language.
@@ -145,7 +152,7 @@ namespace slu::parse
 			{
 				if (newLine)
 				{
-					insideLineComment = false;//new line, so exit comment
+					insideLineComment = false; //new line, so exit comment
 					continue;
 				}
 
@@ -168,16 +175,18 @@ namespace slu::parse
 						level++;
 
 
-					if (in.peekAt(1 + level) == ']' && level == multilineCommentLevel)
+					if (in.peekAt(1 + level) == ']'
+					    && level == multilineCommentLevel)
 					{
 						insideMultilineComment = false;
 						if constexpr (isSem)
-							sOrIn.template add<paint::Tok::COMMENT_OUTER>(2 + level);
+							sOrIn.template add<paint::Tok::COMMENT_OUTER>(
+							    2 + level);
 						in.skip(2 + level); // Skip closing bracket
 						continue;
 					}
 
-					in.skip(1 + level);  // Skip ']='
+					in.skip(1 + level); // Skip ']='
 					continue;
 				}
 				if constexpr (isSem)
@@ -211,7 +220,7 @@ namespace slu::parse
 			}
 
 			if (ch == '-')
-			{//maybe comment?
+			{ //maybe comment?
 				const uint8_t nextCh = in.peekAt(1);
 				if (nextCh == '-') // Single-line or multiline comment starts
 				{
@@ -224,25 +233,23 @@ namespace slu::parse
 						while (in.peekAt(3 + level) == '=') // Count '=' signs
 							level++;
 
-						//if constexpr (!isSem)
-						//{
-						//	if (level == 0)
-						//		throwMultilineCommentMissingEqual(in);
-						//}
 
-						if (in.peekAt(3 + level) == '[') // Confirm multiline comment start
+						if (in.peekAt(3 + level)
+						    == '[') // Confirm multiline comment start
 						{
 							insideMultilineComment = true;
 							multilineCommentLevel = level;
 							if constexpr (isSem)
-								sOrIn.template add<paint::Tok::COMMENT_OUTER>(4 + level);
+								sOrIn.template add<paint::Tok::COMMENT_OUTER>(
+								    4 + level);
 							in.skip(4 + level); // Skip "--[=["
 							continue;
 						}
 					}
 
-					insideLineComment = true; // Otherwise, it's a single-line comment
-					
+					insideLineComment
+					    = true; // Otherwise, it's a single-line comment
+
 					if constexpr (isSem)
 						sOrIn.template add<paint::Tok::COMMENT_OUTER>(2);
 
@@ -255,4 +262,4 @@ namespace slu::parse
 
 		return res;
 	}
-}
+} //namespace slu::parse

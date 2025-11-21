@@ -19,12 +19,12 @@ namespace slu::ast
 	export enum class BinOpType : uint8_t
 	{
 		NONE,
-#define _X(E,T,M) E
+#define _X(E, T, M) E
 		Slu_BIN_OPS(, ),
 
 		//Not a real op, just the amount of binops
 		// -1 because NONE, +1 cuz total size
-		ENUM_SIZE = AS - 1+1
+		ENUM_SIZE = AS - 1 + 1
 	};
 
 	export enum class UnOpType : uint8_t
@@ -46,6 +46,6 @@ namespace slu::ast
 
 		//Not a real op, just the amount of post unops
 		// -1 because NONE, +1 cuz total size
-		ENUM_SIZE = TRY+1-1
+		ENUM_SIZE = TRY + 1 - 1
 	};
-}
+} //namespace slu::ast

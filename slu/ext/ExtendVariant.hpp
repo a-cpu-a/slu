@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 /*
 MIT License
 
@@ -22,24 +22,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
 #ifndef _EXTEND_VARIANT_HPP
 #define _EXTEND_VARIANT_HPP
-
 #include <variant>
-
-namespace aca {
-
-    template <typename V, typename... Ts>
-    struct _ExtendVariantHelper;
-
-    template <typename... VariantTs, typename... Ts>
-    struct _ExtendVariantHelper<std::variant<VariantTs...>, Ts...>
-    {
-        using type = std::variant<VariantTs..., Ts...>;
-    };
-
-    template <typename Variant, typename... ExtraTypes>
-    using ExtendVariant = typename _ExtendVariantHelper<Variant, ExtraTypes...>::type;
-}
+namespace aca
+{
+	template<typename V, typename... Ts> struct _ExtendVariantHelper;
+	template<typename... VariantTs, typename... Ts>
+	struct _ExtendVariantHelper<std::variant<VariantTs...>, Ts...>
+	{
+		using type = std::variant<VariantTs..., Ts...>;
+	};
+	template<typename Variant, typename... ExtraTypes>
+	using ExtendVariant =
+	    typename _ExtendVariantHelper<Variant, ExtraTypes...>::type;
+} //namespace aca
 #endif

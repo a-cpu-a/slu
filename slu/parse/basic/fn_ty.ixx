@@ -3,8 +3,8 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <cstdint>
-#include <unordered_set>
 #include <memory>
+#include <unordered_set>
 
 export module slu.parse.basic.fn_ty;
 
@@ -19,16 +19,17 @@ namespace slu::parse
 {
 	//No space skip!
 	//YOU parse the 'fn'
-	export template<bool isBasic,AnyInput In>
+	export template<bool isBasic, AnyInput In>
 	ExprType::FnType readFnType(In& in, const ast::OptSafety safety)
-	{// [safety] "fn" typeExp "->" typeExp
+	{ // [safety] "fn" typeExp "->" typeExp
 		ExprType::FnType res{};
 		res.safety = safety;
 
 		res.argType = std::make_unique<parse::Expr>(readExpr(in, false));
 		requireToken(in, "->");
-		res.retType = std::make_unique<parse::Expr>(readExpr<isBasic>(in, false));
+		res.retType
+		    = std::make_unique<parse::Expr>(readExpr<isBasic>(in, false));
 
 		return res;
 	}
-}
+} //namespace slu::parse

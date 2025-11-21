@@ -15,32 +15,34 @@ namespace slu::parse
 	};
 
 	//Returns if newline was added
-	export template <bool skipPreNl>
-	bool manageNewlineState(const char ch, ParseNewlineState& nlState, parse::AnyInput auto& in)
+	export template<bool skipPreNl>
+	bool manageNewlineState(
+	    const char ch, ParseNewlineState& nlState, parse::AnyInput auto& in)
 	{
 		switch (nlState)
 		{
 		case slu::parse::ParseNewlineState::NONE:
 			if (ch == '\n')
 			{
-				if constexpr (skipPreNl)in.skip();
+				if constexpr (skipPreNl)
+					in.skip();
 				in.newLine();
 				return true;
-			}
-			else if (ch == '\r')
+			} else if (ch == '\r')
 				nlState = slu::parse::ParseNewlineState::CARI;
 			break;
 		case slu::parse::ParseNewlineState::CARI:
 			if (ch != '\r')
-			{//  \r\n, or \r(normal char)
-				if constexpr (skipPreNl)in.skip();
+			{ // \r\n, or \r(normal char)
+				if constexpr (skipPreNl)
+					in.skip();
 				in.newLine();
 				nlState = slu::parse::ParseNewlineState::NONE;
 				return true;
-			}
-			else// \r\r
+			} else // \r\r
 			{
-				if constexpr (skipPreNl)in.skip();
+				if constexpr (skipPreNl)
+					in.skip();
 				in.newLine();
 				return true;
 			}
@@ -48,4 +50,4 @@ namespace slu::parse
 		}
 		return false;
 	}
-}
+} //namespace slu::parse

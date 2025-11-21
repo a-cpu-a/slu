@@ -3,11 +3,11 @@
 */
 #pragma once
 
-#include <string>
-#include <vector>
 #include <optional>
+#include <string>
 #include <thread>
 #include <variant>
+#include <vector>
 
 import slu.comp.cfg;
 import slu.comp.conv_data;
@@ -15,19 +15,22 @@ import slu.comp.conv_data;
 namespace slu::comp::lua
 {
 	template<typename T>
-	concept AnyIgnoredStat = 
-		std::same_as<T,parse::StatType::GotoV<true>>
-		|| std::same_as<T,parse::StatType::Semicol>
-		|| std::same_as<T,parse::StatType::Use>
-		|| std::same_as<T,parse::StatType::FnDeclV<true>>
-		|| std::same_as<T,parse::StatType::FunctionDeclV<true>>
-		|| std::same_as<T,parse::StatType::ExternBlockV<true>>//ignore, as desugaring will remove it
-		|| std::same_as<T,parse::StatType::UnsafeBlockV<true>>//ignore, as desugaring will remove it
-		|| std::same_as<T,parse::StatType::DropV<true>>
-		|| std::same_as<T,parse::StatType::ModV<true>>
-		|| std::same_as<T,parse::StatType::ModAsV<true>>
-		|| std::same_as<T,parse::StatType::UnsafeLabel>
-		|| std::same_as<T,parse::StatType::SafeLabel>;
+	concept AnyIgnoredStat = std::same_as<T, parse::StatType::GotoV<true>>
+	    || std::same_as<T, parse::StatType::Semicol>
+	    || std::same_as<T, parse::StatType::Use>
+	    || std::same_as<T, parse::StatType::FnDeclV<true>>
+	    || std::same_as<T, parse::StatType::FunctionDeclV<true>>
+	    || std::same_as<T,
+	        parse::StatType::ExternBlockV<true>> //ignore, as desugaring will
+	                                             //remove it
+	    || std::same_as<T,
+	        parse::StatType::UnsafeBlockV<true>> //ignore, as desugaring will
+	                                             //remove it
+	    || std::same_as<T, parse::StatType::DropV<true>>
+	    || std::same_as<T, parse::StatType::ModV<true>>
+	    || std::same_as<T, parse::StatType::ModAsV<true>>
+	    || std::same_as<T, parse::StatType::UnsafeLabel>
+	    || std::same_as<T, parse::StatType::SafeLabel>;
 
 	struct ConvData : CommonConvData
 	{
@@ -39,15 +42,14 @@ namespace slu::comp::lua
 	{
 		ezmatch(conv.stat.data)(
 
-		varcase(const auto&) {},
+		    varcase(const auto&){},
 
 
-			//Ignore these
-		varcase(const AnyIgnoredStat auto&) {}
-		);
+		    //Ignore these
+		    varcase(const AnyIgnoredStat auto&){});
 	}
 	inline void conv(const ConvData& conv)
 	{
 		//TODO: Implement the conversion logic here
 	}
-}
+} //namespace slu::comp::lua

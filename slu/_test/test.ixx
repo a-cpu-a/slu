@@ -5,9 +5,9 @@
 //Test macro, dont use, doesnt improve performace. (actually hurts it lol)
 //#define Slu_NoConcepts
 
-#include <utility>
-#include <functional>
 #include <format>
+#include <functional>
+#include <utility>
 
 #include <slu/Ansi.hpp>
 export module slu._test.test;
@@ -28,9 +28,9 @@ import slu.visit.visit;
 
 void ____test()
 {
-	slu::parse::VecInput in2{ slu::parse::sluCommon };
+	slu::parse::VecInput in2{slu::parse::sluCommon};
 	slu::parse::BasicMpDbData mpDb;
-	in2.genData.mpDb = { &mpDb };
+	in2.genData.mpDb = {&mpDb};
 	in2.genData.totalMp = {"hello_world"};
 	auto f2 = slu::parse::parseFile(in2);
 
@@ -45,6 +45,6 @@ void ____test()
 
 	slu::comp::compile({});
 
-	auto vi2 = slu::visit::EmptyVisitor{ slu::parse::sluCommon };
+	auto vi2 = slu::visit::EmptyVisitor{slu::parse::sluCommon};
 	slu::visit::visitFile(vi2, f2);
 }

@@ -2,7 +2,7 @@
 ** See Copyright Notice inside Include.hpp
 */
 #pragma once
-
+// clang-format off
 #define Slu_POOLED_ITEMS(...) \
 	_X(X,"x") __VA_ARGS__ \
 	_X(Y,"y") __VA_ARGS__ \
@@ -66,3 +66,4 @@
 #define Slu_STD_BOOL_ITEMS(...) \
 	_X(TRUE,"true") __VA_ARGS__ \
 	_X(FALSE,"false")
+// clang-format on

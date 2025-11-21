@@ -29,8 +29,7 @@ namespace slu::parse
 			requireToken(in, ":");
 			in.genData.setUnsafe();
 			return in.genData.addStat(place, StatType::UnsafeLabel{});
-		}
-		else if (checkReadTextToken(in, "safe"))
+		} else if (checkReadTextToken(in, "safe"))
 		{
 			requireToken(in, ":");
 			in.genData.setSafe();
@@ -43,4 +42,4 @@ namespace slu::parse
 
 		return in.genData.addStat(place, StatType::Label<In>{res});
 	}
-}
+} //namespace slu::parse

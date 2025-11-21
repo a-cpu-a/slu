@@ -16,7 +16,8 @@ import slu.parse.com.tok;
 namespace slu::parse
 {
 	export template<AnyInput In>
-	bool readModStat(In& in, const ast::Position place, const lang::ExportData exported)
+	bool readModStat(
+	    In& in, const ast::Position place, const lang::ExportData exported)
 	{
 		if (checkReadTextToken(in, "mod"))
 		{
@@ -35,14 +36,13 @@ namespace slu::parse
 				requireToken(in, "}");
 
 				in.genData.addStat(place, std::move(res));
-			}
-			else
+			} else
 			{
-				in.genData.addStat(place, StatType::Mod<In>{ modName, exported });
+				in.genData.addStat(place, StatType::Mod<In>{modName, exported});
 			}
 
 			return true;
 		}
 		return false;
 	}
-}
+} //namespace slu::parse

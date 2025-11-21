@@ -2,8 +2,8 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
 #include <span>
+#include <string>
 #include <vector>
 
 export module slu.gen.output;
@@ -18,7 +18,7 @@ namespace slu::parse //TODO: gen
 	export template<class T>
 	concept AnyOutput =
 #ifdef Slu_NoConcepts
-		true
+	    true
 #else
 		AnyCfgable<T> && requires(T t) {
 
@@ -57,7 +57,7 @@ namespace slu::parse //TODO: gen
 		{ t.wasSemicolon } -> std::same_as<bool&>;
 	}
 #endif // Slu_NoConcepts
-	;
+	    ;
 
 	inline void updateLinePos(size_t& curLinePos, std::span<const uint8_t> sp)
 	{
@@ -70,8 +70,7 @@ namespace slu::parse //TODO: gen
 		}
 	}
 
-	export template<AnySettings SettingsT = Setting<void>>
-	struct Output
+	export template<AnySettings SettingsT = Setting<void>> struct Output
 	{
 		constexpr Output(SettingsT) {}
 		constexpr Output() = default;
@@ -87,51 +86,54 @@ namespace slu::parse //TODO: gen
 		std::vector<const parse::LocalsV<SLU_SYN>*> localStack;
 
 		std::vector<uint8_t> text;
-		uint64_t tabs=0;
+		uint64_t tabs = 0;
 		size_t curLinePos = 0;
 		bool tempDownTab = false;
 		bool wasSemicolon = false;
 
 
-		auto resolveLocal(parse::LocalId local) {
+		auto resolveLocal(parse::LocalId local)
+		{
 			return localStack.back()->names.at(local.v);
 		}
-		void pushLocals(const parse::LocalsV<SLU_SYN>& locals) {
+		void pushLocals(const parse::LocalsV<SLU_SYN>& locals)
+		{
 			localStack.push_back(&locals);
 		}
-		void popLocals() {
+		void popLocals()
+		{
 			localStack.pop_back();
 		}
 
-		Output& add(const char ch) 
+		Output& add(const char ch)
 		{
 			text.push_back(ch);
 			curLinePos++;
 			wasSemicolon = false;
 			return *this;
 		}
-		Output& add(const std::string_view sv) 
+		Output& add(const std::string_view sv)
 		{
 			text.insert(text.end(), sv.begin(), sv.end());
-			curLinePos+= sv.size();
+			curLinePos += sv.size();
 			wasSemicolon = false;
 			return *this;
 		}
-		template<size_t N>
-		Output& add(const char(&sa)[N]) {
-			text.insert(text.end(), sa, &(sa[N - 1]));//skip null
-			curLinePos += N-1;//skip null
+		template<size_t N> Output& add(const char (&sa)[N])
+		{
+			text.insert(text.end(), sa, &(sa[N - 1])); //skip null
+			curLinePos += N - 1;                       //skip null
 			wasSemicolon = false;
 			return *this;
 		}
-		Output& add(std::span<const uint8_t> sp) 
+		Output& add(std::span<const uint8_t> sp)
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
 			curLinePos += sp.size();
 			wasSemicolon = false;
 			return *this;
 		}
-		Output& addMultiline(std::span<const uint8_t> sp,const size_t linePos)
+		Output& addMultiline(std::span<const uint8_t> sp, const size_t linePos)
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
 			curLinePos = linePos;
@@ -141,7 +143,7 @@ namespace slu::parse //TODO: gen
 		Output& addMultiline(std::span<const uint8_t> sp)
 		{
 			text.insert(text.end(), sp.begin(), sp.end());
-			updateLinePos(curLinePos,sp);
+			updateLinePos(curLinePos, sp);
 			wasSemicolon = false;
 			return *this;
 		}
@@ -149,7 +151,7 @@ namespace slu::parse //TODO: gen
 		Output& addIndent()
 		{
 			text.insert(text.end(), tabs, '\t');
-			curLinePos += tabs*4;
+			curLinePos += tabs * 4;
 			return *this;
 		}
 		Output& tabUp()
@@ -157,7 +159,7 @@ namespace slu::parse //TODO: gen
 			tabs++;
 			return *this;
 		}
-		Output& unTab() 
+		Output& unTab()
 		{
 			tabs--;
 			return *this;
@@ -173,8 +175,7 @@ namespace slu::parse //TODO: gen
 			return *this;
 		}
 
-		template<bool runIndent=true>
-		Output& newLine()
+		template<bool runIndent = true> Output& newLine()
 		{
 			text.push_back('\n');
 
@@ -185,27 +186,30 @@ namespace slu::parse //TODO: gen
 			return *this;
 		}
 
-		template<bool runIndent = true>
-		Output& tabUpNewl() {
+		template<bool runIndent = true> Output& tabUpNewl()
+		{
 			return tabUp().template newLine<runIndent>();
 		}
-		Output& unTabNewl() {
+		Output& unTabNewl()
+		{
 			return unTab().newLine();
 		}
 
-		template<bool runIndent = true>
-		Output& addNewl(const char ch) {
+		template<bool runIndent = true> Output& addNewl(const char ch)
+		{
 			return add(ch).template newLine<runIndent>();
 		}
-		Output& addNewl(const std::string_view sv) {
+		Output& addNewl(const std::string_view sv)
+		{
 			return add(sv).newLine();
 		}
-		template<size_t N>
-		Output& addNewl(const char (&sa)[N]) {
+		template<size_t N> Output& addNewl(const char (&sa)[N])
+		{
 			return add(sa).newLine();
 		}
-		Output& addNewl(std::span<const uint8_t> sp) {
+		Output& addNewl(std::span<const uint8_t> sp)
+		{
 			return add(sp).newLine();
 		}
 	};
-}
+} //namespace slu::parse

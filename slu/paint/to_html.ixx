@@ -2,12 +2,12 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
-#include <span>
-#include <vector>
 #include <ranges>
-#include <utility>
+#include <span>
+#include <string>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 export module slu.paint.to_html;
 import slu.char_info;
@@ -22,20 +22,20 @@ namespace slu::paint
 	ps, add something like this:
 	```css
 	.slu-code-box {
-		tab-size: 3;
-		white-space-collapse: preserve;
-		background:#151515;
-		padding:8px;
-		border-radius:8px;
-		margin: 4px 0px;
-		display: block;
+	    tab-size: 3;
+	    white-space-collapse: preserve;
+	    background:#151515;
+	    padding:8px;
+	    border-radius:8px;
+	    margin: 4px 0px;
+	    display: block;
 	}
 	```
 	*/
-	inline std::pair<std::string,uint32_t> 
-		getCssFor(const AnySemOutput auto& se, const bool makeCssStr) 
+	inline std::pair<std::string, uint32_t> getCssFor(
+	    const AnySemOutput auto& se, const bool makeCssStr)
 	{
-		std::unordered_map<uint32_t,size_t> colors;
+		std::unordered_map<uint32_t, size_t> colors;
 		uint32_t prevCol = 0xFF00FF;
 		for (const auto& chList : se.out)
 		{
@@ -54,9 +54,9 @@ namespace slu::paint
 		size_t mostCommonColCount = 0;
 
 		std::string res;
-		for (const auto [col,count]: colors)
+		for (const auto [col, count] : colors)
 		{
-			if(mostCommonColCount < count)
+			if (mostCommonColCount < count)
 			{
 				mostCommonColCount = count;
 				mostCommonCol = col;
@@ -82,15 +82,16 @@ namespace slu::paint
 			}
 			res += '}';
 		}
-		return { res, mostCommonCol};
+		return {res, mostCommonCol};
 	}
 	//SIZE_MAX when not found
-	inline size_t locateColStackIndex(const std::vector<uint32_t>& colStack,const uint32_t col)
+	inline size_t locateColStackIndex(
+	    const std::vector<uint32_t>& colStack, const uint32_t col)
 	{
-		size_t i = colStack.size()-1;
-		for (const uint32_t c : std::ranges::reverse_view{ colStack })
+		size_t i = colStack.size() - 1;
+		for (const uint32_t c : std::ranges::reverse_view{colStack})
 		{
-			if(c == col)
+			if (c == col)
 				return i;
 			i--;
 		}
@@ -103,7 +104,9 @@ namespace slu::paint
 	anything more complex seems to like a nestLimit of 1
 	no compression also likes high nestLimit
 	*/
-	export std::string toHtml(AnySemOutput auto& se,const bool includeStyle,const size_t nestLimit=32) {
+	export std::string toHtml(AnySemOutput auto& se, const bool includeStyle,
+	    const size_t nestLimit = 32)
+	{
 		std::string res;
 
 		auto [cssStr, mostCommonCol] = getCssFor(se, includeStyle);
@@ -113,7 +116,7 @@ namespace slu::paint
 		}
 
 		if (mostCommonCol == UINT32_MAX)
-		{// Its empty
+		{ // Its empty
 			res += "<code class=slu-code-box></code>";
 			return res;
 		}
@@ -146,9 +149,9 @@ namespace slu::paint
 
 			if (slu::isSpaceChar(ch))
 			{
-				if(ch!='\r')
+				if (ch != '\r')
 					res += ch;
-				continue;//Dont explicitly paint it!
+				continue; //Dont explicitly paint it!
 			}
 
 			const uint32_t col = se.out[loc.line - 1][loc.index] & 0xFFFFFF;
@@ -159,11 +162,12 @@ namespace slu::paint
 				size_t idx = locateColStackIndex(colStack, col);
 				if (idx == SIZE_MAX)
 				{
-					// Check nest limit, if we are too deep, then we need to pop the stack
+					// Check nest limit, if we are too deep, then we need to pop
+					// the stack
 					if (colStack.size() > nestLimit)
 					{
 						colStack.pop_back();
-						res.append("</span>",7);
+						res.append("</span>", 7);
 					}
 					colStack.push_back(col);
 					res += "<span class=C";
@@ -176,10 +180,10 @@ namespace slu::paint
 							res += 'A' + (nibble - 10);
 					}
 					res += ">";
-				}
-				else
+				} else
 				{
-					//We are going up the stack, so we need to pop the stack until we reach the right color
+					//We are going up the stack, so we need to pop the stack
+					//until we reach the right color
 					const size_t popCount = colStack.size() - idx - 1;
 					const size_t start = res.size();
 					res.resize(start + popCount * 7);
@@ -187,15 +191,15 @@ namespace slu::paint
 					for (size_t i = 0; i < popCount; i++)
 					{
 						const size_t j = start + i * 7;
-						d[j+0]='<';
-						d[j+1]='/';
-						d[j+2]='s';
-						d[j+3]='p';
-						d[j+4]='a';
-						d[j+5]='n';
-						d[j+6]='>';
+						d[j + 0] = '<';
+						d[j + 1] = '/';
+						d[j + 2] = 's';
+						d[j + 3] = 'p';
+						d[j + 4] = 'a';
+						d[j + 5] = 'n';
+						d[j + 6] = '>';
 					}
-					colStack.resize(idx + 1);//remove the popped colors
+					colStack.resize(idx + 1); //remove the popped colors
 				}
 			}
 
@@ -226,9 +230,9 @@ namespace slu::paint
 			}
 			res += ch;
 		}
-		for (size_t i = 0; i < colStack.size()-1; i++)
+		for (size_t i = 0; i < colStack.size() - 1; i++)
 			res += "</span>";
 		res += "</code>";
 		return res;
 	}
-}
+} //namespace slu::paint

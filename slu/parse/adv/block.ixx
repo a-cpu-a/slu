@@ -17,17 +17,16 @@ namespace slu::parse
 	//startCh == in.peek() !!!
 	inline bool isBasicBlockEnding(AnyInput auto& in, const char startCh)
 	{
-		if (startCh == '}') return true;
+		if (startCh == '}')
+			return true;
 		if (startCh == 'u')
 		{
 			if (checkTextToken(in, "until"))
 				return true;
-		}
-		else if (startCh == 'e')
+		} else if (startCh == 'e')
 		{
 			if (checkTextToken(in, "else"))
 				return true;
-
 		}
 		return false;
 	}
@@ -44,16 +43,17 @@ namespace slu::parse
 	}
 
 	export template<bool isLoop, AnyInput In>
-	bool readReturnAfterStart(In& in, const bool allowVarArg, const RetType retTy)
+	bool readReturnAfterStart(
+	    In& in, const bool allowVarArg, const RetType retTy)
 	{
 		if constexpr (!isLoop)
 		{
 			if (retTy == RetType::BREAK //TODO: allow in some more contexts.
-				|| retTy == RetType::CONTINUE)
+			    || retTy == RetType::CONTINUE)
 			{
-				in.handleError(std::format(
-					"Break used outside of loop"
-					"{}", errorLocStr(in)));
+				in.handleError(std::format("Break used outside of loop"
+				                           "{}",
+				    errorLocStr(in)));
 			}
 		}
 		if (retTy != RetType::NONE)
@@ -68,7 +68,7 @@ namespace slu::parse
 			const char ch1 = in.peek();
 
 			if (ch1 == ';')
-				in.skip();//thats it
+				in.skip(); //thats it
 			else if (!isBasicBlockEnding(in, ch1))
 			{
 				in.genData.scopeReturn(readExprList(in, allowVarArg));
@@ -80,9 +80,11 @@ namespace slu::parse
 		return false;
 	}
 	export template<bool isLoop>
-		bool readReturn(AnyInput auto& in, const bool allowVarArg) {
+	bool readReturn(AnyInput auto& in, const bool allowVarArg)
+	{
 		skipSpace(in);
-		if (!in)return false;
+		if (!in)
+			return false;
 		return readReturnAfterStart<isLoop>(in, allowVarArg, readRetStart(in));
 	}
 
@@ -94,7 +96,7 @@ namespace slu::parse
 		skipSpace(in);
 		while (true)
 		{
-			if (!in)//File ended, so stat-list ended too
+			if (!in) //File ended, so stat-list ended too
 				break;
 
 			if (in.peek() == '}')
@@ -108,14 +110,15 @@ namespace slu::parse
 	//second -> nextSynName, only for isGlobal=true
 	//No start '{' check, also doesnt skip '}'!
 	export template<bool isLoop, AnyInput In>
-	std::pair<StatList<In>,lang::ModPathId> readStatList(In& in, const bool allowVarArg,const bool isGlobal)
+	std::pair<StatList<In>, lang::ModPathId> readStatList(
+	    In& in, const bool allowVarArg, const bool isGlobal)
 	{
 		skipSpace(in);
 		in.genData.pushUnScope(in.getLoc(), isGlobal);
 
 		while (true)
 		{
-			if (!in)//File ended, so stat-list ended too
+			if (!in) //File ended, so stat-list ended too
 				break;
 
 			if (in.peek() == '}')
@@ -125,27 +128,27 @@ namespace slu::parse
 			skipSpace(in);
 		}
 		Block<In> bl = in.genData.popUnScope(in.getLoc());
-		return { std::move(bl.statList), bl.mp };
+		return {std::move(bl.statList), bl.mp};
 	}
 
 	//if not pushScope, then you will need to push it yourself!
 	export template<bool isLoop, AnyInput In>
-	Block<In> readBlock(In& in, const bool allowVarArg,const bool pushScope)
+	Block<In> readBlock(In& in, const bool allowVarArg, const bool pushScope)
 	{
 		/*
-			block ::= {stat} [retstat]
-			retstat ::= return [explist] [‘;’]
+		    block ::= {stat} [retstat]
+		    retstat ::= return [explist] [‘;’]
 		*/
 
 		skipSpace(in);
 
-		if(pushScope)
+		if (pushScope)
 			in.genData.pushAnonScope(in.getLoc());
 
 		while (true)
 		{
 
-			if (!in)//File ended, so block ended too
+			if (!in) //File ended, so block ended too
 				break;
 
 			const char ch = in.peek();
@@ -155,10 +158,9 @@ namespace slu::parse
 			if (mayReturn)
 			{
 				if (readReturn<isLoop>(in, allowVarArg))
-					break;// no more loop
-			}
-			else if (isBasicBlockEnding(in, ch))
-				break;// no more loop
+					break; // no more loop
+			} else if (isBasicBlockEnding(in, ch))
+				break; // no more loop
 
 			// Not some end / return keyword, must be a statement
 
@@ -170,11 +172,12 @@ namespace slu::parse
 	}
 
 	export template<bool isLoop, AnyInput In>
-	Block<In> readBlockNoStartCheck(In& in, const bool allowVarArg,const bool pushScope)
+	Block<In> readBlockNoStartCheck(
+	    In& in, const bool allowVarArg, const bool pushScope)
 	{
 		Block<In> bl = readBlock<isLoop>(in, allowVarArg, pushScope);
 		requireToken(in, "}");
 
 		return bl;
 	}
-}
+} //namespace slu::parse

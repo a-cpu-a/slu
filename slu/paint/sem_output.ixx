@@ -2,10 +2,10 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
-#include <string>
-#include <span>
-#include <vector>
 #include <ranges>
+#include <span>
+#include <string>
+#include <vector>
 
 export module slu.paint.sem_output;
 import slu.settings;
@@ -20,52 +20,59 @@ namespace slu::paint
 	{
 		NONE = 0,
 
-		WHITESPACE = 0, //comments too
-		COMMENT_OUTER, //The -- [=[ ]=] parts
-		COMMENT_WIP, //tod..., fixm...
-		COMMENT_DOC, // text inside ---
+		WHITESPACE = 0,    //comments too
+		COMMENT_OUTER,     //The -- [=[ ]=] parts
+		COMMENT_WIP,       //tod..., fixm...
+		COMMENT_DOC,       // text inside ---
 		COMMENT_DOC_OUTER, // ---
 
-		COND_STAT,//if, else, elseif, for, while, try, match, do
-		VAR_STAT,//let, local, const, use, self
-		FN_STAT,//fn, function, extern, safe, unsafe, async, return, do return, throw, break, continue
-		CON_STAT,//struct, enum, union, mod, axiom, impl, trait, crate, Self
+		COND_STAT, //if, else, elseif, for, while, try, match, do
+		VAR_STAT,  //let, local, const, use, self
 
-		END_STAT,//end
+		//fn, function, extern, safe, unsafe, async, return, do return, throw,
+		//break, continue
+		FN_STAT,
 
-		DROP_STAT,//drop
-		BUILITIN_VAR,//false true nil
+		CON_STAT, //struct, enum, union, mod, axiom, impl, trait, crate, Self
 
-		EX_TINT,//ex (overlay over export, which has the same color as next token)
-		COMP_TINT,//comptime (overlay over comptime, which has the same color as next token)
+		END_STAT, //end
 
-		ASSIGN,// =
-		PAT_RESTRICT,// =
-		GEN_OP,// =>, ==, != || () {} [] -> _
-		PUNCTUATION,// >= <= > < , ; :::_:
-		MP_IDX,// . : ::
-		MP,// ::
-		MP_ROOT,// :>
-		BRACES,// {} (may be combined with some tint, to get a colored brace)
+		DROP_STAT,    //drop
+		BUILITIN_VAR, //false true nil
 
-		NAME,// .123 .xxx xxx
-		NAME_TABLE,// xxx inside {xxx=...} or |xxx| ... patterns
-		NAME_TYPE,// type trait xxx
-		NAME_TRAIT,// xxx
+		//ex (overlay over export, which has the same color as next token)
+		EX_TINT,
+
+		//(overlay over comptime, which has the same color as next token)
+		COMP_TINT,
+
+		ASSIGN,       // =
+		PAT_RESTRICT, // =
+		GEN_OP,       // =>, ==, != || () {} [] -> _
+		PUNCTUATION,  // >= <= > < , ; :::_:
+		MP_IDX,       // . : ::
+		MP,           // ::
+		MP_ROOT,      // :>
+		BRACES, // {} (may be combined with some tint, to get a colored brace)
+
+		NAME,       // .123 .xxx xxx
+		NAME_TABLE, // xxx inside {xxx=...} or |xxx| ... patterns
+		NAME_TYPE,  // type trait xxx
+		NAME_TRAIT, // xxx
 		NAME_LABEL,
 		NAME_LIFETIME,
 		LIFETIME_SEP,
 
 		NUMBER,
-		NUMBER_TYPE,// u8, u16, ...
-		NUMBER_KIND,// 0x, 0b, 0o, eE+- pP+-
+		NUMBER_TYPE, // u8, u16, ...
+		NUMBER_KIND, // 0x, 0b, 0o, eE+- pP+-
 		STRING,
 		STRING_OUT, // String, the quotes, [=['s or the type (`c"xxx"`, the c)
 
-		SPLICER,// @()
-		SPLICE_VAR,// $xxx xxx$
+		SPLICER,    // @()
+		SPLICE_VAR, // $xxx xxx$
 
-		ANNOTATION,// @xxx @xxx{}
+		ANNOTATION, // @xxx @xxx{}
 
 		AS,
 		IN,
@@ -74,7 +81,7 @@ namespace slu::paint
 		DYN,
 		MUT,
 
-		TRY,// ? operator
+		TRY, // ? operator
 
 		REP,
 
@@ -87,7 +94,7 @@ namespace slu::paint
 		ADD,
 
 		MOD,
-		DIV,//floor div too
+		DIV, //floor div too
 		MUL,
 
 		BIT_OR,
@@ -97,9 +104,6 @@ namespace slu::paint
 		NOT,
 		SUB,
 		NEG,
-
-		SIZEOF,// lua # un operator
-		BITNOT,// lua ~ un operator
 
 		CONCAT,
 		RANGE,
@@ -119,7 +123,6 @@ namespace slu::paint
 		PTR_MUT,
 		PTR_CONST,
 
-
 		ENUM_COUNT
 	};
 
@@ -127,7 +130,7 @@ namespace slu::paint
 	export template<class T>
 	concept AnySemOutput =
 #ifdef Slu_NoConcepts
-		true
+	    true
 #else
 		parse::AnyCfgable<T> && requires(T t) {
 
@@ -165,28 +168,24 @@ namespace slu::paint
 
 	}
 #endif // Slu_NoConcepts
-	;
+	    ;
 
 	export template<class Converter>
 	constexpr uint32_t basicTokBlend(const Tok tok, const Tok overlayTok)
 	{
 		const uint32_t from = Converter::tok2Col(tok);
-		if(overlayTok == Tok::NONE)
+		if (overlayTok == Tok::NONE)
 			return from; //no overlay, just return the color
 		const uint32_t to = Converter::tok2Col(overlayTok);
 
 		const uint8_t t = 100;
 		const uint8_t s = 0xFF - t;
-		return (
-			(((((from >> 0) & 0xff) * s +
-				((to >> 0) & 0xff) * t) >> 8)) |
-			(((((from >> 8) & 0xff) * s +
-				((to >> 8) & 0xff) * t)) & ~0xff) |
-			(((((from >> 16) & 0xff) * s +
-				((to >> 16) & 0xff) * t) << 8) & ~0xffff) |
-			(((((from >> 24) & 0xff) * s +
-				((to >> 24) & 0xff) * t) << 16) & ~0xffffff)
-			);
+		return ((((((from >> 0) & 0xff) * s + ((to >> 0) & 0xff) * t) >> 8))
+		    | (((((from >> 8) & 0xff) * s + ((to >> 8) & 0xff) * t)) & ~0xff)
+		    | (((((from >> 16) & 0xff) * s + ((to >> 16) & 0xff) * t) << 8)
+		        & ~0xffff)
+		    | (((((from >> 24) & 0xff) * s + ((to >> 24) & 0xff) * t) << 16)
+		        & ~0xffffff));
 	}
 
 	export struct ColorConverter
@@ -198,21 +197,25 @@ namespace slu::paint
 				//Add colors:
 			case Tok::WHITESPACE:
 			default:
-				return (0x122311 * uint32_t(tok) ^ 0x388831 * (uint32_t(tok) + 1)) | 0xFF000000;
+				return (0x122311 * uint32_t(tok)
+				           ^ 0x388831 * (uint32_t(tok) + 1))
+				    | 0xFF000000;
 			}
 		}
-		static constexpr uint32_t from(const Tok tok, const Tok overlayTok) {
+		static constexpr uint32_t from(const Tok tok, const Tok overlayTok)
+		{
 			return basicTokBlend<ColorConverter>(tok, overlayTok);
 		}
 	};
 
 	//Converter::from(Tok,Tok) -> SemPair
-	export template<parse::AnyInput In,class Converter = ColorConverter>
+	export template<parse::AnyInput In, class Converter = ColorConverter>
 	struct SemOutput
 	{
 		//Possible a color, likely u16 or u32
-		using SemPair = decltype(Converter::from(Tok::WHITESPACE, Tok::WHITESPACE));
-		
+		using SemPair
+		    = decltype(Converter::from(Tok::WHITESPACE, Tok::WHITESPACE));
+
 		constexpr SemOutput(In& in) : in(in) {}
 
 		constexpr static auto settings()
@@ -224,13 +227,16 @@ namespace slu::paint
 		std::vector<std::vector<SemPair>> out;
 		std::vector<const parse::Locals<In>*> localStack;
 
-		auto resolveLocal(parse::LocalId local) {
+		auto resolveLocal(parse::LocalId local)
+		{
 			return localStack.back()->names.at(local.v);
 		}
-		void pushLocals(const parse::Locals<In>& locals) {
+		void pushLocals(const parse::Locals<In>& locals)
+		{
 			localStack.push_back(&locals);
 		}
-		void popLocals() {
+		void popLocals()
+		{
 			localStack.pop_back();
 		}
 
@@ -238,65 +244,68 @@ namespace slu::paint
 		{
 			ast::Position loc = in.getLoc();
 			//in.skip(count);
-			if (out.size() <= loc.line-1)
+			if (out.size() <= loc.line - 1)
 				out.resize(loc.line);
-			out[loc.line-1].resize(loc.index + count,p);
+			out[loc.line - 1].resize(loc.index + count, p);
 			return *this;
 		}
-		template<Tok t,Tok overlayTok>
-		SemOutput& add(size_t count = 1) {
-			return addRaw(Converter::from(t,overlayTok), count);
-		}
-		template<Tok t>
-		SemOutput& add(size_t count = 1) {
-			return add<t,t>(count);
-		}
-		template<Tok t>
-		SemOutput& add(Tok overlayTok,size_t count = 1) {
+		template<Tok t, Tok overlayTok> SemOutput& add(size_t count = 1)
+		{
 			return addRaw(Converter::from(t, overlayTok), count);
 		}
-		SemOutput& add(Tok t,Tok overlayTok, size_t count = 1) {
+		template<Tok t> SemOutput& add(size_t count = 1)
+		{
+			return add<t, t>(count);
+		}
+		template<Tok t> SemOutput& add(Tok overlayTok, size_t count = 1)
+		{
 			return addRaw(Converter::from(t, overlayTok), count);
 		}
-		SemOutput& add(Tok t,size_t count=1) {
-			return add(t,t, count);
+		SemOutput& add(Tok t, Tok overlayTok, size_t count = 1)
+		{
+			return addRaw(Converter::from(t, overlayTok), count);
+		}
+		SemOutput& add(Tok t, size_t count = 1)
+		{
+			return add(t, t, count);
 		}
 
 		SemOutput& replPrevRaw(const SemPair p, size_t count = 1)
 		{
-			for (auto& k : std::ranges::reverse_view{ out })
+			for (auto& k : std::ranges::reverse_view{out})
 			{
-				for (auto& pv : std::ranges::reverse_view{ k })
+				for (auto& pv : std::ranges::reverse_view{k})
 				{
 					pv = p;
 					count--;
-					if(count==0)
+					if (count == 0)
 						return *this;
 				}
 			}
 			return *this;
 		}
-		template<Tok t,Tok overlayTok>
-		SemOutput& replPrev(size_t count = 1) {
-			return replPrevRaw(Converter::from(t,overlayTok), count);
-		}
-		template<Tok t>
-		SemOutput& replPrev(size_t count = 1) {
-			return replPrev<t,t>(count);
-		}
-		template<Tok t>
-		SemOutput& replPrev(Tok overlayTok, size_t count = 1) {
+		template<Tok t, Tok overlayTok> SemOutput& replPrev(size_t count = 1)
+		{
 			return replPrevRaw(Converter::from(t, overlayTok), count);
 		}
-		SemOutput& replPrev(Tok t,Tok overlayTok, size_t count = 1) {
+		template<Tok t> SemOutput& replPrev(size_t count = 1)
+		{
+			return replPrev<t, t>(count);
+		}
+		template<Tok t> SemOutput& replPrev(Tok overlayTok, size_t count = 1)
+		{
 			return replPrevRaw(Converter::from(t, overlayTok), count);
 		}
-		SemOutput& replPrev(Tok t, size_t count = 1) {
-			return replPrev(t,t, count);
+		SemOutput& replPrev(Tok t, Tok overlayTok, size_t count = 1)
+		{
+			return replPrevRaw(Converter::from(t, overlayTok), count);
+		}
+		SemOutput& replPrev(Tok t, size_t count = 1)
+		{
+			return replPrev(t, t, count);
 		}
 
-		template<Tok t>
-		SemOutput& move(ast::Position p)
+		template<Tok t> SemOutput& move(ast::Position p)
 		{
 			parse::ParseNewlineState nlState = parse::ParseNewlineState::NONE;
 
@@ -324,8 +333,9 @@ namespace slu::paint
 			}
 			return *this;
 		}
-		SemOutput& move(ast::Position p) {
+		SemOutput& move(ast::Position p)
+		{
 			return move<Tok::WHITESPACE>(p);
 		}
 	};
-}
+} //namespace slu::paint

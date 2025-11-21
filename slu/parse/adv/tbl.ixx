@@ -3,8 +3,8 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <cstdint>
-#include <unordered_set>
 #include <format>
+#include <unordered_set>
 
 #include <slu/Ansi.hpp>
 export module slu.parse.adv.tbl;
@@ -28,45 +28,47 @@ namespace slu::parse
 
 		/*if (checkReadToken(in, "["))
 		{
-			FieldType::Expr2Expr res{};
+		    FieldType::Expr2Expr res{};
 
-			res.idx = readExpr(in, allowVarArg);
+		    res.idx = readExpr(in, allowVarArg);
 
-			requireToken(in, "]");
-			requireToken(in, "=");
+		    requireToken(in, "]");
+		    requireToken(in, "=");
 
-			res.v = readExpr(in, allowVarArg);
+		    res.v = readExpr(in, allowVarArg);
 
-			return res;
+		    return res;
 		}*/
 
 		const size_t nameOffset = peekName(in);
 
-		if (nameOffset !=SIZE_MAX)
+		if (nameOffset != SIZE_MAX)
 		{
 			//Lazy-TODO: eof handling lol
 			const size_t spacedOffset = weakSkipSpace(in, nameOffset);
 
 			//check at the CORRECT position, AND that it ISNT ==
-			if (in.peekAt(spacedOffset)=='=' && in.peekAt(spacedOffset+1)!='=')
+			if (in.peekAt(spacedOffset) == '='
+			    && in.peekAt(spacedOffset + 1) != '=')
 			{
-				const lang::MpItmId name = in.genData.resolveUnknown(readName(in));
+				const lang::MpItmId name
+				    = in.genData.resolveUnknown(readName(in));
 				skipSpace(in);
-				in.skip();// '='
+				in.skip(); // '='
 
-				return FieldType::Name2Expr(name, readExpr(in,allowVarArg));
+				return FieldType::Name2Expr(name, readExpr(in, allowVarArg));
 			}
 		}
-		return FieldType::Expr(readExpr(in,allowVarArg));
+		return FieldType::Expr(readExpr(in, allowVarArg));
 	}
 
 	//Will NOT check the first char '{' !!!
 	//But will skip it
-	export template<bool skipStart=true,AnyInput In>
+	export template<bool skipStart = true, AnyInput In>
 	Table<In> readTable(In& in, const bool allowVarArg)
 	{
 		if (skipStart)
-		in.skip();//get rid of '{'
+			in.skip(); //get rid of '{'
 
 		skipSpace(in);
 
@@ -78,7 +80,7 @@ namespace slu::parse
 			return tbl;
 		}
 		//must be field
-		tbl.emplace_back(readField(in,allowVarArg));
+		tbl.emplace_back(readField(in, allowVarArg));
 
 		while (true)
 		{
@@ -92,15 +94,11 @@ namespace slu::parse
 			if (!isFieldSep(ch))
 			{
 				throw UnexpectedCharacterError(std::format(
-					"Expected table separator ("
-					LUACC_SINGLE_STRING(",")
-					" or "
-					LUACC_SINGLE_STRING(";")
-					"), found " LUACC_SINGLE_STRING("{}")
-					"{}"
-				, ch, errorLocStr(in)));
+				    "Expected table separator (" LUACC_SINGLE_STRING(",") " or " LUACC_SINGLE_STRING(
+				        ";") "), found " LUACC_SINGLE_STRING("{}") "{}",
+				    ch, errorLocStr(in)));
 			}
-			in.skip();//skip field-sep
+			in.skip(); //skip field-sep
 
 			skipSpace(in);
 			if (in.peek() == '}')
@@ -108,8 +106,8 @@ namespace slu::parse
 				in.skip();
 				break;
 			}
-			tbl.emplace_back(readField(in,allowVarArg));
+			tbl.emplace_back(readField(in, allowVarArg));
 		}
 		return tbl;
 	}
-}
+} //namespace slu::parse

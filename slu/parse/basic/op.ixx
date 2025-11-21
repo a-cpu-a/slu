@@ -15,25 +15,19 @@ import slu.parse.com.tok;
 
 namespace slu::parse
 {
-	export ast::UnOpType readOptUnOp(AnyInput auto& in,const bool typeOnly=false)
+	export ast::UnOpType readOptUnOp(AnyInput auto& in)
 	{
 		skipSpace(in);
 
 		switch (in.peek())
 		{
-		case '-':
-			if (typeOnly)break;
-			in.skip();
-			return ast::UnOpType::NEG;
-		case '!':
-			if (typeOnly)break;
-			in.skip();
-			return ast::UnOpType::NOT;
+		case '-': in.skip(); return ast::UnOpType::NEG;
+		case '!': in.skip(); return ast::UnOpType::NOT;
 		case '[':
 		{
 			const char xCh = in.peekAt(1);
-			if (xCh == '=' || xCh == '[')// [=.... // [[....
-				break;// Its a string
+			if (xCh == '=' || xCh == '[') // [=.... // [[....
+				break;                    // Its a string
 			in.skip();
 			requireToken(in, "]");
 			return ast::UnOpType::SLICIFY;
@@ -58,13 +52,10 @@ namespace slu::parse
 
 			return ast::UnOpType::PTR;
 		case 'a':
-			if (typeOnly)break;
-
 			if (checkReadTextToken(in, "alloc"))
 				return ast::UnOpType::ALLOC;
 			break;
 		case '.':
-			if (typeOnly)break;
 			if (checkReadToken<false>(in, ".."))
 				return ast::UnOpType::RANGE_BEFORE;
 			break;
@@ -72,8 +63,7 @@ namespace slu::parse
 			if (checkReadTextToken(in, "mut"))
 				return ast::UnOpType::MARK_MUT;
 			break;
-		default:
-			break;
+		default: break;
 		}
 		return ast::UnOpType::NONE;
 	}
@@ -82,13 +72,11 @@ namespace slu::parse
 	{
 		skipSpace(in);
 
-		if(in)
+		if (in)
 		{
 			switch (in.peek())
 			{
-			case '?':
-				in.skip();
-				return ast::PostUnOpType::TRY;
+			case '?': in.skip(); return ast::PostUnOpType::TRY;
 			case '.':
 				if (checkReadToken<false>(in, ".*"))
 					return ast::PostUnOpType::DEREF;
@@ -109,31 +97,23 @@ namespace slu::parse
 		{
 		case '+':
 			in.skip();
-			if (checkReadToken<false>(in, "+"))//++
+			if (checkReadToken<false>(in, "+")) //++
 				return ast::BinOpType::CONCAT;
 			return ast::BinOpType::ADD;
-		case '-':
-			in.skip();
-			return ast::BinOpType::SUB;
+		case '-': in.skip(); return ast::BinOpType::SUB;
 		case '*':
 			in.skip();
-			if (checkReadToken<false>(in, "*"))//**
+			if (checkReadToken<false>(in, "*")) //**
 				return ast::BinOpType::REP;
 			return ast::BinOpType::MUL;
 		case '/':
 			in.skip();
-			if (checkReadToken<false>(in, "/"))// '//'
+			if (checkReadToken<false>(in, "/")) // '//'
 				return ast::BinOpType::FLOOR_DIV;
 			return ast::BinOpType::DIV;
-		case '^':
-			in.skip();
-			return ast::BinOpType::EXP;
-		case '%':
-			in.skip();
-			return ast::BinOpType::REM;
-		case '&':
-			in.skip();
-			return ast::BinOpType::BIT_AND;
+		case '^': in.skip(); return ast::BinOpType::EXP;
+		case '%': in.skip(); return ast::BinOpType::REM;
+		case '&': in.skip(); return ast::BinOpType::BIT_AND;
 		case '!':
 			in.skip();
 			requireToken<false>(in, "=");
@@ -141,26 +121,26 @@ namespace slu::parse
 			break;
 		case '~':
 			in.skip();
-			if (checkReadToken<false>(in, "~"))//~~
+			if (checkReadToken<false>(in, "~")) //~~
 				return ast::BinOpType::MK_RESULT;
 			return ast::BinOpType::BIT_XOR;
 		case '|':
 			in.skip();
-			if (checkReadToken<false>(in, "|"))//||
+			if (checkReadToken<false>(in, "|")) //||
 				return ast::BinOpType::UNION;
 			return ast::BinOpType::BIT_OR;
 		case '>':
 			in.skip();
-			if (checkReadToken<false>(in, ">"))//>>
+			if (checkReadToken<false>(in, ">")) //>>
 				return ast::BinOpType::SHR;
-			if (checkReadToken<false>(in, "="))//>=
+			if (checkReadToken<false>(in, "=")) //>=
 				return ast::BinOpType::GE;
 			return ast::BinOpType::GT;
 		case '<':
 			in.skip();
-			if (checkReadToken<false>(in, "<"))//<<
+			if (checkReadToken<false>(in, "<")) //<<
 				return ast::BinOpType::SHL;
-			if (checkReadToken<false>(in, "="))//<=
+			if (checkReadToken<false>(in, "=")) //<=
 				return ast::BinOpType::LE;
 			return ast::BinOpType::LT;
 		case '=':
@@ -184,4 +164,4 @@ namespace slu::parse
 		}
 		return ast::BinOpType::NONE;
 	}
-}
+} //namespace slu::parse

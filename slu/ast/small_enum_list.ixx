@@ -12,8 +12,7 @@ namespace slu::ast
 {
 	//TODO: reuse this code more... later
 
-	export template<class T>
-	struct SmallEnumList
+	export template<class T> struct SmallEnumList
 	{
 		static_assert(sizeof(T) == 1);
 
@@ -21,15 +20,14 @@ namespace slu::ast
 
 	private:
 		constexpr static size_t SMALL_SIZE = 14;
-		constexpr static size_t MAX_LARGE_SIZE = (1ULL << ((sizeof(size_t) - 1) * 8)) - 0xFF;
+		constexpr static size_t MAX_LARGE_SIZE
+		    = (1ULL << ((sizeof(size_t) - 1) * 8)) - 0xFF;
 
 		union
 		{
 			struct
 			{
-				T first14[SMALL_SIZE] = {
-					T::NONE
-				};
+				T first14[SMALL_SIZE] = {T::NONE};
 				uint8_t size = 0;
 				uint8_t isBig = 0;
 			} small{};
@@ -38,29 +36,36 @@ namespace slu::ast
 				T* ptr;
 				size_t size : ((sizeof(size_t) - 1) * 8);
 
-				size_t reserve : 8; // 0 means not big, 1 means no reserved ops, 2 means one op reserved
+				size_t reserve : 8; // 0 means not big, 1 means no reserved ops,
+				                    // 2 means one op reserved
 			} large;
 		};
-		constexpr bool m_isSmall() const {
+		constexpr bool m_isSmall() const
+		{
 			return small.isBig == 0;
 		}
+
 	public:
 		constexpr SmallEnumList() = default;
 
-		constexpr size_t size() const {
+		constexpr size_t size() const
+		{
 			return m_isSmall() ? small.size : large.size;
 		}
-		constexpr static size_t max_size() {
+		constexpr static size_t max_size()
+		{
 			return MAX_LARGE_SIZE;
 		}
-		constexpr bool empty() const {
+		constexpr bool empty() const
+		{
 			return size() == 0;
 		}
 		bool isBack(const T cmp) const
 		{
-			if (size() == 1)return false;
+			if (size() == 1)
+				return false;
 
-			return at(size() - 1)==cmp;
+			return at(size() - 1) == cmp;
 		}
 		constexpr const T* data() const
 		{
@@ -86,7 +91,7 @@ namespace slu::ast
 		}
 		void erase_back()
 		{
-			Slu_require(size()!=0);
+			Slu_require(size() != 0);
 			if (m_isSmall())
 			{
 				small.size--;
@@ -114,26 +119,29 @@ namespace slu::ast
 
 					large.ptr = ptr;
 					large.size = SZ;
-					large.reserve = SZ + 1;//+1 for storage method
+					large.reserve = SZ + 1; //+1 for storage method
 
-					return;//Done!
+					return; //Done!
 				}
 				//no need to convert!
 
 				small.first14[small.size] = t;
 				small.size++;
 
-				return;//Done!
+				return; //Done!
 			}
 			//Its big
 			if (large.reserve == 1) // 1, cuz 0 means its not large
-			{// (re)Alloc
-				const uint8_t reserv = (uint8_t)std::min((size_t)UINT8_MAX, large.size + 1);//+1 for storage method
+			{                       // (re)Alloc
+				const uint8_t reserv = (uint8_t)std::min(
+				    (size_t)UINT8_MAX, large.size + 1); //+1 for storage method
 
 
 				Slu_require((reserv + large.size) <= MAX_LARGE_SIZE);
 
-				T* ptr = (T*)std::realloc(large.ptr, large.size + reserv - 1);// -1, cuz large.reserve is stored in +1
+				T* ptr = (T*)std::realloc(large.ptr,
+				    large.size + reserv
+				        - 1); // -1, cuz large.reserve is stored in +1
 
 				if (ptr == nullptr)
 					throw std::bad_alloc();
@@ -148,29 +156,34 @@ namespace slu::ast
 			large.size++;
 		}
 
-		template<bool rev>
-		struct SmallEnumListIterator
+		template<bool rev> struct SmallEnumListIterator
 		{
-			using iterator_category = std::conditional_t<rev, std::forward_iterator_tag, std::contiguous_iterator_tag>;
+			using iterator_category = std::conditional_t<rev,
+			    std::forward_iterator_tag, std::contiguous_iterator_tag>;
 			using element_type = const T;
 			using value_type = T;
 			using difference_type = std::ptrdiff_t;
 			using pointer = const T*;
 			using reference = const T&;
 
-			SmallEnumListIterator(const SmallEnumList* list, size_t index) : m_list(list), m_index(index) {}
+			SmallEnumListIterator(const SmallEnumList* list, size_t index)
+			    : m_list(list), m_index(index)
+			{}
 
 			inline static constexpr uint8_t revOffset = rev ? 1 : 0;
 
-			reference operator*() const {
-				return m_list->at(m_index- revOffset);
+			reference operator*() const
+			{
+				return m_list->at(m_index - revOffset);
 			}
 
-			pointer operator->() const {
+			pointer operator->() const
+			{
 				return &*this;
 			}
 
-			SmallEnumListIterator& operator++() {
+			SmallEnumListIterator& operator++()
+			{
 				if constexpr (rev)
 				{
 					Slu_require(m_index != 0);
@@ -178,16 +191,19 @@ namespace slu::ast
 					return *this;
 				}
 				++m_index;
-				Slu_require(m_index <= m_list->size());//allow == size, as that is end()
+				Slu_require(m_index
+				    <= m_list->size()); //allow == size, as that is end()
 				return *this;
 			}
 
-			SmallEnumListIterator operator++(int) {
+			SmallEnumListIterator operator++(int)
+			{
 				SmallEnumListIterator tmp = *this;
 				++(*this);
 				return tmp;
 			}
-			SmallEnumListIterator operator+(const size_t o) {
+			SmallEnumListIterator operator+(const size_t o)
+			{
 				if constexpr (rev)
 				{
 					Slu_require(m_index > (o - 1));
@@ -195,11 +211,13 @@ namespace slu::ast
 					return *this;
 				}
 				m_index += o;
-				Slu_require(m_index <= m_list->size());//allow == size, as that is end()
+				Slu_require(m_index
+				    <= m_list->size()); //allow == size, as that is end()
 				return *this;
 			}
 
-			bool operator==(const SmallEnumListIterator& other) const {
+			bool operator==(const SmallEnumListIterator& other) const
+			{
 				return m_list == other.m_list && m_index == other.m_index;
 			}
 
@@ -213,28 +231,36 @@ namespace slu::ast
 		using reverse_iterator = SmallEnumListIterator<true>;
 		using const_reverse_iterator = SmallEnumListIterator<true>;
 
-		iterator begin() const {
+		iterator begin() const
+		{
 			return iterator(this, 0);
 		}
-		const_iterator cbegin() const {
+		const_iterator cbegin() const
+		{
 			return const_iterator(this, 0);
 		}
-		iterator end() const {
+		iterator end() const
+		{
 			return iterator(this, size());
 		}
-		const_iterator cend() const {
+		const_iterator cend() const
+		{
 			return const_iterator(this, size());
 		}
-		reverse_iterator rbegin() const {
+		reverse_iterator rbegin() const
+		{
 			return reverse_iterator(this, size());
 		}
-		const_reverse_iterator crbegin() const {
+		const_reverse_iterator crbegin() const
+		{
 			return const_reverse_iterator(this, size());
 		}
-		reverse_iterator rend() const {
+		reverse_iterator rend() const
+		{
 			return reverse_iterator(this, 0);
 		}
-		const_reverse_iterator crend() const {
+		const_reverse_iterator crend() const
+		{
 			return const_reverse_iterator(this, 0);
 		}
 
@@ -243,20 +269,22 @@ namespace slu::ast
 			if (!m_isSmall())
 				std::free(large.ptr);
 		}
-		SmallEnumList(SmallEnumList&& o) noexcept {
+		SmallEnumList(SmallEnumList&& o) noexcept
+		{
 			//No need to check if small
-			this->operator=<true>(std::move(o));
+			this->operator= <true>(std::move(o));
 		}
-		template<bool NO_SMALL_CHECK=false>
-		SmallEnumList& operator=(SmallEnumList&& o) noexcept {
+		template<bool NO_SMALL_CHECK = false>
+		SmallEnumList& operator=(SmallEnumList&& o) noexcept
+		{
 			if constexpr (!NO_SMALL_CHECK)
 			{
 				if (!m_isSmall())
 					std::free(large.ptr);
 			}
 
-			if (o.small.isBig == 0)//Other one, NOT THIS one
-			{// its small
+			if (o.small.isBig == 0) //Other one, NOT THIS one
+			{                       // its small
 				std::copy_n(o.small.first14, SMALL_SIZE, small.first14);
 				small.size = o.small.size;
 				small.isBig = 0;
@@ -273,4 +301,4 @@ namespace slu::ast
 		}
 	};
 	static_assert(sizeof(SmallEnumList<ast::UnOpType>) == 16);
-}
+} //namespace slu::ast

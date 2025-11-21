@@ -11,14 +11,20 @@ namespace slu::parse
 {
 	export struct ParseFailError : std::exception
 	{
-		const char* what() const { return "Failed to parse some slu/lua code."; }
+		const char* what() const
+		{
+			return "Failed to parse some slu/lua code.";
+		}
 	};
 
 	export struct BasicParseError : std::exception
 	{
 		std::string m;
-		BasicParseError(const std::string& m) :m(m) {}
-		const char* what() const override { return m.c_str(); }
+		BasicParseError(const std::string& m) : m(m) {}
+		const char* what() const override
+		{
+			return m.c_str();
+		}
 	};
 	export struct FailedRecoveryError : BasicParseError
 	{
@@ -30,8 +36,10 @@ namespace slu::parse
 		using BasicParseError::BasicParseError;
 	};
 
-#define MAKE_ERROR(_NAME) export struct _NAME : ParseError { \
-		using ParseError::ParseError;\
+#define MAKE_ERROR(_NAME)             \
+	export struct _NAME : ParseError  \
+	{                                 \
+		using ParseError::ParseError; \
 	}
 
 	MAKE_ERROR(UnicodeError);
@@ -41,4 +49,4 @@ namespace slu::parse
 	MAKE_ERROR(ReservedNameError);
 	MAKE_ERROR(ErrorWhileContext);
 	MAKE_ERROR(InternalError);
-}
+} //namespace slu::parse

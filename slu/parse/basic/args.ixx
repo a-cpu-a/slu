@@ -24,14 +24,13 @@ namespace slu::parse
 		const char ch = in.peek();
 		if (ch == '"' || ch == '\'' || ch == '[')
 		{
-			return ArgsType::String(readStringLiteral(in, ch),in.getLoc());
-		}
-		else if (ch == '(')
+			return ArgsType::String(readStringLiteral(in, ch), in.getLoc());
+		} else if (ch == '(')
 		{
-			in.skip();//skip start
+			in.skip(); //skip start
 			skipSpace(in);
 			ArgsType::ExprList res{};
-			if (in.peek() == ')')// Check if 0 args
+			if (in.peek() == ')') // Check if 0 args
 			{
 				in.skip();
 				return res;
@@ -39,18 +38,13 @@ namespace slu::parse
 			res = readExprList(in, allowVarArg);
 			requireToken(in, ")");
 			return res;
-		}
-		else if (ch == '{')
+		} else if (ch == '{')
 		{
 			return ArgsType::Table<In>(readTable(in, allowVarArg));
 		}
 		throw UnexpectedCharacterError(std::format(
-			"Expected function arguments ("
-			LUACC_SINGLE_STRING(",")
-			" or "
-			LUACC_SINGLE_STRING(";")
-			"), found " LUACC_SINGLE_STRING("{}")
-			"{}"
-			, ch, errorLocStr(in)));
+		    "Expected function arguments (" LUACC_SINGLE_STRING(",") " or " LUACC_SINGLE_STRING(
+		        ";") "), found " LUACC_SINGLE_STRING("{}") "{}",
+		    ch, errorLocStr(in)));
 	}
-}
+} //namespace slu::parse
