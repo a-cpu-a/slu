@@ -35,24 +35,24 @@ Alloc Trait {
 		-- can be anything, even oom, but also heap corruption, ...
 	}
 	AllocRes Enum {
-		Expand{newPtr = *share byte},		--Expands this allocation, and you move the bytes yourself if you need to. (can move the pointer to the left a bit!)
-		New{newAllocation = *share byte},	--Makes a new allocation, you free this one, and move the bytes yourself.
-		Moved{newPtr = *share byte}			--Similar to C's realloc(), yes this does allow it to be overlapping too.
+		Expand{newPtr = PtrShare(Byte)},		--Expands this allocation, and you move the bytes yourself if you need to. (can move the pointer to the left a bit!)
+		New{newAllocation = PtrShare(Byte)},	--Makes a new allocation, you free this one, and move the bytes yourself.
+		Moved{newPtr = PtrShare(Byte)}			--Similar to C's realloc(), yes this does allow it to be overlapping too.
 	}
 	
 	--Any 0 sized allocation may be stored as a 0 pointer.
 	--if ptr is 0, then a new allocation will be formed, always returning `AllocRes::New`
 	--If the alignment is invalid, then this will panic.
-	unsafe fn alloc(&self, ptr = *share byte, size = MemSize, align = Alignment) -> AllocRes~~AlErr
+	unsafe fn alloc(&self, ptr = PtrShare(Byte), size = MemSize, align = Alignment) -> AllocRes~~AlErr
 	
-	fn alignedMalloc(&self, size = MemSize, align = Alignment) -> *share byte~~AlErr {unsafe{ return self.alloc(0 as *share byte,size,align)? }}
-	fn malloc(&self, size = MemSize) -> *share byte~~AlErr { return self.alignedAlloc(size,Alignment::Bytes{1}) }
-	unsafe fn free(&self, ptr = *share byte) -> Unit~~AlErr {unsafe{ self.alloc(ptr,0)? }}
+	fn alignedMalloc(&self, size = MemSize, align = Alignment) -> PtrShare(Byte)~~AlErr {unsafe{ return self.alloc(0 as PtrShare(Byte),size,align)? }}
+	fn malloc(&self, size = MemSize) -> PtrShare(Byte)~~AlErr { return self.alignedAlloc(size,Alignment::Bytes{1}) }
+	unsafe fn free(&self, ptr = PtrShare(Byte)) -> Unit~~AlErr {unsafe{ self.alloc(ptr,0)? }}
 	--alloc() can be more efficient, however if you always need to move it, then this is the correct choice.
-	unsafe fn realloc(&self, ptr = *share byte,size = MemSize, align = Alignment) -> *share byte~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
+	unsafe fn realloc(&self, ptr = PtrShare(Byte),size = MemSize, align = Alignment) -> PtrShare(Byte)~~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
 	
 	--Report that a pointer is leaked, does not do anything, ment to be hooked with debug logging that logs this.
-	fn reportMemLeak(&self, ptr = *share byte) -> Unit
+	fn reportMemLeak(&self, ptr = PtrShare(Byte)) -> Unit
 }
 
 Fs Trait {
