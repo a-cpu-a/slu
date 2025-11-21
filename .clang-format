@@ -21,7 +21,6 @@ AlignOperands:   DontAlign
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Empty
-AllowShortIfStatementsOnASingleLine: WithoutElse
 BraceWrapping:
   AfterCaseLabel: true
   AfterClass: true
@@ -34,7 +33,6 @@ BraceWrapping:
   AfterExternBlock: true
   SplitEmptyFunction: false
   SplitEmptyRecord: false
-BreakAdjacentStringLiterals: false
 BreakAfterReturnType: ExceptShortType
 BreakArrays:     false
 BreakBeforeBinaryOperators: All
@@ -68,5 +66,9 @@ SpacesInLineCommentPrefix:
   Maximum:         -1
 TabWidth:        4
 UseTab:          ForIndentation
+BreakAdjacentStringLiterals: true
+BreakStringLiterals: false
+AllowShortEnumsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
 ...
 
