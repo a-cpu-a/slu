@@ -37,11 +37,11 @@ namespace slu::parse
 	    "threadlocal", /* todos */                                             \
 	    "gen", "copy", "move", "async", "await", "yield", "static",            \
 	    "generator", /* documented */                                          \
-	    "as", "ex", "fn", "it", "dyn", "let", "mod", "mut", "try", "use",      \
-	    "also", "drop", "enum", "impl", "loop", "safe", "alloc", "axiom",      \
-	    "catch", "const", "defer", "macro", "match", "share", "throw",         \
-	    "trans", "union", "where", "extern", "module", "struct", "unsafe",     \
-	    "continue", "recursive"
+	    "as", "ex", "fn", "it", "dyn", "let", "mod", "mut", "rec", "try",      \
+	    "use", "also", "drop", "enum", "impl", "loop", "safe", "TODO",         \
+	    "alloc", "axiom", "catch", "const", "defer", "macro", "match",         \
+	    "share", "throw", "trans", "union", "where", "extern", "module",       \
+	    "struct", "unsafe", "continue", "_COMP_TODO"
 #define _Slu_VERY_KWS "self", "crate", "super"
 #define _Slu_MOSTLY_KWS _Slu_VERY_KWS, "Self"
 

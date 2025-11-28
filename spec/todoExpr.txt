@@ -1,0 +1,18 @@
+#
+# Dependencies: basic, type
+#
+
+New Syntax {
+	
+	todoExpr ::= "TODO!" LiteralString
+	exp @::= | todoStat
+	stat @::= | todoStat
+}
+
+New Keywords {
+	TODO
+}
+
+Todo Expr {
+	Allows you to write code without fully implementing it
+}

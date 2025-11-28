@@ -94,6 +94,7 @@ New Keywords {
 	safe   		(141k)		(17.2k)		Mark as safe
 	self		(1.5m)		(35.3k)		self arg / this module
 	Self		(174k)		(11.4k)		This type
+	TODO		(..)		(..)		non macro version of rusts `todo!`
 	alloc		(??)		(??)		Allocate something for gc
 	axiom		(..)		(..)		Axiom stuff
 	catch		(44k)		(3.3k)		catch stat
@@ -112,7 +113,7 @@ New Keywords {
 	struct 		(506k)		(62.2k)		Define a struct
 	unsafe 		(6.4k)		(372)		Mark as unsafe
 	continue 	(162k)		(4.1k)		Try looping again.
-	recursive	(..)		(..)		Recursive types.
+	_COMP_TODO	(..)		(..)		A way to speed up compiler dev, by making compiler builtins easy to use.
 	
 	--Common with lua
 	

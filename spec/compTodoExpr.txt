@@ -1,0 +1,23 @@
+#
+# Dependencies: basic, type
+#
+
+New Syntax {
+	
+	exp @::= | "_COMP_TODO!" "(" LiteralString "," exp ")"
+}
+
+New Keywords {
+	_COMP_TODO
+}
+
+Comp Todo Expr {
+	A way to speed up compiler dev, by making compiler builtins easy to use.
+	
+	```slu
+	const Int = _COMP_TODO!("base::type/Int",_)
+	```
+	```slu
+	let ptr = _COMP_TODO!("base::op/slice_to_ptr",mySlice)
+	```
+}
