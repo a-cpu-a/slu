@@ -274,8 +274,6 @@ namespace slu::parse
 			    out.add(')');
 		    },
 		    varcase(const ExprType::Nil) { out.add("nil"sv); },
-		    varcase(const ExprType::False) { out.add("false"sv); },
-		    varcase(const ExprType::True) { out.add("true"sv); },
 		    varcase(const ExprType::VarArgs) { out.add("..."sv); },
 		    varcase(const ExprType::F64) {
 			    if (isinf(var) && var > 0.0f)

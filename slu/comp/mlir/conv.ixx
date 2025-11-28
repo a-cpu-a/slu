@@ -316,9 +316,7 @@ namespace slu::comp::mico
 		return mlir::MemRefType::get(shape, elemType, {}, 0);
 	}
 	template<typename T>
-	concept AnyInvalidExpression = std::same_as<T, parse::ExprType::True>
-	    || std::same_as<T, parse::ExprType::False>
-	    || std::same_as<T, parse::ExprType::Nil>
+	concept AnyInvalidExpression = std::same_as<T, parse::ExprType::Nil>
 	    || std::same_as<T, parse::ExprType::MultiOpV<true>>; //already desugared
 	inline mlir::Value convAny64(
 	    ConvData& conv, ast::Position place, const parse::Any64BitInt auto itm)

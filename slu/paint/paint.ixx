@@ -234,12 +234,6 @@ namespace slu::paint
 				    paintExpr<nameTok>(se, expr);
 			    }
 		    },
-		    varcase(const parse::ExprType::False) {
-			    paintKw<Tok::BUILITIN_VAR>(se, "false");
-		    },
-		    varcase(const parse::ExprType::True) {
-			    paintKw<Tok::BUILITIN_VAR>(se, "true");
-		    },
 		    varcase(const parse::ExprType::Nil) {
 			    paintKw<Tok::BUILITIN_VAR>(se, "nil");
 		    },

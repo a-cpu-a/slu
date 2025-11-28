@@ -276,12 +276,6 @@ namespace slu::visit
 	void visitExprData(Vi& vi, parse::ExprData<Vi>& itm)
 	{
 		ezmatch(itm)(
-		    varcase(const parse::ExprType::False) {
-			    Slu_CALL_VISIT_FN_PRE_VAR(False);
-		    },
-		    varcase(const parse::ExprType::True) {
-			    Slu_CALL_VISIT_FN_PRE_VAR(True);
-		    },
 		    varcase(
 		        const parse::ExprType::Nil) { Slu_CALL_VISIT_FN_PRE_VAR(Nil); },
 		    varcase(parse::ExprType::String&) {

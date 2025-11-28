@@ -182,8 +182,6 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE(BlockReturn, parse::Block<Cfg>);
 		_Slu_DEF_EMPTY_PRE(Name, lang::MpItmId);
 		_Slu_DEF_EMPTY_PRE_UNIT(String, std::span<char>);
-		_Slu_DEF_EMPTY_PRE_UNIT(True, parse::ExprType::True);
-		_Slu_DEF_EMPTY_PRE_UNIT(False, parse::ExprType::False);
 		_Slu_DEF_EMPTY_PRE_UNIT(Nil, parse::ExprType::Nil);
 
 		//Lists:

@@ -275,10 +275,6 @@ namespace slu::parse
 	namespace ExprType
 	{
 		export using Nil = std::monostate; // "nil"
-		export struct False
-		{}; // "false"
-		export struct True
-		{}; // "true"
 		export struct VarArgs
 		{}; // "..."
 		export struct Unfinished
@@ -347,8 +343,6 @@ namespace slu::parse
 
 	export template<bool isSlu>
 	using ExprDataV = std::variant<ExprType::Nil, // "nil"
-	    ExprType::False,                          // "false"
-	    ExprType::True,                           // "true"
 	    ExprType::F64, // "Numeral" (e.g., a floating-point number)
 	    ExprType::I64, // "Numeral"
 

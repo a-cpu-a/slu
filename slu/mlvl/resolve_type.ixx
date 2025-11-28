@@ -325,8 +325,6 @@ namespace slu::mlvl
 		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::OpenRange),
 		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::MpRoot),
 		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::Local),
-		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::True),
-		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::False),
 		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::Nil),
 		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::VarArgs),
 		    Slu_INVALID_EXPR_CASE("expression", parse::ExprType::PatTypePrefix),
