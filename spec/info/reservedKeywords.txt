@@ -84,6 +84,7 @@ New Keywords {
 	let			(1.6m)		(199k)		var defs
 	mod			(..)		(..)		module
 	mut			(85k)		(8.2k)		mutable
+	rec			(..)		(..)		Recursive types.
 	try			(672k)		(73k)		try expr/stat
 	use			(2.4m)		(140k)		use expr
 	also		(..)		(..)		also expressions / blocks

@@ -19,7 +19,7 @@ fn X(Yt=type) -> type {
 		fieldA = Ptr(Yt) 
 	};
 }
-const Y = recursive Yt struct{
+const Y = rec Yt struct{
 	fieldB = X(Yt)
 };
 
@@ -48,7 +48,7 @@ const Y = struct:recName{
 --------------Encode name into type
 
 const X = struct{
-	fieldA = Ptr(recursive Y)
+	fieldA = Ptr(rec Y)
 };
 struct Y { -- a new statement that creates a named type. (just like 'struct fn' would)
 	fieldB = X
@@ -90,7 +90,7 @@ struct fn A(BT=type) -> type {
 	return struct{a=BT}
 }
 struct fn B(T=type) -> type {
-	return recursive BT struct{b=&A(BT)}
+	return rec BT struct{b=&A(BT)}
 }
 const BwStr = B(&str);
 
@@ -100,7 +100,7 @@ fn A(BT=type) -> type {
 	return struct{a=BT}
 }
 fn B(T=type) -> type {
-	return recursive BT struct{b=&A(BT)}
+	return rec BT struct{b=&A(BT)}
 }
 const BwStr = B(&str);-- uh oh, a stack overflow failure is the correct thing to do.
 --How would you manually do the recursion instead?
@@ -108,24 +108,24 @@ const BwStr = B(&str);-- uh oh, a stack overflow failure is the correct thing to
 --------------
 --------------
 
-ex enum ExprData recursive {
+ex enum ExprData rec {
 	ex False,
 	ex Do{Box(Block)}
 };
-ex struct Expr recursive {
+ex struct Expr rec {
 	data = ex mut ExprData,
 	loc = ex Loc
 };
-ex enum StatData recursive {
+ex enum StatData rec {
 	ex Semicol,
 	ex ExprStat{Expr},
 	ex BlockStat{Block}
 };
-ex struct Stat recursive {
+ex struct Stat rec {
 	data = ex mut StatData,
 	loc = ex Loc
 };
-ex struct Block recursive {
+ex struct Block rec {
 	stats = ex mut Vec(Stat),
 	first = ex Loc,
 	last = ex Loc
