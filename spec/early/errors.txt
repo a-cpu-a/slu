@@ -9,7 +9,7 @@ New Syntax {
 	tryItem ::= pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | ";"
 	
-	statOrExpr @::= | "try" basicExp ["->" basicExp] "{" {tryStat} "}"
+	statOrExpr @::= | basicExp "try" ["->" basicExp] "{" {tryStat} "}"
 	
 	
 	

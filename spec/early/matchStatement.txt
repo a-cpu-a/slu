@@ -43,7 +43,7 @@ New Syntax {
 	matchItem ::= pat ["if" exp] "=>" explist
 	matchStat ::= matchItem | ";"
 	
-	statOrExpr @::= | "match" basicExp ["->" basicExp] "{" {matchStat} "}"
+	statOrExpr @::= | basicExp "match" ["->" basicExp] "{" {matchStat} "}"
 }
 
 New Keywords {
