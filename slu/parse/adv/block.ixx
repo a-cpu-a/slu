@@ -89,7 +89,7 @@ namespace slu::parse
 	}
 
 	export template<bool pushAnonScope, AnyInput In>
-	StatList<In> readGlobStatList(In& in)
+	StatList readGlobStatList(In& in)
 	{
 		if constexpr (pushAnonScope)
 			in.genData.pushAnonScope(in.getLoc());
@@ -110,7 +110,7 @@ namespace slu::parse
 	//second -> nextSynName, only for isGlobal=true
 	//No start '{' check, also doesnt skip '}'!
 	export template<bool isLoop, AnyInput In>
-	std::pair<StatList<In>, lang::ModPathId> readStatList(
+	std::pair<StatList, lang::ModPathId> readStatList(
 	    In& in, const bool allowVarArg, const bool isGlobal)
 	{
 		skipSpace(in);

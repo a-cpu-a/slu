@@ -252,6 +252,22 @@ namespace slu::paint
 		    varcase(const parse::ExprType::String&) {
 			    paintString(se, var.v, var.end, tint);
 		    },
+		    varcase(const parse::ExprType::Unfinished&) {
+			    paintKw<Tok::COMMENT_WIP>(se,
+			        "TO"
+			        "DO!");
+			    paintString(se, var.msg, var.end, tint);
+		    },
+		    varcase(const parse::ExprType::CompBuiltin&) {
+			    paintKw<Tok::COMMENT_WIP>(se,
+			        "_COMP_TO"
+			        "DO!");
+			    paintKw<Tok::COMMENT_WIP>(se, "(");
+			    paintString(se, var.kind, var.kindEnd, slu::paint::Tok::NONE);
+			    paintKw<Tok::PUNCTUATION>(se, ",");
+			    paintExpr(se, *var.value);
+			    paintKw<Tok::COMMENT_WIP>(se, ")");
+		    },
 		    varcase(const parse::ExprType::F64) { paintNumber(se, tint); },
 		    varcase(const parse::ExprType::P128) { paintNumber(se, tint); },
 		    varcase(const parse::ExprType::M128) { paintNumber(se, tint); },

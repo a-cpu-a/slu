@@ -30,7 +30,6 @@ New Keywords {
 	
 
 	--Future proofing
-
 	at			(..)		(..)		maybe for ranges, fixed-point precision?
 	of			(2.5m)		(87k)		?
 	asm    		(..)		(..)		asm blocks

@@ -50,7 +50,7 @@ namespace slu::mlvl
 	export struct InlineModule
 	{
 		lang::MpItmId name;
-		parse::StatListV<true> code;
+		parse::StatList code;
 	};
 
 	struct DesugarVisitor : visit::EmptyVisitor<DesugarCfg>
@@ -68,7 +68,7 @@ namespace slu::mlvl
 		// Note: Implicit bottom item: 'Any' or 'Slu'
 		std::vector<std::string> abiStack;
 		std::vector<bool> abiSafetyStack;
-		std::vector<parse::StatList<Cfg>*> statListStack;
+		std::vector<parse::StatList*> statListStack;
 		std::vector<parse::Locals<Cfg>*> localsStack;
 		std::vector<lang::ModPathId> mpStack;
 		std::vector<parse::BasicModPathData*> mpDataStack;
@@ -409,12 +409,12 @@ namespace slu::mlvl
 		{
 			localsStack.pop_back();
 		}
-		bool preStatList(parse::StatList<Cfg>& itm)
+		bool preStatList(parse::StatList& itm)
 		{
 			statListStack.push_back(&itm);
 			return false;
 		}
-		void postStatList(parse::StatList<Cfg>& itm)
+		void postStatList(parse::StatList& itm)
 		{
 			statListStack.pop_back();
 		}
@@ -466,7 +466,7 @@ namespace slu::mlvl
 			        return;
 			    }
 
-			    parse::StatList<Cfg> stats = std::move(block.stats);
+			    parse::StatList stats = std::move(block.stats);
 			    itm.place = stats.front().place;
 			    auto statData = std::move(stats.front().data);
 			    itm.data = std::move(statData);

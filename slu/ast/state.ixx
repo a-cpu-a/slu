@@ -48,8 +48,7 @@ namespace slu::parse
 	export template<bool isSlu> using TableV = std::vector<FieldV<isSlu>>;
 	Slu_DEF_CFG(Table);
 
-	export template<bool isSlu> using StatListV = std::vector<Stat>;
-	Slu_DEF_CFG(StatList);
+	export using StatList = std::vector<Stat>;
 
 
 	export struct LocalId
@@ -86,7 +85,7 @@ namespace slu::parse
 
 	export template<bool isSlu> struct BlockV
 	{
-		StatListV<isSlu> statList;
+		StatList statList;
 		ExprList retExprs; // May contain 0 elements
 
 		lang::ModPathId mp;
@@ -282,6 +281,17 @@ namespace slu::parse
 		{}; // "true"
 		export struct VarArgs
 		{}; // "..."
+		export struct Unfinished
+		{
+			std::string msg;
+			ast::Position end;
+		};
+		export struct CompBuiltin
+		{
+			std::string kind;
+			ast::Position kindEnd;
+			BoxExpr value;
+		};
 
 		export using parse::Function;
 
@@ -356,7 +366,7 @@ namespace slu::parse
 	    ExprType::Index, ExprType::FieldV<isSlu>, ExprType::Call,
 	    ExprType::SelfCall,
 
-	    // Slu
+	    ExprType::Unfinished, ExprType::CompBuiltin,
 
 	    ExprType::MpRoot,
 
@@ -712,7 +722,7 @@ namespace slu::parse
 
 		export template<bool isSlu> struct ExternBlockV
 		{
-			StatListV<isSlu> stats;
+			StatList stats;
 			std::string abi;
 			ast::Position abiEnd;
 			ast::OptSafety safety = ast::OptSafety::DEFAULT;
@@ -721,7 +731,7 @@ namespace slu::parse
 
 		export template<bool isSlu> struct UnsafeBlockV
 		{
-			StatListV<isSlu> stats;
+			StatList stats;
 		}; // "unsafe {...}"
 		Slu_DEF_CFG(UnsafeBlock);
 
@@ -735,7 +745,7 @@ namespace slu::parse
 			WhereClauses clauses;
 			lang::MpItmId name;
 			ParamList params;
-			StatListV<true> itms;
+			StatList itms;
 			std::optional<TraitExpr> whereSelf;
 			lang::ExportData exported = false;
 		};
@@ -745,7 +755,7 @@ namespace slu::parse
 			ParamList params;
 			std::optional<TraitExpr> forTrait;
 			Expr type;
-			StatListV<true> code;
+			StatList code;
 			lang::ExportData exported : 1 = false;
 			bool deferChecking        : 1 = false;
 			bool isUnsafe             : 1 = false;
@@ -774,7 +784,7 @@ namespace slu::parse
 
 		export template<bool isSlu> struct ModAsV : ModV<isSlu>
 		{
-			StatListV<isSlu> code;
+			StatList code;
 		};
 		Slu_DEF_CFG(ModAs);
 	}; //namespace StatType
@@ -836,7 +846,7 @@ namespace slu::parse
 
 	export struct ParsedFile
 	{
-		StatListV<true> code;
+		StatList code;
 		lang::ModPathId mp;
 	};
 } //namespace slu::parse

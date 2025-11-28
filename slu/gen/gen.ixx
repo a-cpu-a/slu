@@ -259,6 +259,20 @@ namespace slu::parse
 		    },
 		    varcase(const ExprType::Call&) { genCall<true>(out, var); },
 		    varcase(const ExprType::SelfCall&) { genSelfCall<true>(out, var); },
+		    varcase(const ExprType::Unfinished&) {
+			    out.add("TO"
+			            "DO! ");
+			    genString(out, var.msg);
+		    },
+		    varcase(const ExprType::CompBuiltin&) {
+			    out.add("_COMP_TO"
+			            "DO!");
+			    out.add('(');
+			    genString(out, var.kind);
+			    out.add(", ");
+			    genExpr(out, *var.value);
+			    out.add(')');
+		    },
 		    varcase(const ExprType::Nil) { out.add("nil"sv); },
 		    varcase(const ExprType::False) { out.add("false"sv); },
 		    varcase(const ExprType::True) { out.add("true"sv); },

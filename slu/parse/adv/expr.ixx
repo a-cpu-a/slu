@@ -109,11 +109,39 @@ namespace slu::parse
 		switch (firstChar)
 		{
 		default: break;
+		case 'T':
+			if (checkReadTextToken(in,
+			        "TO"
+			        "DO"))
+			{
+				requireToken<false>(in, "!");
+				skipSpace(in);
+				basicRes.data = ExprType::Unfinished{
+				    readStringLiteral(in, in.peek()), in.getLoc()};
+				break;
+			}
+			break;
 		case '_':
 			if (!in.isOob(1) && !isValidNameChar(in.peekAt(1)))
 			{
 				in.skip();
 				basicRes.data = ExprType::Infer{};
+				break;
+			}
+			if (checkReadTextToken(in,
+			        "_COMP_TO"
+			        "DO"))
+			{
+				requireToken<false>(in, "!");
+				requireToken(in, "(");
+				skipSpace(in);
+				auto d = ExprType::CompBuiltin{
+				    readStringLiteral(in, in.peek()), in.getLoc()};
+				requireToken(in, ",");
+				d.value
+				    = std::make_unique<Expr>(readExpr<false>(in, allowVarArg));
+				requireToken(in, ")");
+				basicRes.data = std::move(d);
 				break;
 			}
 			[[fallthrough]];
@@ -136,7 +164,7 @@ namespace slu::parse
 		case '~':
 			if (in.peekAt(1) == '~') // '~~'
 			{
-				requireToken(in, "~~");
+				requireToken<false>(in, "~~");
 				basicRes.data = ExprType::Err{std::make_unique<Expr>(
 				    readExpr<IS_BASIC>(in, allowVarArg))};
 				break;

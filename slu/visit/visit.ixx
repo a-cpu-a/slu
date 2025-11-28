@@ -200,7 +200,7 @@ namespace slu::visit
 		Slu_CALL_VISIT_FN_POST_LG(Pat);
 	}
 	export template<AnyVisitor Vi>
-	void visitStatList(Vi& vi, parse::StatList<Vi>& itm)
+	void visitStatList(Vi& vi, parse::StatList& itm)
 	{
 		Slu_CALL_VISIT_FN_PRE(StatList);
 		for (auto& i : itm)
@@ -307,6 +307,15 @@ namespace slu::visit
 		    },
 		    varcase(const parse::ExprType::M128) {
 			    Slu_CALL_VISIT_FN_PRE_VAR(M128);
+			    //TODO
+		    },
+		    varcase(parse::ExprType::Unfinished&) {
+			    visitString(vi, var.msg);
+			    //TODO
+		    },
+		    varcase(parse::ExprType::CompBuiltin&) {
+			    visitString(vi, var.kind);
+			    visitExpr(vi, *var.value);
 			    //TODO
 		    },
 		    varcase(const parse::ExprType::OpenRange) {

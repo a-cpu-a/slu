@@ -143,7 +143,7 @@ namespace slu::visit
 		_Slu_DEF_EMPTY_PRE_POST(Drop, parse::StatType::Drop<Cfg>);
 		_Slu_DEF_EMPTY_PRE_POST(CallStat, parse::StatType::Call);
 		_Slu_DEF_EMPTY_PRE_POST(SelfCallStat, parse::StatType::SelfCall);
-		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList<Cfg>);
+		_Slu_DEF_EMPTY_PRE_POST(StatList, parse::StatList);
 
 		//Edge cases:
 		_Slu_DEF_EMPTY_PRE_POST_RAW(LocalExpr, parse::ExprType::Local);
