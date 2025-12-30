@@ -1,0 +1,59 @@
+~2025/08/09
+when the type/trait constructor/fn asks for some property of a argument, if its unknown, then a error occurs
+
+(T has Copy) -> panic, unless T is specified as !Copy or Copy (inside a where clause of the impl?)
+
+this means u need to do exponential stuff manually, the compiler will not do it for you!
+
+
+
+TODO
+negative traits r**t
+
+
+
+
+
+
+
+
+--The struct kw on fn's tags the returned type with the name of the fn. 
+-- In Plan B it also tags the type with all the argument values of the fn.
+struct fn MyType(T = type) -> type {
+	--.implements needs to know if T implements that trait, otherwise its an error to use it
+	return if T.implements(Copy) => struct{
+		a = Option(T),
+		b = u8
+	} else => struct{
+		a = Option(&T),
+		b = u8
+	};
+}
+
+impl(T=type) MyType(T) where T: !Copy {
+	fn b(&self)->u8{return self.b}
+	fn printA(&self) {println!("{}",self.a)}
+}
+impl(T=type) MyType(T) where T: Copy {
+	fn b(&self)->u8{return self.b}
+	fn printA(&self) {println!("{}",self.a)}
+}
+--Or like this, however this will defer the type checking to instantiation time, allowing for T to be known & if it impls Copy aswell
+defer impl(T=type) MyType(T) {
+	fn b(&self)->u8{return self.b}
+	fn printA(&self) {println!("{}",self.a)}
+}
+
+
+
+
+
+
+recursive type creation -> RecurseType
+struct fn MyType() -> type {
+	return {
+		x = Option(Box(RecurseType))
+	}
+}
+
+There is a issue, how would you be able to impl getB for this type, without writing 2 impls (T: !Copy, T: Copy)? (.implements needs to know if it does or doesnt, else its a error)

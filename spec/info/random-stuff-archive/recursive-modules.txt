@@ -1,0 +1,17 @@
+~2025/04/20
+
+
+mod z as {
+	use crate::y;
+	
+	ex fn x() {
+		y::x();
+	}
+}
+mod y as {
+	use crate::z;
+	
+	ex fn x() {
+		z::x();
+	}
+}

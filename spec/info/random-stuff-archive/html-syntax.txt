@@ -1,0 +1,29 @@
+~2025/05/28
+
+let dom = <>
+	<html>
+		<body>
+			<img hello="" yello=true/>
+			"Hello world!"
+			<CustomComponent hello="" yello=true/>
+		</body>
+	</html>
+</>;
+
+let dom = xml![
+	<html>
+		<body>
+			<img hello="" yello=true/>
+			"Hello world!"
+			<CustomComponent hello="" yello=true/>
+		</body>
+	</html>
+];
+
+let dom = html {
+	body {
+		img{hello="", yello=true},
+		txt "Hello world!",
+		CustomComponent{hello="", yello=true}
+	}
+};

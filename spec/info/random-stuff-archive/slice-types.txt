@@ -1,0 +1,19 @@
+~2025/04/12
+
+
+interface Slice<T> {
+	
+	T at(long);
+	Slice<T> sub(Range);
+	Slice<T> remPrefix(long);
+	Slice<T> remSuffix(long);
+	
+}
+
+
+BoolArraySlice impl Slice<boolean>{
+	bool[] raw;
+}
+ListSlice<T> impl Slice<T>{
+	List<T> raw;
+}

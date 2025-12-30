@@ -1,0 +1,76 @@
+~2025/11/05
+
+struct fn Box(const T = type) -> type {
+	return if T.zeroSized() 
+	=> struct {} -- No need to store it.
+	else struct{
+		value = &mut T,
+		allocator = &impl Alloc
+	};
+}
+--[=[Impl type 1
+impl(const T = type) NewFrom(T) for Box(T) where T.:logical {
+
+	const assoc_constant = 4 + Self.:T.:additive_mix; -- `Box(u8).:assoc_constant == 4 + u8.:additive_mix`
+	
+	fn new(
+		const Self,--special Self type arg, just like 'self' args in other langs
+		--["const"] ArgName "=" Type
+		initializer = FnOnce(T,{}),
+		allocator = &impl Alloc) -> Self~~AlErr {
+		return Self{
+			value = --[[...]],
+			allocator = allocator
+		}
+	}
+}
+]=]
+
+
+--Impl type 2
+--Exposes the implemented types param names
+--Doesnt need one arg for each arg on the implemented type
+--Cant mess up as much
+--Requires `Type ".:" Name` to allow obtaining type args, not just constants.
+--Requires constants to have `()`, thus making them a bit closer to sugar for "const Self + 0 args" functions.
+impl NewFrom(Self.:T) for Box where Self.:T.:logical() {
+
+	const assoc_constant = 4 + Self.:T.:additive_mix(); -- `Box(u8).:assoc_constant() == 4 + u8.:additive_mix()`
+	
+	fn new(
+		const Self,--Required, to be explicit
+		initializer = FnOnce(Self.:T,{}),
+		allocator = &impl Alloc) -> Self~~AlErr {
+		return Self{
+			value = --[[...]],
+			allocator = allocator
+		}
+	}
+}
+--TODO: replace `self` mp with `mod`
+impl Debug for Box where Self.:T.implements(Debug) {
+	fn fmt(const Self, &self, f = &mut fmt::Formatter) -> fmt::Result {
+		return (&self.*.*).fmt(f)
+	}
+}
+
+fn main() {
+	--[[
+	.: when applied to a "type" value indexes in a different way, allowing type inference/completion in between too.
+	`Box.:new(|| myU8, x)` tells the type checker that Box is a type, and it notices that some type args werent passed to Box, so it looks for any unrestricted impl's for Box, to find what T could be.
+	`Box(u8).:new(|| myU8, x)` is passed its args and a real type value (in const land) is created, allowing the type checker to look up self-arg-less functions that are impl'ed on the type.
+	]]
+	
+	
+	let boxedU8 = std::Box.:new(||100 as u8, devAlloc);
+	let boxedString = Box.:new(||String.:from("Hello world", devAlloc), devAlloc);
+	
+	let path = ...;
+	
+	let file = ...path...;
+	
+	for ch in ...file... {
+		
+	}
+	
+}

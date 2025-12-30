@@ -1,0 +1,34 @@
+~2025/06/23
+
+i8 : |v| v!=0
+
+
+fn x(u8 x);
+fn x(x = u8);
+
+fn x(u8 x,u8 y);
+fn x(x = u8,y = u8);
+
+fn x(
+	u8 x,
+	u8 y
+);
+fn x(
+	x = u8,
+	y = u8
+);
+
+fn x(Vec(String) x);
+fn x(x = Vec(String));
+
+fn x(Vec(String) x,Vec(String) y);
+fn x(x = Vec(String),y = Vec(String));
+
+fn x(
+	Vec(String) x,
+	Vec(String) y
+);
+fn x(
+	x = Vec(String),
+	y = Vec(String)
+);

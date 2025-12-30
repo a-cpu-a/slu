@@ -1,0 +1,25 @@
+~2025/06/23
+
+let{x}=b
+->
+let $0 = b
+let x = $0.1
+
+let{x,y,z}=n+1;
+->
+let $1 = n+1;
+let x = $1.1;
+let y = $1.2;
+let z = $1.3;
+
+let{{x,y},z}=q;
+->
+let $1 = q;
+let $2 = $1.1;
+let x = $2.1;
+let y = $2.2;
+let z = $1.2;
+
+let _=1;
+->
+let $1=1;

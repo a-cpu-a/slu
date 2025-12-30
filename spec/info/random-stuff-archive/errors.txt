@@ -1,0 +1,28 @@
+~2025/03/02
+
+
+
+
+
+
+fn myErrFunc() -> u8?Err {
+	-- ...
+}
+
+let x = ?myErrFunc();--throws
+
+let u8 passTheError = myErrFunc()?;--get the value or propogate the error
+let u8 panicOnError = myErrFunc():unwrap(); --get the value or panic
+let u8 neverError = myErrFunc():unwrapOr(100); -- get the value or return ...
+
+
+
+let u8 qq = try(myErrFunc()) -> u8 {
+	
+	Err::Pmsg x => panic$("Error " .. x.1);
+	
+	Err::Oom => panic$("Out of memory!");
+	Err::Msg{v} => panic$(v);
+		
+	--_ => panic$("Unknown error"); --If not present here, "?" is required, cuz Err::Unknown.
+}?

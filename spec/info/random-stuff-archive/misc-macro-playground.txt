@@ -1,0 +1,45 @@
+~2025/02/21
+$macro_rules lambda[block $bl] -> exp {
+	$add(
+		function() {
+			$bl
+		}
+	);
+}
+
+fn lol() -> Func {
+	return $lambda[
+		return print("hello!");
+	];
+}
+
+
+
+$macro_rules try(expr $e) -> exp {
+	$addBlock(
+		let temp = $e;
+		if (not temp)
+			return temp; --early exit
+		
+		
+		$bl
+	);
+}
+
+fn erroringFunc() -> Result<int,Err> {
+	let val = $try(mayFail(33));
+	
+	return val * 44;
+}
+
+
+
+
+
+Stat@{print()}
+
+Stat${xxx}
+
+Vec$[1,2,3]
+
+Vec@[1,2,3]

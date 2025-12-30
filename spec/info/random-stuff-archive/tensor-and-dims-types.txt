@@ -1,0 +1,35 @@
+~2025/09-07
+`u8` => `0..255 as type` -> `type`
+`0_u8` => `0 as u8` -> `u8`
+`0` => `0` -> `0 as type`
+`{u8}` => `{0..255 as type}` -> `struct{type}`
+`struct{u8}` => `{u8} as type` -> `type`
+`2 ** {0_u8}` => `{0_u8,0_u8}` -> `struct{u8,u8}`
+`2 ** {1,2}` => `{1,2,1,2}` -> `struct{1 as type, 2 as type, 1 as type, 2 as type}`
+`{0_u8} ++ {1_u8}` => `{0_u8,1_u8}` -> `struct{u8,u8}`
+`3**"a"` => `"aaa"` -> `"aaa" as type`
+`"a"++"b"` => `"ab"` -> `"ab" as type`
+`Tensor::new(0_u8)` -> `Tensor(u8,Dims{{}})`
+`Tensor::new("a")` -> `Tensor("a" as type, Dims{{}})`
+`2 ** 100_usize ** 2_u8` => `Dims{{2,100_usize,2_u8}}` -> `Dims{{2,usize,u8}}`
+`2 ** Tensor::new(0_u8)` => `Tensor::new({0_u8,0_u8})` -> `Tensor(u8,Dims{{2}})`
+
+### Note: `Tensor::new` doesnt represent the dynamicness of the size:
+`2 ** 2_u8 ** Tensor::new(0_u8)` => `Tensor::new({{0_u8,0_u8},{0_u8,0_u8}})` -> `Tensor(u8,Dims{{2,2_u8}})`
+`2 ** Tensor::new({0_u8,1_u8})` => `Tensor::new({{0_u8,1_u8},{0_u8,1_u8}})` -> `Tensor(u8, Dims{{2,2}})`
+
+### Note: `Tensor::new` also has a extra arg, allowing you to specify the element type, its only required if your element is a tuple/array.
+`Tensor::new({"a",1_u8}, struct{"a" as type,u8})` -> `Tensor(struct{"a" as type,u8}, Dims{{}})`
+
+
+
+Are there any contradictions in these examples?
+can you generalize it further?
+
+There is a subtype relation between 0 and u8.
+When using ** with a dynamic value, the type of that dimension could be u8 (2_u8), this means the size of that dimension is only known at runtime, but its limits are known at compile time (0..255).
+
+Hey chatgpt, making a new lang.
+The type system is similar to zig and typescript, and it is also structural, unless the type has a name like Tensor, Vec, Box, ...
+note: tuples, structs and arrays all use the same struct{..}/{} format.
+Expr => result -> type of the result

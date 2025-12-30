@@ -1,0 +1,38 @@
+~2025/03/29
+let integer x = 4;
+let integer x be 4
+
+
+let as integer x = 4;
+let integer x be 4;
+
+let x: integer = 4;
+let x of type integer be 4
+
+
+==================================================
+
+
+
+
+
+
+==================================================
+
+
+
+
+
+
+
+let x = 1u8;
+let x = 1.u8;
+let x = 1_u8;
+let x = 1'u8; -- BEST
+
+TODO:
+
+mut in type {}
+Name in type {}
+document private-ness of MyCustomTy{...} constructors
+

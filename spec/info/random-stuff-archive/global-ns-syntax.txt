@@ -1,0 +1,9 @@
+~2025/05/28
+
+:> :: std :: Vec(u8)
+:>: std :: Vec(u8)
+
+@:>::x::T{}
+let x = b
+:>::x::y+=x -- ::x::y style is impossible due to indexing into the 'b' namespace.
+return 100 < :>::x::y

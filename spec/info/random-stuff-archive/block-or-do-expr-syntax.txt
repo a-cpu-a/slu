@@ -1,0 +1,135 @@
+~2025/10/04
+
+----------------------------------
+-- Method 1
+-- 'do' for block expressions, meaning 'break' will ignore normal blocks without a 'for'/'do'/'loop'/...
+-- generic types can infer their generic-args braces.
+----------------------------------
+
+enum BasicColor{
+	Red,
+	Green,
+	Blue,
+	Yellow
+}
+trait Colored { fn color(&self) -> BasicColor }
+
+struct State{
+	color = mut BasicColor,
+	version = u8
+}
+impl Colored for State {
+	fn color(&self) -> BasicColor { return self.color }
+}
+const StructuralState = struct{
+	color = mut BasicColor,
+	version = u8
+}
+const Structural2 = {u8} as type
+
+const START = {"hi"}
+const NAMED_1ELEM = {a=6}
+const MIXED_TUPLE = {1,2,3,a=6}
+const STARTING_INFO = {
+	text = "Hello",
+	version = 1
+}
+const STARTING_STATE = State{
+	color = BasicColor::Red,
+	version = 1
+}
+fn loadFiles() -> Files {
+	let list = if ALT_FLIST do {
+		usesAltList.set(true)
+		break getAltList()
+	} else do {
+		usesAltList.set(false)
+		break getNewList()
+	}
+	for i in list {
+		if i.chill() {
+			chillFound.set(true);
+			break
+		}
+		nonChill.add(1);
+	}
+	let list2 = do {markGlobal() break list.two()}
+	return list2.sort()
+}
+fn mutliReturn() -> {u8,u8} {
+	return {1,2}
+}
+struct Type(const GENERIC_V = u8) {
+	a=u8,b=u8,c=u8
+}
+fn genericReturnTy() -> Type(6) {
+	return Type{a=1,b=2,c=3}
+}
+
+
+----------------------------------
+-- Method 2
+-- no 'do' for block expressions, meaning 'break' will not ignore normal blocks
+-- an extra comma needed in 1 element tuples `(1,)`
+-- generic types cant infer any generic-args braces, as they arent any different to constructor braces.
+----------------------------------
+
+enum BasicColor = (
+	Red,
+	Green,
+	Blue,
+	Yellow
+)
+trait Colored { fn color(&self) -> BasicColor }
+
+struct State = (
+	color = mut BasicColor,
+	version = u8
+)
+impl Colored for State {
+	fn color(&self) -> BasicColor { return self.color }
+}
+const StructuralState = struct(
+	color = mut BasicColor,
+	version = u8
+)
+const Structural2 = (u8,) as type
+
+const START = ("hi",)
+const NAMED_1ELEM = (a=6)
+const MIXED_TUPLE = (1,2,3,a=6)
+const STARTING_INFO = (
+	text = "Hello",
+	version = 1
+)
+const STARTING_STATE = State(
+	color = BasicColor::Red,
+	version = 1
+)
+fn loadFiles() -> Files {
+	let list = if ALT_FLIST {
+		usesAltList.set(true)
+		break getAltList()
+	} else {
+		usesAltList.set(false)
+		break getNewList()
+	}
+	:::forList:for i in list {
+		if i.chill() {
+			chillFound.set(true);
+			break:forList
+		}
+		nonChill.add(1);
+	}
+	let list2 = {markGlobal() break list.two()}
+	return list2.sort()
+}
+fn mutliReturn() -> (u8,u8) {
+	return (1,2)
+}
+struct Type(const GENERIC_V = u8) = (
+	a=u8,b=u8,c=u8
+)
+fn genericReturnTy() -> Type(6) {
+	return Type()(a=1,b=2,c=3)
+}

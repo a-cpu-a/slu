@@ -1,0 +1,4 @@
+~2025/05/28
+
+FnShare > FnMut > FnOnce
+Fn > FnConst > FnMut > FnOnce

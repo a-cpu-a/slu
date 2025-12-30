@@ -1,0 +1,6 @@
+~2025/05/28
+
+let w = :::x: do {
+	break:x myVar;--B
+	break:x: myVar;--C
+}

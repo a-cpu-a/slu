@@ -1,0 +1,21 @@
+~2025/04/20
+
+readLabel(In in)
+{
+	--Utils for OutData interactions:
+	in.genData.addStat()
+	in.genData.setUnsafe(POS)
+	in.genData.setSafe(POS)
+	in.genData.pushUnsafe(POS)
+	in.genData.popUnsafe(POS)
+	
+	GenData{ref=&RealGenData,localData=???; &GlobalOutData outData;}
+	
+	in.genData.tmpAddLocalUse("")
+	
+	in.genData.resolveName("var") -- obj id
+	
+	in.genData.pushScope("func/mod/type/??? name")
+	in.genData.pushScopeAnon() -- impl,lambda,scope, ???
+	in.genData.popScope()
+}

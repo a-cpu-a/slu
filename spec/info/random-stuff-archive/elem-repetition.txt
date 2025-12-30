@@ -1,0 +1,31 @@
+~2025/05/10
+
+
+
+
+["Hii";100]
+{100 of "Hii"}
+
+[["Hii";100];100]
+{100 of {100 of "Hii"}}
+
+{100 of 0, 10 of 1, 1}
+
+{100;9, 1, 2, 3;33, 4}
+{9 of 100, 1, 2, 33 of 3, 4}
+
+
+{"Element";100}
+{"Hi";4, "Bye", "Hello";2}
+
+{100;"Element"}
+{4;"Hi", "Bye", 2;"Hello"}
+
+{100 of "Element"}
+{4 of "Hi", "Bye", 2 of "Hello"}
+
+{"Element" of 100}
+{"Hi" of 4, "Bye", "Hello" of 2}
+-->
+{"Element","Element","Element","Element", ... 96 more times
+{"Hi", "Hi", "Hi", "Hi", "Bye", "Hello", "Hello"}

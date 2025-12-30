@@ -1,0 +1,45 @@
+~2025/04/12
+
+----------------------
+
+--ex unsafe async comptime type fn
+
+ex type fn Vec(type E, Option<type> A) {
+	return struct{
+		allocator = A.getOr(DefaultAlloc),
+		pointer = *mut[E],
+		capacity = usize,
+		length = usize
+	};
+}
+
+--TODO: need a way to make it unique
+--const MyStrongUnit = struct{};
+--assertNe$(MyStrongUnit,struct{});
+
+const U8Vec = Vec(u8);
+assertEq$(U8Vec,Vec(u8));
+
+impl with(type E) for Vec(E) {
+	fn len(&self) -> usize {...}
+	fn add(&mut self, E v) {...}
+}
+
+
+-----
+
+fn main() -> ?2? {
+	
+	let Vec?1? x;
+	
+	let ?2? w = x:len();
+	
+	x:add(1'u8)
+	
+	w = x:len();
+	
+	return w;
+	
+}
+
+

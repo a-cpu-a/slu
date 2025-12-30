@@ -1,0 +1,45 @@
+~2025/05/23
+
+*const	*mut
+*		*share
+
+&const	&mut
+&		&share
+
+
+
+Add(type Self,type Rhs, type Res);
+
+T00: impl(<=)(1,bool)
+T00: impl(-)(1,T02)
+T00: impl(+)(T01,T03)
+T00: T02
+
+T01: 1
+T01: T03
+
+fn fac(T00 x) -> T01 {
+	if x<=1 return 1;
+	return x+fac(x-1);
+}
+
+
+fn vectest(usize x)-> V0 {
+	
+	let v = Vec::new();
+	v.add(x)?;
+	return v;
+}
+
+v(V2,V3) = (?,Vec(V1))
+V2 = Vec(usize)
+V0 //= Ae
+V0 = V2
+
+
+
+--x should be Option(100)
+--But None, and Some arent currently related to Option....
+let x = None
+x = Some{100}
+

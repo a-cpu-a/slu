@@ -1,0 +1,5 @@
+~2025/04/29
+
+[xxx] -> {size, elem...} unsized slice of xxx
+&[xxx] -> {ptr,size} slice to xxx
+&mut[xxx] -> {ptr,size} slice to mutable xxx

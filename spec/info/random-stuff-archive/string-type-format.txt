@@ -1,0 +1,41 @@
+~2025/06/23
+
+
+------------------
+
+
+String format (64bit).
+
+24 x i8: [1..24]
+
+let tag = data[24];
+
+if tag&0b10000000!=0 => len=SIZE,cap=CAP&((1<<63)-1),dataPtr=PTR. 
+else => len=tag~23,cap=23,dataPtr=&[1].
+
+PTR, SIZE, CAP(63 bits only), 1(1 bit)
+SMALL_STORAGE(23 bytes),size tag(5 bits), 0(3 bits)
+
+----------------
+
+String format (32bit).
+
+12 x i8: [1..12]
+
+let tag = data[12];
+
+if tag&0b10000000!=0 => len=SIZE,cap=CAP&((1<<31)-1),dataPtr=PTR. 
+else => len=tag~11,cap=11,dataPtr=&[1].
+
+PTR, SIZE, CAP(31 bits only), 1(1 bit)
+SMALL_STORAGE(11 bytes),size tag(4 bits), 0(4 bits)
+
+
+
+
+
+
+
+
+
+

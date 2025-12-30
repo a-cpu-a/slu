@@ -1,0 +1,12 @@
+~2025/10/24
+ex impl(
+	const range = Range(Integer,Integer),
+	const range_o = Range(Integer,Integer)
+) Add(Int(range_o)) for Int(range) {
+	const o_range = Range((range.min+range_o.min)?,(range.max+range_o.max)?);
+	const Output = Int(o_range);
+	
+	fn add(self,o = Int(range_o)) -> Output { unsafe {
+		return Int::uncheckedNew(o_range,(self as Integer).uncheckedAdd(o as Integer))
+	}}
+}

@@ -1,0 +1,30 @@
+~2025/07/12
+
+-> 2..4 {
+	let 1..2 x = 1;
+	return x*2;--2||4
+}
+
+-->
+
+let 1..2 x = 1 as 1..2;
+return (x*2) as 2..4;
+
+-->
+
+let u1 x;
+
+let u2 $m1 = 1 as u2;
+let u2 $0 = $m1-1;
+x = $0 as u1;
+
+let u2 $1 = (x as u2)+1;
+let u2 $2 = 2 as u2;
+
+let u3 $3 = $1 as u3;
+let u3 $4 = $2 as u3;
+
+let u3 $5 = $3*$4;
+
+let u2 $6 = ($5-2) as u2;
+return $6;
