@@ -56,4 +56,3 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-# TODO: Add tests and install targets if needed.
