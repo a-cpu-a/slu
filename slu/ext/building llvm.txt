@@ -1,0 +1,14 @@
+
+mkdir build
+cd build
+cmake -G Ninja ../llvm -DCMAKE_C_COMPILER=clang -DLLVM_BUILD_32_BITS=OFF -DCMAKE_C_FLAGS="-m64" -DCMAKE_CXX_FLAGS="-m64" -DCMAKE_CXX_COMPILER=clang++ -DLLVM_ENABLE_LLD=ON -DLLVM_CCACHE_BUILD=ON -DLLVM_ENABLE_PROJECTS="mlir;lld" -DLLVM_BUILD_EXAMPLES=ON -DLLVM_TARGETS_TO_BUILD="Native;NVPTX;AMDGPU;WebAssembly;AArch64" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLLVM_ENABLE_ASSERTIONS=ON
+cmake --build . --target check-mlir check-lld
+
+
+windows:
+
+1. disable Signals.inc from using crt stuff (_CrtSetReportHook)
+2. disable HandleLLVMOptions.cmake from adding _DEBUG (clang != msvc!!!!)
+
+llvm/cmake/modules/HandleLLVMOptions.cmake
+llvm/lib/Support/Windows/Signals.inc
