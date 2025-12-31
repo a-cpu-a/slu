@@ -10,6 +10,10 @@ target_sources(slu-comp PUBLIC
 	"mlir/conv.ixx"
  )
 
+include_directories(
+	slu-comp PRIVATE
+  ${CMAKE_BINARY_DIR}
+)
  
 target_precompile_headers(slu-comp PRIVATE
     "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_LIST_DIR}/mlir/Pch.hpp>"

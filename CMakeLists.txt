@@ -13,6 +13,8 @@ endif()
 
 project ("slu" LANGUAGES CXX)
 
+set(MLIR_DIR "${CMAKE_CURRENT_LIST_DIR}/slu/ext/llvm/build/lib/cmake/mlir/")
+set(LLVM_DIR "${CMAKE_CURRENT_LIST_DIR}/slu/ext/llvm/build/lib/cmake/llvm/")
 
 # Add source to this project's executable.
 add_subdirectory(slu)

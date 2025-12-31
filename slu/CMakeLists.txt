@@ -1,4 +1,5 @@
 ﻿
+add_subdirectory(mlir)
 
 add_library(slu)
 target_sources(slu PUBLIC
@@ -10,6 +11,7 @@ target_sources(slu PUBLIC
 	"ext/mtx.ixx"
 	"num.ixx"
 )
+
 add_subdirectory(_test)
 add_subdirectory(parse)
 add_subdirectory(comp)
