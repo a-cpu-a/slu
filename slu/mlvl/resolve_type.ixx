@@ -3,6 +3,7 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <compare>
+#include <cstdint>
 #include <stdexcept>
 #include <utility>
 #include <variant>
@@ -10,10 +11,12 @@
 #include <slu/ext/CppMatch.hpp>
 export module slu.mlvl.resolve_type;
 import slu.num;
+import slu.ast.enums;
 import slu.ast.mp_data;
 import slu.ast.state_decls;
 import slu.ast.state;
 import slu.ast.type;
+import slu.lang.basic_state;
 import slu.lang.mpc;
 
 namespace slu::mlvl

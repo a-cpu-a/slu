@@ -2,6 +2,7 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
+#include <cstddef>
 #include <cstdint>
 
 export module slu.parse.com.skip_space;

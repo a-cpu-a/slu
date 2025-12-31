@@ -3,9 +3,11 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <utility>
+#include <vector>
 export module slu.ast.make;
 import slu.ast.pos;
 import slu.ast.state;
+import slu.ast.state_decls;
 import slu.lang.basic_state;
 
 namespace slu::parse //TODO: ast

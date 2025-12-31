@@ -376,7 +376,7 @@ namespace slu::parse //TODO: ast
 				if (minIsI64)
 					return ResolvedType::getConstType(
 					    RawTypeKind::Int64(range.min.lo));
-				if (range.min >= 0ULL && range.min <= UINT64_MAX)
+				if (range.min >= (uint64_t)0 && range.min <= UINT64_MAX)
 					return ResolvedType::getConstType(
 					    RawTypeKind::Uint64(range.min.lo));
 				return ResolvedType::getConstType(RawType(range.min));
@@ -705,14 +705,6 @@ namespace slu::parse //TODO: ast
 	    SliceRawType * it) const noexcept
 	{
 		delete it;
-	}
-	extern "C++"
-	{
-	export void ::slu::parse::DelExpr::operator()(
-	    parse::Expr * it) const noexcept
-	{
-		delete it;
-	}
 	}
 
 	export constexpr std::optional<lang::MpItmId>

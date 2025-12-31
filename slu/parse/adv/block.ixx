@@ -8,6 +8,7 @@
 export module slu.parse.adv.block;
 
 import slu.ast.state;
+import slu.lang.basic_state;
 import slu.parse.input;
 import slu.parse.com.skip_space;
 import slu.parse.com.tok;

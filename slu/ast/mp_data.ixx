@@ -13,7 +13,9 @@
 #include <slu/Panic.hpp>
 #include <slu/lang/MpcMacros.hpp>
 export module slu.ast.mp_data;
+import slu.ast.pos;
 import slu.ast.state;
+import slu.ast.state_decls;
 import slu.ast.type;
 import slu.lang.basic_state;
 import slu.lang.mpc;
@@ -625,7 +627,7 @@ namespace slu::parse //TODO: ast
 			scopes.back().res.retTy = ty;
 		}
 		// Make sure to run no args `scopeReturn()` first!
-		void scopeReturn(ExprList&& expList)
+		void scopeReturn(parse::ExprList&& expList)
 		{
 			scopes.back().res.retExprs = std::move(expList);
 		}

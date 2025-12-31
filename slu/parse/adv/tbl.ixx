@@ -12,6 +12,7 @@ export module slu.parse.adv.tbl;
 import slu.char_info;
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.lang.basic_state;
 import slu.parse.error;
 import slu.parse.input;
 import slu.parse.adv.expr_decls;

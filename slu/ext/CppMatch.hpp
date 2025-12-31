@@ -28,23 +28,28 @@ SOFTWARE.
 
 #include <variant>
 
-//credits to: https://thatonegamedev.com/cpp/rust-enums-in-modern-cpp-match-pattern/
+//credits to:
+//https://thatonegamedev.com/cpp/rust-enums-in-modern-cpp-match-pattern/
 
 // Overloaded utility for std::visit
-template<class... Ts>
-struct _EzMatchOverloader : Ts... { using Ts::operator()...; };
-template<class... Ts>
-_EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
+template<class... Ts> struct _EzMatchOverloader : Ts...
+{
+	using Ts::operator()...;
+};
+template<class... Ts> _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
 // ezmatch(...)(..case1.. {...}, ...)
-#define ezmatch(_VALUE) (([&]<class T>(T && _val) { \
-	return [&](auto... _ez_cases) { \
-		if constexpr (requires { (_val).visit; }) \
-			return std::forward<T>(_val).visit(::_EzMatchOverloader{ _ez_cases... }); \
-		else \
-			return std::visit(::_EzMatchOverloader{ _ez_cases... }, std::forward<T>(_val)); \
-		}; \
-})(_VALUE))
+#define ezmatch(_VALUE)                                               \
+	(([&]<class _MatchT>(_MatchT&& _val) {                            \
+		return [&](auto... _ez_cases) {                               \
+			if constexpr (requires { (_val).visit; })                 \
+				return std::forward<_MatchT>(_val).visit(             \
+				    ::_EzMatchOverloader{_ez_cases...});              \
+			else                                                      \
+				return std::visit(::_EzMatchOverloader{_ez_cases...}, \
+				    std::forward<_MatchT>(_val));                     \
+		};                                                            \
+	})(_VALUE))
 
 //Note: you need to add const and &/&& yourself
 //varcase(...) -> ..type.. {...}
@@ -58,15 +63,15 @@ _EzMatchOverloader(Ts...) -> _EzMatchOverloader<Ts...>;
 
 inline void test()
 {
-	std::variant<int, double, float> v{ 0.0f };
+    std::variant<int, double, float> v{ 0.0f };
 
-	ezmatch(v)(// note that this isnt a curly brace!
+    ezmatch(v)(// note that this isnt a curly brace!
 
-		varcase(int) { std::cout<<"Int "<< var <<"\n"; },// note the comma
-		varcase(double) { std::cout<<"Double "<< var <<"\n";},
-		ezcase(varName,float) { std::cout<<"Float "<< varName <<"\n";}
-		// Note the missing comma!
-	);
+        varcase(int) { std::cout<<"Int "<< var <<"\n"; },// note the comma
+        varcase(double) { std::cout<<"Double "<< var <<"\n";},
+        ezcase(varName,float) { std::cout<<"Float "<< varName <<"\n";}
+        // Note the missing comma!
+    );
 }
 
 */
@@ -76,31 +81,31 @@ inline void test()
 
 namespace MyEnumType
 {
-	using INT = int;
-	using F64 = double;
-	struct STRNUM {std::string str; int num;};
+    using INT = int;
+    using F64 = double;
+    struct STRNUM {std::string str; int num;};
 }
 using MyEnum = std::variant<
-	MyEnumType::INT,
-	MyEnumType::F64,
-	MyEnumType::STRNUM
+    MyEnumType::INT,
+    MyEnumType::F64,
+    MyEnumType::STRNUM
 >;
 
 inline void test2()
 {
-	MyEnum v = MyEnumType::STRNUM("aa",0);
+    MyEnum v = MyEnumType::STRNUM("aa",0);
 
-	ezmatch(v)(
+    ezmatch(v)(
 
-		varcase(MyEnumType::INT) { std::cout<<"Int "<< var <<"\n"; },
-		varcase(double) { std::cout<<"Double "<< var <<"\n";},
+        varcase(MyEnumType::INT) { std::cout<<"Int "<< var <<"\n"; },
+        varcase(double) { std::cout<<"Double "<< var <<"\n";},
 
-		varcase(MyEnumType::STRNUM) {
-			std::cout <<"Strnum "<< var.str 
-				<<" N: "<< var.num <<"\n";
-		}
+        varcase(MyEnumType::STRNUM) {
+            std::cout <<"Strnum "<< var.str
+                <<" N: "<< var.num <<"\n";
+        }
 
-	);
+    );
 }
 
 */
@@ -110,17 +115,17 @@ inline void test2()
 
 consteval int test3()
 {
-	std::variant<int, bool> v{ 0 };
+    std::variant<int, bool> v{ 0 };
 
-	// The return types of the cases must be identical.
+    // The return types of the cases must be identical.
 
-	// The compiler will add the return type itself, so
-	// using "-> Type" is optional, but required in some cases
+    // The compiler will add the return type itself, so
+    // using "-> Type" is optional, but required in some cases
 
-	return ezmatch(v)(
-		varcase(int) -> char { return 1; },
-		varcase(bool) -> char { return 0;}
-	);
+    return ezmatch(v)(
+        varcase(int) -> char { return 1; },
+        varcase(bool) -> char { return 0;}
+    );
 }
 
 */

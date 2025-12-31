@@ -180,7 +180,7 @@ namespace slu
 		{
 			if constexpr (NEGATIVIZED && O_NEGATIVIZED)
 			{ //-A <= -B+1 (->) A >= B-1.
-				if (o == 0ULL)
+				if (o == (uint64_t)0)
 					return true;
 				return negative() >= (o.negative() + fromInt(UINT64_MAX)); //-1
 			} else if constexpr (NEGATIVIZED && !O_NEGATIVIZED)
@@ -190,8 +190,8 @@ namespace slu
 				return *this <= (o + fromInt((uint64_t)1));
 			} else if constexpr (!NEGATIVIZED && O_NEGATIVIZED)
 			{ //A <= -B+1 (->) -A >= B-1.
-				if (o == 0ULL)
-					return *this <= 1ULL;
+				if (o == (uint64_t)0)
+					return *this <= (uint64_t)1;
 				return negative() >= (o.negative() + fromInt(UINT64_MAX)); //-1
 			} else
 			{ //A <= B+1.

@@ -13,6 +13,7 @@
 #include <slu/Panic.hpp>
 export module slu.mlvl.type_inf_check;
 
+import slu.big_int;
 import slu.settings;
 import slu.ast.enums;
 import slu.ast.make;
@@ -152,6 +153,12 @@ namespace slu::mlvl
 			return false;
 		return subty->nearlyExact(*std::get<T>(useTy.base));
 	}
+
+	//ignores outerSliceDims of either side, as if checking the slices element
+	//type.
+	inline bool nearExactCheck(
+	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
+
 	inline bool subtypeCheckRef(
 	    const parse::RawTypeKind::Ref& var, const parse::ResolvedType& useTy)
 	{ //TODO: lifetimes
@@ -181,61 +188,6 @@ namespace slu::mlvl
 		});
 	}
 
-	//ignores outerSliceDims of either side, as if checking the slices element
-	//type.
-	inline bool nearExactCheck(
-	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
-	{
-		if (std::holds_alternative<parse::RawTypeKind::TypeError>(useTy.base))
-			return true; //poisioned, so pass forward.
-
-		//This should already be true, if all parts of the near exact check are
-		//correct. if (subty.size != useTy.size) 	return false;
-		if (subty.alignmentData != useTy.alignmentData)
-			return false;
-
-		return ezmatch(subty.base)(
-		    [&]<class T>(const T& var) {
-			    if (!std::holds_alternative<T>(useTy.base))
-				    return false;
-			    return var == std::get<T>(useTy.base);
-		    },
-		    varcase(const parse::RawTypeKind::TypeError) { return true; },
-		    varcase(const parse::RawTypeKind::Inferred)->bool {
-			    throw std::runtime_error(
-			        "TODO: error logging, Found Inferred type in near exact type check");
-		    },
-		    varcase(const parse::RawTypeKind::Unresolved&)->bool {
-			    throw std::runtime_error(
-			        "TODO: error logging, Found unresolved type in near exact type check");
-		    },
-
-		    varcase(const parse::RawTypeKind::Variant&) {
-			    return nearExactCheckDeref(var, useTy);
-		    },
-		    varcase(const parse::RawTypeKind::Struct&) {
-			    using T = parse::RawTypeKind::Struct;
-			    if (!std::holds_alternative<T>(useTy.base))
-				    return false;
-			    if (nearExactCheckDeref(var, useTy))
-				    return true;
-
-			    return false;
-		    },
-		    varcase(const parse::RawTypeKind::Union&) {
-			    return nearExactCheckDeref(var, useTy);
-		    },
-
-		    varcase(const parse::RawTypeKind::Ref&) {
-			    return subtypeCheckRef(var, useTy);
-		    },
-		    varcase(const parse::RawTypeKind::Ptr&) {
-			    return subtypeCheckPtr(var, useTy);
-		    },
-		    varcase(const parse::RawTypeKind::Slice&) {
-			    return subtypeCheckSlice(var, useTy);
-		    });
-	}
 	inline bool subtypeCheck(const parse::BasicMpDbData& mpDb,
 	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
@@ -333,6 +285,62 @@ namespace slu::mlvl
 
 		    varcase(const parse::AnyRawIntOrRange auto&) {
 			    return intRangeSubtypeCheck(var, useTy);
+		    });
+	}
+
+	//ignores outerSliceDims of either side, as if checking the slices element
+	//type.
+	inline bool nearExactCheck(
+	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
+	{
+		if (std::holds_alternative<parse::RawTypeKind::TypeError>(useTy.base))
+			return true; //poisioned, so pass forward.
+
+		//This should already be true, if all parts of the near exact check are
+		//correct. if (subty.size != useTy.size) 	return false;
+		if (subty.alignmentData != useTy.alignmentData)
+			return false;
+
+		return ezmatch(subty.base)(
+		    [&]<class T>(const T& var) {
+			    if (!std::holds_alternative<T>(useTy.base))
+				    return false;
+			    return var == std::get<T>(useTy.base);
+		    },
+		    varcase(const parse::RawTypeKind::TypeError) { return true; },
+		    varcase(const parse::RawTypeKind::Inferred)->bool {
+			    throw std::runtime_error(
+			        "TODO: error logging, Found Inferred type in near exact type check");
+		    },
+		    varcase(const parse::RawTypeKind::Unresolved&)->bool {
+			    throw std::runtime_error(
+			        "TODO: error logging, Found unresolved type in near exact type check");
+		    },
+
+		    varcase(const parse::RawTypeKind::Variant&) {
+			    return nearExactCheckDeref(var, useTy);
+		    },
+		    varcase(const parse::RawTypeKind::Struct&) {
+			    using T = parse::RawTypeKind::Struct;
+			    if (!std::holds_alternative<T>(useTy.base))
+				    return false;
+			    if (nearExactCheckDeref(var, useTy))
+				    return true;
+
+			    return false;
+		    },
+		    varcase(const parse::RawTypeKind::Union&) {
+			    return nearExactCheckDeref(var, useTy);
+		    },
+
+		    varcase(const parse::RawTypeKind::Ref&) {
+			    return subtypeCheckRef(var, useTy);
+		    },
+		    varcase(const parse::RawTypeKind::Ptr&) {
+			    return subtypeCheckPtr(var, useTy);
+		    },
+		    varcase(const parse::RawTypeKind::Slice&) {
+			    return subtypeCheckSlice(var, useTy);
 		    });
 	}
 

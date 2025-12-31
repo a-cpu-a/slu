@@ -2,6 +2,7 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
+#include <cstdint>
 #include <ranges>
 #include <span>
 #include <string>
@@ -11,6 +12,7 @@
 
 export module slu.paint.to_html;
 import slu.char_info;
+import slu.ast.pos;
 import slu.ast.state;
 import slu.paint.sem_output;
 import slu.parse.input;

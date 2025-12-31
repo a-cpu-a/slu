@@ -2,6 +2,7 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
+#include <cmath>
 #include <cstdint>
 #include <format>
 #include <stdexcept>
@@ -13,6 +14,7 @@ export module slu.parse.com.num;
 
 import slu.char_info;
 import slu.num;
+import slu.settings;
 import slu.ast.state;
 import slu.ast.state_decls;
 import slu.parse.error;

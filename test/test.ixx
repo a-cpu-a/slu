@@ -10,6 +10,7 @@
 #include <print>
 #include <span>
 #include <unordered_set>
+#include <vector>
 
 #include <slu/Ansi.hpp>
 export module _test_slu.test;

@@ -12,6 +12,7 @@ export module slu.paint.basics;
 
 import slu.char_info;
 import slu.ast.state;
+import slu.lang.basic_state;
 import slu.paint.sem_output;
 import slu.parse.input;
 import slu.parse.com.skip_space;

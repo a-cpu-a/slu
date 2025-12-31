@@ -4,6 +4,7 @@
 */
 #include <cstdint>
 #include <format>
+#include <memory>
 #include <unordered_set>
 
 #include <slu/ext/CppMatch.hpp>
@@ -12,9 +13,13 @@
 export module slu.parse.parse;
 
 import slu.ast.enums;
+import slu.ast.pos;
 import slu.ast.small_enum_list;
 import slu.ast.state;
+import slu.ast.state_decls;
+import slu.lang.basic_state;
 import slu.parse.error;
+import slu.parse.errors.char_errors;
 import slu.parse.input;
 import slu.parse.adv.block;
 import slu.parse.adv.expr;
@@ -26,6 +31,7 @@ import slu.parse.basic.args;
 import slu.parse.basic.label;
 import slu.parse.basic.mod_stat;
 import slu.parse.basic.struct_stat;
+import slu.parse.basic.trait_expr;
 import slu.parse.basic.use_stat;
 import slu.parse.com.name;
 import slu.parse.com.skip_space;
@@ -164,7 +170,7 @@ namespace slu::parse
 		{
 			ret.selfArg.specifiers = readSelfArgSpecifiers(in);
 			requireToken(in, "self");
-			ret.selfArg.name = in.genData.resolveNewName<true>("self");
+			ret.selfArg.name = in.genData.template resolveNewName<true>("self");
 
 			skipSpace(in);
 
@@ -401,6 +407,141 @@ namespace slu::parse
 		return false;
 	}
 
+	template<bool isLoop, class StatT, class DeclStatT, AnyInput In>
+	void readFunctionStat(In& in, const ast::Position place,
+	    const bool allowVarArg, const lang::ExportData exported,
+	    const ast::OptSafety safety)
+	{
+		StatT res{};
+		std::string name; //moved @ readFuncBody
+		name = readName(in);
+		res.name = in.genData.addLocalObj(name);
+		res.place = in.getLoc();
+
+		try
+		{
+			auto fun = readFuncBody(in, std::move(name));
+			if (ezmatch(std::move(fun))(
+			        varcase(Function&&) {
+				        res.func = std::move(var);
+				        return false;
+			        },
+			        varcase(FunctionInfo&&) {
+				        DeclStatT declRes{std::move(var)};
+				        declRes.name = res.name;
+				        declRes.place = res.place;
+				        declRes.exported = exported;
+				        declRes.safety = safety;
+
+				        in.genData.addStat(place, std::move(declRes));
+				        return true;
+			        }))
+				return; //Stat was added
+
+		} catch (const ParseError& e)
+		{
+			in.handleError(e.m);
+			throw ErrorWhileContext(std::format(
+			    "In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
+			    in.genData.asSv(res.name), errorLocStr(in, res.place)));
+		}
+
+		res.exported = exported;
+		res.func.safety = safety;
+
+		return in.genData.addStat(place, std::move(res));
+	}
+	template<bool isLoop, AnyInput In>
+	bool readFchStat(In& in, const ast::Position place,
+	    const lang::ExportData exported, const ast::OptSafety safety,
+	    const bool allowVarArg)
+	{
+		if (in.isOob(1))
+			return false;
+		const char ch2 = in.peekAt(1);
+		switch (ch2)
+		{
+		case 'n':
+			if (checkReadTextToken(in, "fn"))
+			{
+				readFunctionStat<isLoop, StatType::Fn, StatType::FnDecl<In>>(
+				    in, place, allowVarArg, exported, safety);
+				return true;
+			}
+			break;
+		case 'u':
+			if (checkReadTextToken(in, "function"))
+			{
+				readFunctionStat<isLoop, StatType::Function,
+				    StatType::FunctionDecl<In>>(
+				    in, place, allowVarArg, exported, safety);
+				return true;
+			}
+			break;
+		case 'o':
+			if (exported || safety != ast::OptSafety::DEFAULT)
+				break;
+			if (checkReadTextToken(in, "for"))
+			{
+				/*
+				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
+				 for namelist in explist do block end |
+				*/
+
+				PatV<true, true> names;
+				skipSpace(in);
+				names = readPat<true>(in, true);
+
+				// 'for' pat 'in' exp '{' block '}'
+
+				StatType::ForIn<In> res{};
+				res.varNames = std::move(names);
+
+				requireToken(in, "in");
+				res.exprs = readExpr<true>(in, allowVarArg);
+
+
+				res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
+
+				in.genData.addStat(place, std::move(res));
+				return true;
+			}
+			break;
+		default: break;
+		}
+		return false;
+	}
+
+	template<bool isLoop, AnyInput In>
+	bool readEchStat(In& in, const ast::Position place,
+	    const ast::OptSafety safety, const bool allowVarArg)
+	{
+		if (checkReadTextToken(in, "extern"))
+		{
+			skipSpace(in);
+			std::string abi = readStringLiteral(in, in.peek());
+			ast::Position abiEnd = in.getLoc();
+			skipSpace(in);
+			if (in.peek() == '{')
+			{
+				in.skip();
+				StatType::ExternBlock<In> res{};
+
+				res.safety = safety;
+				res.abi = std::move(abi);
+				res.abiEnd = abiEnd;
+				res.stats = readStatList<isLoop>(in, allowVarArg, false).first;
+				requireToken(in, "}");
+
+				in.genData.addStat(place, std::move(res));
+				return true;
+			}
+			//TODO: [safety] extern "" fn
+
+			throwExpectedExternable(in);
+		}
+		return false;
+	}
 	template<bool isLoop, AnyInput In>
 	bool readUchStat(
 	    In& in, const ast::Position place, const lang::ExportData exported)
@@ -475,96 +616,24 @@ namespace slu::parse
 		}
 		return false;
 	}
-
-	template<bool isLoop, AnyInput In>
-	bool readEchStat(In& in, const ast::Position place,
-	    const ast::OptSafety safety, const bool allowVarArg)
+	template<bool isLocal, bool isLoop, class StatT, AnyInput In>
+	void readVarStat(In& in, const ast::Position place, const bool allowVarArg,
+	    const lang::ExportData exported)
 	{
-		if (checkReadTextToken(in, "extern"))
-		{
-			skipSpace(in);
-			std::string abi = readStringLiteral(in, in.peek());
-			ast::Position abiEnd = in.getLoc();
-			skipSpace(in);
-			if (in.peek() == '{')
-			{
-				in.skip();
-				StatType::ExternBlock<In> res{};
+		StatT res;
+		skipSpace(in);
+		if constexpr (!isLocal)
+			in.genData.pushLocalScope();
+		res.names = readPat<isLocal>(in, true);
+		res.exported = exported;
 
-				res.safety = safety;
-				res.abi = std::move(abi);
-				res.abiEnd = abiEnd;
-				res.stats = readStatList<isLoop>(in, allowVarArg, false).first;
-				requireToken(in, "}");
-
-				in.genData.addStat(place, std::move(res));
-				return true;
-			}
-			//TODO: [safety] extern "" fn
-
-			throwExpectedExternable(in);
+		if (checkReadToken(in, "="))
+		{ // [‘=’ explist]
+			res.exprs = readExprList(in, allowVarArg);
 		}
-		return false;
-	}
-	template<bool isLoop, AnyInput In>
-	bool readFchStat(In& in, const ast::Position place,
-	    const lang::ExportData exported, const ast::OptSafety safety,
-	    const bool allowVarArg)
-	{
-		if (in.isOob(1))
-			return false;
-		const char ch2 = in.peekAt(1);
-		switch (ch2)
-		{
-		case 'n':
-			if (checkReadTextToken(in, "fn"))
-			{
-				readFunctionStat<isLoop, StatType::Fn, StatType::FnDecl<In>>(
-				    in, place, allowVarArg, exported, safety);
-				return true;
-			}
-			break;
-		case 'u':
-			if (checkReadTextToken(in, "function"))
-			{
-				readFunctionStat<isLoop, StatType::Function,
-				    StatType::FunctionDecl<In>>(
-				    in, place, allowVarArg, exported, safety);
-				return true;
-			}
-			break;
-		case 'o':
-			if (exported || safety != ast::OptSafety::DEFAULT)
-				break;
-			if (checkReadTextToken(in, "for"))
-			{
-				/*
-				 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end |
-				 for namelist in explist do block end |
-				*/
-
-				PatV<true, true> names;
-				skipSpace(in);
-				names = readPat<true>(in, true);
-
-				// 'for' pat 'in' exp '{' block '}'
-
-				StatType::ForIn<In> res{};
-				res.varNames = std::move(names);
-
-				requireToken(in, "in");
-				res.exprs = readExpr<true>(in, allowVarArg);
-
-
-				res.bl = readDoOrStatOrRet<true>(in, allowVarArg);
-
-				in.genData.addStat(place, std::move(res));
-				return true;
-			}
-			break;
-		default: break;
-		}
-		return false;
+		if constexpr (!isLocal)
+			res.local2Mp = in.genData.popLocalScope();
+		return in.genData.addStat(place, std::move(res));
 	}
 	template<bool isLoop, AnyInput In>
 	bool readLchStat(In& in, const ast::Position place,
@@ -672,50 +741,6 @@ namespace slu::parse
 		return false;
 	}
 
-	template<bool isLoop, class StatT, class DeclStatT, AnyInput In>
-	void readFunctionStat(In& in, const ast::Position place,
-	    const bool allowVarArg, const lang::ExportData exported,
-	    const ast::OptSafety safety)
-	{
-		StatT res{};
-		std::string name; //moved @ readFuncBody
-		name = readName(in);
-		res.name = in.genData.addLocalObj(name);
-		res.place = in.getLoc();
-
-		try
-		{
-			auto fun = readFuncBody(in, std::move(name));
-			if (ezmatch(std::move(fun))(
-			        varcase(Function&&) {
-				        res.func = std::move(var);
-				        return false;
-			        },
-			        varcase(FunctionInfo&&) {
-				        DeclStatT declRes{std::move(var)};
-				        declRes.name = res.name;
-				        declRes.place = res.place;
-				        declRes.exported = exported;
-				        declRes.safety = safety;
-
-				        in.genData.addStat(place, std::move(declRes));
-				        return true;
-			        }))
-				return; //Stat was added
-
-		} catch (const ParseError& e)
-		{
-			in.handleError(e.m);
-			throw ErrorWhileContext(std::format(
-			    "In " LC_function " " LUACC_SINGLE_STRING("{}") " at {}",
-			    in.genData.asSv(res.name), errorLocStr(in, res.place)));
-		}
-
-		res.exported = exported;
-		res.func.safety = safety;
-
-		return in.genData.addStat(place, std::move(res));
-	}
 	//TODO: handle basic (in basic expressions, if expressions can only have
 	//basic expressions)
 	export template<bool isLoop, bool forExpr, bool BASIC, AnyInput In>
@@ -744,25 +769,6 @@ namespace slu::parse
 			break;
 		}
 		return res;
-	}
-	template<bool isLocal, bool isLoop, class StatT, AnyInput In>
-	void readVarStat(In& in, const ast::Position place, const bool allowVarArg,
-	    const lang::ExportData exported)
-	{
-		StatT res;
-		skipSpace(in);
-		if constexpr (!isLocal)
-			in.genData.pushLocalScope();
-		res.names = readPat<isLocal>(in, true);
-		res.exported = exported;
-
-		if (checkReadToken(in, "="))
-		{ // [‘=’ explist]
-			res.exprs = readExprList(in, allowVarArg);
-		}
-		if constexpr (!isLocal)
-			res.local2Mp = in.genData.popLocalScope();
-		return in.genData.addStat(place, std::move(res));
 	}
 
 	export template<bool isLoop, AnyInput In>

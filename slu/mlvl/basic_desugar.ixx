@@ -377,9 +377,11 @@ namespace slu::mlvl
 
 			// Insert the rest of the statements
 			auto& statList = *statListStack.back();
-			statList.insert(statList.end(),
-			    std::make_move_iterator(std::next(out.begin() + 1)),
-			    std::make_move_iterator(out.end()));
+			for (auto& e : std::span(out).subspan(
+			         1)) //TODO: it was 2 in the old code... why?
+			{
+				statList.insert(statList.end(), parse::Stat{std::move(e)});
+			}
 		}
 
 		bool preTrait(parse::StatType::Trait& itm)

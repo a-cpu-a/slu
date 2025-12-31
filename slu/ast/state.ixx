@@ -383,6 +383,8 @@ namespace slu::parse
 	Slu_DEF_CFG(ExprData);
 
 
+	extern "C++"
+	{
 	export struct Expr
 	{
 		ExprDataV<true> data;
@@ -411,6 +413,7 @@ namespace slu::parse
 		Expr(Expr&&) = default;
 		Expr& operator=(Expr&&) = default;
 	};
+	}
 
 	struct Parameter
 	{
@@ -534,6 +537,8 @@ namespace slu::parse
 
 	namespace FieldType
 	{
+		extern "C++"
+		{
 		export struct Expr2Expr
 		{
 			parse::Expr idx;
@@ -544,6 +549,7 @@ namespace slu::parse
 			lang::MpItmId idx;
 			parse::Expr v;
 		}; // "Name ‘=’ exp"
+		}
 	} //namespace FieldType
 
 	export template<bool isSlu> struct AttribNameV
@@ -585,7 +591,7 @@ namespace slu::parse
 	{
 		LocalsV<isSlu> local2Mp;
 	};
-	export template<bool isSlu> struct MaybeLocalsV<isSlu, true>
+	template<bool isSlu> struct MaybeLocalsV<isSlu, true>
 	{};
 
 	export template<bool isSlu, bool isLocal>
@@ -826,6 +832,8 @@ namespace slu::parse
 	    >;
 	Slu_DEF_CFG(StatData);
 
+	extern "C++"
+	{
 	export struct Stat
 	{
 		StatDataV<true> data;
@@ -837,6 +845,7 @@ namespace slu::parse
 		Stat(Stat&&) = default;
 		Stat& operator=(Stat&&) = default;
 	};
+	}
 
 	export struct ParsedFile
 	{
@@ -844,3 +853,11 @@ namespace slu::parse
 		lang::ModPathId mp;
 	};
 } //namespace slu::parse
+
+extern "C++"
+{
+export void ::slu::parse::DelExpr::operator()(parse::Expr * it) const noexcept
+{
+	delete it;
+}
+}

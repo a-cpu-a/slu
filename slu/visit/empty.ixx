@@ -13,6 +13,7 @@ import slu.settings;
 import slu.ast.enums;
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.lang.basic_state;
 
 #define Slu_co ,
 

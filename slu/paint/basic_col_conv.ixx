@@ -3,6 +3,7 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <array>
+#include <cstddef>
 #include <cstdint>
 
 export module slu.paint.basic_col_conv;

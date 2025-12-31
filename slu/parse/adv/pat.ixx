@@ -11,6 +11,7 @@ export module slu.parse.adv.pat;
 
 import slu.char_info;
 import slu.ast.state;
+import slu.lang.basic_state;
 import slu.parse.input;
 import slu.parse.adv.expr_base;
 import slu.parse.com.name;

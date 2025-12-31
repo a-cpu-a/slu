@@ -9,6 +9,7 @@ export module slu.parse.basic.label;
 
 import slu.ast.pos;
 import slu.ast.state;
+import slu.lang.basic_state;
 import slu.parse.input;
 import slu.parse.com.name;
 import slu.parse.com.skip_space;
@@ -40,6 +41,6 @@ namespace slu::parse
 
 		requireToken(in, ":");
 
-		return in.genData.addStat(place, StatType::Label<In>{res});
+		return in.genData.addStat(place, parse::StatType::Label<In>{res});
 	}
 } //namespace slu::parse

@@ -3,11 +3,14 @@
 ** See Copyright Notice inside Include.hpp
 */
 #include <cstdint>
+#include <string>
 #include <utility>
 
 export module slu.parse.basic.mod_stat;
 
+import slu.ast.pos;
 import slu.ast.state;
+import slu.lang.basic_state;
 import slu.parse.input;
 import slu.parse.com.name;
 import slu.parse.com.skip_space;

@@ -2,6 +2,7 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
+#include <memory>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -14,8 +15,10 @@ export module slu.paint.paint;
 import slu.char_info;
 import slu.settings;
 import slu.ast.enums;
+import slu.ast.pos;
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.lang.basic_state;
 import slu.paint.basics;
 import slu.paint.paint_ops;
 import slu.paint.sem_output;
@@ -25,6 +28,37 @@ import slu.parse.com.tok;
 
 namespace slu::paint
 {
+	template<Tok nameTok = Tok::NAME, AnySemOutput Se>
+	inline void paintExpr(Se& se, const parse::Expr& itm,
+	    const Tok tint = Tok::NONE, const bool unOps = true);
+	template<AnySemOutput Se>
+	inline void paintBlock(
+	    Se& se, const parse::Block<Se>& itm, const bool scopeOwner = true);
+	template<bool isLocal, Tok nameTok, AnySemOutput Se>
+	inline void paintPat(Se& se, const parse::Pat<Se, isLocal>& itm);
+
+	template<AnySemOutput Se>
+	inline void paintExprList(Se& se, const parse::ExprList& itm)
+	{
+		for (const parse::Expr& i : itm)
+		{
+			paintExpr(se, i);
+
+			if (&i != &itm.back())
+				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintSafety(Se& se, const ast::OptSafety itm)
+	{
+		switch (itm)
+		{
+		case ast::OptSafety::SAFE:    paintKw<Tok::FN_STAT>(se, "safe"); break;
+		case ast::OptSafety::UNSAFE:  paintKw<Tok::FN_STAT>(se, "unsafe"); break;
+		case ast::OptSafety::DEFAULT:
+		default:                      break;
+		}
+	}
 	template<bool SKIP_SPACE = true>
 	inline void paintString(AnySemOutput auto& se, const std::string_view sv,
 	    const ast::Position end, const Tok tint)
@@ -123,6 +157,90 @@ namespace slu::paint
 			}
 		}
 	}
+	template<Tok tok, Tok overlayTok = Tok::NONE, AnySemOutput Se>
+	inline void paintMp(Se& se, const lang::MpItmId& itm)
+	{
+		skipSpace(se);
+		if (parse::checkToken(se.in, ":>"))
+		{
+			paintKw<Tok::MP_ROOT, overlayTok>(se, ":>");
+			paintKw<Tok::MP, overlayTok>(se, "::");
+		}
+		const lang::ViewModPath mp = se.in.genData.asVmp(itm);
+		for (size_t i = 0; i < mp.size();)
+		{
+			if (parse::checkTextToken(se.in, "self"))
+				paintKw<Tok::VAR_STAT, overlayTok>(se, "self");
+			else if (parse::checkTextToken(se.in, "Self"))
+				paintKw<Tok::CON_STAT, overlayTok>(se, "Self");
+			else if (parse::checkTextToken(se.in, "crate"))
+				paintKw<Tok::CON_STAT, overlayTok>(se, "crate");
+			else
+			{
+				if (parse::checkTextToken(se.in, mp[i]))
+					paintSv<tok, overlayTok>(se, mp[i]);
+				else
+				{
+					i++;
+					continue;
+				}
+				i++;
+			}
+			if (i >= mp.size())
+				break;
+
+			if (parse::checkToken(se.in, "::"))
+				paintKw<Tok::MP, overlayTok>(se, "::");
+			else
+				break;
+		}
+	}
+
+	template<AnySemOutput Se>
+	inline void paintStatOrRet(Se& se, const parse::Block<Se>& itm)
+	{
+		skipSpace(se);
+		bool hadBrace = false;
+		if (se.in.peek() == '{')
+		{
+			hadBrace = true;
+			paintKw<Tok::BRACES>(se, "{");
+		}
+
+		paintBlock(se, itm, false);
+
+		if (hadBrace)
+			paintKw<Tok::BRACES>(se, "}");
+		return;
+	}
+	template<AnySemOutput Se>
+	inline void paintSoeOrBlock(Se& se, const parse::SoeOrBlock<Se>& itm)
+	{
+		ezmatch(itm)(
+		    varcase(
+		        const parse::SoeType::Block<Se>&) { paintStatOrRet(se, var); },
+		    varcase(const parse::SoeType::Expr&) {
+			    skipSpace(se);
+			    if (se.in.peek() == '=')
+				    paintKw<Tok::GEN_OP>(se, "=>");
+			    paintExpr(se, *var);
+		    });
+	}
+	template<bool forCond, AnySemOutput Se>
+	inline void paintEndBlock(
+	    Se& se, const parse::Block<Se>& itm, const bool scopeOwner = true)
+	{
+		paintBlock(se, itm, scopeOwner);
+		skipSpace(se);
+		paintKw<Tok::BRACES>(se, "}");
+	}
+	template<AnySemOutput Se>
+	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
+	{
+		paintKw<Tok::BRACES>(se, "{");
+		paintEndBlock<true>(se, itm);
+	}
+
 	template<Tok nameTok, AnySemOutput Se>
 	inline void paintField(Se& se, const parse::Field<Se>& itm)
 	{
@@ -167,25 +285,172 @@ namespace slu::paint
 	{
 		paintExpr<Tok::NAME_TYPE>(se, itm, tint, unOps);
 	}
-	template<Tok nameTok = Tok::NAME, AnySemOutput Se>
-	inline void paintExpr(Se& se, const parse::Expr& itm,
-	    const Tok tint = Tok::NONE, const bool unOps = true)
+	template<bool isExpr, AnySemOutput Se>
+	inline void paintIfCond(Se& se, const parse::BaseIfCond<Se, isExpr>& itm)
 	{
-		se.move(itm.place);
-		/*if (std::holds_alternative<parse::ExprType::MultiOp>(itm.data))
+		paintKw<Tok::COND_STAT>(se, "if");
+		paintExpr(se, *itm.cond);
+
+		paintSoeOrBlock(se, *itm.bl);
+		for (const auto& [cond, bl] : itm.elseIfs)
 		{
-		    //complex version
-		}*/
-		if (unOps)
-		{
-			for (const auto& i : itm.unOps)
-				paintUnOpItem(se, i);
+			paintKw<Tok::COND_STAT>(se, "else");
+			paintKw<Tok::COND_STAT>(se, "if");
+			paintExpr(se, cond);
+			paintSoeOrBlock(se, bl);
 		}
-		paintExprData<nameTok>(se, itm.data, tint);
-		if (unOps)
+		if (itm.elseBlock.has_value())
 		{
-			for (const auto& i : itm.postUnOps)
-				paintPostUnOp(se, i);
+			paintKw<Tok::COND_STAT>(se, "else");
+			paintSoeOrBlock(se, **itm.elseBlock);
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintArgs(Se& se, const parse::Args& itm)
+	{
+		ezmatch(itm)(
+		    varcase(const parse::ArgsType::ExprList&) {
+			    paintKw<Tok::GEN_OP>(se, "(");
+			    paintExprList(se, var);
+			    paintKw<Tok::GEN_OP>(se, ")");
+		    },
+		    varcase(const parse::ArgsType::Table<Se>&) {
+			    paintTable<Tok::NAME>(se, var);
+		    },
+		    varcase(const parse::ArgsType::String&) {
+			    paintString(se, var.v, var.end, Tok::NONE);
+		    });
+	}
+	template<bool boxed, AnySemOutput Se>
+	inline void paintCall(Se& se, const parse::Call<boxed>& itm)
+	{
+		paintExpr(se, *itm.v);
+		paintArgs(se, itm.args);
+	}
+	template<bool boxed, AnySemOutput Se>
+	inline void paintSelfCall(Se& se, const parse::SelfCall<boxed>& itm)
+	{
+		paintExpr(se, *itm.v);
+		paintKw<Tok::GEN_OP>(se, ".");
+		paintName(se, itm.method);
+		paintArgs(se, itm.args);
+	}
+	template<AnySemOutput Se>
+	inline void paintParamList(
+	    Se& se, const parse::ParamList& itm, const bool hasVarArgParam)
+	{
+		for (const parse::Parameter& i : itm)
+		{
+			ezmatch(i.name)(
+			    varcase(
+			        const parse::LocalId&) { paintNameOrLocal<true>(se, var); },
+			    varcase(const lang::MpItmId&) {
+				    paintKw<Tok::VAR_STAT>(se, "const");
+				    paintNameOrLocal<false>(se, var);
+			    });
+			paintKw<Tok::PAT_RESTRICT>(se, "=");
+			paintTypeExpr(se, i.type);
+
+			if (&i != &itm.back() || hasVarArgParam)
+				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+		if (hasVarArgParam)
+			paintKw<Tok::PUNCTUATION>(se, "...");
+	}
+	template<Tok baseCol, AnySemOutput Se>
+	inline void paintExportData(Se& se, lang::ExportData exported)
+	{
+		if (exported)
+			paintKw<baseCol, Tok::EX_TINT>(se, "ex");
+	}
+	//Pos must be valid, unless the name is empty
+	template<AnySemOutput Se>
+	inline void paintFuncDecl(Se& se, const parse::SelfArg& selfArg,
+	    const parse::ParamList& params, const bool hasVarArgParam,
+	    const std::optional<std::unique_ptr<parse::Expr>>& retType,
+	    const lang::MpItmId name, const lang::ExportData exported,
+	    const ast::OptSafety safety, const ast::Position pos = {},
+	    const bool fnKw = false)
+	{
+		paintExportData<Tok::FN_STAT>(se, exported);
+		paintSafety(se, safety);
+		if (fnKw)
+			paintKw<Tok::FN_STAT>(se, "fn");
+		else
+			paintKw<Tok::FN_STAT>(se, "function");
+
+
+		if (!name.empty())
+		{
+			paintName<Tok::NAME>(se, name);
+			se.move(pos);
+		}
+
+		paintKw<Tok::GEN_OP>(se, "(");
+		if (!selfArg.empty())
+		{
+			for (const ast::UnOpType t : selfArg.specifiers)
+				paintUnOpItem(se, {{}, t});
+			paintKw<Tok::VAR_STAT>(se, "self");
+			if (!params.empty())
+				paintKw<Tok::PUNCTUATION>(se, ",");
+		}
+		paintParamList(se, params, hasVarArgParam);
+		paintKw<Tok::GEN_OP>(se, ")");
+
+		if (retType.has_value())
+		{
+			paintKw<Tok::GEN_OP>(se, "->");
+			paintTypeExpr(se, **retType);
+		}
+	}
+	//Pos must be valid, unless the name is empty
+	template<AnySemOutput Se>
+	inline void paintFuncDef(Se& se, const parse::Function& func,
+	    const lang::MpItmId name, const lang::ExportData exported,
+	    const ast::Position pos = {}, const bool fnKw = false)
+	{
+		std::optional<std::unique_ptr<parse::Expr>> emptyTy{};
+		const std::optional<std::unique_ptr<parse::Expr>>* retType;
+		ast::OptSafety safety;
+		retType = &func.retType;
+		safety = func.safety;
+		se.pushLocals(func.local2Mp);
+
+		paintFuncDecl(se, func.selfArg, func.params, func.hasVarArgParam,
+		    *retType, name, exported, safety, pos, fnKw);
+		paintKw<Tok::BRACES>(se, "{");
+
+		//No do, for functions in lua
+		paintEndBlock<false>(se, func.block, false);
+
+		se.popLocals();
+	}
+	template<bool isDecl, AnySemOutput Se>
+	inline void paintFunc(Se& se, const auto& itm, const bool fnKw)
+	{
+		if constexpr (isDecl)
+		{
+			se.pushLocals(itm.local2Mp);
+			paintFuncDecl(se, itm.selfArg, itm.params, itm.hasVarArgParam,
+			    itm.retType, itm.name, itm.exported, itm.safety, itm.place,
+			    fnKw);
+			se.popLocals();
+		} else
+		{
+			paintFuncDef(se, itm.func, itm.name, itm.exported, itm.place, fnKw);
+		}
+	}
+	template<AnySemOutput Se>
+	inline void paintTraitExpr(Se& se, const parse::TraitExpr& itm)
+	{
+		skipSpace(se);
+		se.move(itm.place);
+		for (const parse::Expr& i : itm.traitCombo)
+		{
+			paintExpr<Tok::NAME_TRAIT>(se, i);
+			if (&i != &itm.traitCombo.back())
+				paintKw<Tok::ADD>(se, "+");
 		}
 	}
 	template<Tok nameTok = Tok::NAME, AnySemOutput Se>
@@ -315,42 +580,25 @@ namespace slu::paint
 			    paintTypeExpr(se, *var.retType);
 		    });
 	}
-	template<Tok tok, Tok overlayTok = Tok::NONE, AnySemOutput Se>
-	inline void paintMp(Se& se, const lang::MpItmId& itm)
+	template<Tok nameTok, AnySemOutput Se>
+	inline void paintExpr(
+	    Se& se, const parse::Expr& itm, const Tok tint, const bool unOps)
 	{
-		skipSpace(se);
-		if (parse::checkToken(se.in, ":>"))
+		se.move(itm.place);
+		/*if (std::holds_alternative<parse::ExprType::MultiOp>(itm.data))
 		{
-			paintKw<Tok::MP_ROOT, overlayTok>(se, ":>");
-			paintKw<Tok::MP, overlayTok>(se, "::");
+		    //complex version
+		}*/
+		if (unOps)
+		{
+			for (const auto& i : itm.unOps)
+				paintUnOpItem(se, i);
 		}
-		const lang::ViewModPath mp = se.in.genData.asVmp(itm);
-		for (size_t i = 0; i < mp.size();)
+		paintExprData<nameTok>(se, itm.data, tint);
+		if (unOps)
 		{
-			if (parse::checkTextToken(se.in, "self"))
-				paintKw<Tok::VAR_STAT, overlayTok>(se, "self");
-			else if (parse::checkTextToken(se.in, "Self"))
-				paintKw<Tok::CON_STAT, overlayTok>(se, "Self");
-			else if (parse::checkTextToken(se.in, "crate"))
-				paintKw<Tok::CON_STAT, overlayTok>(se, "crate");
-			else
-			{
-				if (parse::checkTextToken(se.in, mp[i]))
-					paintSv<tok, overlayTok>(se, mp[i]);
-				else
-				{
-					i++;
-					continue;
-				}
-				i++;
-			}
-			if (i >= mp.size())
-				break;
-
-			if (parse::checkToken(se.in, "::"))
-				paintKw<Tok::MP, overlayTok>(se, "::");
-			else
-				break;
+			for (const auto& i : itm.postUnOps)
+				paintPostUnOp(se, i);
 		}
 	}
 	template<bool isLocal, Tok nameTok, AnySemOutput Se>
@@ -425,244 +673,6 @@ namespace slu::paint
 			    paintExpr(se, var.restriction);
 		    });
 	}
-	template<Tok tok, AnySemOutput Se>
-	inline void paintNameList(Se& se, const std::vector<lang::MpItmId>& itm)
-	{
-		for (const lang::MpItmId& i : itm)
-		{
-			paintName<tok>(se, i);
-
-			if (&i != &itm.back())
-				paintKw<Tok::PUNCTUATION>(se, ",");
-		}
-	}
-	template<Tok tok, AnySemOutput Se>
-	inline void paintAttribNameList(
-	    Se& se, const parse::AttribNameList<Se>& itm)
-	{
-		for (const parse::AttribName<Se>& i : itm)
-		{
-			paintName<tok>(se, i.name);
-			if (!i.attrib.empty())
-			{
-				paintKw<Tok::PUNCTUATION>(se, "<");
-				paintSv<tok>(se, i.attrib);
-				paintKw<Tok::PUNCTUATION>(se, ">");
-			}
-
-			if (&i != &itm.back())
-				paintKw<Tok::PUNCTUATION>(se, ",");
-		}
-	}
-	template<AnySemOutput Se>
-	inline void paintArgs(Se& se, const parse::Args& itm)
-	{
-		ezmatch(itm)(
-		    varcase(const parse::ArgsType::ExprList&) {
-			    paintKw<Tok::GEN_OP>(se, "(");
-			    paintExprList(se, var);
-			    paintKw<Tok::GEN_OP>(se, ")");
-		    },
-		    varcase(const parse::ArgsType::Table<Se>&) {
-			    paintTable<Tok::NAME>(se, var);
-		    },
-		    varcase(const parse::ArgsType::String&) {
-			    paintString(se, var.v, var.end, Tok::NONE);
-		    });
-	}
-	template<bool forCond, AnySemOutput Se>
-	inline void paintEndBlock(
-	    Se& se, const parse::Block<Se>& itm, const bool scopeOwner = true)
-	{
-		paintBlock(se, itm, scopeOwner);
-		skipSpace(se);
-		paintKw<Tok::BRACES>(se, "}");
-	}
-	template<AnySemOutput Se>
-	inline void paintDoEndBlock(Se& se, const parse::Block<Se>& itm)
-	{
-		paintKw<Tok::BRACES>(se, "{");
-		paintEndBlock<true>(se, itm);
-	}
-	template<AnySemOutput Se>
-	inline void paintTraitExpr(Se& se, const parse::TraitExpr& itm)
-	{
-		skipSpace(se);
-		se.move(itm.place);
-		for (const parse::Expr& i : itm.traitCombo)
-		{
-			paintExpr<Tok::NAME_TRAIT>(se, i);
-			if (&i != &itm.traitCombo.back())
-				paintKw<Tok::ADD>(se, "+");
-		}
-	}
-	template<AnySemOutput Se>
-	inline void paintSafety(Se& se, const ast::OptSafety itm)
-	{
-		switch (itm)
-		{
-		case ast::OptSafety::SAFE:    paintKw<Tok::FN_STAT>(se, "safe"); break;
-		case ast::OptSafety::UNSAFE:  paintKw<Tok::FN_STAT>(se, "unsafe"); break;
-		case ast::OptSafety::DEFAULT:
-		default:                      break;
-		}
-	}
-	template<AnySemOutput Se>
-	inline void paintStatOrRet(Se& se, const parse::Block<Se>& itm)
-	{
-		skipSpace(se);
-		bool hadBrace = false;
-		if (se.in.peek() == '{')
-		{
-			hadBrace = true;
-			paintKw<Tok::BRACES>(se, "{");
-		}
-
-		paintBlock(se, itm, false);
-
-		if (hadBrace)
-			paintKw<Tok::BRACES>(se, "}");
-		return;
-	}
-	template<AnySemOutput Se>
-	inline void paintSoeOrBlock(Se& se, const parse::SoeOrBlock<Se>& itm)
-	{
-		ezmatch(itm)(
-		    varcase(
-		        const parse::SoeType::Block<Se>&) { paintStatOrRet(se, var); },
-		    varcase(const parse::SoeType::Expr&) {
-			    skipSpace(se);
-			    if (se.in.peek() == '=')
-				    paintKw<Tok::GEN_OP>(se, "=>");
-			    paintExpr(se, *var);
-		    });
-	}
-	template<AnySemOutput Se>
-	inline void paintParamList(
-	    Se& se, const parse::ParamList& itm, const bool hasVarArgParam)
-	{
-		for (const parse::Parameter& i : itm)
-		{
-			ezmatch(i.name)(
-			    varcase(
-			        const parse::LocalId&) { paintNameOrLocal<true>(se, var); },
-			    varcase(const lang::MpItmId&) {
-				    paintKw<Tok::VAR_STAT>(se, "const");
-				    paintNameOrLocal<false>(se, var);
-			    });
-			paintKw<Tok::PAT_RESTRICT>(se, "=");
-			paintTypeExpr(se, i.type);
-
-			if (&i != &itm.back() || hasVarArgParam)
-				paintKw<Tok::PUNCTUATION>(se, ",");
-		}
-		if (hasVarArgParam)
-			paintKw<Tok::PUNCTUATION>(se, "...");
-	}
-	template<Tok baseCol, AnySemOutput Se>
-	inline void paintExportData(Se& se, lang::ExportData exported)
-	{
-		if (exported)
-			paintKw<baseCol, Tok::EX_TINT>(se, "ex");
-	}
-	//Pos must be valid, unless the name is empty
-	template<AnySemOutput Se>
-	inline void paintFuncDecl(Se& se, const parse::SelfArg& selfArg,
-	    const parse::ParamList& params, const bool hasVarArgParam,
-	    const std::optional<std::unique_ptr<parse::Expr>>& retType,
-	    const lang::MpItmId name, const lang::ExportData exported,
-	    const ast::OptSafety safety, const ast::Position pos = {},
-	    const bool fnKw = false)
-	{
-		paintExportData<Tok::FN_STAT>(se, exported);
-		paintSafety(se, safety);
-		if (fnKw)
-			paintKw<Tok::FN_STAT>(se, "fn");
-		else
-			paintKw<Tok::FN_STAT>(se, "function");
-
-
-		if (!name.empty())
-		{
-			paintName<Tok::NAME>(se, name);
-			se.move(pos);
-		}
-
-		paintKw<Tok::GEN_OP>(se, "(");
-		if (!selfArg.empty())
-		{
-			for (const ast::UnOpType t : selfArg.specifiers)
-				paintUnOpItem(se, {{}, t});
-			paintKw<Tok::VAR_STAT>(se, "self");
-			if (!params.empty())
-				paintKw<Tok::PUNCTUATION>(se, ",");
-		}
-		paintParamList(se, params, hasVarArgParam);
-		paintKw<Tok::GEN_OP>(se, ")");
-
-		if (retType.has_value())
-		{
-			paintKw<Tok::GEN_OP>(se, "->");
-			paintTypeExpr(se, **retType);
-		}
-	}
-	template<bool isDecl, AnySemOutput Se>
-	inline void paintFunc(Se& se, const auto& itm, const bool fnKw)
-	{
-		if constexpr (isDecl)
-		{
-			se.pushLocals(itm.local2Mp);
-			paintFuncDecl(se, itm.selfArg, itm.params, itm.hasVarArgParam,
-			    itm.retType, itm.name, itm.exported, itm.safety, itm.place,
-			    fnKw);
-			se.popLocals();
-		} else
-		{
-			paintFuncDef(se, itm.func, itm.name, itm.exported, itm.place, fnKw);
-		}
-	}
-	//Pos must be valid, unless the name is empty
-	template<AnySemOutput Se>
-	inline void paintFuncDef(Se& se, const parse::Function& func,
-	    const lang::MpItmId name, const lang::ExportData exported,
-	    const ast::Position pos = {}, const bool fnKw = false)
-	{
-		std::optional<std::unique_ptr<parse::Expr>> emptyTy{};
-		const std::optional<std::unique_ptr<parse::Expr>>* retType;
-		ast::OptSafety safety;
-		retType = &func.retType;
-		safety = func.safety;
-		se.pushLocals(func.local2Mp);
-
-		paintFuncDecl(se, func.selfArg, func.params, func.hasVarArgParam,
-		    *retType, name, exported, safety, pos, fnKw);
-		paintKw<Tok::BRACES>(se, "{");
-
-		//No do, for functions in lua
-		paintEndBlock<false>(se, func.block, false);
-
-		se.popLocals();
-	}
-	template<bool isExpr, AnySemOutput Se>
-	inline void paintIfCond(Se& se, const parse::BaseIfCond<Se, isExpr>& itm)
-	{
-		paintKw<Tok::COND_STAT>(se, "if");
-		paintExpr(se, *itm.cond);
-
-		paintSoeOrBlock(se, *itm.bl);
-		for (const auto& [cond, bl] : itm.elseIfs)
-		{
-			paintKw<Tok::COND_STAT>(se, "else");
-			paintKw<Tok::COND_STAT>(se, "if");
-			paintExpr(se, cond);
-			paintSoeOrBlock(se, bl);
-		}
-		if (itm.elseBlock.has_value())
-		{
-			paintKw<Tok::COND_STAT>(se, "else");
-			paintSoeOrBlock(se, **itm.elseBlock);
-		}
-	}
 	template<AnySemOutput Se>
 	inline void paintUseVariant(Se& se, const parse::UseVariant& itm)
 	{
@@ -728,20 +738,6 @@ namespace slu::paint
 			paintKw<Tok::PUNCTUATION>(se, ")");
 		}
 	}
-	template<bool boxed, AnySemOutput Se>
-	inline void paintCall(Se& se, const parse::Call<boxed>& itm)
-	{
-		paintExpr(se, *itm.v);
-		paintArgs(se, itm.args);
-	}
-	template<bool boxed, AnySemOutput Se>
-	inline void paintSelfCall(Se& se, const parse::SelfCall<boxed>& itm)
-	{
-		paintExpr(se, *itm.v);
-		paintKw<Tok::GEN_OP>(se, ".");
-		paintName(se, itm.method);
-		paintArgs(se, itm.args);
-	}
 
 	template<AnySemOutput Se>
 	inline void paintWhereClauses(Se& se, const parse::WhereClauses& itm)
@@ -760,6 +756,16 @@ namespace slu::paint
 			if (&i != &itm.back())
 				paintKw<Tok::PUNCTUATION>(se, ",");
 		}
+	}
+	template<AnySemOutput Se>
+	inline void paintExprOrList(Se& se, const parse::ExprList& itm)
+	{
+		return paintExprList(se, itm);
+	}
+	template<AnySemOutput Se>
+	inline void paintExprOrList(Se& se, const parse::Expr& itm)
+	{
+		return paintExpr(se, itm);
 	}
 
 	template<class T>
@@ -979,29 +985,8 @@ namespace slu::paint
 		    });
 	}
 	template<AnySemOutput Se>
-	inline void paintExprList(Se& se, const parse::ExprList& itm)
-	{
-		for (const parse::Expr& i : itm)
-		{
-			paintExpr(se, i);
-
-			if (&i != &itm.back())
-				paintKw<Tok::PUNCTUATION>(se, ",");
-		}
-	}
-	template<AnySemOutput Se>
-	inline void paintExprOrList(Se& se, const parse::ExprList& itm)
-	{
-		return paintExprList(se, itm);
-	}
-	template<AnySemOutput Se>
-	inline void paintExprOrList(Se& se, const parse::Expr& itm)
-	{
-		return paintExpr(se, itm);
-	}
-	template<AnySemOutput Se>
 	inline void paintBlock(
-	    Se& se, const parse::Block<Se>& itm, const bool scopeOwner = true)
+	    Se& se, const parse::Block<Se>& itm, const bool scopeOwner)
 	{
 		if (scopeOwner)
 		{

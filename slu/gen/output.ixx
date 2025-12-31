@@ -2,6 +2,7 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
+#include <cstdint>
 #include <span>
 #include <string>
 #include <vector>

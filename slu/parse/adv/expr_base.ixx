@@ -4,6 +4,7 @@
 */
 #include <cstdint>
 #include <format>
+#include <memory>
 #include <unordered_set>
 
 #include <slu/ext/CppMatch.hpp>
@@ -11,9 +12,12 @@
 #include <slu/Panic.hpp>
 export module slu.parse.adv.expr_base;
 
+import slu.ast.pos;
 import slu.ast.state;
 import slu.ast.state_decls;
+import slu.lang.basic_state;
 import slu.parse.error;
+import slu.parse.errors.char_errors;
 import slu.parse.input;
 import slu.parse.adv.expr_decls;
 import slu.parse.basic.args;

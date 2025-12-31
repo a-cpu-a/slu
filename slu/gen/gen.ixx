@@ -2,6 +2,7 @@
 /*
 ** See Copyright Notice inside Include.hpp
 */
+#include <cmath>
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -18,10 +19,48 @@ import slu.ast.enums;
 import slu.ast.state;
 import slu.ast.state_decls;
 import slu.gen.output;
+import slu.lang.basic_state;
 import slu.parse.parse;
 
 namespace slu::parse
 {
+	template<AnyOutput Out> inline void genStat(Out& out, const Stat& obj);
+	template<AnyOutput Out> inline void genExpr(Out& out, const Expr& obj);
+
+	template<AnyOutput Out>
+	inline void genExprList(Out& out, const ExprList& obj)
+	{
+		for (const Expr& e : obj)
+		{
+			genExpr(out, e);
+			if (&e != &obj.back())
+				out.add(", ");
+		}
+	}
+	template<AnyOutput Out>
+	inline void genBlock(Out& out, const Block<Out>& itm)
+	{
+		for (const Stat& s : itm.statList)
+			genStat(out, s);
+
+		if (itm.retTy != parse::RetType::NONE)
+		{
+			switch (itm.retTy)
+			{
+			case parse::RetType::RETURN:   out.add("return"); break;
+			case parse::RetType::BREAK:    out.add("break"); break;
+			case parse::RetType::CONTINUE: out.add("continue"); break;
+			}
+			if (!itm.retExprs.empty())
+			{
+				out.add(' ');
+				genExprList(out, itm.retExprs);
+			}
+			out.add(';');
+			out.wasSemicolon = true;
+		}
+	}
+
 	template<AnyCfgable Out>
 	inline std::string_view getBinOpAsStr(const ast::BinOpType t)
 	{
@@ -152,6 +191,49 @@ namespace slu::parse
 		if (v == 0)
 			out.add('0');
 	}
+	inline void genString(AnyOutput auto& out, const std::string& obj)
+	{
+		out.add('"');
+		for (const char ch : obj)
+		{
+			switch (ch)
+			{
+			case '\n': out.add("\\n"); break;
+			case '\r': out.add("\\r"); break;
+			case '\t': out.add("\\t"); break;
+			case '\b': out.add("\\b"); break;
+			case '\a': out.add("\\a"); break;
+			case '\f': out.add("\\f"); break;
+			case '\v': out.add("\\v"); break;
+			case '"':  out.add("\\\""); break;
+			case '\\': out.add("\\\\"); break;
+			case '\0': out.add("\\x00"); break;
+			default:   out.add(ch); break;
+			}
+		}
+		out.add('"');
+	}
+	template<bool isLocal, AnyOutput Out>
+	inline void genNameOrLocal(Out& out, const LocalOrName<Out, isLocal>& obj)
+	{
+		std::string_view v;
+		if constexpr (isLocal)
+			v = (out.db.asSv(out.resolveLocal(obj)));
+		else
+			v = (out.db.asSv(obj));
+		if (v.starts_with('$'))
+		{
+			out.add("--[=[ $0x");
+			uint64_t synId = (uint64_t(v[1]) << 56) | (uint64_t(v[2]) << 48)
+			    | (uint64_t(v[3]) << 40) | (uint64_t(v[4]) << 32)
+			    | (uint64_t(v[5]) << 24) | (uint64_t(v[6]) << 16)
+			    | (uint64_t(v[7]) << 8) | v[8];
+			writeU64Hex(out, synId);
+			out.add(" ]=]");
+			return;
+		}
+		out.add(v);
+	}
 
 	template<AnyOutput Out> inline void genExprParens(Out& out, const Expr& obj)
 	{
@@ -198,6 +280,175 @@ namespace slu::parse
 			out.add('/').add(out.db.asSv(i));
 	}
 
+	template<AnyOutput Out>
+	inline void genParamList(
+	    Out& out, const ParamList& itm, const bool hasVarArgParam)
+	{
+		for (const Parameter& par : itm)
+		{
+			ezmatch(par.name)(
+			    varcase(
+			        const parse::LocalId&) { genNameOrLocal<true>(out, var); },
+			    varcase(const lang::MpItmId&) {
+				    out.add("const ");
+				    genNameOrLocal<false>(out, var);
+			    });
+			out.add(" = ");
+			genExpr(out, par.type);
+
+			if (&par != &itm.back() || hasVarArgParam)
+				out.add(", ");
+		}
+		if (hasVarArgParam)
+			out.add("...");
+	}
+	template<AnyOutput Out>
+	inline void genFuncDecl(
+	    Out& out, const auto& itm, const std::string_view name)
+	{
+		out.add(name);
+		out.add('(');
+		if (!itm.selfArg.empty())
+		{
+			for (const ast::UnOpType t : itm.selfArg.specifiers)
+				out.add(getUnOpAsStr<Out>(t));
+			out.add("self");
+			if (!itm.params.empty())
+				out.add(", ");
+		}
+		genParamList(out, itm.params, itm.hasVarArgParam);
+		out.add(')');
+
+		if (itm.retType.has_value())
+		{
+			out.add(" -> ");
+			genExpr(out, **itm.retType);
+		}
+	}
+	template<AnyOutput Out>
+	inline void genFuncDef(
+	    Out& out, const Function& var, const std::string_view name)
+	{
+		out.pushLocals(var.local2Mp);
+		genFuncDecl(out, var, name);
+
+		out.newLine().add('{').tabUpNewl();
+		genBlock(out, var.block);
+		out.unTabNewl().addNewl("}").newLine(); //Extra spacing
+
+		out.popLocals();
+	}
+	template<bool isDecl, AnyOutput Out>
+	inline void genFunc(Out& out, const auto& itm, const std::string_view kw)
+	{
+		if constexpr (isDecl)
+		{
+			genExSafety(out, itm.exported, itm.safety);
+			out.pushLocals(itm.local2Mp);
+
+			out.add(kw);
+			genFuncDecl(out, itm, out.db.asSv(itm.name));
+			out.addNewl(";");
+			out.wasSemicolon = true;
+			out.popLocals();
+		} else
+		{
+			genExSafety(out, itm.exported, itm.func.safety);
+
+			out.add(kw);
+			genFuncDef(out, itm.func, out.db.asSv(itm.name));
+		}
+	}
+
+	template<AnyOutput Out> inline void genArgs(Out& out, const Args& itm)
+	{
+		ezmatch(itm)(
+		    varcase(const ArgsType::ExprList&) {
+			    out.add('(');
+			    genExprList(out, var);
+			    out.add(')');
+		    },
+		    varcase(const ArgsType::Table<Out>&) { genTable(out, var); },
+		    varcase(const ArgsType::String&) {
+			    out.add(' ');
+			    genString(out, var.v);
+		    });
+	}
+
+	template<bool boxed, AnyOutput Out>
+	inline void genCall(Out& out, const Call<boxed>& itm)
+	{
+		genExpr(out, *itm.v);
+		genArgs(out, itm.args);
+	}
+	template<bool boxed, AnyOutput Out>
+	inline void genSelfCall(Out& out, const SelfCall<boxed>& itm)
+	{
+		genExpr(out, *itm.v);
+		out.add('.').add(out.db.asSv(itm.method));
+		genArgs(out, itm.args);
+	}
+
+	template<AnyOutput Out>
+	inline void genModPath(Out& out, const lang::ViewModPath& obj)
+	{
+		bool unresolved = obj[0].empty();
+		if (!unresolved)
+		{
+			out.add(":>::");
+			out.add(obj[0]);
+		}
+		for (size_t i = 1; i < obj.size(); i++)
+		{
+			if (!unresolved || i != 1)
+				out.add("::");
+			out.add(obj[i]);
+		}
+	}
+
+	template<AnyOutput Out>
+	inline void genSoe(
+	    Out& out, const parse::Soe<Out>& obj, const bool addArrow)
+	{
+		ezmatch(obj)(
+		    varcase(const parse::SoeType::Block<Out>&) {
+			    out.newLine().add('{').tabUpNewl();
+			    genBlock(out, var);
+			    out.unTabNewl().add('}');
+		    },
+		    varcase(const parse::SoeType::Expr&) {
+			    if (addArrow)
+				    out.add(" => ");
+			    else
+				    out.add(' ');
+			    genExpr(out, *var);
+		    });
+	}
+	template<bool isExpr, AnyOutput Out>
+	inline void genIfCond(Out& out, const parse::BaseIfCond<Out, isExpr>& itm)
+	{
+		out.add("if ");
+
+		genExpr(out, *itm.cond);
+		genSoe(out, *itm.bl, true);
+		if (isExpr)
+			out.add(' ');
+
+		for (const auto& [expr, bl] : itm.elseIfs)
+		{
+			out.add("else if ");
+
+			genExpr(out, expr);
+			genSoe(out, bl, true);
+			if (isExpr)
+				out.add(' ');
+		}
+		if (itm.elseBlock)
+		{
+			out.add("else");
+			genSoe(out, **itm.elseBlock, false);
+		}
+	}
 	template<AnyOutput Out> inline void genUnOps(Out& out, const auto& obj)
 	{
 		for (const UnOpItem& t : obj)
@@ -219,13 +470,6 @@ namespace slu::parse
 					out.add("share ");
 			}
 		}
-	}
-	template<AnyOutput Out> inline void genExpr(Out& out, const Expr& obj)
-	{
-		genUnOps(out, obj.unOps);
-		genExprData(out, obj.data);
-		for (const ast::PostUnOpType t : obj.postUnOps)
-			out.add(getPostUnOpAsStr(t));
 	}
 	template<AnyOutput Out>
 	inline void genExprData(Out& out, const ExprData<Out>& obj)
@@ -276,7 +520,7 @@ namespace slu::parse
 		    varcase(const ExprType::Nil) { out.add("nil"sv); },
 		    varcase(const ExprType::VarArgs) { out.add("..."sv); },
 		    varcase(const ExprType::F64) {
-			    if (isinf(var) && var > 0.0f)
+			    if (std::isinf(var) && var > 0.0f)
 				    out.add("1e999"sv);
 			    else
 				    out.add(std::to_string(var));
@@ -350,162 +594,12 @@ namespace slu::parse
 			    genExpr(out, *var.retType);
 		    });
 	}
-	template<AnyOutput Out>
-	inline void genExprList(Out& out, const ExprList& obj)
+	template<AnyOutput Out> inline void genExpr(Out& out, const Expr& obj)
 	{
-		for (const Expr& e : obj)
-		{
-			genExpr(out, e);
-			if (&e != &obj.back())
-				out.add(", ");
-		}
-	}
-	inline void genString(AnyOutput auto& out, const std::string& obj)
-	{
-		out.add('"');
-		for (const char ch : obj)
-		{
-			switch (ch)
-			{
-			case '\n': out.add("\\n"); break;
-			case '\r': out.add("\\r"); break;
-			case '\t': out.add("\\t"); break;
-			case '\b': out.add("\\b"); break;
-			case '\a': out.add("\\a"); break;
-			case '\f': out.add("\\f"); break;
-			case '\v': out.add("\\v"); break;
-			case '"':  out.add("\\\""); break;
-			case '\\': out.add("\\\\"); break;
-			case '\0': out.add("\\x00"); break;
-			default:   out.add(ch); break;
-			}
-		}
-		out.add('"');
-	}
-
-	template<AnyOutput Out> inline void genArgs(Out& out, const Args& itm)
-	{
-		ezmatch(itm)(
-		    varcase(const ArgsType::ExprList&) {
-			    out.add('(');
-			    genExprList(out, var);
-			    out.add(')');
-		    },
-		    varcase(const ArgsType::Table<Out>&) { genTable(out, var); },
-		    varcase(const ArgsType::String&) {
-			    out.add(' ');
-			    genString(out, var.v);
-		    });
-	}
-
-	template<bool boxed, AnyOutput Out>
-	inline void genCall(Out& out, const Call<boxed>& itm)
-	{
-		genExpr(out, *itm.v);
-		genArgs(out, itm.args);
-	}
-	template<bool boxed, AnyOutput Out>
-	inline void genSelfCall(Out& out, const SelfCall<boxed>& itm)
-	{
-		genExpr(out, *itm.v);
-		out.add('.').add(out.db.asSv(itm.method));
-		genArgs(out, itm.args);
-	}
-
-	template<AnyOutput Out>
-	inline void genModPath(Out& out, const lang::ViewModPath& obj)
-	{
-		bool unresolved = obj[0].empty();
-		if (!unresolved)
-		{
-			out.add(":>::");
-			out.add(obj[0]);
-		}
-		for (size_t i = 1; i < obj.size(); i++)
-		{
-			if (!unresolved || i != 1)
-				out.add("::");
-			out.add(obj[i]);
-		}
-	}
-	template<AnyOutput Out>
-	inline void genParamList(
-	    Out& out, const ParamList& itm, const bool hasVarArgParam)
-	{
-		for (const Parameter& par : itm)
-		{
-			ezmatch(par.name)(
-			    varcase(
-			        const parse::LocalId&) { genNameOrLocal<true>(out, var); },
-			    varcase(const lang::MpItmId&) {
-				    out.add("const ");
-				    genNameOrLocal<false>(out, var);
-			    });
-			out.add(" = ");
-			genExpr(out, par.type);
-
-			if (&par != &itm.back() || hasVarArgParam)
-				out.add(", ");
-		}
-		if (hasVarArgParam)
-			out.add("...");
-	}
-	template<bool isDecl, AnyOutput Out>
-	inline void genFunc(Out& out, const auto& itm, const std::string_view kw)
-	{
-		if constexpr (isDecl)
-		{
-			genExSafety(out, itm.exported, itm.safety);
-			out.pushLocals(itm.local2Mp);
-
-			out.add(kw);
-			genFuncDecl(out, itm, out.db.asSv(itm.name));
-			out.addNewl(";");
-			out.wasSemicolon = true;
-			out.popLocals();
-		} else
-		{
-			genExSafety(out, itm.exported, itm.func.safety);
-
-			out.add(kw);
-			genFuncDef(out, itm.func, out.db.asSv(itm.name));
-		}
-	}
-	template<AnyOutput Out>
-	inline void genFuncDecl(
-	    Out& out, const auto& itm, const std::string_view name)
-	{
-		out.add(name);
-		out.add('(');
-		if (!itm.selfArg.empty())
-		{
-			for (const ast::UnOpType t : itm.selfArg.specifiers)
-				out.add(getUnOpAsStr<Out>(t));
-			out.add("self");
-			if (!itm.params.empty())
-				out.add(", ");
-		}
-		genParamList(out, itm.params, itm.hasVarArgParam);
-		out.add(')');
-
-		if (itm.retType.has_value())
-		{
-			out.add(" -> ");
-			genExpr(out, **itm.retType);
-		}
-	}
-	template<AnyOutput Out>
-	inline void genFuncDef(
-	    Out& out, const Function& var, const std::string_view name)
-	{
-		out.pushLocals(var.local2Mp);
-		genFuncDecl(out, var, name);
-
-		out.newLine().add('{').tabUpNewl();
-		genBlock(out, var.block);
-		out.unTabNewl().addNewl("}").newLine(); //Extra spacing
-
-		out.popLocals();
+		genUnOps(out, obj.unOps);
+		genExprData(out, obj.data);
+		for (const ast::PostUnOpType t : obj.postUnOps)
+			out.add(getPostUnOpAsStr(t));
 	}
 
 	template<AnyOutput Out>
@@ -517,27 +611,6 @@ namespace slu::parse
 			    out.add(' ');
 		    },
 		    varcase(const DestrSpecType::Prefix&) { genUnOps(out, var); });
-	}
-	template<bool isLocal, AnyOutput Out>
-	inline void genNameOrLocal(Out& out, const LocalOrName<Out, isLocal>& obj)
-	{
-		std::string_view v;
-		if constexpr (isLocal)
-			v = (out.db.asSv(out.resolveLocal(obj)));
-		else
-			v = (out.db.asSv(obj));
-		if (v.starts_with('$'))
-		{
-			out.add("--[=[ $0x");
-			uint64_t synId = (uint64_t(v[1]) << 56) | (uint64_t(v[2]) << 48)
-			    | (uint64_t(v[3]) << 40) | (uint64_t(v[4]) << 32)
-			    | (uint64_t(v[5]) << 24) | (uint64_t(v[6]) << 16)
-			    | (uint64_t(v[7]) << 8) | v[8];
-			writeU64Hex(out, synId);
-			out.add(" ]=]");
-			return;
-		}
-		out.add(v);
 	}
 	template<bool isLocal, AnyOutput Out>
 	inline void genPat(Out& out, const Pat<Out, isLocal>& obj)
@@ -587,18 +660,6 @@ namespace slu::parse
 		    });
 	}
 	template<AnyOutput Out>
-	inline void genAtribNameList(Out& out, const AttribNameList<Out>& obj)
-	{
-		for (const AttribName<Out>& v : obj)
-		{
-			out.add(out.db.asSv(v.name));
-			if (!v.attrib.empty())
-				out.add(" <").add(v.attrib).add('>');
-			if (&v != &obj.back())
-				out.add(", ");
-		}
-	}
-	template<AnyOutput Out>
 	inline void genNames(Out& out, const NameList<Out>& obj)
 	{
 		for (const lang::MpItmId& v : obj)
@@ -625,50 +686,6 @@ namespace slu::parse
 			    }
 			    out.add("}");
 		    });
-	}
-
-	template<AnyOutput Out>
-	inline void genSoe(
-	    Out& out, const parse::Soe<Out>& obj, const bool addArrow)
-	{
-		ezmatch(obj)(
-		    varcase(const parse::SoeType::Block<Out>&) {
-			    out.newLine().add('{').tabUpNewl();
-			    genBlock(out, var);
-			    out.unTabNewl().add('}');
-		    },
-		    varcase(const parse::SoeType::Expr&) {
-			    if (addArrow)
-				    out.add(" => ");
-			    else
-				    out.add(' ');
-			    genExpr(out, *var);
-		    });
-	}
-	template<bool isExpr, AnyOutput Out>
-	inline void genIfCond(Out& out, const parse::BaseIfCond<Out, isExpr>& itm)
-	{
-		out.add("if ");
-
-		genExpr(out, *itm.cond);
-		genSoe(out, *itm.bl, true);
-		if (isExpr)
-			out.add(' ');
-
-		for (const auto& [expr, bl] : itm.elseIfs)
-		{
-			out.add("else if ");
-
-			genExpr(out, expr);
-			genSoe(out, bl, true);
-			if (isExpr)
-				out.add(' ');
-		}
-		if (itm.elseBlock)
-		{
-			out.add("else");
-			genSoe(out, **itm.elseBlock, false);
-		}
 	}
 
 	template<bool isLocal, size_t N, AnyOutput Out>
@@ -960,29 +977,6 @@ namespace slu::parse
 		    });
 	}
 
-	template<AnyOutput Out>
-	inline void genBlock(Out& out, const Block<Out>& itm)
-	{
-		for (const Stat& s : itm.statList)
-			genStat(out, s);
-
-		if (itm.retTy != parse::RetType::NONE)
-		{
-			switch (itm.retTy)
-			{
-			case parse::RetType::RETURN:   out.add("return"); break;
-			case parse::RetType::BREAK:    out.add("break"); break;
-			case parse::RetType::CONTINUE: out.add("continue"); break;
-			}
-			if (!itm.retExprs.empty())
-			{
-				out.add(' ');
-				genExprList(out, itm.retExprs);
-			}
-			out.add(';');
-			out.wasSemicolon = true;
-		}
-	}
 
 	export template<AnyOutput Out> void genFile(Out& out, const ParsedFile& obj)
 	{

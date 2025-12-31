@@ -13,6 +13,7 @@
 export module slu.parse.adv.expr;
 
 import slu.char_info;
+import slu.ast.pos;
 import slu.ast.enums;
 import slu.ast.state_decls;
 import slu.ast.state;
@@ -77,6 +78,8 @@ namespace slu::parse
 		}
 	}
 
+	extern "C++"
+	{
 	export template<bool IS_BASIC, bool FOR_PAT, AnyInput In>
 	Expr readExpr(In& in, const bool allowVarArg, const bool readBiOp)
 	{
@@ -404,5 +407,6 @@ namespace slu::parse
 		ret.data = std::move(resData);
 
 		return ret;
+	}
 	}
 } //namespace slu::parse
