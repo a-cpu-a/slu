@@ -11,7 +11,7 @@ namespace slu::parse
 {
 	export struct ParseFailError : std::exception
 	{
-		const char* what() const
+		const char* what() const noexcept override
 		{
 			return "Failed to parse some slu/lua code.";
 		}
@@ -21,7 +21,7 @@ namespace slu::parse
 	{
 		std::string m;
 		BasicParseError(const std::string& m) : m(m) {}
-		const char* what() const override
+		const char* what() const noexcept override
 		{
 			return m.c_str();
 		}

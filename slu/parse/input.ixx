@@ -111,7 +111,7 @@ namespace slu::parse
 		EndOfStreamError(const AnyInput auto& in)
 		    : m(std::format("Unexpected end of stream.{}", errorLocStr(in)))
 		{}
-		const char* what() const
+		const char* what() const noexcept override
 		{
 			return m.c_str();
 		}

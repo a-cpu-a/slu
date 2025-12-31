@@ -6,6 +6,7 @@
 
 #include <slu/Ansi.hpp>
 export module slu.parse.errors.kw;
+import slu.ast.pos;
 import slu.parse.error;
 import slu.parse.input;
 

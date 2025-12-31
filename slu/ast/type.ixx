@@ -27,7 +27,7 @@ namespace slu::parse //TODO: ast
 {
 	extern "C++"
 	{
-	struct ResolvedType;
+	export struct ResolvedType;
 	}
 } //namespace slu::parse
 
@@ -298,7 +298,7 @@ namespace slu::parse //TODO: ast
 		    = 0; // log2(alignment in bits). 1bit .. 134217728bytes =128MiB.
 		         // //TODO: more powerful system allowing for multi-aligned
 		         // types, cooler sub-byte alignments.
-		size_t hasMut : 1 = false;
+		size_t hasMut    : 1 = false;
 		size_t _reserved : (8 + 4) = 0;
 
 		ResolvedType clone() const

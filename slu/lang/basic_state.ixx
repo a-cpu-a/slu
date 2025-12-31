@@ -4,6 +4,7 @@
 */
 
 #include <compare>
+#include <cstdint>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -13,7 +14,7 @@ export module slu.lang.basic_state;
 
 namespace slu::lang
 {
-	struct MpItmId;
+	export struct MpItmId;
 
 	//Mp's
 	export using ModPath = std::vector<std::string>;

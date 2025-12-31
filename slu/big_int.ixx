@@ -4,6 +4,7 @@
 */
 #include <bit>
 #include <compare>
+#include <cstddef>
 #include <cstdint>
 
 export module slu.big_int;
@@ -148,7 +149,7 @@ namespace slu
 				o.lo = ~o.lo;
 				o.hi = ~o.hi;
 				auto s = Integer128<false, false>{.lo = o.lo, .hi = o.hi}
-				    + fromInt(1ULL); // Negate;
+				    + fromInt((uint64_t)1); // Negate;
 				o.lo = s.lo;
 				o.hi = s.hi;
 			}
@@ -186,7 +187,7 @@ namespace slu
 			{ //-A <= B+1
 				if (o.lo == UINT64_MAX && o.hi == UINT64_MAX)
 					return true;
-				return *this <= (o + fromInt(1ULL));
+				return *this <= (o + fromInt((uint64_t)1));
 			} else if constexpr (!NEGATIVIZED && O_NEGATIVIZED)
 			{ //A <= -B+1 (->) -A >= B-1.
 				if (o == 0ULL)
@@ -196,7 +197,7 @@ namespace slu
 			{ //A <= B+1.
 				if (o.lo == UINT64_MAX && o.hi == UINT64_MAX)
 					return true;
-				return *this <= (o + fromInt(1ULL));
+				return *this <= (o + fromInt((uint64_t)1));
 			}
 		}
 		constexpr Integer128 shift(uint8_t count) const

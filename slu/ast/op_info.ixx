@@ -22,13 +22,12 @@ namespace slu::ast
 	{
 		return {vars...};
 	}
-#define STRINGIZE(A) #A
-#define _X(E, T, M) STRINGIZE(M)##sv
+#define _X(E, T, M) #M##sv
 	export constexpr auto unOpNames = mkVar(Slu_UN_OPS(, ));
 	export constexpr auto postUnOpNames = mkVar(Slu_POST_UN_OPS(, ));
 	export constexpr auto binOpNames = mkVar(Slu_BIN_OPS(, ));
 #undef _X
-#define _X(E, T, M) STRINGIZE(T)##sv
+#define _X(E, T, M) #T##sv
 	export constexpr auto unOpTraitNames = mkVar(Slu_UN_OPS(, ));
 	export constexpr auto postUnOpTraitNames = mkVar(Slu_POST_UN_OPS(, ));
 	export constexpr auto binOpTraitNames = mkVar(Slu_BIN_OPS(, ));
