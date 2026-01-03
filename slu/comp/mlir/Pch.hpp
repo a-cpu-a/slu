@@ -62,6 +62,7 @@ LLD_HAS_DRIVER(coff);
 #pragma warning(pop)
 
 #include <bit>
+#include <condition_variable>
 #include <format>
 #include <memory>
 #include <mutex>
