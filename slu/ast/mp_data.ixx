@@ -247,6 +247,8 @@ namespace slu::parse //TODO: ast
 		if (!data.mp.empty())
 			mp2Id[mp.path] = data.id;
 	}
+	extern "C++"
+	{
 	export struct BasicMpDbData
 	{
 		Mp2MpIdMap mp2Id;
@@ -327,6 +329,7 @@ namespace slu::parse //TODO: ast
 			return mps[mpc::MP_UNKNOWN.idx()].id2Name[v.val];
 		}
 	};
+	}
 	export template<class T, bool followAlias = false>
 	inline const T& getItm(const BasicMpDbData& mpDb, const lang::MpItmId name)
 	{
@@ -349,6 +352,8 @@ namespace slu::parse //TODO: ast
 			    return resolveAlias(mpDb, var.usedThing);
 		    });
 	}
+	extern "C++"
+	{
 	export struct BasicMpDb
 	{
 		BasicMpDbData* data;
@@ -438,17 +443,16 @@ namespace slu::parse //TODO: ast
 			return res;
 		}
 	};
-
 	std::string_view _fwdConstructBasicMpDbAsSv(
 	    BasicMpDbData* data, lang::MpItmId thiz)
 	{
 		return BasicMpDb{data}.asSv(thiz);
 	}
-
 	lang::ViewModPath _fwdConstructBasicMpDbAsVmp(
 	    BasicMpDbData* data, lang::MpItmId thiz)
 	{
 		return BasicMpDb{data}.asVmp(thiz);
+	}
 	}
 
 	struct GenSafety
