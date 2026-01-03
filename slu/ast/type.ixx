@@ -35,7 +35,7 @@ namespace slu::mlvl
 {
 	extern "C++"
 	{
-	bool nearExactCheck(
+	extern bool nearExactCheck(
 	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
 	}
 } //namespace slu::mlvl

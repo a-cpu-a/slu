@@ -158,11 +158,6 @@ namespace slu::mlvl
 		return subty->nearlyExact(*std::get<T>(useTy.base));
 	}
 
-	//ignores outerSliceDims of either side, as if checking the slices element
-	//type.
-	inline bool nearExactCheck(
-	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy);
-
 	inline bool subtypeCheckRef(
 	    const parse::RawTypeKind::Ref& var, const parse::ResolvedType& useTy)
 	{ //TODO: lifetimes
@@ -292,10 +287,10 @@ namespace slu::mlvl
 		    });
 	}
 
-	//ignores outerSliceDims of either side, as if checking the slices element
-	//type.
 	extern "C++"
 	{
+	//ignores outerSliceDims of either side, as if checking the slices element
+	//type.
 	inline bool nearExactCheck(
 	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
