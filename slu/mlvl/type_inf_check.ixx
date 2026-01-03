@@ -291,8 +291,8 @@ namespace slu::mlvl
 	{
 	//ignores outerSliceDims of either side, as if checking the slices element
 	//type.
-	inline bool nearExactCheck(
-	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
+	bool nearExactCheck(const slu::parse::ResolvedType& subty,
+	    const slu::parse::ResolvedType& useTy)
 	{
 		if (std::holds_alternative<parse::RawTypeKind::TypeError>(useTy.base))
 			return true; //poisioned, so pass forward.
