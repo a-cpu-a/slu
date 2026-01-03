@@ -18,6 +18,10 @@ New Syntax {
 	
 	statOrExpr ::= 
 	
+	--TODO: remove bool & optional
+	--TODO: union-ify operator
+	--TODO: remove struct exprs again
+	
 	--TODO: parse/whatever loop exprs & stats, also move it to some new spec
 	--TODO: fix label parsing stuff
 	--TODO: parse slicifier as a unop
