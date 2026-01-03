@@ -19,7 +19,8 @@
 #if __has_builtin(__builtin_debugtrap)
 #define Slu_panic(...)           \
 	_Slu_panic_msg(__VA_ARGS__); \
-	__builtin_debugtrap()
+	__builtin_debugtrap();       \
+	std::abort()
 #elif __has_builtin(__builtin_trap)
 #define Slu_panic(...)           \
 	_Slu_panic_msg(__VA_ARGS__); \
