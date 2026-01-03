@@ -242,8 +242,7 @@ export int main()
 	}
 #endif
 
-	const std::string_view p
-	    = "C:/libraries/lua/lua-5.4.4/src/slu/parse/tests"sv;
+	const std::string_view p = "slu/parse/tests"sv;
 
 	size_t total = 0;
 	size_t failed = 0;
