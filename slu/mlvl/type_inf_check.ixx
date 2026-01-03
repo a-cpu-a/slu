@@ -78,6 +78,10 @@ namespace slu::mlvl
 	{
 		return a > b;
 	}
+	template<class T1, class T2> inline bool _compilerHackEq(auto a, auto b)
+	{
+		return (T1)a == (T2)b;
+	}
 	template<parse::AnyRawIntOrRange T>
 	inline bool intRangeSubtypeCheck(
 	    const T itm, const parse::ResolvedType& useTy)
@@ -107,14 +111,14 @@ namespace slu::mlvl
 				    {
 					    if (var > (uint64_t)INT64_MAX)
 						    return false;
-					    return itm == (int64_t)var;
+					    return _compilerHackEq<T, int64_t>(itm, var);
 				    } else if constexpr (std::same_as<T,
 				                             parse::RawTypeKind::Uint64>
 				        && std::same_as<VarT, parse::RawTypeKind::Int64>)
 				    {
 					    if (_compilerHackGt(itm, (uint64_t)INT64_MAX))
 						    return false;
-					    return (int64_t)itm == var;
+					    return _compilerHackEq<int64_t, VarT>(itm, var);
 				    } else
 					    return itm == var;
 			    } else if constexpr (itmIsInt)
