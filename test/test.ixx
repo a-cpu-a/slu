@@ -195,8 +195,14 @@ inline uint8_t testSluOnFile(
 	return 2;
 }
 
+#ifdef _MSC_VER
+#ifndef __clang__
+extern "C++"
+{
+#endif
+#endif
 
-export extern "C" int main()
+export int main()
 {
 #if 0
 	const auto x = slu::spec::extract_and_merge_ebnf_blocks(
@@ -265,3 +271,9 @@ export extern "C" int main()
 
 	return (int)failed;
 }
+
+#ifdef _MSC_VER
+#ifndef __clang__
+} // Extern "C++"
+#endif
+#endif
