@@ -65,6 +65,8 @@ inline std::vector<uint8_t> getBin(const std::string& path)
 
 inline void saveBin(const std::string& path, const std::vector<uint8_t>& data)
 {
+	std::filesystem::create_directories(
+	    std::filesystem::path(path).parent_path());
 	std::ofstream out(path, std::ios::binary);
 	if (!out)
 	{
