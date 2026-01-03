@@ -10,8 +10,9 @@
 #include <utility>
 
 #include <slu/Ansi.hpp>
-export module slu._test.test;
+export module zzz_internal_slu.test.test;
 
+import slu.settings;
 import slu.ast.mp_data;
 import slu.comp.compile;
 import slu.gen.gen;

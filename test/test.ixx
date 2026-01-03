@@ -13,7 +13,7 @@
 #include <vector>
 
 #include <slu/Ansi.hpp>
-export module _test_slu.test;
+export module zzz_internal_slu.test;
 
 import slu.settings;
 import slu.ast.mp_data;
@@ -27,6 +27,8 @@ import slu.paint.to_html;
 import slu.parse.error;
 import slu.parse.parse;
 import slu.parse.vec_input;
+
+using namespace std::string_view_literals;
 
 template<class... Args>
 inline void log(const std::format_string<Args...> fmt, Args&&... fmtArgs)
@@ -171,10 +173,10 @@ inline uint8_t testSluOnFile(
 		}
 	} catch (const std::runtime_error& e)
 	{
-		if (!invert || e.what() == "Test failed")
+		if (!invert || e.what() == "Test failed"sv)
 		{
 			logErr("In file {}:", path.string());
-			if (e.what() != "Test failed")
+			if (e.what() != "Test failed"sv)
 				logErr("Error msg: {}", e.what());
 			logErr("Test failed : {::}", in.handledErrors);
 			return 1;
@@ -194,7 +196,7 @@ inline uint8_t testSluOnFile(
 }
 
 
-export extern "C++" int main()
+export extern "C" int main()
 {
 #if 0
 	const auto x = slu::spec::extract_and_merge_ebnf_blocks(
@@ -234,7 +236,8 @@ export extern "C++" int main()
 	}
 #endif
 
-	const std::string_view p = "C:/libraries/lua/lua-5.4.4/src/slu/parse/tests";
+	const std::string_view p
+	    = "C:/libraries/lua/lua-5.4.4/src/slu/parse/tests"sv;
 
 	size_t total = 0;
 	size_t failed = 0;
