@@ -208,12 +208,12 @@ namespace slu::parse //TODO: ast
 	}
 	export constexpr Range129 range129FromInt(uint64_t v)
 	{
-		return RawTypeKind::Range128Pp{.min = v, .max = v};
+		return RawTypeKind::Range128Pp{.min = {v}, .max = {v}};
 	}
 	export constexpr Range129 range129FromInt(int64_t v)
 	{
 		if (v < 0)
-			return RawTypeKind::Range128Nn{.min = abs(v), .max = abs(v)};
+			return RawTypeKind::Range128Nn{.min = {abs(v)}, .max = {abs(v)}};
 		return range129FromInt((uint64_t)v);
 	}
 	export constexpr Range129 range129FromInt(Any128Int auto v)
@@ -229,13 +229,13 @@ namespace slu::parse //TODO: ast
 		{
 			if (v.max < 0)
 				return RawTypeKind::Range128Nn{
-				    .min = abs(v.min), .max = abs(v.max)};
+				    .min = {abs(v.min)}, .max = {abs(v.max)}};
 			return RawTypeKind::Range128Np{
-			    .min = abs(v.min), .max = (uint64_t)v.max};
+			    .min = {abs(v.min)}, .max = {(uint64_t)v.max}};
 		}
 		Slu_assertOp(v.max, >=, 0);
 		return RawTypeKind::Range128Pp{
-		    .min = (uint64_t)v.min, .max = (uint64_t)v.max};
+		    .min = {(uint64_t)v.min}, .max = {(uint64_t)v.max}};
 	}
 	export constexpr size_t calcRangeBits(const RawTypeKind::Range64 range)
 	{
@@ -676,44 +676,46 @@ namespace slu::parse //TODO: ast
 			return res;
 		}
 	};
-	export void ::slu::parse::DelStructRawType::operator()(
+	void ::slu::parse::DelStructRawType::operator()(
 	    StructRawType * it) const noexcept
 	{
 		delete it;
 	}
-	export void ::slu::parse::DelUnionRawType::operator()(
+	void ::slu::parse::DelUnionRawType::operator()(
 	    UnionRawType * it) const noexcept
 	{
 		delete it;
 	}
-	export void ::slu::parse::DelVariantRawType::operator()(
+	void ::slu::parse::DelVariantRawType::operator()(
 	    VariantRawType * it) const noexcept
 	{
 		delete it;
 	}
-	export void ::slu::parse::DelRefRawType::operator()(
-	    RefRawType * it) const noexcept
+	void ::slu::parse::DelRefRawType::operator()(RefRawType * it) const noexcept
 	{
 		delete it;
 	}
-	export void ::slu::parse::DelPtrRawType::operator()(
-	    PtrRawType * it) const noexcept
+	void ::slu::parse::DelPtrRawType::operator()(PtrRawType * it) const noexcept
 	{
 		delete it;
 	}
-	export void ::slu::parse::DelSliceRawType::operator()(
+	void ::slu::parse::DelSliceRawType::operator()(
 	    SliceRawType * it) const noexcept
 	{
 		delete it;
 	}
 
-	export constexpr std::optional<lang::MpItmId>
-	ResolvedType::getStructName() const
+	extern "C++"
+	{
+	constexpr std::optional<lang::MpItmId>
+	slu::parse::ResolvedType::getStructName() const
 	{
 		if (!std::holds_alternative<RawTypeKind::Struct>(base))
 			return std::nullopt;
 		return std::get<RawTypeKind::Struct>(base)->name;
 	}
+	}
+
 	export RawType cloneRawType(const RawType& t)
 	{
 		return ezmatch(t)(
