@@ -14,7 +14,7 @@ New Syntax {
 	typeunop ::= "&" [borrowLifetime] [shMutConst]
 	
 	binop @::= | "~~" | "||"
-	unop @::= | typeunop | "alloc" | "mut" | "[" "]"
+	unop @::= | typeunop | "alloc" | "mut" | "[" "]" | "union"
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
@@ -30,8 +30,6 @@ New Syntax {
 	basicExp @::= | "dyn" traitExp
 		| "impl" traitExp
 		| "_"
-		| "struct" basicStruct --TODO parse this
-		| "union" basicStruct
 		| "~~" basicExp
 		| [safety] "fn" exp "->" basicExp
 	
@@ -65,9 +63,6 @@ New types {
 	Lifetime
 	
 	Unit
-	bool
-	bool::true
-	bool::false
 	Any
 	str
 	char
@@ -125,15 +120,6 @@ Official Types {
 	}
 	Unit {
 		A nominally unique unit type, used as the default type for some things.
-	}
-	bool {
-		A boolean, either bool::true or bool::false
-	}
-	bool::false {
-		A boolean, always false
-	}
-	bool::true {
-		A boolean, always true
 	}
 	
 	Any {
@@ -276,7 +262,7 @@ Type Specifiers {
 		assertEq!(intX,3);
 		
 		unsafe {
-			let *mut u8.* xAliasUnsafe = (*mut intX).*;
+			let PtrMut(u8).* xAliasUnsafe = _COMP_TODO!("turn into pointer",&mut intX).*;
 			xAliasUnsafe = 2;
 		}
 		assertEq!(intX,2);
@@ -302,15 +288,15 @@ Type Specifiers {
 		--Its (mostly) safe to make pointers, but not to use them.
 		--Some hosts dont support pointers. (Most do, like js,java,lua,cpp, ...)
 		
-		let PtrConst(u8) myPtr = *const firstArg;
+		let PtrConst(u8) myPtr = &const firstArg;
 		
-		let PtrMut(u8) myPtr2 = *mut secondArg;
+		let PtrMut(u8) myPtr2 = &mut secondArg;
 		
 		drop myPtr2;--Drops the pointer, not really meaningfull
 		
 	:::unsafe:
 	
-		let PtrMut(u8) firstArgPtr = *mut firstArg;
+		let PtrMut(u8) firstArgPtr = &mut firstArg;
 		
 		firstArgPtr.!$TODO-choose-method-for-refification-or-use-a-unsafe-deref$!() = 4;
 		

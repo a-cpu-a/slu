@@ -25,6 +25,8 @@ Order of Operations {
 	
 	~~
 	|| --union operator
+
+	union --struct/tuple/table to union-type op
 	
 	++
 	**
@@ -81,10 +83,10 @@ Order of Operations {
 	.*		Deref
 	
 	--internal use:
-	*		Ptr			(unstable)
-	*const	PtrConst	(unstable)
-	*mut	PtrMut		(unstable)
-	*share	PtrShare	(unstable)
+	*		RefType			(unstable)
+	*const	RefTypeConst	(unstable)
+	*mut	RefTypeMut		(unstable)
+	*share	RefTypeShare	(unstable)
 	&		Ref			(unstable)
 	&const	RefConst	(unstable)
 	&mut	RefMut		(unstable)
@@ -137,7 +139,7 @@ Order of Operations {
 	((x?).*) ^ 1
 	(1 ^ (-1))..
 	((1..) ^ 1)..
-	(..(((1..) ^ 1))..
+	(..(((1..) ^ 1)))..
 	
 	(((x?).*)..)
 	!(x ^ 10)
