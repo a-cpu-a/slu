@@ -1010,6 +1010,8 @@ namespace slu::paint
 			case parse::RetType::BREAK:
 				paintKw<Tok::FN_STAT>(se, "break");
 				break;
+			case parse::RetType::NONE:
+				Slu_panic("RetType was NONE, even after checking that it isnt");
 			}
 			paintExprList(se, itm.retExprs);
 
