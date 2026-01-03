@@ -7,6 +7,7 @@
 export module slu.comp.compile;
 
 import a_cpu_a.mtx;
+import slu.ast.mp_data;
 import slu.comp.cfg;
 import slu.comp.comp_thread;
 import slu.comp.handle_task;
