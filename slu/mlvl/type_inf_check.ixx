@@ -294,6 +294,8 @@ namespace slu::mlvl
 
 	//ignores outerSliceDims of either side, as if checking the slices element
 	//type.
+	extern "C++"
+	{
 	inline bool nearExactCheck(
 	    const parse::ResolvedType& subty, const parse::ResolvedType& useTy)
 	{
@@ -346,6 +348,7 @@ namespace slu::mlvl
 		    varcase(const parse::RawTypeKind::Slice&) {
 			    return subtypeCheckSlice(var, useTy);
 		    });
+	}
 	}
 
 
