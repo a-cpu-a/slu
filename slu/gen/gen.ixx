@@ -50,6 +50,8 @@ namespace slu::parse
 			case parse::RetType::RETURN:   out.add("return"); break;
 			case parse::RetType::BREAK:    out.add("break"); break;
 			case parse::RetType::CONTINUE: out.add("continue"); break;
+			case parse::RetType::NONE:
+				Slu_panic("RetType was NONE, even after checking that it isnt");
 			}
 			if (!itm.retExprs.empty())
 			{
