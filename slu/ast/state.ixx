@@ -400,14 +400,10 @@ namespace slu::parse
 		}
 
 		Expr() = default;
-		Expr(ExprDataV<true>&& data) : data(std::move(data)) {}
-		Expr(ExprDataV<true>&& data, ast::Position place)
-		    : data(std::move(data)), place(place)
-		{}
+		Expr(ExprDataV<true>&& data);
+		Expr(ExprDataV<true>&& data, ast::Position place);
 		Expr(ExprDataV<true>&& data, ast::Position place,
-		    std::vector<UnOpItem>&& unOps)
-		    : data(std::move(data)), place(place), unOps(std::move(unOps))
-		{}
+		    std::vector<UnOpItem>&& unOps);
 
 		Expr(const Expr&) = delete;
 		Expr(Expr&&) = default;
@@ -856,7 +852,19 @@ namespace slu::parse
 
 extern "C++"
 {
-export void ::slu::parse::DelExpr::operator()(parse::Expr * it) const noexcept
+::slu::parse::Expr::Expr(::slu::parse::ExprDataV<true>&& data)
+    : data(std::move(data))
+{}
+::slu::parse::Expr::Expr(
+    ::slu::parse::ExprDataV<true>&& data, ::slu::ast::Position place)
+    : data(std::move(data)), place(place)
+{}
+::slu::parse::Expr::Expr(::slu::parse::ExprDataV<true>&& data,
+    ::slu::ast::Position place, std::vector<::slu::parse::UnOpItem>&& unOps)
+    : data(std::move(data)), place(place), unOps(std::move(unOps))
+{}
+
+void ::slu::parse::DelExpr::operator()(slu::parse::Expr * it) const noexcept
 {
 	delete it;
 }
