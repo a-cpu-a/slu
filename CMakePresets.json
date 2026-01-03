@@ -79,12 +79,14 @@
     },
     {
       "name": "linux-debug",
-      "displayName": "Linux Debug",
+      "displayName": "Linux Clang Debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       },
       "condition": {
         "type": "equals",
