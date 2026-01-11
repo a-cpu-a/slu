@@ -4,9 +4,7 @@
 
 New Syntax {
 	
-	structInit ::= tableconstructor
-	
-	globstat @::= | OptExportPrefix "struct" Name ["(" [paramList] ")"] structInit
+	globstat @::= | OptExportPrefix "struct" Name ["(" [paramList] ")"] tableconstructor
 }
 
 New Keywords {
