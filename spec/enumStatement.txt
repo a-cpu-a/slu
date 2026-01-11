@@ -1,13 +1,13 @@
 ﻿#
-# Dependencies: basic, annotation, structStatement
+# Dependencies: basic, annotation, export, structStatement
 #
 
 New Syntax {
 	
-	enumfield ::= annotations OptExportPrefix Name [tableconstructor]
+	enumfield ::= annotations optExport Name [tableconstructor]
 	enumfieldList ::= enumfield {fieldsep enumfield} [fieldsep]
 	
-	globstat @::= | OptExportPrefix "enum" Name ["(" [paramList] ")"] "{" enumfieldList "}"
+	globstat @::= | optExport "enum" Name ["(" [paramList] ")"] "{" enumfieldList "}"
 }
 
 New Keywords {

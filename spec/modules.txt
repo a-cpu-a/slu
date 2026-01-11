@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, exportPrefix
+# Dependencies: basic, export
 #
 
 New Syntax {
@@ -14,10 +14,10 @@ New Syntax {
 	
 	modpathindex ::= "::*" | "::{" modpathStartList "}"
 	useVariant ::= ["as" Name | modpathindex]
-	globstat @::= | OptExportPrefix "use" modpath useVariant
+	globstat @::= | optExport "use" modpath useVariant
 	
-	globstat @::= | OptExportPrefix "mod" Name "as" "{" chunk "}"
-	globstat @::= | OptExportPrefix "mod" Name
+	globstat @::= | optExport "mod" Name "as" "{" chunk "}"
+	globstat @::= | optExport "mod" Name
 }
 
 New Keywords {

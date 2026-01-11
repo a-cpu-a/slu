@@ -4,9 +4,7 @@
 
 New Syntax {
 
-	ExportPrefix ::= "ex"
-	
-	OptExportPrefix ::= [ ExportPrefix ]
+	optExport ::= [ "ex" ]
 }
 
 New Keywords {
@@ -26,5 +24,4 @@ Export Prefix {
 	"export" -> too long, and also kinda common
 	"ext" -> too common "cuz extension"
 	"exs" -> hard to type
-	
 }

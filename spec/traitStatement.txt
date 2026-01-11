@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, annotation, containerfield, type 
+# Dependencies: annotation, basic, containerfield, export, type 
 #
 
 New Syntax {
@@ -7,7 +7,7 @@ New Syntax {
 	whereClauses ::= "where" whereClause {"," whereClause}
 	whereClause ::= (Name|"Self") ":" traitExp
 	
-	globstat @::= | OptExportPrefix "trait" Name ["(" paramList ")"] [whereClauses] tableconstructor
+	globstat @::= | optExport "trait" Name ["(" paramList ")"] [whereClauses] tableconstructor
 }
 
 New Keywords {

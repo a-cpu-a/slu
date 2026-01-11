@@ -1,10 +1,10 @@
 #
-# Dependencies: basic, type, exportPrefix
+# Dependencies: basic, type, export
 #
 
 New Syntax {
 	
-	globstat @::= | OptExportPrefix "const" uncondDestrPat ["=" explist]
+	globstat @::= | optExport "const" uncondDestrPat ["=" explist]
 }
 
 New Keywords {

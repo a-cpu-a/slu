@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, type, exportPrefix, comptime, library(TODO), annotation, fnStatement
+# Dependencies: annotation, basic, comptime, export, fnStat, library(TODO), type
 #
 
 "std::macros" Module {
@@ -11,11 +11,10 @@
 	
 	ex struct Expr = @Builtin{"base::type/exp"}Unit;
 	ex struct Name = @Builtin{"base::type/Name"}Unit;
-	ex struct TraitExpr = @Builtin{"base::type/traitExp"}Unit;
 	
 	--
 	--wrap around one of the above things, to allow a list of someting
-	--note: only works for: (Name,TraitExpr,Expr)
+	--note: only works for: (Name,Expr)
 	--
 	ex struct fn CommaList(T = type) = @Builtin{"base::type/CommaList"}T;
 	
@@ -30,7 +29,6 @@
 	
 	@Builtin{"base::no_splice"} ex macro fn Expr! {macro v = Expr }->Expr {return v;}
 	@Builtin{"base::no_splice"} ex macro fn Name! {macro v = Name }->Name {return v;}
-	@Builtin{"base::no_splice"} ex macro fn TraitExpr! {macro v = TraitExpr}->TraitExpr {return v;}
 	
 	@Builtin{"base::no_splice"} ex macro fn CommaList!{T = type,macro v = CommaList(T)}->CommaList(T) {return v;}
 	
@@ -79,8 +77,7 @@
 		Stat,
 		
 		Expr,
-		Name,
-		TraitExpr
+		Name
 	);
 	]=]
 	
@@ -107,8 +104,7 @@ New Syntax {
 	globstat @::= | macroInvSpl
 	basicExp @::= | macroInvSpl
 	Name @::= | macroInvSpl
-	traitExp @::= | macroInvSpl
-	OptExportPrefix @::= | macroInvSpl
+	optExport @::= | macroInvSpl
 	
 	macroParam ::= ["macro"] typedParam
 	macroParamList ::= macroParam {"," macroParam}
@@ -120,7 +116,7 @@ New Syntax {
 	
 	PreMacro ::=
 	
-	globstat @::= | OptExportPrefix PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
+	globstat @::= | optExport PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
 	
 }
 

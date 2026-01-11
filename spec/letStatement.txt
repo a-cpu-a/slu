@@ -1,10 +1,10 @@
 #
-# Dependencies: basic, type, exportPrefix
+# Dependencies: basic, export, type
 #
 
 New Syntax {
 	
-	stat @::= | OptExportPrefix "let" uncondDestrPat ["=" explist]
+	stat @::= | optExport "let" uncondDestrPat ["=" explist]
 }
 
 New Keywords {

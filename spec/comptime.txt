@@ -1,6 +1,5 @@
 #
-# Dependencies: basic, fnStatement, modules
-# MayModify: fnExpression
+# Dependencies: basic, fnStat, modules
 #
 
 New Syntax {

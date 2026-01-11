@@ -1,11 +1,11 @@
 #
-# Dependencies: basic, annotation, traitStatement, comptime, type 
+# Dependencies: annotation, basic, comptime, export, traitStatement, type 
 #
 
 New Syntax {
 	
 	--Since there is a trait expr, the type expression doesnt parse binary operators, unless the trait expr was already parsed.
-	globstat @::= | OptExportPrefix ["unsafe"] ["defer"] "impl" ["(" paramList ")"] [traitExp "for"] basicExp [whereClauses] tableconstructor
+	globstat @::= | optExport ["unsafe"] ["defer"] "impl" ["(" paramList ")"] [basicExp "for"] basicExp [whereClauses] tableconstructor
 }
 
 New Keywords {

@@ -1,10 +1,10 @@
 #
-# Dependencies: basic, annotation, structStatement
+# Dependencies: annotation, basic, export, structStatement
 #
 
 New Syntax {
 	
-	globstat @::= | OptExportPrefix "union" Name ["(" [paramList] ")"] tableconstructor
+	globstat @::= | optExport "union" Name ["(" [paramList] ")"] tableconstructor
 }
 
 New Keywords {
