@@ -7,7 +7,6 @@ New Syntax {
 	safety ::= "safe" | "unsafe"
 	
 	stat @::= | "unsafe" "{" {stat} "}"
-	stat @::= | ":::" safety ":"
 	
 }
 
