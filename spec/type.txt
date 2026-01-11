@@ -67,6 +67,7 @@ New types {
 	str
 	char
 	String
+	Result
 	
 	f8
 	f16
@@ -135,7 +136,7 @@ Official Types {
 		On most hosts the contents are utf8, some hosts, like java & javascript use utf16, if any host uses utf8, then utf8 is used on all of them.
 	}
 	char {
-		(TODO: some magic tricks to make the syntax &char: transparent structs?)
+		(TODO: some magic tricks to make the syntax *char: transparent structs?)
 		A reference to a character inside a str, immutable.
 		Must point to a valid character, because it doesnt store the size of it.
 	}
@@ -145,6 +146,11 @@ Official Types {
 		Same restrictions on content as "str".
 		
 		Creating invalid content isnt ub in itself, but some libraries or functions will not handle that correctly.
+	}
+	Result {
+		Used for func return types, can also be created with the ~~ operator.
+		`u8~~Ae` == `Result(u8,Ae)`
+		`~~Ae` == `Result(Unit,Ae)`
 	}
 	f8,f16,f128 {
 		Reserved, may be used in the future.
