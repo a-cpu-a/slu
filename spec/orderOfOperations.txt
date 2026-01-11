@@ -7,46 +7,46 @@ Order of Operations {
 	
 	```
 	(pseudo) ;
-	(pseudo) = --Maybe add compound operators: ||= ++= **= |= ~= &= <<= >>= += -= %= *= /= //= ^=
+	(pseudo) =
 	(pseudo) ,
 	
 	(pseudo) if => else
 	
-	unary operators (mut	alloc)
+	unary operators (ex   mut)
 	
 	or
 	and
 	
-	!=	==
+	!=   ==
 	
-	<	>	<=	 >=
+	<   >   <=   >=
 	
 	as
 	
-	~~
-	|| --union operator
+	~~  --mk result type op, both unary and binary
+	||	--union operator
 
-	union --struct/tuple/table to union-type op
+	unary operators (union   *   *const   *mut   *share   [])	--struct/tuple/table to union-type op, ref type ops, slicify
 	
 	++
 	**
 	
 	binary, post and prefix range operators (..)
 	
-	|	~	&	--(Not the same as most langs! they are all equal)
-	<<	 >>
-	unary operators(dyn impl) --NOTE: when this operator is used, it will consume all additions after it, no precedences matter!
-	+	-
-	% --(Not the same as most langs, modulus is bellow / * //)
-	*	/	//
-	unary operators (!	-	&   &const   &mut   &share   *   *const	  *mut	 *share	  [])
+	|   ~   &	--(Not the same as most langs! they are all equal)
+	<<   >>
+	unary operators (dyn impl) --NOTE: when this operator is used, it will consume all additions after it, no precedences matter!
+	%	--(Not the same as most langs, modulus is bellow / * //)
+	+   -
+	*   /   //
+	unary operators (!   -   &   &const   &mut   &share)
 	^
-	postfix unary operators (? .*)
+	postfix unary operators (?   .*)
 	
-	(pseudo) .	.:	 ::	  function-args""()[[]] construct{} index[]
+	(pseudo) .   .:   ::   function-args""()[[]]   construct{}   index[]
 	(pseudo) (parenthesis)
 	```
-	Everything is left to right, except for <<, >> and ^ which are right to left
+	Everything is left to right, except for = and ^ which are right to left
 	(non-postfix unary operators are also right to left)
 	
 	
@@ -98,11 +98,11 @@ Order of Operations {
 	::		----		
 	as		As.asType
 	~~		----
-	||		Union.union
+	||		Union.union	(unstable)
 	dyn		----
+	ex		MarkEx		(unstable)
 	impl	----
 	mut		MarkMut		(unstable)
-	alloc	----
 	=		----		(maybe...) Move + Relocate.reloc()?
 	```
 	
