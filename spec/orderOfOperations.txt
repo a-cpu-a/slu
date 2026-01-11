@@ -10,12 +10,13 @@ Order of Operations {
 	(pseudo) =
 	(pseudo) ,
 	
-	(pseudo) if => else
-	
-	unary operators (ex   mut)
+	else
+	if =>
 	
 	or
 	and
+	
+	unary operators (ex   mut)
 	
 	!=   ==
 	
@@ -46,7 +47,7 @@ Order of Operations {
 	(pseudo) .   .:   ::   function-args""()[[]]   construct{}   index[]
 	(pseudo) (parenthesis)
 	```
-	Everything is left to right, except for = and ^ which are right to left
+	Everything is left to right, except for `=`, `else` and `^` which are right to left
 	(non-postfix unary operators are also right to left)
 	
 	
@@ -101,6 +102,8 @@ Order of Operations {
 	||		Union.union	(unstable)
 	dyn		----
 	ex		MarkEx		(unstable)
+	else	----		
+	if =>	----		
 	impl	----
 	mut		MarkMut		(unstable)
 	=		----		(maybe...) Move + Relocate.reloc()?
@@ -190,4 +193,20 @@ Order of Operations {
 	
 	```
 	
+	archive {
+
+
+		```
+		--Why `else` is R2L
+		(
+			(((
+				if getAe() => A{}
+			) as A~~Ae) else ((
+				if getSo() => B{}
+			) as B~~So)
+			as A || B~~So)
+		--Umm you cant feed that union type into the left side of an else?
+		else (e as E))
+		```
+	}
 }
