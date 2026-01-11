@@ -11,7 +11,7 @@ Move Trait {
 	may be cheap or expensive.
 }
 Relocate Trait {
-	method .relocate(in = &mut T,out = &mut T)
+	method .relocate(in = *mut T,out = *mut T)
 	if T is Move, then Relocate is auto implemented. (auto impl uses memcpy / memmove)
 	
 	may be cheap or expensive, shouldnt be too expensive.

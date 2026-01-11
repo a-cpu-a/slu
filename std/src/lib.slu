@@ -9,7 +9,7 @@ safe extern "C" {
 	fn puts(line = :>::std::Ptr(:>::std::u8)) -> :>::std::i32;
 }
 ---Test test test !!!
-ex fn _println(text = &:>::std::str) -> {}
+ex fn _println(text = *:>::std::str) -> {}
 {
 	puts(text.__convHack__refSlice_ptr);
 }

@@ -4,8 +4,8 @@ struct fn Box(const T = type) -> type {
 	return if T.zeroSized() 
 	=> struct {} -- No need to store it.
 	else struct{
-		value = &mut T,
-		allocator = &impl Alloc
+		value = *mut T,
+		allocator = *impl Alloc
 	};
 }
 --[=[Impl type 1
@@ -17,7 +17,7 @@ impl(const T = type) NewFrom(T) for Box(T) where T.:logical {
 		const Self,--special Self type arg, just like 'self' args in other langs
 		--["const"] ArgName "=" Type
 		initializer = FnOnce(T,{}),
-		allocator = &impl Alloc) -> Self~~AlErr {
+		allocator = *impl Alloc) -> Self~~AlErr {
 		return Self{
 			value = --[[...]],
 			allocator = allocator
@@ -40,7 +40,7 @@ impl NewFrom(Self.:T) for Box where Self.:T.:logical() {
 	fn new(
 		const Self,--Required, to be explicit
 		initializer = FnOnce(Self.:T,{}),
-		allocator = &impl Alloc) -> Self~~AlErr {
+		allocator = *impl Alloc) -> Self~~AlErr {
 		return Self{
 			value = --[[...]],
 			allocator = allocator
@@ -49,7 +49,7 @@ impl NewFrom(Self.:T) for Box where Self.:T.:logical() {
 }
 --TODO: replace `self` mp with `mod`
 impl Debug for Box where Self.:T.implements(Debug) {
-	fn fmt(const Self, &self, f = &mut fmt::Formatter) -> fmt::Result {
+	fn fmt(const Self, *self, f = *mut fmt::Formatter) -> fmt::Result {
 		return (&self.*.*).fmt(f)
 	}
 }

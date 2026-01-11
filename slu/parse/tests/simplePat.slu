@@ -11,7 +11,7 @@ const []u8 {_a,_,c_,..} = {1,2,3}
 
 const u8x1 bbb = {1};
 const u8 bb = 1;
-const &&mut u8 x3 = &&mut bb
+const **mut u8 x3 = &&mut bb
 
 const integer x = 4;
 

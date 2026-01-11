@@ -1,6 +1,6 @@
 impl Out {
-	ex fn genIfCond(&mut self,
-		itm = &Self::IfCond(isExpr),
+	ex fn genIfCond(*mut self,
+		itm = *Self::IfCond(isExpr),
 		const isExpr = bool
 	) {
 		self.add("if ");
@@ -9,7 +9,7 @@ impl Out {
 		
 		if isExpr => self.add(' ');
 		
-		for {&expr,&bl} in itm.elseIfs
+		for {*expr,*bl} in itm.elseIfs
 		{
 			self.add("else if ");
 			
@@ -17,7 +17,7 @@ impl Out {
 			self.genSoe(bl,true);
 			if isExpr => self.add(' ');
 		}
-		for &bl in itm.elseBlock --Option is a list of 0..1 elements.
+		for *bl in itm.elseBlock --Option is a list of 0..1 elements.
 		{
 			self.add("else");
 			self.genSoe(bl,false);

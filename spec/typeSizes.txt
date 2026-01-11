@@ -6,7 +6,7 @@ Sized Trait {
 
 	Illegal to implement manually. (todo: a unsafe way to implement it)
 	
-	fn size(&self) -> MemSize;
+	fn size(*self) -> MemSize;
 }
 UniSized Trait {
 
@@ -19,7 +19,7 @@ Aligned Trait {
 
 	Illegal to implement manually.
 	
-	fn alignment(&self) -> Alignment;
+	fn alignment(*self) -> Alignment;
 }
 UniAligned Trait {
 	

@@ -7,7 +7,7 @@
 
 const intX = 4;
 
-const &mut u8.* xAlias = intX;
+const *mut u8.* xAlias = intX;
 xAlias = 3;
 drop xAlias; --Allow use of intX, once again
 
@@ -22,7 +22,7 @@ unsafe {
 
 const intXBorrow = &intX;
 
-const &/intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
+const */intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
 const intXCopy = intXBorrow.*; --The type is just u8, as a trivial copy was possible.
 
 --if!let!ex!in!is!at!i8!10!and!

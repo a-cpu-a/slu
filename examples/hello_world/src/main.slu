@@ -1,6 +1,6 @@
 
---const &:>::std::str MSG = "Hello world!";
---fn _println(&:>::std::str text) -> void;
+--const *:>::std::str MSG = "Hello world!";
+--fn _println(*:>::std::str text) -> void;
 
 
 --@Entrypoint{"main"} --TODO: unhack this ... or formalize it specifically for `fn main` inside "main"|"lib"|"crate"
@@ -9,7 +9,7 @@ use std::_println
 
 ex fn main() -> {}
 {
-	let mut &:>::std::str s = --[=[Implicit conv from "H...0" to &str]=] "Hello world! \u{1F600} x.x\x00";
+	let mut *:>::std::str s = --[=[Implicit conv from "H...0" to *str]=] "Hello world! \u{1F600} x.x\x00";
 	--let unused = 4;--type == 4
 	
 	--:>::std::_println(self::MSG)

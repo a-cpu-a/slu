@@ -19,10 +19,10 @@ Subtypes {
 	1||2||3||4 < 1..4
 	
 	"a" < "a"||"b"
-	"a"||"b" < &char
-	&char < &str
-	"" < &str
-	""||"a" < &str
+	"a"||"b" < *char
+	*char < *str
+	"" < *str
+	""||"a" < *str
 	
 	"" < String
 	"a"||"b" < String
@@ -120,13 +120,13 @@ Subtypes {
 	1. do all the variant types match the subtype check with T
 	
 	--Variant <= Ref
-	--1. is there only 1 ref sigil, that is just "&"
+	--1. is there only 1 ref sigil, that is just "*"
 	--2. is the ref for a "std::str" or "std::char" struct
 	--3. does the variant only contain strings
 	--4. if the ref is for "std::char", then are all the strings 1 character long?
 	
 	String <= Ref
-	1. is there only 1 ref sigil, that is just "&"
+	1. is there only 1 ref sigil, that is just "*"
 	2. does lifetime outlive static
 	3. is the ref for a "std::str" or "std::char" struct (not slice)
 	4. if its for "std::char", then is the string 1 character long? (could be multiple bytes: 1*u8 / 3*u8 / 2*u16 / ...)

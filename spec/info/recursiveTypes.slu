@@ -76,11 +76,11 @@ struct fn A(T=type) -> type {
 	return struct{a=B(T)}
 }
 struct fn B(T=type) -> type {
-	return struct{b=&A(T)}
+	return struct{b=*A(T)}
 }
-const BwStr = B(&str);
+const BwStr = B(*str);
 -- TypeName(type args){type impl} style syntax, so Ptr(RecType(1)) would be `Ptr(RecType(1)){p = mut usize}`, Ptr(struct{k=usize}) -> `Ptr(struct{k=usize}){p = mut usize}`
---BwStr would be: B(&str){b=Ref(A(&str){a=RecType(3)}){refPtrLocation=usize}}
+--BwStr would be: B(*str){b=Ref(A(*str){a=RecType(3)}){refPtrLocation=usize}}
 -- the B(T) in function A would detect that it was already called, and make a rec type.
 -- (likely uses some possibly slow hidden stack argument)
 
@@ -90,9 +90,9 @@ struct fn A(BT=type) -> type {
 	return struct{a=BT}
 }
 struct fn B(T=type) -> type {
-	return rec BT struct{b=&A(BT)}
+	return rec BT struct{b=*A(BT)}
 }
-const BwStr = B(&str);
+const BwStr = B(*str);
 
 --------------
 
@@ -100,9 +100,9 @@ fn A(BT=type) -> type {
 	return struct{a=BT}
 }
 fn B(T=type) -> type {
-	return rec BT struct{b=&A(BT)}
+	return rec BT struct{b=*A(BT)}
 }
-const BwStr = B(&str);-- uh oh, a stack overflow failure is the correct thing to do.
+const BwStr = B(*str);-- uh oh, a stack overflow failure is the correct thing to do.
 --How would you manually do the recursion instead?
 
 --------------

@@ -115,29 +115,29 @@ let ? __value = {1};
 let ? val = __value.1;
 drop __value;--Drop it, as it isnt named (not even with _)
 -----------------------------
-let &refVar = &val;
+let *refVar = &val;
 -->
-let &? refVar = &val;
+let (*_) refVar = &val;
 -----------------------------
 let assignList = 1,2;
 -->
-let ? assignList = {1,2};
+let (_) assignList = {1,2};
 -----------------------------
 let {_,xA} = {1,1};
 -->
-let ? __value = {1,1};
-let ? __value2 = __value.1;
-let ? xA = __value.2;
+let (_) __value = {1,1};
+let (_) __value2 = __value.1;
+let (_) xA = __value.2;
 drop __value;
 -----------------------------
 let {xD,{u8 yD,zD}} = {1,{1,1}};
 -->
-let ? __value = {1,{1,1}};
-let ? xD = __value.1;
-let ? __value2 = __value.2;
+let (_) __value = {1,{1,1}};
+let (_) xD = __value.1;
+let (_) __value2 = __value.2;
 drop __value;
 let u8 yD = __value2.1;
-let ? zD = __value2.2;
+let (_) zD = __value2.2;
 drop __value2;
 -----------------------------
 let rT = rec R &R;

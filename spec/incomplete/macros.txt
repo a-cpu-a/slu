@@ -36,8 +36,8 @@
 	
 	--[=[
 	--TODO: move this elsewhere, when its needed
-		fn prefixUpperify(prefix = &str,s = mut String) -> String {
-			if (s:len() == 0) return prefix;
+		fn prefixUpperify(prefix = *str,s = mut String) -> String {
+			if (s.len() == 0) return prefix;
 			s[1] = s[1].upper()
 			return prefix++s;
 		}

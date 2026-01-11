@@ -46,27 +46,27 @@ fn l(_=0,val=0){
 const 1+{k} v = 0
 
 ex unsafe fn decl_helloWorld1() -> {u8,u8,u8}
-ex safe fn decl_helloWorld2() -> &mut u8;
-ex fn decl_helloWorld3() -> &[]u8;
-unsafe fn decl_helloWorld4() -> &mut[]str;
+ex safe fn decl_helloWorld2() -> *mut u8;
+ex fn decl_helloWorld3() -> *[]u8;
+unsafe fn decl_helloWorld4() -> *mut[]str;
 safe fn decl_helloWorld5() -> *mut[]str
 fn decl_helloWorld0() -> *const[]str
 
-ex unsafe fn decl_self(self) -> &&u8
-ex unsafe fn decl_rself(&self) -> u8
-ex unsafe fn decl_rmself(&mut self)
-ex unsafe fn decl_rrself(&&self)
-ex unsafe fn decl_rrmself(&&mut self)
-ex unsafe fn decl_rmrself(&mut &self) -> &mut u8
-ex unsafe fn decl_rmrmself(&mut &mut self)
+ex unsafe fn decl_self(self) -> **u8
+ex unsafe fn decl_rself(*self) -> u8
+ex unsafe fn decl_rmself(*mut self)
+ex unsafe fn decl_rrself(**self)
+ex unsafe fn decl_rrmself(**mut self)
+ex unsafe fn decl_rmrself(*mut *self) -> *mut u8
+ex unsafe fn decl_rmrmself(*mut *mut self)
 
 extern "Any" {
 	ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
-	ex safe fn helloWorld2() -> &mut u8 {}
+	ex safe fn helloWorld2() -> *mut u8 {}
 }
 unsafe extern [=[Hello world]=] {
-	ex fn helloWorld3() -> &[]u8 {}
-	unsafe fn helloWorld4() -> &mut[]str {}
+	ex fn helloWorld3() -> *[]u8 {}
+	unsafe fn helloWorld4() -> *mut[]str {}
 }
 safe extern 'other str kind' {
 	safe fn helloWorld5() -> *mut[]str {}
@@ -121,9 +121,9 @@ ex mod ex_mod_as as {}
 let _=3
 let({})x=3
 ex unsafe fn helloWorld1() -> {u8,u8,u8} {}
-ex safe fn helloWorld2() -> &mut u8 {}
-ex fn helloWorld3() -> &[]u8 {}
-unsafe fn helloWorld4() -> &mut[]str {}
+ex safe fn helloWorld2() -> *mut u8 {}
+ex fn helloWorld3() -> *[]u8 {}
+unsafe fn helloWorld4() -> *mut[]str {}
 safe fn helloWorld5() -> *mut[]str {}
 fn helloWorld0() -> *const[]str {}
 
@@ -190,7 +190,7 @@ const rangeMinOp = 1..;
 
 const bitOrOp = 1|1;
 const bitXorOp = 1~1;
-const bitAndOp = 1&1;
+const bitAndOp = 1*1;
 
 const shlOp = 1<<1;
 const shrOp = 1>>1;
@@ -209,10 +209,10 @@ const floorDivOp = 1//1;
 
 const notOp = !true;
 const negOp = -1;
-const refOp = &mutOp;
-const refConstOp = &const mutOp;
-const refMutOp = &mut mutOp;
-const refShareOp = &share mutOp;
+const refOp = *mutOp;
+const refConstOp = *const mutOp;
+const refMutOp = *mut mutOp;
+const refShareOp = *share mutOp;
 const ptrOp = *mutOp;
 const ptrConstOp = *const mutOp;
 const ptrMutOp = *mut mutOp;
@@ -232,13 +232,13 @@ const derefOp = x.*;
 		let item1 = 4
 		let item2 = 5
 		
-		let &/item1 u8 myRef = &item1;
+		let */item1 u8 myRef = *item1;
 		
-		let &mut u8 myRef2 = &mut item2;-- The annotation is inferred here.
+		let *mut u8 myRef2 = *mut item2;-- The annotation is inferred here.
 		
 		drop myRef2;-- Required, because not adding this, will produce a soft-error.
 		
-		let &/item1/item2 u8 z = &item1;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		let */item1/item2 u8 z = *item1;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
 			
 	x "";
 	
@@ -264,7 +264,7 @@ const derefOp = x.*;
 
 let intX = 4;
 
-let &mut u8.* xAlias = intX;
+let *mut u8.* xAlias = intX;
 xAlias = 3;
 drop xAlias; --Allow use of intX, once again
 
@@ -277,9 +277,9 @@ unsafe {
 --assertEq$(intX,2);
 
 
-let intXBorrow = &intX;
+let intXBorrow = *intX;
 
-let &/intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
+let */intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
 let intXCopy = intXBorrow.*; --The type is just u8, as a trivial copy was possible.
 
 --if!let!ex!in!is!at!i8!10!and!
@@ -413,8 +413,8 @@ ertert
 ]===]==]
 
 print("Not inside a comment lol")x=0xFFFFFFFFFFFFFFFF
-let mut &mut _TnTObj{
-	|__t| mut &mut a44__,
+let mut *mut _TnTObj{
+	|__t| mut *mut a44__,
 	|n_| b44,
 	|_t2_| mut BTn___{
 		|t__| a221,
@@ -430,8 +430,8 @@ let mut &mut _TnTObj{
 
 
 
-let mut &mut TnT{
-	mut &mut {
+let mut *mut TnT{
+	mut *mut {
 		aa,
 		b3
 	} wrap33,
@@ -444,8 +444,8 @@ let mut &mut TnT{
 } wrap331 = getTnT();
 
 
-let &mut TnTArr{
-	&mut {
+let *mut TnTArr{
+	*mut {
 		u32 aa44,
 		u64 b344
 	},
@@ -463,8 +463,8 @@ let &mut TnTArr{
 
 
 
-let &mut TnTArr4{
-	mut &mut _aa,
+let *mut TnTArr4{
+	mut *mut _aa,
 	{b_4,b3_4,c4_4, ..},
 	Tn_4{
 		|t_4| a2_4,
@@ -487,7 +487,7 @@ Z_test = None;
 --Z_test is Option::None(3);
 
 
-		fn prefixUpperify(prefix = &str,s = mut String) -> String {
+		fn prefixUpperify(prefix = *str,s = mut String) -> String {
 			if (s.empty()) return s;
 			s[1] = s[1].upper()
 			return prefix++s;
@@ -536,7 +536,7 @@ let []u8 {_a,_,c_,..} = {1,2,3}
 
 let u8x1 bbb = {1};
 let u8 bb = 1;
-let &&mut u8 x3 = &&mut bb
+let **mut u8 x3 = **mut bb
 
 let integer x = 4;
 
@@ -572,32 +572,32 @@ x.1_0=1
 let{|1_0|x}=0
 }
 
-fn printHelloWorld(l = &mut impl std::Log) {
+fn printHelloWorld(l = *mut impl std::Log) {
 	l.info("Hello world!", {}); -- The {} is for formatting arugments (no arguments in this example).
 }
 fn main() 
 {
 	--Panicking is not allways desirable, so it is explicit.
-	let &impl std::Panic p = &std::defaultPanicOrDummy();
+	let *impl std::Panic p = *std::defaultPanicOrDummy();
 	-- Since logging is not always possible, you have to explicitly get a logger,
 	-- in this case we want the log message to always be shown, so we panic if there is no logger.
 	-- If logging can be thrown away, you can use `std::defaultLoggerOrDummy()` which may return a dummy implementation that voids your logs.
 	let mut impl std::Log l = std::defaultLogger().unwrap(p);
-	printHelloWorld(&mut l);
+	printHelloWorld(*mut l);
 }
 
 impl Out {
-	ex fn genIfCond(&mut self,
-		itm = &Self::IfCond(isExpr),
+	ex fn genIfCond(*mut self,
+		itm = *Self::IfCond(isExpr),
 		const isExpr = bool
 	) {
 		self.add("if ");
-		self.genExpr(&itm.cond);
-		self.genSoe(&itm.bl,true);
+		self.genExpr(*itm.cond);
+		self.genSoe(*itm.bl,true);
 		
 		if isExpr => self.add(' ');
 		
-		for {&expr,&bl} in itm.elseIfs
+		for {*expr,*bl} in itm.elseIfs
 		{
 			self.add("else if ");
 			
@@ -605,7 +605,7 @@ impl Out {
 			self.genSoe(bl,true);
 			if isExpr => self.add(' ');
 		}
-		for &bl in itm.elseBlock --Option is a list of 0..1 elements.
+		for *bl in itm.elseBlock --Option is a list of 0..1 elements.
 		{
 			self.add("else");
 			self.genSoe(bl,false);

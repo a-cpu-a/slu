@@ -38,8 +38,8 @@ const Qu3 = struct{
 
 
 match getArgV4() -> u8 {
-	&mut TnTArr4{
-		mut &mut _aa,
+	*mut TnTArr4{
+		mut *mut _aa,
 		{b_4="Hi" or "Hello",u8 b3_4,c4_4, ..},
 		Tn_4{
 			|t_4| Vec(u8) a2_4,

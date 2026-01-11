@@ -32,7 +32,7 @@ If Statement {
 	drop if x => y else z;
 	
 	--Since they dont decay unless needed, you can put the ref operator outside the if.
-	let &/y/z selected = &(if x => y else z)
+	let */y/z selected = &(if x => y else z)
 	```
 	
 	```slu

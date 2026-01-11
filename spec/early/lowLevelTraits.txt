@@ -6,14 +6,14 @@ DotIndex Trait {
 	
 	Unhardcode union and struct
 	
-	const fn dotIndex(const index = &str) -> DotField
+	const fn dotIndex(const index = *str) -> DotField
 }
 
 LocalImplLookup Trait {
 	
 	requires HasImpl, support dyn types and also local impls too
 	
-	fn lookupLocalImpl(&self,const t=trait) -> ImplInfo
+	fn lookupLocalImpl(*self,const t=trait) -> ImplInfo
 }
 
 HasLocalImpl Trait {
@@ -35,5 +35,5 @@ ActiveItems Trait {
 	
 	support for gc?
 	
-	fn visitItems(&self,v=Fn({ActiveItem},Unit))
+	fn visitItems(*self,v=Fn({ActiveItem},Unit))
 }

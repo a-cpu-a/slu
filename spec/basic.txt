@@ -21,6 +21,7 @@ New Syntax {
 	--TODO: remove bool & optional
 	--TODO: union-ify operator
 	--TODO: remove struct exprs again
+	--TODO: consider making pointers opaque: type only contains alignment
 	
 	--TODO: parse/whatever loop exprs & stats, also move it to some new spec
 	--TODO: fix label parsing stuff

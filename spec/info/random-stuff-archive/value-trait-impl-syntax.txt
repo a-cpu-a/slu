@@ -64,24 +64,24 @@ Whats more important is that it noticed that maybe it makes sense to:
 // --- Definition ---
 trait HttpService {
     // Names are the heroes, types are the details
-    get     = fn(*self, route = &str) -> Response,
-    post    = fn(*self, route = &str, body = &[]u8) -> Response,
+    get     = fn(*self, route = *str) -> Response,
+    post    = fn(*self, route = String, body = *[]u8) -> Response,
     // Default implementation is just a value
-    version = fn() -> &str { return "1.1" }
+    version = fn() -> *str { return "1.1" }
 }
 
 // --- Generation (No special syntax needed!) ---
-fn makeService(baseUrl = &str) -> HttpService {
+fn makeService(baseUrl = *str) -> HttpService {
     // This is just a standard struct literal return
     return HttpService{
-        get  = fn(*self, route = &str) -> Response { 
+        get  = fn(*self, route = *str) -> Response { 
             return request("GET", baseUrl ++ route); 
         },
-        post = fn(*self, route = &str, body = &[]u8) -> Response { 
+        post = fn(*self, route = String, body = *[]u8) -> Response { 
             return request("POST", baseUrl ++ route, body); 
         },
         // We can even override the default here easily
-        version = fn() -> &str { return "2.0 (Custom)" }
+        version = fn() -> *str { return "2.0 (Custom)" }
     };
 }
 

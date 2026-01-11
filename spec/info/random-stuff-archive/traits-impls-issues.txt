@@ -25,23 +25,23 @@ struct fn MyType(T = type) -> type {
 		a = Option(T),
 		b = u8
 	} else => struct{
-		a = Option(&T),
+		a = Option(*T),
 		b = u8
 	};
 }
 
 impl(T=type) MyType(T) where T: !Copy {
-	fn b(&self)->u8{return self.b}
-	fn printA(&self) {println!("{}",self.a)}
+	fn b(*self)->u8{return self.b}
+	fn printA(*self) {println!("{}",self.a)}
 }
 impl(T=type) MyType(T) where T: Copy {
-	fn b(&self)->u8{return self.b}
-	fn printA(&self) {println!("{}",self.a)}
+	fn b(*self)->u8{return self.b}
+	fn printA(*self) {println!("{}",self.a)}
 }
 --Or like this, however this will defer the type checking to instantiation time, allowing for T to be known & if it impls Copy aswell
 defer impl(T=type) MyType(T) {
-	fn b(&self)->u8{return self.b}
-	fn printA(&self) {println!("{}",self.a)}
+	fn b(*self)->u8{return self.b}
+	fn printA(*self) {println!("{}",self.a)}
 }
 
 

@@ -42,20 +42,20 @@ Type State {
 	
 	trait InStream
 	{
-		fn skipSpace(&mut self) trans self=>impl InStreamSkipSpace;
-		fn dropSkipSpace(&mut self) trans self=>impl InStream;
+		fn skipSpace(*mut self) trans self=>impl InStreamSkipSpace;
+		fn dropSkipSpace(*mut self) trans self=>impl InStream;
 		
-		unsafe fn readNameUncheckedUntrans(&mut self) -> String;
-		unsafe fn readNameUnchecked(&mut self) trans self=>impl InStream ->String {
+		unsafe fn readNameUncheckedUntrans(*mut self) -> String;
+		unsafe fn readNameUnchecked(*mut self) trans self=>impl InStream ->String {
 		:::unsafe:
 			return self.dropSkipSpace().readNameUncheckedUntrans();
 		}
-		fn readChar(&mut self) trans self=>impl InStream -> char;
-		fn curIdx(&self) -> nsize;
+		fn readChar(*mut self) trans self=>impl InStream -> char;
+		fn curIdx(*self) -> nsize;
 	}
 	trait InStreamSkipSpace
 	{
-		fn readName(&mut self) trans self=>impl InStream -> String {
+		fn readName(*mut self) trans self=>impl InStream -> String {
 		:::unsafe:
 			return self.readNameUnchecked();
 		}
@@ -75,14 +75,14 @@ Type State {
 	impl with(InStreamState state) 
 		for VecInStreamState(state)
 	{
-		fn curIdx(&self) -> nsize {
+		fn curIdx(*self) -> nsize {
 			return self.idx;
 		}
-		unsafe fn readNameUncheckedUntrans(&mut self) -> String {
+		unsafe fn readNameUncheckedUntrans(*mut self) -> String {
 		:::unsafe:
 			return crate::internal::readNameUncheckedUntrans(self);
 		}
-		fn readChar(&mut self) trans
+		fn readChar(*mut self) trans
 		{
 			self.dropSkipSpace();
 			self.idx+=1;
@@ -91,21 +91,21 @@ Type State {
 	}
 	impl InStream for VecInStream
 	{
-		fn skipSpace(&mut self) trans
+		fn skipSpace(*mut self) trans
 		{
 			--implemented in another file
 			crate::internal::skipSpace(self);
 			trans self = VecInStreamSkipSpace{idx=self.idx,chars=self.chars};
 		} 
 		--Empty, as you havent skipped any space.
-		fn dropSkipSpace(&self) {}
+		fn dropSkipSpace(*self) {}
 		
 	}
 	impl InStream for VecInStreamSkipSpace
 	{
 		--Empty, as you already skipped the space
-		fn skipSpace(&self) {}
-		fn dropSkipSpace(&mut self) trans {
+		fn skipSpace(*self) {}
+		fn dropSkipSpace(*mut self) trans {
 			trans self = VecInStream{idx=self.idx,chars=self.chars};
 		}
 	}

@@ -1,15 +1,15 @@
 
 ex unsafe fn decl_helloWorld1() -> {u8,u8,u8}
-ex safe fn decl_helloWorld2() -> &mut u8;
-ex fn decl_helloWorld3() -> &[]u8;
-unsafe fn decl_helloWorld4() -> &mut[]str;
+ex safe fn decl_helloWorld2() -> *mut u8;
+ex fn decl_helloWorld3() -> *[]u8;
+unsafe fn decl_helloWorld4() -> *mut[]str;
 safe fn decl_helloWorld5() -> *mut[]str
 fn decl_helloWorld0() -> *const[]str
 
-ex unsafe fn decl_self(self) -> &&u8
-ex unsafe fn decl_rself(&self) -> u8
-ex unsafe fn decl_rmself(&mut self)
-ex unsafe fn decl_rrself(&&self)
-ex unsafe fn decl_rrmself(&&mut self)
-ex unsafe fn decl_rmrself(&mut &self) -> &mut u8
-ex unsafe fn decl_rmrmself(&mut &mut self)
+ex unsafe fn decl_self(self) -> **u8
+ex unsafe fn decl_rself(*self) -> u8
+ex unsafe fn decl_rmself(*mut self)
+ex unsafe fn decl_rrself(**self)
+ex unsafe fn decl_rrmself(**mut self)
+ex unsafe fn decl_rmrself(*mut *self) -> *mut u8
+ex unsafe fn decl_rmrmself(*mut *mut self)

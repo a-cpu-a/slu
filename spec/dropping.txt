@@ -10,7 +10,7 @@ Erase Trait {
 	Its purpose is to skip calling drop when possible.
 }
 Drop Trait {
-	method .drop(in = &mut T)
+	method .drop(in = *mut T)
 	if T is Erase, then Drop is auto implemented. (auto impl is a empty fn)
 	otherwise, is auto implemented by dropping all members.
 }

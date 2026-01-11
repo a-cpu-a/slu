@@ -21,8 +21,8 @@ const U8Vec = Vec(u8);
 assertEq$(U8Vec,Vec(u8));
 
 impl with(type E) for Vec(E) {
-	fn len(&self) -> usize {...}
-	fn add(&mut self, E v) {...}
+	fn len(*self) -> usize {...}
+	fn add(*mut self, E v) {...}
 }
 
 

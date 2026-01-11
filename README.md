@@ -22,13 +22,13 @@ impl types are checked before any monomorphization, automatically support dyn ty
 [Spec is located here](/spec/)  
 
 ```
-fn printHelloWorld(l = &mut impl std::Log) {
+fn printHelloWorld(l = *mut impl std::Log) {
 	l.info("Hello world!", {}); -- The {} is for formatting arugments (no arguments in this example).
 }
 fn main() 
 {
 	--Panicking is not allways desirable, so it is explicit.
-	let &impl std::Panic p = &std::defaultPanicOrDummy();
+	let *impl std::Panic p = &std::defaultPanicOrDummy();
 	-- Since logging is not always possible, you have to explicitly get a logger,
 	-- in this case we want the log message to always be shown, so we panic if there is no logger.
 	-- If logging can be thrown away, you can use `std::defaultLoggerOrDummy()` which may return a dummy implementation that voids your logs.

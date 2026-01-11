@@ -11,16 +11,16 @@ New Syntax {
 	
 	shMutConst ::= "mut" | "const" | "share"
 	
-	typeunop ::= "&" [borrowLifetime] [shMutConst]
+	typeunop ::= "*" [borrowLifetime] [shMutConst]
 	
 	binop @::= | "~~" | "||"
-	unop @::= | typeunop | "alloc" | "mut" | "[" "]" | "union"
+	unop @::= | typeunop | "mut" | "[" "]" | "union" | "&" [borrowLifetime] [shMutConst]
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
 	typedParam ::= ["const"] Name "=" [exp]
 	paramList ::= typedParam {"," typedParam}
-	paramListSelf ::= [{("&") [shMutConst]} "self" ","] paramList
+	paramListSelf ::= [{("*") [shMutConst]} "self" ","] paramList
 	
 	tupleableName ::= Name | Integral
 	
@@ -31,10 +31,10 @@ New Syntax {
 		| "impl" traitExp
 		| "_"
 		| "~~" basicExp
-		| [safety] "fn" exp "->" basicExp
+		| PreFn "fn" exp "->" basicExp
 	
 	exp @::= | "~~" exp
-		| [safety] "fn" exp "->" exp
+		| PreFn "fn" exp "->" exp
 	
 	
 	basicExp @::= | borrowLifetime | traitExp
@@ -220,7 +220,7 @@ Type Specifiers {
 		Allows use of the "?" operator, and other error handling tools.
 	}
 	Borrow {
-		Format "&" {borrowLifetime} [shMutConst] X
+		Format "*" {borrowLifetime} [shMutConst] X
 		
 		Makes the type borrowing, this means that it is a borrowed value.
 		
@@ -234,18 +234,18 @@ Type Specifiers {
 		let item1 = 4
 		let item2 = 5
 		
-		let &/item1 u8 myRef = &item1;
+		let */item1 u8 myRef = &item1;
 		
-		let &mut u8 myRef2 = &mut item2;-- The annotation is inferred here.
+		let *mut u8 myRef2 = &mut item2;-- The annotation is inferred here.
 		
 		drop myRef2;-- Required, because not adding this, will produce a soft-error.
 		
-		let &/item1/item2 u8 z = &item1;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
+		let */item1/item2 u8 z = &item1;-- This requires dropping "myRef2", as you cant have 2 variables potentially holding a reference to the same variable.
 		
 		```
 	}
 	
-	--Using .* for this is not a good idea, so maybe something like this? `AutoDerefWrapper(&T)`, only allowed in the return type of functions i guess?
+	--Using .* for this is not a good idea, so maybe something like this? `AutoDerefWrapper(*T)`, only allowed in the return type of functions i guess?
 	Deref {
 		Format X ".*"
 		
@@ -255,7 +255,7 @@ Type Specifiers {
 		
 		let intX = 4;
 		
-		let &mut u8.* xAlias = intX;
+		let *mut u8.* xAlias = intX;
 		xAlias = 3;
 		drop xAlias; --Allow use of intX, once again
 		
@@ -270,7 +270,7 @@ Type Specifiers {
 		
 		let intXBorrow = &intX;
 		
-		let &/intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
+		let */intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
 		let intXCopy = intXBorrow.*; --The type is just u8, as a trivial copy was possible.
 		
 		```

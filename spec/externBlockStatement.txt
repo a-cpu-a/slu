@@ -61,10 +61,10 @@ Extern Block Statement {
 	
 	C arrays -> {T}**N (? can they be passed by value like this ?)
 	
-	cpp const refs -> *const T
-	cpp refs -> *mut T
+	cpp const refs -> Ptr(T)
+	cpp refs -> PtrShare(T)
 	
-	cpp && refs -> likely just: *mut T
+	cpp && refs -> likely just: PtrMut(T) or PtrShare(T)
 	
 	lua any-type		-> lua_ext::Any
 	lua integers		-> lua_ext::integer

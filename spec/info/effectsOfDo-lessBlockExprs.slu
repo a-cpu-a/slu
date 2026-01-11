@@ -10,14 +10,14 @@ enum BasicColor{
 	Blue,
 	Yellow
 }
-trait Colored { fn color(&self) -> BasicColor }
+trait Colored { fn color(*self) -> BasicColor }
 
 struct State{
 	color = mut BasicColor,
 	version = u8
 }
 impl Colored for State {
-	fn color(&self) -> BasicColor { return self.color }
+	fn color(*self) -> BasicColor { return self.color }
 }
 const StructuralState = struct{
 	color = mut BasicColor,
@@ -78,14 +78,14 @@ enum BasicColor = (
 	Blue,
 	Yellow
 )
-trait Colored { fn color(&self) -> BasicColor }
+trait Colored { fn color(*self) -> BasicColor }
 
 struct State = (
 	color = mut BasicColor,
 	version = u8
 )
 impl Colored for State {
-	fn color(&self) -> BasicColor { return self.color }
+	fn color(*self) -> BasicColor { return self.color }
 }
 const StructuralState = struct(
 	color = mut BasicColor,

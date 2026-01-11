@@ -9,7 +9,7 @@ readLabel(In in)
 	in.genData.pushUnsafe(POS)
 	in.genData.popUnsafe(POS)
 	
-	GenData{ref=&RealGenData,localData=???; &GlobalOutData outData;}
+	GenData{ref=*RealGenData,localData=???; *GlobalOutData outData;}
 	
 	in.genData.tmpAddLocalUse("")
 	

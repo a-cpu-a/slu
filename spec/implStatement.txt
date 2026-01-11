@@ -43,33 +43,33 @@ Archive {
 	
 	--Alt form with expr as where bounds.
 	impl(T=type) MyType(T) where T.implements(!Copy) {
-		fn b(&self)->u8{return self.b}
-		fn printA(&self) {println!("{}",self.a)}
+		fn b(*self)->u8{return self.b}
+		fn printA(*self) {println!("{}",self.a)}
 	}
 	impl(T=type) MyType(T) where T.implements(Copy) {
-		fn b(&self)->u8{return self.b}
-		fn printA(&self) {println!("{}",self.a)}
+		fn b(*self)->u8{return self.b}
+		fn printA(*self) {println!("{}",self.a)}
 	}
 	
 	--Form where you implement structurally
 	
 	impl MyType(impl !Copy) {
-		fn b(&self)->u8{return self.b}
-		fn printA(&self) {println!("{}",self.a)}
+		fn b(*self)->u8{return self.b}
+		fn printA(*self) {println!("{}",self.a)}
 	}
 	impl MyType(impl Copy) {
-		fn b(&self)->u8{return self.b}
-		fn printA(&self) {println!("{}",self.a)}
+		fn b(*self)->u8{return self.b}
+		fn printA(*self) {println!("{}",self.a)}
 	}
 	-- Impls can be done like this too: (cant have ^^^, VVV and VVV at the same time!)
 	impl struct(MyType){a=impl Display,b=u8} {
-		fn b(&self)->u8{return self.b}
-		fn printA(&self) {println!("{}",self.a)}
+		fn b(*self)->u8{return self.b}
+		fn printA(*self) {println!("{}",self.a)}
 	}
 	-- Or like this too: (this would basically be duck typed)
 	defer impl MyType {
-		fn b(&self)->u8{return self.b}
-		fn printA(&self) {println!("{}",self.a)}
+		fn b(*self)->u8{return self.b}
+		fn printA(*self) {println!("{}",self.a)}
 	}
 	--(impl stat takes a type expression, that must eval to some nominal type)
 }
