@@ -5,7 +5,6 @@
 New Syntax {
 	
 	stat @::= | [label] ‘while’ basicExp statOrRet
-		| [label] ‘repeat’ statOrRet ‘until’ exp
 }
 
 New Keywords {
@@ -25,20 +24,5 @@ While loop {
 		x = x+1;
 		printX(x);
 	}
-	```
-}
-
-Repeat loop {
-	
-	Loop while a condition evaluates to false.
-	The condition is checked at the end of the block.
-	
-	```slu
-	repeat
-	{
-		x = x+1;
-		printX(x);
-	}
-	until x==65
 	```
 }
