@@ -4,9 +4,9 @@
 
 New Syntax {
 
-	PreFn ::=
+	PreFn ::= [safety]
 	
-	globstat @::= | OptExportPrefix [safety] PreFn ["struct"] "fn" Name "(" [paramListSelf] ")" ["->" basicExp] [‘{’ block ‘}’]
+	globstat @::= | OptExportPrefix PreFn ["struct"] "fn" Name "(" [paramListSelf] ")" ["->" basicExp] [‘{’ block ‘}’]
 }
 
 New Keywords {
