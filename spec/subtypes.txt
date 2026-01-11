@@ -3,6 +3,8 @@
 #
 
 Subtypes {
+
+	These are more like subtype-inspired coercions, than real subtypes. (other than lifetime shenanigans)
 	
 	int literals: ..., -2,-1,0,1,2, ...
 	float literals.
