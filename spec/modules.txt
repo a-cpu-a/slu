@@ -4,23 +4,20 @@
 
 New Syntax {
 	
-	modpathStart ::= Name | "self" | "crate" | ":>"
+	modpathStart ::= Name | "self" | "crate"
 	modpathStartList ::= modpathStart {"," modpathStart}
 	
-	modpath ::= modpathStart {"::" Name}
+	modpath ::= (modpathStart | ":>") {"::" Name}
 	submodpath ::= Name {"::" Name}
 
 	basicExp @::= | modpath
 	
-	globstat @::= | OptExportPrefix "mod" Name "as" "{" chunk "}"
-	globstat @::= | OptExportPrefix "mod" Name
+	modpathindex ::= "::*" | "::{" modpathStartList "}"
+	useVariant ::= ["as" Name | modpathindex]
 	globstat @::= | OptExportPrefix "use" modpath useVariant
 	
-	useVariant ::= ["as" Name | modpathindex]
-	
-	modpathindex ::= "::*" | "::{" modpathStartList "}"
-	
-	
+	globstat @::= | OptExportPrefix "mod" Name "as" "{" chunk "}"
+	globstat @::= | OptExportPrefix "mod" Name
 }
 
 New Keywords {

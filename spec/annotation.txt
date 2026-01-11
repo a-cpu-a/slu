@@ -7,16 +7,16 @@ New Syntax {
 	annotations ::= annotation {annotation}
 	outerAnnotations ::= outerAnnotation {outerAnnotation}
 	
-	--Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
+	-- Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
 	-- INVALID: @Mark {return true}
 	-- VALID: @Mark{} {return true}
 	annotation ::= "@" modpath [tableconstructor]
 		| "---"LiteralString
-		| "---" LineOfText
+		| "---"LineOfText
 		
 	outerAnnotation ::= "@" "^" modpath [tableconstructor]
 		| "--^"LiteralString
-		| "--^" LineOfText
+		| "--^"LineOfText
 	
 	block @::= | outerAnnotations block
 	
