@@ -7,7 +7,7 @@ New Syntax {
 	whereClauses ::= "where" whereClause {"," whereClause}
 	whereClause ::= (Name|"Self") ":" traitExp
 	
-	globstat @::= | OptExportPrefix "trait" Name ["(" paramList ")"] [":" traitExp] [whereClauses] "{" {globstat} "}"
+	globstat @::= | OptExportPrefix "trait" Name ["(" paramList ")"] [whereClauses] tableconstructor
 }
 
 New Keywords {
@@ -29,8 +29,6 @@ Trait Statement {
 	```slu
 	const trait BasicMathOps = Add + Sub + Mul + Div
 	```
-	
-	The `":" traitExp` part is equivelant to `where Self : traitExp`
 }
 
 

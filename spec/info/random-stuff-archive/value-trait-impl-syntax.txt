@@ -1,0 +1,90 @@
+
+trait X {
+    a = ex async unsafe fn(*self, x = u8) -> u8,
+    b = ex fn(*mut self, x = u8) -> u8 { return 6 },
+    c = fn(x = u8) -> u8,
+    myConst = fn() -> u8,
+    myDefaultedConst = fn() -> u8 { return 55 }
+}
+
+impl X for Y {
+    a = ex async unsafe fn(*self, x = u8) -> u8 { return 6 },
+    b = ex fn(*mut self, x = u8) -> u8 { return 6 },
+    c = fn(x = u8) -> u8 { return 0 },
+    myConst = fn() -> u8 { return 6 },
+    myDefaultedConst = fn() -> u8 { return 55 }
+}
+
+
+---------------
+
+trait X {
+    ex async unsafe fn a(*self, x = u8) -> u8,
+    ex fn b(*mut self, x = u8) -> u8 { return 6 },
+    fn c(x = u8) -> u8,
+    fn myConst() -> u8,
+    fn myDefaultedConst() -> u8 { return 55 }
+}
+
+impl X for Y {
+    ex async unsafe fn a(*self, x = u8) -> u8 { return 6 },
+    ex fn b(*mut self, x = u8) -> u8 { return 6 },
+    fn c(x = u8) -> u8 { return 0 },
+    fn myConst() -> u8 { return 6 },
+    fn myDefaultedConst() -> u8 { return 55 }
+}
+
+---------------
+
+# Analysis
+
+The struct-literal ='s combined with the ='s of the args look ugly & are hard to parse without syn hilighting.
+However, it is nice to be able to just look at the same spot in all cases and get the fn name.
+
+Looking at both (no syn hilighting), its alot easier to find which line coresponds to which function with option 1.
+
+Sooo, i guess its better?
+
+# New requirements
+
+we need to change what `fn()->T{}` and `fn()->T` mean, as they wouldnt be lambdas, but more like global funcs in a way.
+`const x = fn() -> u8 { return 0 }`
+`fn x() -> u8 { return 0 }`
+
+---------------
+
+ai generated some reasonable code, but I cleaned it up a bit.
+
+Whats more important is that it noticed that maybe it makes sense to:
+1. not pass any "Self" for the impl func generator: only the impl needs it, not the impl generator
+2. traits look ALOT like structs, so we could just construct them... also gives a meaning for using traits in the type space without a "dyn"/"impl" prefixing it.
+3. consider if traits need to be seperate from structs. : no we do, cuz there is no "null" to represent inheriting the default impl.
+
+```
+// --- Definition ---
+trait HttpService {
+    // Names are the heroes, types are the details
+    get     = fn(*self, route = &str) -> Response,
+    post    = fn(*self, route = &str, body = &[]u8) -> Response,
+    // Default implementation is just a value
+    version = fn() -> &str { return "1.1" }
+}
+
+// --- Generation (No special syntax needed!) ---
+fn makeService(baseUrl = &str) -> HttpService {
+    // This is just a standard struct literal return
+    return HttpService{
+        get  = fn(*self, route = &str) -> Response { 
+            return request("GET", baseUrl ++ route); 
+        },
+        post = fn(*self, route = &str, body = &[]u8) -> Response { 
+            return request("POST", baseUrl ++ route, body); 
+        },
+        // We can even override the default here easily
+        version = fn() -> &str { return "2.0 (Custom)" }
+    };
+}
+
+// --- Assignment ---
+impl HttpService for ApiClient = makeService("https://api.example.com");
+```
