@@ -247,3 +247,7 @@ Order of Operations {
 		Putting the check & result on one line takes up too much space.
 	}
 }
+
+Sources {
+	https://justinpombrio.net/2025/09/22/imagining-a-language-without-booleans.html
+}
