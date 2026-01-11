@@ -36,7 +36,7 @@ Order of Operations {
 	
 	|   ~   &	--(Not the same as most langs! they are all equal)
 	<<   >>
-	unary operators (dyn impl) --NOTE: when this operator is used, it will consume all additions after it, no precedences matter!
+	unary operators (dyn impl)
 	%	--(Not the same as most langs, modulus is bellow / * //)
 	+   -
 	*   /   //
@@ -100,11 +100,11 @@ Order of Operations {
 	as		As.asType
 	~~		----
 	||		Union.union	(unstable)
-	dyn		----
+	dyn		Dynify		(unstable)
 	ex		MarkEx		(unstable)
 	else	----		
 	if =>	----		
-	impl	----
+	impl	Implify		(unstable)
 	mut		MarkMut		(unstable)
 	=		----		(maybe...) Move + Relocate.reloc()?
 	```

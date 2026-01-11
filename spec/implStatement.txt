@@ -32,7 +32,7 @@ Impl Statement {
 	
 	If your trait expr / basic expr need "()" around them you may need a empty param list, to keep things parsable.
 	
-	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the 'traitExp for' form.
+	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the 'basicExp for' form.
 	
 	--Actually, is this a good idea? Why not do compiler magic to auto "add" it instead? (like when impl T, where T: ?Drop, or something?)
 	--Will "defer" be used as a hack, to avoid adding any `T: ?Drop` style things, at the cost of simple dyn support?

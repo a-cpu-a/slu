@@ -4,7 +4,6 @@
 
 New Syntax {
 	
-	--TODO: make fn types different from fn statements, to allow use of fn statements in expressions maybe?
 	--TODO: allow fixed points `(0..255) * 0.125` or `0..31.875 at 0.125`
 	
 	typePrefix ::= ["mut"] {typeunop}
@@ -14,7 +13,7 @@ New Syntax {
 	typeunop ::= "*" [borrowLifetime] [shMutConst]
 	
 	binop @::= | "~~" | "||"
-	unop @::= | typeunop | "mut" | "[" "]" | "union" | "&" [borrowLifetime] [shMutConst]
+	unop @::= | typeunop | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [borrowLifetime] [shMutConst]
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
@@ -24,20 +23,13 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	--Note: basicExp in here doesnt parse for binary operators.
-	traitExp ::= basicExp {"+" basicExp}
-	
-	basicExp @::= | "dyn" traitExp
-		| "impl" traitExp
-		| "_"
+	basicExp @::= | "_"
 		| "~~" basicExp
-		| PreFn "fn" exp "->" basicExp
 	
 	exp @::= | "~~" exp
-		| PreFn "fn" exp "->" exp
 	
 	
-	basicExp @::= | borrowLifetime | traitExp
+	basicExp @::= | borrowLifetime
 }
 
 New Keywords {
@@ -49,7 +41,6 @@ New Keywords {
 	impl
 	dyn
 	mut
-	fn
 }
 
 New types {

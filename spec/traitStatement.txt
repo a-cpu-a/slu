@@ -5,7 +5,7 @@
 New Syntax {
 	
 	whereClauses ::= "where" whereClause {"," whereClause}
-	whereClause ::= (Name|"Self") ":" traitExp
+	whereClause ::= (Name|"Self") ":" basicExp
 	
 	globstat @::= | optExport "trait" Name ["(" paramList ")"] [whereClauses] tableconstructor
 }
