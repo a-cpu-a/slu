@@ -36,7 +36,7 @@ New Syntax {
 		| destrSpec Name
 		| "_"
 	
-	
+
 	ndPat ::= sPat
 	pat ::= sPat | dPat
 	
@@ -51,8 +51,7 @@ New Keywords {
 	case
 }
 
-Match Statement {
-	
+Match {
 	
 	--TODO: do we even need restrictions?
 	-- the only loss would be '5 or 7 or 11' type of stuff, unless you type it out using a 'if'
@@ -67,7 +66,6 @@ Match Statement {
 	Match statments must always handle all inputs.
 	If some inputs wouldnt match, then a soft-error occurs, and a " else => panic!(); " is inserted.
 	It is an soft-error to have multiple cases that are identical, without any if checks.
-	
 	
 	"extraFieldSignifier" is required, when a field / array element is ignored, or when matching on dynamicaly-sized arrays.
 	

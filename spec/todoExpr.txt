@@ -13,6 +13,6 @@ New Keywords {
 	TODO
 }
 
-Todo Expr {
+Todo Expression {
 	Allows you to write code without fully implementing it
 }

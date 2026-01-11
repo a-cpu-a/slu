@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, type, logging, matchStatment
+# Dependencies: basic, type, logging, match
 #
 
 New Syntax {
