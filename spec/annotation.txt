@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, comptime
+# Dependencies: basic, modules
 #
 
 New Syntax {
@@ -10,11 +10,11 @@ New Syntax {
 	--Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
 	-- INVALID: @Mark {return true}
 	-- VALID: @Mark{} {return true}
-	annotation ::= "@" comptimeVar [tableconstructor]
+	annotation ::= "@" modpath [tableconstructor]
 		| "---"LiteralString
 		| "---" LineOfText
 		
-	outerAnnotation ::= "@" "^" comptimeVar [tableconstructor]
+	outerAnnotation ::= "@" "^" modpath [tableconstructor]
 		| "--^"LiteralString
 		| "--^" LineOfText
 	

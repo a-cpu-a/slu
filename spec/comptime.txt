@@ -4,11 +4,6 @@
 #
 
 New Syntax {
-
-	PreFn @::= ["const"]
-	
-	comptimeExp ::= exp
-	comptimeVar ::= modpath {"." tupleableName}
 	
 	basicExp @::= | "const" "(" exp ")"
 }
@@ -33,10 +28,7 @@ Const Keyword {
 	When using it on "const" local variables, the variables might be moved over to some private global state.
 	
 	
-	comptimeExp -> must be runnable at compile-time
-	comptimeVar -> value must be known at compile-time
-	
-	(const(exp)) can be used to force a expression to be run at compile-time
+	`const(exp)` can be used to force a expression to be run at compile-time
 	
 	
 	When there is a panic, or a error is propagated outside of compile-time const evaluation, a compiler error must be issued.

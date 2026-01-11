@@ -95,11 +95,13 @@
 
 New Syntax {
 
-	macroSplice ::= "@(" comptimeExp ")"
+	macroSplice ::= "@(" exp ")"
 	
 	
 	macroArgs ::= "(" ProgrammableArgs ")" | "{" ProgrammableArgs "}" | "[" ProgrammableArgs "]" | exp | stat | retstat
-	macroInvoke ::= comptimeVar"!" macroArgs
+	
+	-- The `!` char must be without any white-space in between
+	macroInvoke ::= modpath"!" macroArgs
 	macroInvSpl ::= macroInvoke | macroSplice
 	
 	globstat @::= | macroInvSpl
@@ -107,7 +109,6 @@ New Syntax {
 	Name @::= | macroInvSpl
 	traitExp @::= | macroInvSpl
 	OptExportPrefix @::= | macroInvSpl
-	comptimeVar @::= | macroInvSpl
 	
 	macroParam ::= ["macro"] typedParam
 	macroParamList ::= macroParam {"," macroParam}
