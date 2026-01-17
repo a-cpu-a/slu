@@ -16,7 +16,7 @@ New Syntax {
 		| var selfablecall
 		| ‘goto’ Name
 	
-	statOrExpr ::= 
+	statOrExpr ::=
 	
 	--TODO: remove bool & optional
 	--TODO: union-ify operator
@@ -34,7 +34,6 @@ New Syntax {
 	--TODO: parse labeled breaks, parse continue too
 	retstat ::= (("return" | "break" [":" Name]) [explist]) | "continue"
 
-	blockOrRet ::= retstat [‘;’] | ‘{’ block ‘}’
 	statOrRet ::= statOrRet | basicstat [‘;’]
 	
 	

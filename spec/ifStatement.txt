@@ -4,16 +4,16 @@
 
 New Syntax {
 	
-	--In both of these, table expressions are not parsed, cuz {block} is found instead
-	statOrBasicExpr ::= (blockOrRet | ["=>"] basicExp)
-	statOrExpr ::= (blockOrRet | ["=>"] exp)
+	--Note: retstat as used here, cant use the `else` operator, as it would conflict with if-stat parsing
+	blockOrRet ::= retstat [‘;’] | ‘{’ block ‘}’
+
+	ifcond ::= "if" exp
 	
-	ifcond ::= ‘if’ basicExp
-	
-	ifExp ::= ifcond ["->" basicExp] statOrExpr {‘else’ ifcond statOrExpr} [‘else’ (blockOrRet | exp)]
-	statOrExpr @::= | ifcond ["->" basicExp] statOrBasicExpr {‘else’ ifcond statOrBasicExpr} [‘else’ (blockOrRet | basicExp)]
-	exp @::= | ifExp
-	stat @::= | ifExp
+	stat @::= | ifcond "do" blockOrRet {"else" ifcond "do" blockOrRet} ["else" blockOrRet]
+	stat @::= | ifcond "=>" exp
+	exp @::= | ifcond "=>" exp
+	basicExp @::= | ifcond "=>" basicExp
+	binop @::= | "else"
 }
 
 New Keywords {
@@ -37,27 +37,22 @@ If Statement {
 	
 	```slu
 
-	let x = if true -> 0..1 
-			  => 0 
+	let x = if true
+			  => 0
 			else 1
 
 	if true => 100
 	else if true => 100
 	else if true => {1,2,3}
-	else if true => {1,2,3}
-	else if true do {return 100;}
-	else if true do {return 100;}
-	else if true {return 100;}
-	else if true {return 100;}
-	else if true print("Hello")
+	else if true => do {return 100;}
 	else if true => print("Hello")
 	else		do {print("Hello");}
 	
-	if true {} else if true {} else {}
+	if true do{} else if true do{} else {}
 
-	if true 
+	if true do
 		return 1; 
-	else if true 
+	else if true
 		return 2; 
 	else 
 		return 3;
