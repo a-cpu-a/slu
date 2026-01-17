@@ -8,7 +8,7 @@ New Syntax {
 	basicExp @::= | PreFn "|" [paramList] "|" ["->" basicExp "=>"] basicExp
 }
 
-Function Expression {
+Lambda Expression {
 	
 	Creates a lambda function.
 	

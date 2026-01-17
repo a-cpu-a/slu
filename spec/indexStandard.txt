@@ -1,0 +1,11 @@
+#
+# Dependencies: basic
+#
+
+Index Standard {
+	1 based indexing will be standard.
+	Library wrappers should use 1 based indexing too.
+
+	1 based indexing is easier to think about, and with ranged int types, it is now a 0 cost abstraction.
+	It also makes accidentally interchanging indexes and numbers/offsets/pointers harder.
+}
