@@ -47,8 +47,9 @@ Type State {
 		
 		unsafe fn readNameUncheckedUntrans(*mut self) -> String;
 		unsafe fn readNameUnchecked(*mut self) trans self=>impl InStream ->String {
-		:::unsafe:
+			unsafe {
 			return self.dropSkipSpace().readNameUncheckedUntrans();
+			}
 		}
 		fn readChar(*mut self) trans self=>impl InStream -> char;
 		fn curIdx(*self) -> nsize;
@@ -56,8 +57,9 @@ Type State {
 	trait InStreamSkipSpace
 	{
 		fn readName(*mut self) trans self=>impl InStream -> String {
-		:::unsafe:
+			unsafe {
 			return self.readNameUnchecked();
+			}
 		}
 	}
 
@@ -79,8 +81,9 @@ Type State {
 			return self.idx;
 		}
 		unsafe fn readNameUncheckedUntrans(*mut self) -> String {
-		:::unsafe:
+			unsafe {
 			return crate::internal::readNameUncheckedUntrans(self);
+			}
 		}
 		fn readChar(*mut self) trans
 		{

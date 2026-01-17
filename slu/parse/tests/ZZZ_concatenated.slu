@@ -377,18 +377,18 @@ const type VecU8 = Vec(u8);
 const type GlobalUnit = {};
 const type TraitTypeAlias = trait;
 const type TypeTypeAlias = type;
-	:::xax:
+	'xax:
 	
-goto xax
+--goto xax
 
-	:::xax2: :::xax5:
+	'xax2: 'xax5:
 	
-goto xax2
+--goto xax2
 
-	:::xax3:
+	'xax3:
 	
 	
-	:::unsafe:
+	--'unsafe:
 
 
 

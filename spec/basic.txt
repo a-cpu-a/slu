@@ -14,31 +14,22 @@ New Syntax {
 	basicstat ::= ‘;’
 		| varlist ‘=’ explist
 		| var selfablecall
-		| ‘goto’ Name
 	
 	statOrExpr ::=
 	
-	--TODO: remove bool & optional
-	--TODO: union-ify operator
-	--TODO: remove struct exprs again
 	--TODO: consider making pointers opaque: type only contains alignment
 	
-	--TODO: parse/whatever loop exprs & stats, also move it to some new spec
-	--TODO: fix label parsing stuff
-	--TODO: parse slicifier as a unop
 	stat ::= basicstat
 		| globstat
 		| statOrExpr
 		| [label] ‘{’ block ‘}’
 
-	--TODO: parse labeled breaks, parse continue too
-	retstat ::= (("return" | "break" [":" Name]) [explist]) | "continue"
+	retstat ::= (("return" | "break" ["'" Name]) [explist]) | "continue"
 
 	statOrRet ::= statOrRet | basicstat [‘;’]
 	
 	
-	--TODO: maybe switch to `"'" Name ":"`, and `break "'" Name`
-	label ::= ‘:::’ Name ‘:’
+	label ::= "'" Name ":"
 
 	explist ::= exp {‘,’ exp}
 	varlist ::= var {‘,’ var}

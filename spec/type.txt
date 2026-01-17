@@ -291,12 +291,11 @@ Type Specifiers {
 		
 		drop myPtr2;--Drops the pointer, not really meaningfull
 		
-	:::unsafe:
-	
+		unsafe {
 		let PtrMut(u8) firstArgPtr = &mut firstArg;
 		
 		firstArgPtr.!$TODO-choose-method-for-refification-or-use-a-unsafe-deref$!() = 4;
-		
+		}
 		```
 	}
 }

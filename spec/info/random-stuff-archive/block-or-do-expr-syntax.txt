@@ -114,10 +114,10 @@ fn loadFiles() -> Files {
 		usesAltList.set(false)
 		break getNewList()
 	}
-	:::forList:for i in list {
+		'forList:for i in list {
 		if i.chill() {
 			chillFound.set(true);
-			break:forList
+			break'forList
 		}
 		nonChill.add(1);
 	}
