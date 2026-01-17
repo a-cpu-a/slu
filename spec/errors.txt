@@ -6,14 +6,17 @@ New Syntax {
 
 	typepostunop @::= | ‘?’
 	
+	stat @::= | "throw" exp
+
 	tryItem ::= pat ["if" exp] "=>" explist
 	tryStat ::= tryItem | ";"
 	
-	statOrExpr @::= | basicExp "try" ["->" basicExp] "{" {tryStat} "}"
+	tryOp ::= "try" ["->" basicExp] "{" {tryStat} "}"
+
+	basicExp @::= | basicExp tryOp
+	exp @::= | exp tryOp
+	stat @::= | stat tryOp
 	
-	
-	
-	stat @::= | "throw" exp
 }
 
 New Keywords {
