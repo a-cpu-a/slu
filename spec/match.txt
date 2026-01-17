@@ -4,7 +4,7 @@
 
 New Syntax {
 	--Also, type expr is preferred over func call / var, so if they return types, then they are treated as types.
-	--Note: binop doesnt allow 'and'. And 'or' is used in a different way
+	--Note: the 'and' and 'or' operators are reserved.
 	--Note: || lambdas are not parsed. Aka `|...| ...`
 	--Note: table constructors are not parsed.
 	sPat ::= basicExp
@@ -42,8 +42,11 @@ New Syntax {
 	
 	matchItem ::= pat ["if" exp] "=>" explist
 	matchStat ::= matchItem | ";"
-	
-	statOrExpr @::= | basicExp "match" ["->" basicExp] "{" {matchStat} "}"
+
+	matchOp ::= "match" ["->" basicExp] "{" {matchStat} "}"
+	basicExp @::= | basicExp matchOp
+	exp @::= | exp matchOp
+	stat @::= | stat matchOp
 }
 
 New Keywords {

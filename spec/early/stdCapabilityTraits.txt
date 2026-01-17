@@ -46,7 +46,7 @@ Alloc Trait {
 	unsafe fn alloc(*self, ptr = PtrShare(Byte), size = MemSize, align = Alignment) -> AllocRes~AlErr
 	
 	fn alignedMalloc(*self, size = MemSize, align = Alignment) -> PtrShare(Byte)~AlErr {unsafe{ return self.alloc(0 as PtrShare(Byte),size,align)? }}
-	fn malloc(*self, size = MemSize) -> PtrShare(Byte)~AlErr { return self.alignedMallocty(size,Alignment::Bytes{1}) }
+	fn malloc(*self, size = MemSize) -> PtrShare(Byte)~AlErr { return self.alignedMalloc(size,Alignment::Bytes{1}) }
 	unsafe fn free(*self, ptr = PtrShare(Byte)) -> Unit~AlErr {unsafe{ self.alloc(ptr,0)? }}
 	--alloc() can be more efficient, however if you always need to move it, then this is the correct choice.
 	unsafe fn realloc(*self, ptr = PtrShare(Byte),size = MemSize, align = Alignment) -> PtrShare(Byte)~AlErr { unsafe {--[=[TODO: complex match based solution using self.alloc!]=]} }
