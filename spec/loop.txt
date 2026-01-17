@@ -4,9 +4,7 @@
 
 New Syntax {
 	
-	loopExpr ::= ‘loop’ ["->" basicExp] ‘{’ block ‘}’
-	statOrExpr @::= | loopExpr
-	stat @::= | label loopExpr
+	statOrExpr @::= | [label] "loop" ["->" basicExp] ‘{’ block ‘}’
 }
 
 New Keywords {
