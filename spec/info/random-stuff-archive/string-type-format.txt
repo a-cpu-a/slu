@@ -10,7 +10,7 @@ String format (64bit).
 
 let tag = data[24];
 
-if tag&0b10000000!=0 => len=SIZE,cap=CAP&((1<<63)-1),dataPtr=PTR. 
+if tag&0b10000000!=0 => len=SIZE,cap=CAP&((2^63)-1),dataPtr=PTR. 
 else => len=tag~23,cap=23,dataPtr=&[1].
 
 PTR, SIZE, CAP(63 bits only), 1(1 bit)
@@ -24,7 +24,7 @@ String format (32bit).
 
 let tag = data[12];
 
-if tag&0b10000000!=0 => len=SIZE,cap=CAP&((1<<31)-1),dataPtr=PTR. 
+if tag&0b10000000!=0 => len=SIZE,cap=CAP&((2^31)-1),dataPtr=PTR. 
 else => len=tag~11,cap=11,dataPtr=&[1].
 
 PTR, SIZE, CAP(31 bits only), 1(1 bit)

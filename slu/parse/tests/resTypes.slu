@@ -1,4 +1,4 @@
 const x??? rtype = x()????;
 const _ qtype = x();
-const ~~Err errtype = getErr();
-const Xxx~~Err restype = getErr();
+const ~Err errtype = getErr();
+const Xxx~Err restype = getErr();

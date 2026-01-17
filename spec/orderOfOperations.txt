@@ -34,8 +34,6 @@ Order of Operations {
 	
 	binary, post and prefix range operators (..)
 	
-	|   ~   &	--(Not the same as most langs! they are all equal)
-	<<   >>
 	unary operators (dyn impl)
 	%	--(Not the same as most langs, modulus is bellow / * //)
 	+   -
@@ -64,12 +62,12 @@ Order of Operations {
 	<=		(Partial)Ord.le
 	==		(Partial)Eq.eq
 	!=		(Partial)Eq.ne
-	<<		Shl
-	>>		Shr
-	~		Xor
-	&		BitAnd
+			Shl
+			Shr
+			Xor
+			BitAnd
 	and		And ?or? BoolAnd
-	|		BitOr
+			BitOr
 	or		Or ?or? BoolOr
 	++		Concat
 	**		Rep
@@ -148,11 +146,11 @@ Order of Operations {
 	!(x ^ 10)
 	x^(y?)
 	
-	((1|2)|4) & x
+	--((1 bitor 2) bitor 4) bitand x
 	
-	((1 ~ 8) | 4) & 2
-	(((1 | 4) & 56) ~ 5)
-	(((1 + 0x16) | 0x10) ~ 0x11)
+	--((1 bitxor 8) bitor 4) & 2
+	--(((1 bitor 4) & 56) bitxor 5)
+	--(((1 + 0x16) bitor 0x10) bitxor 0x11)
 	
 	(1 + (1 % 1)) + 1
 	1 + (1 % (100*100))
@@ -160,19 +158,19 @@ Order of Operations {
 	
 	(1 < 3) and (3 > 5)
 
-	(1 & 5) != 0
+	--(1 bitand 5) != 0
 
-	(1 | 4) == 5
+	--(1 bitor 4) == 5
 
-	((1 << 3) | (5 >> 4)) == 5
+	--((1 bitshl 3) bitor (5 bitshr 4)) == 5
 
 
 	("aaa" ++ "444") ++ (3 != y)
 
-	(1 >> 4) ++ "Hi!"
+	(1 bitsr 4) ++ "Hi!"
 
 
-	(1 + 5) << 3
+	--(1 + 5) bitshl 3
 
 
 	"x==5: " ++ (x == 5)

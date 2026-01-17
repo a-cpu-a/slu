@@ -15,9 +15,9 @@ const geOp = 1 >= 100;
 
 const asOp = 1 as 2;
 
-const resultTyOp = 1~~2;
+const resultTyOp = 1~2;
 
-const unionOp = 1||2;
+const unionOp = 1|2;
 
 const arrAddOp = {}++{};
 
@@ -27,12 +27,12 @@ const rangeAllOp = 1..1;
 const rangeMaxOp = ..1;
 const rangeMinOp = 1..;
 
-const bitOrOp = 1|1;
-const bitXorOp = 1~1;
-const bitAndOp = 1&1;
+--const bitOrOp = 1|1;
+--const bitXorOp = 1~1;
+--const bitAndOp = 1&1;
 
-const shlOp = 1<<1;
-const shrOp = 1>>1;
+--const shlOp = 1<<1;
+--const shrOp = 1>>1;
 
 const PseudoDynOp = dyn Add;
 const PseudoImplOp = impl Add;

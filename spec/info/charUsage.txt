@@ -74,8 +74,7 @@ Char Usage {
 	|   *    |   X    |   X    |
 	|   !=   |        |        |
 	|   !    |   X    |   ~    | postfix only counts as macro-call when no whitespace between, and only for const-vars.
-	|   &=   |        |   X    |
-	|   &    |   X    |   X    |
+	|   &    |   X    |        |
 	|   |=   |        |   X    |
 	|   |    |   X    |   X    | prefix -> closures (|x| x*x), also for patterns
 	+--------+--------+--------+

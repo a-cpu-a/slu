@@ -67,7 +67,7 @@ New Syntax {
 	fieldsep ::= ‘,’ | ‘;’
 
 	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’
-		| ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘++’
+		| ‘++’
 		| ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘!=’
 		| ‘and’ | ‘or’
 
@@ -82,14 +82,12 @@ New Keywords {
 	do
 	else
 	for
-	function
-	goto
+	function -- unused
+	goto -- unused
 	if
 	in
 	local
 	or
-	repeat
 	return
-	until
 	while
 }
