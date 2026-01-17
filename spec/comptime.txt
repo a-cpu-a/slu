@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, fnStat, modules
+# Dependencies: basic, modules
 #
 
 New Syntax {

@@ -34,8 +34,8 @@ New Syntax {
 	explist ::= exp {‘,’ exp}
 	varlist ::= var {‘,’ var}
 	
-	subvar ::= ‘.*’ | ‘.’ Name | ‘[’ exp ‘]’ | 
-	var ::= Name | ‘(’ exp ‘)’ | var {selfablecall} subvar
+	subvar ::= ‘.*’ | ‘.’ Name | ‘[’ exp ‘]’
+	var ::= (Name | ‘(’ exp ‘)’) {{selfablecall} subvar}
 
 	basicArgs ::=  ‘(’ [explist] ‘)’ | LiteralString
 	args ::=  basicArgs | tableconstructor
