@@ -16,8 +16,6 @@ project ("slu" LANGUAGES CXX)
 set(MLIR_DIR "${CMAKE_CURRENT_LIST_DIR}/slu/ext/llvm/build/lib/cmake/mlir/")
 set(LLVM_DIR "${CMAKE_CURRENT_LIST_DIR}/slu/ext/llvm/build/lib/cmake/llvm/")
 
-# Add source to this project's executable.
-add_subdirectory(slu)
 
 function(init_target target)
 	set_property(TARGET ${target} PROPERTY CXX_STANDARD 23)
@@ -40,6 +38,10 @@ function(init_target target)
 		"${PROJECT_SOURCE_DIR}/slu/ext/llvm/build/tools/lld/include"
 	)
 endfunction()
+
+# Add source to this project's executable.
+add_subdirectory(slu)
+add_subdirectory(tools)
 
 init_target(slu)
 init_target(slu-comp)

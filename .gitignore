@@ -34,6 +34,7 @@ temp
 /x64/*
 **/build/
 **/_TEST_OUT
+out/
 
 **/SluDialect.cpp.inc
 **/SluDialect.h.inc
