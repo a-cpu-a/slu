@@ -32,14 +32,15 @@ Whitespace {
 	instance, a closing long bracket of level 4 is
 	written as ]====].
 
-	A long literal starts with
+	--TODO: split into another file?
+	A long string literal starts with
 	an opening long bracket of any level and ends at
 	the first closing long bracket of the same level.
 
 	It can contain any text except a closing bracket
 	of the same level.
 
-	Literals in this bracketed form can run for
+	String literals in this bracketed form can run for
 	several lines, do not interpret any escape
 	sequences, and ignore long brackets of
 	any other level.

@@ -14,14 +14,15 @@ New Keywords {
 Export Prefix {
 	
 	Exports a type, function, variable, etc, for use inside other files, projects, modules, ...
-	
-	"ex" is easy to type, isnt rly used.
+	Keyword is designed to not discourage exporing things.
+
+	"ex" is easy to type, isn't really used.
 	
 	"pub" -> too hard to type
 	"pb" -> hard to understand
 	"exp" -> exponent
 	"expo" -> exponent, looks odd
-	"export" -> too long, and also kinda common
+	"export" -> too long for a common keyword
 	"ext" -> too common "cuz extension"
 	"exs" -> hard to type
 }

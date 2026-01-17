@@ -3,7 +3,7 @@
 #
 
 New Syntax {
-	--Also, type expr is prefered over func call / var, so if they return types, then they are treated as types.
+	--Also, type expr is preferred over func call / var, so if they return types, then they are treated as types.
 	--Note: binop doesnt allow 'and'. And 'or' is used in a different way
 	--Note: || lambdas are not parsed. Aka `|...| ...`
 	--Note: table constructors are not parsed.
@@ -63,7 +63,7 @@ Match {
 	First matching pattern will be used. (top to bottom)
 	The order inside the patterns is undefined.
 	
-	Match statments must always handle all inputs.
+	Match statements must always handle all inputs.
 	If some inputs wouldnt match, then a soft-error occurs, and a " else => panic!(); " is inserted.
 	It is an soft-error to have multiple cases that are identical, without any if checks.
 	

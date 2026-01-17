@@ -61,11 +61,11 @@ Function Expression {
 	
 	Archive {
 		```
-		-- Lamda form 1 - The one we use today.
+		-- Lambda form 1 - The one we use today.
 		-- Expressions by default.
 		-- Statements only if "=>" missing after ret-type
 		
-		--Lamda form 2
+		--Lambda form 2
 		-- Like form 1,except "=>" required for expressions
 		-- Statements by default.
 		let l1 = || => 100;

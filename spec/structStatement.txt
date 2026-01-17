@@ -23,6 +23,6 @@ Struct Statement {
 
 	
 	Implementation {
-		Must support atleast 32768 fields.
+		Must support at least 32768 fields.
 	}
 }

@@ -24,6 +24,6 @@ Union Statement {
 	Of course it can be fixed to a standard format, by using (TODO: ???), however this will prevent some optimizations.
 	
 	Implementation {
-		Must support atleast 32768 fields.
+		Must support at least 32768 fields.
 	}
 }

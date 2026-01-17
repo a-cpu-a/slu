@@ -34,7 +34,7 @@ Subtypes {
 	
 	if only 1 type, then use that type.
 	
-	if any of the edit-types are errors, then the type is a error too.
+	if any of the types are errors, then the type is a error too.
 	if any of the types are int or int-range, then the type is either a int or int-range (potentially inside a variant).
 	if all of the types are floats of the same type, then the type is either float-const or float.
 	if incompatible float types are mixed (f32+f64 for example), then the type is a error, also a error is logged.

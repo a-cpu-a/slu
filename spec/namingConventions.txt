@@ -21,7 +21,7 @@ Naming Conventions {
 	
 	Structs, enums, enum variants, traits and unions are treated as constants that store types.
 	Arguments and fields are treated as variables or constants.
-	Variables uee lowerCamelCase.
+	Variables use lowerCamelCase.
 	Constants use snake_case.
 	Constants use PascalCase if they store types.
 	
@@ -55,7 +55,7 @@ Naming Conventions {
 	fn formatAsR10G10B10()
 	const format_r10_g10_b10 = 10
 	struct ColorR10G10B10 {}
-	fn dwonloadXmlHtmlOrXhtml()
+	fn downloadXmlHtmlOrXhtml()
 	trait FsIo {}
 	
 	```

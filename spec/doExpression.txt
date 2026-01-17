@@ -14,7 +14,7 @@ New Keywords {
 
 Do Expression {
 	
-	Lets you compute a value inside in a expression, while being able to use statments, and more complex code.
+	Lets you compute a value inside in a expression, while being able to use statements, and more complex code.
 	
 	Using const, forces it to run at compile-time.
 	
