@@ -69,15 +69,7 @@ New Syntax {
 New Keywords {
 	and
 	break
-	do
-	else
-	for
-	function -- unused
-	goto -- unused
-	if
-	in
-	local
+	continue
 	or
 	return
-	while
 }
