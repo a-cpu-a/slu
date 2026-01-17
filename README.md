@@ -12,7 +12,7 @@ Trait/impl based type extensions.
 Structural and nominal types  
 Ranged integers `const u8 = 0..0xFF as type`, currently out of range stuff is (planned to be) either a
 warning + handled at runtime, or a compilation error... unless the ranges dont overlap, then it would obviously be a error.  
-Borrow checking (hopefuly easy to understand with lifetimes being just variable names: `&/var1/var2 T`)  
+Borrow checking (hopefuly easy to understand with lifetimes being just variable names: `*/var1/var2 T`)  
 Safety checking  
 Builtin support for a result type `throw MyErr{"oh no"}`  
 Compile-time code execution (todo: sandbox it to make it safe & deterministic: mlir->wasm?)  

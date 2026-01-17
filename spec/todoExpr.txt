@@ -5,8 +5,8 @@
 New Syntax {
 	
 	todoExpr ::= "TODO!" LiteralString
-	exp @::= | todoStat
-	stat @::= | todoStat
+	exp @::= | todoExpr
+	stat @::= | todoExpr
 }
 
 New Keywords {

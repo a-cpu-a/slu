@@ -40,7 +40,7 @@ impl NewFrom(Self.:T) for Box where Self.:T.:logical() {
 	fn new(
 		const Self,--Required, to be explicit
 		initializer = FnOnce(Self.:T,{}),
-		allocator = *impl Alloc) -> Self~~AlErr {
+		allocator = *impl Alloc) -> Self~AlErr {
 		return Self{
 			value = --[[...]],
 			allocator = allocator
