@@ -67,9 +67,9 @@ Order of Operations {
 			Shr
 			Xor
 			BitAnd
-	and		And ?or? BoolAnd
+	and		And
 			BitOr
-	or		Or ?or? BoolOr
+	or		Or
 	++		Concat
 	**		Rep
 	+		Add
@@ -114,7 +114,7 @@ Order of Operations {
 	```slu
 	
 	
-	true or (false and true)
+	x or (y and z)
 	
 	(!1) / (-1)
 	1 / (-1)

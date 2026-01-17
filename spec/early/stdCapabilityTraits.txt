@@ -11,8 +11,10 @@ Capability Traits {
 }
 
 Debug Trait {
+	struct DebugNotAttached{};
+	
 	--Dummy says !attached, and empty breakpoint fn, voids debug logs
-	fn attached(*self)->bool
+	fn attached(*self) -> ~DebugNotAttached
 	fn breakpoint(*self)
 	
 	--debug logging

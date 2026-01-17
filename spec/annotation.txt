@@ -8,8 +8,8 @@ New Syntax {
 	outerAnnotations ::= outerAnnotation {outerAnnotation}
 	
 	-- Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
-	-- INVALID: @Mark {return true}
-	-- VALID: @Mark{} {return true}
+	-- INVALID: @Mark {return 1}
+	-- VALID: @Mark{} {return 1}
 	annotation ::= "@" modpath [tableconstructor]
 		| "---"LiteralString
 		| "---"LineOfText
@@ -75,7 +75,7 @@ New Annotations {
 	ex const type Expr = @Builtin{"base::type/exp"}Unit;
 	```
 	
-	
+	--TODO: non bool version
 	@Cfg{onlyIf=bool} - Allows for conditional compilation based on a compile-time boolean expression.
 	
 	If the condition evaluates to `true`, the annotated code is included in the compilation.

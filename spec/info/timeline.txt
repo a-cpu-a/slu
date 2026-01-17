@@ -1,7 +1,7 @@
 
 
 V1 - compile multiple files, fn main, type checking & inference
-	(only types: i32, u8, i8, Unit, str, bool)
+	(only types: i32, u8, i8, Unit, str)
 	(if, let, let mut, fn)
 
 V2 - (for)

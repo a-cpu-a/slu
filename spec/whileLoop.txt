@@ -13,7 +13,7 @@ New Keywords {
 
 While loop {
 	
-	Loop while a condition evaluates to true.
+	Loop while a condition evaluates to a result with a value, not a error.
 	The condition is checked before running the block.
 	
 	```slu

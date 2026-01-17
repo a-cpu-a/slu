@@ -20,7 +20,9 @@ HasLocalImpl Trait {
 	
 	turn the local impl statements into a trait
 	
-	fn localyImpls(t=trait) -> bool
+	struct NotLocallyImplemented{};
+
+	fn localyImpls(t=trait) -> ~NotLocallyImplemented
 	fn lookupLocalOneImpl(t=trait) -> Option(ImplInfo)
 }
 
