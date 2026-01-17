@@ -46,7 +46,7 @@ Errors {
 	To explicitly ignore a error use drop.
 	(drop myErroringFunc();)
 	
-	The throw statment is used to return a error.
+	The throw statement is used to return a error.
 	It is converted to stack unwinding or a return, depending on what the "try" chooses.
 	
 	--TODO: choose a way for devs to configure between "stack unwinding" and "return value"

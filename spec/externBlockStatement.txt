@@ -22,8 +22,8 @@ New Abis {
 		Compatible with c++ code
 	}
 	"Slu" {
-		By default Slu is equivelant to Any.
-		However, if dynamic linking is used, and this is exported out of the crate, then will be equivelant to SluLock.
+		By default Slu is equivalent to Any.
+		However, if dynamic linking is used, and this is exported out of the crate, then will be equivalent to SluLock.
 	}
 	"SluLock" {
 		A abi will be generated & optimized for the thing(func,var,...) & put into some lock file.
@@ -43,7 +43,7 @@ New Abis {
 		
 		If a function pointer is taken, a wrapper function may be created sometimes, to allow all functions to have the same abi.
 		
-		Since the abi is undefined, this could just be equivelant to "C" with some arg manipulation.
+		Since the abi is undefined, this could just be equivalent to "C" with some arg manipulation.
 	}
 	
 }

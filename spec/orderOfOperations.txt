@@ -35,7 +35,7 @@ Order of Operations {
 	binary, post and prefix range operators (..)
 	
 	unary operators (dyn impl)
-	%	--(Not the same as most langs, modulus is bellow / * //)
+	%	--(Not the same as most langs, modulus is below / * //)
 	+   -
 	*   /   //
 	unary operators (!   -   &   &const   &mut   &share)

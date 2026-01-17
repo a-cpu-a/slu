@@ -1,5 +1,5 @@
 #
-# Dependencies: annotation, basic, containerfield, export, type 
+# Dependencies: annotation, basic, export, type 
 #
 
 New Syntax {

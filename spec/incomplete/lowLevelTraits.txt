@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, annotation, containerfield, type 
+# Dependencies: basic, annotation, type 
 #
 
 DotIndex Trait {

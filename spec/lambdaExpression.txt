@@ -56,7 +56,7 @@ Function Expression {
 		Could be a function pointer,
 		or a pointer plus some captured data.
 		
-		In lua, this can be the equivelant function, or could also be a table with a special metatable.
+		In lua, this can be the equivalent function, or could also be a table with a special metatable.
 	}
 	
 	Archive {
