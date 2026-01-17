@@ -108,7 +108,6 @@ New Keywords {
 	union  		(25k)		(2k)		Define a union
 	where  		(299k)		(1.8k)		Where clauses
 	extern		(..)		(..)		extern blocks, extern spec
-	module		(651k)		(40.2k)		module def
 	struct 		(506k)		(62.2k)		Define a struct
 	unsafe 		(6.4k)		(372)		Mark as unsafe
 	continue 	(162k)		(4.1k)		Try looping again.
@@ -147,5 +146,6 @@ Data {
 	new 		(1.8m)		(303k)		?
 	ref    		(1.1m)		(82.4k)		?
 	type		(1.9m)		(78.3k)		type alias
+	module		(651k)		(40.2k)		module def
 	newtype		(..)		(..)		newtype tag
 }

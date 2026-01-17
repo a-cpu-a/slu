@@ -9,8 +9,6 @@ New Syntax {
 
 New Keywords {
 	while
-	repeat
-	until
 }
 
 While loop {

@@ -23,7 +23,6 @@ New Syntax {
 New Keywords {
 	crate
 	self
-	module
 	mod
 	use
 	as
