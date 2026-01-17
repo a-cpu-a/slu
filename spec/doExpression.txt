@@ -22,6 +22,7 @@ Do Expression {
 	
 	
 	Do expressions must end with a return or break, since all paths must return a value or exit the function.
+	(`return` still exits the function, and is invalid outside of a function, similarily for `continue`)
 	
 	The return type is inferred, when missing.
 	

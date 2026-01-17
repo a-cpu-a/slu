@@ -4,11 +4,9 @@
 
 New Syntax {
 	
-	--Note: retstat as used here, cant use the `else` operator, as it would conflict with if-stat parsing
-	blockOrRet ::= retstat [‘;’] | ‘{’ block ‘}’
-
 	ifcond ::= "if" exp
 	
+	--Note: retstat as used in blockOrRet, cant use the `else` operator, as it would conflict with if-stat parsing
 	stat @::= | ifcond "do" blockOrRet {"else" ifcond "do" blockOrRet} ["else" blockOrRet]
 	stat @::= | ifcond "=>" exp
 	exp @::= | ifcond "=>" exp
@@ -24,6 +22,9 @@ New Keywords {
 If Statement {
 	
 	Lets you check if a result is in the error or value state.
+
+	The `else` operator takes 2 expressions, the left one must be a result R, the right one must have the same type as R's value.
+	Else checks if the Result on the left is a Ok, returning that if so, otherwise it returns the value of right.
 	
 	The return type is assigned automatically, if missing.
 	When in expressions, the return type is not decayed into a value, unless explicitly set as such, or if one of the cases would return a value.
@@ -34,6 +35,8 @@ If Statement {
 	--Since they dont decay unless needed, you can put the ref operator outside the if.
 	let */y/z selected = &(if x => y else z)
 	```
+
+	The reason for the alternative syntax specifically for statements, is cuz it doesnt need `=>`, and it doesnt return anything.
 	
 	```slu
 
