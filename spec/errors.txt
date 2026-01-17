@@ -27,22 +27,19 @@ New Keywords {
 
 Errors {
 	
-	The type specifier '~' is used to mark a function as possibly returning an error.
-	Those types are the only types allowed for the "?" unary operator.
-	When returning errors by value, it is a tuple containing the Error, and the Value.
+	The type specifier '~' is used to create a `Result` type.
+	Those types are the only ones allowed for the `?` unary operator.
+	When returning errors by value, it is a variant containing the Error, and the Value.
 	When returning errors by exception, it is optimized into just the Value (or nothing at all).
-	It is an error to assign a possibly errored value to a variable, this is because allowing that would complicate unwinding a lot.
 	
-	The error types also have some special functions, defined by the compiler {
-		get(self)->Value 						--Panics, if it is a error, otherwise returns the value.
-		getOr(self,Value default)->Value		--Returns value, or the default value
-		wrapError(self,ErrWrapFunc(E,Err) op)->Value~E	--Changes the error, (only if it is an error)
-		
-		ok(self)->Option(Value)					--Returns Some(x), if there is no error, else nil.
-		err(self)->Option(Err)					--Returns Some(x), if there is a error, else nil.
+	`Result` types also have some utility functions {
+		get(self, p=impl Panic) ->Value 					--Panics, if it is a error, otherwise returns the value.
+		getOr(self, default=Value) ->Value					--Returns value, or the default value
+		wrapError(self, op=ErrWrapFunc(E,Err)) ->Value~E	--Changes the error, (only if it is an error)
 	}
 	
-	Postfix "?" unary operator passes the error upwards.
+	Postfix "?" unary operator passes the error upwards, this means the function must return a `Result` type or a try block must handle it.
+	When using `?` at const time without anything to pass it to, the error is passed to the compiler, otherwise the value is returned.
 	If an error is silently ignored, a soft-error is logged at compile-time, and the operator is inserted.
 	Using the "?" operator on types that arent specified with '~', is a soft-error. (operator is ignored)
 	
@@ -50,7 +47,6 @@ Errors {
 	(drop myErroringFunc();)
 	
 	The throw statement is used to return a error.
-	It is converted to stack unwinding or a return, depending on what the "try" chooses.
 	
 	--TODO: choose a way for devs to configure between "stack unwinding" and "return value"
 	-- AND make the differences clear.

@@ -33,10 +33,8 @@ Const Keyword {
 	When there is a panic, or a error is propagated outside of compile-time const evaluation, a compiler error must be issued.
 	
 	Implementation {
-		Likely just compile the needed functions, variables, constants, types into some lua_state/mlir context, then run/jit it.
+		Likely just compile the needed functions, variables, constants, types into something and jit it.
 		And then cache the results, until something changes.
-		
-		Dangerous libraries like "debug", "io", "os" are disabled inside const.
 		
 		note: (All normal functions can be evaluated at compile-time and runtime)
 	}

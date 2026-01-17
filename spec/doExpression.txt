@@ -18,8 +18,7 @@ Do Expression {
 	
 	Using const, forces it to run at compile-time.
 	
-	Using "break" inside do blocks completes them, and returns the result, to be used for the expression outside.
-	Returning multiple expressions at once automatically produces a tuple, just like let, const, etc...
+	Using "break" inside do blocks completes them, and returns the result from the do-expression, for use in the expression outside.
 	
 	
 	Do expressions must end with a return or break, since all paths must return a value or exit the function.
@@ -27,8 +26,6 @@ Do Expression {
 	The return type is inferred, when missing.
 	
 	Do expressions are not like lambdas, since they arent functions, but a different way to write expressions.
-	
-	Also useful for macros.
 	
 	Inside coroutines, do blocks can directly yield.
 	
