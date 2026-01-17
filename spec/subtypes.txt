@@ -14,18 +14,18 @@ Subtypes {
 	0.0_f64 < f64
 	
 	
-	1 < 0||1
-	0||1 < 0..1
-	1||2||3||4 < 1..4
+	1 < 0|1
+	0|1 < 0..1
+	1|2|3|4 < 1..4
 	
-	"a" < "a"||"b"
-	"a"||"b" < *char
+	"a" < "a"|"b"
+	"a"|"b" < *char
 	*char < *str
 	"" < *str
-	""||"a" < *str
+	""|"a" < *str
 	
 	"" < String
-	"a"||"b" < String
+	"a"|"b" < String
 	
 	
 	---------------------
@@ -150,7 +150,7 @@ Subtypes {
 	let mut x = "";
 	x = "a";
 	x = "b";
-	--type of x = mut ""||"a"||"b"
+	--type of x = mut ""|"a"|"b"
 	
 	-----------
 	
@@ -179,7 +179,7 @@ Subtypes {
 	-----------
 	
 	let mut x = 1;
-	x = -x; --error, due to recursion, in theory (type = mut -1 || 1)
+	x = -x; --error, due to recursion, in theory (type = mut -1 | 1)
 	-->
 	tx >= 1
 	t_y >= -(tx)

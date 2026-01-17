@@ -35,7 +35,7 @@ Enum Statement {
 	-- Desugars into the following:
 
 	---Returns a nominally unique type, because its a "struct" fn, so you cant make a Option
-	--- yourself by doing `None(T) || Some(T)`, only this function can return a Option.
+	--- yourself by doing `None(T) | Some(T)`, only this function can return a Option.
 	struct fn Option(T = type) 
 	{
 		--Note: T in the following statements cant refer to the local variable T, because they are global statements.

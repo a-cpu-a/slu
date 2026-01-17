@@ -17,9 +17,9 @@ New Syntax {
 }
 
 New Keywords {
+	if
 	try
 	throw
-	catch
 }
 
 Errors {

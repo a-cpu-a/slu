@@ -47,8 +47,8 @@ New Syntax {
 }
 
 New Keywords {
+	if
 	match
-	case
 }
 
 Match {
