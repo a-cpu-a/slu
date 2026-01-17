@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, export, type
+# Dependencies: basic, export, match, type
 #
 
 New Syntax {

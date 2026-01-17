@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, type, comptime
+# Dependencies: basic, comptime, match, type
 #
 
 New Syntax {

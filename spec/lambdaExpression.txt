@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, type, export, safety, comptime
+# Dependencies: basic, type, export, fnStat, safety, comptime
 #
 
 New Syntax {
