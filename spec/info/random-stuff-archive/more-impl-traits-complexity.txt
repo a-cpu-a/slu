@@ -17,7 +17,7 @@ impl(const T = type) NewFrom(T) for Box(T) where T.:logical {
 		const Self,--special Self type arg, just like 'self' args in other langs
 		--["const"] ArgName "=" Type
 		initializer = FnOnce(T,{}),
-		allocator = *impl Alloc) -> Self~~AlErr {
+		allocator = *impl Alloc) -> Self~AlErr {
 		return Self{
 			value = --[[...]],
 			allocator = allocator

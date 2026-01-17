@@ -12,7 +12,7 @@ New Syntax {
 	
 	typeunop ::= "*" [borrowLifetime] [shMutConst]
 	
-	binop @::= | "~~" | "||"
+	binop @::= | "~" | "|"
 	unop @::= | typeunop | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [borrowLifetime] [shMutConst]
 	
 	borrowLifetime ::= "/" Name {"/" Name}
@@ -24,9 +24,9 @@ New Syntax {
 	tupleableName ::= Name | Integral
 	
 	basicExp @::= | "_"
-		| "~~" basicExp
+		| "~" basicExp
 	
-	exp @::= | "~~" exp
+	exp @::= | "~" exp
 	
 	
 	basicExp @::= | borrowLifetime
@@ -139,9 +139,9 @@ Official Types {
 		Creating invalid content isnt ub in itself, but some libraries or functions will not handle that correctly.
 	}
 	Result {
-		Used for func return types, can also be created with the ~~ operator.
-		`u8~~Ae` == `Result(u8,Ae)`
-		`~~Ae` == `Result(Unit,Ae)`
+		Used for func return types, can also be created with the ~ operator.
+		`u8~Ae` == `Result(u8,Ae)`
+		`~Ae` == `Result(Unit,Ae)`
 	}
 	f8,f16,f128 {
 		Reserved, may be used in the future.
@@ -192,7 +192,7 @@ Type Specifiers {
 	
 	-- In theory, there could be a refinement/liquid type specifier like this: "T : |v| v!=0 " or "T : myPredicateTakingT"
 	-- this could also be chained: "T : |v| v!=0 : |v| v%2==0 : |v| v>-9999"
-	-- it would be best to put the precedence above: mut, ~~, but bellow: ++
+	-- it would be best to put the precedence above: mut, ~, but bellow: ++
 	
 	
 	Slice {
@@ -210,7 +210,7 @@ Type Specifiers {
 		}
 	}
 	Result {
-		Format: [X] "~~" X
+		Format: [X] "~" X
 		
 		Allows both a error, and a value, or just an error, and the value type is inferred.
 		

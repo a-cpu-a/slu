@@ -24,8 +24,8 @@ Order of Operations {
 	
 	as
 	
-	~~  --mk result type op, both unary and binary
-	||	--union operator
+	~  --mk result type op, both unary and binary
+	|	--union operator
 
 	unary operators (union   *   *const   *mut   *share   [])	--struct/tuple/table to union-type op, ref type ops, slicify
 	
@@ -96,8 +96,8 @@ Order of Operations {
 	.:		----		
 	::		----		
 	as		As.asType
-	~~		----
-	||		Union.union	(unstable)
+	~		----
+	|		Union.union	(unstable)
 	dyn		Dynify		(unstable)
 	ex		MarkEx		(unstable)
 	else	----		
@@ -199,10 +199,10 @@ Order of Operations {
 		(
 			(((
 				if getAe() => A{}
-			) as A~~Ae) else ((
+			) as A~Ae) else ((
 				if getSo() => B{}
-			) as B~~So)
-			as A || B~~So)
+			) as B~So)
+			as A | B~So)
 		--Umm you cant feed that union type into the left side of an else?
 		else (e as E))
 		```

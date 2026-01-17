@@ -30,7 +30,7 @@ let v2 = match :>::std::ops::Try::branch(helloOpt()) {
 	:>::std::ops::ControlFlow::Throw{__err} => throw __err
 };
 -----------------------------
-fn hello() -> u8~~String;
+fn hello() -> u8~String;
 
 let v2 = hello()?
 

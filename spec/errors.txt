@@ -24,7 +24,7 @@ New Keywords {
 
 Errors {
 	
-	The type specifier '~~' is used to mark a function as possibly returning an error.
+	The type specifier '~' is used to mark a function as possibly returning an error.
 	Those types are the only types allowed for the "?" unary operator.
 	When returning errors by value, it is a tuple containing the Error, and the Value.
 	When returning errors by exception, it is optimized into just the Value (or nothing at all).
@@ -33,7 +33,7 @@ Errors {
 	The error types also have some special functions, defined by the compiler {
 		get(self)->Value 						--Panics, if it is a error, otherwise returns the value.
 		getOr(self,Value default)->Value		--Returns value, or the default value
-		wrapError(self,ErrWrapFunc(E,Err) op)->Value~~E	--Changes the error, (only if it is an error)
+		wrapError(self,ErrWrapFunc(E,Err) op)->Value~E	--Changes the error, (only if it is an error)
 		
 		ok(self)->Option(Value)					--Returns Some(x), if there is no error, else nil.
 		err(self)->Option(Err)					--Returns Some(x), if there is a error, else nil.
@@ -41,7 +41,7 @@ Errors {
 	
 	Postfix "?" unary operator passes the error upwards.
 	If an error is silently ignored, a soft-error is logged at compile-time, and the operator is inserted.
-	Using the "?" operator on types that arent specified with '~~', is a soft-error. (operator is ignored)
+	Using the "?" operator on types that arent specified with '~', is a soft-error. (operator is ignored)
 	
 	To explicitly ignore a error use drop.
 	(drop myErroringFunc();)
@@ -69,7 +69,7 @@ Errors {
 	
 	```slu
 	
-	fn myErrFunc() -> u8~~Err {
+	fn myErrFunc() -> u8~Err {
 		-- ...
 		throw Err::Oom{};-- Error!
 		-- ...
@@ -87,7 +87,7 @@ Errors {
 	let u8 qq = try myErrFunc() {
 	
 		-- The return type is optional. 
-		-- -> u8~~(some variant), the ~~ and the stuff after it, would be needed since we arent matching every error.
+		-- -> u8~(some variant), the ~ and the stuff after it, would be needed since we arent matching every error.
 		
 		Err::Pmsg x => panic!("Error " ++ x.1);-- Pmsg is a tuple, we are indexing into the first element
 		
