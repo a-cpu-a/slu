@@ -8,7 +8,7 @@ New Syntax {
 	
 	stat @::= | "throw" exp
 
-	tryItem ::= pat ["if" exp] "=>" explist
+	tryItem ::= pat ["if" exp] "=>" exp
 	tryStat ::= tryItem | ";"
 	
 	tryOp ::= "try" ["->" basicExp] "{" {tryStat} "}"

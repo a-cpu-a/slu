@@ -40,7 +40,7 @@ New Syntax {
 	ndPat ::= sPat
 	pat ::= sPat | dPat
 	
-	matchItem ::= pat ["if" exp] "=>" explist
+	matchItem ::= pat ["if" exp] "=>" exp
 	matchStat ::= matchItem | ";"
 
 	matchOp ::= "match" ["->" basicExp] "{" {matchStat} "}"
