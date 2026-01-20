@@ -4,7 +4,7 @@
 
 Capability Traits {
 	each cap trait has 3 associated functions.
-	`defaultX` -> `Option(impl X)`
+	`defaultX` -> `(impl X)~NoImplForX`
 	`defaultXOrDummy` -> `impl X` -- If not found, returns a dummy implementation
 	
 	all methods take `*mut self` or `*self`
@@ -107,7 +107,7 @@ Rng Trait {
 	
 	--Dummy version ...? no dummy version?
 	
-	secure(?) -> Result? Option?
+	secure(?) -> Result?
 	pseudo(?) -> ?
 }
 

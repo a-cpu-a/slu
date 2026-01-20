@@ -7,21 +7,21 @@ do {
 	let mut __iter = :>::std::IntoIterator::intoIter(1..100);
 	break loop {
 		match :>::std::Iterator::next(&mut __iter) {
-			:>::std::Option::None => break
-			:>::std::Option::Some{i} => do {--[=[CODE HERE]=]}
+			:>::std::Result::Err{_} => break
+			:>::std::Result::Ok{i} => do {--[=[CODE HERE]=]}
 		}
 	}
 }
 -----------------------------
-fn helloOpt() -> :>::std::Option(u8);
+fn helloOpt() -> :>::std::Result(u8,u16);
 
 let v1 = helloOpt()?
 
 -->
 
 let v1 = match helloOpt() {
-	:>::std::Option::None => return :>::std::Option::None
-	:>::std::Option::Some{__value} => __value
+	:>::std::Result::Err{__err} => throw __err
+	:>::std::Result::Ok{__value} => __value
 };
 --2026?
 let v2 = match :>::std::ops::Try::branch(helloOpt()) {

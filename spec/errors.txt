@@ -83,9 +83,9 @@ Errors {
 	let u8 differentError = myErrFunc()
 		.wrapError(|e| "Oh no: "++e); -- Changes the error type, and prefixes the error message.
 	
-	let u8 qq = try myErrFunc() {
+	let u8 qq = myErrFunc() try {
 	
-		-- The return type is optional. 
+		-- The return type of the try is optional. 
 		-- -> u8~(some variant), the ~ and the stuff after it, would be needed since we arent matching every error.
 		
 		Err::Pmsg x => panic!("Error " ++ x.1);-- Pmsg is a tuple, we are indexing into the first element

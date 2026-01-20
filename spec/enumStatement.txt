@@ -27,7 +27,7 @@ Enum Statement {
 	Of course it can be fixed to a standard format, by using (TODO: ???), however this will prevent some optimizations.
 	
 	```slu
-	enum Option(T) {
+	enum Option(T = type) {
 		None,
 		Some{T}
 	}

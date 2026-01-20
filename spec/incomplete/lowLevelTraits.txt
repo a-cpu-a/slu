@@ -23,7 +23,7 @@ HasLocalImpl Trait {
 	struct NotLocallyImplemented{};
 
 	fn localyImpls(t=trait) -> ~NotLocallyImplemented
-	fn lookupLocalOneImpl(t=trait) -> Option(ImplInfo)
+	fn lookupLocalOneImpl(t=trait) -> ImplInfo~NotLocallyImplemented
 }
 
 MlvlRepr Trait {
