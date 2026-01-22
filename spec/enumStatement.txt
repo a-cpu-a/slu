@@ -3,11 +3,8 @@
 #
 
 New Syntax {
-	
-	enumfield ::= annotations optExport Name [tableconstructor]
-	enumfieldList ::= enumfield {fieldsep enumfield} [fieldsep]
-	
-	globstat @::= | optExport "enum" Name ["(" [paramList] ")"] "{" enumfieldList "}"
+	enumfield ::= [annotations] optExport Name [tableconstructor] [outerAnnotations]
+	globstat @::= | optExport "enum" Name ["(" [paramList] ")"] "{" enumfield {fieldsep enumfield} fieldsep "}"
 }
 
 New Keywords {

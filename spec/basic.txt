@@ -53,9 +53,9 @@ New Syntax {
 		| exp binop exp | {unop} exp {postunop}
 
 	tableconstructor ::= ‘{’ [fieldlist] ‘}’
-	fieldlist ::= field {fieldsep field} [fieldsep]
+	fieldlist ::= field {fieldsep field} fieldsep
 	field ::= (Name ‘=’ exp) | exp
-	fieldsep ::= ‘,’ | ‘;’
+	fieldsep ::= [‘,’ | ‘;’]
 
 	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’
 		| ‘++’
