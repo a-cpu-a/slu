@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	exp @::= | "_COMP_TODO!" "(" LiteralString "," exp ")"
+	basicExp @::= | "_COMP_TODO!" "(" LiteralString "," exp ")"
 }
 
 New Keywords {

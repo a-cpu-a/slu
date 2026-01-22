@@ -5,7 +5,7 @@
 New Syntax {
 	
 	todoExpr ::= "TODO!" LiteralString
-	exp @::= | todoExpr
+	basicExp @::= | todoExpr
 	stat @::= | todoExpr
 }
 

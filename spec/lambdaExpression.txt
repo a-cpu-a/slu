@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	exp @::= | PreFn "|" [paramList] "|" ["->" basicExp "=>"] exp
+	exp @::= | PreFn "|" [paramList] "|" ["->" exp "=>"] exp
 	basicExp @::= | PreFn "|" [paramList] "|" ["->" basicExp "=>"] basicExp
 }
 
