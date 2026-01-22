@@ -6,7 +6,7 @@ New Syntax {
 
 	typepostunop @::= | ‘?’
 	
-	stat @::= | "throw" exp
+	retstat @::= | "throw" exp
 
 	tryItem ::= pat ["if" exp] "=>" exp
 	tryStat ::= tryItem | ";"

@@ -24,7 +24,7 @@ New Syntax {
 		| statOrExpr
 		| [label] ‘{’ block ‘}’
 
-	retstat ::= (("return" | "break" ["'" Name]) [explist]) | "continue"
+	retstat ::= ("return" | ("break" | "continue") ["'" Name]) [exp]
 
 	blockOrRet ::= retstat [‘;’] | ‘{’ block ‘}’
 	
