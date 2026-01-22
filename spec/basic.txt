@@ -12,7 +12,7 @@ New Syntax {
 	globstat ::= ‘;’
 	
 	basicstat ::= ‘;’
-		| varlist ‘=’ explist
+		| var ‘=’ exp
 		| var selfablecall
 	
 	statOrExpr ::=
