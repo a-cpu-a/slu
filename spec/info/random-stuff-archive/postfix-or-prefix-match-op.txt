@@ -1,0 +1,80 @@
+ai generated examples to see which one is better.
+
+```slu
+let result = match parseRequest(input) {
+    Ok{req} => match checkUser(req.user) {
+        Admin => match processAction(req.action) {
+            Success{res} => send(res),
+            Fail{e} => logError(e)
+        },
+        Guest => throw Unauthorized{}
+    },
+    Err{e} => return null
+}
+```
+```slu
+let result = parseRequest(input) match {
+    Ok{req} => checkUser(req.user) match {
+        Admin => processAction(req.action) match {
+            Success{res} => send(res),
+            Fail{e} => logError(e)
+        },
+        Guest => throw Unauthorized{}
+    },
+    Err{e} => return null
+}
+```
+
+```slu
+fn handleCommand(cmd = X) {
+    match cmd {
+        Login{user, pass} => do {
+            let token = authenticate(user, pass);
+            if token == null {
+                return false
+            }
+            saveSession(token);
+            return true
+        },
+        Logout => do {
+            clearSession();
+            return true
+        },
+        _ => return false
+    }
+}
+```
+```slu
+fn handleCommand(cmd = X) {
+    cmd match {
+        Login{user, pass} => do {
+            let token = authenticate(user, pass);
+            if token == null {
+                return false 
+            }
+            saveSession(token);
+            return true
+        },
+        Logout => do {
+            clearSession();
+            return true
+        },
+        _ => return false
+    }
+}
+```
+
+```slu
+return match compute() {
+    Retry => retry(),
+    Done{v} => v,
+    Fatal{e} => abort(e)
+}
+```
+```slu
+return compute() match {
+    Retry => retry(),
+    Done{v} => v,
+    Fatal{e} => abort(e)
+}
+```
