@@ -41,9 +41,10 @@ New Syntax {
 	args ::=  basicArgs | tableconstructor
 	
 	selfablecall ::= ["." Name] args
+	selfablecallBasic ::= ["." Name] basicArgs
 
 	basicExp ::=  Name | ‘(’ exp ‘)’ | Numeral | LiteralString | tableconstructor
-		| basicExp subvar | basicExp selfablecall
+		| basicExp subvar | basicExp selfablecallBasic
 		| basicExp binop basicExp | {unop} basicExp {postunop}
 		| statOrExpr
 	
