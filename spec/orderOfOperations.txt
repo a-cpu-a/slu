@@ -9,7 +9,7 @@ Order of Operations {
 	(pseudo) ;
 	(pseudo) =
 	(pseudo) ,
-	(pseudo) try   match
+	(pseudo) try
 	
 	else
 	if =>

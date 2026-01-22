@@ -43,10 +43,11 @@ New Syntax {
 	matchItem ::= pat ["if" exp] "=>" exp
 	matchStat ::= matchItem | ";"
 
-	matchOp ::= "match" ["->" basicExp] "{" {matchStat} "}"
-	basicExp @::= | basicExp matchOp
-	exp @::= | exp matchOp
-	stat @::= | stat matchOp
+	--This exp doesnt parse the {} arg style
+	matchDesc ::= "match" basicExp ["->" basicExp] "{" {matchStat} "}"
+	basicExp @::= | matchDesc
+	exp @::= | matchDesc
+	stat @::= | matchDesc
 }
 
 New Keywords {
