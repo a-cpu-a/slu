@@ -4,7 +4,6 @@
 
 New Syntax {
 
-	basicExp @::= | PreFn "fn" "(" [paramListSelf] ")" ["->" basicExp] [‘{’ block ‘}’]
 	exp @::= | PreFn "fn" "(" [paramListSelf] ")" ["->" exp] [‘{’ block ‘}’]
 }
 
