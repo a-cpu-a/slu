@@ -3,19 +3,18 @@
 #
 
 Char Usage {
-	
-	Only used inside strings: # ` \ $
-	
-	' ' -> unused.
-	'X' -> used.
-	'-' -> cant ever be used.
-	'/' -> too wierd to use.
-	'^' -> already used by another token.
-	'R' -> reserved.
-	
-	Expressions:
-	P - prefix
-	S - suffix
+
+Only used inside strings: # ` \ $
+
+P - prefix
+S - suffix
+
+' ' -> unused.
+'X' -> used.
+'-' -> cant ever be used.
+'/' -> too wierd to use.
+'^' -> already used by another token.
+'R' -> reserved.
 +--------+--+
 |  SYM	 |PS|
 +--------+--+
