@@ -20,13 +20,15 @@ export int main()
 		for (const auto& entry :
 		    std::filesystem::recursive_directory_iterator("spec/"))
 		{
-			if (entry.path().string().starts_with("spec/info/"))
+			auto p = entry.path().string();
+			if (p.starts_with("spec/info/") && !p.ends_with("Usage.txt")
+			    && !p.ends_with("Keywords.txt"))
 				continue;
 			if (entry.is_directory())
 				continue;
-			out += "# Path: " + entry.path().string() + "\n";
+			out += "# Path: " + p + "\n";
 
-			std::ifstream t(entry.path().string());
+			std::ifstream t(p);
 
 			out += std::string((std::istreambuf_iterator<char>(t)),
 			    std::istreambuf_iterator<char>());
