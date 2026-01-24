@@ -46,6 +46,7 @@ Char Usage {
 	|   ~    |        |   X    |
 	|   ^    |        |   X    |
 	|   +    |        |   X    |
+	|   ++   |        |   X    |
 	|   .    |   X    |   X    | prefix -> number (.0)
 	|   ..   |   X    |   X    |
 	|   .*   |        |   X    |
@@ -74,137 +75,137 @@ Char Usage {
 	|   |    |   X    |   X    | prefix -> closures (`|x| x*x`), also for patterns
 	|   ||   |   ^    |   R    | prefix -> closures with no args (`|| 53`)
 	|        |        |        |
-	|  :::   |   R    |   R    |
+	|  >=<   |   R    |   R    |
+	|  <=>   |   R    |   R    |
 	|  +++   |   R    |   R    |
+	|  //=   |   R    |   R    | assign and op
 	|  ///   |   R    |   R    |
 	|  ***   |   R    |   R    |
-	|   <<   |   R    |   R    |
-	|   >>   |   R    |   R    |
-	|   ^^   |   R    |   R    |
-	|   %%   |   R    |   R    |
-	|   !!   |   R    |   R    |
-	|   ~~   |   R    |   R    |
-	|   |=   |   R    |   R    | assign and op
-	|   -=   |   R    |   R    | assign and op
-	|  //=   |   R    |   R    | assign and op
-	|   /=   |   R    |   R    | assign and op
-	|   *=   |   R    |   R    | assign and op
-	|   !=   |   R    |   R    | assign and op, does not steal from macro params, so `xxx!=>` is `xxx!`, `=>`
-	|   -<   |   R    |   R    |
-	|   ->   |   R    |   R    | will likely be projection
-	|   =<   |   R    |   R    |
-	|   +<   |   R    |   R    |
-	|   <+   |   R    |   R    |
-	|   +>   |   R    |   R    |
-	|   >+   |   R    |   R    |
-	|   +^   |   R    |   R    |
-	|   ^+   |   R    |   R    |
-	|   +%   |   R    |   R    |
-	|   %+   |   R    |   R    |
-	|   +-   |   R    |   R    |
-	|   -+   |   R    |   R    |
-	|   +*   |   R    |   R    |
-	|   *+   |   R    |   R    |
-	|   +!   |   R    |   R    |
-	|   !+   |   R    |   R    | `xxx!+` is `xxx!`, `+`
-	|   +~   |   R    |   R    |
-	|   ~+   |   R    |   R    |
-	|   |+   |   R    |   R    |
-	|   +|   |   R    |   R    |
-	|   -/   |   R    |   R    |
-	|   /+   |   R    |   R    |
-	|   +/   |   R    |   R    |
-	|   &+   |   R    |   R    |
-	|   <*   |   R    |   R    |
-	|   *<   |   R    |   R    |
-	|   >*   |   R    |   R    |
-	|   *>   |   R    |   R    |
-	|   ^*   |   R    |   R    |
-	|   *^   |   R    |   R    |
-	|   %*   |   R    |   R    |
-	|   *%   |   R    |   R    |
-	|   -*   |   R    |   R    |
 	|  **-   |   R    |   R    |
-	|   !*   |   R    |   R    | `xxx!*` is `xxx!`, `*`
-	|   *!   |   R    |   R    |
+	|  :::   |   R    |   R    |
+	|   ~~   |   R    |   R    |
+	|   ~>   |   R    |   R    |
+	|   ~<   |   R    |   R    |
+	|   ~+   |   R    |   R    |
+	|   ~^   |   R    |   R    |
+	|   ~%   |   R    |   R    |
+	|   ~&   |   R    |   R    |
+	|   ~/   |   R    |   R    |
+	|   ~!   |   R    |   R    |
+	|   ~-   |   R    |   R    |
+	|   |>   |   R    |   R    |
+	|   |=   |   R    |   R    | assign and op
+	|   |<   |   R    |   R    |
+	|   |+   |   R    |   R    |
+	|   |^   |   R    |   R    |
+	|   |%   |   R    |   R    |
+	|   |&   |   R    |   R    |
+	|   |/   |   R    |   R    |
+	|   |!   |   R    |   R    |
+	|   |-   |   R    |   R    |
+	|   >~   |   R    |   R    |
+	|   >|   |   R    |   R    |
+	|   >>   |   R    |   R    |
+	|   ><   |   R    |   R    |
+	|   >+   |   R    |   R    |
+	|   >^   |   R    |   R    |
+	|   >%   |   R    |   R    |
+	|   >&   |   R    |   R    |
+	|   >/   |   R    |   R    |
+	|   >*   |   R    |   R    |
+	|   >!   |   R    |   R    |
+	|   =<   |   R    |   R    |
+	|   <~   |   R    |   R    |
+	|   <|   |   R    |   R    |
+	|   <>   |   R    |   R    |
+	|   <<   |   R    |   R    |
+	|   <+   |   R    |   R    |
+	|   <^   |   R    |   R    |
+	|   <%   |   R    |   R    |
+	|   <&   |   R    |   R    |
+	|   </   |   R    |   R    |
+	|   <*   |   R    |   R    |
+	|   <!   |   R    |   R    |
+	|   +~   |   R    |   R    |
+	|   +|   |   R    |   R    |
+	|   +>   |   R    |   R    |
+	|   +<   |   R    |   R    |
+	|   +^   |   R    |   R    |
+	|   +%   |   R    |   R    |
+	|   +/   |   R    |   R    |
+	|   +*   |   R    |   R    |
+	|   +!   |   R    |   R    |
+	|   +-   |   R    |   R    |
+	|   ^~   |   R    |   R    |
+	|   ^|   |   R    |   R    |
+	|   ^>   |   R    |   R    |
+	|   ^<   |   R    |   R    |
+	|   ^+   |   R    |   R    |
+	|   ^^   |   R    |   R    |
+	|   ^%   |   R    |   R    |
+	|   ^/   |   R    |   R    |
+	|   ^*   |   R    |   R    |
+	|   ^!   |   R    |   R    |
+	|   %~   |   R    |   R    |
+	|   %|   |   R    |   R    |
+	|   %>   |   R    |   R    |
+	|   %<   |   R    |   R    |
+	|   %+   |   R    |   R    |
+	|   %^   |   R    |   R    |
+	|   %%   |   R    |   R    |
+	|   %/   |   R    |   R    |
+	|   %*   |   R    |   R    |
+	|   %!   |   R    |   R    |
+	|   &~   |   R    |   R    |
+	|   &>   |   R    |   R    |
+	|   &<   |   R    |   R    |
+	|   &+   |   R    |   R    |
+	|   &^   |   R    |   R    |
+	|   &%   |   R    |   R    |
+	|   &&   |   R    |   R    |
+	|   &*   |   R    |   R    |
+	|   /~   |   R    |   R    |
+	|   /|   |   R    |   R    |
+	|   />   |   R    |   R    |
+	|   /=   |   R    |   R    | assign and op
+	|   /<   |   R    |   R    |
+	|   /+   |   R    |   R    |
+	|   /^   |   R    |   R    |
+	|   /%   |   R    |   R    |
+	|   /&   |   R    |   R    |
+	|   /*   |   R    |   R    |
+	|   /!   |   R    |   R    |
 	|   *~   |   R    |   R    |
 	|   *|   |   R    |   R    |
-	|   /*   |   R    |   R    |
+	|   *>   |   R    |   R    |
+	|   *=   |   R    |   R    | assign and op
+	|   *<   |   R    |   R    |
+	|   *+   |   R    |   R    |
+	|   *^   |   R    |   R    |
+	|   *%   |   R    |   R    |
 	|   */   |   R    |   R    |
-	|   &*   |   R    |   R    |
-	|   <%   |   R    |   R    |
-	|   %<   |   R    |   R    |
-	|   >%   |   R    |   R    |
-	|   %>   |   R    |   R    |
-	|   ^%   |   R    |   R    |
-	|   %^   |   R    |   R    |
-	|   -%   |   R    |   R    |
-	|   !%   |   R    |   R    | `xxx!%` is `xxx!`, `%`
-	|   %!   |   R    |   R    |
-	|   ~%   |   R    |   R    |
-	|   %~   |   R    |   R    |
-	|   |%   |   R    |   R    |
-	|   %|   |   R    |   R    |
-	|   /%   |   R    |   R    |
-	|   %/   |   R    |   R    |
-	|   &%   |   R    |   R    |
-	|   <^   |   R    |   R    |
-	|   ^<   |   R    |   R    |
-	|   >^   |   R    |   R    |
-	|   ^>   |   R    |   R    |
-	|   -^   |   R    |   R    |
-	|   !^   |   R    |   R    | `xxx!^` is `xxx!`, `^`
-	|   ^!   |   R    |   R    |
-	|   ~^   |   R    |   R    |
-	|   ^~   |   R    |   R    |
-	|   |^   |   R    |   R    |
-	|   ^|   |   R    |   R    |
-	|   /^   |   R    |   R    |
-	|   ^/   |   R    |   R    |
-	|   &^   |   R    |   R    |
-	|   <~   |   R    |   R    |
-	|   ~<   |   R    |   R    |
-	|   >~   |   R    |   R    |
-	|   ~>   |   R    |   R    |
-	|   -~   |   R    |   R    |
-	|   ~-   |   R    |   R    |
+	|   *!   |   R    |   R    |
 	|   !~   |   R    |   R    | `xxx!~` is `xxx!`, `~`
-	|   ~!   |   R    |   R    |
-	|   /~   |   R    |   R    |
-	|   ~/   |   R    |   R    |
-	|   &~   |   R    |   R    |
-	|   ~&   |   R    |   R    |
-	|   <|   |   R    |   R    |
-	|   |<   |   R    |   R    |
-	|   >|   |   R    |   R    |
-	|   |>   |   R    |   R    |
-	|   -|   |   R    |   R    |
-	|   |-   |   R    |   R    |
 	|   !|   |   R    |   R    | `xxx!|` is `xxx!`, `|`
-	|   |!   |   R    |   R    |
-	|   /|   |   R    |   R    |
-	|   |/   |   R    |   R    |
-	|   |&   |   R    |   R    |
-	|   &<   |   R    |   R    |
-	|   <&   |   R    |   R    |
-	|   &>   |   R    |   R    |
-	|   >&   |   R    |   R    |
-	|   /&   |   R    |   R    |
-	|   &&   |   R    |   R    |
-	|   ><   |   R    |   R    |
-	|  >=<   |   R    |   R    |
-	|   <>   |   R    |   R    |
-	|  <=>   |   R    |   R    |
-	|   !<   |   R    |   R    | `xxx!<` is `xxx!`, `<`
-	|   <!   |   R    |   R    |
-	|   /<   |   R    |   R    |
-	|   </   |   R    |   R    |
 	|   !>   |   R    |   R    | `xxx!>` is `xxx!`, `>`
-	|   >!   |   R    |   R    |
-	|   />   |   R    |   R    |
-	|   >/   |   R    |   R    |
-	|   /!   |   R    |   R    |
+	|   !=   |   R    |   R    | assign and op, does not steal from macro params, so `xxx!=>` is `xxx!`, `=>`
+	|   !<   |   R    |   R    | `xxx!<` is `xxx!`, `<`
+	|   !+   |   R    |   R    | `xxx!+` is `xxx!`, `+`
+	|   !^   |   R    |   R    | `xxx!^` is `xxx!`, `^`
+	|   !%   |   R    |   R    | `xxx!%` is `xxx!`, `%`
 	|   !/   |   R    |   R    | `xxx!/` is `xxx!`, `/`
+	|   !*   |   R    |   R    | `xxx!*` is `xxx!`, `*`
+	|   !!   |   R    |   R    |
+	|   -~   |   R    |   R    |
+	|   -|   |   R    |   R    |
+	|   ->   |   R    |   R    | will likely be projection
+	|   -=   |   R    |   R    | assign and op
+	|   -<   |   R    |   R    |
+	|   -+   |   R    |   R    |
+	|   -^   |   R    |   R    |
+	|   -%   |   R    |   R    |
+	|   -/   |   R    |   R    |
+	|   -*   |   R    |   R    |
 	+--------+--------+--------+
 	
 }
