@@ -5,11 +5,10 @@
 New Syntax {
 	
 	--Since there is a trait expr, the type expression doesnt parse binary operators, unless the trait expr was already parsed.
-	globstat @::= | optExport ["unsafe"] ["defer"] "impl" ["(" paramList ")"] [basicExp "for"] basicExp [whereClauses] tableconstructor
+	globstat @::= | optExport ["unsafe"] "impl" ["(" paramList ")"] [basicExp "for"] basicExp [whereClauses] tableconstructor
 }
 
 New Keywords {
-	defer
 	where
 	impl
 	Self
@@ -34,9 +33,6 @@ Impl Statement {
 	
 	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the 'basicExp for' form.
 	
-	--Actually, is this a good idea? Why not do compiler magic to auto "add" it instead? (like when impl T, where T: ?Drop, or something?)
-	--Will "defer" be used as a hack, to avoid adding any `T: ?Drop` style things, at the cost of simple dyn support?
-	Adding 'defer', makes type checking happen only once the impl is actually used, allowing you to use T in any way you like.
 }
 
 Archive {
