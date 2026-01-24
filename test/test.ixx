@@ -207,8 +207,6 @@ extern "C++"
 export int main()
 {
 #if 0
-	const auto x = slu::spec::extract_and_merge_ebnf_blocks(
-	    "C:/libraries/lua/lua-5.4.4/src/slua/spec/");
 
 	constexpr bool TEST_SPEED = false;
 
