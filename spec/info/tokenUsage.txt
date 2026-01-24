@@ -67,13 +67,23 @@ Char Usage {
 	|   -    |   X    |   X    |
 	|   //   |        |   X    | floor-div
 	|   /    |   X    |   X    | lifetime, or division
-	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (x ** y) not (x * (*y))
+	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (`x ** y`) not (`x * (*y)`)
 	|   *    |   X    |   X    |
-	|   !    |   X    |   ~    | postfix only counts as macro-call when no whitespace between, and only for const-vars.
+	|   !    |   X    |   ~    | postfix only counts as macro-call when no whitespace between.
 	|   &    |   X    |        |
-	|   |    |   X    |   X    | prefix -> closures (|x| x*x), also for patterns
-	|   ||   |   ^    |   R    |
+	|   |    |   X    |   X    | prefix -> closures (`|x| x*x`), also for patterns
+	|   ||   |   ^    |   R    | prefix -> closures with no args (`|| 53`)
 	|        |        |        |
+	|  :::   |   R    |   R    |
+	|  +++   |   R    |   R    |
+	|  ///   |   R    |   R    |
+	|  ***   |   R    |   R    |
+	|   <<   |   R    |   R    |
+	|   >>   |   R    |   R    |
+	|   ^^   |   R    |   R    |
+	|   %%   |   R    |   R    |
+	|   !!   |   R    |   R    |
+	|   ~~   |   R    |   R    |
 	|   |=   |   R    |   R    | assign and op
 	|   -=   |   R    |   R    | assign and op
 	|  //=   |   R    |   R    | assign and op
@@ -83,16 +93,118 @@ Char Usage {
 	|   -<   |   R    |   R    |
 	|   ->   |   R    |   R    | will likely be projection
 	|   =<   |   R    |   R    |
-	|   +>   |   R    |   R    |
 	|   +<   |   R    |   R    |
-	|   >+   |   R    |   R    |
 	|   <+   |   R    |   R    |
+	|   +>   |   R    |   R    |
+	|   >+   |   R    |   R    |
+	|   +^   |   R    |   R    |
+	|   ^+   |   R    |   R    |
+	|   +%   |   R    |   R    |
+	|   %+   |   R    |   R    |
+	|   +-   |   R    |   R    |
+	|   -+   |   R    |   R    |
+	|   +*   |   R    |   R    |
+	|   *+   |   R    |   R    |
+	|   +!   |   R    |   R    |
+	|   !+   |   R    |   R    | `xxx!+` is `xxx!`, `+`
+	|   +~   |   R    |   R    |
+	|   ~+   |   R    |   R    |
+	|   |+   |   R    |   R    |
+	|   +|   |   R    |   R    |
 	|   -/   |   R    |   R    |
 	|   /+   |   R    |   R    |
 	|   +/   |   R    |   R    |
+	|   &+   |   R    |   R    |
+	|   <*   |   R    |   R    |
+	|   *<   |   R    |   R    |
+	|   >*   |   R    |   R    |
+	|   *>   |   R    |   R    |
+	|   ^*   |   R    |   R    |
+	|   *^   |   R    |   R    |
+	|   %*   |   R    |   R    |
+	|   *%   |   R    |   R    |
+	|   -*   |   R    |   R    |
+	|  **-   |   R    |   R    |
+	|   !*   |   R    |   R    | `xxx!*` is `xxx!`, `*`
+	|   *!   |   R    |   R    |
+	|   *~   |   R    |   R    |
+	|   *|   |   R    |   R    |
 	|   /*   |   R    |   R    |
 	|   */   |   R    |   R    |
+	|   &*   |   R    |   R    |
+	|   <%   |   R    |   R    |
+	|   %<   |   R    |   R    |
+	|   >%   |   R    |   R    |
+	|   %>   |   R    |   R    |
+	|   ^%   |   R    |   R    |
+	|   %^   |   R    |   R    |
+	|   -%   |   R    |   R    |
+	|   !%   |   R    |   R    | `xxx!%` is `xxx!`, `%`
+	|   %!   |   R    |   R    |
+	|   ~%   |   R    |   R    |
+	|   %~   |   R    |   R    |
+	|   |%   |   R    |   R    |
+	|   %|   |   R    |   R    |
+	|   /%   |   R    |   R    |
+	|   %/   |   R    |   R    |
+	|   &%   |   R    |   R    |
+	|   <^   |   R    |   R    |
+	|   ^<   |   R    |   R    |
+	|   >^   |   R    |   R    |
+	|   ^>   |   R    |   R    |
+	|   -^   |   R    |   R    |
+	|   !^   |   R    |   R    | `xxx!^` is `xxx!`, `^`
+	|   ^!   |   R    |   R    |
+	|   ~^   |   R    |   R    |
+	|   ^~   |   R    |   R    |
+	|   |^   |   R    |   R    |
+	|   ^|   |   R    |   R    |
+	|   /^   |   R    |   R    |
+	|   ^/   |   R    |   R    |
+	|   &^   |   R    |   R    |
+	|   <~   |   R    |   R    |
+	|   ~<   |   R    |   R    |
+	|   >~   |   R    |   R    |
+	|   ~>   |   R    |   R    |
+	|   -~   |   R    |   R    |
+	|   ~-   |   R    |   R    |
+	|   !~   |   R    |   R    | `xxx!~` is `xxx!`, `~`
+	|   ~!   |   R    |   R    |
+	|   /~   |   R    |   R    |
+	|   ~/   |   R    |   R    |
+	|   &~   |   R    |   R    |
+	|   ~&   |   R    |   R    |
+	|   <|   |   R    |   R    |
+	|   |<   |   R    |   R    |
+	|   >|   |   R    |   R    |
+	|   |>   |   R    |   R    |
+	|   -|   |   R    |   R    |
+	|   |-   |   R    |   R    |
+	|   !|   |   R    |   R    | `xxx!|` is `xxx!`, `|`
+	|   |!   |   R    |   R    |
+	|   /|   |   R    |   R    |
+	|   |/   |   R    |   R    |
+	|   |&   |   R    |   R    |
+	|   &<   |   R    |   R    |
+	|   <&   |   R    |   R    |
+	|   &>   |   R    |   R    |
+	|   >&   |   R    |   R    |
+	|   /&   |   R    |   R    |
 	|   &&   |   R    |   R    |
+	|   ><   |   R    |   R    |
+	|  >=<   |   R    |   R    |
+	|   <>   |   R    |   R    |
+	|  <=>   |   R    |   R    |
+	|   !<   |   R    |   R    | `xxx!<` is `xxx!`, `<`
+	|   <!   |   R    |   R    |
+	|   /<   |   R    |   R    |
+	|   </   |   R    |   R    |
+	|   !>   |   R    |   R    | `xxx!>` is `xxx!`, `>`
+	|   >!   |   R    |   R    |
+	|   />   |   R    |   R    |
+	|   >/   |   R    |   R    |
+	|   /!   |   R    |   R    |
+	|   !/   |   R    |   R    | `xxx!/` is `xxx!`, `/`
 	+--------+--------+--------+
 	
 }
