@@ -41,7 +41,9 @@ std::string extract_and_merge_ebnf_blocks(const std::string& directory = "in")
 
 	for (const auto& entry : fs::recursive_directory_iterator(directory))
 	{
-		if (!entry.is_regular_file() || entry.path().extension() == ".hpp")
+		auto ext = entry.path().extension();
+		if (!entry.is_regular_file() || ext != ".txt"
+		    || entry.path().string().starts_with("spec/info/"))
 			continue;
 
 		std::ifstream file(entry.path());
