@@ -4,7 +4,7 @@
 
 New Syntax {
 	--Also, type expr is preferred over func call / var, so if they return types, then they are treated as types.
-	--Note: the 'and' and 'or' operators are reserved.
+	--Note: the `and` and `or` operators are reserved.
 	--Note: || lambdas are not parsed. Aka `|...| ...`
 	--Note: table constructors are not parsed.
 	sPat ::= basicExp
@@ -58,7 +58,7 @@ New Keywords {
 Match {
 	
 	--TODO: do we even need restrictions?
-	-- the only loss would be '5 or 7 or 11' type of stuff, unless you type it out using a 'if'
+	-- the only loss would be `5 or 7 or 11` type of stuff, unless you type it out using a `if`
 	
 	Lets you match on a expressions result.
 	

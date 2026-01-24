@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	postunop @::= | ‘?’
+	postunop @::= | "?"
 	
 	retstat @::= | "throw" exp
 
@@ -27,7 +27,7 @@ New Keywords {
 
 Errors {
 	
-	The type specifier '~' is used to create a `Result` type.
+	The type specifier `~` is used to create a `Result` type.
 	Those types are the only ones allowed for the `?` unary operator.
 	When returning errors by value, it is a variant containing the Error, and the Value.
 	When returning errors by exception, it is optimized into just the Value (or nothing at all).
@@ -38,10 +38,10 @@ Errors {
 		wrapError(self, op=ErrWrapFunc(E,Err)) ->Value~E	--Changes the error, (only if it is an error)
 	}
 	
-	Postfix "?" unary operator passes the error upwards, this means the function must return a `Result` type or a try block must handle it.
+	Postfix `?` unary operator passes the error upwards, this means the function must return a `Result` type or a try block must handle it.
 	When using `?` at const time without anything to pass it to, the error is passed to the compiler, otherwise the value is returned.
 	If an error is silently ignored, a soft-error is logged at compile-time, and the operator is inserted.
-	Using the "?" operator on types that arent specified with '~', is a soft-error. (operator is ignored)
+	Using the `?` operator on types that arent specified with `~`, is a soft-error. (operator is ignored)
 	
 	To explicitly ignore a error use drop.
 	(drop myErroringFunc();)
@@ -64,7 +64,7 @@ Errors {
 	The order inside the patterns is undefined.
 	
 	Unmatched errors are passed down as if they werent ever caught, and are added to the return type, if it isnt already specified,
-	this means that you have to use the '?' operator, or catch it elsewhere.
+	this means that you have to use the `?` operator, or catch it elsewhere.
 	
 	```slu
 	

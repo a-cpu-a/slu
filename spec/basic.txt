@@ -7,12 +7,12 @@ New Syntax {
 	--TODO: ban non global statements in chunks at parse time.
 	chunk ::= {globstat}
 
-	block ::= {stat} [retstat [‘;’]]
+	block ::= {stat} [retstat [";"]]
 	
-	globstat ::= ‘;’
+	globstat ::= ";"
 	
-	basicstat ::= ‘;’
-		| var ‘=’ exp
+	basicstat ::= ";"
+		| var "=" exp
 		| var selfablecall
 	
 	statOrExpr ::=
@@ -22,28 +22,28 @@ New Syntax {
 	stat ::= basicstat
 		| globstat
 		| statOrExpr
-		| [label] ‘{’ block ‘}’
+		| [label] "{" block "}"
 
 	retstat ::= ("return" | ("break" | "continue") ["'" Name]) [exp]
 
-	blockOrRet ::= retstat [‘;’] | ‘{’ block ‘}’
+	blockOrRet ::= retstat [";"] | "{" block "}"
 	
 	
 	label ::= "'" Name ":"
 
-	explist ::= exp {‘,’ exp}
-	varlist ::= var {‘,’ var}
+	explist ::= exp {"," exp}
+	varlist ::= var {"," var}
 	
-	subvar ::= ‘.*’ | ‘.’ Name | ‘[’ exp ‘]’
-	var ::= (Name | ‘(’ exp ‘)’) {{selfablecall} subvar}
+	subvar ::= ".*" | "." Name | "[" exp "]"
+	var ::= (Name | "(" exp ")") {{selfablecall} subvar}
 
-	basicArgs ::=  ‘(’ [explist] ‘)’ | LiteralString
+	basicArgs ::=  "(" [explist] ")" | LiteralString
 	args ::=  basicArgs | tableconstructor
 	
 	selfablecall ::= ["." Name] args
 	selfablecallBasic ::= ["." Name] basicArgs
 
-	basicExp ::=  Name | ‘(’ exp ‘)’ | Numeral | LiteralString | tableconstructor
+	basicExp ::=  Name | "(" exp ")" | Numeral | LiteralString | tableconstructor
 		| basicExp subvar | basicExp selfablecallBasic
 		| basicExp binop basicExp | {unop} basicExp {postunop}
 		| statOrExpr
@@ -52,17 +52,17 @@ New Syntax {
 		| exp subvar | exp selfablecall
 		| exp binop exp | {unop} exp {postunop}
 
-	tableconstructor ::= ‘{’ [fieldlist] ‘}’
+	tableconstructor ::= "{" [fieldlist] "}"
 	fieldlist ::= field {fieldsep field} fieldsep
-	field ::= (Name ‘=’ exp) | exp
-	fieldsep ::= [‘,’ | ‘;’]
+	field ::= (Name "=" exp) | exp
+	fieldsep ::= ["," | ";"]
 
-	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’
-		| ‘++’
-		| ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘!=’
-		| ‘and’ | ‘or’
+	binop ::=  "+" | "-" | "*" | "/" | "//" | "^" | "%"
+		| "++"
+		| "<" | "<=" | ">" | ">=" | "==" | "!="
+		| "and" | "or"
 
-	unop ::= ‘-’ | ‘!’
+	unop ::= "-" | "!"
 	
 	postunop ::=
 }

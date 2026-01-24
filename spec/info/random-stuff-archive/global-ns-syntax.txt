@@ -5,5 +5,5 @@
 
 @:>::x::T{}
 let x = b
-:>::x::y+=x -- ::x::y style is impossible due to indexing into the 'b' namespace.
+:>::x::y+=x -- ::x::y style is impossible due to indexing into the `b` namespace.
 return 100 < :>::x::y

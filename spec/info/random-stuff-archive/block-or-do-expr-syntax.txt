@@ -2,7 +2,7 @@
 
 ----------------------------------
 -- Method 1
--- 'do' for block expressions, meaning 'break' will ignore normal blocks without a 'for'/'do'/'loop'/...
+-- `do` for block expressions, meaning `break` will ignore normal blocks without a `for`/`do`/`loop`/...
 -- generic types can infer their generic-args braces.
 ----------------------------------
 
@@ -69,7 +69,7 @@ fn genericReturnTy() -> Type(6) {
 
 ----------------------------------
 -- Method 2
--- no 'do' for block expressions, meaning 'break' will not ignore normal blocks
+-- no `do` for block expressions, meaning `break` will not ignore normal blocks
 -- an extra comma needed in 1 element tuples `(1,)`
 -- generic types cant infer any generic-args braces, as they arent any different to constructor braces.
 ----------------------------------

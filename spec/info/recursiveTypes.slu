@@ -1,4 +1,4 @@
---the 'struct' keyword makes this function also tag the returned type with a name (Ptr)
+--the `struct` keyword makes this function also tag the returned type with a name (Ptr)
 struct fn Ptr(T=type) -> type {
 	return struct{
 		p=mut usize
@@ -50,7 +50,7 @@ const Y = struct:recName{
 const X = struct{
 	fieldA = Ptr(rec Y)
 };
-struct Y { -- a new statement that creates a named type. (just like 'struct fn' would)
+struct Y { -- a new statement that creates a named type. (just like `struct fn` would)
 	fieldB = X
 };
 

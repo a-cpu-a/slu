@@ -21,7 +21,7 @@ New Keywords {
 	any 		(..)		(..)		c++ concepts but defining the type (Ty = any MyConcept)
 	has    		(..)		(..)		maybe for trait impl check?
 	raw    		(766k)		(176k)		?
-	glob   		(..)		(..)		alternative form for global vars, instead of 'static'. A global var that is might not be stored in const-memory / is memrefed?
+	glob   		(..)		(..)		alternative form for global vars, instead of `static`. A global var that is might not be stored in const-memory / is memrefed?
 	reloc  		(6.1k)		(470)		Relocate a value
 	nosize		(..)		(..)		maybe something you could add in a slice, to disable size data `[nosize]u8`, also making the type unimplemented Sized.
 	concept 	(..)		(..)		maybe c++ style template concepts

@@ -11,9 +11,9 @@ Whitespace {
 	
 	Whitespace includes comments, both multi-line and single-line.
 	
-	Single line comments start with '--' and end at a newline.
+	Single line comments start with `--` and end at a newline.
 	Single line comments dont start with 3 dashes, since 3 dashes identify a doc-comment.
-	Single line comments dont start with '--<', since that identifies a doc-comment.
+	Single line comments dont start with `--<`, since that identifies a doc-comment.
 	
 	
 	Multiline comments:

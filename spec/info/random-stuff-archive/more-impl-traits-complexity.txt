@@ -14,7 +14,7 @@ impl(const T = type) NewFrom(T) for Box(T) where T.:logical {
 	const assoc_constant = 4 + Self.:T.:additive_mix; -- `Box(u8).:assoc_constant == 4 + u8.:additive_mix`
 	
 	fn new(
-		const Self,--special Self type arg, just like 'self' args in other langs
+		const Self,--special Self type arg, just like `self` args in other langs
 		--["const"] ArgName "=" Type
 		initializer = FnOnce(T,{}),
 		allocator = *impl Alloc) -> Self~AlErr {

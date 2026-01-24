@@ -15,7 +15,7 @@ Naming Conventions {
 	J. U.T.F.8 -> Jutf8
 	U. Int. -> Uint
 	J. Word -> JWord --2 capitals, as word is not a acronym.
-	A Func -> AFunc --A is ment as the word 'a', not some acronym
+	A Func -> AFunc --A is ment as the word `a`, not some acronym
 	
 	Crates and modules use snake_case in code, and kebab-case outside of it.
 	

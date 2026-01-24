@@ -9,13 +9,13 @@ Only used inside strings: # ` \ $
 P - prefix
 S - suffix
 
-' ' -> unused.
-'X' -> used.
-'-' -> cant ever be used.
-'~' -> likely bad idea to use, as it conflicts sometimes.
-'/' -> too wierd to use.
-'^' -> already used by another token.
-'R' -> reserved.
+` ` -> unused.
+`X` -> used.
+`-` -> cant ever be used.
+`~` -> likely bad idea to use, as it conflicts sometimes.
+`/` -> too wierd to use.
+`^` -> already used by another token.
+`R` -> reserved.
 +--------+--+
 |  SYM	 |PS|
 +--------+--+

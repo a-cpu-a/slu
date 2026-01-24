@@ -127,7 +127,7 @@ Macro {
 	--TODO: a way to splice out basic keywords, like "mut", "ex" and "const"
 	-- maybe token sequences?
 	
-	Creates a new global or local macro with a name 'Name', that cant be modified.
+	Creates a new global or local macro with a name `Name`, that cant be modified.
 	These macros are hygenic, so no variables can be implicitly shared between the macro and the outside world.
 	
 	Macro's must return one of the macro types (or a simple container of them), if you need to return something else, use a const function.

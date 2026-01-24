@@ -18,11 +18,11 @@ Const Statement {
 	The expressions are evaluated at compile time.
 	
 	
-	Unlike 'let', 'const' variables are available in any order, and dont have to be in top-to-bottom order.
+	Unlike `let`, `const` variables are available in any order, and dont have to be in top-to-bottom order.
 	
 	```slu
 	
-	let VecU8 hi = {1,2,3}; --Valid, since 'VecU8' is a const variable 
+	let VecU8 hi = {1,2,3}; --Valid, since `VecU8` is a const variable 
 	
 	const VecU8 = Vec(u8);
 	

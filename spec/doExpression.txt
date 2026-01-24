@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	basicExp @::= | ["const"] "do" ["->" basicExp] ‘{’ block ‘}’
+	basicExp @::= | ["const"] "do" ["->" basicExp] "{" block "}"
 }
 
 New Keywords {

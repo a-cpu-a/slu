@@ -80,7 +80,7 @@ ex fn main() {
     println!("{}", p.to_string());
 
     -- 4. Control Flow: If Expressions
-    -- 'if' can be used as an expression returning a value
+    -- `if` can be used as an expression returning a value
     let description = if counter > 0 => "Positive" else "Zero or Negative";
     println!("Status: {}", description);
 

@@ -31,7 +31,7 @@ Impl Statement {
 	
 	If your trait expr / basic expr need "()" around them you may need a empty param list, to keep things parsable.
 	
-	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the 'basicExp for' form.
+	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the `basicExp for` form.
 	
 }
 
