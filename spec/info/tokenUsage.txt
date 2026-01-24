@@ -11,6 +11,8 @@ Char Usage {
 	'X' -> used.
 	'-' -> cant ever be used.
 	'/' -> too wierd to use.
+	'^' -> already used by another token.
+	'R' -> reserved.
 	
 	Expressions:
 	+--------+--------+--------+
@@ -62,20 +64,35 @@ Char Usage {
 	| alloc  |   X    |        |
 	|  ---   |   X    |   X    | doc comments
 	|   --   |   X    |   X    | comments
-	|   -=   |        |   X    |
 	|   -    |   X    |   X    |
-	|  //=   |        |   X    |
-	|   /=   |        |   X    |
 	|   //   |        |   X    | floor-div
 	|   /    |   X    |   X    | lifetime, or division
-	|   *=   |        |   X    |
 	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (x ** y) not (x * (*y))
 	|   *    |   X    |   X    |
-	|   !=   |        |        |
 	|   !    |   X    |   ~    | postfix only counts as macro-call when no whitespace between, and only for const-vars.
 	|   &    |   X    |        |
-	|   |=   |        |   X    |
 	|   |    |   X    |   X    | prefix -> closures (|x| x*x), also for patterns
+	|   ||   |   ^    |   R    |
+	|        |        |        |
+	|   |=   |   R    |   R    | assign and op
+	|   -=   |   R    |   R    | assign and op
+	|  //=   |   R    |   R    | assign and op
+	|   /=   |   R    |   R    | assign and op
+	|   *=   |   R    |   R    | assign and op
+	|   !=   |   R    |   R    | assign and op, does not steal from macro params, so `xxx!=>` is `xxx!`, `=>`
+	|   -<   |   R    |   R    |
+	|   ->   |   R    |   R    | will likely be projection
+	|   =<   |   R    |   R    |
+	|   +>   |   R    |   R    |
+	|   +<   |   R    |   R    |
+	|   >+   |   R    |   R    |
+	|   <+   |   R    |   R    |
+	|   -/   |   R    |   R    |
+	|   /+   |   R    |   R    |
+	|   +/   |   R    |   R    |
+	|   /*   |   R    |   R    |
+	|   */   |   R    |   R    |
+	|   &&   |   R    |   R    |
 	+--------+--------+--------+
 	
 }
