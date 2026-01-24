@@ -2,7 +2,7 @@
 # Dependencies: 
 #
 
-Char Usage {
+Token Usage {
 
 Only used inside strings: # ` \ $
 
