@@ -6,7 +6,6 @@ Char Usage {
 	
 	Only used inside strings: # ` \ $
 	
-	
 	' ' -> unused.
 	'X' -> used.
 	'-' -> cant ever be used.
@@ -15,197 +14,196 @@ Char Usage {
 	'R' -> reserved.
 	
 	Expressions:
-	+--------+--------+--------+
-	|  SYM	 | PREFIX | SUFFIX |
-	+--------+--------+--------+
-	|   #    |        |        |
-	|   `    |        |        |
-	|   \    |        |        |
-	|   $    |        |        |
-	|   @    |   X    |   -    |
-	|   _    |   X    |   -    |
-	| a-zA-Z |   X    |   -    |
-	|  0-9   |   X    |   -    |
-	|   ;    |        |   -    |
-	|   ,    |        |   -    |
-	|   :>   |   X    |   -    |
-	|   :    |        |   X    |
-	|   <    |        |   X    |
-	|   (    |   X    |   X    | suffix is used as call
-	|   [    |   X    |   X    |
-	|   {    |   X    |   X    |
-	|   }    |   /    |   X    |
-	|   ]    |   /    |   X    |
-	|   )    |   /    |   X    |
-	|   >=   |        |   X    |
-	|   >    |   -    |   X    | prefix, cuz of '=>' and '->'
-	|   ?    |        |   X    |
-	|   '    |   X    |   X    |
-	|   "    |   X    |   X    |
-	|   %    |        |   X    |
-	|   ~    |        |   X    |
-	|   ^    |        |   X    |
-	|   +    |        |   X    |
-	|   ++   |        |   X    |
-	|   .    |   X    |   X    | prefix -> number (.0)
-	|   ..   |   X    |   X    |
-	|   .*   |        |   X    |
-	|   .:   |        |   X    |
-	|   =    |   -    |   X    | prefix, cuz assignment would turn into eq. suffix -> == operator
-	|   or   |        |   X    |
-	|  and   |        |   X    |
-	|   in   |        |   X    |
-	|  mut   |   X    |        |
-	|  dyn   |   X    |        |
-	|  impl  |   X    |   -    |
-	|   if   |   X    |   -    |
-	| trait  |   X    |   -    |
-	| struct |   X    |   -    |
-	|  union |   X    |   -    |
-	| alloc  |   X    |        |
-	|  ---   |   X    |   X    | doc comments
-	|   --   |   X    |   X    | comments
-	|   -    |   X    |   X    |
-	|   //   |        |   X    | floor-div
-	|   /    |   X    |   X    | lifetime, or division
-	|   **   |   X    |   X    | steals to-ptr meaning in suffix form (`x ** y`) not (`x * (*y)`)
-	|   *    |   X    |   X    |
-	|   !    |   X    |   ~    | postfix only counts as macro-call when no whitespace between.
-	|   &    |   X    |        |
-	|   |    |   X    |   X    | prefix -> closures (`|x| x*x`), also for patterns
-	|   ||   |   ^    |   R    | prefix -> closures with no args (`|| 53`)
-	|        |        |        |
-	|  >=<   |   R    |   R    |
-	|  <=>   |   R    |   R    |
-	|  +++   |   R    |   R    |
-	|  //=   |   R    |   R    | assign and op
-	|  ///   |   R    |   R    |
-	|  ***   |   R    |   R    |
-	|  **-   |   R    |   R    |
-	|  :::   |   R    |   R    |
-	|   ~~   |   R    |   R    |
-	|   ~>   |   R    |   R    |
-	|   ~<   |   R    |   R    |
-	|   ~+   |   R    |   R    |
-	|   ~^   |   R    |   R    |
-	|   ~%   |   R    |   R    |
-	|   ~&   |   R    |   R    |
-	|   ~/   |   R    |   R    |
-	|   ~!   |   R    |   R    |
-	|   ~-   |   R    |   R    |
-	|   |>   |   R    |   R    |
-	|   |=   |   R    |   R    | assign and op
-	|   |<   |   R    |   R    |
-	|   |+   |   R    |   R    |
-	|   |^   |   R    |   R    |
-	|   |%   |   R    |   R    |
-	|   |&   |   R    |   R    |
-	|   |/   |   R    |   R    |
-	|   |!   |   R    |   R    |
-	|   |-   |   R    |   R    |
-	|   >~   |   R    |   R    |
-	|   >|   |   R    |   R    |
-	|   >>   |   R    |   R    |
-	|   ><   |   R    |   R    |
-	|   >+   |   R    |   R    |
-	|   >^   |   R    |   R    |
-	|   >%   |   R    |   R    |
-	|   >&   |   R    |   R    |
-	|   >/   |   R    |   R    |
-	|   >*   |   R    |   R    |
-	|   >!   |   R    |   R    |
-	|   =<   |   R    |   R    |
-	|   <~   |   R    |   R    |
-	|   <|   |   R    |   R    |
-	|   <>   |   R    |   R    |
-	|   <<   |   R    |   R    |
-	|   <+   |   R    |   R    |
-	|   <^   |   R    |   R    |
-	|   <%   |   R    |   R    |
-	|   <&   |   R    |   R    |
-	|   </   |   R    |   R    |
-	|   <*   |   R    |   R    |
-	|   <!   |   R    |   R    |
-	|   +~   |   R    |   R    |
-	|   +|   |   R    |   R    |
-	|   +>   |   R    |   R    |
-	|   +<   |   R    |   R    |
-	|   +^   |   R    |   R    |
-	|   +%   |   R    |   R    |
-	|   +/   |   R    |   R    |
-	|   +*   |   R    |   R    |
-	|   +!   |   R    |   R    |
-	|   +-   |   R    |   R    |
-	|   ^~   |   R    |   R    |
-	|   ^|   |   R    |   R    |
-	|   ^>   |   R    |   R    |
-	|   ^<   |   R    |   R    |
-	|   ^+   |   R    |   R    |
-	|   ^^   |   R    |   R    |
-	|   ^%   |   R    |   R    |
-	|   ^/   |   R    |   R    |
-	|   ^*   |   R    |   R    |
-	|   ^!   |   R    |   R    |
-	|   %~   |   R    |   R    |
-	|   %|   |   R    |   R    |
-	|   %>   |   R    |   R    |
-	|   %<   |   R    |   R    |
-	|   %+   |   R    |   R    |
-	|   %^   |   R    |   R    |
-	|   %%   |   R    |   R    |
-	|   %/   |   R    |   R    |
-	|   %*   |   R    |   R    |
-	|   %!   |   R    |   R    |
-	|   &~   |   R    |   R    |
-	|   &>   |   R    |   R    |
-	|   &<   |   R    |   R    |
-	|   &+   |   R    |   R    |
-	|   &^   |   R    |   R    |
-	|   &%   |   R    |   R    |
-	|   &&   |   R    |   R    |
-	|   &*   |   R    |   R    |
-	|   /~   |   R    |   R    |
-	|   /|   |   R    |   R    |
-	|   />   |   R    |   R    |
-	|   /=   |   R    |   R    | assign and op
-	|   /<   |   R    |   R    |
-	|   /+   |   R    |   R    |
-	|   /^   |   R    |   R    |
-	|   /%   |   R    |   R    |
-	|   /&   |   R    |   R    |
-	|   /*   |   R    |   R    |
-	|   /!   |   R    |   R    |
-	|   *~   |   R    |   R    |
-	|   *|   |   R    |   R    |
-	|   *>   |   R    |   R    |
-	|   *=   |   R    |   R    | assign and op
-	|   *<   |   R    |   R    |
-	|   *+   |   R    |   R    |
-	|   *^   |   R    |   R    |
-	|   *%   |   R    |   R    |
-	|   */   |   R    |   R    |
-	|   *!   |   R    |   R    |
-	|   !~   |   R    |   R    | `xxx!~` is `xxx!`, `~`
-	|   !|   |   R    |   R    | `xxx!|` is `xxx!`, `|`
-	|   !>   |   R    |   R    | `xxx!>` is `xxx!`, `>`
-	|   !=   |   R    |   R    | assign and op, does not steal from macro params, so `xxx!=>` is `xxx!`, `=>`
-	|   !<   |   R    |   R    | `xxx!<` is `xxx!`, `<`
-	|   !+   |   R    |   R    | `xxx!+` is `xxx!`, `+`
-	|   !^   |   R    |   R    | `xxx!^` is `xxx!`, `^`
-	|   !%   |   R    |   R    | `xxx!%` is `xxx!`, `%`
-	|   !/   |   R    |   R    | `xxx!/` is `xxx!`, `/`
-	|   !*   |   R    |   R    | `xxx!*` is `xxx!`, `*`
-	|   !!   |   R    |   R    |
-	|   -~   |   R    |   R    |
-	|   -|   |   R    |   R    |
-	|   ->   |   R    |   R    | will likely be projection
-	|   -=   |   R    |   R    | assign and op
-	|   -<   |   R    |   R    |
-	|   -+   |   R    |   R    |
-	|   -^   |   R    |   R    |
-	|   -%   |   R    |   R    |
-	|   -/   |   R    |   R    |
-	|   -*   |   R    |   R    |
-	+--------+--------+--------+
-	
++--------+---+---+
+|  SYM	 |Pre|Suf|
++--------+---+---+
+|   #    |   |   |
+|   `    |   |   |
+|   \    |   |   |
+|   $    |   |   |
+|   @    | X | - |
+|   _    | X | - |
+| a-zA-Z | X | - |
+|  0-9   | X | - |
+|   ;    |   | - |
+|   ,    |   | - |
+|   :>   | X | - |
+|   :    |   | X |
+|   <    |   | X |
+|   (    | X | X | suffix is used as call
+|   [    | X | X |
+|   {    | X | X |
+|   }    | / | X |
+|   ]    | / | X |
+|   )    | / | X |
+|   >=   |   | X |
+|   >    | - | X | prefix, cuz of '=>' and '->'
+|   ?    |   | X |
+|   '    | X | X |
+|   "    | X | X |
+|   %    |   | X |
+|   ~    |   | X |
+|   ^    |   | X |
+|   +    |   | X |
+|   ++   |   | X |
+|   .    | X | X | prefix -> number (.0)
+|   ..   | X | X |
+|   .*   |   | X |
+|   .:   |   | X |
+|   =    | - | X | prefix, cuz assignment would turn into eq. suffix -> == operator
+|   or   |   | X |
+|  and   |   | X |
+|   in   |   | X |
+|  mut   | X |   |
+|  dyn   | X |   |
+|  impl  | X | - |
+|   if   | X | - |
+| trait  | X | - |
+| struct | X | - |
+|  union | X | - |
+| alloc  | X |   |
+|  ---   | X | X | doc comments
+|   --   | X | X | comments
+|   -    | X | X |
+|   //   |   | X | floor-div
+|   /    | X | X | lifetime, or division
+|   **   | X | X | steals to-ptr meaning in suffix form (`x ** y`) not (`x * (*y)`)
+|   *    | X | X |
+|   !    | X | ~ | postfix only counts as macro-call when no whitespace between.
+|   &    | X |   |
+|   |    | X | X | prefix -> closures (`|x| x*x`), also for patterns
+|   ||   | ^ | R | prefix -> closures with no args (`|| 53`)
+|        |   |   |
+|  >=<   | R | R |
+|  <=>   | R | R |
+|  +++   | R | R |
+|  //=   | R | R | assign and op
+|  ///   | R | R |
+|  ***   | R | R |
+|  **-   | R | R |
+|  :::   | R | R |
+|   ~~   | R | R |
+|   ~>   | R | R |
+|   ~<   | R | R |
+|   ~+   | R | R |
+|   ~^   | R | R |
+|   ~%   | R | R |
+|   ~&   | R | R |
+|   ~/   | R | R |
+|   ~!   | R | R |
+|   ~-   | R | R |
+|   |>   | R | R |
+|   |=   | R | R | assign and op
+|   |<   | R | R |
+|   |+   | R | R |
+|   |^   | R | R |
+|   |%   | R | R |
+|   |&   | R | R |
+|   |/   | R | R |
+|   |!   | R | R |
+|   |-   | R | R |
+|   >~   | R | R |
+|   >|   | R | R |
+|   >>   | R | R |
+|   ><   | R | R |
+|   >+   | R | R |
+|   >^   | R | R |
+|   >%   | R | R |
+|   >&   | R | R |
+|   >/   | R | R |
+|   >*   | R | R |
+|   >!   | R | R |
+|   =<   | R | R |
+|   <~   | R | R |
+|   <|   | R | R |
+|   <>   | R | R |
+|   <<   | R | R |
+|   <+   | R | R |
+|   <^   | R | R |
+|   <%   | R | R |
+|   <&   | R | R |
+|   </   | R | R |
+|   <*   | R | R |
+|   <!   | R | R |
+|   +~   | R | R |
+|   +|   | R | R |
+|   +>   | R | R |
+|   +<   | R | R |
+|   +^   | R | R |
+|   +%   | R | R |
+|   +/   | R | R |
+|   +*   | R | R |
+|   +!   | R | R |
+|   +-   | R | R |
+|   ^~   | R | R |
+|   ^|   | R | R |
+|   ^>   | R | R |
+|   ^<   | R | R |
+|   ^+   | R | R |
+|   ^^   | R | R |
+|   ^%   | R | R |
+|   ^/   | R | R |
+|   ^*   | R | R |
+|   ^!   | R | R |
+|   %~   | R | R |
+|   %|   | R | R |
+|   %>   | R | R |
+|   %<   | R | R |
+|   %+   | R | R |
+|   %^   | R | R |
+|   %%   | R | R |
+|   %/   | R | R |
+|   %*   | R | R |
+|   %!   | R | R |
+|   &~   | R | R |
+|   &>   | R | R |
+|   &<   | R | R |
+|   &+   | R | R |
+|   &^   | R | R |
+|   &%   | R | R |
+|   &&   | R | R |
+|   &*   | R | R |
+|   /~   | R | R |
+|   /|   | R | R |
+|   />   | R | R |
+|   /=   | R | R | assign and op
+|   /<   | R | R |
+|   /+   | R | R |
+|   /^   | R | R |
+|   /%   | R | R |
+|   /&   | R | R |
+|   /*   | R | R |
+|   /!   | R | R |
+|   *~   | R | R |
+|   *|   | R | R |
+|   *>   | R | R |
+|   *=   | R | R | assign and op
+|   *<   | R | R |
+|   *+   | R | R |
+|   *^   | R | R |
+|   *%   | R | R |
+|   */   | R | R |
+|   *!   | R | R |
+|   !~   | R | R | `xxx!~` is `xxx!`, `~`
+|   !|   | R | R | `xxx!|` is `xxx!`, `|`
+|   !>   | R | R | `xxx!>` is `xxx!`, `>`
+|   !=   | R | R | assign and op, does not steal from macro params, so `xxx!=>` is `xxx!`, `=>`
+|   !<   | R | R | `xxx!<` is `xxx!`, `<`
+|   !+   | R | R | `xxx!+` is `xxx!`, `+`
+|   !^   | R | R | `xxx!^` is `xxx!`, `^`
+|   !%   | R | R | `xxx!%` is `xxx!`, `%`
+|   !/   | R | R | `xxx!/` is `xxx!`, `/`
+|   !*   | R | R | `xxx!*` is `xxx!`, `*`
+|   !!   | R | R |
+|   -~   | R | R |
+|   -|   | R | R |
+|   ->   | R | R | will likely be projection
+|   -=   | R | R | assign and op
+|   -<   | R | R |
+|   -+   | R | R |
+|   -^   | R | R |
+|   -%   | R | R |
+|   -/   | R | R |
+|   -*   | R | R |
++--------+---+---+
 }
