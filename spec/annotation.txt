@@ -14,7 +14,7 @@ New Syntax {
 		| "---"LiteralString
 		| "---"LineOfText
 		
-	outerAnnotation ::= "@" "<" modpath [tableconstructor]
+	outerAnnotation ::= "@<" modpath [tableconstructor]
 		| "--<"LiteralString
 		| "--<"LineOfText
 	
