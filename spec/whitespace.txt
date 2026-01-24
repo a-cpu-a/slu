@@ -46,6 +46,5 @@ Whitespace {
 	any other level.
 
 
-	In the spec, whenever there is a space inside one of the ebnf's, whitespace may be inserted.
-
+	In the spec, whenever there is a space inside one of the ebnf's, whitespace may be inserted, unless stated otherwise.
 }

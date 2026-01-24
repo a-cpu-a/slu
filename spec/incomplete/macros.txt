@@ -114,9 +114,7 @@ New Syntax {
 		| ("{" macroParamList "}") 
 		| (">!(" macroParamList ")!<")
 	
-	PreMacro ::=
-	
-	globstat @::= | optExport PreMacro "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
+	globstat @::= | optExport "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
 	
 }
 
