@@ -103,7 +103,7 @@ New Syntax {
 	
 	globstat @::= | macroInvSpl
 	basicExp @::= | macroInvSpl
-	Name @::= | macroInvSpl
+	Name @::=|macroInvSpl
 	optExport @::= | macroInvSpl
 	
 	macroParam ::= ["macro"] typedParam
