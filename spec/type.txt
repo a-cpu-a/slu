@@ -18,7 +18,7 @@ New Syntax {
 	
 	typedParam ::= ["const"] Name "=" expr
 	params ::= typedParam {"," typedParam} [","]
-	paramsSelf ::= [{("*") [refType]} "self" ","] params
+	selfParams ::= [{("*") [refType]} "self" ","] params
 	
 	tupleableName ::= Name | integral
 	
