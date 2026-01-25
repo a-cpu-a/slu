@@ -3,14 +3,13 @@
 #
 
 New Syntax {
-	--Also, type expr is preferred over func call / var, so if they return types, then they are treated as types.
-	--Note: the `and` and `or` operators are reserved.
-	--Note: || lambdas are not parsed. Aka `|...| ...`
-	--Note: table constructors are not parsed.
+	--(sPat) Note: the `and` and `or` operators are reserved.
+	--(sPat) Note: || lambdas are not parsed. Aka `|...| ...`
+	--(sPat) Note: table constructors are not parsed.
 	sPat ::= basicExp
 	
 	
-	destrSpec ::= sPat | typePrefix
+	destrSpec ::= basicExp | typePrefix
 	
 	extraFieldSignifier ::= "," ".."
 	
