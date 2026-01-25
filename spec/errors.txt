@@ -3,12 +3,11 @@
 #
 
 New Syntax {
-	
-	tryOp ::= "try" ["->" basicExp] "{" [matchItem {[";"] matchItem} [";"]] "}"
 
+	tryOp ::= "try" matchTyBlock
 	stat @::= | stat tryOp
-	
 	postunop @::= | "?" | tryOp
+
 	retstat @::= | "throw" exp
 }
 
