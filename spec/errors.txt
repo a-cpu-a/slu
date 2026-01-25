@@ -5,14 +5,13 @@
 New Syntax {
 
 	tryOp ::= "try" matchTyBlock
-	stat @::= | stat tryOp
+	blockstat @::= [tryOp]
 	postunop @::= | "?" | tryOp
 
 	retstat @::= | "throw" exp
 }
 
 New Keywords {
-	if
 	try
 	throw
 }

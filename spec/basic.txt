@@ -19,10 +19,11 @@ New Syntax {
 	
 	--TODO: consider making pointers opaque: type only contains alignment
 	
+	blockstat ::= [label] "{" block "}"
 	stat ::= basicstat
 		| globstat
 		| statOrExpr
-		| [label] "{" block "}"
+		| blockstat
 
 	retstat ::= ("return" | ("break" | "continue") ["'" Name]) [exp]
 
