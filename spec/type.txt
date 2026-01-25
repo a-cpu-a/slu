@@ -23,7 +23,7 @@ New Syntax {
 	
 	tupleableName ::= Name | Integral
 	
-	basicExp @::= | "_" | borrowLifetime
+	basicExpr @::= | "_" | borrowLifetime
 }
 
 New Keywords {

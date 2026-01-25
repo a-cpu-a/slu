@@ -100,7 +100,7 @@ New Syntax {
 	macroInvSpl ::= macroInvoke | macroSplice
 	
 	globstat @::= | macroInvSpl
-	basicExp @::= | macroInvSpl
+	basicExpr @::= | macroInvSpl
 	Name @::=|macroInvSpl
 	optExport @::= | macroInvSpl
 	
@@ -112,7 +112,7 @@ New Syntax {
 		| ("{" macroParamList "}") 
 		| (">!(" macroParamList ")!<")
 	
-	globstat @::= | optExport "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
+	globstat @::= | optExport "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExpr] "{" block "}"
 }
 
 New Keywords {

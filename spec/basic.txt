@@ -35,12 +35,12 @@ New Syntax {
 	selfablecallBasic ::= ["." Name] basicArgs
 	selfablecall ::= ["." Name] args
 
-	basicExp ::=  Name | "(" exp ")" | LiteralString | Numeral | tableconstructor
-		| basicExp subvar | basicExp selfablecallBasic
-		| basicExp binop basicExp | {unop} basicExp {postunop}
+	basicExpr ::=  Name | "(" exp ")" | LiteralString | Numeral | tableconstructor
+		| basicExpr subvar | basicExpr selfablecallBasic
+		| basicExpr binop basicExpr | {unop} basicExpr {postunop}
 		| statOrExpr
 	
-	exp ::=  basicExp
+	exp ::=  basicExpr
 		| exp subvar | exp selfablecall
 		| exp binop exp | {unop} exp {postunop}
 

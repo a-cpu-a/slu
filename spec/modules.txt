@@ -10,7 +10,7 @@ New Syntax {
 	modpath ::= (modpathStart | ":>") {"::" Name}
 	submodpath ::= Name {"::" Name}
 
-	basicExp @::= | modpath
+	basicExpr @::= | modpath
 	
 	modpathindex ::= "::*" | "::{" modpathStartList "}"
 	useVariant ::= ["as" Name | modpathindex]

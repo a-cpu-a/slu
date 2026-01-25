@@ -17,5 +17,4 @@ Array Mul {
 	if y is 0, then x will not be evaluated.
 	
 	The result of the operator is another struct or list.
-	
 }

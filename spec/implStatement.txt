@@ -5,7 +5,7 @@
 New Syntax {
 	
 	--impl globstat: Since there is a trait expr, the type expression doesnt parse binary operators, unless the trait expr was already parsed.
-	globstat @::= | optExport ["unsafe"] "impl" ["(" paramList ")"] [basicExp "for"] basicExp [whereClauses] tableconstructor
+	globstat @::= | optExport ["unsafe"] "impl" ["(" paramList ")"] [basicExpr "for"] basicExpr [whereClauses] tableconstructor
 }
 
 New Keywords {
@@ -31,7 +31,7 @@ Impl Statement {
 	
 	If your trait expr / basic expr need "()" around them you may need a empty param list, to keep things parsable.
 	
-	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the `basicExp for` form.
+	Adding `unsafe` is required if its unsafe to implement that trait, it is only allowed in the `basicExpr for` form.
 	
 }
 

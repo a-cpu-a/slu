@@ -7,7 +7,7 @@ New Syntax {
 	binop @::= | ".."
 	unop @::= | ".."
 	postunop @::= | ".."
-	basicExp @::= | ".."
+	basicExpr @::= | ".."
 }
 
 Range Operator {

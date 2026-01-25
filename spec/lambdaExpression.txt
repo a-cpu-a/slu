@@ -5,7 +5,7 @@
 New Syntax {
 	
 	exp @::= | PreFn "|" [paramList] "|" ["->" exp "=>"] exp
-	basicExp @::= | PreFn "|" [paramList] "|" ["->" basicExp "=>"] basicExp
+	basicExpr @::= | PreFn "|" [paramList] "|" ["->" basicExpr "=>"] basicExpr
 }
 
 Lambda Expression {

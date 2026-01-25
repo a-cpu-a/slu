@@ -7,9 +7,9 @@ New Syntax {
 	--(sPat) Note: the `and` and `or` operators are reserved.
 	--(sPat) Note: || lambdas are not parsed. Aka `|...| ...`
 	--(sPat) Note: table constructors are not parsed.
-	sPat ::= basicExp
+	sPat ::= basicExpr
 	
-	destrSpec ::= basicExp | typePrefix
+	destrSpec ::= basicExpr | typePrefix
 	
 	extraFieldSignifier ::= "," ".."
 	
@@ -39,9 +39,9 @@ New Syntax {
 	pat ::= sPat | dPat
 	
 	matchItem ::= pat ["if" exp] "=>" exp
-	matchTyBlock ::= ["->" basicExp] "{" matchItem [";"] {matchItem [";"]} "}"
+	matchTyBlock ::= ["->" basicExpr] "{" matchItem [";"] {matchItem [";"]} "}"
 
-	matchDesc ::= "match" basicExp matchTyBlock
+	matchDesc ::= "match" basicExpr matchTyBlock
 	statOrExpr @::= | matchDesc
 }
 
