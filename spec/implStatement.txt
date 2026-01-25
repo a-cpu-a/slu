@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	--Since there is a trait expr, the type expression doesnt parse binary operators, unless the trait expr was already parsed.
+	--impl globstat: Since there is a trait expr, the type expression doesnt parse binary operators, unless the trait expr was already parsed.
 	globstat @::= | optExport ["unsafe"] "impl" ["(" paramList ")"] [basicExp "for"] basicExp [whereClauses] tableconstructor
 }
 

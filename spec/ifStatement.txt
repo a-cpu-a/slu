@@ -6,7 +6,7 @@ New Syntax {
 	
 	ifcondBasic ::= "if" basicExp
 	
-	--Note: retstat as used in blockOrRet, cant use the `else` operator, as it would conflict with if-stat parsing
+	--Note: retstat as used in if-statement blockOrRet's, cant use the `else` operator, as it would conflict with if-stat parsing
 	stat @::= | ifcondBasic blockOrRet {"else" ifcondBasic blockOrRet} ["else" blockOrRet]
 	stat @::= | ifcondBasic "=>" exp
 
