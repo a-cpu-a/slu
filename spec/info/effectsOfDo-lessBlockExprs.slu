@@ -37,10 +37,10 @@ const STARTING_STATE = State{
 	version = 1
 }
 fn loadFiles() -> Files {
-	let list = if ALT_FLIST do {
+	let list = if ALT_FLIST {
 		usesAltList.set(true)
 		break getAltList()
-	} else do {
+	} else {
 		usesAltList.set(false)
 		break getNewList()
 	}
