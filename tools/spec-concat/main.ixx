@@ -45,7 +45,7 @@ export int main()
 					sv = sv.substr(end_token.size());
 					continue;
 				}
-				out += sv.begin();
+				out += sv.at(0);
 				if (sv.size() == 1)
 					break;
 				sv = sv.substr(1);
