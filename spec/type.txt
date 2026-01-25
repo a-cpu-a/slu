@@ -18,7 +18,7 @@ New Syntax {
 	borrowLifetime ::= "/" Name {"/" Name}
 	
 	typedParam ::= ["const"] Name "=" exp
-	paramList ::= typedParam {"," typedParam}
+	paramList ::= typedParam {"," typedParam} [","]
 	paramListSelf ::= [{("*") [shMutConst]} "self" ","] paramList
 	
 	tupleableName ::= Name | Integral

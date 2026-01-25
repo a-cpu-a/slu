@@ -39,7 +39,7 @@ New Syntax {
 	pat ::= sPat | dPat
 	
 	matchItem ::= pat ["if" exp] "=>" exp
-	matchTyBlock ::= ["->" basicExp] "{" [matchItem {[";"] matchItem} [";"]] "}"
+	matchTyBlock ::= ["->" basicExp] "{" matchItem [";"] {matchItem [";"]} "}"
 
 	matchDesc ::= "match" basicExp matchTyBlock
 	statOrExpr @::= | matchDesc
