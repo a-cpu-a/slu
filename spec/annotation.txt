@@ -5,7 +5,6 @@
 New Syntax {
 
 	annotations ::= annotation {annotation}
-	outerAnnotations ::= outerAnnotation {outerAnnotation}
 	
 	-- Note: when parsing this before block like statements, expressions, etc, the tableconstructor is required to be present.
 	-- INVALID: @Mark {return 1}
@@ -18,7 +17,7 @@ New Syntax {
 		| "--<"LiteralString
 		| "--<"LineOfText
 	
-	block @::= | outerAnnotations block
+	block @::= | outerAnnotation block
 	
 	stat @::= | annotations stat
 	globstat @::= | annotations globstat
