@@ -1,5 +1,5 @@
 #
-# Dependencies: annotation, basic, comptime, export, trait, type 
+# Dependencies: annotation, basic, const, export, trait, type 
 #
 
 New Syntax {

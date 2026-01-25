@@ -1,10 +1,10 @@
 #
-# Dependencies: annotation, basic, comptime, export, fnStat, library(TODO), type
+# Dependencies: annotation, basic, const, export, fnStat, library(TODO), type
 #
 
 "std::macros" Module {
 	
-	--These types are only available at comptime
+	--These types are only available at const tune
 	
 	ex struct Block = @Builtin{"base::type/block"}Unit;
 	ex struct Stat = @Builtin{"base::type/stat"}Unit;
@@ -84,7 +84,7 @@
 	Implementation {
 		The types may be implemented as "Userdata" or "ptrdata", with extra data
 		
-		Using them outside of comptime or macros must produce a compile-time error
+		Using them outside of const time or macros must produce a compile-time error
 	}
 }
 
@@ -142,7 +142,7 @@ Macro {
 	macroSplice -> splices the token sequence(s) resulting from a expresion
 	macroInvoke -> run a macro & splice it.
 	The ">!(" ")!<" args mean that there is nothing surrounding the args.
-	"macro" functions are ran at comptime.
+	"macro" functions are ran at compilation time.
 	
 	macroInvoke gets turned from 
 	```slu

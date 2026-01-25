@@ -11,7 +11,7 @@ New Keywords {
 	const
 }
 
-Const Keyword {
+Const {
 	
 	This can mark something to only run at compile-time.
 	
@@ -21,7 +21,7 @@ Const Keyword {
 	
 	It can mark a function, or variable as compile-time evaluated.
 	
-	Using comptime on global variables lets you initialize the values at compile-time.
+	Using const on global variables lets you initialize the values at compile-time.
 	On functions, it means that they must be executed at compile-time.
 	
 	When using it on "const" local variables, the variables might be moved over to some private global state.

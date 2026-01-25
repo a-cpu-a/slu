@@ -2,7 +2,7 @@
 
 ----------------------
 
---ex unsafe async comptime type fn
+--ex unsafe async const struct fn
 
 ex type fn Vec(type E, Option<type> A) {
 	return struct{

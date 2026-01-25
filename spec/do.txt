@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, type, comptime, safety
+# Dependencies: basic, type, const, safety
 #
 
 New Syntax {

@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, comptime, modules, numbers, safety
+# Dependencies: basic, const, modules, numbers, safety
 #
 
 New Syntax {
