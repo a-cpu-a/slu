@@ -41,10 +41,9 @@ New Syntax {
 	pat ::= sPat | dPat
 	
 	matchItem ::= pat ["if" exp] "=>" exp
-	matchStat ::= matchItem | ";"
 
 	--This exp doesnt parse the {} arg style
-	matchDesc ::= "match" basicExp ["->" basicExp] "{" {matchStat} "}"
+	matchDesc ::= "match" basicExp ["->" basicExp] "{" [matchItem {[";"] matchItem} [";"]] "}"
 	basicExp @::= | matchDesc
 	exp @::= | matchDesc
 	stat @::= | matchDesc

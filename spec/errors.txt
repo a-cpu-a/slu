@@ -9,9 +9,8 @@ New Syntax {
 	retstat @::= | "throw" exp
 
 	tryItem ::= pat ["if" exp] "=>" exp
-	tryStat ::= tryItem | ";"
 	
-	tryOp ::= "try" ["->" basicExp] "{" {tryStat} "}"
+	tryOp ::= "try" ["->" basicExp] "{" [tryItem {[";"] tryItem} [";"]] "}"
 
 	basicExp @::= | basicExp tryOp
 	exp @::= | exp tryOp
