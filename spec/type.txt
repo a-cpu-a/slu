@@ -35,6 +35,7 @@ New Keywords {
 	impl
 	dyn
 	mut
+	ex
 }
 
 New types {
@@ -210,15 +211,14 @@ Type Specifiers {
 		
 		Allows use of the "?" operator, and other error handling tools.
 	}
-	Borrow {
+	Ref {
 		Format "*" {borrowLifetime} [shMutConst] X
 		
 		Makes the type borrowing, this means that it is a borrowed value.
 		
-		Const -> only 1 reference, immutable
-		nothing -> many reference, immutable
+		nothing -> many references, immutable
 		Mut -> only 1 reference, mutable
-		Share -> many reference, mutable
+		Share -> many references, mutable
 		
 		
 		```slu
@@ -236,24 +236,25 @@ Type Specifiers {
 		```
 	}
 	
-	--Using .* for this is not a good idea, so maybe something like this? `AutoDerefWrapper(*T)`, only allowed in the return type of functions i guess?
 	Deref {
-		Format X ".*"
-		
+		Format "Derefed" "(" X ")"
+
+		--Maybe: Only allowed in the return type of functions.
+
 		Represents a dereferenced borrow / ptr.
 		
 		```slu
 		
 		let intX = 4;
 		
-		let *mut u8.* xAlias = intX;
+		let Derefed(*mut u8) xAlias = intX;
 		xAlias = 3;
 		drop xAlias; --Allow use of intX, once again
 		
 		assertEq!(intX,3);
 		
 		unsafe {
-			let PtrMut(u8).* xAliasUnsafe = _COMP_TODO!("turn into pointer",&mut intX).*;
+			let Derefed(PtrMut(u8)) xAliasUnsafe = _COMP_TODO!("turn into pointer",&mut intX).*;
 			xAliasUnsafe = 2;
 		}
 		assertEq!(intX,2);
@@ -261,7 +262,7 @@ Type Specifiers {
 		
 		let intXBorrow = &intX;
 		
-		let */intX u8.* intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
+		let Derefed(*/intX u8) intXAlias = intXBorrow.*; --The type represents, a derefed reference for some u8 with lifetime "intX".
 		let intXCopy = intXBorrow.*; --The type is just u8, as a trivial copy was possible.
 		
 		```
