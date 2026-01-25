@@ -3,19 +3,13 @@
 #
 
 New Syntax {
-
-	postunop @::= | "?"
 	
-	retstat @::= | "throw" exp
+	tryOp ::= "try" ["->" basicExp] "{" [matchItem {[";"] matchItem} [";"]] "}"
 
-	tryItem ::= pat ["if" exp] "=>" exp
-	
-	tryOp ::= "try" ["->" basicExp] "{" [tryItem {[";"] tryItem} [";"]] "}"
-
-	basicExp @::= | basicExp tryOp
-	exp @::= | exp tryOp
 	stat @::= | stat tryOp
 	
+	postunop @::= | "?" | tryOp
+	retstat @::= | "throw" exp
 }
 
 New Keywords {
