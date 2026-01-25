@@ -2,6 +2,11 @@
 # Dependencies: basic
 #
 
+New Syntax {
+
+	LineOfText ::= --Any characters, until a new line is reached (\r, \r\n, \n).
+}
+
 Whitespace {
 	
 	Whitespace is fully ignored in a way that code cant rely on it or read it.
