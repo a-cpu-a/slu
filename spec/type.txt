@@ -6,10 +6,9 @@ New Syntax {
 	
 	--TODO: allow fixed points `(0..255) * 0.125` or `0..31.875 at 0.125`
 	
-	typePrefix ::= ["mut"] {typePreop}
-	
 	refType ::= "const" | "share" | "mut"
 	typePreop ::= "*" [lifetime] [refType]
+	typePrefix ::= ["mut"] {typePreop}
 	
 	binop @::= | "~" | "|"
 	preop @::= | typePreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [lifetime] [refType] | "~"
