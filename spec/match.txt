@@ -3,16 +3,15 @@
 #
 
 New Syntax {
+
 	--(sPat) Note: the `and` and `or` operators are reserved.
 	--(sPat) Note: || lambdas are not parsed. Aka `|...| ...`
 	--(sPat) Note: table constructors are not parsed.
 	sPat ::= basicExp
 	
-	
 	destrSpec ::= basicExp | typePrefix
 	
 	extraFieldSignifier ::= "," ".."
-	
 	
 	destrField ::= "|" tupleableName "|" pat
 	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]

@@ -86,14 +86,12 @@
 		
 		Using them outside of comptime or macros must produce a compile-time error
 	}
-	
 }
 
 
 New Syntax {
 
 	macroSplice ::= "@(" exp ")"
-	
 	
 	macroArgs ::= "(" ProgrammableArgs ")" | "{" ProgrammableArgs "}" | "[" ProgrammableArgs "]" | exp | stat | retstat
 	
@@ -115,7 +113,6 @@ New Syntax {
 		| (">!(" macroParamList ")!<")
 	
 	globstat @::= | optExport "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExp] "{" block "}"
-	
 }
 
 New Keywords {

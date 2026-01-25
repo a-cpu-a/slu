@@ -64,7 +64,6 @@ New Syntax {
 		| "and" | "or"
 
 	unop ::= "-" | "!"
-	
 	postunop ::=
 }
 

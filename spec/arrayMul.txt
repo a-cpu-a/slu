@@ -4,12 +4,10 @@
 
 New Syntax {
 	
-	
 	binop @::= | "**"
 }
 
 Array Mul {
-	
 	
 	Multiply a list / array struct N many times
 	

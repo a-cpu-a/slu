@@ -18,6 +18,4 @@ As Expression {
 	(111 as u16)
 	
 	when casting integers, overflow and underflow will be checked.
-	
-	
 }
