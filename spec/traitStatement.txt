@@ -7,7 +7,7 @@ New Syntax {
 	whereClauses ::= "where" whereClause {"," whereClause}
 	whereClause ::= (Name|"Self") ":" basicExpr
 	
-	globstat @::= | optExport "trait" Name ["(" paramList ")"] [whereClauses] tableconstructor
+	globstat @::= | optexport "trait" Name ["(" paramList ")"] [whereClauses] tableconstructor
 }
 
 New Keywords {

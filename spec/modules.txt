@@ -14,10 +14,10 @@ New Syntax {
 	
 	modpathindex ::= "::*" | "::{" modpathStartList "}"
 	useVariant ::= ["as" Name | modpathindex]
-	globstat @::= | optExport "use" modpath useVariant
+	globstat @::= | optexport "use" modpath useVariant
 	
-	globstat @::= | optExport "mod" Name "{" chunk "}"
-	globstat @::= | optExport "mod" Name
+	globstat @::= | optexport "mod" Name "{" chunk "}"
+	globstat @::= | optexport "mod" Name
 }
 
 New Keywords {

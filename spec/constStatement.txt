@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	globstat @::= | optExport "const" uncondDestrPat "=" expr
+	globstat @::= | optexport "const" uncondDestrPat "=" expr
 }
 
 New Keywords {

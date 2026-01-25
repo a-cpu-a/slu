@@ -9,11 +9,11 @@ New Syntax {
 		| "unsafe" modpath [modpathindex]
 		| "use" "axiom" modpath
 	
-	globstat @::= | optExport "axiom" Name ["as" "{" {axiomStat} "}"]
-	globstat @::= | optExport "use" "axiom" modpath
+	globstat @::= | optexport "axiom" Name ["as" "{" {axiomStat} "}"]
+	globstat @::= | optexport "use" "axiom" modpath
 	globstat @::= | "drop" "axiom" modpath
 	
-	globstat @::= | optExport "impl" "axiom" modpath "{" {axiomStat} "}"
+	globstat @::= | optexport "impl" "axiom" modpath "{" {axiomStat} "}"
 }
 
 New Keywords {

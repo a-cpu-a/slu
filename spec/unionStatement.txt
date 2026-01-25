@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	globstat @::= | optExport "union" Name ["(" [paramList] ")"] tableconstructor
+	globstat @::= | optexport "union" Name ["(" [paramList] ")"] tableconstructor
 }
 
 New Keywords {
