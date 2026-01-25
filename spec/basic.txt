@@ -4,13 +4,10 @@
 
 New Syntax {
 	
+	globstat ::= ";"
 	--TODO: ban non global statements in chunks at parse time.
 	chunk ::= {globstat}
 
-	block ::= {stat} [retstat [";"]]
-	
-	globstat ::= ";"
-	
 	basicstat ::= ";"
 		| var "=" exp
 		| var selfablecall
@@ -18,33 +15,27 @@ New Syntax {
 	statOrExpr ::=
 	
 	--TODO: consider making pointers opaque: type only contains alignment
+
+	block ::= {stat} [retstat [";"]]
+	retstat ::= ("return" | ("break" | "continue") ["'" Name]) [exp]
+	blockOrRet ::= retstat [";"] | "{" block "}"
 	
+	label ::= "'" Name ":"
 	blockstat ::= [label] "{" block "}"
 	stat ::= basicstat
 		| globstat
 		| statOrExpr
 		| blockstat
-
-	retstat ::= ("return" | ("break" | "continue") ["'" Name]) [exp]
-
-	blockOrRet ::= retstat [";"] | "{" block "}"
-	
-	
-	label ::= "'" Name ":"
-
-	explist ::= exp {"," exp}
-	varlist ::= var {"," var}
 	
 	subvar ::= ".*" | "." Name | "[" exp "]"
 	var ::= (Name | "(" exp ")") {{selfablecall} subvar}
 
-	basicArgs ::=  "(" [explist] ")" | LiteralString
+	basicArgs ::=  "(" [exp {"," exp} [","]] ")" | LiteralString | Numeral
 	args ::=  basicArgs | tableconstructor
-	
-	selfablecall ::= ["." Name] args
 	selfablecallBasic ::= ["." Name] basicArgs
+	selfablecall ::= ["." Name] args
 
-	basicExp ::=  Name | "(" exp ")" | Numeral | LiteralString | tableconstructor
+	basicExp ::=  Name | "(" exp ")" | LiteralString | Numeral | tableconstructor
 		| basicExp subvar | basicExp selfablecallBasic
 		| basicExp binop basicExp | {unop} basicExp {postunop}
 		| statOrExpr
@@ -53,10 +44,9 @@ New Syntax {
 		| exp subvar | exp selfablecall
 		| exp binop exp | {unop} exp {postunop}
 
-	tableconstructor ::= "{" [fieldlist] "}"
-	fieldlist ::= field {fieldsep field} fieldsep
-	field ::= (Name "=" exp) | exp
 	fieldsep ::= ["," | ";"]
+	field ::= (Name "=" exp) | exp
+	tableconstructor ::= "{" {field fieldsep} "}"
 
 	binop ::=  "+" | "-" | "*" | "/" | "//" | "^" | "%"
 		| "++"

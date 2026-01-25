@@ -4,7 +4,7 @@
 
 New Syntax {
 	enumfield ::= [annotations] optExport Name [tableconstructor] {outerAnnotation}
-	globstat @::= | optExport "enum" Name ["(" [paramList] ")"] "{" enumfield {fieldsep enumfield} fieldsep "}"
+	globstat @::= | optExport "enum" Name ["(" [paramList] ")"] "{" {enumfield fieldsep} "}"
 }
 
 New Keywords {
