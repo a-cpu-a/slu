@@ -30,7 +30,6 @@ New Keywords {
 	struct
 	union
 	const
-	trait
 	share
 	impl
 	dyn
@@ -217,8 +216,9 @@ Type Specifiers {
 		Makes the type borrowing, this means that it is a borrowed value.
 		
 		nothing -> many references, immutable
-		Mut -> only 1 reference, mutable
+		Const -> reserved
 		Share -> many references, mutable
+		Mut -> only 1 reference, mutable
 		
 		
 		```slu
