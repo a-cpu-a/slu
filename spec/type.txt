@@ -6,24 +6,23 @@ New Syntax {
 	
 	--TODO: allow fixed points `(0..255) * 0.125` or `0..31.875 at 0.125`
 	
-	typePrefix ::= ["mut"] {typepreop}
+	typePrefix ::= ["mut"] {typePreop}
 	
-	shMutConst ::= "mut" | "const" | "share"
-	
-	typepreop ::= "*" [borrowLifetime] [shMutConst]
+	refType ::= "const" | "share" | "mut"
+	typePreop ::= "*" [lifetime] [refType]
 	
 	binop @::= | "~" | "|"
-	preop @::= | typepreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [borrowLifetime] [shMutConst] | "~"
+	preop @::= | typePreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [lifetime] [refType] | "~"
 	
-	borrowLifetime ::= "/" Name {"/" Name}
+	lifetime ::= "/" Name {"/" Name}
 	
 	typedParam ::= ["const"] Name "=" expr
 	paramList ::= typedParam {"," typedParam} [","]
-	paramListSelf ::= [{("*") [shMutConst]} "self" ","] paramList
+	paramListSelf ::= [{("*") [refType]} "self" ","] paramList
 	
 	tupleableName ::= Name | integral
 	
-	basicExpr @::= | "_" | borrowLifetime
+	basicExpr @::= | "_" | lifetime
 }
 
 New Keywords {
@@ -211,7 +210,7 @@ Type Specifiers {
 		Allows use of the "?" operator, and other error handling tools.
 	}
 	Ref {
-		Format "*" {borrowLifetime} [shMutConst] X
+		Format "*" {lifetime} [refType] X
 		
 		Makes the type borrowing, this means that it is a borrowed value.
 		
