@@ -16,7 +16,7 @@ New Syntax {
 	useVariant ::= ["as" Name | modpathindex]
 	globstat @::= | optExport "use" modpath useVariant
 	
-	globstat @::= | optExport "mod" Name "as" "{" chunk "}"
+	globstat @::= | optExport "mod" Name "{" chunk "}"
 	globstat @::= | optExport "mod" Name
 }
 
