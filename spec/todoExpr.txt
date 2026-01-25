@@ -3,10 +3,7 @@
 #
 
 New Syntax {
-	
-	todoExpr ::= "TODO!" LiteralString
-	basicExp @::= | todoExpr
-	stat @::= | todoExpr
+	statOrExpr @::= | "TODO!" LiteralString
 }
 
 New Keywords {

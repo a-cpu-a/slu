@@ -42,10 +42,9 @@ New Syntax {
 	
 	matchItem ::= pat ["if" exp] "=>" exp
 	matchTyBlock ::= ["->" basicExp] "{" [matchItem {[";"] matchItem} [";"]] "}"
-	
+
 	matchDesc ::= "match" basicExp matchTyBlock
-	basicExp @::= | matchDesc
-	stat @::= | matchDesc
+	statOrExpr @::= | matchDesc
 }
 
 New Keywords {
