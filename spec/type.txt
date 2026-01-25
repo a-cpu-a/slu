@@ -13,7 +13,7 @@ New Syntax {
 	typeunop ::= "*" [borrowLifetime] [shMutConst]
 	
 	binop @::= | "~" | "|"
-	unop @::= | typeunop | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [borrowLifetime] [shMutConst] | "~"
+	unop @::= | typeunop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [borrowLifetime] [shMutConst] | "~"
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
