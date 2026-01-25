@@ -1,6 +1,6 @@
 /*
     Spec syntax collector, extracts the syntax from the slu spec.
-    Copyright (C) 2026 <any1word@proton.me>
+    Copyright (C) 2026 a-cpu-a <any1word@proton.me>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
