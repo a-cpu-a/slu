@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	basicExpr @::= | "const" "(" exp ")"
+	basicExpr @::= | "const" "(" expr ")"
 }
 
 New Keywords {
@@ -27,7 +27,7 @@ Const Keyword {
 	When using it on "const" local variables, the variables might be moved over to some private global state.
 	
 	
-	`const(exp)` can be used to force a expression to be run at compile-time
+	`const(expr)` can be used to force a expression to be run at compile-time
 	
 	
 	When there is a panic, or a error is propagated outside of compile-time const evaluation, a compiler error must be issued.

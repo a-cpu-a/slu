@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	stat @::= | "drop" exp
+	stat @::= | "drop" expr
 }
 
 New Keywords {

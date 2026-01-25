@@ -9,7 +9,7 @@ New Syntax {
 	chunk ::= {globstat}
 
 	basicstat ::= ";"
-		| var "=" exp
+		| var "=" expr
 		| var selfablecall
 	
 	statOrExpr ::=
@@ -17,7 +17,7 @@ New Syntax {
 	--TODO: consider making pointers opaque: type only contains alignment
 
 	block ::= {stat} [retstat [";"]]
-	retstat ::= ("return" | ("break" | "continue") ["'" Name]) [exp]
+	retstat ::= ("return" | ("break" | "continue") ["'" Name]) [expr]
 	blockOrRet ::= retstat [";"] | "{" block "}"
 	
 	label ::= "'" Name ":"
@@ -27,25 +27,25 @@ New Syntax {
 		| statOrExpr
 		| blockstat
 	
-	subvar ::= ".*" | "." Name | "[" exp "]"
-	var ::= (Name | "(" exp ")") {{selfablecall} subvar}
+	subvar ::= ".*" | "." Name | "[" expr "]"
+	var ::= (Name | "(" expr ")") {{selfablecall} subvar}
 
-	basicArgs ::=  "(" [exp {"," exp} [","]] ")" | LiteralString | Numeral
+	basicArgs ::=  "(" [expr {"," expr} [","]] ")" | LiteralString | Numeral
 	args ::=  basicArgs | tableconstructor
 	selfablecallBasic ::= ["." Name] basicArgs
 	selfablecall ::= ["." Name] args
 
-	basicExpr ::=  Name | "(" exp ")" | LiteralString | Numeral | tableconstructor
+	basicExpr ::=  Name | "(" expr ")" | LiteralString | Numeral | tableconstructor
 		| basicExpr subvar | basicExpr selfablecallBasic
-		| basicExpr binop basicExpr | {unop} basicExpr {postunop}
+		| basicExpr binop basicExpr | {preop} basicExpr {sufop}
 		| statOrExpr
 	
-	exp ::=  basicExpr
-		| exp subvar | exp selfablecall
-		| exp binop exp | {unop} exp {postunop}
+	expr ::=  basicExpr
+		| expr subvar | expr selfablecall
+		| expr binop expr | {preop} expr {sufop}
 
 	fieldsep ::= ["," | ";"]
-	field ::= (Name "=" exp) | exp
+	field ::= (Name "=" expr) | expr
 	tableconstructor ::= "{" {field fieldsep} "}"
 
 	binop ::=  "+" | "-" | "*" | "/" | "//" | "^" | "%"
@@ -53,8 +53,8 @@ New Syntax {
 		| "<" | "<=" | ">" | ">=" | "==" | "!="
 		| "and" | "or"
 
-	unop ::= "-" | "!"
-	postunop ::=
+	preop ::= "-" | "!"
+	sufop ::=
 }
 
 New Keywords {

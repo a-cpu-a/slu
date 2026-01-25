@@ -6,18 +6,18 @@ New Syntax {
 	
 	--TODO: allow fixed points `(0..255) * 0.125` or `0..31.875 at 0.125`
 	
-	typePrefix ::= ["mut"] {typeunop}
+	typePrefix ::= ["mut"] {typepreop}
 	
 	shMutConst ::= "mut" | "const" | "share"
 	
-	typeunop ::= "*" [borrowLifetime] [shMutConst]
+	typepreop ::= "*" [borrowLifetime] [shMutConst]
 	
 	binop @::= | "~" | "|"
-	unop @::= | typeunop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [borrowLifetime] [shMutConst] | "~"
+	preop @::= | typepreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [borrowLifetime] [shMutConst] | "~"
 	
 	borrowLifetime ::= "/" Name {"/" Name}
 	
-	typedParam ::= ["const"] Name "=" exp
+	typedParam ::= ["const"] Name "=" expr
 	paramList ::= typedParam {"," typedParam} [","]
 	paramListSelf ::= [{("*") [shMutConst]} "self" ","] paramList
 	

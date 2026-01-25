@@ -1,5 +1,5 @@
 ~2025/02/21
-$macro_rules lambda[block $bl] -> exp {
+$macro_rules lambda[block $bl] -> expr {
 	$add(
 		function() {
 			$bl
@@ -15,7 +15,7 @@ fn lol() -> Func {
 
 
 
-$macro_rules try(expr $e) -> exp {
+$macro_rules try(expr $e) -> expr {
 	$addBlock(
 		let temp = $e;
 		if (not temp)

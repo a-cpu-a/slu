@@ -22,7 +22,7 @@ New Syntax {
 	stat @::= | annotations stat
 	globstat @::= | annotations globstat
 	basicstat @::= | annotations basicstat
-	unop @::= | annotation
+	preop @::= | annotation
 }
 
 Annotation {
@@ -70,7 +70,7 @@ New Annotations {
 	
 	Example:
 	```slu
-	ex const type Expr = @Builtin{"base::type/exp"}Unit;
+	ex const type Expr = @Builtin{"base::type/expr"}Unit;
 	```
 	
 	--TODO: non bool version

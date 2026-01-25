@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	basicExpr @::= | "_COMP_TODO!" "(" LiteralString "," exp ")"
+	basicExpr @::= | "_COMP_TODO!" "(" LiteralString "," expr ")"
 }
 
 New Keywords {

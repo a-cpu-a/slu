@@ -5,8 +5,8 @@
 New Syntax {
 	
 	binop @::= | ".."
-	unop @::= | ".."
-	postunop @::= | ".."
+	preop @::= | ".."
+	sufop @::= | ".."
 	basicExpr @::= | ".."
 }
 

@@ -4,11 +4,11 @@
 
 New Syntax {
 
-	tryOp ::= "try" matchTyBlock
+	tryOp ::= "try" matchtypeblock
 	blockstat @::= [tryOp]
-	postunop @::= | "?" | tryOp
+	sufop @::= | "?" | tryOp
 
-	retstat @::= | "throw" exp
+	retstat @::= | "throw" expr
 }
 
 New Keywords {

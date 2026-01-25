@@ -38,11 +38,9 @@ New Syntax {
 	ndPat ::= sPat
 	pat ::= sPat | dPat
 	
-	matchItem ::= pat ["if" exp] "=>" exp
-	matchTyBlock ::= ["->" basicExpr] "{" matchItem [";"] {matchItem [";"]} "}"
-
-	matchDesc ::= "match" basicExpr matchTyBlock
-	statOrExpr @::= | matchDesc
+	matchItem ::= pat ["if" expr] "=>" expr
+	matchtypeblock ::= ["->" basicExpr] "{" matchItem [";"] {matchItem [";"]} "}"
+	statOrExpr @::= | "match" basicExpr matchtypeblock
 }
 
 New Keywords {

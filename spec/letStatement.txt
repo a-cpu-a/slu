@@ -4,7 +4,7 @@
 
 New Syntax {
 	
-	stat @::= | "let" uncondDestrPat ["=" exp]
+	stat @::= | "let" uncondDestrPat ["=" expr]
 }
 
 New Keywords {

@@ -9,7 +9,7 @@
 	ex struct Block = @Builtin{"base::type/block"}Unit;
 	ex struct Stat = @Builtin{"base::type/stat"}Unit;
 	
-	ex struct Expr = @Builtin{"base::type/exp"}Unit;
+	ex struct Expr = @Builtin{"base::type/expr"}Unit;
 	ex struct Name = @Builtin{"base::type/Name"}Unit;
 	
 	--
@@ -91,9 +91,9 @@
 
 New Syntax {
 
-	macroSplice ::= "@(" exp ")"
+	macroSplice ::= "@(" expr ")"
 	
-	macroArgs ::= "(" ProgrammableArgs ")" | "{" ProgrammableArgs "}" | "[" ProgrammableArgs "]" | exp | stat | retstat
+	macroArgs ::= "(" ProgrammableArgs ")" | "{" ProgrammableArgs "}" | "[" ProgrammableArgs "]" | expr | stat | retstat
 	
 	-- The `!` char must be without any white-space in between
 	macroInvoke ::= modpath"!" macroArgs
