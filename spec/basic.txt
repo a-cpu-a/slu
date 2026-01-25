@@ -1,5 +1,5 @@
 #
-# Dependencies: numbers
+# Dependencies: name, numbers
 #
 
 New Syntax {
@@ -73,4 +73,10 @@ New Keywords {
 	continue
 	or
 	return
+}
+
+Basic {
+	If the user forgets to add a `;` or `,`, then its a warning.
+	`;` for statements, match and try.
+	`,` for tables.
 }
