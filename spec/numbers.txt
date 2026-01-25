@@ -6,23 +6,20 @@
 New Syntax {
 	--No whitespace is allowed inside numbers
 	
-	Digit	   ::="0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
-	DigList	   ::=Digit[{Digit|"_"}Digit]
+	digit	   ::="0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+	digList	   ::=digit[{digit|"_"}digit]
     
-	HexDigit   ::=Digit|"a"|"b"|"c"|"d"|"e"|"f"|"A"|"B"|"C"|"D"|"E"|"F"
-	HexDigList ::=HexDigit[{HexDigit|"_"}HexDigit]
+	hexDigit   ::=digit|"a"|"b"|"c"|"d"|"e"|"f"|"A"|"B"|"C"|"D"|"E"|"F"
+	hexDigList ::=hexDigit[{hexDigit|"_"}hexDigit]
 
-	HexStart   ::="0x"|"0X"
-	Integral   ::=HexStart(HexDigList)|DigList
+	hexStart   ::="0x"|"0X"
+	integral   ::=hexStart(hexDigList)|digList
 
-	DecExpSep  ::="e"|"E"
-	HexExpSep  ::="p"|"P"
-	NumSign    ::="+"|"-"
-
-	DecNum     ::=DigList["."DigList][DecExpSep[NumSign]DigList]
-	HexNum     ::=HexStart(HexDigList)["."HexDigList][HexExpSep[NumSign]HexDigList]
+	expSign    ::="+"|"-"
+	decNum     ::=digList["."digList]["e"|"E"[expSign]digList]
+	hexNum     ::=hexStart(hexDigList)["."hexDigList]["p"|"P"[expSign]hexDigList]
 	
-	Numeral    ::=HexNum|DecNum
+	Numeral    ::=hexNum|decNum
 	
 }
 

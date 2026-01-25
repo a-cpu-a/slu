@@ -21,7 +21,7 @@ New Syntax {
 	paramList ::= typedParam {"," typedParam} [","]
 	paramListSelf ::= [{("*") [shMutConst]} "self" ","] paramList
 	
-	tupleableName ::= Name | Integral
+	tupleableName ::= Name | integral
 	
 	basicExpr @::= | "_" | borrowLifetime
 }

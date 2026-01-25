@@ -6,10 +6,10 @@
 New Syntax {
 	--No whitespace is allowed inside Names, keywords are not valid names, and they must not consist of only the `_` char
 	
-	CharUpper     ::="A"|"B"|"C"|"D"|"E"|"F"|"G"|"H"|"I"|"J"|"K"|"L"|"M"|"N"|"O"|"P"|"Q"|"R"|"S"|"T"|"U"|"V"|"W"|"X"|"Y"|"Z"
-	CharLower     ::="a"|"b"|"c"|"d"|"e"|"f"|"g"|"h"|"i"|"j"|"k"|"l"|"m"|"n"|"o"|"p"|"q"|"r"|"s"|"t"|"u"|"v"|"w"|"x"|"y"|"z"
-	NameStartChar ::=CharUpper|CharLower|"_"
-	Name          ::=NameStartChar{NameStartChar|Digit}
+	upperChar     ::="A"|"B"|"C"|"D"|"E"|"F"|"G"|"H"|"I"|"J"|"K"|"L"|"M"|"N"|"O"|"P"|"Q"|"R"|"S"|"T"|"U"|"V"|"W"|"X"|"Y"|"Z"
+	lowerChar     ::="a"|"b"|"c"|"d"|"e"|"f"|"g"|"h"|"i"|"j"|"k"|"l"|"m"|"n"|"o"|"p"|"q"|"r"|"s"|"t"|"u"|"v"|"w"|"x"|"y"|"z"
+	nameStartChar ::=upperChar|lowerChar|"_"
+	Name          ::=nameStartChar{nameStartChar|digit}
 	
 }
 
