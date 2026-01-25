@@ -14,6 +14,10 @@ New Keywords {
 	struct
 }
 
+New Tokens {
+	->
+}
+
 Fn Statement {
 	
 	Creates a new global function with a name `Name`, that cant be modified.

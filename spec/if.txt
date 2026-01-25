@@ -18,8 +18,11 @@ New Keywords {
 	if
 	else
 }
+New Tokens {
+	=>
+}
 
-If Statement {
+If {
 	
 	Lets you check if a result is in the error or value state.
 

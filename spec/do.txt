@@ -12,7 +12,11 @@ New Keywords {
 	const
 }
 
-Do Expression {
+New Tokens {
+	->
+}
+
+Do {
 	
 	Lets you compute a value inside in a expression, while being able to use statements, and more complex code.
 	

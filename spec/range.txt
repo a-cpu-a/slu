@@ -10,6 +10,10 @@ New Syntax {
 	basicExpr @::= | ".."
 }
 
+New Tokens {
+	..
+}
+
 Range Operator {
 	
 	Constructs a inclusive range from 0, 1, or 2 expressions

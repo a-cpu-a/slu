@@ -112,11 +112,20 @@ New Syntax {
 		| ("{" macroparams "}") 
 		| (">!(" macroparams ")!<")
 	
-	globstat @::= | optexport "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExpr] "{" block "}"
+	globstat @::= | optexport "macro" "fn" Name macroParamsBlock ["->" basicExpr] "{" block "}"
 }
 
 New Keywords {
 	macro
+}
+
+New Tokens {
+	>!(
+	@(
+	)!<
+	)	--match the parens
+	!
+	->
 }
 
 Macro {

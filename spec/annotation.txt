@@ -25,6 +25,13 @@ New Syntax {
 	preop @::= | annotation
 }
 
+New Tokens {
+	@<
+	@
+	--<
+	---
+}
+
 Annotation {
 	
 	Allows adding info to stuff, for reflection, or compilation.

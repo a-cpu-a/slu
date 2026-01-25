@@ -7,6 +7,10 @@ New Syntax {
 	binop @::= | "**"
 }
 
+New Tokens {
+	**
+}
+
 Array Mul {
 	
 	Multiply a list / array struct N many times

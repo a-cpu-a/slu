@@ -28,6 +28,15 @@ New Keywords {
 	as
 }
 
+New Tokens {
+	,
+	::
+	::{
+	::*
+	:>
+	}	--match the braces
+}
+
 Modules {
 	
 	The mod keyword declares a new module.

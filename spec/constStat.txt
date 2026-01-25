@@ -11,6 +11,10 @@ New Keywords {
 	const
 }
 
+New Tokens {
+	=
+}
+
 Const Statement {
 	
 	Creates new global variable(s), that cant be modified.

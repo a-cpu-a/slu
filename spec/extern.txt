@@ -48,13 +48,11 @@ New Abis {
 	
 }
 
-Extern Block Statement {
+Extern {
 	
 	Imports functions from the host environment.
 	
 	Can be used to call things like C functions, or lua functions.
-	
-	
 	
 	C pointers -> usize, or cc::IntPtr(T)
 	C const pointers -> usize, or cc::IntPtr(T)

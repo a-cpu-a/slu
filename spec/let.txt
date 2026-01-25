@@ -10,8 +10,11 @@ New Syntax {
 New Keywords {
 	let
 }
+New Tokens {
+	=
+}
 
-Let Statement {
+Let {
 	
 	Creates new local variable(s), that cant be modified, unless mut is added.
 	

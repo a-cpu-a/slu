@@ -11,6 +11,10 @@ New Keywords {
 	_COMP_TODO
 }
 
+New Tokens {
+	,
+}
+
 Comp Todo Expr {
 	A way to speed up compiler dev, by making compiler builtins easy to use.
 	

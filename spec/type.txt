@@ -35,6 +35,16 @@ New Keywords {
 	ex
 }
 
+New Tokens {
+	~
+	|
+	&
+	/
+	*
+	,
+	_
+}
+
 New types {
 
 	trait

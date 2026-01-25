@@ -1,5 +1,5 @@
 #
-# Dependencies: basic, annotation, export, structStatement
+# Dependencies: basic, annotation, export
 #
 
 New Syntax {

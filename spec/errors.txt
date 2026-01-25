@@ -16,6 +16,10 @@ New Keywords {
 	throw
 }
 
+New Tokens {
+	?
+}
+
 Errors {
 	
 	The type specifier `~` is used to create a `Result` type.

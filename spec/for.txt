@@ -12,7 +12,7 @@ New Keywords {
 	in
 }
 
-For loop {
+For {
 	
 	Loop over all elements inside some object or iterator
 	

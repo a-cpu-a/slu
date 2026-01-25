@@ -11,6 +11,10 @@ New Keywords {
 	loop
 }
 
+New Tokens {
+	->
+}
+
 Loop {
 	
 	Loop forever, until reaching a break statement that potentially returns some value.

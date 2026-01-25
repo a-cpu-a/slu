@@ -48,6 +48,17 @@ New Keywords {
 	match
 }
 
+New Tokens {
+	|
+	=>
+	=
+	..
+	;
+	,
+	->
+	_
+}
+
 Match {
 	
 	--TODO: do we even need restrictions?

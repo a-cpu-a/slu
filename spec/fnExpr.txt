@@ -11,6 +11,10 @@ New Keywords {
 	fn
 }
 
+New Tokens {
+	->
+}
+
 Fn Expression {
     
     Creates a global function object, that can be used inside impls / traits.

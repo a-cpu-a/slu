@@ -8,9 +8,13 @@ New Syntax {
 	basicExpr @::= | PreFn "|" [params] "|" ["->" basicExpr "=>"] basicExpr
 }
 
-Lambda Expression {
-	
-	Creates a lambda function.
+New Tokens {
+	|
+	=>
+	->
+}
+
+Lambdas {
 	
 	Same rules for typing as normal fn statements.
 	
