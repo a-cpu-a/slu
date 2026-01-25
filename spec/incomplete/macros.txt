@@ -105,12 +105,12 @@ New Syntax {
 	optexport @::= | macroInvSpl
 	
 	macroParam ::= ["macro"] typedParam
-	macroParamList ::= macroParam {"," macroParam} [","]
+	macroparams ::= macroParam {"," macroParam} [","]
 	
-	macroParamsBlock ::= ("(" macroParamList ")")
-		| ("[" macroParamList "]")
-		| ("{" macroParamList "}") 
-		| (">!(" macroParamList ")!<")
+	macroParamsBlock ::= ("(" macroparams ")")
+		| ("[" macroparams "]")
+		| ("{" macroparams "}") 
+		| (">!(" macroparams ")!<")
 	
 	globstat @::= | optexport "macro" "fn" Name ["!"] macroParamsBlock ["->" basicExpr] "{" block "}"
 }

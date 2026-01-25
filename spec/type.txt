@@ -17,8 +17,8 @@ New Syntax {
 	lifetime ::= "/" Name {"/" Name}
 	
 	typedParam ::= ["const"] Name "=" expr
-	paramList ::= typedParam {"," typedParam} [","]
-	paramListSelf ::= [{("*") [refType]} "self" ","] paramList
+	params ::= typedParam {"," typedParam} [","]
+	paramsSelf ::= [{("*") [refType]} "self" ","] params
 	
 	tupleableName ::= Name | integral
 	

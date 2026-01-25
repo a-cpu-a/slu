@@ -4,7 +4,7 @@
 
 New Syntax {
 
-	expr @::= | PreFn "fn" "(" [paramListSelf] ")" ["->" expr] ["{" block "}"]
+	expr @::= | PreFn "fn" "(" [paramsSelf] ")" ["->" expr] ["{" block "}"]
 }
 
 New Keywords {

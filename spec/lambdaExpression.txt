@@ -4,8 +4,8 @@
 
 New Syntax {
 	
-	expr @::= | PreFn "|" [paramList] "|" ["->" expr "=>"] expr
-	basicExpr @::= | PreFn "|" [paramList] "|" ["->" basicExpr "=>"] basicExpr
+	expr @::= | PreFn "|" [params] "|" ["->" expr "=>"] expr
+	basicExpr @::= | PreFn "|" [params] "|" ["->" basicExpr "=>"] basicExpr
 }
 
 Lambda Expression {
