@@ -4,13 +4,13 @@
 
 New Syntax {
 	
-	ifcond ::= "if" exp
+	ifcondBasic ::= "if" basicExp
 	
 	--Note: retstat as used in blockOrRet, cant use the `else` operator, as it would conflict with if-stat parsing
-	stat @::= | ifcond "do" blockOrRet {"else" ifcond "do" blockOrRet} ["else" blockOrRet]
-	stat @::= | ifcond "=>" exp
-	exp @::= | ifcond "=>" exp
-	basicExp @::= | ifcond "=>" basicExp
+	stat @::= | ifcondBasic blockOrRet {"else" ifcondBasic blockOrRet} ["else" blockOrRet]
+	stat @::= | ifcondBasic "=>" exp
+
+	unop @::= | "if" exp "=>"
 	binop @::= | "else"
 }
 
