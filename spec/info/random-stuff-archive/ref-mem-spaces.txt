@@ -1,0 +1,69 @@
+Misc ai prompts & thoughts:
+
+Hi, im making a prog lang, and i ran into a problem.
+Currently references are just aliased+immutable or unique+mutable, and a lifetime.
+But with gpu support, i need memory space support too.
+Luckily references cant be turned into addresses, so that simplifies things, but it doesnt help with the fact that some references can be read by the cpu ("special register" reference, memory reference) and some can only be read by the gpu.
+How should i solve this? how do existing languages solve this?
+
+
+
+
+I would like to, by default, allow code to run on both the gpu & the cpu, so this should work on both too:
+`fn computeFft(src = *[]f32, dst = *mut[]f32) --Note: * is the ref type symbol, & is the create-reference-to operator`
+
+And only through some library call thingy would the gpu be used.
+`gpulib.run(computeFft, { &stackSlice, &stackOut })` -> Somehow an error is created, due to using non-gpu memory.
+`gpulib.run(computeFft, { gpuMemInput, gpuMemOut })` -> Works fine
+
+I would also like for functions to be able to explicitly opt-in to references that they arent able to read/write.
+
+=> ref types by default could be any mem-space that can be R/W
+=> ref types need to store what mem space they are (after monomorphistation atleast)
+=> we prob want to support custom mem spaces for special architectures (maybe Scoreboard/NbtStorage in minecraft for example)
+
+Might potentially need a way to have generic mem-space stuff:
+`fn apple(a = *:(msp)[]f32, b = *:(msp) mut[]f32, const msp = Mspace)`
+`fn apple(apple = *[]f32, b = *:apple mut[]f32)` -> Requires `b` to have the same mem-space as `apple`
+
+
+
+By default refs require the mem-space to support r/w (w only for mutable refs) (atleast for type coercions i mean)
+=> Works fine for dev-local stuff.
+
+`gpulib.run` under the hood could obtain a GPU-fn from `computeFft` (at compile time ofc, so thats a const arg)
+=> but how would it type check that fn-call?
+(somehow checks it), so how does the type check fail/pass?
+=> In the invalid example you pass `*:Cpu` into a gpu-fn that wants a (gpu)`*` compatible type, so
+    either it knows its `*:Cpu` and stops it, or it doesnt know its `*:Gpu` and isnt sure, so stops it.
+=> In this case it knows nothing. So it has no proof its on the gpu, and thus cant be sure if it will work. (gpulib cant actually run on the gpu so it technically will never be on the gpu anyway)
+=> In the good one, you pass `*:Gpu` into the gpu-fn, and its fine (it knows its a `*:Gpu`, cuz otherwise you could r/w it from the cpu).
+
+What about single dev, incompatible mem spaces?
+=> Add a const-arg and use that as the mem space for ur ref.
+=> The ref is "useless", but can be returned or copied in some cases.
+
+*#(Global) /my.lifetime/lifetime2 mut T
+*%(Global) /my.lifetime/lifetime2 mut T
+*$(Global) /my.lifetime/lifetime2 mut T
+*<(Global)< /my.lifetime/lifetime2 mut T
+*>(Global)> /my.lifetime/lifetime2 mut T
+*>(Global)< /my.lifetime/lifetime2 mut T
+*^(Global) /my.lifetime/lifetime2 mut T
+*<(Global)> /my.lifetime/lifetime2 mut T
+*'(Global) /my.lifetime/lifetime2 mut T
+*:(Global) /my.lifetime/lifetime2 mut T
+
+: => anoying to parse. (due to :>)
+' => reminds of rust lifetimes. But is that an issue?
+^ => its pointing up, and away from the type, a bit odd.
+%,$,# => too noisy
+>>, <<, ><, <>. => anoying to type sometimes, due to 2 chars.
+
+
+Additional info:
+
+So, i dont want to monomorphize (at the analysis level) based on mem-space (it could multiply func count by more than 2!!!), unless its due to it being in a const arg.
+
+To help solve the unknown questions, can you write a implementation for `gpulib.run`
+Its args would be `const func = ReflectedFunction, args=func.argsT()`
