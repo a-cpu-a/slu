@@ -41,12 +41,19 @@ New Keywords {
 	pure		(..)		(..)		mark external function as pure
 	test		(..)		(..)		compile time tests, kinda like zig
 	with		(..)		(..)		Impl with args?
+	wrap		(..)		(..)		mixins
 	final  		(122k)		(7.7k)		?
 	inout		(..)		(..)		?
+	mixin		(..)		(..)		Code mixins (think of how nice spongeforge mixins are in java)
 	become 		(52k)		(286)		?
 	impure		(..)		(..)		special impure arg?
+	Inject		(..)		(..)		mixins
+	inject		(..)		(..)		mixins
 	inline 		(..)		(..)		inlined loops, like zig.
 	typeof 		(44k)		(616)		?
+	Modify		(..)		(..)		mixins
+	Shadow		(..)		(..)		mixins
+	Capture		(..)		(..)		mixins
 	default		(..)		(..)		Default impls? https://rust-lang.github.io/rfcs/1210-impl-specialization.html#the-default-keyword
 	discard		(..)		(..)		discard terminator like in frag shaders.
 	uniform		(..)		(..)		shader uniforms.
@@ -54,6 +61,10 @@ New Keywords {
 	virtual		(82.9k)		(3.2k)		?
 	abstract	(14k)		(358)		?
 	override	(253k)		(14.8k)		?
+	Operation	(..)		(..)		mixins
+	operation	(..)		(..)		mixins
+	Overwrite	(..)		(..)		mixins
+	overwrite	(..)		(..)		mixins
 	groupshare	(..)		(..)		something that is shared between multiple shader threads... or was it blocks?
 	groupshared	(..)		(..)		alt form of groupshare
 	threadlocal (..)		(..)		thread local globals?
