@@ -54,7 +54,7 @@ New types {
 	Impl
 	Dyn
 	
-	Lifetime
+	Life
 	Space
 	
 	Ref
@@ -119,8 +119,11 @@ Official Types {
 		A type that implements a list of traits.
 		By default implies the same things as `impl` does.
 	}
-	Lifetime {
+	Life {
 		Represents some lifetime as a value.
+	}
+	Space {
+		Represents some address space as a value.
 	}
 	Unit {
 		A nominally unique unit type, used as the default type for some things.
