@@ -69,18 +69,21 @@ Slice Type {
 	`struct fn Slice(T = type);`
 }
 
+Addr Type {
+	An address inside of memory.
+	`struct fn Ref(align = Lifetime, msp = Mspace);`
+}
+
 Ref and Ptr Types {
 	The ref and ptr types.
 	
 	No definition exists, as it is a compiler builtin. (under the hood it may have a vtable, ptr, ... or even be a zst)
-	`struct fn Ref(T = type);`
-	`struct fn RefConst(T = type);`
-	`struct fn RefMut(T = type);`
-	`struct fn RefShare(T = type);`
-	`struct fn Ptr(T = type);`
-	`struct fn PtrConst(T = type);`
-	`struct fn PtrMut(T = type);`
-	`struct fn PtrShare(T = type);`
+	`struct fn Ref(T = type, life = Lifetime, msp = Mspace);`
+	`struct fn RefMut(T = type, life = Lifetime, msp = Mspace);`
+	`struct fn RefShare(T = type, life = Lifetime, msp = Mspace);`
+	`struct fn Ptr(T = type, life = Lifetime, msp = Mspace);`
+	`struct fn PtrMut(T = type, life = Lifetime, msp = Mspace);`
+	`struct fn PtrShare(T = type, life = Lifetime, msp = Mspace);`
 }
 
 Lifetime Type {
@@ -88,6 +91,20 @@ Lifetime Type {
 	
 	No definition exists, as it is a compiler builtin. (under the hood its basically just a Vec(String))
 	`struct Lifetime;`
+}
+
+Mspace type {
+	Used to identify a memory space for an address or reference.
+
+	Ways mem-spaces have been used in the past:
+	https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#_storage_class
+	(I think it makes sense to allow user-defined mem-spaces, but they will need special compilation support, so they may require a compiler plugin to compile any read/write)
+
+	Potential ways to use this in the future:
+	Since there arent any pointers in lua/js/java/..., there might be a mem-spaces like this:
+	`lua::TableKey` and `lua::TableKeyAddr{tbl = lua::Table, key = lua::TableKey}`
+	`js::ObjKey` and `js::ObjKeyAddr{obj = js::Object, key = js::ObjectKey}`
+	`java::LambdaGetSet` and `java::LambdaGetSetAddr{lambda = java::GetSetLambda(java::Object)}` -- Prob something with invoke dynamic instead ...
 }
 
 Impure Type {

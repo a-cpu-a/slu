@@ -54,7 +54,16 @@ New types {
 	Dyn
 	
 	Lifetime
+	Mspace | Memsp
 	
+	Ref
+	RefShare
+	RefMut
+	Ptr
+	PtrShare
+	PtrMut
+	Addr
+
 	Unit
 	Any
 	str
