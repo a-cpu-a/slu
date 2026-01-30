@@ -1,5 +1,8 @@
 Misc ai prompts & thoughts:
 
+The point of mem spaces, is when you physically store/read/write from it in a different way. (32bit addr, 64bit addr, gpu addresses, ...)
+
+
 Hi, im making a prog lang, and i ran into a problem.
 Currently references are just aliased+immutable or unique+mutable, and a lifetime.
 But with gpu support, i need memory space support too.
@@ -78,3 +81,85 @@ So, i dont want to monomorphize (at the analysis level) based on mem-space (it c
 
 To help solve the unknown questions, can you write a implementation for `gpulib.run`
 Its args would be `const func = ReflectedFunction, args=func.argsT()`
+
+
+Ai resp:
+
+1. The Opcode (The Instruction Itself) 
+
+This is the most common case. The value of the pointer might look the same (e.g., 0x1000), but the CPU/GPU instruction to access it is different. 
+
+    GPU Example (NVIDIA PTX): 
+         If Space is Global (VRAM): The compiler emits ld.global.f32 (Slow, hundreds of cycles latency).
+         If Space is Shared (On-chip): The compiler emits ld.shared.f32 (Extremely fast, ~30 cycles).
+         Result: If you try to use a Global Address with a Shared instruction, the GPU hardware will crash or read garbage.
+?! also: ld.const.f32 !
+     
+         2. The Address Width & Format 
+
+You mentioned 32-bit vs 64-bit. In some architectures, different spaces have different pointer sizes, even on the same machine. 
+    Harvard Architecture (Microcontrollers/AVR): 
+         Code Space: Addresses might be 24-bit (to address large flash memory).
+         Data Space: Addresses might be 16-bit (to address smaller RAM).
+         Physical Difference: The electrical wires (buses) for code and data are physically separate.
+
+    Segmented Addressing (x86 Real Mode / Embedded): 
+         Near Address: 16-bit offset (Fast).
+         Far Address: 16-bit segment + 16-bit offset (Slow, requires changing segment registers).
+         In your language: Addr<u16, Space::Near> vs Addr<u32, Space::Far>.
+
+
+ 3. The Cache Coherency Protocol 
+This is invisible in the instruction set but critical for correctness. "Writing in a different way" often means "How do we tell other cores that we changed data?" 
+
+    Write-Back (Standard RAM): 
+         The CPU writes to L1/L2 cache. It doesn't touch main RAM immediately.
+         Physical Cost: Fast write, but requires a "Cache Flush" or "Memory Fence" if another core/DMA needs to see it.
+        
+    Write-Through / Uncached (MMIO / Framebuffers): 
+         The CPU writes directly to the memory controller, bypassing cache.
+         Physical Cost: Very slow write, but guaranteed to be visible to the hardware immediately.
+         
+    GPU Local/Shared: 
+         Often has no cache coherency at all. If Thread A writes to Shared Memory, Thread B will not see it until a specific barrier.sync instruction is executed.
+         Your Space::Shared type enforces that you cannot create a reference without passing a sync barrier
+
+
+Summary of your Spaces 
+So, when you define your enum, you are defining the Physical Bus logic: 
+
+Space Name      Physical Instruction/Bus Behavior
+ 
+Generic     	Standard cached Load/Store (CPU MOV, GPU LD.G) 
+Shared      	On-chip scratchpad Load/Store (GPU LD.S) 
+IO      	    Uncached/Volatile Load/Store (Prevents optimization) 
+Thread      	Stack frame access (Base Pointer + Offset)
+
+
+=> hmm not sure about the io or thread...
+
+Why keep Thread? 
+
+Even though it's "just a stack," physically it is often accessed differently. 
+
+     On CPUs: Global addresses are absolute (0x0050_A123). Thread/Stack addresses are relative (SP + 0x10). This makes the code smaller and position-independent.
+     On GPUs: There is a dedicated "Private" memory space. If you don't have a Thread space type, you can't safely distinguish between "Thread local variable" and "Pointer to global memory that happens to only be used by one thread."
+     
+
+Heap (The standard global RAM)
+     Physical: Standard cached load/store. Read-Write.
+     Usage: Standard variables, structs, buffers.
+      
+Const (Read-Only global memory)
+     Physical: Maps to .rodata, Flash memory, or GPU Texture Units. These often have separate, higher-bandwidth caches dedicated solely to reading.
+     Usage: Lookup tables, shaders, string literals, configuration data.
+     Note: Trying to write to this space triggers a hardware fault/exception.
+      
+Thread (Private/Stack memory)
+     Physical: Uses relative addressing (Stack Pointer + Offset) or dedicated "Private" memory banks on GPUs. Extremely high bandwidth, no sharing.
+     Usage: Function stacks, loop accumulators, GPU lane-local variables.
+      
+Shared (Group shared memory)
+     Physical: On-chip scratchpad (L1 / SRAM). Managed software-defined cache. Requires barriers (sync) for visibility.
+     Usage: Communication between parallel threads (CUDA Shared / LDS).
+          
