@@ -23,8 +23,8 @@ I would also like for functions to be able to explicitly opt-in to references th
 => we prob want to support custom mem spaces for special architectures (maybe Scoreboard/NbtStorage in minecraft for example)
 
 Might potentially need a way to have generic mem-space stuff:
-`fn apple(a = *:(msp)[]f32, b = *:(msp) mut[]f32, const msp = Mspace)`
-`fn apple(apple = *[]f32, b = *:apple mut[]f32)` -> Requires `b` to have the same mem-space as `apple`
+`fn apple(a = *in(msp)[]f32, b = *in(msp) mut[]f32, const msp = Mspace)`
+`fn apple(apple = *[]f32, b = *in apple mut[]f32)` -> Requires `b` to have the same mem-space as `apple`
 
 
 
@@ -34,10 +34,10 @@ By default refs require the mem-space to support r/w (w only for mutable refs) (
 `gpulib.run` under the hood could obtain a GPU-fn from `computeFft` (at compile time ofc, so thats a const arg)
 => but how would it type check that fn-call?
 (somehow checks it), so how does the type check fail/pass?
-=> In the invalid example you pass `*:Cpu` into a gpu-fn that wants a (gpu)`*` compatible type, so
-    either it knows its `*:Cpu` and stops it, or it doesnt know its `*:Gpu` and isnt sure, so stops it.
+=> In the invalid example you pass `*in Cpu` into a gpu-fn that wants a (gpu)`*` compatible type, so
+    either it knows its `*in Cpu` and stops it, or it doesnt know its `*in Gpu` and isnt sure, so stops it.
 => In this case it knows nothing. So it has no proof its on the gpu, and thus cant be sure if it will work. (gpulib cant actually run on the gpu so it technically will never be on the gpu anyway)
-=> In the good one, you pass `*:Gpu` into the gpu-fn, and its fine (it knows its a `*:Gpu`, cuz otherwise you could r/w it from the cpu).
+=> In the good one, you pass `*in Gpu` into the gpu-fn, and its fine (it knows its a `*in Gpu`, cuz otherwise you could r/w it from the cpu).
 
 What about single dev, incompatible mem spaces?
 => Add a const-arg and use that as the mem space for ur ref.
@@ -51,14 +51,25 @@ What about single dev, incompatible mem spaces?
 *>(Global)< /my.lifetime/lifetime2 mut T
 *^(Global) /my.lifetime/lifetime2 mut T
 *<(Global)> /my.lifetime/lifetime2 mut T
-*'(Global) /my.lifetime/lifetime2 mut T
 *:(Global) /my.lifetime/lifetime2 mut T
+*/my.lifetime/lifetime2 :(Global) mut T
+*'(Global) /my.lifetime/lifetime2 mut T
+*/my.lifetime/lifetime2 '(Global) mut T
+*in(Global) /my.lifetime/lifetime2 mut T
 
 : => anoying to parse. (due to :>)
-' => reminds of rust lifetimes. But is that an issue?
+' => reminds of rust lifetimes. But is that an issue? Conflicts with loop/do-expr labels.
 ^ => its pointing up, and away from the type, a bit odd.
 %,$,# => too noisy
 >>, <<, ><, <>. => anoying to type sometimes, due to 2 chars.
+
+
+@MyAttr{} ex *:Heap /a/b mut std::Box(T) @<OuterAnnotation{}
+@MyAttr{} ex */a/b :Heap mut std::Box(T) @<OuterAnnotation{}
+@MyAttr{} ex *'Heap /a/b mut std::Box(T) @<OuterAnnotation{}
+@MyAttr{} ex */a/b 'Heap mut std::Box(T) @<OuterAnnotation{}
+@MyAttr{} ex *@Heap /a/b mut std::Box(T) @<OuterAnnotation{}
+@MyAttr{} ex *in Heap /a/b mut std::Box(T) @<OuterAnnotation{}
 
 
 Additional info:
