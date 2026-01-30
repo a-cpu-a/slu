@@ -71,19 +71,19 @@ Slice Type {
 
 Addr Type {
 	An address inside of memory.
-	`struct fn Ref(align = Lifetime, msp = Mspace);`
+	`struct fn Ref(align = Lifetime, space = Space);`
 }
 
 Ref and Ptr Types {
 	The ref and ptr types.
 	
 	No definition exists, as it is a compiler builtin. (under the hood it may have a vtable, ptr, ... or even be a zst)
-	`struct fn Ref(T = type, life = Lifetime, msp = Mspace);`
-	`struct fn RefMut(T = type, life = Lifetime, msp = Mspace);`
-	`struct fn RefShare(T = type, life = Lifetime, msp = Mspace);`
-	`struct fn Ptr(T = type, life = Lifetime, msp = Mspace);`
-	`struct fn PtrMut(T = type, life = Lifetime, msp = Mspace);`
-	`struct fn PtrShare(T = type, life = Lifetime, msp = Mspace);`
+	`struct fn Ref(T = type, life = Lifetime, space = Space);`
+	`struct fn RefMut(T = type, life = Lifetime, space = Space);`
+	`struct fn RefShare(T = type, life = Lifetime, space = Space);`
+	`struct fn Ptr(T = type, life = Lifetime, space = Space);`
+	`struct fn PtrMut(T = type, life = Lifetime, space = Space);`
+	`struct fn PtrShare(T = type, life = Lifetime, space = Space);`
 }
 
 Lifetime Type {
@@ -93,10 +93,10 @@ Lifetime Type {
 	`struct Lifetime;`
 }
 
-Mspace type {
-	Used to identify a memory space for an address or reference.
+Space type {
+	Used to identify a address space for an address or reference.
 
-	Ways mem-spaces have been used in the past:
+	Ways addr-spaces have been used in the past:
 	https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#_storage_class
 	(I think it makes sense to allow user-defined mem-spaces, but they will need special compilation support, so they may require a compiler plugin to compile any read/write)
 

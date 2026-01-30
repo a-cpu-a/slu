@@ -7,14 +7,14 @@ New Syntax {
 	--TODO: allow fixed points `(0..255) * 0.125` or `0..31.875 at 0.125`
 	
 	refType ::= "const" | "share" | "mut"
-	typePreop ::= "*" [memspace] [lifetime] [refType]
+	typePreop ::= "*" [addrspace] [lifetime] [refType]
 	typePrefix ::= ["mut"] {typePreop}
 	
 	binop @::= | "~" | "|"
-	preop @::= | typePreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [memspace] [lifetime] [refType] | "~"
+	preop @::= | typePreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [addrspace] [lifetime] [refType] | "~"
 	
 	lifetime ::= "/" Name {"/" Name}
-	memspace ::= "in" Name
+	addrspace ::= "in" Name
 	
 	typedParam ::= ["const"] Name "=" expr
 	params ::= typedParam {"," typedParam} [","]
@@ -55,7 +55,7 @@ New types {
 	Dyn
 	
 	Lifetime
-	Mspace | Memsp
+	Space
 	
 	Ref
 	RefShare

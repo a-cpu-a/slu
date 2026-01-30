@@ -1,11 +1,11 @@
 Misc ai prompts & thoughts:
 
-The point of mem spaces, is when you physically store/read/write from it in a different way. (32bit addr, 64bit addr, gpu addresses, ...)
+The point of addr spaces, is when you physically store/read/write from it in a different way. (32bit addr, 64bit addr, gpu addresses, ...)
 
 
 Hi, im making a prog lang, and i ran into a problem.
 Currently references are just aliased+immutable or unique+mutable, and a lifetime.
-But with gpu support, i need memory space support too.
+But with gpu support, i need address space support too.
 Luckily references cant be turned into addresses, so that simplifies things, but it doesnt help with the fact that some references can be read by the cpu ("special register" reference, memory reference) and some can only be read by the gpu.
 How should i solve this? how do existing languages solve this?
 
@@ -21,17 +21,17 @@ And only through some library call thingy would the gpu be used.
 
 I would also like for functions to be able to explicitly opt-in to references that they arent able to read/write.
 
-=> ref types by default could be any mem-space that can be R/W
-=> ref types need to store what mem space they are (after monomorphistation atleast)
-=> we prob want to support custom mem spaces for special architectures (maybe Scoreboard/NbtStorage in minecraft for example)
+=> ref types by default could be any addr-space that can be R/W
+=> ref types need to store what addr space they are (after monomorphistation atleast)
+=> we prob want to support custom addr spaces for special architectures (maybe Scoreboard/NbtStorage in minecraft for example)
 
-Might potentially need a way to have generic mem-space stuff:
-`fn apple(a = *in(msp)[]f32, b = *in(msp) mut[]f32, const msp = Mspace)`
-`fn apple(apple = *[]f32, b = *in apple mut[]f32)` -> Requires `b` to have the same mem-space as `apple`
+Might potentially need a way to have generic addr-space stuff:
+`fn apple(a = *in(space)[]f32, b = *in(space) mut[]f32, const space = Space)`
+`fn apple(apple = *[]f32, b = *in apple mut[]f32)` -> Requires `b` to have the same addr-space as `apple`
 
 
 
-By default refs require the mem-space to support r/w (w only for mutable refs) (atleast for type coercions i mean)
+By default refs require the addr-space to support r/w (w only for mutable refs) (atleast for type coercions i mean)
 => Works fine for dev-local stuff.
 
 `gpulib.run` under the hood could obtain a GPU-fn from `computeFft` (at compile time ofc, so thats a const arg)
@@ -42,8 +42,8 @@ By default refs require the mem-space to support r/w (w only for mutable refs) (
 => In this case it knows nothing. So it has no proof its on the gpu, and thus cant be sure if it will work. (gpulib cant actually run on the gpu so it technically will never be on the gpu anyway)
 => In the good one, you pass `*in Gpu` into the gpu-fn, and its fine (it knows its a `*in Gpu`, cuz otherwise you could r/w it from the cpu).
 
-What about single dev, incompatible mem spaces?
-=> Add a const-arg and use that as the mem space for ur ref.
+What about single dev, incompatible addr spaces?
+=> Add a const-arg and use that as the addr space for ur ref.
 => The ref is "useless", but can be returned or copied in some cases.
 
 *#(Global) /my.lifetime/lifetime2 mut T
@@ -77,7 +77,7 @@ What about single dev, incompatible mem spaces?
 
 Additional info:
 
-So, i dont want to monomorphize (at the analysis level) based on mem-space (it could multiply func count by more than 2!!!), unless its due to it being in a const arg.
+So, i dont want to monomorphize (at the analysis level) based on addr-space (it could multiply func count by more than 2!!!), unless its due to it being in a const arg.
 
 To help solve the unknown questions, can you write a implementation for `gpulib.run`
 Its args would be `const func = ReflectedFunction, args=func.argsT()`
