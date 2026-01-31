@@ -396,7 +396,7 @@ class UnionDecl extends GlobStat {
 // STATEMENTS (stat)
 // ============================================================================
 
-// [label] "loop" "{" block "}"
+// [label] "loop" ["->" basicExpr] "{" block "}"
 class LoopStat extends Stat {
     constructor() {
         super("LoopStat");
@@ -405,6 +405,8 @@ class LoopStat extends Stat {
         this.labelColon = new Token(":"); // $<Needs labelStart>
 
         this.loopKw = new Token("loop");
+        this.retArrow = new OptToken("->");
+        this.retType = new Expr(); // $<Needs retArrow>
         this.body = new BlockNode();
     }
 }
