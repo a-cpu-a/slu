@@ -9,7 +9,7 @@ New Syntax {
 
 	basicExpr @::= | modpath
 	
-	modpathindex ::= "::*" | "::{" ("self"|Name) {"," Name} "}"
+	modpathindex ::= "::*" | "::{" ("self"|Name) {fieldsep Name} [fieldsep] "}"
 	useVariant ::= ["as" Name | modpathindex]
 	globstat @::= | optexport "use" modpath useVariant
 	

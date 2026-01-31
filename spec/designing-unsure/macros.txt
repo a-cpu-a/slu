@@ -104,7 +104,7 @@ New Syntax {
 	optexport @::= | macroInvSpl
 	
 	macroParam ::= ["macro"] typedParam
-	macroparams ::= macroParam {"," macroParam} [","]
+	macroparams ::= {macroParam fieldsep}
 	
 	macroParamsBlock ::= ("(" macroparams ")")
 		| ("[" macroparams "]")

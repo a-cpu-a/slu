@@ -18,8 +18,8 @@ New Syntax {
 	addrspace ::= "in" Name
 	
 	typedParam ::= ["const"] Name "=" expr
-	params ::= typedParam {"," typedParam} [","]
-	selfParams ::= [{("*") [refType]} "self" ","] params
+	params ::= typedParam fieldsep {typedParam fieldsep}
+	selfParams ::= [{("*") [refType]} "self" fieldsep] params
 	
 	basicExpr @::= | "_" | lifetime
 }

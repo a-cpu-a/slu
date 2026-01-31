@@ -11,11 +11,9 @@ New Syntax {
 	
 	destrSpec ::= sPat | ["mut"] {typePreop}
 	
-	extraFieldSignifier ::= "," ".."
-	
 	destrField ::= "|" tupleableName "|" pat
-	destrFieldList ::= destrField {"," destrField} [extraFieldSignifier]
-	destrPatFieldList ::= pat {"," pat} [extraFieldSignifier]
+	destrFieldList ::= {destrField fieldsep} [".."]
+	destrPatFieldList ::= {pat fieldsep} [".."]
 	
 	dPat ::= destrSpec "{" destrFieldList "}" [Name]
 		| destrSpec "{" destrPatFieldList "}" [Name]
@@ -25,8 +23,8 @@ New Syntax {
 	
 	
 	destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
-	uncondDestrFieldList ::= destrFieldUncond {"," destrFieldUncond} [extraFieldSignifier]
-	uncondDestrPatFieldList ::= uncondDestrPat {"," uncondDestrPat} [extraFieldSignifier]
+	uncondDestrFieldList ::= {destrFieldUncond fieldsep} [".."]
+	uncondDestrPatFieldList ::= {uncondDestrPat fieldsep} [".."]
 	
 	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}" [Name]
 		| destrSpec "{" uncondDestrPatFieldList "}" [Name]
@@ -73,7 +71,7 @@ Match {
 	If some inputs wouldnt match, then a soft-error occurs, and a " else => panic!(); " is inserted.
 	It is an soft-error to have multiple cases that are identical, without any if checks.
 	
-	"extraFieldSignifier" is required, when a field / array element is ignored, or when matching on dynamicaly-sized arrays.
+	".." is required, when a field / array element is ignored, or when matching on dynamicaly-sized arrays.
 	
 	Implementation {
 		May be a jump table, if else chain, etc.

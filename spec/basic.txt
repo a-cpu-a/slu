@@ -31,7 +31,7 @@ New Syntax {
 	subvar ::= ".*" | "." tupleableName | "[" expr "]"
 	var ::= (Name | "(" expr ")") {{selfablecall} subvar}
 
-	basicArgs ::=  "(" [expr {"," expr} [","]] ")" | LiteralString | Numeral
+	basicArgs ::=  "(" {expr fieldsep} ")" | LiteralString | Numeral
 	args ::=  basicArgs | tableconstructor
 	selfablecallBasic ::= ["." Name] basicArgs
 	selfablecall ::= ["." Name] args
