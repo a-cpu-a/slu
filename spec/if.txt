@@ -8,7 +8,6 @@ New Syntax {
 	
 	--Note: retstat as used in if-statement blockOrRet's, cant use the `else` operator, as it would conflict with if-stat parsing
 	stat @::= | ifcondBasic blockOrRet {"else" ifcondBasic blockOrRet} ["else" blockOrRet]
-	stat @::= | ifcondBasic "=>" expr
 
 	preop @::= | "if" expr "=>"
 	binop @::= | "else"
