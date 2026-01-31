@@ -11,12 +11,11 @@ New Syntax {
 
 	basicExpr @::= | modpath
 	
-	modpathindex ::= "::*" | "::{" ("self" | ["self" ","] Name {"," Name}) "}"
+	modpathindex ::= "::*" | "::{" ("self"|Name) {"," Name}) "}"
 	useVariant ::= ["as" Name | modpathindex]
 	globstat @::= | optexport "use" modpath useVariant
 	
-	globstat @::= | optexport "mod" Name "{" chunk "}"
-	globstat @::= | optexport "mod" Name
+	globstat @::= | optexport "mod" Name ["{" chunk "}"]
 }
 
 New Keywords {
