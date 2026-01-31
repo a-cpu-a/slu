@@ -4,8 +4,8 @@
 
 New Syntax {
 	
-	expr @::= | PreFn "|" [params] "|" ["->" expr "=>"] expr
-	basicExpr @::= | PreFn "|" [params] "|" ["->" basicExpr "=>"] basicExpr
+	expr @::= | [safety] "|" [params] "|" ["->" expr "=>"] expr
+	basicExpr @::= | [safety] "|" [params] "|" ["->" basicExpr "=>"] basicExpr
 }
 
 New Tokens {

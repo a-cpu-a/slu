@@ -4,10 +4,8 @@
 
 New Syntax {
 	
-	ifcondBasic ::= "if" basicExpr
-	
 	--Note: retstat as used in if-statement blockOrRet's, cant use the `else` operator, as it would conflict with if-stat parsing
-	stat @::= | ifcondBasic blockOrRet {"else" ifcondBasic blockOrRet} ["else" blockOrRet]
+	stat @::= | "if" basicExpr blockOrRet {"else" "if" basicExpr blockOrRet} ["else" blockOrRet]
 
 	preop @::= | "if" expr "=>"
 	binop @::= | "else"
