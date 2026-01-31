@@ -42,7 +42,7 @@ Order of Operations {
 	else
 	
 	postfix unary operators (try {})
-	
+
 	(pseudo) ,
 	(pseudo) =
 	(pseudo) ;
@@ -54,8 +54,8 @@ Order of Operations {
 	traits used for every operator
 	```
 	()		FnOnce Fn FnMut FnConst FnShare
-	--$$=		$$Assign
-	..		???			(Ranged/Ranging/Bounds/Bound/Boundable/??? .range .rangeMax .rangeMin)
+	${op}=	${opName}Assign
+	..		???				(Ranged/Ranging/Bounds/Bound/Boundable/??? .range .rangeMax .rangeMin)
 	?		Try.branch
 	!		Not
 	>		(Partial)Ord.gt
@@ -68,8 +68,8 @@ Order of Operations {
 			Shr
 			Xor
 			BitAnd
-	and		And
 			BitOr
+	and		And
 	or		Or
 	++		Concat
 	**		Rep
@@ -88,26 +88,27 @@ Order of Operations {
 	*const	RefTypeConst	(unstable)
 	*mut	RefTypeMut		(unstable)
 	*share	RefTypeShare	(unstable)
-	&		Ref			(unstable)
-	&const	RefConst	(unstable)
-	&mut	RefMut		(unstable)
-	&share	RefShare	(unstable)
+	&		----
+	&const	----
+	&mut	----
+	&share	----
 	
-	[]		Slicify		(unstable)
-	.		----		
-	.:		----		
-	::		----		
-	as		As.asType
+	[]		Slicify			(unstable)
+	.		----
+	.:		----
+	::		----
+	as		As.as_
 	~		----
-	|		Union.union	(unstable)
-	dyn		Dynify		(unstable)
-	ex		MarkEx		(unstable)
-	else	----		
-	if =>	----		
-	@Xxx{}	----		
-	impl	Implify		(unstable)
-	mut		MarkMut		(unstable)
-	=		----		(maybe...) Move + Relocate.reloc()?
+	|		Union			(unstable)
+	dyn		Dynify			(unstable)
+	ex		MarkExported	(unstable)
+	else	----
+	if =>	----
+	try {}	----
+	@Xxx{}	Annotate		(unstable)
+	impl	Implify			(unstable)
+	mut		MarkMutable		(unstable)
+	=		----			(maybe...) Move + Relocate.reloc()?
 	```
 	
 	
