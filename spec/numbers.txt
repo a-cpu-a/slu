@@ -16,8 +16,8 @@ New Syntax {
 	integral   ::=hexStart(hexDigList)|digList
 
 	expSign    ::="+"|"-"
-	decNum     ::=digList["."digList]["e"|"E"[expSign]digList]
-	hexNum     ::=hexStart(hexDigList)["."hexDigList]["p"|"P"[expSign]hexDigList]
+	decNum     ::=digList["."digList][("e"|"E")[expSign]digList]
+	hexNum     ::=hexStart(hexDigList)["."hexDigList][("p"|"P")[expSign]hexDigList]
 	
 	Numeral    ::=hexNum|decNum
 	
