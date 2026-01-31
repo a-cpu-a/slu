@@ -6,12 +6,13 @@ New Syntax {
 	
 	--TODO: allow fixed points `(0..255) * 0.125` or `0..31.875 at 0.125`
 	
+	refAttrs ::= [addrspace] [lifetime] [refType]
 	refType ::= "const" | "share" | "mut"
-	typePreop ::= "*" [addrspace] [lifetime] [refType]
-	typePrefix ::= ["mut"] {typePreop}
+
+	typePreop ::= "*" refAttrs
 	
 	binop @::= | "~" | "|"
-	preop @::= | typePreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" [addrspace] [lifetime] [refType] | "~"
+	preop @::= | typePreop | "ex" | "mut" | "[" "]" | "dyn" | "impl" | "union" | "&" refAttrs | "~"
 	
 	lifetime ::= "/" Name {"/" Name}
 	addrspace ::= "in" Name
@@ -19,8 +20,6 @@ New Syntax {
 	typedParam ::= ["const"] Name "=" expr
 	params ::= typedParam {"," typedParam} [","]
 	selfParams ::= [{("*") [refType]} "self" ","] params
-	
-	tupleableName ::= Name | integral
 	
 	basicExpr @::= | "_" | lifetime
 }

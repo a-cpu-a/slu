@@ -9,7 +9,7 @@ New Syntax {
 	--(sPat) Note: table constructors are not parsed.
 	sPat ::= basicExpr
 	
-	destrSpec ::= basicExpr | typePrefix
+	destrSpec ::= sPat | ["mut"] {typePreop}
 	
 	extraFieldSignifier ::= "," ".."
 	
@@ -20,7 +20,7 @@ New Syntax {
 	dPat ::= destrSpec "{" destrFieldList "}" [Name]
 		| destrSpec "{" destrPatFieldList "}" [Name]
 		
-		| destrSpec Name ["=" ndPat] 
+		| destrSpec Name ["=" sPat] 
 		| "_"
 	
 	
@@ -34,8 +34,6 @@ New Syntax {
 		| destrSpec Name
 		| "_"
 	
-
-	ndPat ::= sPat
 	pat ::= sPat | dPat
 	
 	matchItem ::= pat ["if" expr] "=>" expr

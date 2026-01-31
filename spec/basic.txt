@@ -27,7 +27,8 @@ New Syntax {
 		| statOrExpr
 		| blockstat
 	
-	subvar ::= ".*" | "." Name | "[" expr "]"
+	tupleableName ::= Name | integral
+	subvar ::= ".*" | "." tupleableName | "[" expr "]"
 	var ::= (Name | "(" expr ")") {{selfablecall} subvar}
 
 	basicArgs ::=  "(" [expr {"," expr} [","]] ")" | LiteralString | Numeral
