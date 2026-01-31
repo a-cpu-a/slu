@@ -11,7 +11,7 @@ New Syntax {
 
 	basicExpr @::= | modpath
 	
-	modpathindex ::= "::*" | "::{" ("self"|Name) {"," Name}) "}"
+	modpathindex ::= "::*" | "::{" ("self"|Name) {"," Name} "}"
 	useVariant ::= ["as" Name | modpathindex]
 	globstat @::= | optexport "use" modpath useVariant
 	
