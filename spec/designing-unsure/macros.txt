@@ -100,7 +100,6 @@ New Syntax {
 	macroInvSpl ::= macroInvoke | macroSplice
 	
 	globstat @::= | macroInvSpl
-	basicExpr @::= | macroInvSpl
 	Name @::=|macroInvSpl
 	optexport @::= | macroInvSpl
 	
