@@ -32,7 +32,7 @@ New Syntax {
 	basicArgs ::=  "(" {expr fieldsep} ")" | LiteralString | Numeral
 	selfablecall ::= [dotOp Name] (basicArgs | tableconstructor)
 
-	basicExpr ::=  Name | "(" expr ")" | LiteralString | Numeral | tableconstructor
+	basicExpr ::=  "(" expr ")" | LiteralString | Numeral | tableconstructor
 		| basicExpr binop basicExpr | {preop} basicExpr {sufop}
 		| statOrExpr
 	
