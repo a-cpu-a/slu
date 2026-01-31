@@ -5,14 +5,13 @@
 New Syntax {
 	
 	modpathStart ::= Name | "self" | "crate"
-	modpathStartList ::= modpathStart {"," modpathStart}
 	
 	modpath ::= (modpathStart | ":>") {"::" Name}
 	submodpath ::= Name {"::" Name}
 
 	basicExpr @::= | modpath
 	
-	modpathindex ::= "::*" | "::{" modpathStartList "}"
+	modpathindex ::= "::*" | "::{" ("self" | ["self" ","] Name {"," Name}) "}"
 	useVariant ::= ["as" Name | modpathindex]
 	globstat @::= | optexport "use" modpath useVariant
 	
