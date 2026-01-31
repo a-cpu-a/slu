@@ -5,7 +5,6 @@
 New Syntax {
 	
 	modpath ::= (Name | "self" | "crate" | ":>") {"::" Name}
-	submodpath ::= Name {"::" Name}
 
 	basicExpr @::= | modpath
 	
