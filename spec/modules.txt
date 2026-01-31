@@ -4,9 +4,7 @@
 
 New Syntax {
 	
-	modpathStart ::= Name | "self" | "crate"
-	
-	modpath ::= (modpathStart | ":>") {"::" Name}
+	modpath ::= (Name | "self" | "crate" | ":>") {"::" Name}
 	submodpath ::= Name {"::" Name}
 
 	basicExpr @::= | modpath
