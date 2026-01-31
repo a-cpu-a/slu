@@ -6,7 +6,7 @@ New Syntax {
 	
 	globstat ::= ";"
 	chunk ::= {globstat}
-	
+
 	statOrExpr ::=
 	
 	--TODO: consider making pointers opaque: type only contains alignment
@@ -24,23 +24,20 @@ New Syntax {
 		| statOrExpr
 		| blockstat
 	
+	dotOp ::= "." | ".:"
 	tupleableName ::= Name | integral
-	subvar ::= ".*" | "." tupleableName | "[" expr "]"
+	subvar ::= ".*" | dotOp tupleableName | "[" expr "]"
 	var ::= (Name | "(" expr ")") {{selfablecall} subvar}
 
 	basicArgs ::=  "(" {expr fieldsep} ")" | LiteralString | Numeral
-	args ::=  basicArgs | tableconstructor
-	selfablecallBasic ::= ["." Name] basicArgs
-	selfablecall ::= ["." Name] args
+	selfablecall ::= [dotOp Name] (basicArgs | tableconstructor)
 
 	basicExpr ::=  Name | "(" expr ")" | LiteralString | Numeral | tableconstructor
-		| basicExpr subvar | basicExpr selfablecallBasic
 		| basicExpr binop basicExpr | {preop} basicExpr {sufop}
 		| statOrExpr
 	
 	expr ::=  basicExpr
-		| expr subvar | expr selfablecall
-		| expr binop expr | {preop} expr {sufop}
+		| expr binop expr | {preop} expr {sufop|selfablecall}
 
 	fieldsep ::= ["," | ";"]
 	field ::= (Name "=" expr) | expr
@@ -52,7 +49,7 @@ New Syntax {
 		| "and" | "or"
 
 	preop ::= "-" | "!"
-	sufop ::=
+	sufop ::= subvar | [dotOp Name] basicArgs
 }
 
 New Keywords {
