@@ -9,12 +9,13 @@ Order of Operations {
 	(pseudo) (parenthesis)
 	(pseudo) .   .:   ::   function-args""()[[]]   construct{}   index[]
 	
-	postfix unary operators (?   .*)
+	postfix unary operators (?   try{}   .*)
 	^
 	unary operators (!   -   &   &const   &mut   &share)
 	*   /   //
 	+   -
 	%	--(Not the same as most langs, modulus is below / * //)
+
 	unary operators (dyn impl)
 	
 	binary, post and prefix range operators (..)
@@ -40,8 +41,6 @@ Order of Operations {
 	
 	if =>
 	else
-	
-	postfix unary operators (try {})
 
 	(pseudo) ,
 	(pseudo) =
