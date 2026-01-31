@@ -115,3 +115,7 @@ Errors {
 		
 	}
 }
+
+Sources {
+	https://home.expurple.me/posts/designing-error-types-in-rust-applications/
+}
