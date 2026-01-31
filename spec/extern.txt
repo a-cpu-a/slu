@@ -3,10 +3,7 @@
 #
 
 New Syntax {
-	
-	externInfo ::= "extern" LiteralString
-	
-	globstat @::= | safety externInfo "{" {globstat} "}"
+	globstat @::= | safety "extern" LiteralString "{" {globstat} "}"
 }
 
 New Keywords {
