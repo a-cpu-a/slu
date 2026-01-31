@@ -5,12 +5,7 @@
 New Syntax {
 	
 	globstat ::= ";"
-	--TODO: ban non global statements in chunks at parse time.
 	chunk ::= {globstat}
-
-	basicstat ::= ";"
-		| var "=" expr
-		| var selfablecall
 	
 	statOrExpr ::=
 	
@@ -22,7 +17,9 @@ New Syntax {
 	
 	label ::= "'" Name ":"
 	blockstat ::= [label] "{" block "}"
-	stat ::= basicstat
+	stat ::= ";"
+		| var "=" expr
+		| var selfablecall
 		| globstat
 		| statOrExpr
 		| blockstat
