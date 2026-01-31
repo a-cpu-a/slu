@@ -159,7 +159,6 @@ S - suffix
 |   &%   |RR|
 |   &&   |RR|
 |   &*   |RR|
-|   &@   |RR|
 |   &?   |RR|
 |   &    |X |
 |   \    |  |
@@ -188,7 +187,6 @@ S - suffix
 |   *%   |RR|
 |   */   |RR|
 |   **   |XX| steals to-ptr meaning in suffix form (`x ** y`) not (`x * (*y)`)
-|   *@   |RR|
 |   *?   |RR|
 |   *!   |RR|
 |   *    |XX|
