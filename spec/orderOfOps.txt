@@ -6,45 +6,46 @@ Order of Operations {
 	
 	
 	```
-	(pseudo) ;
-	(pseudo) =
-	(pseudo) ,
-	(pseudo) try
+	(pseudo) (parenthesis)
+	(pseudo) .   .:   ::   function-args""()[[]]   construct{}   index[]
 	
-	else
-	if =>
-	
-	or
-	and
-	
-	unary operators (ex   mut   @Xxx{})
-	
-	!=   ==
-	
-	<   >   <=   >=
-	
-	as
-	
-	~  --mk result type op, both unary and binary
-	|	--union operator
-
-	unary operators (union   *   *const   *mut   *share   [])	--struct/tuple/table to union-type op, ref type ops, slicify
-	
-	++
-	**
+	postfix unary operators (?   .*)
+	^
+	unary operators (!   -   &   &const   &mut   &share)
+	*   /   //
+	+   -
+	%	--(Not the same as most langs, modulus is below / * //)
+	unary operators (dyn impl)
 	
 	binary, post and prefix range operators (..)
 	
-	unary operators (dyn impl)
-	%	--(Not the same as most langs, modulus is below / * //)
-	+   -
-	*   /   //
-	unary operators (!   -   &   &const   &mut   &share)
-	^
-	postfix unary operators (?   .*)
+	**
+	++
 	
-	(pseudo) .   .:   ::   function-args""()[[]]   construct{}   index[]
-	(pseudo) (parenthesis)
+	unary operators (union   *   *const   *mut   *share   [])	--struct/tuple/table to union-type op, ref type ops, slicify
+
+	|	--union operator
+	~  --mk result type op, both unary and binary
+	
+	as
+	
+	<   >   <=   >=
+	
+	!=   ==
+	
+	unary operators (ex   mut   @Xxx{})
+	
+	and
+	or
+	
+	if =>
+	else
+	
+	postfix unary operators (try {})
+	
+	(pseudo) ,
+	(pseudo) =
+	(pseudo) ;
 	```
 	Everything is left to right, except for `=`, `else` and `^` which are right to left
 	(non-postfix unary operators are also right to left)
