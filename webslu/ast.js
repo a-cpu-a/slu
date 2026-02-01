@@ -101,6 +101,48 @@ class OptBlockNode extends CompoundNode {
 }
 
 // ============================================================================
+// ANNOTATIONS
+// ============================================================================
+
+class Annotation extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class ModPathAnnotation extends Annotation {
+    constructor() {
+        super("ModPathAnnotation");
+        this.at = new Token("@");
+        this.path = new ModPath();
+        this.table = new OptBlockNode(); // TableConstructor in AST
+    }
+}
+
+class DocLineAnnotation extends Annotation {
+    constructor() {
+        super("DocLineAnnotation");
+        this.txt = new Token("---");
+        this.content = new Str(); // LiteralString or LineOfText
+    }
+}
+
+class OuterModPathAnnotation extends Annotation {
+    constructor() {
+        super("OuterModPathAnnotation");
+        this.at = new Token("@<");
+        this.path = new ModPath();
+        this.table = new OptBlockNode();
+    }
+}
+
+class OuterDocLineAnnotation extends Annotation {
+    constructor() {
+        super("OuterDocLineAnnotation");
+        this.txt = new Token("--<");
+        this.content = new Str(); // LiteralString or LineOfText
+    }
+}
+
+// ============================================================================
 // PATTERNS (sPat, dPat, uncondDestrPat)
 // ============================================================================
 
@@ -118,7 +160,7 @@ class OpDestrSpec extends DestrSpec {
     constructor() {
         super("OpDestrSpec");
         this.mutKw = new OptToken("mut");
-        this.ops = []; // Array of Token|UnOp
+        this.ops = []; // Array of TypePreop
     }
 }
 class Pat extends CompoundNode {
@@ -127,7 +169,7 @@ class Pat extends CompoundNode {
 class SimplePat extends Pat {
     constructor() {
         super("SimplePat");
-        this.expression = Expr();
+        this.expr = new Expr();
     }
 }
 class DestrPat extends UncondDestrPat {
@@ -215,6 +257,82 @@ class UncondFieldDestrField extends CompoundNode {
         this.pat = new UncondDestrPat();
     }
 }
+
+// ============================================================================
+// TYPE PREOPS
+// ============================================================================
+
+class TypePreop extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class PointerType extends TypePreop {
+    constructor() {
+        super("PointerType");
+        this.star = new Token("*");
+        this.attrs = new RefAttrs();
+    }
+}
+
+class RefAttrs extends CompoundNode {
+    constructor() {
+        super("RefAttrs");
+        this.addrspace = null; // OptToken("in" Name)
+        this.lifetime = null;  // OptLifetime
+        this.refType = null;   // OptToken("const"|"share"|"mut")
+    }
+}
+
+class MutType extends TypePreop {
+    constructor() { super("MutType"); this.kw = new Token("mut"); }
+}
+class ShareType extends TypePreop {
+    constructor() { super("ShareType"); this.kw = new Token("share"); }
+}
+class ConstType extends TypePreop {
+    constructor() { super("ConstType"); this.kw = new Token("const"); }
+}
+class ArrayType extends TypePreop {
+    constructor() {
+        super("ArrayType");
+        this.open = new Token("[");
+        this.close = new Token("]");
+    }
+}
+class DynamicType extends TypePreop {
+    constructor() { super("DynamicType"); this.kw = new Token("dyn"); }
+}
+class ImplType extends TypePreop {
+    constructor() { super("ImplType"); this.kw = new Token("impl"); }
+}
+class UnionType extends TypePreop {
+    constructor() { super("UnionType"); this.kw = new Token("union"); }
+}
+class RefTypeType extends TypePreop {
+    constructor() {
+        super("RefTypeType");
+        this.amp = new Token("&");
+        this.attrs = new RefAttrs();
+    }
+}
+class SpreadType extends TypePreop {
+    constructor() { super("SpreadType"); this.op = new Token(".."); }
+}
+class AnnotationPreop extends TypePreop {
+    constructor() {
+        super("AnnotationPreop");
+        this.annotation = new Annotation();
+    }
+}
+class IfType extends TypePreop {
+    constructor() {
+        super("IfType");
+        this.ifKw = new Token("if");
+        this.expr = new Expr();
+        this.arrow = new Token("=>");
+    }
+}
+
 // ============================================================================
 // EXPRESSIONS & STATEMENTS
 // ============================================================================
@@ -268,7 +386,7 @@ class BlockNode extends Node {
         super("BlockNode");
         this.openBrace = new Token("{");
         this.stats = [];
-        this.retStat = new Stat();
+        this.retStat = new RetStat();
         this.closeBrace = new Token("}");
     }
 }
@@ -332,7 +450,7 @@ class GlobStat extends Node {
     constructor(type) { super(type); }
 }
 
-// optexport "struct" Name ["(" [params] ")"] tableconstructor
+// optexport "struct" Name ["(" params ")"] tableconstructor
 class StructDecl extends GlobStat {
     constructor() {
         super("StructDecl");
@@ -348,7 +466,7 @@ class StructDecl extends GlobStat {
     }
 }
 
-// optexport "enum" Name ["(" [params] ")"] "{" {enumfield fieldsep} [".."] "}"
+// optexport "enum" Name ["(" params ")"] "{" {enumfield fieldsep} [".."] "}"
 class EnumDecl extends GlobStat {
     constructor() {
         super("EnumDecl");
@@ -364,6 +482,17 @@ class EnumDecl extends GlobStat {
         this.fields = new DelimitedList("EnumField");
         this.spread = new OptToken("..");
         this.closeBrace = new Token("}");
+    }
+}
+
+class EnumField extends CompoundNode {
+    constructor() {
+        super("EnumField");
+        this.annotations = []; // Array of Annotation
+        this.export = new Export();
+        this.name = new Name();
+        this.table = new OptBlockNode(); // TableConstructor
+        this.outerAnnotations = []; // Array of OuterAnnotation
     }
 }
 
@@ -397,12 +526,12 @@ class TraitDecl extends GlobStat {
         this.params = new DelimitedList("TypedParam"); // $<Needs openParen>
         this.closeParen = new Token(")"); // $<Needs openParen>
 
-        this.where = new Expr(); // WhereClauses representation //TODO: no
+        this.where = new WhereClauses();
         this.body = new TableConstructor();
     }
 }
 
-// safety externInfo "{" {globstat} "}"
+// safety extern LiteralString "{" {globstat} "}"
 class ExternBlock extends GlobStat {
     constructor() {
         super("ExternBlock");
@@ -432,7 +561,7 @@ class ImplDecl extends GlobStat {
 
         this.targetType = new Expr();
 
-        this.where = new Expr(); // TODO: no
+        this.where = new WhereClauses();
         this.body = new TableConstructor();
     }
 }
@@ -444,7 +573,26 @@ class UseDecl extends GlobStat {
         this.export = new Export();
         this.useKw = new Token("use");
         this.path = new ModPath();
-        this.variant = new Expr(); // "as" Name or modpathindex //TODO: no
+        this.variant = new UseVariant();
+    }
+}
+
+class UseVariant extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class UseAs extends UseVariant {
+    constructor() {
+        super("UseAs");
+        this.asKw = new Token("as");
+        this.name = new Name();
+    }
+}
+
+class UseIndex extends UseVariant {
+    constructor() {
+        super("UseIndex");
+        this.path = []; // Token("::*") or Token("::{") ... Token("}")
     }
 }
 
@@ -473,7 +621,7 @@ class ConstDecl extends GlobStat {
     }
 }
 
-// optexport "union" Name ["(" [params] ")"] tableconstructor
+// optexport "union" Name ["(" params ")"] tableconstructor
 class UnionDecl extends GlobStat {
     constructor() {
         super("UnionDecl");
@@ -556,10 +704,10 @@ class IfStat extends Stat {
         super("IfStat");
         this.ifKw = new Token("if");
         this.condition = new Expr();
-        this.consequent = new Stat(); // blockOrRet //TODO: blockorret
-        this.alternates = []; // { elseKw: Token, ifKw: Token, cond: Expr, body: Stat }
+        this.consequent = new BlockOrRet();
+        this.alternates = []; // { elseKw: Token, ifKw: Token, cond: Expr, body: BlockOrRet }
         this.elseKw = new OptToken("else");
-        this.elseBlock = new Stat(); // blockOrRet // $<Needs elseKw>
+        this.elseBlock = new BlockOrRet();
     }
 }
 
@@ -601,6 +749,76 @@ class EmptyStat extends Stat {
     }
 }
 
+// "unsafe" "{" {stat} "}"
+class UnsafeStat extends Stat {
+    constructor() {
+        super("UnsafeStat");
+        this.unsafeKw = new Token("unsafe");
+        this.openBrace = new Token("{");
+        this.stats = []; // Array of Stat
+        this.closeBrace = new Token("}");
+    }
+}
+
+// var "=" expr
+class AssignStat extends Stat {
+    constructor() {
+        super("AssignStat");
+        this.var = new Var();
+        this.eq = new Token("=");
+        this.expr = new Expr();
+    }
+}
+
+// var selfablecall
+class CallStat extends Stat {
+    constructor() {
+        super("CallStat");
+        this.var = new Var();
+        this.call = new SelfableCall();
+    }
+}
+
+class RetStat extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class ReturnStat extends RetStat {
+    constructor() {
+        super("ReturnStat");
+        this.returnKw = new Token("return");
+        this.expr = new OptExpr();
+    }
+}
+
+class BreakStat extends RetStat {
+    constructor() {
+        super("BreakStat");
+        this.breakKw = new Token("break");
+        this.label = new OptToken("'");
+        this.labelName = new Name(); // $<Needs label>
+        this.expr = new OptExpr();
+    }
+}
+
+class ContinueStat extends RetStat {
+    constructor() {
+        super("ContinueStat");
+        this.continueKw = new Token("continue");
+        this.label = new OptToken("'");
+        this.labelName = new Name(); // $<Needs label>
+        this.expr = new OptExpr();
+    }
+}
+
+class ThrowStat extends RetStat {
+    constructor() {
+        super("ThrowStat");
+        this.throwKw = new Token("throw");
+        this.expr = new Expr();
+    }
+}
+
 // ============================================================================
 // EXPRESSIONS (expr, basicExpr)
 // ============================================================================
@@ -618,8 +836,7 @@ class ParenExpr extends Expr {
 class ModPathExpr extends Expr {
     constructor() {
         super("ModPathExpr");
-        this.root = new Name(); //TODO: self, crate
-        this.path = []; // Array of {sep: Token("::"), idx: Name}
+        this.path = new ModPath();
     }
 }
 
@@ -629,6 +846,7 @@ class StrExpr extends Expr {
         this.raw = new Str();
     }
 }
+
 class NumExpr extends Expr {
     constructor() {
         super("NumExpr");
@@ -640,7 +858,7 @@ class BinExpr extends Expr {
     constructor() {
         super("BinExpr");
         this.left = new Expr();
-        this.op = new Token(""); //TODO: no
+        this.op = new Token("");
         this.right = new Expr();
     }
 }
@@ -648,20 +866,52 @@ class BinExpr extends Expr {
 class UnaryExpr extends Expr {
     constructor() {
         super("UnaryExpr");
-        this.preOps = []; // Array of Token|UnOp
+        this.preOps = []; // Array of Token | TypePreop
         this.primary = new Expr();
-        this.sufOps = []; // Array of Token|UnOp
+        this.sufOps = []; // Array of SufOp
     }
 }
 
-class CallOp extends UnOp {
+class SufOp extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+// var ::= (Name | "(" expr ")") {{selfablecall} subvar}
+class VarExpr extends Expr {
     constructor() {
-        super("CallOp");
+        super("VarExpr");
+        this.root = null; // Name or ParenExpr
+        this.suffixes = []; // Array of SubVar | SelfableCall
+    }
+}
+
+class SubVar extends SufOp {
+    constructor() { super("SubVar"); }
+}
+class StarSubVar extends SubVar {
+    constructor() { super("StarSubVar"); this.op = new Token(".*"); }
+}
+class DotSubVar extends SubVar {
+    constructor() { super("DotSubVar"); this.op = new Token("."); this.field = new TuplableName(); }
+}
+class ColonDotSubVar extends SubVar {
+    constructor() { super("ColonDotSubVar"); this.op = new Token(".:"); this.field = new Name(); }
+}
+class IndexSubVar extends SubVar {
+    constructor() { super("IndexSubVar"); this.open = new Token("["); this.expr = new Expr(); this.close = new Token("]"); }
+}
+
+class SelfableCall extends SufOp {
+    constructor() {
+        super("SelfableCall");
         this.dot = new OptToken(".");
         this.method = new Name(); // $<Needs dot>
         this.args = new Args();
     }
 }
+
+class CallOp extends SelfableCall { } // Alias for clarity in specific contexts
+
 class DotOp extends UnOp {
     constructor() {
         super("DotOp");
@@ -684,7 +934,15 @@ class IdxOp extends UnOp {
         this.rightBracket = new Token("]");
     }
 }
-// "match" basicExpr matchtypeblock
+
+class TryOp extends SufOp {
+    constructor() {
+        super("TryOp");
+        this.tryKw = new Token("try");
+        this.block = new MatchTypeBlock();
+    }
+}
+
 class MatchExpr extends Expr {
     constructor() {
         super("MatchExpr");
@@ -756,6 +1014,7 @@ class DoExpr extends Expr {
         this.block = new BlockNode();
     }
 }
+
 class ConstExpr extends Expr {
     constructor() {
         super("ConstExpr");
@@ -763,5 +1022,56 @@ class ConstExpr extends Expr {
         this.openParen = new Token("(");
         this.expr = new Expr();
         this.closeParen = new Token(")");
+    }
+}
+
+class TodoExpr extends Expr {
+    constructor() {
+        super("TodoExpr");
+        this.kw = new Token("TODO!");
+        this.msg = new Str();
+    }
+}
+
+class UnderscoreExpr extends Expr {
+    constructor() {
+        super("UnderscoreExpr");
+        this.us = new Token("_");
+    }
+}
+
+class LifetimeExpr extends Expr {
+    constructor() {
+        super("LifetimeExpr");
+        this.slash = new Token("/");
+        this.names = []; // Array of {kw:Token("/"),l:Name}
+    }
+}
+
+class UnboundedRangeExpr extends Expr {
+    constructor() {
+        super("UnboundedRangeExpr");
+        this.op = new Token("..");
+    }
+}
+
+// ============================================================================
+// UTILS
+// ============================================================================
+
+class WhereClauses extends CompoundNode {
+    constructor() {
+        super("WhereClauses");
+        this.whereKw = new Token("where");
+        this.clauses = new DelimitedList("WhereClause");
+    }
+}
+
+class WhereClause extends CompoundNode {
+    constructor() {
+        super("WhereClause");
+        this.name = new Name(); // or "Self"
+        this.colon = new Token(":");
+        this.type = new Expr();
     }
 }
