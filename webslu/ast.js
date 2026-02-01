@@ -970,6 +970,15 @@ class CallStat extends Stat {
     }
 }
 
+// "TODO!" LiteralString
+class TodoStat extends Stat {
+    constructor() {
+        super("TodoStat");
+        this.kw = new Token("TODO!");
+        this.msg = new Str();
+    }
+}
+
 // ============================================================================
 // EXPRESSIONS (expr, basicExpr)
 // ============================================================================
