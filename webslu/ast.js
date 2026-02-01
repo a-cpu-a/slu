@@ -76,11 +76,19 @@ class NumTuplableName extends TuplableName {
 // HELPERS
 // ============================================================================
 
+class DelimitedListItem extends CompoundNode {
+    constructor(type) {
+        super("DelimitedListItem");
+        this.value = null; // The actual node (e.g., Expr, TypedParam)
+        this.sep = new OptToken(); // "," or ";"
+    }
+}
+
 class DelimitedList extends CompoundNode {
     constructor(type) {
         super("DelimitedList");
         this.itemType = type;
-        this.items = []; // Array of {v: type, sep: OptToken(...)}
+        this.items = []; // Array of DelimitedListItem
     }
 }
 
@@ -88,6 +96,14 @@ class OptToken extends Node {
     constructor(txt) {
         super("OptToken");
         this.txt = txt;
+        this.present = false; // true if parsed
+    }
+}
+
+class OptExpr extends CompoundNode {
+    constructor() {
+        super("OptExpr");
+        this.expr = new Expr();
         this.present = false; // true if parsed
     }
 }
@@ -138,7 +154,31 @@ class OuterDocLineAnnotation extends Annotation {
     constructor() {
         super("OuterDocLineAnnotation");
         this.txt = new Token("--<");
-        this.content = new Str(); // LiteralString or LineOfText
+        this.content = "";
+    }
+}
+
+// ============================================================================
+// BLOCK OR RETURN (Helper for IfStat)
+// ============================================================================
+
+// blockOrRet ::= retstat [";"] | "{" block "}"
+class BlockOrRet extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class BlockOrRetBlock extends BlockOrRet {
+    constructor() {
+        super("BlockOrRetBlock");
+        this.block = new BlockNode();
+    }
+}
+
+class BlockOrRetRetStat extends BlockOrRet {
+    constructor() {
+        super("BlockOrRetRetStat");
+        this.retStat = new RetStat();
+        this.semicol = new OptToken(";");
     }
 }
 
@@ -391,22 +431,51 @@ class BlockNode extends Node {
     }
 }
 
-class TableConstructor extends Expr {
-    constructor() {
-        super("TableConstructor");
-        this.openBrace = new Token("{");
-        this.fields = new DelimitedList("Field");
-        this.closeBrace = new Token("}");
-    }
-}
-
 class ModPath extends Node {
     constructor() {
         super("ModPath");
-        this.root = new Token(); // Name | Token("self") | Token("crate") | Token(":>")
-        this.segments = []; // { dc: Token("::"), name: Name }
+        this.root = new ModPathRoot();
+        this.segments = []; // Array of ModPathSegment
     }
 }
+
+class ModPathRoot extends CompoundNode {
+    constructor(type) { super(type); }
+}
+class ModPathRootName extends ModPathRoot {
+    constructor() {
+        super("ModPathRootName");
+        this.name = new Name();
+    }
+}
+class ModPathRootSelf extends ModPathRoot {
+    constructor() {
+        super("ModPathRootSelf");
+        this.kw = new Token("self");
+    }
+}
+class ModPathRootCrate extends ModPathRoot {
+    constructor() {
+        super("ModPathRootCrate");
+        this.kw = new Token("crate");
+    }
+}
+class ModPathRootOp extends ModPathRoot {
+    constructor() {
+        super("ModPathRootOp");
+        this.op = new Token(":>");
+    }
+}
+
+// "::" Name
+class ModPathSegment extends CompoundNode {
+    constructor() {
+        super("ModPathSegment");
+        this.sep = new Token("::");
+        this.name = new Name();
+    }
+}
+
 class MatchItem extends Node {
     constructor() {
         super("MatchItem");
@@ -443,11 +512,52 @@ class TypedParam extends Node {
 }
 
 // ============================================================================
+// TABLE CONSTRUCTOR
+// ============================================================================
+
+class Field extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class NamedField extends Field {
+    constructor() {
+        super("NamedField");
+        this.name = new Name();
+        this.eq = new Token("=");
+        this.expr = new Expr();
+    }
+}
+
+class ExprField extends Field {
+    constructor() {
+        super("UnnamedField");
+        this.expr = new Expr();
+    }
+}
+
+class TableConstructor extends Expr {
+    constructor() {
+        super("TableConstructor");
+        this.openBrace = new Token("{");
+        this.fields = new DelimitedList("Field");
+        this.closeBrace = new Token("}");
+    }
+}
+
+// ============================================================================
 // GLOBAL DECLARATIONS (globstat)
 // ============================================================================
 
 class GlobStat extends Node {
     constructor(type) { super(type); }
+}
+
+// globstat ::= ";"
+class EmptyGlobStat extends GlobStat {
+    constructor() {
+        super("EmptyGlobStat");
+        this.semicol = new Token(";");
+    }
 }
 
 // optexport "struct" Name ["(" params ")"] tableconstructor
@@ -1052,6 +1162,19 @@ class UnboundedRangeExpr extends Expr {
     constructor() {
         super("UnboundedRangeExpr");
         this.op = new Token("..");
+    }
+}
+
+// "_COMP_TODO!" "(" LiteralString "," expr ")"
+class CompTodoExpr extends Expr {
+    constructor() {
+        super("CompTodoExpr");
+        this.kw = new Token("_COMP_TODO!");
+        this.openParen = new Token("(");
+        this.msg = new Str(); // LiteralString
+        this.comma = new Token(",");
+        this.expr = new Expr();
+        this.closeParen = new Token(")");
     }
 }
 
