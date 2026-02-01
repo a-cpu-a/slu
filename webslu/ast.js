@@ -2,10 +2,16 @@
 // BASE CLASSES
 // ============================================================================
 
-class Node {
+/// Use this when you dont need a preSpace
+class CompoundNode {
     constructor(type) {
-        this.preSpace = "";
         this.type = type;
+    }
+}
+class Node extends CompoundNode {
+    constructor(type) {
+        super(type)
+        this.preSpace = "";
     }
 }
 
@@ -55,7 +61,7 @@ class Str extends Node {
 // HELPERS
 // ============================================================================
 
-class DelimitedList extends Node {
+class DelimitedList extends CompoundNode {
     constructor(type) {
         super("DelimitedList");
         this.itemType = type;
@@ -71,7 +77,7 @@ class OptToken extends Node {
     }
 }
 
-class OptBlockNode extends Node {
+class OptBlockNode extends CompoundNode {
     constructor() {
         super("OptBlockNode");
         this.present = false; // true if block exists
@@ -122,21 +128,21 @@ class DestrPat extends Pat {
 // EXPRESSIONS & STATEMENTS
 // ============================================================================
 
-class Stat extends Node {
+class Stat extends CompoundNode {
     constructor(type) { super(type); }
 }
 
-class Expr extends Node {
+class Expr extends CompoundNode {
     constructor() {
         super("Expr");
     }
 }
-class UnOp extends Node {
+class UnOp extends CompoundNode {
     constructor() {
         super("UnOp");
     }
 }
-class Args extends Node {
+class Args extends CompoundNode {
     constructor(type) { super(type); }
 }
 class TableArgs extends Args {
