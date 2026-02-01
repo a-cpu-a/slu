@@ -880,6 +880,16 @@ class LetStat extends Stat {
     }
 }
 
+// Represents the "else if ... " part of an IfStat
+class IfAlternate extends CompoundNode {
+    constructor() {
+        super("IfAlternate");
+        this.elseKw = new Token("else");
+        this.ifKw = new Token("if");
+        this.condition = new Expr();
+        this.body = new BlockOrRet();
+    }
+}
 // "if" basicExpr blockOrRet {"else" "if" basicExpr blockOrRet} ["else" blockOrRet]
 class IfStat extends Stat {
     constructor() {
@@ -887,7 +897,7 @@ class IfStat extends Stat {
         this.ifKw = new Token("if");
         this.condition = new Expr();
         this.consequent = new BlockOrRet();
-        this.alternates = []; // { elseKw: Token, ifKw: Token, cond: Expr, body: BlockOrRet }
+        this.alternates = []; // Array of IfAlternate
         this.elseKw = new OptToken("else");
         this.elseBlock = new BlockOrRet();
     }
