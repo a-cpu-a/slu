@@ -129,7 +129,7 @@ class ModPathAnnotation extends Annotation {
         super("ModPathAnnotation");
         this.at = new Token("@");
         this.path = new ModPath();
-        this.table = new OptBlockNode(); // TableConstructor in AST
+        this.table = new TableConstructor(); // TODO: opt
     }
 }
 
@@ -137,20 +137,24 @@ class DocLineAnnotation extends Annotation {
     constructor() {
         super("DocLineAnnotation");
         this.txt = new Token("---");
-        this.content = new Str(); // LiteralString or LineOfText
+        this.content = "";
     }
 }
 
-class OuterModPathAnnotation extends Annotation {
+class OuterAnnotation extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class OuterModPathAnnotation extends OuterAnnotation {
     constructor() {
         super("OuterModPathAnnotation");
         this.at = new Token("@<");
         this.path = new ModPath();
-        this.table = new OptBlockNode();
+        this.table = new TableConstructor(); // TODO: opt
     }
 }
 
-class OuterDocLineAnnotation extends Annotation {
+class OuterDocLineAnnotation extends OuterAnnotation {
     constructor() {
         super("OuterDocLineAnnotation");
         this.txt = new Token("--<");
