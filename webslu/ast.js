@@ -761,6 +761,46 @@ class UnionDecl extends GlobStat {
 // STATEMENTS (stat)
 // ============================================================================
 
+class RetStat extends CompoundNode {
+    constructor(type) { super(type); }
+}
+
+class ReturnStat extends RetStat {
+    constructor() {
+        super("ReturnStat");
+        this.returnKw = new Token("return");
+        this.expr = new OptExpr();
+    }
+}
+
+class BreakStat extends RetStat {
+    constructor() {
+        super("BreakStat");
+        this.breakKw = new Token("break");
+        this.label = new OptToken("'");
+        this.labelName = new Name(); // $<Needs label>
+        this.expr = new OptExpr();
+    }
+}
+
+class ContinueStat extends RetStat {
+    constructor() {
+        super("ContinueStat");
+        this.continueKw = new Token("continue");
+        this.label = new OptToken("'");
+        this.labelName = new Name(); // $<Needs label>
+        this.expr = new OptExpr();
+    }
+}
+
+class ThrowStat extends RetStat {
+    constructor() {
+        super("ThrowStat");
+        this.throwKw = new Token("throw");
+        this.expr = new Expr();
+    }
+}
+
 // [label] "loop" ["->" basicExpr] "{" block "}"
 class LoopStat extends Stat {
     constructor() {
@@ -896,46 +936,6 @@ class CallStat extends Stat {
         super("CallStat");
         this.var = new Var();
         this.call = new SelfableCall();
-    }
-}
-
-class RetStat extends CompoundNode {
-    constructor(type) { super(type); }
-}
-
-class ReturnStat extends RetStat {
-    constructor() {
-        super("ReturnStat");
-        this.returnKw = new Token("return");
-        this.expr = new OptExpr();
-    }
-}
-
-class BreakStat extends RetStat {
-    constructor() {
-        super("BreakStat");
-        this.breakKw = new Token("break");
-        this.label = new OptToken("'");
-        this.labelName = new Name(); // $<Needs label>
-        this.expr = new OptExpr();
-    }
-}
-
-class ContinueStat extends RetStat {
-    constructor() {
-        super("ContinueStat");
-        this.continueKw = new Token("continue");
-        this.label = new OptToken("'");
-        this.labelName = new Name(); // $<Needs label>
-        this.expr = new OptExpr();
-    }
-}
-
-class ThrowStat extends RetStat {
-    constructor() {
-        super("ThrowStat");
-        this.throwKw = new Token("throw");
-        this.expr = new Expr();
     }
 }
 
