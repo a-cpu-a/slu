@@ -1067,7 +1067,11 @@ class FnExpr extends Expr {
         this.safety = new Safety();
         this.fnKw = new Token("fn");
         this.openParen = new Token("(");
-        this.selfParams = new Expr();//TODO: no
+
+        this.selfParamRefs = []; // Array of RefTypePreOp // $<Needs selfParam>
+        this.selfParam = new OptToken("self");
+        this.selfParamDelim = new Token(""); // $<Needs selfParam>
+
         this.params = new DelimitedList("TypedParam");
         this.closeParen = new Token(")");
         this.retArrow = new OptToken("->");
