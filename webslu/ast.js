@@ -190,7 +190,6 @@ class BlockOrRetRetStat extends BlockOrRet {
 // PATTERNS (sPat, dPat, uncondDestrPat)
 // ============================================================================
 
-// destrSpec ::= sPat | ["mut"] {typePreop}
 class DestrSpec extends CompoundNode {
     constructor(type) { super(type); }
 }
@@ -204,7 +203,7 @@ class OpDestrSpec extends DestrSpec {
     constructor() {
         super("OpDestrSpec");
         this.mutKw = new OptToken("mut");
-        this.ops = []; // Array of TypePreop
+        this.ops = []; // Array of TypePreOp
     }
 }
 class Pat extends CompoundNode {
@@ -1029,9 +1028,9 @@ class SufOp extends CompoundNode {
 }
 
 // var ::= (Name | "(" expr ")") {{selfablecall} subvar}
-class VarExpr extends Expr {
+class Var extends CompoundNode {
     constructor() {
-        super("VarExpr");
+        super("Var");
         this.root = null; // Name or ParenExpr
         this.suffixes = []; // Array of SubVar | SelfableCall
     }
@@ -1174,7 +1173,6 @@ class UnderscoreExpr extends Expr {
 class LifetimeExpr extends Expr {
     constructor() {
         super("LifetimeExpr");
-        this.slash = new Token("/");
         this.names = []; // Array of {kw:Token("/"),l:Name}
     }
 }
