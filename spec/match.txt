@@ -10,24 +10,19 @@ New Syntax {
 	sPat ::= basicExpr
 	
 	destrSpec ::= sPat | ["mut"] {typePreop}
-	
 	destrField ::= "|" tupleableName "|" pat
-	destrFieldList ::= {destrField fieldsep} [".."]
-	destrPatFieldList ::= {pat fieldsep} [".."]
 	
-	dPat ::= destrSpec "{" destrFieldList "}"
-		| destrSpec "{" destrPatFieldList "}"
+	dPat ::= destrSpec "{" {destrField fieldsep} [".."] "}"
+		| destrSpec "{" {pat fieldsep} [".."] "}"
 		
 		| destrSpec Name ["=" sPat] 
 		| "_"
 	
 	
 	destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
-	uncondDestrFieldList ::= {destrFieldUncond fieldsep} [".."]
-	uncondDestrPatFieldList ::= {uncondDestrPat fieldsep} [".."]
 	
-	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}"
-		| destrSpec "{" uncondDestrPatFieldList "}"
+	uncondDestrPat ::= destrSpec "{" {destrFieldUncond fieldsep} [".."] "}"
+		| destrSpec "{" {uncondDestrPat fieldsep} [".."] "}"
 		
 		| destrSpec Name
 		| "_"
