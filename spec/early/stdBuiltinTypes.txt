@@ -100,6 +100,7 @@ Space type {
 
 	Ways addr-spaces have been used in the past:
 	https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html#_storage_class
+	https://registry.khronos.org/OpenCL/sdk/3.0/docs/man/html/addressSpaceQualifiers.html
 	(I think it makes sense to allow user-defined addr-spaces, but they will need special compilation support, so they may require a compiler plugin to compile any read/write)
 
 	Potential ways to use this in the future:
