@@ -4,7 +4,8 @@
 
 New Syntax {
 
-	expr @::= | [safety] "fn" "(" [selfParams] ")" ["->" expr] ["{" block "}"]
+	selfParams ::= [{"*" refAttrs} "self" fieldsep] [params]
+	expr @::= | [safety] "fn" "(" selfParams ")" ["->" expr] ["{" block "}"]
 }
 
 New Keywords {

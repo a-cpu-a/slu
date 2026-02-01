@@ -19,7 +19,6 @@ New Syntax {
 	
 	typedParam ::= ["const"] Name "=" expr
 	params ::= typedParam fieldsep {typedParam fieldsep}
-	selfParams ::= [{("*") [refType]} "self" fieldsep] params
 	
 	basicExpr @::= | "_" | lifetime
 }
