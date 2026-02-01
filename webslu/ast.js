@@ -56,6 +56,21 @@ class Str extends Node {
         this.str = str; // Including the quotes or [[]]
     }
 }
+class TuplableName extends CompoundNode {
+    constructor(type) { super(type); }
+}
+class NameTuplableName extends TuplableName {
+    constructor() {
+        super("NameTuplableName");
+        this.name = new Name();
+    }
+}
+class NumTuplableName extends TuplableName {
+    constructor() {
+        super("NumTuplableName");
+        this.name = new Num();
+    }
+}
 
 // ============================================================================
 // HELPERS
@@ -89,39 +104,115 @@ class OptBlockNode extends CompoundNode {
 // PATTERNS (sPat, dPat, uncondDestrPat)
 // ============================================================================
 
-/**
- * sPat
- */
-class PatternIdentifier extends Node {
-    constructor() {
-        super("PatternIdentifier");
-        this.expression = null; // BasicExpr (since sPat can be complex)
-    }
-}
-
-/**
- * destrSpec Name ["=" sPat]
- */
-class DestructurePattern extends Node {
-    constructor() {
-        super("DestructurePattern");
-        this.specifiers = []; // Array of Token (e.g., "*", "mut", refType)
-        this.name = null; // Token
-        this.eq = null; // Token("=") | null
-        this.valuePattern = null; // SPat | null
-    }
-}
-class Pat extends Node {
+// destrSpec ::= sPat | ["mut"] {typePreop}
+class DestrSpec extends CompoundNode {
     constructor(type) { super(type); }
 }
-
-class DestrPat extends Pat {
+class SimplePatDestrSpec extends DestrSpec {
     constructor() {
-        super("DestrPat");
-        this.specifiers = []; // TypePreop
-        this.name = new Name("");
+        super("SimplePatDestrSpec");
+        this.type = new SimplePat();
+    }
+}
+class OpDestrSpec extends DestrSpec {
+    constructor() {
+        super("OpDestrSpec");
+        this.mutKw = new OptToken("mut");
+        this.ops = []; // Array of Token|UnOp
+    }
+}
+class Pat extends CompoundNode {
+    constructor(type) { super(type); }
+}
+class SimplePat extends Pat {
+    constructor() {
+        super("SimplePat");
+        this.expression = Expr();
+    }
+}
+class DestrPat extends UncondDestrPat {
+    constructor(type) { super(type); }
+}
+class VarDestrPat extends DestrPat {
+    constructor() {
+        super("VarDestrPat");
+        this.base = new UncondVarDestrPat();
         this.eq = new OptToken("=");
-        this.valPat = new EmptyExpr(); // sPat
+        this.valPat = new SimplePat(); // $<Needs eq>
+    }
+}
+class PatFieldDestrPat extends DestrPat {
+    constructor() {
+        super("PatFieldDestrPat");
+        this.specifiers = new DestrSpec();
+        this.openBrace = new Token("{");
+        this.fields = new DelimitedList("Pat");
+        this.extraFields = new OptToken("..");
+        this.closeBrace = new Token("}");
+    }
+}
+class FieldDestrPat extends DestrPat {
+    constructor() {
+        super("FieldDestrPat");
+        this.specifiers = new DestrSpec();
+        this.openBrace = new Token("{");
+        this.fields = new DelimitedList("FieldDestrField");
+        this.extraFields = new OptToken("..");
+        this.closeBrace = new Token("}");
+    }
+}
+class FieldDestrField extends CompoundNode {
+    constructor() {
+        super("FieldDestrField");
+        this.openPipe = new Token("|");
+        this.var = new TuplableName();
+        this.closePipe = new Token("|");
+        this.pat = new Pat();
+    }
+}
+class UncondDestrPat extends Pat {
+    constructor(type) { super(type); }
+}
+class AlwaysDestrPat extends UncondDestrPat {
+    constructor() {
+        super("AlwaysDestrPat");
+        this.us = new Token("_");
+    }
+}
+class UncondVarDestrPat extends UncondDestrPat {
+    constructor() {
+        super("UncondVarDestrPat");
+        this.specifiers = new DestrSpec();
+        this.name = new Name();
+    }
+}
+class UncondPatFieldDestrPat extends UncondDestrPat {
+    constructor() {
+        super("UncondPatFieldDestrPat");
+        this.specifiers = new DestrSpec();
+        this.openBrace = new Token("{");
+        this.fields = new DelimitedList("UncondFieldDestrField");
+        this.extraFields = new OptToken("..");
+        this.closeBrace = new Token("}");
+    }
+}
+class UncondFieldDestrPat extends UncondDestrPat {
+    constructor() {
+        super("UncondFieldDestrPat");
+        this.specifiers = new DestrSpec();
+        this.openBrace = new Token("{");
+        this.fields = new DelimitedList("UncondPatFieldDestrPat");
+        this.extraFields = new OptToken("..");
+        this.closeBrace = new Token("}");
+    }
+}
+class UncondFieldDestrField extends CompoundNode {
+    constructor() {
+        super("UncondFieldDestrField");
+        this.openPipe = new Token("|");
+        this.var = new TuplableName();
+        this.closePipe = new Token("|");
+        this.pat = new UncondDestrPat();
     }
 }
 // ============================================================================
@@ -376,7 +467,7 @@ class ConstDecl extends GlobStat {
         super("ConstDecl");
         this.export = new Export();
         this.constKw = new Token("const");
-        this.pattern = new Expr(); //TODO: no
+        this.pattern = new UncondDestrPat();
         this.eq = new Token("=");
         this.value = new Expr();
     }
@@ -441,7 +532,7 @@ class ForStat extends Stat {
 
         this.forKw = new Token("for");
         this.constKw = new OptToken("const");
-        this.pattern = new Expr(); // UncondDestrPat //TODO: no
+        this.pattern = new UncondDestrPat();
         this.inKw = new Token("in");
         this.iterable = new Expr();
         this.body = new BlockNode();
@@ -453,7 +544,7 @@ class LetStat extends Stat {
     constructor() {
         super("LetStat");
         this.letKw = new Token("let");
-        this.pattern = new Expr(); //TODO: no
+        this.pattern = new UncondDestrPat();
         this.eq = new OptToken("=");
         this.value = new Expr(); // $<Needs eq>
     }
@@ -575,7 +666,7 @@ class DotOp extends UnOp {
     constructor() {
         super("DotOp");
         this.dot = new Token(".");
-        this.field = new Name(); //TODO: tuplable
+        this.field = new TuplableName();
     }
 }
 class ConstDotOp extends UnOp {
