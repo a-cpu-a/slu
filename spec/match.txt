@@ -15,8 +15,8 @@ New Syntax {
 	destrFieldList ::= {destrField fieldsep} [".."]
 	destrPatFieldList ::= {pat fieldsep} [".."]
 	
-	dPat ::= destrSpec "{" destrFieldList "}" [Name]
-		| destrSpec "{" destrPatFieldList "}" [Name]
+	dPat ::= destrSpec "{" destrFieldList "}"
+		| destrSpec "{" destrPatFieldList "}"
 		
 		| destrSpec Name ["=" sPat] 
 		| "_"
@@ -26,8 +26,8 @@ New Syntax {
 	uncondDestrFieldList ::= {destrFieldUncond fieldsep} [".."]
 	uncondDestrPatFieldList ::= {uncondDestrPat fieldsep} [".."]
 	
-	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}" [Name]
-		| destrSpec "{" uncondDestrPatFieldList "}" [Name]
+	uncondDestrPat ::= destrSpec "{" uncondDestrFieldList "}"
+		| destrSpec "{" uncondDestrPatFieldList "}"
 		
 		| destrSpec Name
 		| "_"
