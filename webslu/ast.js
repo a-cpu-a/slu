@@ -709,10 +709,32 @@ class UseAs extends UseVariant {
     }
 }
 
-class UseIndex extends UseVariant {
+class SimpleUseVariant extends UseVariant {
     constructor() {
-        super("UseIndex");
-        this.path = []; // Token("::*") or Token("::{") ... Token("}")
+        super("SimpleUseVariant");
+    }
+}
+
+// "::*"
+class StarUseVariant extends UseVariant {
+    constructor() {
+        super("StarUseVariant");
+        this.kw = new Token("::*");
+    }
+}
+
+// "::{" ("self"|Name) {fieldsep Name} [fieldsep] "}"
+class BraceUseVariant extends UseVariant {
+    constructor() {
+        super("BraceUseVariant");
+        this.colonColon = new Token("::");
+        this.openBrace = new Token("{");
+
+        this.selfKw = new OptToken("self");
+        this.selfDelim = new Token(""); // $<Needs selfKw>
+
+        this.items = new DelimitedList("Name");
+        this.closeBrace = new Token("}");
     }
 }
 
