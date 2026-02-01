@@ -303,74 +303,80 @@ class UncondFieldDestrField extends CompoundNode {
 }
 
 // ============================================================================
-// TYPE PREOPS
+// PREOPS
 // ============================================================================
-
-class TypePreop extends CompoundNode {
-    constructor(type) { super(type); }
-}
-
-class PointerType extends TypePreop {
-    constructor() {
-        super("PointerType");
-        this.star = new Token("*");
-        this.attrs = new RefAttrs();
-    }
-}
 
 class RefAttrs extends CompoundNode {
     constructor() {
         super("RefAttrs");
         this.addrspace = null; // OptToken("in" Name)
         this.lifetime = null;  // OptLifetime
-        this.refType = null;   // OptToken("const"|"share"|"mut")
+        this.refType = new RefType();
+    }
+}
+class RefType extends CompoundNode {
+    constructor(type) { super(type); }
+}
+class MutRefType extends RefType {
+    constructor() { super("MutRefType"); this.kw = new Token("mut"); }
+}
+class ShareRefType extends RefType {
+    constructor() { super("ShareRefType"); this.kw = new Token("share"); }
+}
+class ConstRefType extends RefType {
+    constructor() { super("ConstRefType"); this.kw = new Token("const"); }
+}
+
+class PreOp extends CompoundNode {
+    constructor(type) { super(type); }
+}
+class TypePreOp extends PreOp {
+    constructor(type) { super(type); }
+}
+
+class RefTypePreOp extends TypePreOp {
+    constructor() {
+        super("RefTypePreOp");
+        this.star = new Token("*");
+        this.attrs = new RefAttrs();
     }
 }
 
-class MutType extends TypePreop {
-    constructor() { super("MutType"); this.kw = new Token("mut"); }
-}
-class ShareType extends TypePreop {
-    constructor() { super("ShareType"); this.kw = new Token("share"); }
-}
-class ConstType extends TypePreop {
-    constructor() { super("ConstType"); this.kw = new Token("const"); }
-}
-class ArrayType extends TypePreop {
+class SlicePreOp extends PreOp {
     constructor() {
-        super("ArrayType");
+        super("SlicePreOp");
         this.open = new Token("[");
         this.close = new Token("]");
     }
 }
-class DynamicType extends TypePreop {
-    constructor() { super("DynamicType"); this.kw = new Token("dyn"); }
+class DynPreOp extends PreOp {
+    constructor() { super("DynPreOp"); this.kw = new Token("dyn"); }
 }
-class ImplType extends TypePreop {
-    constructor() { super("ImplType"); this.kw = new Token("impl"); }
+class ImplPreOp extends PreOp {
+    constructor() { super("ImplPreOp"); this.kw = new Token("impl"); }
 }
-class UnionType extends TypePreop {
-    constructor() { super("UnionType"); this.kw = new Token("union"); }
+class UnionPreOp extends PreOp {
+    constructor() { super("UnionPreOp"); this.kw = new Token("union"); }
 }
-class RefTypeType extends TypePreop {
+class RefPreOp extends PreOp {
     constructor() {
-        super("RefTypeType");
+        super("RefPreOp");
         this.amp = new Token("&");
         this.attrs = new RefAttrs();
     }
 }
-class SpreadType extends TypePreop {
-    constructor() { super("SpreadType"); this.op = new Token(".."); }
+class RangePreOp extends PreOp {
+    constructor() { super("RangePreOp"); this.op = new Token(".."); }
 }
-class AnnotationPreop extends TypePreop {
+class AnnotationPreOp extends PreOp {
     constructor() {
-        super("AnnotationPreop");
+        super("AnnotationPreOp");
         this.annotation = new Annotation();
     }
 }
-class IfType extends TypePreop {
+class IfPreOp extends PreOp {
     constructor() {
-        super("IfType");
+        super("IfPreOp");
         this.ifKw = new Token("if");
         this.expr = new Expr();
         this.arrow = new Token("=>");
@@ -980,7 +986,7 @@ class BinExpr extends Expr {
 class UnaryExpr extends Expr {
     constructor() {
         super("UnaryExpr");
-        this.preOps = []; // Array of Token | TypePreop
+        this.PreOps = []; // Array of PreOp
         this.primary = new Expr();
         this.sufOps = []; // Array of SufOp
     }
@@ -1002,17 +1008,17 @@ class VarExpr extends Expr {
 class SubVar extends SufOp {
     constructor() { super("SubVar"); }
 }
-class StarSubVar extends SubVar {
-    constructor() { super("StarSubVar"); this.op = new Token(".*"); }
+class DerefSubVar extends SubVar {
+    constructor() { super("DerefSubVar"); this.op = new Token(".*"); }
 }
 class DotSubVar extends SubVar {
     constructor() { super("DotSubVar"); this.op = new Token("."); this.field = new TuplableName(); }
 }
-class ColonDotSubVar extends SubVar {
-    constructor() { super("ColonDotSubVar"); this.op = new Token(".:"); this.field = new Name(); }
+class ConstDotSubVar extends SubVar {
+    constructor() { super("ConstDotSubVar"); this.op = new Token(".:"); this.field = new Name(); }
 }
-class IndexSubVar extends SubVar {
-    constructor() { super("IndexSubVar"); this.open = new Token("["); this.expr = new Expr(); this.close = new Token("]"); }
+class IdxSubVar extends SubVar {
+    constructor() { super("IdxSubVar"); this.open = new Token("["); this.expr = new Expr(); this.close = new Token("]"); }
 }
 
 class SelfableCall extends SufOp {
@@ -1021,31 +1027,6 @@ class SelfableCall extends SufOp {
         this.dot = new OptToken(".");
         this.method = new Name(); // $<Needs dot>
         this.args = new Args();
-    }
-}
-
-class CallOp extends SelfableCall { } // Alias for clarity in specific contexts
-
-class DotOp extends UnOp {
-    constructor() {
-        super("DotOp");
-        this.dot = new Token(".");
-        this.field = new TuplableName();
-    }
-}
-class ConstDotOp extends UnOp {
-    constructor() {
-        super("ConstDotOp");
-        this.dot = new Token(".:");
-        this.field = new Name();
-    }
-}
-class IdxOp extends UnOp {
-    constructor() {
-        super("IdxOp");
-        this.leftBracket = new Token("[");
-        this.idx = new Expr();
-        this.rightBracket = new Token("]");
     }
 }
 
