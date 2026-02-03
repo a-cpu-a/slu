@@ -1522,12 +1522,7 @@ class Parser {
         // Helper to handle Lua-style long brackets
         const handleLongBracket = (isComment) => {
             const start = this.pos;
-            // Skip the initial '[' (or '-' + '[' for comments)
-            if (isComment) {
-                this.pos += 2; // Skip '--'
-            } else {
-                this.pos++; // Skip '['
-            }
+            this.pos++; // Skip '['
 
             const openBracketPos = this.pos;
             let level = 0;
@@ -1540,14 +1535,8 @@ class Parser {
 
             // Expect closing '['
             if (this.pos >= this.len || this.input[this.pos] !== '[') {
-                // Not a long bracket, revert or handle as error
-                // But spec says if it matches pattern, it is one.
-                // If we are here, we detected '--' then '['.
-                // If we don't find '[', it might be a single line comment starting with '--['?
-                // Based on spec definition, if it doesn't close, it's malformed. 
-                // For tokenizer robustness, we might treat as regular comment or throw.
-                // Let's assume valid input for now or fallback.
                 this.pos = start; // Reset and let standard logic handle it
+                //TODO: soft error if in comments
                 return false;
             }
             this.pos++; // Consume the second '['
@@ -1563,17 +1552,16 @@ class Parser {
                 }
                 this.pos++;
             }
-
-            // Reached EOF without closing
-            // Depending on strictness, throw or consume rest.
-            // For now, consume rest as it is likely unterminated string/comment.
             this.pos = this.len;
+            //TODO: soft error
             return true;
         };
 
-
+        let savedStart = null;
         while (this.pos < this.len) {
-            const start = this.pos;
+            const start = (savedStart != null) ? savedStart : this.pos;
+            savedStart = null;
+
             let ch = this.input[this.pos];
             let preSpace = "";
 
@@ -1586,54 +1574,79 @@ class Parser {
                 preSpace = this.input.substring(start, this.pos);
             }
 
-            if (this.pos >= this.len) break;
+            if (this.pos >= this.len) break; // TODO: final preSpace must be stored in the ast, prob a new field in the file or something
 
-            ch = this.input[this.pos];
             const tokenStart = this.pos;
 
             // Comments: --...
             if (ch === '-' && this.pos + 1 < this.len && this.input[this.pos + 1] === '-') {
-                const third = (this.pos + 2 < this.len) ? this.input[this.pos + 2] : null;
-
+                this.pos += 2;
+                const third = (this.pos < this.len) ? this.input[this.pos] : null;
                 // Doc Comments / LineOfText: --- or --<
                 if (third === '-' || third === '<') {
-                    this.pos += 3;
+                    this.pos++;
+                    this.tokens.push({
+                        type: 'Symbol',
+                        txt: "--" + third,
+                        preSpace: preSpace
+                    });
+                    if (this.pos < this.len) {
+                        ch = this.input[this.pos];
+                        // Long String Literal: [[...]] or [=[...]=]
+                        if (ch === '[') {
+                            // We check if next char is [ or =
+                            if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
+                                if (handleLongBracket(true)) {
+                                    this.tokens.push({
+                                        type: 'LiteralString',
+                                        txt: this.input.substring(tokenStart, this.pos),
+                                        preSpace: preSpace
+                                    });
+                                    continue;
+                                }
+                            }
+                            // If not a long bracket (or malformed), fall through to symbol handling
+                        }
+                    }
+
                     let content = "";
                     while (this.pos < this.len && !/[\r\n]/.test(this.input[this.pos])) {
                         content += this.input[this.pos];
                         this.pos++;
                     }
                     this.tokens.push({
-                        type: 'LineOfText', // Or DocComment
-                        txt: this.input.substring(tokenStart, this.pos),
-                        preSpace: preSpace,
-                        content: content
+                        type: 'LineOfText',
+                        txt: content,
+                        preSpace: ""
                     });
                     continue;
                 }
-
                 // Multiline Comment: --[=[...]=]
                 if (third === '[') {
-                    if (handleLongBracket(true)) {
-                        // Comment is whitespace, so we skip it (do not push token)
-                        // But we must preserve preSpace for the *next* token?
-                        // The loop captures preSpace at the start.
-                        // Since we skipped the comment, we loop again, capturing space after it.
-                        continue;
+                    if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
+                        if (handleLongBracket(true)) {
+                            // Comment is whitespace, so we skip it (do not push token)
+
+                            // Preserve preSpace for the next token
+                            savedStart = start;
+                            continue;
+                        }
                     }
-                    // If handleLongBracket failed (e.g. malformed), fall through to default -- behavior?
-                    // Or treat as line comment? Let's treat as line comment start if bracket invalid.
+                    // Treat as line comment start if bracket invalid.
                 }
 
                 // Regular Single Line Comment: --
                 while (this.pos < this.len && !/[\r\n]/.test(this.input[this.pos])) {
                     this.pos++;
                 }
+                // Preserve preSpace for the next token
+                savedStart = start;
+
                 // Whitespace is ignored, so we just continue
                 continue;
             }
 
-            // Strings and Multiline Strings (Long Brackets)
+            // Strings
             if (ch === '"' || ch === "'") {
                 const quote = ch;
                 this.pos++;
@@ -1642,58 +1655,46 @@ class Parser {
                     this.pos++;
                 }
                 if (this.pos < this.len) this.pos++; // consume end quote
-                this.tokens.push({ type: 'LiteralString', txt: this.input.substring(tokenStart, this.pos), preSpace });
+                //todo: this also does a error recovery from eof ^^^
+                this.tokens.push({ type: 'LiteralString', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
                 continue;
             }
 
             // Long String Literal: [[...]] or [=[...]=]
             if (ch === '[') {
-                // Check if it's a long bracket (starts with [ followed by [ or =)
-                // Spec: "A long string literal starts with an opening long bracket of any level"
                 // We check if next char is [ or =
                 if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
                     if (handleLongBracket(false)) {
                         this.tokens.push({
                             type: 'LiteralString',
                             txt: this.input.substring(tokenStart, this.pos),
-                            preSpace
+                            preSpace: preSpace
                         });
                         continue;
                     }
                 }
                 // If not a long bracket (or malformed), fall through to symbol handling
             }
-
-            // Symbols
-            // Check 3 chars
-            if (this.pos + 2 < this.len) {
-                const three = this.input.substring(this.pos, this.pos + 3);
-                if (symbols.has(three)) {
-                    this.pos += 3;
-                    this.tokens.push({ type: 'Symbol', txt: three, preSpace });
-                    continue;
+            {
+                let tmpFound = false;
+                // Symbols
+                for (let i = 3; i > 0; i--) {
+                    if ((this.pos + i - 1) < this.len) {
+                        const tok = this.input.substring(this.pos, this.pos + i);
+                        if (symbols.has(tok)) {
+                            this.pos += i;
+                            this.tokens.push({ type: 'Symbol', txt: tok, preSpace: preSpace });
+                            tmpFound = true;
+                            break;
+                        }
+                    }
                 }
-            }
-
-            // Check 2 chars
-            if (this.pos + 1 < this.len) {
-                const two = this.input.substring(this.pos, this.pos + 2);
-                if (symbols.has(two)) {
-                    this.pos += 2;
-                    this.tokens.push({ type: 'Symbol', txt: two, preSpace });
+                if (tmpFound)
                     continue;
-                }
-            }
-
-            // Check 1 char
-            if (symbols.has(ch)) {
-                this.pos++;
-                this.tokens.push({ type: 'Symbol', txt: ch, preSpace });
-                continue;
             }
 
             // Numbers (Hex or Dec)
-            if (/[0-9]/.test(ch) || (ch === '0' && this.pos + 1 < this.len && /[xX]/.test(this.input[this.pos + 1]))) {
+            if (/[0-9]/.test(ch)) {
                 let isHex = false;
                 if (ch === '0' && /[xX]/.test(this.input[this.pos + 1])) {
                     isHex = true;
@@ -1702,6 +1703,7 @@ class Parser {
 
                 while (this.pos < this.len) {
                     let nch = this.input[this.pos];
+                    //TODO: proper / complex parsing for decimals & exponents (0x1.1.1++--_p0p-_ is not valid)
                     if (isHex) {
                         if (!/[0-9a-fA-F_\.pP\+\-]/.test(nch)) break;
                     } else {
@@ -1710,7 +1712,7 @@ class Parser {
                     this.pos++;
                 }
 
-                this.tokens.push({ type: 'Numeral', txt: this.input.substring(tokenStart, this.pos), preSpace });
+                this.tokens.push({ type: 'Numeral', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
                 continue;
             }
 
@@ -1722,9 +1724,9 @@ class Parser {
                 const txt = this.input.substring(tokenStart, this.pos);
 
                 this.tokens.push({
-                    type: keywords.has(txt) ? 'Keyword' : 'Name',
+                    type: (keywords.has(txt) || /^_*$/.test(txt)) ? 'Keyword' : 'Name', // `/^_*$/` => made of only underscores
                     txt: txt,
-                    preSpace
+                    preSpace: preSpace
                 });
                 continue;
             }
