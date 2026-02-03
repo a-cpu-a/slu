@@ -437,7 +437,7 @@ class StrArgs extends Args {
     }
 }
 
-class BlockNode extends Node {
+class BlockNode extends CompoundNode {
     constructor() {
         super("BlockNode");
         this.openBrace = new Token("{");
@@ -447,7 +447,7 @@ class BlockNode extends Node {
     }
 }
 
-class ModPath extends Node {
+class ModPath extends CompoundNode {
     constructor() {
         super("ModPath");
         this.root = new ModPathRoot();
@@ -492,7 +492,7 @@ class ModPathSegment extends CompoundNode {
     }
 }
 
-class MatchItem extends Node {
+class MatchItem extends CompoundNode {
     constructor() {
         super("MatchItem");
         this.pat = new Pat();
@@ -504,7 +504,7 @@ class MatchItem extends Node {
         this.expr = new Expr();
     }
 }
-class MatchTypeBlock extends Node {
+class MatchTypeBlock extends CompoundNode {
     constructor() {
         super("MatchTypeBlock");
 
@@ -517,7 +517,7 @@ class MatchTypeBlock extends Node {
     }
 }
 
-class TypedParam extends Node {
+class TypedParam extends CompoundNode {
     constructor() {
         super("TypedParam");
         this.constKw = new OptToken("const");
@@ -564,7 +564,7 @@ class TableConstructor extends Expr {
 // GLOBAL DECLARATIONS (globstat)
 // ============================================================================
 
-class GlobStat extends Node {
+class GlobStat extends CompoundNode {
     constructor(type) { super(type); }
 }
 
