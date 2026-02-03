@@ -30,11 +30,10 @@ class Safety extends Node {
     }
 }
 
-class Export extends Node {
-    // kind: "none" | "full"
+class Export extends CompoundNode {
     constructor() {
         super("Export");
-        this.kind = "none";
+        this.kw = new OptToken("ex");
     }
 }
 
