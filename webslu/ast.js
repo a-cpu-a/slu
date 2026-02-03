@@ -76,7 +76,7 @@ class NumTuplableName extends TuplableName {
 // ============================================================================
 
 class DelimitedListItem extends CompoundNode {
-    constructor(type) {
+    constructor() {
         super("DelimitedListItem");
         this.value = null; // The actual node (e.g., Expr, TypedParam)
         this.sep = new OptToken(); // "," or ";"
