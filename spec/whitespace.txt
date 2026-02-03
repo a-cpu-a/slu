@@ -8,6 +8,8 @@ New Syntax {
 }
 
 Whitespace {
+
+	In the spec, whenever there is a space inside one of the ebnf's, whitespace may be inserted, unless stated otherwise.
 	
 	Whitespace is fully ignored in a way that code cant rely on it or read it.
 	Whitespace is ignored while parsing.
@@ -35,6 +37,9 @@ Whitespace {
 	instance, a closing long bracket of level 4 is
 	written as ]====].
 
+	It is a soft-error to have a missing closing start bracket in comments: `--[= Hi]` `--[=`<eof> (both soft-error out)
+	It is a soft-error to reach the end of the file, before getting a closing bracket.
+
 	--TODO: split into another file?
 	A long string literal starts with
 	an opening long bracket of any level and ends at
@@ -47,7 +52,4 @@ Whitespace {
 	several lines, do not interpret any escape
 	sequences, and ignore long brackets of
 	any other level.
-
-
-	In the spec, whenever there is a space inside one of the ebnf's, whitespace may be inserted, unless stated otherwise.
 }
