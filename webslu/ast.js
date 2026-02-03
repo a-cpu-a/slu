@@ -115,6 +115,13 @@ class OptBlockNode extends CompoundNode {
         this.block = new BlockNode();
     }
 }
+class OptTableConstructor extends CompoundNode {
+    constructor() {
+        super("OptTableConstructor");
+        this.present = false; // true if it exists
+        this.tbl = new TableConstructor();
+    }
+}
 
 // ============================================================================
 // ANNOTATIONS
@@ -129,7 +136,7 @@ class ModPathAnnotation extends Annotation {
         super("ModPathAnnotation");
         this.at = new Token("@");
         this.path = new ModPath();
-        this.table = new TableConstructor(); // TODO: opt
+        this.table = new OptTableConstructor();
     }
 }
 
@@ -150,7 +157,7 @@ class OuterModPathAnnotation extends OuterAnnotation {
         super("OuterModPathAnnotation");
         this.at = new Token("@<");
         this.path = new ModPath();
-        this.table = new TableConstructor(); // TODO: opt
+        this.table = new OptTableConstructor();
     }
 }
 
@@ -610,7 +617,7 @@ class EnumField extends CompoundNode {
         this.annotations = []; // Array of Annotation
         this.export = new Export();
         this.name = new Name();
-        this.table = new OptBlockNode(); // TableConstructor
+        this.table = new OptTableConstructor(); // TableConstructor
         this.outerAnnotations = []; // Array of OuterAnnotation
     }
 }
