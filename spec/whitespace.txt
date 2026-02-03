@@ -27,11 +27,9 @@ Whitespace {
 	an opening square bracket followed by n equal
 	signs followed by another opening square bracket.
 
-	So, an opening long bracket of level 1 is written
-	as [=[, an opening long bracket of level 2 is
+	So, an opening long bracket of level 0 is written
+	as [[, an opening long bracket of level 2 is
 	written as [==[, and so on.
-	
-	The minimum long bracket level is 1.
 
 	A closing long bracket is defined similarly; for
 	instance, a closing long bracket of level 4 is
