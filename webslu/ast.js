@@ -222,46 +222,6 @@ class SimplePat extends Pat {
         this.expr = new Expr();
     }
 }
-class DestrPat extends UncondDestrPat {
-    constructor(type) { super(type); }
-}
-class VarDestrPat extends DestrPat {
-    constructor() {
-        super("VarDestrPat");
-        this.base = new UncondVarDestrPat();
-        this.eq = new OptToken("=");
-        this.valPat = new SimplePat(); // $<Needs eq>
-    }
-}
-class PatFieldDestrPat extends DestrPat {
-    constructor() {
-        super("PatFieldDestrPat");
-        this.specifiers = new DestrSpec();
-        this.openBrace = new Token("{");
-        this.fields = new DelimitedList("Pat");
-        this.extraFields = new OptToken("..");
-        this.closeBrace = new Token("}");
-    }
-}
-class FieldDestrPat extends DestrPat {
-    constructor() {
-        super("FieldDestrPat");
-        this.specifiers = new DestrSpec();
-        this.openBrace = new Token("{");
-        this.fields = new DelimitedList("FieldDestrField");
-        this.extraFields = new OptToken("..");
-        this.closeBrace = new Token("}");
-    }
-}
-class FieldDestrField extends CompoundNode {
-    constructor() {
-        super("FieldDestrField");
-        this.openPipe = new Token("|");
-        this.var = new TuplableName();
-        this.closePipe = new Token("|");
-        this.pat = new Pat();
-    }
-}
 class UncondDestrPat extends Pat {
     constructor(type) { super(type); }
 }
@@ -305,6 +265,47 @@ class UncondFieldDestrField extends CompoundNode {
         this.var = new TuplableName();
         this.closePipe = new Token("|");
         this.pat = new UncondDestrPat();
+    }
+}
+
+class DestrPat extends UncondDestrPat {
+    constructor(type) { super(type); }
+}
+class VarDestrPat extends DestrPat {
+    constructor() {
+        super("VarDestrPat");
+        this.base = new UncondVarDestrPat();
+        this.eq = new OptToken("=");
+        this.valPat = new SimplePat(); // $<Needs eq>
+    }
+}
+class PatFieldDestrPat extends DestrPat {
+    constructor() {
+        super("PatFieldDestrPat");
+        this.specifiers = new DestrSpec();
+        this.openBrace = new Token("{");
+        this.fields = new DelimitedList("Pat");
+        this.extraFields = new OptToken("..");
+        this.closeBrace = new Token("}");
+    }
+}
+class FieldDestrPat extends DestrPat {
+    constructor() {
+        super("FieldDestrPat");
+        this.specifiers = new DestrSpec();
+        this.openBrace = new Token("{");
+        this.fields = new DelimitedList("FieldDestrField");
+        this.extraFields = new OptToken("..");
+        this.closeBrace = new Token("}");
+    }
+}
+class FieldDestrField extends CompoundNode {
+    constructor() {
+        super("FieldDestrField");
+        this.openPipe = new Token("|");
+        this.var = new TuplableName();
+        this.closePipe = new Token("|");
+        this.pat = new Pat();
     }
 }
 
