@@ -11,6 +11,8 @@ Quant Type {
 }
 
 Units {
+    std::si
+    ```slu
 	struct MeterTag{}; 
 	ex const Meter = Unit.:new(Length, MeterTag);
 	ex const m = Quant.:new(|| 1, Meter);
@@ -40,6 +42,7 @@ Units {
 	ex const yocto = 1 / yotta;
 	ex const ronto = 1 / ronna;
 	ex const quecto = 1 / quetta;
+    ```
 }
 
 Num Type {
