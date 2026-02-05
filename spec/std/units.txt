@@ -13,6 +13,11 @@ Quant Type {
 Units {
     std::units
     ```slu
+	struct BitTag{}; 
+	ex const Bit = Unit.:new(Data, BitTag);
+	ex const bit = Quant.:new(|| 1, Bit);
+    
+	ex const byte = 8 * bit;
     ```
 
     std::si
