@@ -8,7 +8,7 @@ New Syntax {
 	
 	digit	   ::="0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
 	digList	   ::=digit[{digit|"_"}digit]
-    
+	
 	hexDigit   ::=digit|"a"|"b"|"c"|"d"|"e"|"f"|"A"|"B"|"C"|"D"|"E"|"F"
 	hexDigList ::=hexDigit[{hexDigit|"_"}hexDigit]
 

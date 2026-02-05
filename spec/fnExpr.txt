@@ -17,19 +17,19 @@ New Tokens {
 }
 
 Fn Expression {
-    
-    Creates a global function object, that can be used inside impls / traits.
-
-    If there is no self arg, it doesnt use Self and there is a block, then it is equivalent to writing the function in non-expression form somewhere else, and using it by name in the expression.
-    For example:
-    ```slu
-    const x = fn(){}
-    ```
-    Can be converted to:
-    ```slu
-    fn _syn_1(){}
-
-    const x = _syn_1
-    ```
+	
+	Creates a global function object, that can be used inside impls / traits.
+	
+	If there is no self arg, it doesnt use Self and there is a block, then it is equivalent to writing the function in non-expression form somewhere else, and using it by name in the expression.
+	For example:
+	```slu
+	const x = fn(){}
+	```
+	Can be converted to:
+	```slu
+	fn _syn_1(){}
+	
+	const x = _syn_1
+	```
 
 }

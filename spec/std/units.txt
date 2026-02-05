@@ -11,17 +11,17 @@ Quant Type {
 }
 
 Units {
-    std::units
-    ```slu
+	std::units
+	```slu
 	struct BitTag{}; 
 	ex const Bit = Unit.:new(Data, BitTag);
 	ex const bit = Quant.:new(|| 1, Bit);
-    
+	
 	ex const byte = 8 * bit;
-    ```
+	```
 
-    std::si
-    ```slu
+	std::si
+	```slu
 	struct MeterTag{}; 
 	ex const Meter = Unit.:new(Length, MeterTag);
 	ex const m = Quant.:new(|| 1, Meter);
@@ -38,7 +38,7 @@ Units {
 	ex const kilo = hecto * deca;
 	ex const hecto = deca * deca;
 	ex const deca = 10;
-	    
+	
 	ex const deci = 1 / deca;
 	ex const centi = 1 / hecto;
 	ex const milli = 1 / kilo;
@@ -51,7 +51,7 @@ Units {
 	ex const yocto = 1 / yotta;
 	ex const ronto = 1 / ronna;
 	ex const quecto = 1 / quetta;
-    ```
+	```
 }
 
 Num Type {
@@ -72,8 +72,8 @@ BaseUnit Type {
 
 Base Units {
 
-    --TODO: maybe a `Dimensionless, "1"` base unit + `PI/SQRT2/etc Units`?
-    std::units
+	--TODO: maybe a `Dimensionless, "1"` base unit + `PI/SQRT2/etc Units`?
+	std::units
 	```slu
 	ex const Data = BaseUnit.:new(DataTag,"D")
 	ex const Angle = BaseUnit.:new(AngleTag,"A")
@@ -82,7 +82,7 @@ Base Units {
 	struct AngleTag{}
 	```
 	
-    std::si
+	std::si
 	```slu
 	ex const Length = BaseUnit.:new(LengthTag,"L")
 	ex const Mass = BaseUnit.:new(MassTag,"M")
@@ -103,25 +103,25 @@ Base Units {
 }
 
 Archive {
-    -- 1. The unique tag (phantom type) to identify "Meter"
-    struct MeterTag{}; 
+	-- 1. The unique tag (phantom type) to identify "Meter"
+	struct MeterTag{}; 
 
-    -- This creates the Unit definition. 
-    -- Type: Unit. Data: {Units: [{Base: Length, Tag: MeterTag, Coeff: 1}]}
-    ex const Meter = Unit.:new(Length, MeterTag);
+	-- This creates the Unit definition. 
+	-- Type: Unit. Data: {Units: [{Base: Length, Tag: MeterTag, Coeff: 1}]}
+	ex const Meter = Unit.:new(Length, MeterTag);
 
-    -- This creates a specific value using that Unit.
-    -- Type: Quant. Data: {Value: 1, Unit: Meter}
-    ex const m = Quant.:new(1, Meter);
+	-- This creates a specific value using that Unit.
+	-- Type: Quant. Data: {Value: 1, Unit: Meter}
+	ex const m = Quant.:new(1, Meter);
 
-    -- Complex derived unit example
-    -- Type: Quant. Data: {Value: 1, Unit: (Meter / Second)}
-    ex const mps = Quant.:new(1, Meter / Second);
+	-- Complex derived unit example
+	-- Type: Quant. Data: {Value: 1, Unit: (Meter / Second)}
+	ex const mps = Quant.:new(1, Meter / Second);
 }
 
 Sources {
-    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1935r2.html
-    https://github.com/mpusz/mp-units/
-    https://en.wikipedia.org/wiki/Metric_prefix
-    https://en.wikipedia.org/wiki/SI_base_unit
+	https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1935r2.html
+	https://github.com/mpusz/mp-units/
+	https://en.wikipedia.org/wiki/Metric_prefix
+	https://en.wikipedia.org/wiki/SI_base_unit
 }

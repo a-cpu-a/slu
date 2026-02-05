@@ -23,7 +23,7 @@ Fn Statement {
 	If the "struct" tag is added, then this function returns a nominal/strong type, and it must always return a type or a error.
 	
 
-    If the return type is missing, then it is assumed to be Unit.
+	If the return type is missing, then it is assumed to be Unit.
 
 	Params are immutable / constant by default.
 	
