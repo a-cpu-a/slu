@@ -11,6 +11,10 @@ Quant Type {
 }
 
 Units {
+    std::units
+    ```slu
+    ```
+
     std::si
     ```slu
 	struct MeterTag{}; 
@@ -62,6 +66,16 @@ BaseUnit Type {
 }
 
 Base Units {
+
+    --TODO: maybe a `Dimensionless, "1"` base unit + `PI/SQRT2/etc Units`?
+    std::units
+	```slu
+	ex const Data = BaseUnit.:new(DataTag,"D")
+	ex const Angle = BaseUnit.:new(AngleTag,"A")
+
+	struct DataTag{}
+	struct AngleTag{}
+	```
 	
     std::si
 	```slu
@@ -80,16 +94,6 @@ Base Units {
 	struct ThermodynamicTemperatureTag{}
 	struct AmountOfSubstanceTag{}
 	struct LuminousIntensityTag{}
-	```
-
-    --TODO: maybe a `Dimensionless, "1"` base unit + `PI/SQRT2/etc Units`?
-    std::units
-	```slu
-	ex const Data = BaseUnit.:new(DataTag,"D")
-	ex const Angle = BaseUnit.:new(AngleTag,"A")
-
-	struct DataTag{}
-	struct AngleTag{}
 	```
 }
 
