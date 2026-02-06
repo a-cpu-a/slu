@@ -1695,25 +1695,106 @@ class Parser {
 
             // Numbers (Hex or Dec)
             if (/[0-9]/.test(ch)) {
+                let tokenStart = this.pos;
                 let isHex = false;
-                if (ch === '0' && /[xX]/.test(this.input[this.pos + 1])) {
-                    isHex = true;
-                    this.pos += 2;
+
+                // Helper to parse digit lists based on grammar: digit [{digit|"_"} digit]
+                // Returns true if at least one digit was consumed
+                const parseList = (hexMode) => {
+                    const digitRegex = hexMode ? /[0-9a-fA-F]/ : /[0-9]/;
+                    const start = this.pos;
+                    let hasDigit = false;
+
+                    while (this.pos < this.len) {
+                        let nch = this.input[this.pos];
+
+                        // Match digit
+                        if (digitRegex.test(nch)) {
+                            this.pos++;
+                            hasDigit = true;
+                        }
+                        // Match underscore separator
+                        else if (nch === '_' && this.pos + 1 < this.len && digitRegex.test(this.input[this.pos + 1])) {
+                            //TODO: allow multiple underscores in between digits
+                            this.pos++; // Consume underscore, next digit consumed in next iteration
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    return hasDigit;
+                };
+                // 1. Check for Hex Prefix (0x or 0X)
+                // Grammar: hexStart(hexDigList)
+                if (ch === '0' && this.pos + 1 < this.len && /[xX]/.test(this.input[this.pos + 1])) {
+                    this.pos += 2; // Consume '0x'
+                    // Attempt to parse hex digits. 
+                    // If no digits follow, '0x' is not a valid hex number prefix here, so backtrack.
+                    if (parseList(true)) {
+                        isHex = true;
+                    } else {
+                        ch = this.input[this.pos];
+                        throw new Error(`Expected hex digits, but found: ${ch} at ${this.pos}`);
+                    }
                 }
 
-                while (this.pos < this.len) {
-                    let nch = this.input[this.pos];
-                    //TODO: proper / complex parsing for decimals & exponents (0x1.1.1++--_p0p-_ is not valid)
-                    if (isHex) {
-                        if (!/[0-9a-fA-F_\.pP\+\-]/.test(nch)) break;
-                    } else {
-                        if (!/[0-9_\.eE\+\-]/.test(nch)) break;
+
+                // 2. Parse Integer Part
+                // If not hex, parse the initial digits.
+                // If hex was detected, we already parsed the integer part in step 1.
+                if (!isHex) {
+                    parseList(false);
+                }
+
+                // 3. Parse Fractional Part (Optional)
+                // Grammar: ["." digList] or ["." hexDigList]
+                // The dot is only valid if immediately followed by a valid digit.
+                if (this.pos < this.len && this.input[this.pos] === '.') {
+                    let nextChar = this.input[this.pos + 1];
+                    let digitRegex = isHex ? /[0-9a-fA-F]/ : /[0-9]/;
+
+                    if (nextChar && digitRegex.test(nextChar)) {
+                        this.pos++; // Consume '.'
+                        parseList(isHex);
                     }
-                    this.pos++;
+                }
+
+                // 4. Parse Exponent Part (Optional)
+                // Grammar: [("e"|"E")[expSign]digList] or [("p"|"P")[expSign]hexDigList]
+                // The exponent character is only valid if followed by digits (optionally signed).
+                if (this.pos < this.len) {
+                    let current = this.input[this.pos];
+                    let isExp = isHex ? /[pP]/.test(current) : /[eE]/.test(current);
+
+                    if (isExp) {
+                        this.pos++; // Consume 'e', 'E', 'p', or 'P'
+
+                        // Optional Sign
+                        if (this.pos < this.len && /[+\-]/.test(this.input[this.pos])) {
+                            this.pos++;
+                        }
+
+                        // Mandatory digits after exponent marker
+                        // If no digits found, the exponent character was not part of the number.
+                        if (parseList(isHex)) {
+                            // Success
+                        } else {
+                            ch = this.input[this.pos];
+                            throw new Error(`Expected exponent digits, but found: ${ch} at ${this.pos}`);
+                        }
+                    }
+                    if (this.pos < this.len) {
+                        // Check for any after-chars
+                        ch = this.input[this.pos];
+                        if (/0-9_a-zA-Z!/.test(ch)) {
+                            throw new Error(`Unexpected character: ${ch} at ${this.pos}`);
+                        }
+                    }
                 }
 
                 this.tokens.push({ type: 'Numeral', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
                 continue;
+
             }
 
             // Identifiers / Keywords / Names
