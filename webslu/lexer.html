@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Highlighter Editor</title>
+    <style>
+        /* Basic Reset & Layout */
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #d4d4d4;
+            --accent-color: #0e639c;
+            --border-color: #333;
+
+            /* Token Colors */
+            --token-keyword: #5558ff;
+            --token-name: #9cdcfe;
+            --token-literalstring: #ce9178;
+            --token-numeral: #b5cea8;
+            --token-symbol: #d4d4d4;
+            --token-lineoftext: #6a9955;
+            --token-error: #f44747;
+            --token-eof: #400;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #111;
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-weight: 300;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        /* Editor Container */
+        .editor-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            height: 600px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Shared styles for both the textarea and the highlighter to ensure perfect overlap */
+        .editor-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 20px;
+            border: none;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            /* Preserve whitespace and wrap */
+            word-wrap: break-word;
+            overflow: auto;
+            tab-size: 4;
+        }
+
+        /* The Backdrop Highlighter (Bottom Layer) */
+        #highlight-layer {
+            z-index: 1;
+            color: var(--text-color);
+            pointer-events: none;
+            /* Let clicks pass through to textarea */
+        }
+
+        /* The Input Textarea (Top Layer) */
+        #input-layer {
+            z-index: 2;
+            color: transparent;
+            /* Hide the text, show the caret */
+            background: transparent;
+            caret-color: #fff;
+            /* Visible cursor */
+            resize: none;
+            outline: none;
+        }
+
+        /* Selection coloring in the transparent textarea */
+        #input-layer::selection {
+            background: rgba(255, 255, 255, 0.2);
+            color: transparent;
+        }
+
+        /* Syntax Highlighting Classes */
+        .token-Keyword {
+            color: var(--token-keyword);
+            font-weight: bold;
+        }
+
+        .token-Name {
+            color: var(--token-name);
+        }
+
+        .token-LiteralString {
+            color: var(--token-literalstring);
+        }
+
+        .token-Numeral {
+            color: var(--token-numeral);
+        }
+
+        .token-Symbol {
+            color: var(--token-symbol);
+        }
+
+        .token-LineOfText {
+            color: var(--token-lineoftext);
+            font-style: italic;
+        }
+
+        .token-EOF {
+            background-color: var(--token-eof);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Footer/Status */
+        .status-bar {
+            margin-top: 10px;
+            color: #666;
+            font-size: 12px;
+            width: 90%;
+            max-width: 1000px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>2D Code Editor</h1>
+
+    <div class="editor-container">
+        <!-- The Highlighter Layer -->
+        <pre id="highlight-layer" class="editor-layer"><code id="code-content"></code></pre>
+        <!-- The Input Layer -->
+        <textarea id="input-layer" class="editor-layer" spellcheck="false" autocapitalize="off"
+            autocomplete="off"></textarea>
+    </div>
+
+    <div class="status-bar">
+        <span id="status-msg">Ready</span>
+        <span id="token-count">Tokens: 0</span>
+    </div>
+    <script type="text/javascript" src="ast.js"></script>
+    <script>
+        // ============================================================================
+        // EDITOR LOGIC
+        // ============================================================================
+
+        const textarea = document.getElementById('input-layer');
+        const codeContent = document.getElementById('code-content');
+        const statusMsg = document.getElementById('status-msg');
+        const tokenCount = document.getElementById('token-count');
+
+        // Initial sample code
+        const sampleCode = `-- Example Code
+fn calculate(a = Numeral, b = Numeral) -> Numeral {
+    let result = a + b;
+    if (result > 100) {
+        return "High";
+    } else {
+        return result;
+    }
+}
+fn fn fn discard let function ex trans mixin in for &mut
+const x = [=[ aw ]=];
+const e = [[ aweewe ]]; 
+Hii! 'aweawe!'  wwwww!    e!
+`;
+        textarea.value = sampleCode;
+
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function updateHighlighter() {
+            const text = textarea.value;
+
+            // We wrap in a try/catch because the provided parser throws 
+            // on unexpected characters. We want the editor to remain usable 
+            // even if the code is currently invalid.
+            try {
+                const parser = new Parser(text);
+                const tokens = parser.tokens;
+
+                let html = '';
+
+                // Iterate through tokens and build HTML string
+                tokens.forEach(token => {
+                    // Append preSpace (whitespace before token) as raw text (escaped)
+                    // The <pre> tag handles the formatting of newlines and spaces
+                    html += escapeHtml(token.preSpace);
+
+                    // Wrap the actual token text in a span with the class corresponding to its type
+                    html += `<span class="token-${token.type}">${token.type == "EOF" ? "EOF" : escapeHtml(token.txt)}</span>`;
+                });
+
+                codeContent.innerHTML = html;
+
+                // Update status
+                statusMsg.textContent = "Valid Syntax";
+                statusMsg.style.color = "#6a9955";
+                tokenCount.textContent = `Tokens: ${tokens.length}`;
+
+            } catch (e) {
+                // If parser fails (e.g., incomplete number, unexpected char), 
+                // we fall back to showing the plain text so the user doesn't lose their view.
+                // In a production app, we might want to highlight up to the error, 
+                // but without modifying the parser, we can only access partial tokens.
+
+                // For this demo, we'll just clear highlighting or show raw text on error.
+                codeContent.textContent = text;
+
+                statusMsg.textContent = "Syntax Error: " + e.message;
+                statusMsg.style.color = "#f44747";
+                tokenCount.textContent = `Tokens: Error`;
+            }
+        }
+
+        function syncScroll() {
+            codeContent.parentElement.scrollTop = textarea.scrollTop;
+            codeContent.parentElement.scrollLeft = textarea.scrollLeft;
+        }
+
+        // Event Listeners
+        textarea.addEventListener('input', updateHighlighter);
+        textarea.addEventListener('scroll', syncScroll);
+
+        // Handle tab key to insert spaces instead of changing focus
+        textarea.addEventListener('keydown', function (e) {
+            if (e.key == 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+
+                // set textarea value to: text before caret + tab + text after caret
+                this.value = this.value.substring(0, start) +
+                    "    " + this.value.substring(end);
+
+                // put caret at right position again
+                this.selectionStart = this.selectionEnd = start + 4;
+
+                // Trigger update
+                updateHighlighter();
+            }
+        });
+
+        // Initial render
+        updateHighlighter();
+
+    </script>
+</body>
+
+</html>
