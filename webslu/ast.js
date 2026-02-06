@@ -1701,26 +1701,22 @@ class Parser {
                 // Helper to parse digit lists based on grammar: digit [{digit|"_"}digit]
                 // Returns true if at least one digit was consumed.
                 const parseList = (hexMode) => {
-                    const digitRegex = hexMode ? /[0-9a-fA-F]/ : /[0-9]/;
+                    const digitOrUscoreRegex = hexMode ? /[0-9_a-fA-F]/ : /[0-9_]/;
                     const start = this.pos;
                     let hasDigit = false;
 
-                    while (this.pos < this.len) {
-                        let nch = this.input[this.pos];
+                    // Greedily consume all valid characters: digits and underscores
+                    while (this.pos < this.len && digitOrUscoreRegex.test(this.input[this.pos])) {
+                        this.pos++;
+                    }
 
-                        // Match digit
-                        if (digitRegex.test(nch)) {
-                            this.pos++;
-                            hasDigit = true;
-                        }
-                        // Match underscore separator
-                        else if (nch === '_' && this.pos + 1 < this.len && digitRegex.test(this.input[this.pos + 1])) {
-                            //TODO: allow multiple underscores in between digits
-                            this.pos++; // Consume underscore, next digit consumed in next iteration
-                        }
-                        else {
-                            break;
-                        }
+                    // Backtrack if the sequence ends with an underscore.
+                    while (this.pos > start && this.input[this.pos - 1] === '_') {
+                        this.pos--;
+                    }
+
+                    if (this.pos > start) {
+                        hasDigit = true;
                     }
                     return hasDigit;
                 };
