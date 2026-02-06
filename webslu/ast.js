@@ -1721,8 +1721,11 @@ class Parser {
                 while (this.pos < this.len && /[a-zA-Z0-9_]/.test(this.input[this.pos])) {
                     this.pos++;
                 }
+                // Macro calls:
+                if (this.pos < this.len && this.input[this.pos] == "!") {
+                    this.pos++;
+                }
                 const txt = this.input.substring(tokenStart, this.pos);
-
                 this.tokens.push({
                     type: (keywords.has(txt) || /^_*$/.test(txt)) ? 'Keyword' : 'Name', // `/^_*$/` => made of only underscores
                     txt: txt,
