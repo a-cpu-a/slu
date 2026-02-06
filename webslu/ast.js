@@ -1559,6 +1559,7 @@ class Parser {
         };
 
         let savedStart = null;
+        let lastNonSpace = 0;
         while (this.pos < this.len) {
             const start = (savedStart != null) ? savedStart : this.pos;
             savedStart = null;
@@ -1600,9 +1601,10 @@ class Parser {
                                 if (handleLongBracket(true)) {
                                     this.tokens.push({
                                         type: 'LiteralString',
-                                        txt: this.input.substring(tokenStart, this.pos),
-                                        preSpace: preSpace
+                                        txt: this.input.substring(tokenStart + 3, this.pos),
+                                        preSpace: ""
                                     });
+                                    lastNonSpace = this.pos;
                                     continue;
                                 }
                             }
@@ -1620,6 +1622,7 @@ class Parser {
                         txt: content,
                         preSpace: ""
                     });
+                    lastNonSpace = this.pos;
                     continue;
                 }
                 // Multiline Comment: --[=[...]=]
@@ -1658,6 +1661,7 @@ class Parser {
                 if (this.pos < this.len) this.pos++; // consume end quote
                 //todo: this also does a error recovery from eof ^^^
                 this.tokens.push({ type: 'LiteralString', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
+                lastNonSpace = this.pos;
                 continue;
             }
 
@@ -1671,6 +1675,7 @@ class Parser {
                             txt: this.input.substring(tokenStart, this.pos),
                             preSpace: preSpace
                         });
+                        lastNonSpace = this.pos;
                         continue;
                     }
                 }
@@ -1690,8 +1695,10 @@ class Parser {
                         }
                     }
                 }
-                if (tmpFound)
+                if (tmpFound) {
+                    lastNonSpace = this.pos;
                     continue;
+                }
             }
 
             // Numbers (Hex or Dec)
@@ -1785,6 +1792,7 @@ class Parser {
                 }
 
                 this.tokens.push({ type: 'Numeral', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
+                lastNonSpace = this.pos;
                 continue;
             }
 
@@ -1803,6 +1811,7 @@ class Parser {
                     txt: txt,
                     preSpace: preSpace
                 });
+                lastNonSpace = this.pos;
                 continue;
             }
 
@@ -1810,7 +1819,13 @@ class Parser {
         }
 
         // EOF
-        this.tokens.push({ type: 'EOF', txt: '', preSpace: '' });
+        let preSpace = "";
+
+        if (lastNonSpace !== this.len) {
+            preSpace = this.input.substring(lastNonSpace, this.len);
+        }
+
+        this.tokens.push({ type: 'EOF', txt: '', preSpace: preSpace });
     }
 
     // ========================================================================
