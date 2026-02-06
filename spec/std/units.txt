@@ -75,22 +75,24 @@ Base Units {
 	--TODO: maybe a `Dimensionless, "1"` base unit + `PI/SQRT2/etc Units`?
 	std::units
 	```slu
-	ex const Data = BaseUnit.:new(DataTag,"D")
-	ex const Angle = BaseUnit.:new(AngleTag,"A")
+	ex const Data = BaseUnit.:new(DataTag, "D")
+	ex const Angle = BaseUnit.:new(AngleTag, "A")
+	ex const Dimless = BaseUnit.:new(DimlessTag, "1")
 
 	struct DataTag{}
 	struct AngleTag{}
+	struct DimlessTag{}
 	```
 	
 	std::si
 	```slu
-	ex const Length = BaseUnit.:new(LengthTag,"L")
-	ex const Mass = BaseUnit.:new(MassTag,"M")
-	ex const Time = BaseUnit.:new(TimeTag,"T")
-	ex const ElectricCurrent = BaseUnit.:new(ElectricCurrentTag,"I")
-	ex const ThermodynamicTemperature = BaseUnit.:new(ThermodynamicTemperatureTag,"Θ")
-	ex const AmountOfSubstance = BaseUnit.:new(AmountOfSubstanceTag,"N")
-	ex const LuminousIntensity = BaseUnit.:new(LuminousIntensityTag,"J")
+	ex const Length = BaseUnit.:new(LengthTag, "L")
+	ex const Mass = BaseUnit.:new(MassTag, "M")
+	ex const Time = BaseUnit.:new(TimeTag, "T")
+	ex const ElectricCurrent = BaseUnit.:new(ElectricCurrentTag, "I")
+	ex const ThermodynamicTemperature = BaseUnit.:new(ThermodynamicTemperatureTag, "Θ")
+	ex const AmountOfSubstance = BaseUnit.:new(AmountOfSubstanceTag, "N")
+	ex const LuminousIntensity = BaseUnit.:new(LuminousIntensityTag, "J")
 
 	struct LengthTag{}
 	struct MassTag{}
