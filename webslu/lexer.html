@@ -14,14 +14,16 @@
             --border-color: #333;
 
             /* Token Colors */
+            --token-prespace: #666;
             --token-keyword: #5558ff;
             --token-name: #9cdcfe;
             --token-literalstring: #ce9178;
             --token-numeral: #b5cea8;
-            --token-symbol: #d4d4d4;
+            --token-symbol: #b9b895;
             --token-lineoftext: #6a9955;
             --token-error: #f44747;
-            --token-eof: #400;
+            --token-eof: #ffb78d;
+            --token-eof-bg: #620000;
         }
 
         body {
@@ -78,7 +80,7 @@
         /* The Backdrop Highlighter (Bottom Layer) */
         #highlight-layer {
             z-index: 1;
-            color: var(--text-color);
+            color: var(--token-prespace);
             pointer-events: none;
             /* Let clicks pass through to textarea */
         }
@@ -129,7 +131,8 @@
         }
 
         .token-EOF {
-            background-color: var(--token-eof);
+            background-color: var(--token-eof-bg);
+            color: var(--token-eof);
         }
 
         /* Scrollbar Styling */
@@ -205,6 +208,16 @@ fn fn fn discard let function ex trans mixin in for &mut
 const x = [=[ aw ]=];
 const e = [[ aweewe ]]; 
 Hii! 'aweawe!'  wwwww!    e!
+-- Hiiii 
+---Not a comment!
+--<Hii3
+---[=[
+Hiii!]=]
+--[==[
+
+Yes a comment!
+]==]
+
 `;
         textarea.value = sampleCode;
 
