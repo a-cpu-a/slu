@@ -1887,26 +1887,19 @@ class Parser {
     parseGlobStat() {
         const annotations = this.parseAnnotations(false); // false = inner
 
-        // Macro invocation
-        if (this.checkMacroInvoke()) {
-            return this.parseMacroInvoke();
+        if (this.match('Symbol', ';')) {
+            const node = new EmptyGlobStat();
+            return node;
         }
 
         // OptExport
         const exportNode = new Export();
         if (this.match('Keyword', 'ex')) {
-            exportNode.kw.txt = 'ex';
             exportNode.kw.present = true;
         }
 
         const peekType = this.peek().type;
         const peekTxt = this.peek().txt;
-
-        if (this.match('Symbol', ';')) {
-            const node = new EmptyGlobStat();
-            node.semicol.txt = ';';
-            return node;
-        }
 
         if (peekTxt === 'enum') {
             return this.parseEnumDecl(exportNode, annotations);
@@ -1938,23 +1931,6 @@ class Parser {
 
         if (peekTxt === 'const') {
             return this.parseConstDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'axiom') {
-            // optexport "axiom" Name ["as" "{" {axiomStat} "}"]
-            const node = new CompoundNode("AxiomDecl"); // Placeholder class if not defined
-            node.kw = new Token(); node.kw.txt = "axiom";
-            this.expect('Keyword', 'axiom');
-            node.name = this.parseName();
-            if (this.match('Keyword', 'as')) {
-                this.expect('Symbol', '{');
-                // parse axiom stats
-                node.block = [];
-                while (!this.match('Symbol', '}')) {
-                    node.block.push(this.parseAxiomStat());
-                }
-            }
-            return node;
         }
 
         if (peekTxt === 'safe' || peekTxt === 'unsafe') {
@@ -2430,15 +2406,6 @@ class Parser {
             return node;
         }
 
-        // Macro invocation
-        if (this.checkMacroInvoke()) {
-            const mi = this.parseMacroInvoke();
-            // MacroInvocation can be a statement.
-            // Assuming we wrap it in a generic MacroStat node if needed, or just return it.
-            // Since GlobStat can be macroInvSpl, and Stat includes GlobStat, returning it is fine.
-            return mi;
-        }
-
         // var "=" expr | var selfablecall
         // Need to disambiguate.
         // var = ...
@@ -2551,7 +2518,7 @@ class Parser {
 
                 // If no call, maybe it was an assignment we missed? 
                 // No, we checked for '=' earlier.
-                // Maybe it's just `var`? Not allowed in stat grammar unless globstat or macro.
+                // Maybe it's just `var`? Not allowed in stat grammar unless globstat.
                 throw new Error("Expected call or assignment");
             }
         } catch (e) {
@@ -3705,71 +3672,10 @@ class Parser {
     }
 
     // -------------------------------------------------------------------------
-    // Macros
-    // -------------------------------------------------------------------------
-
-    checkMacroInvoke() {
-        // modpath "!" ...
-        // Name is part of modpath. Check if Name followed by !
-        if (this.peek().type === 'Name' && this.peek(1).txt === '!') return true;
-        if (this.peek().txt === 'crate' && this.peek(1).txt === '!') return true;
-        return false;
-    }
-
-    parseMacroInvoke() {
-        // macroInvoke ::= modpath "!" macroArgs
-        // Returns a generic node or MacroInvoke if defined.
-        // Using a generic CompoundNode for MacroInvoke since it wasn't in the provided list explicitly.
-        const node = new CompoundNode("MacroInvoke");
-        node.path = this.parseModPath();
-        this.expect('Symbol', '!');
-
-        // macroArgs
-        if (this.match('Symbol', '(')) {
-            node.args = new ParenArgs();
-            // Parse ProgrammableArgs (assumed similar to expr list for now)
-            node.args.args = this.parseDelimitedList(() => this.parseExpr());
-            this.expect('Symbol', ')');
-        } else if (this.match('Symbol', '{')) {
-            // Block
-            const block = new BlockNode();
-            while (!this.match('Symbol', '}')) {
-                block.stats.push(this.parseStat());
-            }
-            node.args = block;
-        } else if (this.match('Symbol', '[')) {
-            // List
-            const list = [];
-            while (!this.match('Symbol', ']')) {
-                list.push(this.parseExpr());
-                if (this.peek().txt === ',') this.consume();
-            }
-            node.args = list;
-        } else {
-            // expr | stat | retstat
-            // Try expr
-            try {
-                node.args = this.parseExpr();
-            } catch (e) {
-                // Try stat
-                node.args = this.parseStat();
-            }
-        }
-
-        return node;
-    }
-
-    // -------------------------------------------------------------------------
     // Primitives
     // -------------------------------------------------------------------------
 
     parseName() {
-        // Name or macroInvSpl
-        // macroInvSpl ::= modpath "!" macroArgs
-        if (this.checkMacroInvoke()) {
-            return this.parseMacroInvoke(); // Return macro as Name?
-        }
-
         const node = new Name();
         const tok = this.expect('Name');
         node.name = tok.txt;
