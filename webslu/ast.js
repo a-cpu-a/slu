@@ -1698,8 +1698,8 @@ class Parser {
                 let tokenStart = this.pos;
                 let isHex = false;
 
-                // Helper to parse digit lists based on grammar: digit [{digit|"_"} digit]
-                // Returns true if at least one digit was consumed
+                // Helper to parse digit lists based on grammar: digit [{digit|"_"}digit]
+                // Returns true if at least one digit was consumed.
                 const parseList = (hexMode) => {
                     const digitRegex = hexMode ? /[0-9a-fA-F]/ : /[0-9]/;
                     const start = this.pos;
@@ -1724,31 +1724,28 @@ class Parser {
                     }
                     return hasDigit;
                 };
+
                 // 1. Check for Hex Prefix (0x or 0X)
                 // Grammar: hexStart(hexDigList)
                 if (ch === '0' && this.pos + 1 < this.len && /[xX]/.test(this.input[this.pos + 1])) {
                     this.pos += 2; // Consume '0x'
                     // Attempt to parse hex digits. 
-                    // If no digits follow, '0x' is not a valid hex number prefix here, so backtrack.
                     if (parseList(true)) {
                         isHex = true;
                     } else {
-                        ch = this.input[this.pos];
-                        throw new Error(`Expected hex digits, but found: ${ch} at ${this.pos}`);
+                        let errCh = this.input[this.pos];
+                        throw new Error(`Expected hex digits, but found: ${errCh} at ${this.pos}`);
                     }
                 }
 
-
                 // 2. Parse Integer Part
                 // If not hex, parse the initial digits.
-                // If hex was detected, we already parsed the integer part in step 1.
                 if (!isHex) {
                     parseList(false);
                 }
 
                 // 3. Parse Fractional Part (Optional)
                 // Grammar: ["." digList] or ["." hexDigList]
-                // The dot is only valid if immediately followed by a valid digit.
                 if (this.pos < this.len && this.input[this.pos] === '.') {
                     let nextChar = this.input[this.pos + 1];
                     let digitRegex = isHex ? /[0-9a-fA-F]/ : /[0-9]/;
@@ -1761,7 +1758,6 @@ class Parser {
 
                 // 4. Parse Exponent Part (Optional)
                 // Grammar: [("e"|"E")[expSign]digList] or [("p"|"P")[expSign]hexDigList]
-                // The exponent character is only valid if followed by digits (optionally signed).
                 if (this.pos < this.len) {
                     let current = this.input[this.pos];
                     let isExp = isHex ? /[pP]/.test(current) : /[eE]/.test(current);
@@ -1775,26 +1771,24 @@ class Parser {
                         }
 
                         // Mandatory digits after exponent marker
-                        // If no digits found, the exponent character was not part of the number.
                         if (parseList(isHex)) {
                             // Success
                         } else {
-                            ch = this.input[this.pos];
-                            throw new Error(`Expected exponent digits, but found: ${ch} at ${this.pos}`);
+                            let errCh = this.input[this.pos];
+                            throw new Error(`Expected exponent digits, but found: ${errCh} at ${this.pos}`);
                         }
                     }
+
                     if (this.pos < this.len) {
-                        // Check for any after-chars
-                        ch = this.input[this.pos];
-                        if (/0-9_a-zA-Z!/.test(ch)) {
-                            throw new Error(`Unexpected character: ${ch} at ${this.pos}`);
+                        let nextCh = this.input[this.pos];
+                        if (/[0-9_a-zA-Z!]/.test(nextCh)) {
+                            throw new Error(`Unexpected character: ${nextCh} at ${this.pos}`);
                         }
                     }
                 }
 
                 this.tokens.push({ type: 'Numeral', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
                 continue;
-
             }
 
             // Identifiers / Keywords / Names
