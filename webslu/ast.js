@@ -1536,12 +1536,13 @@ class Parser {
             // Expect closing '['
             if (this.pos >= this.len || this.input[this.pos] !== '[') {
                 this.pos = start; // Reset and let standard logic handle it
-                //TODO: soft error if in comments
+                if (isComment)
+                    throw new Error(`Expected second bracket for multi line comment: ${this.input[this.pos]} at ${this.pos}`);
                 return false;
             }
             this.pos++; // Consume the second '['
 
-            const openSeq = this.input.substring(openBracketPos, this.pos);
+            const openSeq = this.input.substring(openBracketPos - 1, this.pos);
             const closeSeq = openSeq.replace(/\[/g, ']'); // [==[ becomes ]==]
 
             // Scan for closing sequence
@@ -1554,7 +1555,7 @@ class Parser {
             }
             this.pos = this.len;
             //TODO: soft error
-            return true;
+            throw new Error(`Expected closing bracket for ${isComment ? "comment" : "string"}, but file ended`);
         };
 
         let savedStart = null;
@@ -1647,7 +1648,7 @@ class Parser {
             }
 
             // Strings
-            if (ch === '"' || ch === "'") {
+            if (ch === '"') {
                 const quote = ch;
                 this.pos++;
                 while (this.pos < this.len && this.input[this.pos] !== quote) {
