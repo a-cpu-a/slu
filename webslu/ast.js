@@ -1839,60 +1839,56 @@ class Parser {
         return this.tokens[this.tokPos + offset];
     }
 
-    consume(expectedType = null, expectedTxt = null) {
-        const tok = this.tokens[this.tokPos];
-        if (expectedType && tok.type !== expectedType) return null;
-        if (expectedTxt && tok.txt !== expectedTxt) return null;
-
-        this.tokPos++;
-        return tok;
+    consume() {
+        if (this.tokPos < this.tokens.length) {
+            return this.tokens[this.tokPos++];
+        }
+        return { type: 'EOF', txt: '' };
     }
 
-    match(...args) {
-        return this.consume(...args) !== null;
+    match(type, txt) {
+        const tok = this.peek();
+        return tok && tok.type === type && (txt === undefined || tok.txt === txt);
     }
 
     expect(type, txt) {
-        const tok = this.consume(type, txt);
-        if (!tok) {
-            const current = this.peek();
-            throw new Error(`Expected ${type} "${txt}", found ${current.type} "${current.txt}"`);
+        if (this.match(type, txt)) {
+            return this.consume();
         }
-        return tok;
+        const tok = this.peek();
+        const msg = `Expected ${type} ${txt ? `"${txt}"` : ''}, found ${tok ? tok.type : 'EOF'} ${tok ? `"${tok.txt}"` : ''} at pos ${this.tokPos}`;
+        throw new Error(msg);
     }
 
-    // Helper to set properties on a Node object
-    applyToken(node, token, propName) {
-        if (token) {
-            node[propName] = new Token();
-            node[propName].txt = token.txt;
-            node[propName].preSpace = token.preSpace;
-        }
-        return node;
+    createAstToken(lexerToken) {
+        const t = new Token(lexerToken.txt);
+        t.preSpace = lexerToken.preSpace;
+        return t;
     }
 
-    // -------------------------------------------------------------------------
-    // Generic Utils
-    // -------------------------------------------------------------------------
+    parseOptToken(txt) {
+        const opt = new OptToken(txt);
+        if (this.match('Symbol', txt) || this.match('Keyword', txt)) {
+            const tok = this.consume();
+            opt.present = true;
+            opt.txt = tok.txt;
+            opt.preSpace = tok.preSpace;
+        }
+        return opt;
+    }
 
-    parseDelimitedList(parser, allowTrailingSpread = false) {
+    parseDelimitedList(parserFn, stopTokens) {
         const list = new DelimitedList();
         while (true) {
-            if (allowTrailingSpread && this.peek().txt === '..') {
-                // Spread is handled outside usually, but DelimitedListItem is for items.
-                // The grammar `... [".."]` suggests spread is part of the container logic, not the list.
-                break;
-            }
-            if (this.peek().txt === '}' || this.peek().txt === ')' || this.peek().txt === ']') break;
+            const tok = this.peek();
+            if (stopTokens.some(t => tok.type === t.type && t.txt === tok.txt)) break;
+            if (tok.type === 'EOF') break;
 
             const item = new DelimitedListItem();
-            item.value = parser();
+            item.value = parserFn();
 
             if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
-                item.sep.txt = this.tokens[this.tokPos - 1].txt;
-                item.sep.present = true;
-            } else {
-                break;
+                item.sep = this.createAstToken(this.consume());
             }
             list.items.push(item);
         }
@@ -1904,1837 +1900,1196 @@ class Parser {
     // ========================================================================
 
     parseChunk() {
-        const stats = [];
-        while (this.peek().type !== 'EOF') {
-            stats.push(this.parseGlobStat());
+        const chunk = [];
+        while (!this.match('EOF')) {
+            chunk.push(this.parseGlobStat());
         }
-        return stats;
+        return chunk;
     }
 
     parseModPath() {
-        const node = new ModPath();
-        const t = this.peek().txt;
-        if (t === 'self') {
-            node.root = new ModPathRootSelf();
-            this.consume();
-        } else if (t === 'crate') {
-            node.root = new ModPathRootCrate();
-            this.consume();
-        } else if (t === ':>') {
-            node.root = new ModPathRootOp();
-            this.consume();
+        const path = new ModPath();
+        if (this.match('Name')) {
+            path.root = new ModPathRootName();
+            path.root.name = this.parseName();
+        } else if (this.match('Keyword', 'self')) {
+            path.root = new ModPathRootSelf();
+            path.root.kw = this.createAstToken(this.consume());
+        } else if (this.match('Keyword', 'crate')) {
+            path.root = new ModPathRootCrate();
+            path.root.kw = this.createAstToken(this.consume());
+        } else if (this.match('Symbol', ':>')) {
+            path.root = new ModPathRootOp();
+            path.root.op = this.createAstToken(this.consume());
         } else {
-            node.root = new ModPathRootName();
-            node.root.name = this.parseName();
+            throw new Error("Expected ModPath root");
         }
 
-        while (this.peek().txt === '::') {
+        while (this.match('Symbol', '::')) {
             const seg = new ModPathSegment();
-            this.consume(); // ::
+            seg.sep = this.createAstToken(this.consume());
             seg.name = this.parseName();
-            node.segments.push(seg);
+            path.segments.push(seg);
         }
-        return node;
+        return path;
     }
 
     parseName() {
-        const node = new Name();
-        const tok = this.expect('Name');
-        node.name = tok.txt;
-        return node;
+        if (this.match('Name')) {
+            const n = new Name();
+            const tok = this.consume();
+            n.name = tok.txt;
+            n.preSpace = tok.preSpace;
+            return n;
+        }
+        throw new Error("Expected Name");
+    }
+
+    parseStr() {
+        if (this.match('LiteralString')) {
+            const s = new Str();
+            const tok = this.consume();
+            s.str = tok.txt;
+            s.preSpace = tok.preSpace;
+            return s;
+        }
+        throw new Error("Expected String");
     }
 
     parseNum() {
-        const node = new Num();
-        const tok = this.expect('Numeral');
-        node.num = tok.txt;
-        return node;
+        if (this.match('Numeral')) {
+            const n = new Num();
+            const tok = this.consume();
+            n.num = tok.txt;
+            n.preSpace = tok.preSpace;
+            return n;
+        }
+        throw new Error("Expected Number");
     }
 
-    parseNumFromTok(tok) {
-        const node = new Num();
-        node.num = tok.txt;
-        return node;
+    // ----------------------------------------------------------------
+    // TYPES & PATTERNS
+    // ----------------------------------------------------------------
+
+    parseType() {
+        return this.parseExpr();
     }
 
     parseRefAttrs() {
-        const node = new RefAttrs();
-        // addrspace
+        const attrs = new RefAttrs();
         if (this.match('Keyword', 'in')) {
-            node.addrspace = this.parseName();
+            attrs.addrspace = { kw: this.createAstToken(this.consume()), name: this.parseName() };
         }
-        // lifetime
-        if (this.peek().txt === '/') {
-            // Parse list of /Name
-            node.lifetime = [];
-            while (this.match('Symbol', '/')) {
-                node.lifetime.push(this.parseName());
-            }
+        if (this.match('Symbol', '/')) {
+            const names = [];
+            do {
+                const slash = this.createAstToken(this.consume());
+                const n = this.parseName();
+                names.push({ kw: slash, l: n });
+            } while (this.match('Symbol', '/'));
+            attrs.lifetime = names;
         }
-        // refType
-        if (this.match('Keyword', 'const')) {
-            node.refType = new ConstRefType();
+        if (this.match('Keyword', 'mut')) {
+            attrs.refType = new MutRefType();
+            attrs.refType.kw = this.createAstToken(this.consume());
         } else if (this.match('Keyword', 'share')) {
-            node.refType = new ShareRefType();
-        } else if (this.match('Keyword', 'mut')) {
-            node.refType = new MutRefType();
+            attrs.refType = new ShareRefType();
+            attrs.refType.kw = this.createAstToken(this.consume());
+        } else if (this.match('Keyword', 'const')) {
+            attrs.refType = new ConstRefType();
+            attrs.refType.kw = this.createAstToken(this.consume());
         }
-        return node;
+        return attrs;
     }
 
     parseTypedParam() {
-        const node = new TypedParam();
-        if (this.match('Keyword', 'const')) {
-            node.constKw.present = true;
-            node.constKw.txt = 'const';
-        }
-        node.name = this.parseName();
-        this.expect('Symbol', '=');
-        node.type = this.parseExpr(); // Types are exprs
-        return node;
+        const p = new TypedParam();
+        p.constKw = this.parseOptToken('const');
+        p.name = this.parseName();
+        p.eq = this.createAstToken(this.expect('Symbol', '='));
+        p.type = this.parseExpr();
+        return p;
     }
 
-    // -------------------------------------------------------------------------
-    // Patterns
-    // -------------------------------------------------------------------------
+    parseParams() {
+        return this.parseDelimitedList(() => this.parseTypedParam(), [{ type: 'Symbol', txt: ')' }]);
+    }
+
+    parseTuplableName() {
+        if (this.match('Numeral')) {
+            const n = new NumTuplableName();
+            n.name = this.parseNum();
+            return n;
+        }
+        const n = new NameTuplableName();
+        n.name = this.parseName();
+        return n;
+    }
 
     parseUncondDestrPat() {
-        // Similar to pat but specific
-        const save = this.tokPos;
-        try {
-            const spec = this.parseDestrSpec();
-
-            if (this.peek().txt === '{') {
-                // Check for UncondFieldDestrField (| | pat) vs UncondPatFieldDestrPat (pat)
-                // Grammar:
-                // UncondPatFieldDestrPat ::= destrSpec "{" {uncondDestrPat ...} "}"
-                // UncondFieldDestrPat ::= destrSpec "{" {destrFieldUncond ...} "}"
-                // destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
-
-                this.expect('Symbol', '{');
-                const isUncondField = this.peek().txt === '|';
-
-                if (isUncondField) {
-                    const node = new UncondFieldDestrPat();
-                    node.specifiers = spec;
-                    node.fields = this.parseDelimitedList(() => this.parseUncondFieldDestrField());
-                    if (this.match('Symbol', '..')) node.extraFields.present = true;
-                    this.expect('Symbol', '}');
-                    return node;
-                } else {
-                    const node = new UncondPatFieldDestrPat();
-                    node.specifiers = spec;
-                    node.fields = this.parseDelimitedList(() => this.parseUncondDestrPat());
-                    if (this.match('Symbol', '..')) node.extraFields.present = true;
-                    this.expect('Symbol', '}');
-                    return node;
-                }
-            }
-
-            if (this.peek().type === 'Name') {
-                const node = new UncondVarDestrPat();
-                node.specifiers = spec;
-                node.name = this.parseName();
-                return node;
-            }
-        } catch (e) {
-            this.tokPos = save;
-        }
-
         if (this.match('Symbol', '_')) {
-            return new AlwaysDestrPat();
+            const pat = new AlwaysDestrPat();
+            pat.us = this.createAstToken(this.consume());
+            return pat;
         }
 
-        return this.parseSimplePat(); // Fallback
+        const mutKw = this.parseOptToken('mut');
+        const ops = [];
+        while (this.match('Symbol', '*')) {
+            const op = new RefTypePreOp();
+            op.star = this.createAstToken(this.consume());
+            op.attrs = this.parseRefAttrs();
+            ops.push(op);
+        }
+
+        if (this.match('Symbol', '{')) {
+            const actualPat = new UncondFieldDestrPat();
+            const openBrace = this.createAstToken(this.consume());
+            if (this.match('Symbol', '|')) actualPat = new UncondPatFieldDestrPat();
+
+            actualPat.openBrace = openBrace;
+
+            const items = [];
+            while (!this.match('Symbol', '}') && !this.match('EOF')) {
+                const li = new DelimitedListItem();
+                if (this.match('Symbol', '|')) {
+                    const f = new UncondFieldDestrField();
+                    f.openPipe = this.createAstToken(this.consume());
+                    f.var = this.parseTuplableName();
+                    f.closePipe = this.createAstToken(this.expect('Symbol', '|'));
+                    f.pat = this.parseUncondDestrPat();
+                    li.value = f;
+                } else {
+                    li.value = this.parseUncondDestrPat();
+                }
+                if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
+                    li.sep = this.createAstToken(this.consume());
+                }
+                items.push(li);
+            }
+
+            const list = new DelimitedList();
+            list.items = items;
+            actualPat.fields = list;
+
+            if (this.match('Symbol', '..')) actualPat.extraFields = this.createAstToken(this.consume());
+            actualPat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
+            return actualPat;
+        } else {
+            const pat = new UncondVarDestrPat();
+            const opSpec = new OpDestrSpec();
+            opSpec.mutKw = mutKw;
+            opSpec.ops = ops;
+            pat.specifiers = opSpec;
+
+            if (this.match('Name')) {
+                pat.name = this.parseName();
+                return pat;
+            } else if (this.match('Symbol', '(')) {
+                const sPat = new SimplePatDestrSpec();
+                sPat.type = this.parseExpr();
+                pat.specifiers = sPat;
+                return pat;
+            } else {
+                throw new Error("Expected Name or pattern");
+            }
+        }
     }
 
     parsePat() {
-        // sPat | dPat
-        // sPat ::= basicExpr
-        // dPat ::= destrSpec "{" ... | destrSpec Name ["=" sPat]
-
-        // Heuristic: Look for `{` after a potential prefix.
-        // Save pos.
-        const save = this.tokPos;
-        try {
-            // Try parse DestrPat
-            const spec = this.parseDestrSpec();
-
-            if (this.peek().txt === '{') {
-                // destrSpec "{" {destrField ...} ..
-                const node = new FieldDestrPat();
-                node.specifiers = spec;
-                this.expect('Symbol', '{');
-                node.fields = this.parseDelimitedList(() => this.parseFieldDestrField());
-                if (this.match('Symbol', '..')) {
-                    node.extraFields.present = true;
-                    node.extraFields.txt = '..';
-                }
-                this.expect('Symbol', '}');
-                return node;
-            }
-
-            if (this.peek().type === 'Name') {
-                // destrSpec Name ["=" sPat]
-                const node = new VarDestrPat();
-                node.base = new UncondVarDestrPat();
-                node.base.specifiers = spec;
-                node.base.name = this.parseName();
-
-                if (this.match('Symbol', '=')) {
-                    node.eq.present = true;
-                    node.eq.txt = '=';
-                    node.valPat = this.parseSimplePat();
-                }
-                return node;
-            }
-
-        } catch (e) {
-            // Fallback to sPat
-            this.tokPos = save;
+        if (this.match('Symbol', '_')) {
+            const p = new AlwaysDestrPat();
+            p.us = this.createAstToken(this.consume());
+            return p;
         }
 
-        return this.parseSimplePat();
+        const mutKw = this.parseOptToken('mut');
+        const ops = [];
+        while (this.match('Symbol', '*')) {
+            const op = new RefTypePreOp();
+            op.star = this.createAstToken(this.consume());
+            op.attrs = this.parseRefAttrs();
+            ops.push(op);
+        }
+
+        if (this.match('Symbol', '{')) {
+            const pat = new FieldDestrPat();
+            // Implementation similar to Uncond but with different Field class if needed
+            // Simplified for this context
+            const openBrace = this.createAstToken(this.consume());
+            const items = [];
+            while (!this.match('Symbol', '}') && !this.match('EOF')) {
+                const li = new DelimitedListItem();
+                if (this.match('Symbol', '|')) {
+                    const f = new FieldDestrField();
+                    f.openPipe = this.createAstToken(this.consume());
+                    f.var = this.parseTuplableName();
+                    f.closePipe = this.createAstToken(this.expect('Symbol', '|'));
+                    f.pat = this.parsePat();
+                    li.value = f;
+                } else {
+                    li.value = this.parsePat();
+                }
+                if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
+                    li.sep = this.createAstToken(this.consume());
+                }
+                items.push(li);
+            }
+            const list = new DelimitedList();
+            list.items = items;
+            pat.fields = list;
+            if (this.match('Symbol', '..')) pat.extraFields = this.createAstToken(this.consume());
+            pat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
+            return pat;
+        }
+
+        const name = this.parseName();
+
+        if (this.match('Symbol', '=')) {
+            const eq = this.createAstToken(this.consume());
+            const val = this.parseExpr();
+
+            const pat = new VarDestrPat();
+            const opSpec = new OpDestrSpec();
+            opSpec.mutKw = mutKw;
+            opSpec.ops = ops;
+            pat.base = new UncondVarDestrPat();
+            pat.base.specifiers = opSpec;
+            pat.base.name = name;
+            pat.eq = eq;
+            pat.valPat = new SimplePat();
+            pat.valPat.expr = val;
+            return pat;
+        }
+
+        const pat = new UncondVarDestrPat();
+        const opSpec = new OpDestrSpec();
+        opSpec.mutKw = mutKw;
+        opSpec.ops = ops;
+        pat.specifiers = opSpec;
+        pat.name = name;
+        return pat;
     }
 
-    // -------------------------------------------------------------------------
-    // Expressions (expr, basicExpr)
-    // -------------------------------------------------------------------------
+    // ----------------------------------------------------------------
+    // EXPRESSIONS
+    // ----------------------------------------------------------------
 
-    parseBasicExpr() {
-        const t = this.peek();
-
-        if (t.txt === '(') {
-            const node = new ParenExpr();
-            this.consume();
-            node.expr = this.parseExpr();
-            this.expect('Symbol', ')');
-            return node;
+    parsePrimary() {
+        if (this.match('Symbol', '(')) {
+            const e = new ParenExpr();
+            e.openParen = this.createAstToken(this.consume());
+            e.expr = this.parseExpr();
+            e.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            return e;
         }
 
-        if (t.type === 'LiteralString') {
-            const node = new StrExpr();
-            node.raw.str = this.consume().txt;
-            return node;
+        if (this.match('LiteralString')) {
+            const e = new StrExpr();
+            e.raw = this.parseStr();
+            return e;
         }
 
-        if (t.type === 'Numeral') {
-            const node = new NumExpr();
-            node.raw = this.parseNumFromTok(this.consume());
-            return node;
+        if (this.match('Numeral')) {
+            const e = new NumExpr();
+            e.raw = this.parseNum();
+            return e;
         }
 
-        if (t.txt === '{') {
+        if (this.match('Name') || this.match('Keyword', 'self') || this.match('Keyword', 'crate') || this.match('Symbol', ':>')) {
+            const e = new ModPathExpr();
+            e.path = this.parseModPath();
+            return e;
+        }
+
+        if (this.match('Symbol', '{')) {
             return this.parseTableConstructor();
         }
 
-        if (t.txt === '_') {
-            const node = new UnderscoreExpr();
-            this.consume();
-            return node;
+        if (this.match('Symbol', "'")) {
+            const labelStart = this.createAstToken(this.consume());
+            const label = this.parseName();
+            const colon = this.createAstToken(this.expect('Symbol', ':'));
+
+            if (this.match('Keyword', 'loop')) return this.parseLoopExpr(labelStart, label, colon);
+            if (this.match('Keyword', 'do')) return this.parseDoExpr(labelStart, label, colon);
         }
 
-        if (t.txt === '/' && this.peek(1).type === 'Name') {
-            // Lifetime
-            const node = new LifetimeExpr();
-            while (this.match('Symbol', '/')) {
-                const n = this.parseName();
-                node.names.push({ kw: new Token(), l: n }); // Populate token
-                node.names[node.names.length - 1].kw.txt = '/';
+        if (this.match('Keyword', 'loop')) return this.parseLoopExpr(new OptToken(), new Name(), new Token(":"));
+
+        if (this.match('Keyword', 'match')) {
+            const e = new MatchExpr();
+            e.matchKw = this.createAstToken(this.consume());
+            e.argument = this.parseExpr();
+            e.block = this.parseMatchTypeBlock();
+            return e;
+        }
+
+        if (this.match('Keyword', 'TODO!')) {
+            const e = new TodoExpr();
+            e.kw = this.createAstToken(this.consume());
+            e.msg = this.parseStr();
+            return e;
+        }
+
+        if (this.match('Keyword', '_COMP_TODO!')) {
+            const e = new CompTodoExpr();
+            e.kw = this.createAstToken(this.consume());
+            e.openParen = this.createAstToken(this.expect('Symbol', '('));
+            e.msg = this.parseStr();
+            e.comma = this.createAstToken(this.expect('Symbol', ','));
+            e.expr = this.parseExpr();
+            e.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            return e;
+        }
+
+        if (this.match('Symbol', '_')) {
+            const e = new UnderscoreExpr();
+            e.us = this.createAstToken(this.consume());
+            return e;
+        }
+
+        if (this.match('Keyword', 'const')) {
+            const kw = this.consume();
+            if (this.match('Symbol', '(')) {
+                const e = new ConstExpr();
+                e.constKw = this.createAstToken(kw);
+                e.openParen = this.createAstToken(this.consume());
+                e.expr = this.parseExpr();
+                e.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+                return e;
             }
-            return node;
+            throw new Error("Expected '(' after const in expression");
         }
 
-        if (t.txt === '..' && this.peek(1).txt !== '.') {
-            const node = new UnboundedRangeExpr();
-            this.consume();
-            return node;
+        if (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Symbol', '|')) {
+            return this.parseLambdaExpr();
         }
 
-        if (t.txt === 'TODO!') {
-            const node = new TodoExpr();
-            this.consume();
-            node.msg.str = this.expect('LiteralString').txt;
-            return node;
+        if (this.match('Keyword', 'do')) {
+            return this.parseDoExpr(new OptToken(), new Name(), new Token(":"));
         }
 
-        if (t.txt === '_COMP_TODO!') {
-            const node = new CompTodoExpr();
-            this.consume();
-            this.expect('Symbol', '(');
-            node.msg.str = this.expect('LiteralString').txt;
-            this.expect('Symbol', ',');
-            node.expr = this.parseExpr();
-            this.expect('Symbol', ')');
-            return node;
+        throw new Error("Unexpected token in expression: " + this.peek().txt);
+    }
+
+    parseLoopExpr(labelStart, label, colon) {
+        const e = new LoopExpr();
+        e.labelStart = labelStart;
+        e.label = label;
+        e.labelColon = colon;
+        e.loopKw = this.createAstToken(this.expect('Keyword', 'loop'));
+        e.retArrow = this.parseOptToken('->');
+        if (e.retArrow.present) e.retType = this.parseExpr();
+        e.body = this.parseBlock();
+        return e;
+    }
+
+    parseDoExpr(labelStart, label, colon) {
+        const e = new DoExpr();
+        e.labelStart = labelStart;
+        e.label = label;
+        e.labelColon = colon;
+        e.constKw = this.parseOptToken('const');
+        e.doKw = this.createAstToken(this.expect('Keyword', 'do'));
+        e.retArrow = this.parseOptToken('->');
+        if (e.retArrow.present) e.retType = this.parseExpr();
+        e.block = this.parseBlock();
+        return e;
+    }
+
+    parseLambdaExpr() {
+        const e = new LambdaExpr();
+        e.safety = new Safety();
+        if (this.match('Keyword', 'safe')) { e.safety.kind = "safe"; e.safety.kw = this.createAstToken(this.consume()); }
+        if (this.match('Keyword', 'unsafe')) { e.safety.kind = "unsafe"; e.safety.kw = this.createAstToken(this.consume()); }
+
+        e.pipe1 = this.createAstToken(this.expect('Symbol', '|'));
+        e.params = this.parseParams();
+        e.pipe2 = this.createAstToken(this.expect('Symbol', '|'));
+
+        e.retArrow = this.parseOptToken('->');
+        if (e.retArrow.present) {
+            e.retType = this.parseExpr();
+            e.doubleArrow = this.createAstToken(this.expect('Symbol', '=>'));
         }
 
-        if (t.txt === 'const' && this.peek(1).txt === '(') {
-            const node = new ConstExpr();
-            this.consume();
-            this.expect('Symbol', '(');
-            node.expr = this.parseExpr();
-            this.expect('Symbol', ')');
-            return node;
-        }
+        e.body = this.parseExpr();
+        return e;
+    }
 
-        // Lambda or Closure
-        if (t.txt === 'safe' || t.txt === 'unsafe' || t.txt === '|') {
-            // safety "|" ...
-            const node = new LambdaExpr();
-            if (t.txt !== '|') {
-                node.safety.kind = this.consume().txt;
+    parseUnary() {
+        const ops = [];
+        while (true) {
+            if (this.match('Symbol', '-')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
+            else if (this.match('Symbol', '!')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
+            else if (this.match('Symbol', '*')) {
+                const op = new RefTypePreOp(); op.star = this.createAstToken(this.consume()); op.attrs = this.parseRefAttrs(); ops.push(op);
             }
-            this.expect('Symbol', '|');
-            node.params = this.parseDelimitedList(() => this.parseTypedParam());
-            this.expect('Symbol', '|');
-
-            if (this.match('Symbol', '->')) {
-                node.retArrow.present = true;
-                node.retArrow.txt = '->';
-                node.retType = this.parseExpr();
+            else if (this.match('Symbol', '&')) {
+                const op = new RefPreOp(); op.amp = this.createAstToken(this.consume()); op.attrs = this.parseRefAttrs(); ops.push(op);
             }
-            this.expect('Symbol', '=>');
-            node.doubleArrow.txt = '=>';
-            node.body = this.parseExpr();
-            return node;
+            else if (this.match('Symbol', '[')) {
+                const op = new SlicePreOp(); op.open = this.createAstToken(this.consume()); op.close = this.createAstToken(this.expect('Symbol', ']')); ops.push(op);
+            }
+            else if (this.match('Keyword', 'dyn')) { const op = new DynPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Keyword', 'impl')) { const op = new ImplPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Keyword', 'union')) { const op = new UnionPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Symbol', '..')) { const op = new RangePreOp(); op.op = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Symbol', '@')) { ops.push(new AnnotationPreOp(this.parseAnnotation())); }
+            else if (this.match('Keyword', 'if')) {
+                const op = new IfPreOp();
+                op.ifKw = this.createAstToken(this.consume());
+                op.expr = this.parseExpr();
+                op.arrow = this.createAstToken(this.expect('Symbol', '=>'));
+                ops.push(op);
+            }
+            else break;
         }
 
-        // Fn Expr
-        if (t.txt === 'safe' || t.txt === 'unsafe' || t.txt === 'fn') {
-            const node = new FnExpr();
-            if (t.txt !== 'fn') {
-                node.safety.kind = this.consume().txt;
-            }
-            this.applyToken(node, this.expect('Keyword', 'fn'), 'fnKw');
-            this.expect('Symbol', '(');
+        let primary = this.parsePrimary();
 
-            // selfParams
-            if (this.peek().txt === '*' || this.peek().txt === '&') {
-                node.selfParamRefs.push(this.parseTypePreOp());
+        const sufOps = [];
+        while (true) {
+            if (this.match('Symbol', '.*')) {
+                const op = new DerefSubVar(); op.op = this.createAstToken(this.consume()); sufOps.push(op);
             }
-            if (this.match('Keyword', 'self')) {
-                node.selfParam.present = true;
-                if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
-                    node.selfParamDelim.txt = this.tokens[this.tokPos - 1].txt;
+            else if (this.match('Symbol', '.')) {
+                const dot = this.consume();
+                if (this.match('Symbol', ':')) {
+                    const op = new ConstDotSubVar(); op.op = this.createAstToken(dot); op.field = this.parseName(); sufOps.push(op);
+                } else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
+                    const call = new SelfableCall();
+                    call.dot = this.createAstToken(dot);
+                    call.method = this.parseName();
+                    call.args = this.parseArgs();
+                    sufOps.push(call);
+                } else {
+                    const op = new DotSubVar(); op.op = this.createAstToken(dot); op.field = this.parseTuplableName(); sufOps.push(op);
                 }
             }
-
-            node.params = this.parseDelimitedList(() => this.parseTypedParam());
-            this.expect('Symbol', ')');
-
-            if (this.match('Symbol', '->')) {
-                node.retArrow.present = true;
-                node.retType = this.parseExpr();
+            else if (this.match('Symbol', ':')) {
+                if (this.match('Symbol', '[')) {
+                    const op = new IdxSubVar();
+                    op.open = this.createAstToken(this.consume());
+                    op.expr = this.parseExpr();
+                    op.close = this.createAstToken(this.expect('Symbol', ']'));
+                    sufOps.push(op);
+                } else break;
             }
-
-            if (this.peek().txt === '{') {
-                node.body.present = true;
-                node.body.block = this.parseBlock();
+            else if (this.match('Symbol', '?')) { const op = new SufOp(); op.op = this.createAstToken(this.consume()); sufOps.push(op); }
+            else if (this.match('Symbol', '..')) { const op = new SufOp(); op.op = this.createAstToken(this.consume()); sufOps.push(op); }
+            else if (this.match('Keyword', 'try')) {
+                const op = new TryOp(); op.tryKw = this.createAstToken(this.consume()); op.block = this.parseMatchTypeBlock(); sufOps.push(op);
             }
-            return node;
+            else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
+                const call = new SelfableCall();
+                call.args = this.parseArgs();
+                sufOps.push(call);
+            }
+            else break;
         }
 
-        // Do Expr
-        if (t.txt === 'do' || (t.type === 'Name' && this.peek(1).txt === 'do')) { // Label
-            // [label] ["const"] "do" ...
-            const node = new DoExpr();
-
-            if (this.match('Symbol', "'")) {
-                node.labelStart.present = true;
-                node.labelStart.txt = "'";
-                node.label.name = this.parseName().name;
-                this.expect('Symbol', ':');
-            }
-
-            if (this.match('Keyword', 'const')) {
-                node.constKw.present = true;
-                node.constKw.txt = 'const';
-            }
-
-            this.applyToken(node, this.expect('Keyword', 'do'), 'doKw');
-            if (this.match('Symbol', '->')) {
-                node.retArrow.present = true;
-                node.retArrow.txt = '->';
-                node.retType = this.parseExpr();
-            }
-            node.block = this.parseBlock();
-            return node;
+        if (ops.length > 0 || sufOps.length > 0) {
+            const u = new UnaryExpr();
+            u.PreOps = ops;
+            u.primary = primary;
+            u.sufOps = sufOps;
+            return u;
         }
-
-        // statOrExpr (loop, match, TODO!)
-        // Only if not handled above (match/loop/TODO can be expressions)
-        // The logic for `statOrExpr` is partially in `parseStat`.
-        // But `loop` and `match` are in `statOrExpr`.
-        // Since `match` and `loop` start with keywords, we can check here.
-
-        // Note: `parseStat` handles `statOrExpr`. 
-        // But we are in `basicExpr` -> `statOrExpr`.
-        // So we can call `parseStatOrExpr(null)` (no extra annotations).
-        // However, `parseStat` returns `Stat` which is not an `Expr`.
-        // `LoopExpr` and `MatchExpr` exist.
-        // `LoopStat` exists.
-        // We need to instantiate Expr classes.
-
-        if (t.txt === 'loop') {
-            return this.parseLoopExpr();
-        }
-        if (t.txt === 'match') {
-            return this.parseMatchExpr();
-        }
-
-        // ModPath (Name, self, crate, :>)
-        if (t.type === 'Name' || t.txt === 'self' || t.txt === 'crate' || t.txt === ':>') {
-            return this.parseModPathExpr();
-        }
-
-        throw new Error(`Unexpected token in expression: ${t.txt}`);
+        return primary;
     }
 
-    parseLoopExpr() {
-        // Copy logic from LoopStat but return LoopExpr
-        const node = new LoopExpr();
-        if (this.match('Symbol', "'")) {
-            node.labelStart.present = true;
-            node.labelStart.txt = "'";
-            node.label.name = this.parseName().name;
-            this.expect('Symbol', ':');
+    parseArgs() {
+        if (this.match('Symbol', '(')) {
+            const a = new ParenArgs();
+            a.openParen = this.createAstToken(this.consume());
+            a.args = this.parseParams();
+            a.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            return a;
         }
-        this.applyToken(node, this.expect('Keyword', 'loop'), 'loopKw');
-        if (this.match('Symbol', '->')) {
-            node.retArrow.present = true;
-            node.retType = this.parseExpr();
+        if (this.match('LiteralString')) {
+            const a = new StrArgs();
+            a.args = this.parseStr();
+            return a;
         }
-        node.body = this.parseBlock();
-        return node;
+        if (this.match('Numeral')) {
+            const a = new NumArgs();
+            a.args = this.parseNum();
+            return a;
+        }
+        if (this.match('Symbol', '{')) {
+            const a = new TableArgs();
+            a.args = this.parseTableConstructor();
+            return a;
+        }
+        throw new Error("Expected arguments");
     }
 
-    parsePreOp() {
-        const t = this.peek();
-        if (t.txt === '-' || t.txt === '!' || t.txt === 'ex' || t.txt === 'mut' || t.txt === 'dyn' || t.txt === 'impl' || t.txt === 'union' || t.txt === '~' || t.txt == '..') {
-            const node = new PreOp();
-            node.type = 'SimplePreOp';
-            node.op = new Token(); // Hack: generic preop
-            node.op.txt = this.consume().txt;
-            return node;
-        }
+    parseExpr(precedence = 0) {
+        if (this.match('Keyword', 'fn')) return this.parseFnExpr();
 
-        if (t.txt === '*') {
-            return this.parseTypePreOp();
-        }
-        if (t.txt === '&') {
-            const node = new RefPreOp();
-            this.consume();
-            node.attrs = this.parseRefAttrs();
-            return node;
-        }
-        if (t.txt === '[' && this.peek(1).txt === ']') {
-            const node = new SlicePreOp();
-            this.consume(); // [
-            this.consume(); // ]
-            return node;
-        }
-        if (t.txt === '@' || t.txt === '---') {
-            const node = new AnnotationPreOp();
-            node.annotation = this.parseAnnotation(); // Might be inner or outer? Assuming inner
-            return node;
-        }
-        if (t.txt === 'if') {
-            const node = new IfPreOp();
-            this.consume();
-            node.expr = this.parseExpr();
-            this.expect('Symbol', '=>');
-            return node;
-        }
-
-        return null;
-    }
-
-    parseTypePreOp() {
-        if (this.peek().txt === '*') {
-            const node = new RefTypePreOp();
-            this.consume();
-            node.attrs = this.parseRefAttrs();
-            return node;
-        }
-        return null;
-    }
-
-    parseSufOp() {
-        // subvar | [dotOp Name] basicArgs | .. | ? | tryOp
-
-        if (this.peek().txt === '.*') {
-            const node = new DerefSubVar();
-            this.consume();
-            return node;
-        }
-
-        if (this.peek().txt === '.' || this.peek().txt === '.:') {
-            const isDot = this.peek().txt === '.';
-            const node = isDot ? new DotSubVar() : new ConstDotSubVar();
-            this.consume();
-            node.field = new NameTuplableName(); // Only Name allowed in dot suffix of expr?
-            // Grammar says `dotOp Name` for suffix. `dotOp` is `.` or `.:`
-            node.field.name = this.parseName();
-            return node;
-        }
-
-        if (this.peek().txt === '[') {
-            const node = new IdxSubVar();
-            this.consume();
-            node.expr = this.parseExpr();
-            this.expect('Symbol', ']');
-            return node;
-        }
-
-        if (this.peek().txt === '..' && this.peek(1).txt !== '.') {
-            const node = new RangePreOp(); // Or RangeSufOp? AST uses RangePreOp
-            this.consume();
-            return node;
-        }
-
-        if (this.peek().txt === '?') {
-            const node = new SufOp();
-            node.type = 'QuestionOp'; // Placeholder
-            this.consume();
-            return node;
-        }
-
-        if (this.peek().txt === 'try') {
-            const node = new TryOp();
-            this.consume();
-            node.block = this.parseMatchTypeBlock();
-            return node;
-        }
-
-        // Call
-        if (this.peek().txt === '(' || this.peek().type === 'LiteralString' || this.peek().type === 'Numeral' || this.peek().txt === '{') {
-            // Check if it has a dot name before it?
-            // `[dotOp Name] basicArgs`.
-            // If dot name exists, it's part of the suffix.
-            const node = new SelfableCall();
-            if (this.peek().txt === '.' || this.peek().txt === '.:') {
-                node.dot.present = true;
-                node.dot.txt = this.consume().txt;
-                node.method = this.parseName();
-            }
-
-            // Args
-            if (this.peek().txt === '(') {
-                node.args = new ParenArgs();
-                this.expect('Symbol', '(');
-                node.args.args = this.parseDelimitedList(() => this.parseExpr());
-                this.expect('Symbol', ')');
-            } else if (this.peek().type === 'LiteralString') {
-                node.args = new StrArgs();
-                const tok = this.consume();
-                node.args.args.str = tok.txt;
-            } else if (this.peek().type === 'Numeral') {
-                node.args = new NumArgs();
-                node.args.args = this.parseNumFromTok(this.consume());
-            } else if (this.peek().txt === '{') {
-                node.args = new TableArgs();
-                node.args.args = this.parseTableConstructor();
-            }
-            return node;
-        }
-
-        return null;
-    }
-
-    parseSelfableCall() {
-        // [dotOp Name] (basicArgs | tableconstructor)
-        const node = new SelfableCall();
-
-        // Optional dot name
-        if (this.peek().txt === '.' || this.peek().txt === '.:') {
-            node.dot.present = true;
-            node.dot.txt = this.consume().txt;
-            node.method = this.parseName();
-        }
-
-        // Args
-        if (this.peek().txt === '(') {
-            node.args = new ParenArgs();
-            this.expect('Symbol', '(');
-            node.args.args = this.parseDelimitedList(() => this.parseExpr());
-            this.expect('Symbol', ')');
-        } else if (this.peek().type === 'LiteralString') {
-            node.args = new StrArgs();
-            const tok = this.consume();
-            node.args.args.str = tok.txt;
-        } else if (this.peek().type === 'Numeral') {
-            node.args = new NumArgs();
-            const tok = this.consume();
-            node.args.args.num = tok.txt; // string in Num class? AST says Num has `num` property
-            // Convert to Num object
-            node.args.args = this.parseNumFromTok(tok);
-        } else if (this.peek().txt === '{') {
-            node.args = new TableArgs();
-            node.args.args = this.parseTableConstructor();
-        } else {
-            return null;
-        }
-        return node;
-    }
-
-    parseExpr() {
-        return this.parseExprPrecedence(0);
-    }
-
-    parseExprPrecedence(prec) {
-        let left = this.parseUnaryExpr();
+        let left = this.parseUnary();
 
         while (true) {
-            const opTok = this.peekBinOp();
-            if (!opTok) break;
-
-            const nextPrec = this.getPrecedence(opTok.txt);
-            if (nextPrec < prec) break;
-
-            this.consume();
-            const op = opTok.txt;
-            const nextP = this.isRightAssoc(op) ? nextPrec : nextPrec + 1;
-            const right = this.parseExprPrecedence(nextP);
-
-            const node = new BinExpr();
-            node.left = left;
-            node.op.txt = op;
-            node.right = right;
-            left = node;
+            const opTok = this.peek();
+            if (this.isBinOp(opTok)) {
+                const p = this.getPrecedence(opTok.txt);
+                if (p >= precedence) {
+                    this.consume();
+                    const right = this.parseExpr(p + 1);
+                    const bin = new BinExpr();
+                    bin.left = left;
+                    bin.op = this.createAstToken(opTok);
+                    bin.right = right;
+                    left = bin;
+                    continue;
+                }
+            }
+            break;
         }
         return left;
     }
 
-    peekBinOp() {
-        const t = this.peek();
-        if (t.type !== 'Symbol' && t.type !== 'Keyword') return null;
-        const valid = new Set(['+', '-', '*', '/', '//', '^', '%', '++', '<', '<=', '>', '>=', '==', '!=', 'and', 'or', '~', '|', '..', 'else', '**', 'as']);
-        if (valid.has(t.txt)) return t;
-        return null;
+    parseFnExpr() {
+        const e = new FnExpr();
+        e.safety = new Safety();
+        if (this.match('Keyword', 'safe')) { e.safety.kind = "safe"; e.safety.kw = this.createAstToken(this.consume()); }
+        if (this.match('Keyword', 'unsafe')) { e.safety.kind = "unsafe"; e.safety.kw = this.createAstToken(this.consume()); }
+
+        e.fnKw = this.createAstToken(this.expect('Keyword', 'fn'));
+        e.openParen = this.createAstToken(this.expect('Symbol', '('));
+
+        if (this.match('Symbol', '*')) {
+            const star = this.createAstToken(this.consume());
+            const attrs = this.parseRefAttrs();
+            e.selfParamRefs.push(new RefTypePreOp(star, attrs));
+        }
+
+        if (this.match('Keyword', 'self')) {
+            e.selfParam = new OptToken("self");
+            e.selfParam.present = true;
+            e.selfParam.txt = this.consume().txt;
+            e.selfParamDelim = this.createAstToken(this.consume());
+            if (!this.match('Symbol', ')')) e.params = this.parseParams();
+        } else {
+            e.params = this.parseParams();
+        }
+
+        e.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+
+        e.retArrow = this.parseOptToken('->');
+        if (e.retArrow.present) e.retType = this.parseExpr();
+
+        e.body = new OptBlockNode();
+        if (this.match('Symbol', '{')) {
+            e.body.present = true;
+            e.body.block = this.parseBlock();
+        }
+
+        return e;
+    }
+
+    isBinOp(tok) {
+        if (!tok) return false;
+        const ops = ["+", "-", "*", "/", "//", "^", "%", "++", "<", "<=", ">", ">=", "==", "!=", "and", "or", "~", "|", "..", "else", "**", "as"];
+        return ops.includes(tok.txt);
     }
 
     getPrecedence(op) {
-        // Custom precedence table
-        if (op === 'as') return 100;
-        if (op === '**') return 90;
-        if (op === '*' || op === '/' || op === '//' || op === '%') return 80;
-        if (op === '+' || op === '-') return 70;
-        if (op === '..') return 60;
-        if (op === '<' || op === '<=' || op === '>' || op === '>=' || op === '==' || op === '!=') return 50;
-        if (op === 'and') return 30;
-        if (op === 'or') return 20;
-        if (op === 'else') return 10;
-        return 0;
+        const p = {
+            "or": 1, "and": 2, "else": 3,
+            "==": 4, "!=": 4, "<": 4, "<=": 4, ">": 4, ">=": 4,
+            "|": 5, "~": 6, "..": 7,
+            "**": 8, "++": 9,
+            "*": 10, "/": 10, "//": 10, "%": 10,
+            "+": 10, "-": 10,
+            "as": 11
+        };
+        return p[op] || 0;
     }
 
-    // -------------------------------------------------------------------------
-    // Statements (stat)
-    // -------------------------------------------------------------------------
+    // ----------------------------------------------------------------
+    // STATEMENTS & BLOCKS
+    // ----------------------------------------------------------------
 
     parseBlock() {
-        const node = new BlockNode();
-        this.expect('Symbol', '{');
+        const b = new BlockNode();
+        b.openBrace = this.createAstToken(this.expect('Symbol', '{'));
+
         while (!this.match('Symbol', '}')) {
-            // Check for return stat at end?
-            // block ::= {stat} [retstat [";"]]
-            // We look ahead. If it is return/break/continue/throw, it's a retstat.
-            const t = this.peek().txt;
-            if (t === 'return' || t === 'break' || t === 'continue' || t === 'throw') {
-                node.retStat = this.parseRetStat();
-                if (this.match('Symbol', ';')) {
-                    // consume optional semicolon
-                }
-                // After retstat, block must end (or error). Grammar says [retstat] is last.
-                if (this.peek().txt !== '}') {
-                    throw new Error("Expected end of block after return statement");
-                }
-            } else {
-                node.stats.push(this.parseStat());
+            if (this.match('EOF')) break;
+            const tok = this.peek();
+            if (this.match('Keyword', 'return') || this.match('Keyword', 'break') || this.match('Keyword', 'continue') || this.match('Keyword', 'throw')) {
+                b.retStat = this.parseRetStat();
+                break;
             }
+            b.stats.push(this.parseStat());
         }
-        return node;
+
+        b.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
+        return b;
     }
 
     parseRetStat() {
-        const t = this.peek().txt;
-        if (t === 'return') return this.parseReturnStat();
-        if (t === 'break') return this.parseBreakStat();
-        if (t === 'continue') return this.parseContinueStat();
-        if (t === 'throw') return this.parseThrowStat();
+        const tok = this.peek();
+        if (this.match('Keyword', 'return')) {
+            const s = new ReturnStat();
+            s.returnKw = this.createAstToken(this.consume());
+            s.expr = new OptExpr();
+            if (!this.match('Symbol', ';') && !this.match('Symbol', '}')) {
+                s.expr.present = true;
+                s.expr.expr = this.parseExpr();
+            }
+            return s;
+        }
+        if (this.match('Keyword', 'break')) {
+            const s = new BreakStat();
+            s.breakKw = this.createAstToken(this.consume());
+            s.label = this.parseOptToken("'");
+            if (s.label.present) s.labelName = this.parseName();
+            s.expr = new OptExpr();
+            if (!this.match('Symbol', ';') && !this.match('Symbol', '}')) {
+                s.expr.present = true;
+                s.expr.expr = this.parseExpr();
+            }
+            return s;
+        }
+        if (this.match('Keyword', 'continue')) {
+            const s = new ContinueStat();
+            s.continueKw = this.createAstToken(this.consume());
+            s.label = this.parseOptToken("'");
+            if (s.label.present) s.labelName = this.parseName();
+            s.expr = new OptExpr();
+            if (!this.match('Symbol', ';') && !this.match('Symbol', '}')) {
+                s.expr.present = true;
+                s.expr.expr = this.parseExpr();
+            }
+            return s;
+        }
+        if (this.match('Keyword', 'throw')) {
+            const s = new ThrowStat();
+            s.throwKw = this.createAstToken(this.consume());
+            s.expr = this.parseExpr();
+            return s;
+        }
         throw new Error("Expected return statement");
     }
 
     parseStat() {
-        // Check annotations first
-        const annotations = this.parseAnnotations(false);
-
         if (this.match('Symbol', ';')) {
-            const node = new EmptyStat();
-            node.semicol.txt = ';';
-            return node;
+            const s = new EmptyStat();
+            s.semicol = this.createAstToken(this.consume());
+            return s;
         }
 
-        const peekTxt = this.peek().txt;
+        const anns = this.parseAnnotations();
+        if (anns.length > 0) {
+            const inner = this.parseStat();
+            return inner;
+        }
 
-        // Label
-        let labelStart = null;
-        let labelName = null;
+        if (this.match('Keyword', 'let')) {
+            const s = new LetStat();
+            s.letKw = this.createAstToken(this.consume());
+            s.pattern = this.parseUncondDestrPat();
+            s.eq = this.parseOptToken('=');
+            if (s.eq.present) s.value = this.parseExpr();
+            return s;
+        }
+
+        if (this.match('Keyword', 'drop')) {
+            const s = new DropStat();
+            s.dropKw = this.createAstToken(this.consume());
+            s.expr = this.parseExpr();
+            return s;
+        }
+
+        if (this.match('Keyword', 'if')) return this.parseIfStat();
+
+        if (this.match('Keyword', 'unsafe')) {
+            const s = new UnsafeStat();
+            s.unsafeKw = this.createAstToken(this.consume());
+            s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
+            while (!this.match('Symbol', '}')) s.stats.push(this.parseStat());
+            s.closeBrace = this.createAstToken(this.consume());
+            return s;
+        }
+
         if (this.match('Symbol', "'")) {
-            // Check if next is Name and then :
-            // Label ::= "'" Name ":"
-            // Grammar: [label] "loop" ...
-            // We need lookahead. If ' followed by Name followed by :
-            const save = this.tokPos;
-            if (this.peek().type === 'Name' && this.peek(1).txt === ':') {
-                labelStart = "'";
-                labelName = this.parseName().name;
-                this.expect('Symbol', ':');
-            } else {
-                this.tokPos = save;
-            }
+            const labelStart = this.createAstToken(this.consume());
+            const label = this.parseName();
+            const colon = this.createAstToken(this.expect('Symbol', ':'));
+            if (this.match('Keyword', 'while')) return this.parseWhileStat(labelStart, label, colon);
+            if (this.match('Keyword', 'for')) return this.parseForStat(labelStart, label, colon);
+            throw new Error("Expected while/for after label");
         }
 
-        if (peekTxt === 'loop') {
-            return this.parseLoopStat(labelStart, labelName, annotations);
+        if (this.match('Keyword', 'while')) return this.parseWhileStat(new OptToken(), new Name(), new Token(":"));
+        if (this.match('Keyword', 'for')) return this.parseForStat(new OptToken(), new Name(), new Token(":"));
+
+        if (this.match('Keyword', 'struct') || this.match('Keyword', 'enum') || this.match('Keyword', 'fn') || this.match('Keyword', 'trait') || this.match('Keyword', 'extern') || this.match('Keyword', 'impl') || this.match('Keyword', 'use') || this.match('Keyword', 'mod') || this.match('Keyword', 'const') || this.match('Keyword', 'union') || this.match('Keyword', 'ex')) {
+            return this.parseGlobStat();
         }
 
-        if (peekTxt === 'while') {
-            return this.parseWhileStat(labelStart, labelName, annotations);
-        }
-
-        if (peekTxt === 'for') {
-            return this.parseForStat(labelStart, labelName, annotations);
-        }
-
-        if (peekTxt === 'if') {
-            return this.parseIfStat(annotations);
-        }
-
-        if (peekTxt === 'unsafe') {
-            const node = new UnsafeStat();
-            node.annotations = annotations;
-            this.applyToken(node, this.expect('Keyword', 'unsafe'), 'unsafeKw');
-            this.expect('Symbol', '{');
-            node.openBrace.txt = '{';
-            node.stats = [];
-            while (!this.match('Symbol', '}')) {
-                node.stats.push(this.parseStat());
-            }
-            node.closeBrace.txt = '}';
-            return node;
-        }
-
-        if (peekTxt === 'let') {
-            const node = new LetStat();
-            node.annotations = annotations;
-            this.applyToken(node, this.expect('Keyword', 'let'), 'letKw');
-            node.pattern = this.parseUncondDestrPat();
-            if (this.match('Symbol', '=')) {
-                node.eq.present = true;
-                node.eq.txt = '=';
-                node.value = this.parseExpr();
-            }
-            return node;
-        }
-
-        if (peekTxt === 'drop') {
-            const node = new DropStat();
-            node.annotations = annotations;
-            this.applyToken(node, this.expect('Keyword', 'drop'), 'dropKw');
-            node.expr = this.parseExpr();
-            return node;
-        }
-
-        if (peekTxt === 'return') {
-            const node = new ReturnStat();
-            node.annotations = annotations;
-            this.applyToken(node, this.expect('Keyword', 'return'), 'returnKw');
-            if (!this.checkStatEnd()) {
-                node.expr = this.parseExpr();
-                node.expr.present = true;
-            }
-            return node;
-        }
-
-        if (peekTxt === 'break') {
-            const node = new BreakStat();
-            node.annotations = annotations;
-            this.applyToken(node, this.expect('Keyword', 'break'), 'breakKw');
-            if (this.match('Symbol', "'")) {
-                node.label.present = true;
-                node.label.txt = "'";
-                node.labelName = this.parseName();
-            }
-            if (!this.checkStatEnd()) {
-                node.expr = this.parseExpr();
-                node.expr.present = true;
-            }
-            return node;
-        }
-
-        if (peekTxt === 'continue') {
-            const node = new ContinueStat();
-            node.annotations = annotations;
-            this.applyToken(node, this.expect('Keyword', 'continue'), 'continueKw');
-            if (this.match('Symbol', "'")) {
-                node.label.present = true;
-                node.label.txt = "'";
-                node.labelName = this.parseName();
-            }
-            if (!this.checkStatEnd()) {
-                node.expr = this.parseExpr();
-                node.expr.present = true;
-            }
-            return node;
-        }
-
-        if (peekTxt === 'throw') {
-            const node = new ThrowStat();
-            node.annotations = annotations;
-            this.applyToken(node, this.expect('Keyword', 'throw'), 'throwKw');
-            node.expr = this.parseExpr();
-            return node;
-        }
-
-        if (peekTxt === 'match') {
-            return this.parseMatchStat(annotations);
-        }
-
-        if (peekTxt === '{') {
-            const node = new BlockStat();
-            node.annotations = annotations;
-            if (labelStart) {
-                node.labelStart.present = true;
-                node.labelStart.txt = "'";
-                node.label.name = labelName;
-                node.labelColon.txt = ':';
-            }
-            node.block = this.parseBlock();
-            return node;
-        }
-
-        // var "=" expr | var selfablecall
-        // Need to disambiguate.
-        // var = ...
-        // var (call)
-        // If it is a Name, we look ahead.
-        // If we see =, it's assign. If we see ( or . or .: or [, it might be call or suffix.
-        // But "var selfablecall" is a statement.
-        // So: var ( ... ) or var . ... ( ... )
-
-        const save = this.tokPos;
-        try {
+        if (this.match('Name') || this.match('Symbol', '(')) {
             const v = this.parseVar();
             if (this.match('Symbol', '=')) {
-                const node = new AssignStat();
-                node.annotations = annotations;
-                node.var = v;
-                node.eq.txt = '=';
-                node.expr = this.parseExpr();
-                return node;
-            } else {
-                // Must be call or suffix. 
-                // The grammar says: var selfablecall.
-                // selfablecall ::= [dotOp Name] (basicArgs | tableconstructor)
-                // But parseVar already consumes suffixes including calls.
-                // This is contradictory or overlapping.
-                // "var" rule: (Name | "(" expr ")") {{selfablecall} subvar}
-                // This means var includes calls.
-                // So "var selfablecall" means a var followed by ANOTHER call?
-                // e.g. `foo.bar()()` ? No, that's just var.
-                // Maybe `var` is strictly the LHS part, and `selfablecall` is the function call part?
-                // No, `var` includes `selfablecall`.
-                // Let's assume `var` parses the whole chain.
-                // If we are here, we didn't match `=`.
-                // Is it a statement?
-                // If the var chain ends with a call, it's a CallStat.
-                // Check if the last element in var.suffixes is a SelfableCall.
-                // If not, maybe it's invalid as a statement unless it's an expression statement?
-                // `expr` is not in `stat`. `stat` -> `statOrExpr`.
-                // `statOrExpr` -> `loop`, `match`, `TODO!`. (Not generic expr).
-                // So generic expressions are NOT statements.
-                // So it MUST be AssignStat or CallStat.
-                // If no `=`, we look for `selfablecall` at the end.
-
-                // Actually, parseVar is greedy. If I parse `foo()`, it's a var with a call suffix.
-                // The grammar `var selfablecall` suggests `var` is the target, `selfablecall` is the invocation.
-                // Perhaps `var` does NOT consume the final `selfablecall`?
-                // `var ::= (Name | "(" expr ")") {{selfablecall} subvar}`
-                // This includes `selfablecall` in the loop.
-                // Okay, let's look at `selfablecall` rule: `[dotOp Name] (basicArgs | tableconstructor)`.
-                // If I have `foo()`, `var` parses it.
-                // If I have `foo = 1`, `var` parses `foo`.
-                // So `var selfablecall` statement likely handles cases where we treat the parsed var as a call.
-
-                // Let's simplify: if parsed var has a Call suffix at the end, it's a CallStat.
-                const node = new CallStat();
-                node.annotations = annotations;
-                node.var = v;
-                // We might need to extract the call part if var ate it all, 
-                // but the class structure separates `var` and `call`.
-                // I will assume `parseVar` parses the LHS of an assignment or the object of a call.
-                // If it's a call stat, we expect `var` to be the object, then we parse `selfablecall`.
-                // So `parseVar` should stop before the call? 
-                // `var` rule allows `selfablecall`.
-                // Let's adjust `parseVar` to be `parseLValue`.
-                // But strict adherence to grammar:
-                // `stat ::= var selfablecall`
-                // This implies `parseVar` parses `Name` (or paren), then `subvar`s that are NOT `selfablecall`?
-                // `selfablecall` is a `sufop`. `subvar` is a `sufop`.
-                // They are mixed in the loop `{{selfablecall} subvar}`.
-                // This means `var` can be `foo.bar.baz()`.
-                // So `var` IS the call expression.
-                // Then `var selfablecall` in stat means `foo.bar.baz` followed by `()`.
-                // So `parseVar` should stop *before* a call if we are in a CallStat context?
-                // This context sensitivity is hard.
-                // Easier path: Parse full expression. If it looks like a call, wrap in CallStat.
-
-                // Actually, let's look at `expr`. `expr` -> `sufop` -> `selfablecall`.
-                // So expressions handle calls.
-                // Statement `var selfablecall` is redundant if `expr` was a statement, but it's not.
-                // So I will implement `parseVar` to parse the full chain.
-                // Then check if the last thing was a call.
-
-                // Re-reading: `stat ::= var selfablecall`.
-                // This suggests `var` does NOT include the final call.
-                // `var ::= ... {{selfablecall} subvar}`.
-                // Okay, I will parse `var` such that it parses everything *except* if the grammar for stat demands splitting.
-                // Given the AST class `CallStat` has `var` and `call`, I must split them.
-                // So `parseVar` should parse up to the point where a call starts?
-                // Or parse everything and then split?
-                // Let's try parsing `var` as the `Name` (or paren) followed by `subvar` (access/index) but NOT `basicArgs`?
-                // `selfablecall` uses `basicArgs` or `tableconstructor`.
-                // `subvar` uses `.*` `.` `[` `]`.
-                // So `var` = Root + (Access/Index)*.
-                // `stat` `var selfablecall` = (Root + Access*) + Call.
-                // This makes sense!
-
-                // Retrying with this logic:
-                this.tokPos = save; // Reset
-                const lval = this.parseVarLValue(); // Name + subvar (no calls)
-
-                // Now check for selfablecall
-                const call = this.parseSelfableCall(); // Can be null?
-                if (call) {
-                    const cs = new CallStat();
-                    cs.annotations = annotations;
-                    cs.var = lval;
-                    cs.call = call;
-                    return cs;
-                }
-
-                // If no call, maybe it was an assignment we missed? 
-                // No, we checked for '=' earlier.
-                // Maybe it's just `var`? Not allowed in stat grammar unless globstat.
-                throw new Error("Expected call or assignment");
+                const s = new AssignStat();
+                s.var = v;
+                s.eq = this.createAstToken(this.consume());
+                s.expr = this.parseExpr();
+                return s;
             }
-        } catch (e) {
-            this.tokPos = save;
+            if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
+                const s = new CallStat();
+                s.var = v;
+                s.call = new SelfableCall();
+                s.call = this.parseArgs();
+                return s;
+            }
+            return v;
         }
 
-        // Fallback to statOrExpr? No, stat includes statOrExpr.
-        return this.parseStatOrExpr(annotations);
+        if (this.match('Keyword', 'loop') || this.match('Keyword', 'match') || this.match('Keyword', 'TODO!')) {
+            const e = this.parseExpr();
+            if (e instanceof LoopExpr) {
+                const s = new LoopStat();
+                s.labelStart = e.labelStart; s.label = e.label; s.labelColon = e.labelColon;
+                s.loopKw = e.loopKw; s.retArrow = e.retArrow; s.retType = e.retType; s.body = e.body;
+                return s;
+            }
+            return e;
+        }
+
+        throw new Error("Unknown statement");
     }
 
-    parseIfStat(annotations) {
-        const node = new IfStat();
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'if'), 'ifKw');
-        node.condition = this.parseExpr();
-        node.consequent = this.parseBlockOrRet();
+    parseIfStat() {
+        const s = new IfStat();
+        s.ifKw = this.createAstToken(this.consume());
+        s.condition = this.parseExpr();
+        s.consequent = this.parseBlockOrRet();
 
-        // Else if chain
         while (this.match('Keyword', 'else')) {
+            const elseKw = this.createAstToken(this.consume());
             if (this.match('Keyword', 'if')) {
                 const alt = new IfAlternate();
-                alt.elseKw.txt = 'else';
-                alt.ifKw.txt = 'if';
+                alt.elseKw = elseKw;
+                alt.ifKw = this.createAstToken(this.consume());
                 alt.condition = this.parseExpr();
                 alt.body = this.parseBlockOrRet();
-                node.alternates.push(alt);
+                s.alternates.push(alt);
             } else {
-                node.elseKw.present = true;
-                node.elseKw.txt = 'else';
-                node.elseBlock = this.parseBlockOrRet();
+                s.elseKw = new OptToken("else");
+                s.elseKw.present = true;
+                s.elseKw.txt = "else";
+                s.elseBlock = this.parseBlockOrRet();
                 break;
             }
         }
-        return node;
+        return s;
     }
 
     parseBlockOrRet() {
-        if (this.peek().txt === '{') {
-            const node = new BlockOrRetBlock();
-            node.block = this.parseBlock();
-            return node;
+        if (this.match('Symbol', '{')) {
+            const b = new BlockOrRetBlock();
+            b.block = this.parseBlock();
+            return b;
         }
-        const node = new BlockOrRetRetStat();
-        node.retStat = this.parseRetStat();
-        if (this.match('Symbol', ';')) {
-            node.semicol.present = true;
-            node.semicol.txt = ';';
-        }
-        return node;
+        const r = new BlockOrRetRetStat();
+        r.retStat = this.parseRetStat();
+        if (this.match('Symbol', ';')) r.semicol = this.createAstToken(this.consume());
+        return r;
     }
 
-    parseWhileStat(labelStart, labelName, annotations) {
-        const node = new WhileStat();
-        node.annotations = annotations;
-        if (labelStart) {
-            node.labelStart.present = true;
-            node.labelStart.txt = "'";
-            node.label.name = labelName;
-            node.labelColon.txt = ':';
-        }
-        this.applyToken(node, this.expect('Keyword', 'while'), 'whileKw');
-        node.condition = this.parseExpr();
-        node.body = this.parseBlock();
-        return node;
+    parseWhileStat(labelStart, label, colon) {
+        const s = new WhileStat();
+        s.labelStart = labelStart; s.label = label; s.labelColon = colon;
+        s.whileKw = this.createAstToken(this.expect('Keyword', 'while'));
+        s.condition = this.parseExpr();
+        s.body = this.parseBlock();
+        return s;
     }
 
-    parseForStat(labelStart, labelName, annotations) {
-        const node = new ForStat();
-        node.annotations = annotations;
-        if (labelStart) {
-            node.labelStart.present = true;
-            node.labelStart.txt = "'";
-            node.label.name = labelName;
-            node.labelColon.txt = ':';
-        }
-        this.applyToken(node, this.expect('Keyword', 'for'), 'forKw');
-
-        if (this.match('Keyword', 'const')) {
-            node.constKw.present = true;
-            node.constKw.txt = 'const';
-        }
-
-        node.pattern = this.parseUncondDestrPat();
-        this.expect('Keyword', 'in');
-        node.inKw.txt = 'in';
-        node.iterable = this.parseExpr();
-        node.body = this.parseBlock();
-        return node;
+    parseForStat(labelStart, label, colon) {
+        const s = new ForStat();
+        s.labelStart = labelStart; s.label = label; s.labelColon = colon;
+        s.forKw = this.createAstToken(this.expect('Keyword', 'for'));
+        s.constKw = this.parseOptToken('const');
+        s.pattern = this.parseUncondDestrPat();
+        s.inKw = this.createAstToken(this.expect('Keyword', 'in'));
+        s.iterable = this.parseExpr();
+        s.body = this.parseBlock();
+        return s;
     }
 
-    // Helper to parse Name/Paren + subvars (no calls)
-    parseVarLValue() {
-        const node = new Var();
-        if (this.peek().txt === '(') {
+    parseVar() {
+        const v = new Var();
+        if (this.match('Name')) v.root = this.parseName();
+        else if (this.match('Symbol', '(')) {
             this.consume();
-            node.root = this.parseExpr();
+            v.root = this.parseExpr();
             this.expect('Symbol', ')');
-        } else {
-            node.root = this.parseName();
         }
 
-        // subvar ::= ".*" | dotOp tupleableName | "[" expr "]"
-        // Note: `selfablecall` is excluded here based on previous logic deduction.
         while (true) {
             if (this.match('Symbol', '.*')) {
-                const op = new DerefSubVar();
-                op.op.txt = '.*';
-                node.suffixes.push(op);
-            } else if (this.peek().txt === '.' || this.peek().txt === '.:') {
-                const op = this.peek().txt === '.' ? new DotSubVar() : new ConstDotSubVar();
-                op.op.txt = this.consume().txt;
-                // tupleableName ::= Name | integral
-                if (/[0-9]/.test(this.peek().txt) || (this.peek().txt === '0' && /[xX]/.test(this.peek(1).txt))) {
-                    op.field = new NumTuplableName();
-                    op.field.name = this.parseNum();
+                v.suffixes.push(new DerefSubVar(this.createAstToken(this.consume())));
+            } else if (this.match('Symbol', '.')) {
+                const dot = this.consume();
+                if (this.match('Symbol', ':')) {
+                    v.suffixes.push(new ConstDotSubVar(this.createAstToken(dot), this.parseName()));
+                } else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
+                    const call = new SelfableCall();
+                    call.dot = this.createAstToken(dot);
+                    call.method = this.parseName();
+                    call.args = this.parseArgs();
+                    v.suffixes.push(call);
                 } else {
-                    op.field = new NameTuplableName();
-                    op.field.name = this.parseName();
+                    v.suffixes.push(new DotSubVar(this.createAstToken(dot), this.parseTuplableName()));
                 }
-                node.suffixes.push(op);
-            } else if (this.match('Symbol', '[')) {
-                const op = new IdxSubVar();
-                op.open.txt = '[';
-                op.expr = this.parseExpr();
-                this.expect('Symbol', ']');
-                op.close.txt = ']';
-                node.suffixes.push(op);
-            } else {
-                break;
+            } else if (this.match('Symbol', ':')) {
+                if (this.match('Symbol', '[')) {
+                    const op = new IdxSubVar();
+                    op.open = this.createAstToken(this.consume());
+                    op.expr = this.parseExpr();
+                    op.close = this.createAstToken(this.expect('Symbol', ']'));
+                    v.suffixes.push(op);
+                } else break;
+            } else if (this.match('Symbol', '?')) { v.suffixes.push(new SufOp(this.createAstToken(this.consume()))); }
+            else if (this.match('Symbol', '..')) { v.suffixes.push(new SufOp(this.createAstToken(this.consume()))); }
+            else if (this.match('Keyword', 'try')) {
+                v.suffixes.push(new TryOp(this.createAstToken(this.consume()), this.parseMatchTypeBlock()));
             }
+            else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
+                v.suffixes.push(new SelfableCall(null, null, this.parseArgs()));
+            } else break;
         }
-        return node;
+        return v;
     }
 
-    // -------------------------------------------------------------------------
-    // GlobStats
-    // -------------------------------------------------------------------------
+    // ----------------------------------------------------------------
+    // GLOBAL DECLARATIONS
+    // ----------------------------------------------------------------
 
     parseGlobStat() {
-        const annotations = this.parseAnnotations(false); // false = inner
+        if (this.match('Symbol', ';')) return new EmptyGlobStat(this.createAstToken(this.consume()));
 
-        if (this.match('Symbol', ';')) {
-            const node = new EmptyGlobStat();
-            return node;
-        }
-
-        // OptExport
-        const exportNode = new Export();
+        const exportKw = new Export();
         if (this.match('Keyword', 'ex')) {
-            exportNode.kw.present = true;
+            exportKw.kw.present = true;
+            exportKw.kw.txt = this.consume().txt;
         }
 
-        const peekType = this.peek().type;
-        const peekTxt = this.peek().txt;
-
-        if (peekTxt === 'enum') {
-            return this.parseEnumDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'struct') {
-            return this.parseStructDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'union') {
-            return this.parseUnionDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'trait') {
-            return this.parseTraitDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'impl') {
-            return this.parseImplDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'use') {
-            return this.parseUseDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'mod') {
-            return this.parseModDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'const') {
-            return this.parseConstDecl(exportNode, annotations);
-        }
-
-        if (peekTxt === 'safe' || peekTxt === 'unsafe') {
-            // safety extern ...
-            const safety = this.parseSafety();
-            if (this.peek().txt === 'extern') {
-                return this.parseExternBlock(safety, exportNode, annotations);
+        if (this.match('Keyword', 'struct')) {
+            const s = new StructDecl();
+            s.export = exportKw;
+            s.structKw = this.createAstToken(this.consume());
+            s.name = this.parseName();
+            if (this.match('Symbol', '(')) {
+                s.openParen = this.createAstToken(this.consume());
+                s.params = this.parseParams();
+                s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
             }
-            // Could be impl or fn starting with safety
+            s.body = this.parseTableConstructor();
+            return s;
         }
 
-        if (peekTxt === 'fn') {
-            return this.parseFunctionDecl(exportNode, annotations);
+        if (this.match('Keyword', 'enum')) {
+            const s = new EnumDecl();
+            s.export = exportKw;
+            s.enumKw = this.createAstToken(this.consume());
+            s.name = this.parseName();
+            if (this.match('Symbol', '(')) {
+                s.openParen = this.createAstToken(this.consume());
+                s.params = this.parseParams();
+                s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            }
+            s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
+            s.fields = this.parseDelimitedList(() => this.parseEnumField(), [{ type: 'Symbol', txt: '}' }]);
+            if (this.match('Symbol', '..')) s.spread = this.createAstToken(this.consume());
+            s.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
+            return s;
         }
 
-        // If we have annotations but nothing matched, it might be a decorated regular globstat or error
-        // For now, assume logic above covers top level keywords
+        if (this.match('Keyword', 'fn')) {
+            const s = new FunctionDecl();
+            s.export = exportKw;
+            if (this.match('Keyword', 'safe')) { s.safety.kind = "safe"; s.safety.kw = this.createAstToken(this.consume()); }
+            if (this.match('Keyword', 'unsafe')) { s.safety.kind = "unsafe"; s.safety.kw = this.createAstToken(this.consume()); }
+            s.structKw = this.parseOptToken('struct');
+            s.fnKw = this.createAstToken(this.consume());
+            s.name = this.parseName();
+            s.openParen = this.createAstToken(this.expect('Symbol', '('));
+            s.params = this.parseParams();
+            s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            s.retArrow = this.parseOptToken('->');
+            if (s.retArrow.present) s.retType = this.parseExpr();
+            s.body = new OptBlockNode();
+            if (this.match('Symbol', '{')) {
+                s.body.present = true;
+                s.body.block = this.parseBlock();
+            }
+            return s;
+        }
 
-        throw new Error(`Unknown global statement starting with ${peekTxt}`);
+        if (this.match('Keyword', 'trait')) {
+            const s = new TraitDecl();
+            s.export = exportKw;
+            s.traitKw = this.createAstToken(this.consume());
+            s.name = this.parseName();
+            if (this.match('Symbol', '(')) {
+                s.openParen = this.createAstToken(this.consume());
+                s.params = this.parseParams();
+                s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            }
+            if (this.match('Keyword', 'where')) s.where = this.parseWhereClauses();
+            s.body = this.parseTableConstructor();
+            return s;
+        }
+
+        if (this.match('Keyword', 'extern')) {
+            const s = new ExternBlock();
+            if (this.match('Keyword', 'safe')) { s.safety.kind = "safe"; s.safety.kw = this.createAstToken(this.consume()); }
+            if (this.match('Keyword', 'unsafe')) { s.safety.kind = "unsafe"; s.safety.kw = this.createAstToken(this.consume()); }
+            s.externKw = this.createAstToken(this.consume());
+            s.abiName = this.parseStr();
+            s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
+            while (!this.match('Symbol', '}')) s.stats.push(this.parseGlobStat());
+            s.closeBrace = this.createAstToken(this.consume());
+            return s;
+        }
+
+        if (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Keyword', 'impl')) {
+            const s = new ImplDecl();
+            s.export = exportKw;
+            if (this.match('Keyword', 'safe')) { s.safety.kind = "safe"; s.safety.kw = this.createAstToken(this.consume()); }
+            if (this.match('Keyword', 'unsafe')) { s.safety.kind = "unsafe"; s.safety.kw = this.createAstToken(this.consume()); }
+            s.implKw = this.createAstToken(this.expect('Keyword', 'impl'));
+            if (this.match('Symbol', '(')) {
+                s.openParen = this.createAstToken(this.consume());
+                s.params = this.parseParams();
+                s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            }
+            const maybeTrait = this.parseExpr();
+            if (this.match('Keyword', 'for')) {
+                s.forKw = this.createAstToken(this.consume());
+                s.traitType = maybeTrait;
+                s.targetType = this.parseExpr();
+            } else {
+                s.targetType = maybeTrait;
+            }
+            if (this.match('Keyword', 'where')) s.where = this.parseWhereClauses();
+            s.body = this.parseTableConstructor();
+            return s;
+        }
+
+        if (this.match('Keyword', 'use')) {
+            const s = new UseDecl();
+            s.export = exportKw;
+            s.useKw = this.createAstToken(this.consume());
+            s.path = this.parseModPath();
+            s.variant = this.parseUseVariant();
+            return s;
+        }
+
+        if (this.match('Keyword', 'mod')) {
+            const s = new ModDecl();
+            s.export = exportKw;
+            s.modKw = this.createAstToken(this.consume());
+            s.name = this.parseName();
+            if (this.match('Symbol', '{')) {
+                s.openBrace = this.createAstToken(this.consume());
+                while (!this.match('Symbol', '}')) s.chunk.push(this.parseGlobStat());
+                s.closeBrace = this.createAstToken(this.consume());
+            }
+            return s;
+        }
+
+        if (this.match('Keyword', 'const')) {
+            const s = new ConstDecl();
+            s.export = exportKw;
+            s.constKw = this.createAstToken(this.consume());
+            s.pattern = this.parseUncondDestrPat();
+            s.eq = this.createAstToken(this.expect('Symbol', '='));
+            s.value = this.parseExpr();
+            return s;
+        }
+
+        if (this.match('Keyword', 'union')) {
+            const s = new UnionDecl();
+            s.export = exportKw;
+            s.unionKw = this.createAstToken(this.consume());
+            s.name = this.parseName();
+            if (this.match('Symbol', '(')) {
+                s.openParen = this.createAstToken(this.consume());
+                s.params = this.parseParams();
+                s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            }
+            s.body = this.parseTableConstructor();
+            return s;
+        }
+
+        throw new Error("Unknown global declaration");
     }
 
     parseEnumField() {
-        const node = new EnumField();
-        node.annotations = this.parseAnnotations(false);
-        node.export = new Export(); // Fields can have 'ex'?
+        const f = new EnumField();
+        f.annotations = this.parseAnnotations();
         if (this.match('Keyword', 'ex')) {
-            node.export.kw.present = true;
+            f.export.kw.present = true;
+            f.export.kw.txt = this.consume().txt;
         }
-        node.name = this.parseName();
-        node.table = new OptTableConstructor();
-        // Check for table constructor immediately following name
-        if (this.peek().txt === '{') {
-            node.table.present = true;
-            node.table.tbl = this.parseTableConstructor();
+        f.name = this.parseName();
+        if (this.match('Symbol', '{')) {
+            f.table.present = true;
+            f.table.tbl = this.parseTableConstructor();
         }
-        node.outerAnnotations = this.parseAnnotations(true); // Outer
-        return node;
+        f.outerAnnotations = this.parseAnnotations(true);
+        return f;
     }
 
     parseWhereClauses() {
-        if (!this.match('Keyword', 'where')) return new WhereClauses(); // empty
-        const node = new WhereClauses();
-        node.whereKw.txt = 'where';
-        node.clauses = this.parseDelimitedList(() => this.parseWhereClause());
-        return node;
+        const w = new WhereClauses();
+        w.whereKw = this.createAstToken(this.expect('Keyword', 'where'));
+        w.clauses = this.parseDelimitedList(() => this.parseWhereClause(), [{ type: 'Symbol', txt: '{' }]);
+        return w;
     }
 
     parseWhereClause() {
-        const node = new WhereClause();
+        const c = new WhereClause();
         if (this.match('Keyword', 'Self')) {
-            // Name class handles string
-            node.name = new Name();
-            node.name.name = 'Self';
+            c.name = new Name(); c.name.name = this.consume().txt;
         } else {
-            node.name = this.parseName();
+            c.name = this.parseName();
         }
-        this.expect('Symbol', ':');
-        node.type = this.parseExpr();
-        return node;
+        c.colon = this.createAstToken(this.expect('Symbol', ':'));
+        c.type = this.parseExpr();
+        return c;
     }
 
     parseUseVariant() {
         if (this.match('Keyword', 'as')) {
-            const node = new UseAs();
-            node.name = this.parseName();
-            return node;
+            const v = new UseAs();
+            v.asKw = this.createAstToken(this.consume());
+            v.name = this.parseName();
+            return v;
         }
-        if (this.peek().txt === '::' && this.peek(1).txt === '*') {
-            const node = new StarUseVariant();
-            this.consume(); // ::
-            this.consume(); // *
-            return node;
+        if (this.match('Symbol', '::*')) {
+            const v = new StarUseVariant();
+            v.kw = this.createAstToken(this.consume());
+            return v;
         }
-        if (this.peek().txt === '::' && this.peek(1).txt === '{') {
-            const node = new BraceUseVariant();
-            this.consume(); // ::
-            this.expect('Symbol', '{');
-
-            if (this.match('Keyword', 'self')) {
-                node.selfKw.present = true;
-                if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
-                    node.selfDelim.txt = this.tokens[this.tokPos - 1].txt;
+        if (this.match('Symbol', '::')) {
+            const cc = this.peek(1);
+            if (cc && cc.txt === '{') {
+                const v = new BraceUseVariant();
+                v.colonColon = this.createAstToken(this.consume());
+                v.openBrace = this.createAstToken(this.consume());
+                if (this.match('Keyword', 'self')) {
+                    v.selfKw.present = true;
+                    v.selfKw.txt = this.consume().txt;
+                    if (this.match('Symbol', ',') || this.match('Symbol', ';')) v.selfDelim = this.createAstToken(this.consume());
                 }
+                v.items = this.parseDelimitedList(() => this.parseName(), [{ type: 'Symbol', txt: '}' }]);
+                v.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
+                return v;
             }
-
-            node.items = this.parseDelimitedList(() => this.parseName());
-            this.expect('Symbol', '}');
-            return node;
         }
         return new SimpleUseVariant();
     }
 
     parseTableConstructor() {
-        const node = new TableConstructor();
-        this.expect('Symbol', '{');
-        node.fields = this.parseDelimitedList(() => this.parseField());
-        this.expect('Symbol', '}');
-        return node;
+        const t = new TableConstructor();
+        t.openBrace = this.createAstToken(this.expect('Symbol', '{'));
+
+        while (!this.match('Symbol', '}')) {
+            const li = new DelimitedListItem();
+            if (this.match('Name')) {
+                const peekEq = this.peek(1);
+                if (peekEq && peekEq.txt === '=') {
+                    const f = new NamedField();
+                    f.name = this.parseName();
+                    f.eq = this.createAstToken(this.consume());
+                    f.expr = this.parseExpr();
+                    li.value = f;
+                    if (this.match('Symbol', ',') || this.match('Symbol', ';')) li.sep = this.createAstToken(this.consume());
+                    t.fields.items.push(li);
+                    continue;
+                }
+            }
+
+            const f = new ExprField();
+            f.expr = this.parseExpr();
+            li.value = f;
+            if (this.match('Symbol', ',') || this.match('Symbol', ';')) li.sep = this.createAstToken(this.consume());
+            t.fields.items.push(li);
+        }
+
+        t.closeBrace = this.createAstToken(this.consume());
+        return t;
     }
 
     parseMatchTypeBlock() {
-        const node = new MatchTypeBlock();
+        const b = new MatchTypeBlock();
         if (this.match('Symbol', '->')) {
-            node.retArrow.present = true;
-            node.retArrow.txt = '->';
-            node.retType = this.parseExpr();
+            b.retArrow = this.createAstToken(this.consume());
+            b.retType = this.parseExpr();
         }
-        this.expect('Symbol', '{');
-        node.items = this.parseDelimitedList(() => this.parseMatchItem());
-        this.expect('Symbol', '}');
-        return node;
+        b.openBrace = this.createAstToken(this.expect('Symbol', '{'));
+        b.items = this.parseDelimitedList(() => this.parseMatchItem(), [{ type: 'Symbol', txt: '}' }]);
+        b.closeBrace = this.createAstToken(this.consume());
+        return b;
     }
 
     parseMatchItem() {
-        const node = new MatchItem();
-        node.pat = this.parsePat();
+        const i = new MatchItem();
+        i.pat = this.parsePat();
         if (this.match('Keyword', 'if')) {
-            node.ifKw.present = true;
-            node.ifKw.txt = 'if';
-            node.ifExpr = this.parseExpr();
+            i.ifKw.present = true;
+            i.ifKw.txt = this.consume().txt;
+            i.ifExpr = this.parseExpr();
         }
-        this.expect('Symbol', '=>');
-        node.expr = this.parseExpr();
-        return node;
+        i.arrow = this.createAstToken(this.expect('Symbol', '=>'));
+        i.expr = this.parseExpr();
+        return i;
     }
 
-    parseStructDecl(exportNode, annotations) {
-        const node = new StructDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'struct'), 'structKw');
-        node.name = this.parseName();
-
-        // Params
-        if (this.match('Symbol', '(')) {
-            node.openParen.present = true;
-            node.openParen.txt = '(';
-            node.params = this.parseDelimitedList(() => this.parseTypedParam());
-            this.expect('Symbol', ')');
-            node.closeParen.txt = ')';
-        }
-
-        node.body = this.parseTableConstructor();
-        return node;
-    }
-
-    parseEnumDecl(exportNode, annotations) {
-        const node = new EnumDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'enum'), 'enumKw');
-        node.name = this.parseName();
-
-        if (this.match('Symbol', '(')) {
-            node.openParen.present = true;
-            node.openParen.txt = '(';
-            node.params = this.parseDelimitedList(() => this.parseTypedParam());
-            this.expect('Symbol', ')');
-            node.closeParen.txt = ')';
-        }
-
-        this.expect('Symbol', '{');
-        node.openBrace.txt = '{';
-        node.fields = this.parseDelimitedList(() => this.parseEnumField(), true); // true = allow trailing spread?
-        if (this.match('Symbol', '..')) {
-            node.spread.present = true;
-            node.spread.txt = '..';
-        }
-        this.expect('Symbol', '}');
-        node.closeBrace.txt = '}';
-        return node;
-    }
-
-    parseFunctionDecl(exportNode, annotations) {
-        const node = new FunctionDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-
-        // [safety] ["struct"]
-        node.safety = this.parseSafety();
-        if (this.match('Keyword', 'struct')) {
-            node.structKw.present = true;
-            node.structKw.txt = 'struct';
-        }
-
-        this.applyToken(node, this.expect('Keyword', 'fn'), 'fnKw');
-        node.name = this.parseName();
-
-        this.expect('Symbol', '(');
-        node.openParen.txt = '(';
-
-        // Self params
-        if (this.peek().txt === 'self' || (this.peek().txt === '*' || this.peek().txt === '&')) {
-            // Parse selfParams
-            while (this.peek().txt === '*' || this.peek().txt === '&') {
-                // refAttrs prefix
-                // Simplified: assuming *mut self etc.
-                // Parsing full refAttrs
-                const preOp = this.parseTypePreOp(); // e.g. *
-                if (preOp) node.selfParamRefs.push(preOp);
-            }
-            if (this.match('Keyword', 'self')) {
-                node.selfParam.present = true;
-                node.selfParam.txt = 'self';
-                if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
-                    node.selfParamDelim.txt = this.tokens[this.tokPos - 1].txt;
-                }
-            }
-        }
-
-        node.params = this.parseDelimitedList(() => this.parseTypedParam());
-        this.expect('Symbol', ')');
-        node.closeParen.txt = ')';
-
-        if (this.match('Symbol', '->')) {
-            node.retArrow.present = true;
-            node.retArrow.txt = '->';
-            node.retType = this.parseExpr();
-        }
-
-        if (this.peek().txt === '{') {
-            node.body.present = true;
-            node.body.block = this.parseBlock();
-        }
-
-        return node;
-    }
-
-    parseTraitDecl(exportNode, annotations) {
-        const node = new TraitDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'trait'), 'traitKw');
-        node.name = this.parseName();
-
-        if (this.match('Symbol', '(')) {
-            node.openParen.present = true;
-            node.params = this.parseDelimitedList(() => this.parseTypedParam());
-            this.expect('Symbol', ')');
-            node.closeParen.txt = ')';
-        }
-
-        node.where = this.parseWhereClauses();
-        node.body = this.parseTableConstructor();
-        return node;
-    }
-
-    parseImplDecl(exportNode, annotations) {
-        const node = new ImplDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-
-        // ["unsafe"] "impl"
-        // Note: parseSafety consumes 'safe' or 'unsafe'. 
-        // But impl grammar: optexport ["unsafe"] "impl". 
-        // If we consumed safety before, we must check if next is 'impl'.
-        // If not, it might be ExternBlock.
-        if (node.safety.kind === 'default' && this.peek().txt === 'unsafe') {
-            node.safety.kind = 'unsafe';
-            this.consume();
-        }
-
-        this.applyToken(node, this.expect('Keyword', 'impl'), 'implKw');
-
-        if (this.match('Symbol', '(')) {
-            node.openParen.present = true;
-            node.params = this.parseDelimitedList(() => this.parseTypedParam());
-            this.expect('Symbol', ')');
-            node.closeParen.txt = ')';
-        }
-
-        // [basicExpr "for"] basicExpr
-        // This is tricky. We need to parse basicExpr. If followed by "for", it's the trait.
-        // Otherwise, it's the type.
-        // But the grammar says `basicExpr "for" basicExpr`.
-        // We can parse the first expr. Then peek for "for".
-        const save = this.tokPos;
-        try {
-            const potentialTrait = this.parseExpr();
-            if (this.match('Keyword', 'for')) {
-                node.traitType = potentialTrait;
-                node.forKw.present = true;
-                node.forKw.txt = 'for';
-                node.targetType = this.parseExpr();
-            } else {
-                // Backtrack: the first expr was actually the targetType
-                this.tokPos = save;
-                node.targetType = this.parseExpr();
-            }
-        } catch (e) {
-            // If parsing failed, maybe it was just the targetType
-            this.tokPos = save;
-            node.targetType = this.parseExpr();
-        }
-
-        node.where = this.parseWhereClauses();
-        node.body = this.parseTableConstructor();
-        return node;
-    }
-
-    parseUseDecl(exportNode, annotations) {
-        const node = new UseDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'use'), 'useKw');
-        node.path = this.parseModPath();
-        node.variant = this.parseUseVariant();
-        return node;
-    }
-
-    parseModDecl(exportNode, annotations) {
-        const node = new ModDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'mod'), 'modKw');
-        node.name = this.parseName();
-
-        if (this.match('Symbol', '{')) {
-            node.openBrace.present = true;
-            node.chunk = [];
-            while (!this.match('Symbol', '}')) {
-                node.chunk.push(this.parseGlobStat());
-            }
-            node.closeBrace.txt = '}';
-        }
-        return node;
-    }
-
-    parseConstDecl(exportNode, annotations) {
-        const node = new ConstDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'const'), 'constKw');
-        node.pattern = this.parseUncondDestrPat();
-        this.expect('Symbol', '=');
-        node.eq.txt = '=';
-        node.value = this.parseExpr();
-        return node;
-    }
-
-    parseUnionDecl(exportNode, annotations) {
-        const node = new UnionDecl();
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'union'), 'unionKw');
-        node.name = this.parseName();
-
-        if (this.match('Symbol', '(')) {
-            node.openParen.present = true;
-            node.params = this.parseDelimitedList(() => this.parseTypedParam());
-            this.expect('Symbol', ')');
-            node.closeParen.txt = ')';
-        }
-
-        node.body = this.parseTableConstructor();
-        return node;
-    }
-
-    parseExternBlock(safety, exportNode, annotations) {
-        const node = new ExternBlock();
-        node.safety = safety;
-        node.export = exportNode;
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'extern'), 'externKw');
-        node.abiName = new Str(); // Parse literal string
-        const strTok = this.expect('LiteralString');
-        node.abiName.str = strTok.txt;
-
-        this.expect('Symbol', '{');
-        node.openBrace.txt = '{';
-        node.stats = [];
-        while (!this.match('Symbol', '}')) {
-            node.stats.push(this.parseGlobStat());
-        }
-        node.closeBrace.txt = '}';
-        return node;
-    }
-
-    parseLoopStat(labelStart, labelName, annotations) {
-        const node = new LoopStat();
-        node.annotations = annotations;
-        if (labelStart) {
-            node.labelStart.present = true;
-            node.labelStart.txt = "'";
-            node.label.name = labelName;
-            node.labelColon.txt = ':';
-        }
-        this.applyToken(node, this.expect('Keyword', 'loop'), 'loopKw');
-        if (this.match('Symbol', '->')) {
-            node.retArrow.present = true;
-            node.retArrow.txt = '->';
-            node.retType = this.parseExpr();
-        }
-        node.body = this.parseBlock();
-        return node;
-    }
-
-    parseMatchStat(annotations) {
-        const node = new MatchStat();
-        node.annotations = annotations;
-        this.applyToken(node, this.expect('Keyword', 'match'), 'matchKw');
-        node.argument = this.parseExpr();
-        node.block = this.parseMatchTypeBlock();
-        return node;
-    }
-
-    parseStatOrExpr(annotations) {
-        // [label] "loop" ...
-        // [label] "match" ...
-        // "TODO!" ...
-
-        let labelStart = null;
-        let labelName = null;
-        if (this.match('Symbol', "'")) {
-            const save = this.tokPos;
-            if (this.peek().type === 'Name' && this.peek(1).txt === ':') {
-                labelName = this.parseName().name;
-                this.expect('Symbol', ':');
-                labelStart = "'";
-            } else {
-                this.tokPos = save;
-            }
-        }
-
-        if (this.peek().txt === 'loop') {
-            return this.parseLoopStat(labelStart, labelName, annotations);
-        }
-
-        if (this.peek().txt === 'match') {
-            return this.parseMatchStat(annotations); // Match doesn't take label in grammar? statOrExpr says [label] loop... match...
-            // Wait, `statOrExpr ::= [label] "loop" ... | "match" ...`
-            // So match has no label in grammar line provided, but stat says `[label] "match"`?
-            // Grammar check:
-            // stat ::= ... | statOrExpr | ...
-            // statOrExpr ::= [label] "loop" ... | "match" ...
-            // Stat has explicit `[label] "match"`? No.
-            // Stat has: `[label] "while" ...`
-            // It seems match has no label in this grammar version.
-            return this.parseMatchStat(annotations);
-        }
-
-        if (this.peek().txt === 'TODO!') {
-            const node = new TodoStat();
-            node.annotations = annotations;
-            node.kw.txt = 'TODO!';
-            this.consume();
-            node.msg = new Str();
-            node.msg.str = this.expect('LiteralString').txt;
-            return node;
-        }
-
-        // If nothing matches, it might be a block? `[label] "{" block "}"` is blockstat
-        if (this.peek().txt === '{') {
-            return this.parseBlockStat(annotations, labelStart, labelName);
-        }
-
-        throw new Error("Expected statOrExpr");
-    }
-
-    parseBlockStat(annotations, labelStart, labelName) {
-        const node = new BlockStat();
-        node.annotations = annotations;
-        if (labelStart) {
-            node.labelStart.present = true;
-            node.labelStart.txt = "'";
-            node.label.name = labelName;
-            node.labelColon.txt = ':';
-        }
-        node.block = this.parseBlock();
-        return node;
-    }
-
-    isRightAssoc(op) {
-        return op === '**' || op === 'else'; // assume else (ternary) is right assoc
-    }
-
-    parseUnaryExpr() {
-        const ops = [];
-        while (this.peekPreOp()) {
-            ops.push(this.parsePreOp());
-        }
-
-        let atom = this.parseBasicExpr();
-
-        // Suffixes
-        const suffixes = [];
+    parseAnnotations(isOuter = false) {
+        const annotations = [];
         while (true) {
-            const suf = this.parseSufOp();
-            if (!suf) break;
-            suffixes.push(suf);
-        }
-
-        if (ops.length > 0 || suffixes.length > 0) {
-            const node = new UnaryExpr();
-            node.PreOps = ops;
-            node.primary = atom;
-            node.sufOps = suffixes;
-            return node;
-        }
-        return atom;
-    }
-
-    parseMatchExpr() {
-        const node = new MatchExpr();
-        this.applyToken(node, this.expect('Keyword', 'match'), 'matchKw');
-        node.argument = this.parseExpr();
-        node.block = this.parseMatchTypeBlock();
-        return node;
-    }
-
-    // -------------------------------------------------------------------------
-    // Components & Helpers
-    // -------------------------------------------------------------------------
-
-    parseReturnStat() {
-        const node = new ReturnStat();
-        this.consume();
-        if (!this.checkStatEnd()) {
-            node.expr = this.parseExpr();
-            node.expr.present = true;
-        }
-        return node;
-    }
-
-    parseBreakStat() {
-        const node = new BreakStat();
-        this.consume();
-        if (this.match('Symbol', "'")) {
-            node.label.present = true;
-            node.labelName = this.parseName();
-        }
-        if (!this.checkStatEnd()) {
-            node.expr = this.parseExpr();
-            node.expr.present = true;
-        }
-        return node;
-    }
-
-    parseContinueStat() {
-        const node = new ContinueStat();
-        this.consume();
-        if (this.match('Symbol', "'")) {
-            node.label.present = true;
-            node.labelName = this.parseName();
-        }
-        if (!this.checkStatEnd()) {
-            node.expr = this.parseExpr();
-            node.expr.present = true;
-        }
-        return node;
-    }
-
-    parseThrowStat() {
-        const node = new ThrowStat();
-        this.consume();
-        node.expr = this.parseExpr();
-        return node;
-    }
-
-    checkStatEnd() {
-        return this.peek().txt === ';' || this.peek().txt === '}' || this.peek().txt === 'else' || this.peek().txt === 'EOF';
-    }
-
-    parseSimplePat() {
-        const node = new SimplePat();
-        node.expr = this.parseExpr(); // basicExpr
-        return node;
-    }
-
-    parseDestrSpec() {
-        const node = new DestrSpec();
-        // sPat | ["mut"] {typePreop}
-        // This is hard to distinguish.
-        // Try parsing ops first.
-        const save = this.tokPos;
-        let ops = [];
-        if (this.match('Keyword', 'mut')) {
-            // check if followed by typePreOp
-            if (this.peek().txt === '*' || this.peek().txt === '&') {
-                // consume mut, then ops
-                // reset and parse properly
-                this.tokPos = save;
-                const opNode = new OpDestrSpec();
-                opNode.mutKw.txt = this.consume().txt;
-                while (this.peek().txt === '*' || this.peek().txt === '&') {
-                    opNode.ops.push(this.parseTypePreOp());
+            if (this.match('Symbol', isOuter ? '@<' : '@')) {
+                const ann = new (isOuter ? OuterModPathAnnotation : ModPathAnnotation)();
+                ann.at = this.createAstToken(this.consume());
+                ann.path = this.parseModPath();
+                if (this.match('Symbol', '{')) {
+                    ann.table.present = true;
+                    ann.table.tbl = this.parseTableConstructor();
                 }
-                return opNode;
+                annotations.push(ann);
             }
-        }
-
-        // Try simple ops
-        if (this.peek().txt === '*' || this.peek().txt === '&') {
-            const opNode = new OpDestrSpec();
-            while (this.peek().txt === '*' || this.peek().txt === '&') {
-                opNode.ops.push(this.parseTypePreOp());
-            }
-            return opNode;
-        }
-
-        // SimplePatDestrSpec uses sPat (basicExpr)
-        // This is ambiguous with just a Name.
-        // We assume if it's not ops, it's a SimplePat (expression).
-        const nodeSimple = new SimplePatDestrSpec();
-        nodeSimple.type = this.parseSimplePat();
-        return nodeSimple;
-    }
-
-    parseUncondFieldDestrField() {
-        const node = new UncondFieldDestrField();
-        this.expect('Symbol', '|');
-        if (/[0-9]/.test(this.peek().txt)) {
-            node.var = new NumTuplableName();
-            node.var.name = this.parseNum();
-        } else {
-            node.var = new NameTuplableName();
-            node.var.name = this.parseName();
-        }
-        this.expect('Symbol', '|');
-        node.pat = this.parseUncondDestrPat();
-        return node;
-    }
-
-    // -------------------------------------------------------------------------
-    // Types & Paths
-    // -------------------------------------------------------------------------
-
-    parseModPathExpr() {
-        const node = new ModPathExpr();
-        node.path = this.parseModPath();
-        return node;
-    }
-
-    // -------------------------------------------------------------------------
-    // Tables & Annotations
-    // -------------------------------------------------------------------------
-
-    parseField() {
-        // Name = expr | expr
-        const save = this.tokPos;
-        try {
-            // Try Name = expr
-            if (this.peek().type === 'Name' && this.peek(1).txt === '=') {
-                const node = new NamedField();
-                node.name = this.parseName();
-                this.expect('Symbol', '=');
-                node.expr = this.parseExpr();
-                return node;
-            }
-        } catch (e) {
-            this.tokPos = save;
-        }
-
-        const node = new ExprField();
-        node.expr = this.parseExpr();
-        return node;
-    }
-
-    parseAnnotations(isOuter) {
-        const list = [];
-        while (true) {
-            const start = this.peek().txt;
-            if ((isOuter && (start === '--<' || start === '@<')) || (!isOuter && (start === '@' || start === '---'))) {
-                list.push(this.parseAnnotation());
+            else if (this.match('Symbol', isOuter ? '--<' : '---')) {
+                const startTok = this.consume();
+                if (this.match('LiteralString')) {
+                    const strTok = this.consume();
+                    const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
+                    ann.txt = this.createAstToken(startTok);
+                    ann.content = strTok.txt;
+                    annotations.push(ann);
+                } else if (this.match('LineOfText')) {
+                    const txtTok = this.consume();
+                    const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
+                    ann.txt = this.createAstToken(startTok);
+                    ann.content = txtTok.txt;
+                    annotations.push(ann);
+                } else {
+                    throw new Error("Expected string or text after comment annotation");
+                }
             } else {
                 break;
             }
         }
-        return list;
-    }
-
-    parseAnnotation() {
-        const t = this.peek();
-        if (t.txt === '@') {
-            const node = new ModPathAnnotation();
-            this.consume();
-            node.path = this.parseModPath();
-            if (this.peek().txt === '{') {
-                node.table.present = true;
-                node.table.tbl = this.parseTableConstructor();
-            }
-            return node;
-        }
-        if (t.txt === '---') {
-            const node = new DocLineAnnotation();
-            const tok = this.consume();
-            // Content was captured in tokenizer if we implemented that, else it's part of txt?
-            // My tokenizer implementation put content in `.content`.
-            node.content = tok.content || "";
-            return node;
-        }
-        if (t.txt === '@<') {
-            const node = new OuterModPathAnnotation();
-            this.consume();
-            node.path = this.parseModPath();
-            if (this.peek().txt === '{') {
-                node.table.present = true;
-                node.table.tbl = this.parseTableConstructor();
-            }
-            return node;
-        }
-        if (t.txt === '--<') {
-            const node = new OuterDocLineAnnotation();
-            const tok = this.consume();
-            node.content = tok.content || "";
-            return node;
-        }
-        throw new Error("Expected annotation");
-    }
-
-    // -------------------------------------------------------------------------
-    // Primitives
-    // -------------------------------------------------------------------------
-
-    parseSafety() {
-        const node = new Safety();
-        if (this.match('Keyword', 'safe')) {
-            node.kind = 'safe';
-        } else if (this.match('Keyword', 'unsafe')) {
-            node.kind = 'unsafe';
-        } else {
-            node.kind = 'default';
-        }
-        return node;
+        return annotations;
     }
 }
