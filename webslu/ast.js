@@ -221,6 +221,13 @@ class SimplePat extends Pat {
         this.expr = new Expr();
     }
 }
+class OptSimplePat extends CompoundNode {
+    constructor() {
+        super("OptSimplePat");
+        this.present = false; // true if it exists
+        this.val = new SimplePat();
+    }
+}
 class UncondDestrPat extends Pat {
     constructor(type) { super(type); }
 }
@@ -240,7 +247,7 @@ class UncondVarDestrPat extends UncondDestrPat {
 class UncondPatFieldDestrPat extends UncondDestrPat {
     constructor() {
         super("UncondPatFieldDestrPat");
-        this.specifiers = new DestrSpec();
+        this.type = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("UncondFieldDestrField");
         this.extraFields = new OptToken("..");
@@ -250,7 +257,7 @@ class UncondPatFieldDestrPat extends UncondDestrPat {
 class UncondFieldDestrPat extends UncondDestrPat {
     constructor() {
         super("UncondFieldDestrPat");
-        this.specifiers = new DestrSpec();
+        this.type = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("UncondPatFieldDestrPat");
         this.extraFields = new OptToken("..");
@@ -281,7 +288,7 @@ class VarDestrPat extends DestrPat {
 class PatFieldDestrPat extends DestrPat {
     constructor() {
         super("PatFieldDestrPat");
-        this.specifiers = new DestrSpec();
+        this.type = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("Pat");
         this.extraFields = new OptToken("..");
@@ -291,7 +298,7 @@ class PatFieldDestrPat extends DestrPat {
 class FieldDestrPat extends DestrPat {
     constructor() {
         super("FieldDestrPat");
-        this.specifiers = new DestrSpec();
+        this.type = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("FieldDestrField");
         this.extraFields = new OptToken("..");
@@ -363,6 +370,9 @@ class ImplPreOp extends PreOp {
 }
 class UnionPreOp extends PreOp {
     constructor() { super("UnionPreOp"); this.kw = new Token("union"); }
+}
+class MutPreOp extends PreOp {
+    constructor() { super("MutPreOp"); this.kw = new Token("mut"); }
 }
 class RefPreOp extends PreOp {
     constructor() {
@@ -2029,27 +2039,32 @@ class Parser {
             pat.us = this.createAstToken(this.consume());
             return pat;
         }
-
-        const mutKw = this.parseOptToken('mut');
-        const ops = [];
-        while (this.match('Symbol', '*')) {
-            const op = new RefTypePreOp();
-            op.star = this.createAstToken(this.consume());
-            op.attrs = this.parseRefAttrs();
-            ops.push(op);
-        }
+        let dspec = null;
+        if (!this.match('Symbol', '{'))
+            dspec = this.parseExpr(0, true, "spat");
 
         if (this.match('Symbol', '{')) {
-            const actualPat = new UncondFieldDestrPat();
-            const openBrace = this.createAstToken(this.consume());
-            if (this.match('Symbol', '|')) actualPat = new UncondPatFieldDestrPat();
 
+            console.assert(dspec instanceof Expr); // Not OpDestrSpec
+
+            let actualPat = new UncondFieldDestrPat();
+            const openBrace = this.createAstToken(this.consume());
+            if (this.match('Symbol', '|'))
+                actualPat = new UncondPatFieldDestrPat();
             actualPat.openBrace = openBrace;
+            actualPat.type = new OptSimplePat();
+
+            if (dspec != null) {
+                actualPat.type.present = true;
+                actualPat.type.tbl = dspec;
+            }
 
             const items = [];
             while (!this.match('Symbol', '}') && !this.match('EOF')) {
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
+                    if (actualPat instanceof UncondPatFieldDestrPat)
+                        throw "TODO";
                     const f = new UncondFieldDestrField();
                     f.openPipe = this.createAstToken(this.consume());
                     f.var = this.parseTuplableName();
@@ -2057,6 +2072,8 @@ class Parser {
                     f.pat = this.parseUncondDestrPat();
                     li.value = f;
                 } else {
+                    if (actualPat instanceof UncondFieldDestrPat)
+                        throw "TODO";
                     li.value = this.parseUncondDestrPat();
                 }
                 if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
@@ -2069,28 +2086,24 @@ class Parser {
             list.items = items;
             actualPat.fields = list;
 
-            if (this.match('Symbol', '..')) actualPat.extraFields = this.createAstToken(this.consume());
+            actualPat.extraFields = this.parseOptToken('..');//TODO: actually parse this
             actualPat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
             return actualPat;
-        } else {
-            const pat = new UncondVarDestrPat();
-            const opSpec = new OpDestrSpec();
-            opSpec.mutKw = mutKw;
-            opSpec.ops = ops;
-            pat.specifiers = opSpec;
-
-            if (this.match('Name')) {
-                pat.name = this.parseName();
-                return pat;
-            } else if (this.match('Symbol', '(')) {
-                const sPat = new SimplePatDestrSpec();
-                sPat.type = this.parseExpr();
-                pat.specifiers = sPat;
-                return pat;
-            } else {
-                throw new Error("Expected Name or pattern");
-            }
         }
+        if (!(spat instanceof OpDestrSpec)) {
+            const sp = new SimplePatDestrSpec();
+            sp.type = dspec;
+            dspec = sp;
+        }
+
+        const pat = new UncondVarDestrPat();
+        const opSpec = new OpDestrSpec();
+        opSpec.mutKw = mutKw;
+        opSpec.ops = ops;
+        pat.specifiers = opSpec;
+
+        pat.name = this.parseName();
+        return pat;
     }
 
     parsePat() {
@@ -2100,24 +2113,30 @@ class Parser {
             return p;
         }
 
-        const mutKw = this.parseOptToken('mut');
-        const ops = [];
-        while (this.match('Symbol', '*')) {
-            const op = new RefTypePreOp();
-            op.star = this.createAstToken(this.consume());
-            op.attrs = this.parseRefAttrs();
-            ops.push(op);
-        }
+        let dspec = null;
+        if (!this.match('Symbol', '{'))
+            dspec = this.parseExpr(0, true, "spat");
 
         if (this.match('Symbol', '{')) {
-            const pat = new FieldDestrPat();
-            // Implementation similar to Uncond but with different Field class if needed
-            // Simplified for this context
+            console.assert(dspec instanceof Expr); // Not OpDestrSpec
+
+            let actualPat = new FieldDestrPat();
             const openBrace = this.createAstToken(this.consume());
+            if (this.match('Symbol', '|'))
+                actualPat = new PatFieldDestrPat();
+            actualPat.openBrace = openBrace;
+            actualPat.type = new OptSimplePat();
+
+            if (dspec != null) {
+                actualPat.type.present = true;
+                actualPat.type.tbl = dspec;
+            }
             const items = [];
             while (!this.match('Symbol', '}') && !this.match('EOF')) {
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
+                    if (actualPat instanceof PatFieldDestrPat)
+                        throw "TODO";
                     const f = new FieldDestrField();
                     f.openPipe = this.createAstToken(this.consume());
                     f.var = this.parseTuplableName();
@@ -2125,6 +2144,8 @@ class Parser {
                     f.pat = this.parsePat();
                     li.value = f;
                 } else {
+                    if (actualPat instanceof FieldDestrPat)
+                        throw "TODO";
                     li.value = this.parsePat();
                 }
                 if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
@@ -2134,10 +2155,16 @@ class Parser {
             }
             const list = new DelimitedList();
             list.items = items;
-            pat.fields = list;
-            if (this.match('Symbol', '..')) pat.extraFields = this.createAstToken(this.consume());
-            pat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
-            return pat;
+            actualPat.fields = list;
+
+            actualPat.extraFields = this.parseOptToken('..');//TODO: actually parse this
+            actualPat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
+            return actualPat;
+        }
+        if (!(spat instanceof OpDestrSpec)) {
+            const sp = new SimplePatDestrSpec();
+            sp.type = dspec;
+            dspec = sp;
         }
 
         const name = this.parseName();
@@ -2147,11 +2174,8 @@ class Parser {
             const val = this.parseExpr();
 
             const pat = new VarDestrPat();
-            const opSpec = new OpDestrSpec();
-            opSpec.mutKw = mutKw;
-            opSpec.ops = ops;
             pat.base = new UncondVarDestrPat();
-            pat.base.specifiers = opSpec;
+            pat.base.specifiers = dspec;
             pat.base.name = name;
             pat.eq = eq;
             pat.valPat = new SimplePat();
@@ -2172,7 +2196,7 @@ class Parser {
     // EXPRESSIONS
     // ----------------------------------------------------------------
 
-    parsePrimary() {
+    parsePrimary(specType = "") {
         if (this.match('Symbol', '(')) {
             const e = new ParenExpr();
             e.openParen = this.createAstToken(this.consume());
@@ -2194,12 +2218,21 @@ class Parser {
         }
 
         if (this.match('Name') || this.match('Keyword', 'self') || this.match('Keyword', 'crate') || this.match('Symbol', ':>')) {
+            if (specType == "spat" && this.match('Name')) {
+                let afterTok = this.peek(1);
+                let spp = afterTok.type == 'Symbol' && (afterTok.txt == '=' || afterTok.txt == '=>' || afterTok.txt == ',' || afterTok.txt == '}');
+                spp |= afterTok.type == 'Keyword' && (afterTok.txt == 'in');
+                spp |= afterTok.type == 'EOF';
+
+                if (spp)
+                    return new OpDestrSpec();
+            }
             const e = new ModPathExpr();
             e.path = this.parseModPath();
             return e;
         }
 
-        if (this.match('Symbol', '{')) {
+        if (specType != "spat" && this.match('Symbol', '{')) {
             return this.parseTableConstructor();
         }
 
@@ -2259,7 +2292,7 @@ class Parser {
             throw new Error("Expected '(' after const in expression");
         }
 
-        if (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Symbol', '|')) {
+        if (specType != "spat" && (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Symbol', '|'))) {
             return this.parseLambdaExpr();
         }
 
@@ -2315,11 +2348,13 @@ class Parser {
         return e;
     }
 
-    parseUnary(basic = false) {
+    parseUnary(basic = false, specType = "") {
         const ops = [];
         while (true) {
             if (this.match('Symbol', '-')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
             else if (this.match('Symbol', '!')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
+            else if (this.match('Symbol', '~')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
+            else if (this.match('Symbol', 'ex')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
             else if (this.match('Symbol', '*')) {
                 const op = new RefTypePreOp(); op.star = this.createAstToken(this.consume()); op.attrs = this.parseRefAttrs(); ops.push(op);
             }
@@ -2332,6 +2367,7 @@ class Parser {
             else if (this.match('Keyword', 'dyn')) { const op = new DynPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Keyword', 'impl')) { const op = new ImplPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Keyword', 'union')) { const op = new UnionPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Keyword', 'mut')) { const op = new MutPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Symbol', '..')) { const op = new RangePreOp(); op.op = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Symbol', '@')) { ops.push(new AnnotationPreOp(this.parseAnnotation())); }
             else if (this.match('Keyword', 'if')) {
@@ -2344,7 +2380,25 @@ class Parser {
             else break;
         }
 
-        let primary = this.parsePrimary();
+        let primary = this.parsePrimary(specType);
+
+        if (specType == "spat" && primary instanceof OpDestrSpec) {
+            let first = true;
+            for (let i in ops) {
+                let v = ops[i];
+                if (first && v instanceof MutPreOp) {
+                    primary.mutKw = v.kw;
+                }
+                else if (v instanceof RefTypePreOp) {
+                    primary.ops.push(v);
+                } else {
+                    throw new Error(`Unexpected operator (${v.type}) for pattern at pos ${this.tokPos}`);
+                }
+                first = false;
+            }
+            return primary;
+        }
+        //TODO: better postfix range handling! `1.. return` is a post op, `1..1` is a bin op.
 
         const sufOps = [];
         while (true) {
@@ -2423,18 +2477,18 @@ class Parser {
         throw new Error("Expected arguments");
     }
 
-    parseExpr(precedence = 0, basic = false) {
+    parseExpr(precedence = 0, basic = false, specType = "") {
         if (this.match('Keyword', 'fn')) return this.parseFnExpr();
 
-        let left = this.parseUnary(basic);
+        let left = this.parseUnary(basic, specType);
 
         while (true) {
             const opTok = this.peek();
-            if (this.isBinOp(opTok)) {
+            if (this.isBinOp(opTok, specType)) {
                 const p = this.getPrecedence(opTok.txt);
                 if (p >= precedence) {
                     this.consume();
-                    const right = this.parseExpr(p + 1, basic);
+                    const right = this.parseExpr(p + 1, basic, specType);
                     const bin = new BinExpr();
                     bin.left = left;
                     bin.op = this.createAstToken(opTok);
@@ -2487,9 +2541,12 @@ class Parser {
         return e;
     }
 
-    isBinOp(tok) {
+    isBinOp(tok, specType = "") {
         if (!tok) return false;
-        const ops = ["+", "-", "*", "/", "//", "^", "%", "++", "<", "<=", ">", ">=", "==", "!=", "and", "or", "~", "|", "..", "else", "**", "as"];
+        const ops = ["+", "-", "*", "/", "//", "^", "%", "++", "<", "<=", ">", ">=", "==", "!=", "~", "|", "..", "else", "**", "as"];
+        if (specType != "spat") {
+            ops.push("and", "or");
+        }
         return ops.includes(tok.txt);
     }
 
