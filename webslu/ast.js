@@ -2875,11 +2875,11 @@ class Parser {
                 s.params = this.parseParams();
                 s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
             }
-            const maybeTrait = this.parseExpr();
+            const maybeTrait = this.parseExpr(0, true);
             if (this.match('Keyword', 'for')) {
                 s.forKw = this.createAstToken(this.consume());
                 s.traitType = maybeTrait;
-                s.targetType = this.parseExpr();
+                s.targetType = this.parseExpr(0, true);
             } else {
                 s.targetType = maybeTrait;
             }
@@ -2968,7 +2968,7 @@ class Parser {
             c.name = this.parseName();
         }
         c.colon = this.createAstToken(this.expect('Symbol', ':'));
-        c.type = this.parseExpr();
+        c.type = this.parseExpr(0, true);
         return c;
     }
 
