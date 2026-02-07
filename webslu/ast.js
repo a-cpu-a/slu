@@ -1658,8 +1658,9 @@ class Parser {
                     if (this.input[this.pos] === '\\') this.pos++; // skip escape
                     this.pos++;
                 }
-                if (this.pos < this.len) this.pos++; // consume end quote
-                //todo: this also does a error recovery from eof ^^^
+                if (this.pos >= this.len)
+                    throw new Error('Expected end quote for string, but file ended');
+                this.pos++; // consume end quote
                 this.tokens.push({ type: 'LiteralString', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
                 lastNonSpace = this.pos;
                 continue;
