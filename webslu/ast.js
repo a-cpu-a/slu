@@ -2221,7 +2221,7 @@ class Parser {
         if (this.match('Keyword', 'match')) {
             const e = new MatchExpr();
             e.matchKw = this.createAstToken(this.consume());
-            e.argument = this.parseExpr();
+            e.argument = this.parseExpr(0, true);
             e.block = this.parseMatchTypeBlock();
             return e;
         }
