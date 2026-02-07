@@ -1426,24 +1426,24 @@ class Visitor {
 
     /*
     // Example of how to extend the visitor for Const Inlining
-    
+	
     visitModPathExpr(node) {
         const pathStr = this.modPathToString(node.path);
         const sym = this.resolveSymbol(pathStr);
-        
+    	
         // If symbol is a constant and has a known evaluated value
         if (sym && sym.kind === 'const' && sym.value) {
             // Return the value node directly (Inlining)
             // We clone it to avoid mutating the original definition
             return this.cloneNode(sym.value);
         }
-        
+    	
         return node;
     }
-    
+	
     visitBinExpr(node) {
         this.visitChildren(node);
-        
+    	
         // Simple constant folding example: 1 + 2 -> 3
         if (node.left.type === 'NumExpr' && node.right.type === 'NumExpr') {
             if (node.op.txt === '+') {
@@ -1802,12 +1802,14 @@ class Parser {
                     this.pos++;
                 }
                 // Macro calls:
+                let macro = false;
                 if (this.pos < this.len && this.input[this.pos] == "!") {
                     this.pos++;
+                    macro = true;
                 }
                 const txt = this.input.substring(tokenStart, this.pos);
                 this.tokens.push({
-                    type: (keywords.has(txt) || /^_*$/.test(txt)) ? 'Keyword' : 'Name', // `/^_*$/` => made of only underscores
+                    type: (macro || keywords.has(txt) || /^_*$/.test(txt)) ? 'Keyword' : 'Name', // `/^_*$/` => made of only underscores
                     txt: txt,
                     preSpace: preSpace
                 });
