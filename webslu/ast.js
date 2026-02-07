@@ -1972,10 +1972,6 @@ class Parser {
     // TYPES & PATTERNS
     // ----------------------------------------------------------------
 
-    parseType() {
-        return this.parseExpr();
-    }
-
     parseRefAttrs() {
         const attrs = new RefAttrs();
         if (this.match('Keyword', 'in')) {
@@ -2281,7 +2277,7 @@ class Parser {
         e.labelColon = colon;
         e.loopKw = this.createAstToken(this.expect('Keyword', 'loop'));
         e.retArrow = this.parseOptToken('->');
-        if (e.retArrow.present) e.retType = this.parseExpr();
+        if (e.retArrow.present) e.retType = this.parseExpr(0, true);
         e.body = this.parseBlock();
         return e;
     }
@@ -2294,7 +2290,7 @@ class Parser {
         e.constKw = this.parseOptToken('const');
         e.doKw = this.createAstToken(this.expect('Keyword', 'do'));
         e.retArrow = this.parseOptToken('->');
-        if (e.retArrow.present) e.retType = this.parseExpr();
+        if (e.retArrow.present) e.retType = this.parseExpr(0, true);
         e.block = this.parseBlock();
         return e;
     }
@@ -2672,7 +2668,7 @@ class Parser {
     parseIfStat() {
         const s = new IfStat();
         s.ifKw = this.createAstToken(this.consume());
-        s.condition = this.parseExpr();
+        s.condition = this.parseExpr(0, true);
         s.consequent = this.parseBlockOrRet();
 
         while (this.match('Keyword', 'else')) {
@@ -2681,7 +2677,7 @@ class Parser {
                 const alt = new IfAlternate();
                 alt.elseKw = elseKw;
                 alt.ifKw = this.createAstToken(this.consume());
-                alt.condition = this.parseExpr();
+                alt.condition = this.parseExpr(0, true);
                 alt.body = this.parseBlockOrRet();
                 s.alternates.push(alt);
             } else {
@@ -2711,7 +2707,7 @@ class Parser {
         const s = new WhileStat();
         s.labelStart = labelStart; s.label = label; s.labelColon = colon;
         s.whileKw = this.createAstToken(this.expect('Keyword', 'while'));
-        s.condition = this.parseExpr();
+        s.condition = this.parseExpr(0, true);
         s.body = this.parseBlock();
         return s;
     }
@@ -2723,7 +2719,7 @@ class Parser {
         s.constKw = this.parseOptToken('const');
         s.pattern = this.parseUncondDestrPat();
         s.inKw = this.createAstToken(this.expect('Keyword', 'in'));
-        s.iterable = this.parseExpr();
+        s.iterable = this.parseExpr(0, true);
         s.body = this.parseBlock();
         return s;
     }
@@ -3056,7 +3052,7 @@ class Parser {
             i.ifExpr = this.parseExpr();
         }
         i.arrow = this.createAstToken(this.expect('Symbol', '=>'));
-        i.expr = this.parseExpr();
+        i.expr = this.parseExpr(0, true);
         return i;
     }
 
