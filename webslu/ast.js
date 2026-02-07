@@ -2090,7 +2090,7 @@ class Parser {
             actualPat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
             return actualPat;
         }
-        if (!(spat instanceof OpDestrSpec)) {
+        if (!(dspec instanceof OpDestrSpec)) {
             const sp = new SimplePatDestrSpec();
             sp.type = dspec;
             dspec = sp;
@@ -2161,7 +2161,7 @@ class Parser {
             actualPat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
             return actualPat;
         }
-        if (!(spat instanceof OpDestrSpec)) {
+        if (!(dspec instanceof OpDestrSpec)) {
             const sp = new SimplePatDestrSpec();
             sp.type = dspec;
             dspec = sp;
