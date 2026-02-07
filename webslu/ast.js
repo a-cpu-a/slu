@@ -2097,11 +2097,7 @@ class Parser {
         }
 
         const pat = new UncondVarDestrPat();
-        const opSpec = new OpDestrSpec();
-        opSpec.mutKw = mutKw;
-        opSpec.ops = ops;
-        pat.specifiers = opSpec;
-
+        pat.specifiers = dspec;
         pat.name = this.parseName();
         return pat;
     }
@@ -2166,7 +2162,6 @@ class Parser {
             sp.type = dspec;
             dspec = sp;
         }
-
         const name = this.parseName();
 
         if (this.match('Symbol', '=')) {
@@ -2182,12 +2177,8 @@ class Parser {
             pat.valPat.expr = val;
             return pat;
         }
-
         const pat = new UncondVarDestrPat();
-        const opSpec = new OpDestrSpec();
-        opSpec.mutKw = mutKw;
-        opSpec.ops = ops;
-        pat.specifiers = opSpec;
+        pat.specifiers = dspec;
         pat.name = name;
         return pat;
     }
