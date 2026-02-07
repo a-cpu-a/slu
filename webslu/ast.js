@@ -2162,7 +2162,7 @@ class Parser {
             sp.type = dspec;
             dspec = sp;
         }
-        const name = this.parseName();
+        const name = this.parseName(); // TODO: expr only! (check for =>)
 
         if (this.match('Symbol', '=')) {
             const eq = this.createAstToken(this.consume());
