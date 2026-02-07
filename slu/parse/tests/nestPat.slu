@@ -1,12 +1,12 @@
 
-const mut *mut _TnTObj{
-	|__t| mut *mut a44__,
+const _TnTObj{
+	|__t| a44__,
 	|n_| b44,
-	|_t2_| mut BTn___{
+	|_t2_| BTn___{
 		|t__| a221,
-		|n_| b221
+		|n_| mut *b221
 	}  _wrap1,
-	|___n2| mut {
+	|___n2| {
 		|_t| ax2x,
 		|__n| _b2z
 	} _wrap21,
@@ -16,13 +16,13 @@ const mut *mut _TnTObj{
 
 
 
-const mut *mut TnT{
-	mut *mut {
+const TnT{
+	{
 		aa,
-		b3
+		mut b3
 	} wrap33,
 	b,
-	mut Tn{
+	Tn{
 		a2,
 		b2
 	} wrap334,
@@ -30,9 +30,9 @@ const mut *mut TnT{
 } wrap331 = getTnT();
 
 
-const *mut TnTArr{
-	*mut {
-		u32 aa44,
+const TnTArr{
+	{
+		mut *mut u32 aa44,
 		u64 b344
 	},
 	b222,
@@ -49,16 +49,16 @@ const *mut TnTArr{
 
 
 
-const *mut TnTArr4{
+const TnTArr4{
 	mut *mut _aa,
 	{b_4,b3_4,c4_4, ..},
 	Tn_4{
-		|t_4| a2_4,
-		|n4_| b2_4
+		|t_4| mut *mut a2_4,
+		|n4_| *mut b2_4
 	},
-	mut {
-		|t| a2_45,
-		|n| b2_45
+	{
+		|t| ***a2_45,
+		|n| *mut *b2_45
 	} cicada,
 	..
 } = getTnT_4();

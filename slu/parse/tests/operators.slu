@@ -1,9 +1,11 @@
 
+const exOp = ex u8;
+const unionifyOp = union {};
 const mutOp = mut 100;
 const allocOp = alloc 100;
 
-const orOp = true or false;
-const andOp = true and false;
+const orOp = 1 or 0;
+const andOp = 1 and 0;
 
 const eqOp = orOp==andOp;
 const neOp = eqOp!=andOp;
@@ -34,8 +36,8 @@ const rangeMinOp = 1..;
 --const shlOp = 1<<1;
 --const shrOp = 1>>1;
 
-const PseudoDynOp = dyn Add;
-const PseudoImplOp = impl Add;
+const dynOp = dyn Add;
+const implOp = impl Add;
 
 const addOp = 1+1;
 const subOp = 1-1;
@@ -58,6 +60,8 @@ const ptrMutOp = *mut mutOp;
 const ptrShareOp = *share mutOp;
 
 const expOp = 2^addOp;
+
+const elseOp = k() else 5;
 
 const errOp = x?;
 const derefOp = x.*;
