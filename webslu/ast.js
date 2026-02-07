@@ -443,6 +443,7 @@ class BlockNode extends CompoundNode {
         this.openBrace = new Token("{");
         this.stats = [];
         this.retStat = new RetStat();
+        this.semicol = new OptToken(";");
         this.closeBrace = new Token("}");
     }
 }
@@ -2522,6 +2523,8 @@ class Parser {
             const tok = this.peek();
             if (this.match('Keyword', 'return') || this.match('Keyword', 'break') || this.match('Keyword', 'continue') || this.match('Keyword', 'throw')) {
                 b.retStat = this.parseRetStat();
+                if (this.match('Symbol', ';'))
+                    b.semicol = this.createAstToken(this.consume());
                 break;
             }
             b.stats.push(this.parseStat());
