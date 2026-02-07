@@ -12,8 +12,8 @@ New Syntax {
 	destrSpec ::= sPat | ["mut"] {typePreop}
 	destrField ::= "|" tupleableName "|" pat
 	
-	dPat ::= destrSpec "{" {destrField fieldsep} [".."] "}"
-		| destrSpec "{" {pat fieldsep} [".."] "}"
+	dPat ::= [sPat] "{" {destrField fieldsep} [".."] "}"
+		| [sPat] "{" {pat fieldsep} [".."] "}"
 		
 		| destrSpec Name ["=" sPat] 
 		| "_"
@@ -21,8 +21,8 @@ New Syntax {
 	
 	destrFieldUncond ::= "|" tupleableName "|" uncondDestrPat
 	
-	uncondDestrPat ::= destrSpec "{" {destrFieldUncond fieldsep} [".."] "}"
-		| destrSpec "{" {uncondDestrPat fieldsep} [".."] "}"
+	uncondDestrPat ::= [sPat] "{" {destrFieldUncond fieldsep} [".."] "}"
+		| [sPat] "{" {uncondDestrPat fieldsep} [".."] "}"
 		
 		| destrSpec Name
 		| "_"
