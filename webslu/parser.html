@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AST Parser Tester</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #252526;
+            --text-color: #d4d4d4;
+            --accent-color: #007acc;
+            --border-color: #3e3e42;
+            --keyword-color: #569cd6;
+            --string-color: #ce9178;
+            --number-color: #b5cea8;
+            --type-color: #4ec9b0;
+            --token-color: #dcdcaa;
+            --prop-color: #9cdcfe;
+            --error-color: #f48771;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #333333;
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            margin: 0;
+            color: var(--type-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            border-radius: 2px;
+        }
+
+        button:hover {
+            background-color: #0062a3;
+        }
+
+        button.secondary {
+            background-color: #444;
+        }
+
+        button.secondary:hover {
+            background-color: #555;
+        }
+
+        #error-panel {
+            background-color: #2a1d1d;
+            color: var(--error-color);
+            padding: 10px 20px;
+            border-bottom: 1px solid #3e3e42;
+            display: none;
+            /* Hidden by default */
+            font-size: 0.9rem;
+        }
+
+        main {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 100px);
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            box-sizing: border-box;
+            min-width: 0;
+        }
+
+        .panel-header {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #input-area {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            flex: 1;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #input-area:focus {
+            border-color: var(--accent-color);
+        }
+
+        #output-area {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            flex: 1;
+            overflow: auto;
+            padding: 10px;
+            font-size: 13px;
+        }
+
+        /* AST Visualization Styles */
+        details {
+            margin-left: 18px;
+            padding-left: 5px;
+            border-left: 1px solid #444;
+        }
+
+        details[open]>summary {
+            margin-bottom: 4px;
+        }
+
+        summary {
+            cursor: pointer;
+            list-style: none;
+            /* Hide default triangle */
+            color: var(--keyword-color);
+            font-weight: bold;
+            outline: none;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary:before {
+            content: '►';
+            display: inline-block;
+            font-size: 0.8em;
+            width: 15px;
+            color: #666;
+            transition: transform 0.2s;
+        }
+
+        details[open]>summary:before {
+            transform: rotate(90deg);
+        }
+
+        .ast-type {
+            color: var(--type-color);
+            margin-right: 5px;
+        }
+
+        .ast-prop {
+            color: var(--prop-color);
+            margin-right: 5px;
+        }
+
+        .ast-token {
+            color: var(--token-color);
+            background: #333;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        .ast-string {
+            color: var(--string-color);
+        }
+
+        .ast-number {
+            color: var(--number-color);
+        }
+
+        .ast-null {
+            color: #666;
+            font-style: italic;
+        }
+
+        .pre-space {
+            opacity: 0.3;
+            font-size: 0.8em;
+            font-family: monospace;
+            background: #333;
+            padding: 0 3px;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .panel {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>AST Parser Tester</h1>
+        <div class="controls">
+            <button class="secondary" id="load-example-btn">Load Example</button>
+            <button id="parse-btn">Parse Code</button>
+        </div>
+    </header>
+
+    <div id="error-panel"></div>
+
+    <main>
+        <div class="panel">
+            <div class="panel-header">
+                <span>Source Code</span>
+            </div>
+            <textarea id="input-area" spellcheck="false"></textarea>
+        </div>
+        <div class="panel">
+            <div class="panel-header">
+                <span>AST Output</span>
+            </div>
+            <div id="output-area">
+                <div style="color: #666; font-style: italic; padding: 20px;">
+                    Click 'Parse Code' to visualize the Abstract Syntax Tree.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Reference the AST file provided by the user -->
+    <script src="ast.js"></script>
+
+    <script>
+        const inputArea = document.getElementById('input-area');
+        const outputArea = document.getElementById('output-area');
+        const errorPanel = document.getElementById('error-panel');
+        const parseBtn = document.getElementById('parse-btn');
+        const loadExampleBtn = document.getElementById('load-example-btn');
+
+        const EXAMPLE_CODE = `-- Example AST Input
+ex struct Point(x = Num, y = Num) {}
+
+fn add(a = Num, b = Num) -> Num {
+    const res = a + b;
+    return res;
+}
+
+impl Math for Point {
+    fn distance() -> Num {
+        return 0;
+    }
+}
+
+match 5 {
+    1 => "one",
+    2 => "two",
+    _ => "other"
+}`;
+
+        function showError(message) {
+            errorPanel.textContent = message;
+            errorPanel.style.display = 'block';
+        }
+
+        function clearError() {
+            errorPanel.style.display = 'none';
+        }
+
+        /**
+         * Recursively builds a DOM tree to visualize the AST.
+         * Handles Arrays, Objects (Nodes), Primitives, and special AST classes.
+         */
+        function renderValue(value, container, depth = 0) {
+            // Handle null/undefined
+            if (value === null || value === undefined) {
+                const span = document.createElement('span');
+                span.className = 'ast-null';
+                span.textContent = 'null';
+                container.appendChild(span);
+                return;
+            }
+
+            // Handle Arrays (like stats, items, segments)
+            if (Array.isArray(value)) {
+                if (value.length === 0) {
+                    const span = document.createElement('span');
+                    span.className = 'ast-null';
+                    span.textContent = '[]';
+                    container.appendChild(span);
+                    return;
+                }
+
+                // For arrays, we just list them sequentially without a summary wrapper
+                // unless the array is large, but for AST visibility, a list is fine.
+                const ul = document.createElement('div');
+                ul.style.marginLeft = (depth * 10) + 'px';
+
+                value.forEach((item, index) => {
+                    const itemContainer = document.createElement('div');
+                    itemContainer.style.borderLeft = '1px solid #444';
+                    itemContainer.style.paddingLeft = '5px';
+
+                    // Optional: show index
+                    // const indexSpan = document.createElement('span');
+                    // indexSpan.textContent = `[${index}]: `;
+                    // indexSpan.style.color = '#666';
+                    // itemContainer.appendChild(indexSpan);
+
+                    renderValue(item, itemContainer, depth + 1);
+                    ul.appendChild(itemContainer);
+                });
+                container.appendChild(ul);
+                return;
+            }
+
+            // Handle AST Nodes (Objects with a type property)
+            // We also check if it has a 'preSpace' property to identify AST nodes specifically
+            if (typeof value === 'object' && value !== null && value.type) {
+                const details = document.createElement('details');
+                details.open = (depth < 2); // Auto-expand top levels
+
+                const summary = document.createElement('summary');
+
+                const typeSpan = document.createElement('span');
+                typeSpan.className = 'ast-type';
+                typeSpan.textContent = value.type;
+                summary.appendChild(typeSpan);
+
+                details.appendChild(summary);
+
+                const content = document.createElement('div');
+                content.style.marginTop = '5px';
+
+                // Iterate over keys, but filter out methods and unwanted internal props
+                for (const key in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, key)) {
+                        // Skip functions
+                        if (typeof value[key] === 'function') continue;
+                        // Skip huge internal props if any (though our AST is clean)
+                        if (key === 'type') continue;
+
+                        const propDiv = document.createElement('div');
+
+                        const keySpan = document.createElement('span');
+                        keySpan.className = 'ast-prop';
+                        keySpan.textContent = `${key}: `;
+                        propDiv.appendChild(keySpan);
+
+                        renderValue(value[key], propDiv, depth);
+                        content.appendChild(propDiv);
+                    }
+                }
+                details.appendChild(content);
+                container.appendChild(details);
+                return;
+            }
+
+            // Handle Token objects specifically to highlight text/preSpace
+            if (typeof value === 'object' && value.txt !== undefined && value.preSpace !== undefined) {
+                const span = document.createElement('span');
+                span.className = 'ast-token';
+
+                // Show preSpace if exists
+                if (value.preSpace && value.preSpace.length > 0) {
+                    const spaceSpan = document.createElement('span');
+                    spaceSpan.className = 'pre-space';
+                    spaceSpan.textContent = value.preSpace.replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+                    span.appendChild(spaceSpan);
+                    span.appendChild(document.createTextNode(' '));
+                }
+
+                span.appendChild(document.createTextNode(value.txt));
+                container.appendChild(span);
+                return;
+            }
+
+            // Handle OptToken / OptNode (objects with 'present')
+            if (typeof value === 'object' && value.hasOwnProperty('present')) {
+                if (value.present) {
+                    // It exists, render the content (it might be a string or an object)
+                    // We just render the value directly, the key label was added by the loop above
+                    renderValue(value.txt || value.expr || value.block || value.tbl, container, depth);
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'ast-null';
+                    span.textContent = 'null';
+                    container.appendChild(span);
+                }
+                return;
+            }
+
+            // Handle strings
+            if (typeof value === 'string') {
+                const span = document.createElement('span');
+                span.className = 'ast-string';
+                span.textContent = `"${value}"`;
+                container.appendChild(span);
+                return;
+            }
+
+            // Handle numbers
+            if (typeof value === 'number') {
+                const span = document.createElement('span');
+                span.className = 'ast-number';
+                span.textContent = value.toString();
+                container.appendChild(span);
+                return;
+            }
+
+            // Handle booleans
+            if (typeof value === 'boolean') {
+                const span = document.createElement('span');
+                span.className = 'ast-token'; // reuse color
+                span.style.color = value ? '#569cd6' : '#ce9178';
+                span.textContent = value.toString();
+                container.appendChild(span);
+                return;
+            }
+        }
+
+        function handleParse() {
+            clearError();
+            const code = inputArea.value;
+
+            try {
+                if (typeof Parser === 'undefined') {
+                    throw new Error("Parser class not found. Make sure 'ast.js' is loaded correctly.");
+                }
+
+                const parser = new Parser(code);
+                parser.pos = 0;
+                const ast = parser.parseChunk();
+
+                // Clear output
+                outputArea.innerHTML = '';
+
+                // Render AST
+                renderValue(ast, outputArea);
+
+            } catch (e) {
+                showError(e.message + (e.stack ? `\n${e.stack}` : ''));
+                console.error(e);
+            }
+        }
+
+        // --- Event Listeners ---
+
+        parseBtn.addEventListener('click', handleParse);
+
+        loadExampleBtn.addEventListener('click', () => {
+            inputArea.value = EXAMPLE_CODE;
+            handleParse(); // Auto parse on load
+        });
+
+        // Allow Ctrl+Enter to parse
+        inputArea.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                handleParse();
+            }
+        });
+
+        // Initial Load
+        window.onload = () => {
+            inputArea.value = EXAMPLE_CODE;
+            handleParse();
+        };
+
+    </script>
+</body>
+
+</html>
