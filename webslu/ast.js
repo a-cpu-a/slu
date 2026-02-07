@@ -983,7 +983,7 @@ class TodoStat extends Stat {
     constructor() {
         super("TodoStat");
         this.kw = new Token("TODO!");
-        this.msg = new Str();
+        this.msg = new Expr();
     }
 }
 
@@ -2654,8 +2654,9 @@ class Parser {
             return v;
         }
 
-        if (this.match('Keyword', 'loop') || this.match('Keyword', 'match') || this.match('Keyword', 'TODO!')) {
-            const e = this.parseExpr();
+        let isTd = this.match('Keyword', 'TODO!');
+        if (isTd || this.match('Keyword', 'loop') || this.match('Keyword', 'match') || isTd) {
+            const e = this.parseExpr(0, !isTd);
             if (e instanceof LoopExpr) {
                 const s = new LoopStat();
                 s.labelStart = e.labelStart; s.label = e.label; s.labelColon = e.labelColon;

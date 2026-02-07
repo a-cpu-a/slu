@@ -3,7 +3,7 @@
 #
 
 New Syntax {
-	statOrExpr @::= | "TODO!" LiteralString
+	statOrExpr @::= | "TODO!" expr
 }
 
 New Keywords {
@@ -12,4 +12,6 @@ New Keywords {
 
 Todo Expression {
 	Allows you to write code without fully implementing it
+
+	The message expression must evaluate to a string literal.
 }
