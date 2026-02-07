@@ -2318,7 +2318,7 @@ class Parser {
         return e;
     }
 
-    parseUnary() {
+    parseUnary(basic = false) {
         const ops = [];
         while (true) {
             if (this.match('Symbol', '-')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
@@ -2382,7 +2382,7 @@ class Parser {
             else if (this.match('Keyword', 'try')) {
                 const op = new TryOp(); op.tryKw = this.createAstToken(this.consume()); op.block = this.parseMatchTypeBlock(); sufOps.push(op);
             }
-            else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
+            else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || (this.match('Symbol', '{') && !basic)) {
                 const call = new SelfableCall();
                 call.args = this.parseArgs();
                 sufOps.push(call);
@@ -2426,10 +2426,10 @@ class Parser {
         throw new Error("Expected arguments");
     }
 
-    parseExpr(precedence = 0) {
+    parseExpr(precedence = 0, basic = false) {
         if (this.match('Keyword', 'fn')) return this.parseFnExpr();
 
-        let left = this.parseUnary();
+        let left = this.parseUnary(basic);
 
         while (true) {
             const opTok = this.peek();
@@ -2437,7 +2437,7 @@ class Parser {
                 const p = this.getPrecedence(opTok.txt);
                 if (p >= precedence) {
                     this.consume();
-                    const right = this.parseExpr(p + 1);
+                    const right = this.parseExpr(p + 1, basic);
                     const bin = new BinExpr();
                     bin.left = left;
                     bin.op = this.createAstToken(opTok);
@@ -2479,7 +2479,7 @@ class Parser {
         e.closeParen = this.createAstToken(this.expect('Symbol', ')'));
 
         e.retArrow = this.parseOptToken('->');
-        if (e.retArrow.present) e.retType = this.parseExpr();
+        if (e.retArrow.present) e.retType = this.parseExpr(0, true);
 
         e.body = new OptBlockNode();
         if (this.match('Symbol', '{')) {
@@ -2825,7 +2825,7 @@ class Parser {
             s.params = this.parseParams();
             s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
             s.retArrow = this.parseOptToken('->');
-            if (s.retArrow.present) s.retType = this.parseExpr();
+            if (s.retArrow.present) s.retType = this.parseExpr(0, true);
             s.body = new OptBlockNode();
             if (this.match('Symbol', '{')) {
                 s.body.present = true;
@@ -3035,7 +3035,7 @@ class Parser {
         const b = new MatchTypeBlock();
         if (this.match('Symbol', '->')) {
             b.retArrow = this.createAstToken(this.consume());
-            b.retType = this.parseExpr();
+            b.retType = this.parseExpr(0, true);
         }
         b.openBrace = this.createAstToken(this.expect('Symbol', '{'));
         b.items = this.parseDelimitedList(() => this.parseMatchItem(), [{ type: 'Symbol', txt: '}' }]);
