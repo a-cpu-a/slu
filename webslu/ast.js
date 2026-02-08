@@ -374,6 +374,18 @@ class UnionPreOp extends PreOp {
 class MutPreOp extends PreOp {
     constructor() { super("MutPreOp"); this.kw = new Token("mut"); }
 }
+class ExPreOp extends PreOp {
+    constructor() { super("ExPreOp"); this.kw = new Token("ex"); }
+}
+class ResErrPreOp extends PreOp {
+    constructor() { super("ResErrPreOp"); this.kw = new Token("~"); }
+}
+class NotPreOp extends PreOp {
+    constructor() { super("NotPreOp"); this.kw = new Token("!"); }
+}
+class NegPreOp extends PreOp {
+    constructor() { super("NegPreOp"); this.kw = new Token("-"); }
+}
 class RefPreOp extends PreOp {
     constructor() {
         super("RefPreOp");
@@ -1589,7 +1601,7 @@ class Parser {
                 this.pos++;
             }
             this.pos = this.len;
-            //TODO: soft error
+
             throw new Error(`Expected closing bracket for ${isComment ? "comment" : "string"}, but file ended`);
         };
 
@@ -1611,7 +1623,7 @@ class Parser {
                 preSpace = this.input.substring(start, this.pos);
             }
 
-            if (this.pos >= this.len) break; // TODO: final preSpace must be stored in the ast, prob a new field in the file or something
+            if (this.pos >= this.len) break;
 
             const tokenStart = this.pos;
 
@@ -2378,11 +2390,7 @@ class Parser {
     parseUnary(basic = false, specType = "") {
         const ops = [];
         while (true) {
-            if (this.match('Symbol', '-')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
-            else if (this.match('Symbol', '!')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
-            else if (this.match('Symbol', '~')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
-            else if (this.match('Symbol', 'ex')) ops.push({ type: 'UnOp', op: this.createAstToken(this.consume()) });
-            else if (this.match('Symbol', '*')) {
+            if (this.match('Symbol', '*')) {
                 const op = new RefTypePreOp(); op.star = this.createAstToken(this.consume()); op.attrs = this.parseRefAttrs(); ops.push(op);
             }
             else if (this.match('Symbol', '&')) {
@@ -2395,8 +2403,12 @@ class Parser {
             else if (this.match('Keyword', 'impl')) { const op = new ImplPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Keyword', 'union')) { const op = new UnionPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Keyword', 'mut')) { const op = new MutPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Keyword', 'ex')) { const op = new ExPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Symbol', '~')) { const op = new ResErrPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Symbol', '-')) { const op = new NegPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Symbol', '!')) { const op = new NotPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Symbol', '..')) { const op = new RangePreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Symbol', '@')) { ops.push(new AnnotationPreOp(this.parseAnnotation())); }
+            else if (this.match('Symbol', '@')) { const op = new AnnotationPreOp(); op.annotation = this.parseAnnotation(); ops.push(op); }
             else if (this.match('Keyword', 'if')) {
                 const op = new IfPreOp();
                 op.ifKw = this.createAstToken(this.consume());
@@ -2681,7 +2693,7 @@ class Parser {
         const anns = this.parseAnnotations();
         if (anns.length > 0) {
             const inner = this.parseStat();
-            return inner;
+            return inner;//TODO: store anns
         }
 
         if (this.match('Keyword', 'let')) {
@@ -3183,39 +3195,42 @@ class Parser {
         return i;
     }
 
+    parseAnnotation(isOuter = false) {
+        if (this.match('Symbol', isOuter ? '@<' : '@')) {
+            const ann = new (isOuter ? OuterModPathAnnotation : ModPathAnnotation)();
+            ann.at = this.createAstToken(this.consume());
+            ann.path = this.parseModPath();
+            if (this.match('Symbol', '{')) {
+                ann.table.present = true;
+                ann.table.tbl = this.parseTableConstructor();
+            }
+            return ann;
+        }
+        else if (this.match('Symbol', isOuter ? '--<' : '---')) {
+            const startTok = this.consume();
+            if (this.match('LiteralString')) {
+                const strTok = this.consume();
+                const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
+                ann.txt = this.createAstToken(startTok);
+                ann.content = strTok.txt;
+                return ann;
+            } else if (this.match('LineOfText')) {
+                const txtTok = this.consume();
+                const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
+                ann.txt = this.createAstToken(startTok);
+                ann.content = txtTok.txt;
+                return ann;
+            }
+            throw new Error("Expected string or text after comment annotation");
+        }
+        return null;
+    }
     parseAnnotations(isOuter = false) {
         const annotations = [];
         while (true) {
-            if (this.match('Symbol', isOuter ? '@<' : '@')) {
-                const ann = new (isOuter ? OuterModPathAnnotation : ModPathAnnotation)();
-                ann.at = this.createAstToken(this.consume());
-                ann.path = this.parseModPath();
-                if (this.match('Symbol', '{')) {
-                    ann.table.present = true;
-                    ann.table.tbl = this.parseTableConstructor();
-                }
-                annotations.push(ann);
-            }
-            else if (this.match('Symbol', isOuter ? '--<' : '---')) {
-                const startTok = this.consume();
-                if (this.match('LiteralString')) {
-                    const strTok = this.consume();
-                    const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
-                    ann.txt = this.createAstToken(startTok);
-                    ann.content = strTok.txt;
-                    annotations.push(ann);
-                } else if (this.match('LineOfText')) {
-                    const txtTok = this.consume();
-                    const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
-                    ann.txt = this.createAstToken(startTok);
-                    ann.content = txtTok.txt;
-                    annotations.push(ann);
-                } else {
-                    throw new Error("Expected string or text after comment annotation");
-                }
-            } else {
-                break;
-            }
+            const ann = parseAnnotation(isOuter);
+            if (ann === null) break;
+            annotations.push(ann);
         }
         return annotations;
     }
