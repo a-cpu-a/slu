@@ -2559,22 +2559,25 @@ class Parser {
 
     handleDotAccess(isConst, suffixOps) {
         const dot = this.createAstToken(this.consume());
+        const n = this.parseTuplableName();
 
         // Determine if this is a call or a field access based on lookahead
         const isCall = this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral');
 
         if (isCall) {
+            if (n instanceof NumTuplableName)
+                throw new Error(`Expected method name, found ${JSON.stringify(n.name)} before ${this.pos}`);
             const CallClass = isConst ? ConstSelfableCall : SelfableCall;
             const call = new CallClass();
             call.dot = dot;
-            call.method = this.parseName();
+            call.method = n.name;
             call.args = this.parseArgs();
             suffixOps.push(call);
         } else {
             const FieldClass = isConst ? ConstDotSubVar : DotSubVar;
             const op = new FieldClass();
             op.op = dot;
-            op.field = this.parseTuplableName();
+            op.field = n;
             suffixOps.push(op);
         }
     }
