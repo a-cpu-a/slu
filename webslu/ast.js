@@ -1562,8 +1562,7 @@ class Parser {
             "!~", "!|", "!>", "!=", "!<", "!+", "!^", "!%", "!/", "!*", "!@", "!?", "!!", "!",
             ":>", "::", ":",
             ";", ",,", ",",
-            "-~", "-|", "->", "-=", "-<", "-+", "-^", "-%", "-/", "-*", "-@", "-?", "--", "-",
-            "__", "_"
+            "-~", "-|", "->", "-=", "-<", "-+", "-^", "-%", "-/", "-*", "-@", "-?", "--", "-"
         ]);
 
         // Helper to handle Lua-style long brackets
@@ -1857,7 +1856,13 @@ class Parser {
                 }
                 const txt = this.input.substring(tokenStart, this.pos);
                 this.tokens.push({
-                    type: (macro || keywords.has(txt) || /^_*$/.test(txt)) ? 'Keyword' : 'Name', // `/^_*$/` => made of only underscores
+                    type:
+                        (/^_*$/.test(txt)) // Made of only underscores
+                            ? 'Symbol'
+                            : ((macro || keywords.has(txt))
+                                ? 'Keyword'
+                                : 'Name'
+                            ),
                     txt: txt,
                     preSpace: preSpace
                 });
