@@ -2612,6 +2612,8 @@ class Parser {
         if (this.match('Keyword', 'fn')) return this.parseFnExpr();
 
         let left = this.parseUnary(basic, specType);
+        if (specType == "spat" && left instanceof OpDestrSpec)
+            return left; // Dont want to have it deep in BinExpr's
 
         while (true) {
             const opTok = this.peek();
@@ -2619,7 +2621,7 @@ class Parser {
                 const p = this.getPrecedence(opTok.txt);
                 if (p >= precedence) {
                     this.consume();
-                    const right = this.parseExpr(p + 1, basic, specType);
+                    const right = this.parseExpr(p + 1, basic);
                     const bin = new BinExpr();
                     bin.left = left;
                     bin.op = this.createAstToken(opTok);
