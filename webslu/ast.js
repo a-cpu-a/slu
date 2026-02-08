@@ -1066,6 +1066,12 @@ class Var extends CompoundNode {
 class SubVar extends SufOp {
     constructor() { super("SubVar"); }
 }
+class TrySubVar extends SufOp {
+    constructor() {
+        super("TrySubVar");
+        this.kw = new Token("?");
+    }
+}
 class DerefSubVar extends SubVar {
     constructor() { super("DerefSubVar"); this.op = new Token(".*"); }
 }
@@ -2429,13 +2435,13 @@ class Parser {
                     sufOps.push(op);
                 } else break;
             }
-            else if (this.match('Symbol', '?')) { const op = new SufOp(); op.op = this.createAstToken(this.consume()); sufOps.push(op); }
+            else if (this.match('Symbol', '?')) { const op = new TrySubVar(); op.kw = this.createAstToken(this.consume()); sufOps.push(op); }
             else if (this.match('Symbol', '??')) {
-                const op = new SufOp();
-                op.op = this.createAstToken(this.consume());
-                op.op.txt = "?";
+                const op = new TrySubVar();
+                op.kw = this.createAstToken(this.consume());
+                op.kw.txt = "?";
                 sufOps.push(op);
-                op.op.preSpace = "";
+                op.kw.preSpace = "";
                 sufOps.push(op);
             }
             else if (this.match('Symbol', '..')) { const op = new SufOp(); op.op = this.createAstToken(this.consume()); sufOps.push(op); }
@@ -2823,13 +2829,16 @@ class Parser {
                     op.close = this.createAstToken(this.expect('Symbol', ']'));
                     v.suffixes.push(op);
                 } else break;
-            } else if (this.match('Symbol', '?')) { v.suffixes.push(new SufOp(this.createAstToken(this.consume()))); }
-            else if (this.match('Symbol', '??')) {
-                const op = new SufOp();
-                op.op = this.createAstToken(this.consume());
-                op.op.txt = "?";
+            } else if (this.match('Symbol', '?')) {
+                const op = new TrySubVar();
+                op.kw = this.createAstToken(this.consume());
                 v.suffixes.push(op);
-                op.op.preSpace = "";
+            } else if (this.match('Symbol', '??')) {
+                const op = new TrySubVar();
+                op.kw = this.createAstToken(this.consume());
+                op.kw.txt = "?";
+                v.suffixes.push(op);
+                op.kw.preSpace = "";
                 v.suffixes.push(op);
             }
             else if (this.match('Symbol', '..')) { v.suffixes.push(new SufOp(this.createAstToken(this.consume()))); }
