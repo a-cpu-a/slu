@@ -2,13 +2,13 @@
 const exOp = ex u8;
 const unionifyOp = union {};
 const mutOp = mut 100;
-const allocOp = alloc 100;
+--const allocOp = alloc 100;
 
 const orOp = 1 or 0;
 const andOp = 1 and 0;
 
 const eqOp = orOp==andOp;
-const neOp = eqOp!=andOp;
+const neOp = eqOp !=andOp;
 
 const ltOp = 1 < 100;
 const gtOp = 1 > 100;

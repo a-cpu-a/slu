@@ -2,4 +2,4 @@
 ertert
 ]===]==]
 
-print("Not inside a comment lol")
+const x = print("Not inside a comment lol")

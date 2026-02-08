@@ -6,10 +6,10 @@ unsafe fn decl_helloWorld4() -> *mut[]str;
 safe fn decl_helloWorld5() -> *mut[]str
 fn decl_helloWorld0() -> *const[]str
 
-ex unsafe fn decl_self(self) -> **u8
-ex unsafe fn decl_rself(*self) -> u8
-ex unsafe fn decl_rmself(*mut self)
-ex unsafe fn decl_rrself(**self)
-ex unsafe fn decl_rrmself(**mut self)
-ex unsafe fn decl_rmrself(*mut *self) -> *mut u8
-ex unsafe fn decl_rmrmself(*mut *mut self)
+const decl_self = ex unsafe fn(self) -> **u8
+const decl_rself = ex unsafe fn(*self) -> u8
+const decl_rmself = ex unsafe fn(*mut self)
+const decl_rrself = ex unsafe fn(**self)
+const decl_rrmself = ex unsafe fn(**mut self)
+const decl_rmrself = ex unsafe fn(*mut *self) -> *mut u8
+const decl_rmrmself = ex unsafe fn(*mut *mut self)

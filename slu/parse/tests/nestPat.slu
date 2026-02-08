@@ -5,13 +5,13 @@ const _TnTObj{
 	|_t2_| BTn___{
 		|t__| a221,
 		|n_| mut *b221
-	}  _wrap1,
+	},
 	|___n2| {
 		|_t| ax2x,
 		|__n| _b2z
-	} _wrap21,
+	},
 	..
-} _wrap2 = __getTnT_Obj();
+} = __getTnT_Obj();
 
 
 
@@ -20,14 +20,14 @@ const TnT{
 	{
 		aa,
 		mut b3
-	} wrap33,
+	},
 	b,
 	Tn{
 		a2,
 		b2
-	} wrap334,
+	},
 	..
-} wrap331 = getTnT();
+} = getTnT();
 
 
 const TnTArr{
@@ -59,6 +59,6 @@ const TnTArr4{
 	{
 		|t| ***a2_45,
 		|n| *mut *b2_45
-	} cicada,
+	},
 	..
 } = getTnT_4();
