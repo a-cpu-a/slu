@@ -2482,7 +2482,7 @@ class Parser {
 
         // --- Parse Suffix/Postfix Operators ---
         const suffixOps = [];
-        while (true) {
+        while (!this.match('EOF')) {
             if (this.match('Symbol', '.*')) {
                 const op = new DerefSubVar();
                 op.op = this.createAstToken(this.consume());
@@ -2513,11 +2513,6 @@ class Parser {
                 suffixOps.push(op1);
                 suffixOps.push(new TrySubVar()); // Add second implicit op
             }
-            else if (this.match('Symbol', '..')) {
-                const op = new RangeSufOp();
-                op.kw = this.createAstToken(this.consume());
-                suffixOps.push(op);
-            }
             else if (this.match('Keyword', 'try')) {
                 const op = new TryOp();
                 op.tryKw = this.createAstToken(this.consume());
@@ -2528,6 +2523,21 @@ class Parser {
                 const call = new SelfableCall();
                 call.args = this.parseArgs();
                 suffixOps.push(call);
+            }
+            else if ((
+                this.peek(1).type == 'EOF'
+                || this.peek(1).txt == '}'
+                || this.peek(1).txt == ']'
+                || this.peek(1).txt == ')'
+                || this.peek(1).txt == '=>'
+                || this.peek(1).txt == 'let'
+                || this.peek(1).txt == 'break'
+                || this.peek(1).txt == 'return'
+                || this.peek(1).txt == 'continue'
+            ) && this.match('Symbol', '..')) {
+                const op = new RangeSufOp();
+                op.kw = this.createAstToken(this.consume());
+                suffixOps.push(op);
             }
             else {
                 break;
