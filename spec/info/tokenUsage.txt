@@ -274,10 +274,11 @@ S - suffix
 |   !!   |  |
 |   !    |X~| postfix only counts as macro-call when no whitespace between.
 |   :>   |X-|
+|   ::   | X|
 |   :    | X|
-|   ;    | X|
+|   ;    |/X|
 |   ,,   |  |
-|   ,    | X|
+|   ,    |/X|
 |   -~   |  |
 |   -|   |  |
 |   ->   |  | will likely be projection
