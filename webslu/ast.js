@@ -2096,7 +2096,10 @@ class Parser {
             }
 
             const items = [];
-            while (!this.match('Symbol', '}') && !this.match('EOF')) {
+            while (!this.match('Symbol', '}')) {
+                if (this.match('Symbol', '..') && this.peek(1).txt == '}') {
+                    break;
+                }
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
                     if (actualPat instanceof UncondPatFieldDestrPat)
@@ -2122,7 +2125,7 @@ class Parser {
             list.items = items;
             actualPat.fields = list;
 
-            actualPat.extraFields = this.parseOptToken('..');//TODO: actually parse this
+            actualPat.extraFields = this.parseOptToken('..');
             actualPat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
             return actualPat;
         }
@@ -2166,7 +2169,10 @@ class Parser {
                 actualPat.type.tbl = dspec;
             }
             const items = [];
-            while (!this.match('Symbol', '}') && !this.match('EOF')) {
+            while (!this.match('Symbol', '}')) {
+                if (this.match('Symbol', '..') && this.peek(1).txt == '}') {
+                    break;
+                }
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
                     if (actualPat instanceof PatFieldDestrPat)
@@ -2191,7 +2197,7 @@ class Parser {
             list.items = items;
             actualPat.fields = list;
 
-            actualPat.extraFields = this.parseOptToken('..');//TODO: actually parse this
+            actualPat.extraFields = this.parseOptToken('..');
             actualPat.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
             return actualPat;
         }
