@@ -2397,7 +2397,8 @@ class Parser {
 
         } else {
             e.pipe1 = this.createAstToken(this.expect('Symbol', '|'));
-            e.params = this.parseParams();
+            if (!this.match('Symbol', '|'))
+                e.params = this.parseParams();
             e.pipe2 = this.createAstToken(this.expect('Symbol', '|'));
         }
 
@@ -3168,7 +3169,8 @@ class Parser {
             s.fnKw = this.createAstToken(this.consume());
             s.name = this.parseName();
             s.openParen = this.createAstToken(this.expect('Symbol', '('));
-            s.params = this.parseParams();
+            if (!this.match('Symbol', ')'))
+                s.params = this.parseParams();
             s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
             s.retArrow = this.parseOptToken('->');
             if (s.retArrow.present) s.retType = this.parseExpr(0, true);

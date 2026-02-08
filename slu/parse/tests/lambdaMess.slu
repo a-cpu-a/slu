@@ -1,0 +1,6 @@
+const l1 = || ->..=>1
+const l2 = || 1
+const l3 = | | 1
+const l4 = unsafe |const x = u8| 1
+const l5 = |p = u8| 1
+const l6 = safe |p = ******in p /p mut u8| p
