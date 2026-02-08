@@ -2255,6 +2255,12 @@ class Parser {
             return e;
         }
 
+        if (this.match('Symbol', '..')) {
+            const e = new UnboundedRangeExpr();
+            e.op = this.createAstToken(this.consume());
+            return e;
+        }
+
         if (this.match('Name') || this.match('Keyword', 'self') || this.match('Keyword', 'crate') || this.match('Symbol', ':>')) {
             if (specType == "spat" && this.match('Name')) {
                 let afterTok = this.peek(1);
@@ -2438,7 +2444,17 @@ class Parser {
             else if (this.pushSimplePrefixOp('Symbol', '~', ResErrPreOp, prefixOps)) { }
             else if (this.pushSimplePrefixOp('Symbol', '-', NegPreOp, prefixOps)) { }
             else if (this.pushSimplePrefixOp('Symbol', '!', NotPreOp, prefixOps)) { }
-            else if (this.pushSimplePrefixOp('Symbol', '..', RangePreOp, prefixOps)) { }
+            else if ((
+                this.peek(1).type != 'EOF'
+                && this.peek(1).txt != '}'
+                && this.peek(1).txt != ']'
+                && this.peek(1).txt != ')'
+                && this.peek(1).txt != '=>'
+                && this.peek(1).txt != 'let'
+                && this.peek(1).txt != 'break'
+                && this.peek(1).txt != 'return'
+                && this.peek(1).txt != 'continue'
+            ) && this.pushSimplePrefixOp('Symbol', '..', RangePreOp, prefixOps)) { }
             else {
                 break;
             }
