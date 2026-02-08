@@ -281,8 +281,8 @@ class VarDestrPat extends DestrPat {
     constructor() {
         super("VarDestrPat");
         this.base = new UncondVarDestrPat();
-        this.eq = new OptToken("=");
-        this.valPat = new SimplePat(); // $<Needs eq>
+        this.eq = new Token("=");
+        this.valPat = new SimplePat();
     }
 }
 class PatFieldDestrPat extends DestrPat {
@@ -1510,11 +1510,14 @@ class Parser {
         // Define Symbols based on spec
         // Using a Set for O(1) lookup. We will check for length 3, then 2, then 1.
         const symbols = new Set([
-            "|||", ">=<", "===", "<=>", "+++", "//=", "///", "***", "**-", "...", ":::", "---",
+            "|||", ">=<", "===", "<=>", "+++", "//=", "///", "***", "**-", "}<:", "]<:", ")<:", "...", "!=!",
+            ":>~", ":>|", ":>>", ":>=", ":><", ":>+", ":>^", ":>%", ":>&", ":>/", ":>*", ":>@", ":>{", ":>[",
+            ":>(", ":>'", ":>.", ":>?", ":>!", ":>,", ":>-",
+            ":::", "--<", "---",
             "~~", "~|", "~>", "~=", "~<", "~+", "~^", "~%", "~&", "~/", "~@", "~?", "~!", "~-", "~",
             "||", "|>", "|=", "|<", "|+", "|^", "|%", "|&", "|/", "|@", "|?", "|!", "|-", "|",
             ">~", ">|", ">>", ">=", "><", ">+", ">^", ">%", ">&", ">/", ">*", ">@", ">?", ">!", ">",
-            "=<", "=",
+            "=>", "=<", "=",
             "<~", "<|", "<>", "<=", "<<", "<+", "<^", "<%", "<&", "</", "<*", "<@", "<?", "<!", "<",
             "+~", "+|", "+>", "+=", "+<", "++", "+^", "+%", "+/", "+*", "+@", "+!", "+-", "+",
             "^~", "^|", "^>", "^=", "^<", "^+", "^^", "^%", "^/", "^*", "^@", "^?", "^!", "^",
@@ -1522,10 +1525,12 @@ class Parser {
             "&~", "&>", "&=", "&<", "&+", "&^", "&%", "&&", "&*", "&?", "&",
             "/~", "/|", "/>", "/=", "/<", "/+", "/^", "/%", "/&", "//", "/*", "/@", "/?", "/!", "/",
             "*~", "*|", "*>", "*=", "*<", "*+", "*^", "*%", "*/", "**", "*?", "*!", "*",
-            "@<", "@@", "@", "}", "{", "]", "[", ")", "(", "\"", "'", ".*", "..", ".:", ".", "?&", "?@", "?!", "?",
+            "@<", "@@", "@", "}", "{", "]", "[", ")", "(", "\"",
+            "'~", "'|", "'>", "'=", "'<", "'+", "'^", "'%", "'&", "'/", "'*", "'@", "'{", "'[", "'(", "''", "'.", "'!", "':", "';", "',", "'-", "'",
+            ".*", "..", ".:", ".", "?&", "?@", "?'", "??", "?!", "?",
             "!~", "!|", "!>", "!=", "!<", "!+", "!^", "!%", "!/", "!*", "!@", "!?", "!!", "!",
             ":>", ":",
-            ";", ",",
+            ";", ",,", ",",
             "-~", "-|", "->", "-=", "-<", "-+", "-^", "-%", "-/", "-*", "-@", "-?", "--", "-",
             "__", "_"
         ]);
@@ -2091,9 +2096,11 @@ class Parser {
             return actualPat;
         }
         if (!(dspec instanceof OpDestrSpec)) {
-            const sp = new SimplePatDestrSpec();
-            sp.type = dspec;
-            dspec = sp;
+            const sp = new SimplePat()
+            sp.expr = dspec;
+
+            dspec = new SimplePatDestrSpec();
+            dspec.type = sp;
         }
 
         const pat = new UncondVarDestrPat();
@@ -2158,29 +2165,32 @@ class Parser {
             return actualPat;
         }
         if (!(dspec instanceof OpDestrSpec)) {
-            const sp = new SimplePatDestrSpec();
-            sp.type = dspec;
-            dspec = sp;
+            const sp = new SimplePat()
+            sp.expr = dspec;
+
+            if (this.match('Symbol', '=>') || this.match('Keyword', 'if')) {
+                return sp;
+            }
+            dspec = new SimplePatDestrSpec();
+            dspec.type = sp;
         }
-        const name = this.parseName(); // TODO: expr only! (check for =>)
+        const name = this.parseName();
+        const upat = new UncondVarDestrPat();
+        upat.specifiers = dspec;
+        upat.name = name;
 
         if (this.match('Symbol', '=')) {
-            const eq = this.createAstToken(this.consume());
-            const val = this.parseExpr();
-
             const pat = new VarDestrPat();
-            pat.base = new UncondVarDestrPat();
-            pat.base.specifiers = dspec;
-            pat.base.name = name;
-            pat.eq = eq;
+            pat.base = upat;
+            pat.eq = this.createAstToken(this.consume());
             pat.valPat = new SimplePat();
-            pat.valPat.expr = val;
+
+            pat.valPat.expr = this.parseExpr(0, true, "spat");
+            if (pat.valPat.expr instanceof OpDestrSpec)
+                throw "TODO";
             return pat;
         }
-        const pat = new UncondVarDestrPat();
-        pat.specifiers = dspec;
-        pat.name = name;
-        return pat;
+        return upat;
     }
 
     // ----------------------------------------------------------------
@@ -2212,7 +2222,7 @@ class Parser {
             if (specType == "spat" && this.match('Name')) {
                 let afterTok = this.peek(1);
                 let spp = afterTok.type == 'Symbol' && (afterTok.txt == '=' || afterTok.txt == '=>' || afterTok.txt == ',' || afterTok.txt == '}');
-                spp |= afterTok.type == 'Keyword' && (afterTok.txt == 'in');
+                spp |= afterTok.type == 'Keyword' && (afterTok.txt == 'in' || afterTok.txt == 'if');
                 spp |= afterTok.type == 'EOF';
 
                 if (spp)
