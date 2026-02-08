@@ -15,7 +15,6 @@ S - suffix
 `~` -> likely bad idea to use, as it conflicts sometimes.
 `/` -> too wierd to use.
 `^` -> already used by another token.
-`R` -> reserved.
 +--------+--+
 |  SYM	 |PS|
 +--------+--+
@@ -29,169 +28,196 @@ S - suffix
 |  dyn   |X |
 |  and   | X|
 |  0-9   |X-|
-|  |||   |RR|
-|  >=<   |RR|
-|  ===   |RR|
-|  <=>   |RR|
-|  +++   |RR|
-|  //=   |RR| assign and op
-|  ///   |RR|
-|  ***   |RR|
-|  **-   |RR|
-|  ...   |RR|
-|  :::   |RR|
+|  |||   |  |
+|  >=<   |  |
+|  ===   |  |
+|  <=>   |  |
+|  +++   |  |
+|  //=   |  | assign and op
+|  ///   |  |
+|  ***   |  |
+|  **-   |  |
+|  }<:   |  |
+|  ]<:   |  |
+|  )<:   |  |
+|  ...   |  |
+|  !=!   |  | `xxx!=!` is `xxx!`, `=`+`!`
+|  :>~   |  |
+|  :>|   |  |
+|  :>>   |  |
+|  :>=   |  |
+|  :><   |  |
+|  :>+   |  |
+|  :>^   |  |
+|  :>%   |  |
+|  :>&   |  |
+|  :>/   |  |
+|  :>*   |  |
+|  :>@   |  |
+|  :>{   |  |
+|  :>[   |  |
+|  :>(   |  |
+|  :>'   |  |
+|  :>.   |  |
+|  :>?   |  |
+|  :>!   |  |
+|  :>,   |  |
+|  :>-   |  |
+|  :::   |  |
+|  --<   |XX| doc comments
 |  ---   |XX| doc comments
 |   or   | X|
 |   in   | X|
 |   if   |X-|
 |   $    |  |
-|   ~~   |RR|
-|   ~|   |RR|
-|   ~>   |RR|
-|   ~=   |RR|
-|   ~<   |RR|
-|   ~+   |RR|
-|   ~^   |RR|
-|   ~%   |RR|
-|   ~&   |RR|
-|   ~/   |RR|
-|   ~@   |RR|
-|   ~?   |RR|
-|   ~!   |RR|
-|   ~-   |RR|
+|   ~~   |  |
+|   ~|   |  |
+|   ~>   |  |
+|   ~=   |  |
+|   ~<   |  |
+|   ~+   |  |
+|   ~^   |  |
+|   ~%   |  |
+|   ~&   |  |
+|   ~/   |  |
+|   ~@   |  |
+|   ~?   |  |
+|   ~!   |  |
+|   ~-   |  |
 |   ~    | X|
-|   ||   |^R| prefix -> closures with no args (`|| 53`)
-|   |>   |RR|
-|   |=   |RR| assign and op
-|   |<   |RR|
-|   |+   |RR|
-|   |^   |RR|
-|   |%   |RR|
-|   |&   |RR|
-|   |/   |RR|
-|   |@   |RR|
-|   |?   |RR|
-|   |!   |RR|
-|   |-   |RR|
+|   ||   |^ | prefix -> closures with no args (`|| 53`)
+|   |>   |  |
+|   |=   |  | assign and op
+|   |<   |  |
+|   |+   |  |
+|   |^   |  |
+|   |%   |  |
+|   |&   |  |
+|   |/   |  |
+|   |@   |  |
+|   |?   |  |
+|   |!   |  |
+|   |-   |  |
 |   |    |XX| prefix -> closures (`|x| x*x`), also for patterns
-|   >~   |RR|
-|   >|   |RR|
-|   >>   |RR|
+|   >~   |  |
+|   >|   |  |
+|   >>   |  |
 |   >=   | X|
-|   ><   |RR|
-|   >+   |RR|
-|   >^   |RR|
-|   >%   |RR|
-|   >&   |RR|
-|   >/   |RR|
-|   >*   |RR|
-|   >@   |RR|
-|   >?   |RR|
-|   >!   |RR|
+|   ><   |  |
+|   >+   |  |
+|   >^   |  |
+|   >%   |  |
+|   >&   |  |
+|   >/   |  |
+|   >*   |  |
+|   >@   |  |
+|   >?   |  |
+|   >!   |  |
 |   >    |-X| prefix, cuz of '=>' and '->'
-|   =<   |RR|
+|   =>   |-X|
+|   =<   |  |
 |   =    |-X| prefix, cuz assignment would turn into eq. suffix -> == operator
-|   <~   |RR|
-|   <|   |RR|
-|   <>   |RR|
+|   <~   |  |
+|   <|   |  |
+|   <>   |  |
 |   <=   | X|
-|   <<   |RR|
-|   <+   |RR|
-|   <^   |RR|
-|   <%   |RR|
-|   <&   |RR|
-|   </   |RR|
-|   <*   |RR|
-|   <@   |RR|
-|   <?   |RR|
-|   <!   |RR|
+|   <<   |  |
+|   <+   |  |
+|   <^   |  |
+|   <%   |  |
+|   <&   |  |
+|   </   |  |
+|   <*   |  |
+|   <@   |  |
+|   <?   |  |
+|   <!   |  |
 |   <    | X|
-|   +~   |RR|
-|   +|   |RR|
-|   +>   |RR|
-|   +=   |RR| assign and op
-|   +<   |RR|
+|   +~   |  |
+|   +|   |  |
+|   +>   |  |
+|   +=   |  | assign and op
+|   +<   |  |
 |   ++   | X|
-|   +^   |RR|
-|   +%   |RR|
-|   +/   |RR|
-|   +*   |RR|
+|   +^   |  |
+|   +%   |  |
+|   +/   |  |
+|   +*   |  |
 |   +@   | X|
-|   +!   |RR|
-|   +-   |RR|
+|   +!   |  |
+|   +-   |  |
 |   +    | X|
-|   ^~   |RR|
-|   ^|   |RR|
-|   ^>   |RR|
-|   ^=   |RR| assign and op
-|   ^<   |RR|
-|   ^+   |RR|
-|   ^^   |RR|
-|   ^%   |RR|
-|   ^/   |RR|
-|   ^*   |RR|
-|   ^@   |RR|
-|   ^?   |RR|
-|   ^!   |RR|
+|   ^~   |  |
+|   ^|   |  |
+|   ^>   |  |
+|   ^=   |  | assign and op
+|   ^<   |  |
+|   ^+   |  |
+|   ^^   |  |
+|   ^%   |  |
+|   ^/   |  |
+|   ^*   |  |
+|   ^@   |  |
+|   ^?   |  |
+|   ^!   |  |
 |   ^    | X|
 |   `    |  |
-|   %~   |RR|
-|   %|   |RR|
-|   %>   |RR|
-|   %=   |RR| assign and op
-|   %<   |RR|
-|   %+   |RR|
-|   %^   |RR|
-|   %%   |RR|
-|   %/   |RR|
-|   %*   |RR|
-|   %@   |RR|
-|   %?   |RR|
-|   %!   |RR|
+|   %~   |  |
+|   %|   |  |
+|   %>   |  |
+|   %=   |  | assign and op
+|   %<   |  |
+|   %+   |  |
+|   %^   |  |
+|   %%   |  |
+|   %/   |  |
+|   %*   |  |
+|   %@   |  |
+|   %?   |  |
+|   %!   |  |
 |   %    | X|
 |   #    |  |
-|   &~   |RR|
-|   &>   |RR|
-|   &=   |RR| assign and op
-|   &<   |RR|
-|   &+   |RR|
-|   &^   |RR|
-|   &%   |RR|
-|   &&   |RR|
-|   &*   |RR|
-|   &?   |RR|
+|   &~   |  |
+|   &>   |  |
+|   &=   |  | assign and op
+|   &<   |  |
+|   &+   |  |
+|   &^   |  |
+|   &%   |  |
+|   &&   |  |
+|   &*   |  |
+|   &?   |  |
 |   &    |X |
 |   \    |  |
-|   /~   |RR|
-|   /|   |RR|
-|   />   |RR|
-|   /=   |RR| assign and op
-|   /<   |RR|
-|   /+   |RR|
-|   /^   |RR|
-|   /%   |RR|
-|   /&   |RR|
+|   /~   |  |
+|   /|   |  |
+|   />   |  |
+|   /=   |  | assign and op
+|   /<   |  |
+|   /+   |  |
+|   /^   |  |
+|   /%   |  |
+|   /&   |  |
 |   //   | X| floor-div
-|   /*   |RR|
-|   /@   |RR|
-|   /?   |RR|
-|   /!   |RR|
+|   /*   |  |
+|   /@   |  |
+|   /?   |  |
+|   /!   |  |
 |   /    |XX| lifetime, or division
-|   *~   |RR|
-|   *|   |RR|
-|   *>   |RR|
-|   *=   |RR| assign and op
-|   *<   |RR|
-|   *+   |RR|
-|   *^   |RR|
-|   *%   |RR|
-|   */   |RR|
+|   *~   |  |
+|   *|   |  |
+|   *>   |  |
+|   *=   |  | assign and op
+|   *<   |  |
+|   *+   |  |
+|   *^   |  |
+|   *%   |  |
+|   */   |  |
 |   **   |XX| steals to-ptr meaning in suffix form (`x ** y`) not (`x * (*y)`)
-|   *?   |RR|
-|   *!   |RR|
+|   *?   |  |
+|   *!   |  |
 |   *    |XX|
 |   @<   |XX|
-|   @@   |RR|
+|   @@   |  |
 |   @    |X-|
 |   }    |/X|
 |   {    |XX|
@@ -200,48 +226,73 @@ S - suffix
 |   )    |/X|
 |   (    |XX| suffix is used as call
 |   "    |XX|
-|   '    |XX|
+|   '~   |  |
+|   '|   |  |
+|   '>   |  |
+|   '=   |  |
+|   '<   |  |
+|   '+   |  |
+|   '^   |  |
+|   '%   |  |
+|   '&   |  |
+|   '/   |  |
+|   '*   |  |
+|   '@   |  |
+|   '{   |  |
+|   '[   |  |
+|   '(   |  |
+|   ''   |  |
+|   '.   |  |
+|   '!   |  |
+|   ':   |  |
+|   ';   |  |
+|   ',   |  |
+|   '-   |  |
+|   '    |X |
 |   .*   | X|
 |   ..   |XX|
 |   .:   | X|
 |   .    |XX| prefix -> number (.0)
-|   ?&   |RR|
-|   ?@   |RR|
-|   ?!   |RR|
+|   ?&   |  |
+|   ?@   |  |
+|   ?'   |  |
+|   ??   | X|
+|   ?!   |  |
 |   ?    |XX| prefix -> trait-optionalification-operator
-|   !~   |RR| `xxx!~` is `xxx!`, `~`
-|   !|   |RR| `xxx!|` is `xxx!`, `|`
-|   !>   |RR| `xxx!>` is `xxx!`, `>`
+|   !~   |  | `xxx!~` is `xxx!`, `~`
+|   !|   |  | `xxx!|` is `xxx!`, `|`
+|   !>   |  | `xxx!>` is `xxx!`, `>`
 |   !=   | X| not-eq, does not steal from macro params, so `xxx!=>` is `xxx!`, `=>`
-|   !<   |RR| `xxx!<` is `xxx!`, `<`
-|   !+   |RR| `xxx!+` is `xxx!`, `+`
-|   !^   |RR| `xxx!^` is `xxx!`, `^`
-|   !%   |RR| `xxx!%` is `xxx!`, `%`
-|   !/   |RR| `xxx!/` is `xxx!`, `/`
-|   !*   |RR| `xxx!*` is `xxx!`, `*`
-|   !@   |RR| `xxx!%` is `xxx!`, `%`
-|   !?   |RR|
-|   !!   |RR|
+|   !<   |  | `xxx!<` is `xxx!`, `<`
+|   !+   |  | `xxx!+` is `xxx!`, `+`
+|   !^   |  | `xxx!^` is `xxx!`, `^`
+|   !%   |  | `xxx!%` is `xxx!`, `%`
+|   !/   |  | `xxx!/` is `xxx!`, `/`
+|   !*   |  | `xxx!*` is `xxx!`, `*`
+|   !@   |  | `xxx!%` is `xxx!`, `%`
+|   !?   |  |
+|   !!   |  |
 |   !    |X~| postfix only counts as macro-call when no whitespace between.
 |   :>   |X-|
 |   :    | X|
-|   ;    | -|
-|   ,    | -|
-|   -~   |RR|
-|   -|   |RR|
-|   ->   |RR| will likely be projection
-|   -=   |RR| assign and op
-|   -<   |RR|
-|   -+   |RR|
-|   -^   |RR|
-|   -%   |RR|
-|   -/   |RR|
-|   -*   |RR|
-|   -@   |RR|
-|   -?   |RR|
+|   ;    | X|
+|   ,,   |  |
+|   ,    | X|
+|   -~   |  |
+|   -|   |  |
+|   ->   |  | will likely be projection
+|   -=   |  | assign and op
+|   -<   |  |
+|   -+   |  |
+|   -^   |  |
+|   -%   |  |
+|   -/   |  |
+|   -*   |  |
+|   -@   |  |
+|   -?   |  |
 |   --   |XX| comments
 |   -    |XX|
-|   __   |RR|
+|   __   |  |
 |   _    |X-|
 +--------+--+
 }
