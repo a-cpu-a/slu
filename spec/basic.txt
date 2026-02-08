@@ -27,7 +27,7 @@ New Syntax {
 	dotOp ::= "." | ".:"
 	tupleableName ::= Name | integral
 	subvar ::= ".*" | "." tupleableName | "[" expr "]"
-	var ::= (Name | "(" expr ")") {{selfablecall | "?"} subvar}
+	var ::= (Name | "(" expr ")") {{".:" Name | selfablecall | "?"} subvar}
 
 	basicArgs ::=  "(" {expr fieldsep} ")" | LiteralString | Numeral
 	selfablecall ::= [dotOp Name] (basicArgs | tableconstructor)
