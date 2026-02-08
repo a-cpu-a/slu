@@ -2083,10 +2083,10 @@ class Parser {
 
             console.assert(dspec instanceof Expr); // Not OpDestrSpec
 
-            let actualPat = new UncondFieldDestrPat();
+            let actualPat = new UncondPatFieldDestrPat();
             const openBrace = this.createAstToken(this.consume());
             if (this.match('Symbol', '|'))
-                actualPat = new UncondPatFieldDestrPat();
+                actualPat = new UncondFieldDestrPat();
             actualPat.openBrace = openBrace;
             actualPat.type = new OptSimplePat();
 
@@ -2157,10 +2157,10 @@ class Parser {
         if (this.match('Symbol', '{')) {
             console.assert(dspec instanceof Expr); // Not OpDestrSpec
 
-            let actualPat = new FieldDestrPat();
+            let actualPat = new PatFieldDestrPat();
             const openBrace = this.createAstToken(this.consume());
             if (this.match('Symbol', '|'))
-                actualPat = new PatFieldDestrPat();
+                actualPat = new FieldDestrPat();
             actualPat.openBrace = openBrace;
             actualPat.type = new OptSimplePat();
 
