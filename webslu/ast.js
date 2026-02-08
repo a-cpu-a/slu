@@ -2702,7 +2702,7 @@ class Parser {
 
         if (this.match('Keyword', 'if')) return this.parseIfStat();
 
-        if (this.match('Keyword', 'unsafe')) {
+        if (this.match('Keyword', 'unsafe') && this.peek(1).txt == '{') {
             const s = new UnsafeStat();
             s.unsafeKw = this.createAstToken(this.consume());
             s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
@@ -2723,9 +2723,6 @@ class Parser {
         if (this.match('Keyword', 'while')) return this.parseWhileStat(new OptToken(), new Name(), new Token(":"));
         if (this.match('Keyword', 'for')) return this.parseForStat(new OptToken(), new Name(), new Token(":"));
 
-        if (this.match('Keyword', 'struct') || this.match('Keyword', 'enum') || this.match('Keyword', 'fn') || this.match('Keyword', 'trait') || this.match('Keyword', 'extern') || this.match('Keyword', 'impl') || this.match('Keyword', 'use') || this.match('Keyword', 'mod') || this.match('Keyword', 'const') || this.match('Keyword', 'union') || this.match('Keyword', 'ex')) {
-            return this.parseGlobStat();
-        }
 
         if (this.match('Name') || this.match('Symbol', '(')) {
             const v = this.parseVar();
@@ -2757,7 +2754,7 @@ class Parser {
             return e;
         }
 
-        throw new Error("Unknown statement");
+        return this.parseGlobStat();
     }
 
     parseIfStat() {
@@ -2906,7 +2903,16 @@ class Parser {
             exportKw.kw.txt = this.consume().txt;
         }
 
-        if (this.match('Keyword', 'struct')) {
+        if (this.match('Keyword', 'use')) {
+            const s = new UseDecl();
+            s.export = exportKw;
+            s.useKw = this.createAstToken(this.consume());
+            s.path = this.parseModPath();
+            s.variant = this.parseUseVariant();
+            return s;
+        }
+
+        if (this.match('Keyword', 'struct') && this.peek(1).txt != 'fn') {
             const s = new StructDecl();
             s.export = exportKw;
             s.structKw = this.createAstToken(this.consume());
@@ -2937,27 +2943,6 @@ class Parser {
             return s;
         }
 
-        if (this.match('Keyword', 'fn')) {
-            const s = new FunctionDecl();
-            s.export = exportKw;
-            if (this.match('Keyword', 'safe')) { s.safety.kind = "safe"; s.safety.kw = this.createAstToken(this.consume()); }
-            if (this.match('Keyword', 'unsafe')) { s.safety.kind = "unsafe"; s.safety.kw = this.createAstToken(this.consume()); }
-            s.structKw = this.parseOptToken('struct');
-            s.fnKw = this.createAstToken(this.consume());
-            s.name = this.parseName();
-            s.openParen = this.createAstToken(this.expect('Symbol', '('));
-            s.params = this.parseParams();
-            s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
-            s.retArrow = this.parseOptToken('->');
-            if (s.retArrow.present) s.retType = this.parseExpr(0, true);
-            s.body = new OptBlockNode();
-            if (this.match('Symbol', '{')) {
-                s.body.present = true;
-                s.body.block = this.parseBlock();
-            }
-            return s;
-        }
-
         if (this.match('Keyword', 'trait')) {
             const s = new TraitDecl();
             s.export = exportKw;
@@ -2970,51 +2955,6 @@ class Parser {
             }
             if (this.match('Keyword', 'where')) s.where = this.parseWhereClauses();
             s.body = this.parseTableConstructor();
-            return s;
-        }
-
-        if (this.match('Keyword', 'extern')) {
-            const s = new ExternBlock();
-            if (this.match('Keyword', 'safe')) { s.safety.kind = "safe"; s.safety.kw = this.createAstToken(this.consume()); }
-            if (this.match('Keyword', 'unsafe')) { s.safety.kind = "unsafe"; s.safety.kw = this.createAstToken(this.consume()); }
-            s.externKw = this.createAstToken(this.consume());
-            s.abiName = this.parseStr();
-            s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
-            while (!this.match('Symbol', '}')) s.stats.push(this.parseGlobStat());
-            s.closeBrace = this.createAstToken(this.consume());
-            return s;
-        }
-
-        if (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Keyword', 'impl')) {
-            const s = new ImplDecl();
-            s.export = exportKw;
-            if (this.match('Keyword', 'safe')) { s.safety.kind = "safe"; s.safety.kw = this.createAstToken(this.consume()); }
-            if (this.match('Keyword', 'unsafe')) { s.safety.kind = "unsafe"; s.safety.kw = this.createAstToken(this.consume()); }
-            s.implKw = this.createAstToken(this.expect('Keyword', 'impl'));
-            if (this.match('Symbol', '(')) {
-                s.openParen = this.createAstToken(this.consume());
-                s.params = this.parseParams();
-                s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
-            }
-            const maybeTrait = this.parseExpr(0, true);
-            if (this.match('Keyword', 'for')) {
-                s.forKw = this.createAstToken(this.consume());
-                s.traitType = maybeTrait;
-                s.targetType = this.parseExpr(0, true);
-            } else {
-                s.targetType = maybeTrait;
-            }
-            if (this.match('Keyword', 'where')) s.where = this.parseWhereClauses();
-            s.body = this.parseTableConstructor();
-            return s;
-        }
-
-        if (this.match('Keyword', 'use')) {
-            const s = new UseDecl();
-            s.export = exportKw;
-            s.useKw = this.createAstToken(this.consume());
-            s.path = this.parseModPath();
-            s.variant = this.parseUseVariant();
             return s;
         }
 
@@ -3051,6 +2991,69 @@ class Parser {
                 s.params = this.parseParams();
                 s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
             }
+            s.body = this.parseTableConstructor();
+            return s;
+        }
+
+        const safetyKw = new Safety();
+        if (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe')) {
+            const kw = this.consume();
+            safetyKw.kind = kw.txt;
+            safetyKw.preSpace = kw.preSpace;
+        }
+
+        if (safetyKw.kind != 'default') {
+            if (this.match('Keyword', 'extern')) {
+                const s = new ExternBlock();
+                s.safety = safetyKw;
+                s.externKw = this.createAstToken(this.consume());
+                s.abiName = this.parseStr();
+                s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
+                while (!this.match('Symbol', '}')) s.stats.push(this.parseGlobStat());
+                s.closeBrace = this.createAstToken(this.consume());
+                return s;
+            }
+        }
+
+        if (this.match('Keyword', 'fn') || (this.match('Keyword', 'struct') && this.peek(1).txt == 'fn')) {
+            const s = new FunctionDecl();
+            s.export = exportKw;
+            s.safety = safetyKw;
+            s.structKw = this.parseOptToken('struct');
+            s.fnKw = this.createAstToken(this.consume());
+            s.name = this.parseName();
+            s.openParen = this.createAstToken(this.expect('Symbol', '('));
+            s.params = this.parseParams();
+            s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            s.retArrow = this.parseOptToken('->');
+            if (s.retArrow.present) s.retType = this.parseExpr(0, true);
+            s.body = new OptBlockNode();
+            if (this.match('Symbol', '{')) {
+                s.body.present = true;
+                s.body.block = this.parseBlock();
+            }
+            return s;
+        }
+
+        if (this.match('Keyword', 'impl')) {
+            const s = new ImplDecl();
+            s.export = exportKw;
+            s.safety = safetyKw;
+            s.implKw = this.createAstToken(this.expect('Keyword', 'impl'));
+            if (this.match('Symbol', '(')) {
+                s.openParen = this.createAstToken(this.consume());
+                s.params = this.parseParams();
+                s.closeParen = this.createAstToken(this.expect('Symbol', ')'));
+            }
+            const maybeTrait = this.parseExpr(0, true);
+            if (this.match('Keyword', 'for')) {
+                s.forKw = this.createAstToken(this.consume());
+                s.traitType = maybeTrait;
+                s.targetType = this.parseExpr(0, true);
+            } else {
+                s.targetType = maybeTrait;
+            }
+            if (this.match('Keyword', 'where')) s.where = this.parseWhereClauses();
             s.body = this.parseTableConstructor();
             return s;
         }
