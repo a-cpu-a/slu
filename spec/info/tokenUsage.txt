@@ -114,7 +114,8 @@ S - suffix
 |   >?   |  |
 |   >!   |  |
 |   >    |-X| prefix, cuz of '=>' and '->'
-|   =>   |-X|
+|   =>   |/X|
+|   ==   | X|
 |   =<   |  |
 |   =    |-X| prefix, cuz assignment would turn into eq. suffix -> == operator
 |   <~   |  |
