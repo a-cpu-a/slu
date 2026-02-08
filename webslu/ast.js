@@ -1093,6 +1093,14 @@ class SelfableCall extends SufOp {
         this.args = new Args();
     }
 }
+class ConstSelfableCall extends SufOp {
+    constructor() {
+        super("ConstSelfableCall");
+        this.dot = new OptToken(".:");
+        this.method = new Name(); // $<Needs dot>
+        this.args = new Args();
+    }
+}
 
 class RangeSufOp extends SufOp {
     constructor() {
@@ -2416,29 +2424,34 @@ class Parser {
         while (true) {
             if (this.match('Symbol', '.*')) {
                 const op = new DerefSubVar(); op.op = this.createAstToken(this.consume()); sufOps.push(op);
-            }
-            else if (this.match('Symbol', '.')) {
-                const dot = this.consume();
-                if (this.match('Symbol', ':')) {
-                    const op = new ConstDotSubVar(); op.op = this.createAstToken(dot); op.field = this.parseName(); sufOps.push(op);
-                } else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
+            } else if (this.match('Symbol', '.')) {
+                const dot = this.createAstToken(this.consume());
+                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
                     const call = new SelfableCall();
-                    call.dot = this.createAstToken(dot);
+                    call.dot = dot;
                     call.method = this.parseName();
                     call.args = this.parseArgs();
                     sufOps.push(call);
                 } else {
-                    const op = new DotSubVar(); op.op = this.createAstToken(dot); op.field = this.parseTuplableName(); sufOps.push(op);
+                    const op = new DotSubVar(); op.op = dot; op.field = this.parseTuplableName(); sufOps.push(op);
                 }
-            }
-            else if (this.match('Symbol', ':')) {
-                if (this.match('Symbol', '[')) {
-                    const op = new IdxSubVar();
-                    op.open = this.createAstToken(this.consume());
-                    op.expr = this.parseExpr();
-                    op.close = this.createAstToken(this.expect('Symbol', ']'));
-                    sufOps.push(op);
-                } else break;
+            } else if (this.match('Symbol', '.:')) {
+                const dot = this.createAstToken(this.consume());
+                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
+                    const call = new ConstSelfableCall();
+                    call.dot = dot;
+                    call.method = this.parseName();
+                    call.args = this.parseArgs();
+                    sufOps.push(call);
+                } else {
+                    const op = new ConstDotSubVar(); op.op = dot; op.field = this.parseTuplableName(); sufOps.push(op);
+                }
+            } else if (this.match('Symbol', '[')) {
+                const op = new IdxSubVar();
+                op.open = this.createAstToken(this.consume());
+                op.expr = this.parseExpr();
+                op.close = this.createAstToken(this.expect('Symbol', ']'));
+                sufOps.push(op);
             }
             else if (this.match('Symbol', '?')) { const op = new TrySubVar(); op.kw = this.createAstToken(this.consume()); sufOps.push(op); }
             else if (this.match('Symbol', '??')) {
@@ -2840,11 +2853,11 @@ class Parser {
                     const op = new ConstDotSubVar(); op.op = dot; op.field = this.parseTuplableName(); v.suffixes.push(op);
                 }
             } else if (this.match('Symbol', '[')) {
-                    const op = new IdxSubVar();
-                    op.open = this.createAstToken(this.consume());
-                    op.expr = this.parseExpr();
-                    op.close = this.createAstToken(this.expect('Symbol', ']'));
-                    v.suffixes.push(op);
+                const op = new IdxSubVar();
+                op.open = this.createAstToken(this.consume());
+                op.expr = this.parseExpr();
+                op.close = this.createAstToken(this.expect('Symbol', ']'));
+                v.suffixes.push(op);
                 lastValid = { pos: this.pos, s: v.suffixes.length };
             } else if (this.match('Symbol', '?')) {
                 const op = new TrySubVar();
