@@ -2360,9 +2360,9 @@ class Parser {
             e.pipe2 = new Token('|');
 
         } else {
-        e.pipe1 = this.createAstToken(this.expect('Symbol', '|'));
-        e.params = this.parseParams();
-        e.pipe2 = this.createAstToken(this.expect('Symbol', '|'));
+            e.pipe1 = this.createAstToken(this.expect('Symbol', '|'));
+            e.params = this.parseParams();
+            e.pipe2 = this.createAstToken(this.expect('Symbol', '|'));
         }
 
         e.retArrow = this.parseOptToken('->');
@@ -2466,8 +2466,7 @@ class Parser {
                 op.kw = this.createAstToken(this.consume());
                 op.kw.txt = "?";
                 sufOps.push(op);
-                op.kw.preSpace = "";
-                sufOps.push(op);
+                sufOps.push(new TrySubVar());
             }
             else if (this.match('Symbol', '..')) { const op = new RangeSufOp(); op.kw = this.createAstToken(this.consume()); sufOps.push(op); }
             else if (this.match('Keyword', 'try')) {
@@ -2866,8 +2865,7 @@ class Parser {
                 op.kw = this.createAstToken(this.consume());
                 op.kw.txt = "?";
                 ops.push(op);
-                op.kw.preSpace = "";
-                ops.push(op);
+                ops.push(new TrySubVar());
             }
             else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
                 ops.push(new SelfableCall(null, null, this.parseArgs()));
