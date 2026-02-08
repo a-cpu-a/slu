@@ -19,7 +19,7 @@ New Syntax {
 	blockstat ::= [label] "{" block "}"
 	stat ::= ";"
 		| var "=" expr
-		| var selfablecall
+		| var {".:" Name | callAllowedOps} callAllowedOps
 		| globstat
 		| statOrExpr
 		| blockstat
@@ -27,10 +27,11 @@ New Syntax {
 	dotOp ::= "." | ".:"
 	tupleableName ::= Name | integral
 	subvar ::= ".*" | "." tupleableName | "[" expr "]"
-	var ::= (Name | "(" expr ")") {{".:" Name | selfablecall | "?"} subvar}
+	var ::= (Name | "(" expr ")") {{".:" Name | callAllowedOps} subvar}
 
 	basicArgs ::=  "(" {expr fieldsep} ")" | LiteralString | Numeral
 	selfablecall ::= [dotOp Name] (basicArgs | tableconstructor)
+	callAllowedOps ::= selfablecall | "?"
 
 	basicExpr ::=  "(" expr ")" | LiteralString | Numeral | tableconstructor
 		| basicExpr binop basicExpr | {preop} basicExpr {sufop}
