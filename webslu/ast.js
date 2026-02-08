@@ -984,7 +984,7 @@ class CallStat extends Stat {
     constructor() {
         super("CallStat");
         this.var = new Var();
-        this.call = new SelfableCall();
+        this.ops = []; // Array of SufOp
     }
 }
 
@@ -1044,7 +1044,7 @@ class BinExpr extends Expr {
 class UnaryExpr extends Expr {
     constructor() {
         super("UnaryExpr");
-        this.PreOps = []; // Array of PreOp
+        this.preOps = []; // Array of PreOp
         this.primary = new Expr();
         this.sufOps = []; // Array of SufOp
     }
@@ -2476,7 +2476,7 @@ class Parser {
 
         if (ops.length > 0 || sufOps.length > 0) {
             const u = new UnaryExpr();
-            u.PreOps = ops;
+            u.preOps = ops;
             u.primary = primary;
             u.sufOps = sufOps;
             return u;
@@ -2733,8 +2733,7 @@ class Parser {
             if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
                 const s = new CallStat();
                 s.var = v;
-                s.call = new SelfableCall();
-                s.call = this.parseArgs();
+                s.ops = parseVarLikeOps(false);
                 return s;
             }
             return v;
@@ -2814,6 +2813,67 @@ class Parser {
         return s;
     }
 
+    parseVarLikeOps(needsSubvar) {
+        let ops = [];
+        let lastValid = { pos: this.pos, s: 0 };
+        while (true) {
+            if (this.match('Symbol', '.*')) {
+                const op = new DerefSubVar(); op.op = this.createAstToken(this.consume()); ops.push(op);
+                lastValid = { pos: this.pos, s: ops.length };
+            } else if (this.match('Symbol', '.')) {
+                const dot = this.createAstToken(this.consume());
+                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
+                    const call = new SelfableCall();
+                    call.dot = dot;
+                    call.method = this.parseName();
+                    call.args = this.parseArgs();
+                    ops.push(call);
+                } else {
+                    const op = new DotSubVar(); op.op = dot; op.field = this.parseTuplableName(); ops.push(op);
+                    lastValid = { pos: this.pos, s: ops.length };
+                }
+            } else if (this.match('Symbol', '.:')) {
+                const dot = this.createAstToken(this.consume());
+                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
+                    const call = new ConstSelfableCall();
+                    call.dot = dot;
+                    call.method = this.parseName();
+                    call.args = this.parseArgs();
+                    ops.push(call);
+                } else {
+                    const op = new ConstDotSubVar(); op.op = dot; op.field = this.parseTuplableName(); ops.push(op);
+                }
+            } else if (this.match('Symbol', '[')) {
+                const op = new IdxSubVar();
+                op.open = this.createAstToken(this.consume());
+                op.expr = this.parseExpr();
+                op.close = this.createAstToken(this.expect('Symbol', ']'));
+                ops.push(op);
+                lastValid = { pos: this.pos, s: ops.length };
+            } else if (this.match('Symbol', '?')) {
+                const op = new TrySubVar();
+                op.kw = this.createAstToken(this.consume());
+                ops.push(op);
+            } else if (this.match('Symbol', '??')) {
+                const op = new TrySubVar();
+                op.kw = this.createAstToken(this.consume());
+                op.kw.txt = "?";
+                ops.push(op);
+                op.kw.preSpace = "";
+                ops.push(op);
+            }
+            else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
+                ops.push(new SelfableCall(null, null, this.parseArgs()));
+            } else break;
+        }
+        if (needsSubvar) {
+            this.pos = lastValid.pos;
+            if (lastValid.s !== ops.length)
+                ops.splice(lastValid.s, ops.length - lastValid.s);
+        }
+        return ops;
+    }
+
     parseVar() {
         const v = new Var();
         if (this.match('Name')) v.root = this.parseName();
@@ -2824,60 +2884,7 @@ class Parser {
         } else {
             throw "TODO";
         }
-        let lastValid = { pos: this.pos, s: 0 };
-        while (true) {
-            if (this.match('Symbol', '.*')) {
-                const op = new DerefSubVar(); op.op = this.createAstToken(this.consume()); v.suffixes.push(op);
-                lastValid = { pos: this.pos, s: v.suffixes.length };
-            } else if (this.match('Symbol', '.')) {
-                const dot = this.createAstToken(this.consume());
-                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
-                    const call = new SelfableCall();
-                    call.dot = dot;
-                    call.method = this.parseName();
-                    call.args = this.parseArgs();
-                    v.suffixes.push(call);
-                } else {
-                    const op = new DotSubVar(); op.op = dot; op.field = this.parseTuplableName(); v.suffixes.push(op);
-                    lastValid = { pos: this.pos, s: v.suffixes.length };
-                }
-            } else if (this.match('Symbol', '.:')) {
-                const dot = this.createAstToken(this.consume());
-                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
-                    const call = new ConstSelfableCall();
-                    call.dot = dot;
-                    call.method = this.parseName();
-                    call.args = this.parseArgs();
-                    v.suffixes.push(call);
-                } else {
-                    const op = new ConstDotSubVar(); op.op = dot; op.field = this.parseTuplableName(); v.suffixes.push(op);
-                }
-            } else if (this.match('Symbol', '[')) {
-                const op = new IdxSubVar();
-                op.open = this.createAstToken(this.consume());
-                op.expr = this.parseExpr();
-                op.close = this.createAstToken(this.expect('Symbol', ']'));
-                v.suffixes.push(op);
-                lastValid = { pos: this.pos, s: v.suffixes.length };
-            } else if (this.match('Symbol', '?')) {
-                const op = new TrySubVar();
-                op.kw = this.createAstToken(this.consume());
-                v.suffixes.push(op);
-            } else if (this.match('Symbol', '??')) {
-                const op = new TrySubVar();
-                op.kw = this.createAstToken(this.consume());
-                op.kw.txt = "?";
-                v.suffixes.push(op);
-                op.kw.preSpace = "";
-                v.suffixes.push(op);
-            }
-            else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
-                v.suffixes.push(new SelfableCall(null, null, this.parseArgs()));
-            } else break;
-        }
-        this.pos = lastValid.pos;
-        if (lastValid.s !== v.suffixes.length)
-            v.suffixes.splice(lastValid.s, v.suffixes.length - lastValid.s);
+        v.suffixes = this.parseVarLikeOps(true);
         return v;
     }
 
