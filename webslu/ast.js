@@ -2681,10 +2681,33 @@ class Parser {
         e.fnKw = this.createAstToken(this.expect('Keyword', 'fn'));
         e.openParen = this.createAstToken(this.expect('Symbol', '('));
 
-        if (this.match('Symbol', '*')) {
-            const star = this.createAstToken(this.consume());
-            const attrs = this.parseRefAttrs();
-            e.selfParamRefs.push(new RefTypePreOp(star, attrs));
+        while (true) {
+
+            if (this.match('Symbol', '*')) {
+                const star = this.createAstToken(this.consume());
+                const attrs = this.parseRefAttrs();
+                e.selfParamRefs.push(new RefTypePreOp(star, attrs));
+            }
+            else if (this.match('Symbol', '**')) {
+                const op = new RefTypePreOp();
+                op.star = this.createAstToken(this.consume());
+                op.star.txt = "*";
+                e.selfParamRefs.push(op);
+                const op2 = new RefTypePreOp();
+                op2.attrs = this.parseRefAttrs();
+                e.selfParamRefs.push(op2);
+            }
+            else if (this.match('Symbol', '***')) {
+                const op = new RefTypePreOp();
+                op.star = this.createAstToken(this.consume());
+                op.star.txt = "*";
+                e.selfParamRefs.push(op);
+                e.selfParamRefs.push(new RefTypePreOp());
+                const op2 = new RefTypePreOp();
+                op2.attrs = this.parseRefAttrs();
+                e.selfParamRefs.push(op2);
+            }
+            else break;
         }
 
         if (this.match('Keyword', 'self')) {
