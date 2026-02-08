@@ -2450,10 +2450,6 @@ class Parser {
                 && this.peek(1).txt != ']'
                 && this.peek(1).txt != ')'
                 && this.peek(1).txt != '=>'
-                && this.peek(1).txt != 'let'
-                && this.peek(1).txt != 'break'
-                && this.peek(1).txt != 'return'
-                && this.peek(1).txt != 'continue'
             ) && this.pushSimplePrefixOp('Symbol', '..', RangePreOp, prefixOps)) { }
             else {
                 break;
@@ -2530,10 +2526,6 @@ class Parser {
                 || this.peek(1).txt == ']'
                 || this.peek(1).txt == ')'
                 || this.peek(1).txt == '=>'
-                || this.peek(1).txt == 'let'
-                || this.peek(1).txt == 'break'
-                || this.peek(1).txt == 'return'
-                || this.peek(1).txt == 'continue'
             ) && this.match('Symbol', '..')) {
                 const op = new RangeSufOp();
                 op.kw = this.createAstToken(this.consume());
