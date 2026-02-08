@@ -2100,7 +2100,7 @@ class Parser {
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
                     if (actualPat instanceof UncondPatFieldDestrPat)
-                        throw "TODO";
+                        throw new Error(`Unexpected \`|\` in pattern at pos ${this.tokPos}`);
                     const f = new UncondFieldDestrField();
                     f.openPipe = this.createAstToken(this.consume());
                     f.var = this.parseTuplableName();
@@ -2109,7 +2109,7 @@ class Parser {
                     li.value = f;
                 } else {
                     if (actualPat instanceof UncondFieldDestrPat)
-                        throw "TODO";
+                        throw new Error(`Expected \`|\` in pattern at pos ${this.tokPos}`);
                     li.value = this.parseUncondDestrPat();
                 }
                 if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
@@ -2170,7 +2170,7 @@ class Parser {
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
                     if (actualPat instanceof PatFieldDestrPat)
-                        throw "TODO";
+                        throw new Error(`Unexpected \`|\` in pattern at pos ${this.tokPos}`);
                     const f = new FieldDestrField();
                     f.openPipe = this.createAstToken(this.consume());
                     f.var = this.parseTuplableName();
@@ -2179,7 +2179,7 @@ class Parser {
                     li.value = f;
                 } else {
                     if (actualPat instanceof FieldDestrPat)
-                        throw "TODO";
+                        throw new Error(`Expected \`|\` in pattern at pos ${this.tokPos}`);
                     li.value = this.parsePat();
                 }
                 if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
@@ -2218,7 +2218,7 @@ class Parser {
 
             pat.valPat.expr = this.parseExpr(0, true, "spat");
             if (pat.valPat.expr instanceof OpDestrSpec)
-                throw "TODO";
+                throw new Error(`Unexpected simple expression in pattern at pos ${this.tokPos}`);
             return pat;
         }
         return upat;
@@ -2468,10 +2468,10 @@ class Parser {
             }
             else if (this.match('Symbol', '.')) {
                 this.handleDotAccess(false, suffixOps);
-                }
+            }
             else if (this.match('Symbol', '.:')) {
                 this.handleDotAccess(true, suffixOps);
-                }
+            }
             else if (this.match('Symbol', '[')) {
                 const op = new IdxSubVar();
                 op.open = this.createAstToken(this.consume());
@@ -2949,7 +2949,7 @@ class Parser {
             v.root = this.parseExpr();
             this.expect('Symbol', ')');
         } else {
-            throw "TODO";
+            throw new Error(`Expected variable name or expression with parenthesis, for variable at pos ${this.tokPos}`);
         }
         v.suffixes = this.parseVarLikeOps(true);
         return v;
