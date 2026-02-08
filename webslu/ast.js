@@ -2075,7 +2075,7 @@ class Parser {
     }
 
     parseUncondDestrPat() {
-        if (this.match('Symbol', '_')) {
+        if (this.match('Symbol', '_') && this.peek(1).type != 'Name') {
             const pat = new AlwaysDestrPat();
             pat.us = this.createAstToken(this.consume());
             return pat;

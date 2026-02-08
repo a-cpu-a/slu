@@ -17,8 +17,8 @@ const integer x = 4;
 
 const []u8 {x7,y7,z8,..} = {0,0xF,0xFFFFFFFF};
 
-const {x4,y6} = 1,2.0;
-const {x5,y7} = 1,{2.0};
+const {x4,y6} = {1,2.0};
+const {x5,y7} = {1,{2.0}};
 
 
 const {xj,yj,zj} = 1
