@@ -281,32 +281,31 @@
             // Flow
             'if': COLORS.COND_STAT, 'else': COLORS.END_STAT,
             'while': COLORS.COND_STAT, 'for': COLORS.COND_STAT, 'loop': COLORS.COND_STAT,
-            'match': COLORS.COND_STAT,
+            'match': COLORS.COND_STAT, 'try': COLORS.TRY,
             'return': COLORS.END_STAT, 'break': COLORS.END_STAT, 'continue': COLORS.END_STAT,
 
             // Declarations
-            'fn': COLORS.FN_STAT, 'struct': COLORS.NAME_TYPE, 'enum': COLORS.NAME_TYPE,
-            'union': COLORS.NAME_TYPE, 'trait': COLORS.IMPL, 'impl': COLORS.IMPL,
-            'let': COLORS.VAR_STAT, 'const': COLORS.CON_STAT, 'mod': COLORS.NAME_TYPE,
+            'fn': COLORS.FN_STAT, 'struct': COLORS.CON_STAT, 'enum': COLORS.CON_STAT,
+            'union': COLORS.CON_STAT, 'trait': COLORS.IMPL, 'impl': COLORS.IMPL,
+            'let': COLORS.VAR_STAT, 'const': COLORS.VAR_STAT, 'mod': COLORS.CON_STAT,
 
             // Modifiers
             'mut': COLORS.MUT, 'ex': COLORS.EX_TINT, 'extern': COLORS.FN_STAT, 'unsafe': COLORS.FN_STAT,
 
             // Types/Keywords
             'self': COLORS.BUILITIN_VAR, 'crate': COLORS.NAME,
-            'true': COLORS.NUMBER, 'false': COLORS.NUMBER, 'nil': COLORS.NUMBER,
 
             // Operators
-            '+': COLORS.ADD, '-': COLORS.SUB, '*': COLORS.MUL, '/': COLORS.DIV,
-            '%': COLORS.MOD, '^': COLORS.EXP,
-            '==': COLORS.AND, '!=': COLORS.NOT, '<': COLORS.AND, '>': COLORS.AND,
+            '@': COLORS.ANNOTATION, '+': COLORS.ADD, '-': COLORS.SUB, '*': COLORS.MUL, '/': COLORS.DIV, '//': COLORS.DIV,
+            '%': COLORS.MOD, '^': COLORS.EXP, '++': COLORS.CONCAT, '**': COLORS.REP, '.*': COLORS.DEREF, '!': COLORS.NOT,
+            '==': COLORS.AND, '!=': COLORS.NOT, '<': COLORS.AND, '>': COLORS.AND, '~': COLORS.TRY, 'as': COLORS.AS,
             '<=': COLORS.AND, '>=': COLORS.AND,
-            '&&': COLORS.AND, '||': COLORS.OR,
-            '&': COLORS.REF, '|': COLORS.BIT_OR,
-            '..': COLORS.RANGE, '...': COLORS.RANGE,
-            '=': COLORS.ASSIGN, '->': COLORS.ASSIGN, '=>': COLORS.ASSIGN,
-            ':': COLORS.PUNCTUATION, ';': COLORS.PUNCTUATION, ',': COLORS.PUNCTUATION,
-            '.': COLORS.PUNCTUATION, '?': COLORS.TRY,
+            'and': COLORS.AND, 'or': COLORS.OR, '||': COLORS.PUNCTUATION,
+            '&': COLORS.REF, '|': COLORS.PUNCTUATION,
+            '..': COLORS.RANGE, '...': COLORS.ERROR,
+            '=': COLORS.ASSIGN, '->': COLORS.PUNCTUATION, '=>': COLORS.ASSIGN,
+            ':': COLORS.PUNCTUATION, '::': COLORS.PUNCTUATION, ';': COLORS.PUNCTUATION, ',': COLORS.PUNCTUATION,
+            '.': COLORS.PUNCTUATION, '.:': COLORS.PUNCTUATION, '?': COLORS.TRY,
             '{': COLORS.BRACES, '}': COLORS.BRACES, '(': COLORS.BRACES, ')': COLORS.BRACES, '[': COLORS.BRACES, ']': COLORS.BRACES
         };
 
@@ -453,26 +452,33 @@
         const statusEl = document.getElementById('status');
 
         // Default Demo Code
-        const DEMO_CODE = `fn main() {
+        const DEMO_CODE = `
+ex unsafe fn main() {
     -- Calculate fibonacci
+--[[mul
+]]
     let n = 10;
     let result = fib(n);
     
     if result > 100 {
-        print("Big number");
-    } else {
-        print("Small number");
+        print("Big number",3);
+let u8 p = @aaple{h=4} poo ~ 4 ** ~[]2;
+return "atyyyy" ++ [[333]].*.:app | ! -0xFf00fp+44;
+    } 
+--wwwwewe
+else {
+        x = crate::print("Small number" as 444);
     }
-    
+    const x = 5??? try {3=>..}
     unsafe {
         -- Do something unsafe
-        let ptr = &mut result;
+        let *in g /apple ** ***mut ptr = &&&in g /apple const result;
     }
 }
 
-const fib = fn(n=4) {
+const fib = fn(self,n=fff5) {
     if n <= 1 {
-        return n;
+        return n as 444;
     }
     return fib(n - 1) + fib(n - 2);
 }`;
