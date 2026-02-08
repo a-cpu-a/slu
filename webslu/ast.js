@@ -2425,6 +2425,16 @@ class Parser {
                 op2.attrs = this.parseRefAttrs();
                 prefixOps.push(op2);
             }
+            else if (this.match('Symbol', '***')) {
+                const op = new RefTypePreOp();
+                op.star = this.createAstToken(this.consume());
+                op.star.txt = "*";
+                prefixOps.push(op);
+                prefixOps.push(new RefTypePreOp());
+                const op2 = new RefTypePreOp();
+                op2.attrs = this.parseRefAttrs();
+                prefixOps.push(op2);
+            }
             else if (this.match('Symbol', '&')) {
                 const op = new RefPreOp();
                 op.amp = this.createAstToken(this.consume());
