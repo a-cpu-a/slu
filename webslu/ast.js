@@ -2889,28 +2889,11 @@ class Parser {
                 const op = new DerefSubVar(); op.op = this.createAstToken(this.consume()); ops.push(op);
                 lastValid = { pos: this.pos, s: ops.length };
             } else if (this.match('Symbol', '.')) {
-                const dot = this.createAstToken(this.consume());
-                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
-                    const call = new SelfableCall();
-                    call.dot = dot;
-                    call.method = this.parseName();
-                    call.args = this.parseArgs();
-                    ops.push(call);
-                } else {
-                    const op = new DotSubVar(); op.op = dot; op.field = this.parseTuplableName(); ops.push(op);
+                this.handleDotAccess(false, ops);
+                if (ops.at(-1) instanceof DotSubVar)
                     lastValid = { pos: this.pos, s: ops.length };
-                }
             } else if (this.match('Symbol', '.:')) {
-                const dot = this.createAstToken(this.consume());
-                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
-                    const call = new ConstSelfableCall();
-                    call.dot = dot;
-                    call.method = this.parseName();
-                    call.args = this.parseArgs();
-                    ops.push(call);
-                } else {
-                    const op = new ConstDotSubVar(); op.op = dot; op.field = this.parseTuplableName(); ops.push(op);
-                }
+                this.handleDotAccess(true, ops);
             } else if (this.match('Symbol', '[')) {
                 const op = new IdxSubVar();
                 op.open = this.createAstToken(this.consume());
