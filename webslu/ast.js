@@ -2341,12 +2341,16 @@ class Parser {
             throw new Error("Expected '(' after const in expression");
         }
 
-        if (specType != "spat" && (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Symbol', '|') || this.match('Symbol', '||'))) {
-            return this.parseLambdaExpr();
-        }
-
         if (this.match('Keyword', 'do')) {
             return this.parseDoExpr(new OptToken(), new Name(), new Token(":"));
+        }
+
+        const safetyMatch = this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe');
+        if ((safetyMatch && this.peek(1).txt == 'fn') || this.match('Keyword', 'fn'))
+            return this.parseFnExpr();
+
+        if (specType != "spat" && (safetyMatch || this.match('Symbol', '|') || this.match('Symbol', '||'))) {
+            return this.parseLambdaExpr();
         }
 
         throw new Error("Unexpected token in expression: " + this.peek().txt);
@@ -2380,8 +2384,11 @@ class Parser {
     parseLambdaExpr() {
         const e = new LambdaExpr();
         e.safety = new Safety();
-        if (this.match('Keyword', 'safe')) { e.safety.kind = "safe"; e.safety.kw = this.createAstToken(this.consume()); }
-        if (this.match('Keyword', 'unsafe')) { e.safety.kind = "unsafe"; e.safety.kw = this.createAstToken(this.consume()); }
+        if (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe')) {
+            const kw = this.consume();
+            e.safety.kind = kw.txt;
+            e.safety.preSpace = kw.preSpace;
+        }
 
         if (this.match('Symbol', '||')) {
             e.pipe1 = this.createAstToken(this.expect('Symbol', '||'));
@@ -2646,8 +2653,6 @@ class Parser {
     }
 
     parseExpr(precedence = 0, basic = false, specType = "") {
-        if (this.match('Keyword', 'fn')) return this.parseFnExpr();
-
         let left = this.parseUnary(basic, specType);
         if (specType == "spat" && left instanceof OpDestrSpec)
             return left; // Dont want to have it deep in BinExpr's
@@ -2675,8 +2680,11 @@ class Parser {
     parseFnExpr() {
         const e = new FnExpr();
         e.safety = new Safety();
-        if (this.match('Keyword', 'safe')) { e.safety.kind = "safe"; e.safety.kw = this.createAstToken(this.consume()); }
-        if (this.match('Keyword', 'unsafe')) { e.safety.kind = "unsafe"; e.safety.kw = this.createAstToken(this.consume()); }
+        if (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe')) {
+            const kw = this.consume();
+            e.safety.kind = kw.txt;
+            e.safety.preSpace = kw.preSpace;
+        }
 
         e.fnKw = this.createAstToken(this.expect('Keyword', 'fn'));
         e.openParen = this.createAstToken(this.expect('Symbol', '('));
@@ -2711,14 +2719,14 @@ class Parser {
         }
 
         if (this.match('Keyword', 'self')) {
-            e.selfParam = new OptToken("self");
             e.selfParam.present = true;
-            e.selfParam.txt = this.consume().txt;
-            e.selfParamDelim = this.createAstToken(this.consume());
-            if (!this.match('Symbol', ')')) e.params = this.parseParams();
-        } else {
-            e.params = this.parseParams();
+            e.selfParam.preSpace = this.consume().preSpace;
+
+            if (this.match('Symbol', ',') || this.match('Symbol', ';'))
+                e.selfParamDelim = this.createAstToken(this.consume());
         }
+        if (!this.match('Symbol', ')'))
+            e.params = this.parseParams();
 
         e.closeParen = this.createAstToken(this.expect('Symbol', ')'));
 
