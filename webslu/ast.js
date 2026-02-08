@@ -2472,6 +2472,8 @@ class Parser {
                 && this.peek(1).txt != '}'
                 && this.peek(1).txt != ']'
                 && this.peek(1).txt != ')'
+                && this.peek(1).txt != ';'
+                && this.peek(1).txt != ','
                 && this.peek(1).txt != '=>'
             ) && this.pushSimplePrefixOp('Symbol', '..', RangePreOp, prefixOps)) { }
             else {
@@ -2548,6 +2550,8 @@ class Parser {
                 || this.peek(1).txt == '}'
                 || this.peek(1).txt == ']'
                 || this.peek(1).txt == ')'
+                || this.peek(1).txt == ';'
+                || this.peek(1).txt == ','
                 || this.peek(1).txt == '=>'
             ) && this.match('Symbol', '..')) {
                 const op = new RangeSufOp();
