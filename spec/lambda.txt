@@ -4,6 +4,9 @@
 
 New Syntax {
 	
+
+	--(|| lambdas) Inside param types, the `|` operator is not parsed
+	
 	expr @::= | [safety] "|" [params] "|" ["->" expr "=>"] expr
 	basicExpr @::= | [safety] "|" [params] "|" ["->" basicExpr "=>"] basicExpr
 }

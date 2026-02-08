@@ -2050,17 +2050,20 @@ class Parser {
         return attrs;
     }
 
-    parseTypedParam() {
+    parseTypedParam(specType) {
         const p = new TypedParam();
         p.constKw = this.parseOptToken('const');
         p.name = this.parseName();
         p.eq = this.createAstToken(this.expect('Symbol', '='));
-        p.type = this.parseExpr();
+        p.type = this.parseExpr(0, false, specType);
         return p;
     }
 
-    parseParams() {
-        return this.parseDelimitedList(() => this.parseTypedParam(), [{ type: 'Symbol', txt: ')' }]);
+    parseParams(specType = "") {
+        return this.parseDelimitedList(
+            () => this.parseTypedParam(specType),
+            [{ type: 'Symbol', txt: (specType == "lambdp" ? '|' : ')') }]
+        );
     }
 
     parseTuplableName() {
@@ -2398,7 +2401,7 @@ class Parser {
         } else {
             e.pipe1 = this.createAstToken(this.expect('Symbol', '|'));
             if (!this.match('Symbol', '|'))
-                e.params = this.parseParams();
+                e.params = this.parseParams("lambdp");
             e.pipe2 = this.createAstToken(this.expect('Symbol', '|'));
         }
 
@@ -2745,7 +2748,10 @@ class Parser {
 
     isBinOp(tok, specType = "") {
         if (!tok) return false;
-        const ops = ["+", "-", "*", "/", "//", "^", "%", "++", "<", "<=", ">", ">=", "==", "!=", "~", "|", "..", "else", "**", "as"];
+        const ops = ["+", "-", "*", "/", "//", "^", "%", "++", "<", "<=", ">", ">=", "==", "!=", "~", "..", "else", "**", "as"];
+        if (specType != "lambdp") {
+            ops.push("|");
+        }
         if (specType != "spat") {
             ops.push("and", "or");
         }
