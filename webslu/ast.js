@@ -2488,7 +2488,7 @@ class Parser {
         if (this.match('Symbol', '(')) {
             const a = new ParenArgs();
             a.openParen = this.createAstToken(this.consume());
-            a.args = this.parseParams();
+            a.args = this.parseDelimitedList(() => this.parseExpr(), [{ type: 'Symbol', txt: ')' }]);
             a.closeParen = this.createAstToken(this.expect('Symbol', ')'));
             return a;
         }
