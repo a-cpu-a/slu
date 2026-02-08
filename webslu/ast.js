@@ -2312,7 +2312,7 @@ class Parser {
             throw new Error("Expected '(' after const in expression");
         }
 
-        if (specType != "spat" && (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Symbol', '|'))) {
+        if (specType != "spat" && (this.match('Keyword', 'safe') || this.match('Keyword', 'unsafe') || this.match('Symbol', '|') || this.match('Symbol', '||'))) {
             return this.parseLambdaExpr();
         }
 
@@ -2354,9 +2354,16 @@ class Parser {
         if (this.match('Keyword', 'safe')) { e.safety.kind = "safe"; e.safety.kw = this.createAstToken(this.consume()); }
         if (this.match('Keyword', 'unsafe')) { e.safety.kind = "unsafe"; e.safety.kw = this.createAstToken(this.consume()); }
 
+        if (this.match('Symbol', '||')) {
+            e.pipe1 = this.createAstToken(this.expect('Symbol', '||'));
+            e.pipe1.txt = "|";
+            e.pipe2 = new Token('|');
+
+        } else {
         e.pipe1 = this.createAstToken(this.expect('Symbol', '|'));
         e.params = this.parseParams();
         e.pipe2 = this.createAstToken(this.expect('Symbol', '|'));
+        }
 
         e.retArrow = this.parseOptToken('->');
         if (e.retArrow.present) {
