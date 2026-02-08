@@ -2430,6 +2430,14 @@ class Parser {
                 } else break;
             }
             else if (this.match('Symbol', '?')) { const op = new SufOp(); op.op = this.createAstToken(this.consume()); sufOps.push(op); }
+            else if (this.match('Symbol', '??')) {
+                const op = new SufOp();
+                op.op = this.createAstToken(this.consume());
+                op.op.txt = "?";
+                sufOps.push(op);
+                op.op.preSpace = "";
+                sufOps.push(op);
+            }
             else if (this.match('Symbol', '..')) { const op = new SufOp(); op.op = this.createAstToken(this.consume()); sufOps.push(op); }
             else if (this.match('Keyword', 'try')) {
                 const op = new TryOp(); op.tryKw = this.createAstToken(this.consume()); op.block = this.parseMatchTypeBlock(); sufOps.push(op);
@@ -2816,6 +2824,14 @@ class Parser {
                     v.suffixes.push(op);
                 } else break;
             } else if (this.match('Symbol', '?')) { v.suffixes.push(new SufOp(this.createAstToken(this.consume()))); }
+            else if (this.match('Symbol', '??')) {
+                const op = new SufOp();
+                op.op = this.createAstToken(this.consume());
+                op.op.txt = "?";
+                v.suffixes.push(op);
+                op.op.preSpace = "";
+                v.suffixes.push(op);
+            }
             else if (this.match('Symbol', '..')) { v.suffixes.push(new SufOp(this.createAstToken(this.consume()))); }
             else if (this.match('Keyword', 'try')) {
                 v.suffixes.push(new TryOp(this.createAstToken(this.consume()), this.parseMatchTypeBlock()));
