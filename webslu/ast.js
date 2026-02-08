@@ -382,7 +382,7 @@ class RefPreOp extends PreOp {
     }
 }
 class RangePreOp extends PreOp {
-    constructor() { super("RangePreOp"); this.op = new Token(".."); }
+    constructor() { super("RangePreOp"); this.kw = new Token(".."); }
 }
 class AnnotationPreOp extends PreOp {
     constructor() {
@@ -1094,6 +1094,12 @@ class SelfableCall extends SufOp {
     }
 }
 
+class RangeSufOp extends SufOp {
+    constructor() {
+        super("RangeSufOp");
+        this.kw = new Token("..");
+    }
+}
 class TryOp extends SufOp {
     constructor() {
         super("TryOp");
@@ -1101,7 +1107,6 @@ class TryOp extends SufOp {
         this.block = new MatchTypeBlock();
     }
 }
-
 class MatchExpr extends Expr {
     constructor() {
         super("MatchExpr");
@@ -2375,7 +2380,7 @@ class Parser {
             else if (this.match('Keyword', 'impl')) { const op = new ImplPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Keyword', 'union')) { const op = new UnionPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Keyword', 'mut')) { const op = new MutPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Symbol', '..')) { const op = new RangePreOp(); op.op = this.createAstToken(this.consume()); ops.push(op); }
+            else if (this.match('Symbol', '..')) { const op = new RangePreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
             else if (this.match('Symbol', '@')) { ops.push(new AnnotationPreOp(this.parseAnnotation())); }
             else if (this.match('Keyword', 'if')) {
                 const op = new IfPreOp();
@@ -2444,7 +2449,7 @@ class Parser {
                 op.kw.preSpace = "";
                 sufOps.push(op);
             }
-            else if (this.match('Symbol', '..')) { const op = new SufOp(); op.op = this.createAstToken(this.consume()); sufOps.push(op); }
+            else if (this.match('Symbol', '..')) { const op = new RangeSufOp(); op.kw = this.createAstToken(this.consume()); sufOps.push(op); }
             else if (this.match('Keyword', 'try')) {
                 const op = new TryOp(); op.tryKw = this.createAstToken(this.consume()); op.block = this.parseMatchTypeBlock(); sufOps.push(op);
             }
@@ -2803,6 +2808,8 @@ class Parser {
             this.consume();
             v.root = this.parseExpr();
             this.expect('Symbol', ')');
+        } else {
+            throw "TODO";
         }
 
         while (true) {
@@ -2841,10 +2848,7 @@ class Parser {
                 op.kw.preSpace = "";
                 v.suffixes.push(op);
             }
-            else if (this.match('Symbol', '..')) { v.suffixes.push(new SufOp(this.createAstToken(this.consume()))); }
-            else if (this.match('Keyword', 'try')) {
-                v.suffixes.push(new TryOp(this.createAstToken(this.consume()), this.parseMatchTypeBlock()));
-            }
+            else if (this.match('Symbol', '..')) { const op = new RangeSufOp(); op.kw = this.createAstToken(this.consume()); v.suffixes.push(op); }
             else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
                 v.suffixes.push(new SelfableCall(null, null, this.parseArgs()));
             } else break;
