@@ -3264,7 +3264,7 @@ class Parser {
     parseAnnotations(isOuter = false) {
         const annotations = [];
         while (true) {
-            const ann = parseAnnotation(isOuter);
+            const ann = this.parseAnnotation(isOuter);
             if (ann === null) break;
             annotations.push(ann);
         }
