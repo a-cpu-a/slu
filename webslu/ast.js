@@ -2388,118 +2388,171 @@ class Parser {
     }
 
     parseUnary(basic = false, specType = "") {
-        const ops = [];
+        const prefixOps = [];
+
+        // --- Parse Prefix Operators ---
         while (true) {
+            // Complex prefix operations
             if (this.match('Symbol', '*')) {
-                const op = new RefTypePreOp(); op.star = this.createAstToken(this.consume()); op.attrs = this.parseRefAttrs(); ops.push(op);
+                const op = new RefTypePreOp();
+                op.star = this.createAstToken(this.consume());
+                op.attrs = this.parseRefAttrs();
+                prefixOps.push(op);
             }
             else if (this.match('Symbol', '&')) {
-                const op = new RefPreOp(); op.amp = this.createAstToken(this.consume()); op.attrs = this.parseRefAttrs(); ops.push(op);
+                const op = new RefPreOp();
+                op.amp = this.createAstToken(this.consume());
+                op.attrs = this.parseRefAttrs();
+                prefixOps.push(op);
             }
             else if (this.match('Symbol', '[')) {
-                const op = new SlicePreOp(); op.open = this.createAstToken(this.consume()); op.close = this.createAstToken(this.expect('Symbol', ']')); ops.push(op);
+                const op = new SlicePreOp();
+                op.open = this.createAstToken(this.consume());
+                op.close = this.createAstToken(this.expect('Symbol', ']'));
+                prefixOps.push(op);
             }
-            else if (this.match('Keyword', 'dyn')) { const op = new DynPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Keyword', 'impl')) { const op = new ImplPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Keyword', 'union')) { const op = new UnionPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Keyword', 'mut')) { const op = new MutPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Keyword', 'ex')) { const op = new ExPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Symbol', '~')) { const op = new ResErrPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Symbol', '-')) { const op = new NegPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Symbol', '!')) { const op = new NotPreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Symbol', '..')) { const op = new RangePreOp(); op.kw = this.createAstToken(this.consume()); ops.push(op); }
-            else if (this.match('Symbol', '@')) { const op = new AnnotationPreOp(); op.annotation = this.parseAnnotation(); ops.push(op); }
+            else if (this.match('Symbol', '@')) {
+                const op = new AnnotationPreOp();
+                op.annotation = this.parseAnnotation();
+                prefixOps.push(op);
+            }
             else if (this.match('Keyword', 'if')) {
                 const op = new IfPreOp();
                 op.ifKw = this.createAstToken(this.consume());
                 op.expr = this.parseExpr();
                 op.arrow = this.createAstToken(this.expect('Symbol', '=>'));
-                ops.push(op);
+                prefixOps.push(op);
             }
-            else break;
+            // Simple prefix operations (helper used for DRY)
+            else if (this.pushSimplePrefixOp('Keyword', 'dyn', DynPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Keyword', 'impl', ImplPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Keyword', 'union', UnionPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Keyword', 'mut', MutPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Keyword', 'ex', ExPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Symbol', '~', ResErrPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Symbol', '-', NegPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Symbol', '!', NotPreOp, prefixOps)) { }
+            else if (this.pushSimplePrefixOp('Symbol', '..', RangePreOp, prefixOps)) { }
+            else {
+                break;
+            }
         }
 
         let primary = this.parsePrimary(specType);
 
+        // --- Special handling for Destructuring Patterns ---
         if (specType == "spat" && primary instanceof OpDestrSpec) {
-            let first = true;
-            for (let i in ops) {
-                let v = ops[i];
-                if (first && v instanceof MutPreOp) {
-                    primary.mutKw = v.kw;
+            let isFirst = true;
+            for (const op of prefixOps) {
+                if (isFirst && op instanceof MutPreOp) {
+                    primary.mutKw = op.kw;
                 }
-                else if (v instanceof RefTypePreOp) {
-                    primary.ops.push(v);
-                } else {
-                    throw new Error(`Unexpected operator (${v.type}) for pattern at pos ${this.tokPos}`);
+                else if (op instanceof RefTypePreOp) {
+                    primary.ops.push(op);
                 }
-                first = false;
+                else {
+                    throw new Error(`Unexpected operator (${op.type}) for pattern at pos ${this.tokPos}`);
+                }
+                isFirst = false;
             }
             return primary;
         }
-        //TODO: better postfix range handling! `1.. return` is a post op, `1..1` is a bin op.
 
-        const sufOps = [];
+        // --- Parse Suffix/Postfix Operators ---
+        const suffixOps = [];
         while (true) {
             if (this.match('Symbol', '.*')) {
-                const op = new DerefSubVar(); op.op = this.createAstToken(this.consume()); sufOps.push(op);
-            } else if (this.match('Symbol', '.')) {
-                const dot = this.createAstToken(this.consume());
-                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
-                    const call = new SelfableCall();
-                    call.dot = dot;
-                    call.method = this.parseName();
-                    call.args = this.parseArgs();
-                    sufOps.push(call);
-                } else {
-                    const op = new DotSubVar(); op.op = dot; op.field = this.parseTuplableName(); sufOps.push(op);
+                const op = new DerefSubVar();
+                op.op = this.createAstToken(this.consume());
+                suffixOps.push(op);
+            }
+            else if (this.match('Symbol', '.')) {
+                this.handleDotAccess(false, suffixOps);
                 }
-            } else if (this.match('Symbol', '.:')) {
-                const dot = this.createAstToken(this.consume());
-                if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral')) {
-                    const call = new ConstSelfableCall();
-                    call.dot = dot;
-                    call.method = this.parseName();
-                    call.args = this.parseArgs();
-                    sufOps.push(call);
-                } else {
-                    const op = new ConstDotSubVar(); op.op = dot; op.field = this.parseTuplableName(); sufOps.push(op);
+            else if (this.match('Symbol', '.:')) {
+                this.handleDotAccess(true, suffixOps);
                 }
-            } else if (this.match('Symbol', '[')) {
+            else if (this.match('Symbol', '[')) {
                 const op = new IdxSubVar();
                 op.open = this.createAstToken(this.consume());
                 op.expr = this.parseExpr();
                 op.close = this.createAstToken(this.expect('Symbol', ']'));
-                sufOps.push(op);
+                suffixOps.push(op);
             }
-            else if (this.match('Symbol', '?')) { const op = new TrySubVar(); op.kw = this.createAstToken(this.consume()); sufOps.push(op); }
-            else if (this.match('Symbol', '??')) {
+            else if (this.match('Symbol', '?')) {
                 const op = new TrySubVar();
                 op.kw = this.createAstToken(this.consume());
-                op.kw.txt = "?";
-                sufOps.push(op);
-                sufOps.push(new TrySubVar());
+                suffixOps.push(op);
             }
-            else if (this.match('Symbol', '..')) { const op = new RangeSufOp(); op.kw = this.createAstToken(this.consume()); sufOps.push(op); }
+            else if (this.match('Symbol', '??')) {
+                const op1 = new TrySubVar();
+                op1.kw = this.createAstToken(this.consume());
+                op1.kw.txt = "?"; // Normalize text
+                suffixOps.push(op1);
+                suffixOps.push(new TrySubVar()); // Add second implicit op
+            }
+            else if (this.match('Symbol', '..')) {
+                const op = new RangeSufOp();
+                op.kw = this.createAstToken(this.consume());
+                suffixOps.push(op);
+            }
             else if (this.match('Keyword', 'try')) {
-                const op = new TryOp(); op.tryKw = this.createAstToken(this.consume()); op.block = this.parseMatchTypeBlock(); sufOps.push(op);
+                const op = new TryOp();
+                op.tryKw = this.createAstToken(this.consume());
+                op.block = this.parseMatchTypeBlock();
+                suffixOps.push(op);
             }
             else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || (this.match('Symbol', '{') && !basic)) {
                 const call = new SelfableCall();
                 call.args = this.parseArgs();
-                sufOps.push(call);
+                suffixOps.push(call);
             }
-            else break;
+            else {
+                break;
+            }
         }
 
-        if (ops.length > 0 || sufOps.length > 0) {
-            const u = new UnaryExpr();
-            u.preOps = ops;
-            u.primary = primary;
-            u.sufOps = sufOps;
-            return u;
+        if (prefixOps.length > 0 || suffixOps.length > 0) {
+            const unaryExpr = new UnaryExpr();
+            unaryExpr.preOps = prefixOps;
+            unaryExpr.primary = primary;
+            unaryExpr.sufOps = suffixOps;
+            return unaryExpr;
         }
+
         return primary;
+    }
+
+    pushSimplePrefixOp(tokenType, value, Class, opsList) {
+        if (this.match(tokenType, value)) {
+            const op = new Class();
+            op.kw = this.createAstToken(this.consume());
+            opsList.push(op);
+            return true;
+        }
+        return false;
+    }
+
+    handleDotAccess(isConst, suffixOps) {
+        const dot = this.createAstToken(this.consume());
+
+        // Determine if this is a call or a field access based on lookahead
+        const isCall = this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral');
+
+        if (isCall) {
+            const CallClass = isConst ? ConstSelfableCall : SelfableCall;
+            const call = new CallClass();
+            call.dot = dot;
+            call.method = this.parseName();
+            call.args = this.parseArgs();
+            suffixOps.push(call);
+        } else {
+            const FieldClass = isConst ? ConstDotSubVar : DotSubVar;
+            const op = new FieldClass();
+            op.op = dot;
+            op.field = this.parseTuplableName();
+            suffixOps.push(op);
+        }
     }
 
     parseArgs() {
