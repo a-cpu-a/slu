@@ -1672,7 +1672,7 @@ class Parser {
                         if (ch === '[') {
                             // We check if next char is [ or =
                             if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
-                                if (handleLongBracket(true)) {
+                                if (this.handleLongBracket(true)) {
                                     this.tokens.push({
                                         type: 'LiteralString',
                                         txt: this.input.substring(tokenStart + 3, this.pos),
@@ -1702,7 +1702,7 @@ class Parser {
                 // Multiline Comment: --[=[...]=]
                 if (third === '[') {
                     if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
-                        if (handleLongBracket(true)) {
+                        if (this.handleLongBracket(true)) {
                             // Comment is whitespace, so we skip it (do not push token)
 
                             // Preserve preSpace for the next token
@@ -1744,7 +1744,7 @@ class Parser {
             if (ch === '[') {
                 // We check if next char is [ or =
                 if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
-                    if (handleLongBracket(false)) {
+                    if (this.handleLongBracket(false)) {
                         this.tokens.push({
                             type: 'LiteralString',
                             txt: this.input.substring(tokenStart, this.pos),
