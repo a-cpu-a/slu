@@ -319,12 +319,40 @@ class FieldDestrField extends CompoundNode {
 // PREOPS
 // ============================================================================
 
+class Lifetime extends CompoundNode {
+    constructor() {
+        super("Lifetime");
+        this.names = []; // Array of LifetimeSegment
+    }
+}
+class LifetimeSegment extends CompoundNode {
+    constructor() {
+        super("LifetimeSegment");
+        this.kw = new Token("/");
+        this.var = new Name();
+    }
+}
+
+class OptLifetime extends CompoundNode {
+    constructor() {
+        super("OptLifetime");
+        this.life = new Lifetime();
+        this.present = false; // true if parsed
+    }
+}
 class RefAttrs extends CompoundNode {
     constructor() {
         super("RefAttrs");
-        this.addrspace = null; // OptToken("in" Name)
-        this.lifetime = null;  // OptLifetime
+        this.addrspace = new OptAddrSpace();
+        this.lifetime = new OptLifetime();
         this.refType = new RefType();
+    }
+}
+class OptAddrSpace extends CompoundNode {
+    constructor() {
+        super("OptAddrSpace");
+        this.kw = new OptToken("in");
+        this.space = new Name(); // $<Needs kw>
     }
 }
 class RefType extends CompoundNode {
@@ -1231,7 +1259,7 @@ class UnderscoreExpr extends Expr {
 class LifetimeExpr extends Expr {
     constructor() {
         super("LifetimeExpr");
-        this.names = []; // Array of {kw:Token("/"),l:Name}
+        this.life = new Lifetime();
     }
 }
 
@@ -2026,16 +2054,19 @@ class Parser {
     parseRefAttrs(alrSlash = false) {
         const attrs = new RefAttrs();
         if (!alrSlash && this.match('Keyword', 'in')) {
-            attrs.addrspace = { kw: this.createAstToken(this.consume()), name: this.parseName() };
+            attrs.addrspace.kw.present = true;
+            attrs.addrspace.kw.preSpace = this.consume().preSpace;
+            attrs.addrspace.space = this.parseName();
         }
         if (alrSlash || this.match('Symbol', '/')) {
-            const names = [];
+            attrs.lifetime.present = true;
             do {
-                const slash = alrSlash ? new Token('/') : this.createAstToken(this.consume());
-                const n = this.parseName();
-                names.push({ kw: slash, l: n });
+                const seg = new LifetimeSegment();
+                if (!alrSlash)
+                    seg.kw = this.createAstToken(this.consume());
+                seg.var = this.parseName();
+                attrs.lifetime.life.names.push(seg);
             } while (this.match('Symbol', '/'));
-            attrs.lifetime = names;
         }
         if (this.match('Keyword', 'mut')) {
             attrs.refType = new MutRefType();
@@ -2932,9 +2963,8 @@ class Parser {
                 alt.body = this.parseBlockOrRet();
                 s.alternates.push(alt);
             } else {
-                s.elseKw = new OptToken("else");
                 s.elseKw.present = true;
-                s.elseKw.txt = "else";
+                s.elseKw.preSpace = elseKw.preSpace;
                 s.elseBlock = this.parseBlockOrRet();
                 break;
             }
