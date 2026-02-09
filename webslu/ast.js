@@ -2421,38 +2421,7 @@ class Parser {
         // --- Parse Prefix Operators ---
         while (true) {
             // Complex prefix operations
-            if (this.match('Symbol', '*')) {
-                const op = new RefTypePreOp();
-                op.star = this.createAstToken(this.consume());
-                op.attrs = this.parseRefAttrs();
-                prefixOps.push(op);
-            }
-            else if (this.match('Symbol', '*/')) {
-                const op = new RefTypePreOp();
-                op.star = this.createAstToken(this.consume());
-                op.star.txt = "*";
-                op.attrs = this.parseRefAttrs(true);
-                prefixOps.push(op);
-            }
-            else if (this.match('Symbol', '**')) {
-                const op = new RefTypePreOp();
-                op.star = this.createAstToken(this.consume());
-                op.star.txt = "*";
-                prefixOps.push(op);
-                const op2 = new RefTypePreOp();
-                op2.attrs = this.parseRefAttrs();
-                prefixOps.push(op2);
-            }
-            else if (this.match('Symbol', '***')) {
-                const op = new RefTypePreOp();
-                op.star = this.createAstToken(this.consume());
-                op.star.txt = "*";
-                prefixOps.push(op);
-                prefixOps.push(new RefTypePreOp());
-                const op2 = new RefTypePreOp();
-                op2.attrs = this.parseRefAttrs();
-                prefixOps.push(op2);
-            }
+            if (parseRefTypePreOps(prefixOps)) { }
             else if (this.match('Symbol', '&')) {
                 const op = new RefPreOp();
                 op.amp = this.createAstToken(this.consume());
@@ -2688,6 +2657,44 @@ class Parser {
         return left;
     }
 
+    parseRefTypePreOps(e) {
+        if (this.match('Symbol', '*')) {
+            const star = this.createAstToken(this.consume());
+            const attrs = this.parseRefAttrs();
+            e.push(new RefTypePreOp(star, attrs));
+        }
+        else if (this.match('Symbol', '*/')) {
+            const op = new RefTypePreOp();
+            op.star = this.createAstToken(this.consume());
+            op.star.txt = "*";
+            op.attrs = this.parseRefAttrs(true);
+            e.push(op);
+        }
+        else if (this.match('Symbol', '**')) {
+            const op = new RefTypePreOp();
+            op.star = this.createAstToken(this.consume());
+            op.star.txt = "*";
+            e.push(op);
+            const op2 = new RefTypePreOp();
+            op2.attrs = this.parseRefAttrs();
+            e.push(op2);
+        }
+        else if (this.match('Symbol', '***')) {
+            const op = new RefTypePreOp();
+            op.star = this.createAstToken(this.consume());
+            op.star.txt = "*";
+            e.push(op);
+            e.push(new RefTypePreOp());
+            const op2 = new RefTypePreOp();
+            op2.attrs = this.parseRefAttrs();
+            e.push(op2);
+        }
+        else {
+            return false; // Break the loop if no match
+        }
+        return true; // Continue the loop
+    }
+
     parseFnExpr() {
         const e = new FnExpr();
         e.safety = new Safety();
@@ -2701,39 +2708,8 @@ class Parser {
         e.openParen = this.createAstToken(this.expect('Symbol', '('));
 
         while (true) {
-
-            if (this.match('Symbol', '*')) {
-                const star = this.createAstToken(this.consume());
-                const attrs = this.parseRefAttrs();
-                e.selfParamRefs.push(new RefTypePreOp(star, attrs));
-            }
-            else if (this.match('Symbol', '*/')) {
-                const op = new RefTypePreOp();
-                op.star = this.createAstToken(this.consume());
-                op.star.txt = "*";
-                op.attrs = this.parseRefAttrs(true);
-                e.selfParamRefs.push(op);
-            }
-            else if (this.match('Symbol', '**')) {
-                const op = new RefTypePreOp();
-                op.star = this.createAstToken(this.consume());
-                op.star.txt = "*";
-                e.selfParamRefs.push(op);
-                const op2 = new RefTypePreOp();
-                op2.attrs = this.parseRefAttrs();
-                e.selfParamRefs.push(op2);
-            }
-            else if (this.match('Symbol', '***')) {
-                const op = new RefTypePreOp();
-                op.star = this.createAstToken(this.consume());
-                op.star.txt = "*";
-                e.selfParamRefs.push(op);
-                e.selfParamRefs.push(new RefTypePreOp());
-                const op2 = new RefTypePreOp();
-                op2.attrs = this.parseRefAttrs();
-                e.selfParamRefs.push(op2);
-            }
-            else break;
+            if (!parseRefTypePreOps(e.selfParamRefs))
+                break;
         }
 
         if (this.match('Keyword', 'self')) {
