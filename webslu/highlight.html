@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AST Studio: Syntax Highlighter & Inspector</title>
+    <title>AST Studio: Syntax Highlighter</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -115,7 +115,6 @@
             display: flex;
             flex-direction: column;
             min-width: 0;
-            /* Fix flex overflow */
         }
 
         .panel:first-child {
@@ -263,7 +262,7 @@
             font-size: 11px;
         }
 
-        /* Scrollbar Styling */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -281,7 +280,6 @@
             background: #555;
         }
 
-        /* Mobile */
         @media (max-width: 768px) {
             main {
                 flex-direction: column;
@@ -298,7 +296,6 @@
         }
     </style>
 
-    <!-- External Dependency: Parser and AST Definitions -->
     <script src="ast.js"></script>
 </head>
 
@@ -319,7 +316,6 @@
     </header>
 
     <main>
-        <!-- Input Panel -->
         <div class="panel">
             <div class="panel-header">Source Code</div>
             <div class="editor-wrapper">
@@ -327,8 +323,6 @@
                 <textarea id="sourceInput" spellcheck="false" placeholder="Paste your code here..."></textarea>
             </div>
         </div>
-
-        <!-- Output Panel -->
         <div class="panel">
             <div class="panel-header">Highlighted AST</div>
             <div class="preview-wrapper" id="previewContainer">
@@ -339,7 +333,7 @@
 
     <footer id="statusBar">Ready</footer>
 
-    <!-- Tooltip Element -->
+    <!-- Tooltip -->
     <div id="ast-tooltip">
         <h4 id="tt-type">Type</h4>
         <pre id="tt-content">...</pre>
@@ -377,6 +371,9 @@
 
             // Operators
             RANGE: '#498CFF', TRY: '#68997E', DYN: '#BF87FF', IMPL: '#CE905A', AND: '#5787DB', OR: '#B58055',
+
+            // Specific Requested
+            LIFETIME_SEP: '#47644e'
         };
 
         const KEYWORD_MAP = {
@@ -396,16 +393,29 @@
 
         /**
          * ========================================================================
-         * HIGHLIGHTER VISITOR (Extends base Visitor from ast.js)
+         * HIGHLIGHTER VISITOR
          * ========================================================================
          */
         class HighlighterVisitor extends Visitor {
             constructor() {
                 super();
                 this.fragment = document.createDocumentFragment();
+                this.parentStack = []; // To track context
             }
 
-            // Helper to escape HTML
+            // Push/Pop stack for context awareness
+            visit(node) {
+                if (!node) return null;
+                this.parentStack.push(node);
+                const result = super.visit(node);
+                this.parentStack.pop();
+                return result;
+            }
+
+            getParent() {
+                return this.parentStack.length > 1 ? this.parentStack[this.parentStack.length - 2] : null;
+            }
+
             escape(text) {
                 if (!text) return "";
                 return text.replace(/&/g, "&amp;")
@@ -415,74 +425,191 @@
                     .replace(/'/g, "&#039;");
             }
 
-            // Core emit function: Creates a DOM node instead of a string
-            // This allows us to attach the 'node' reference to the DOM element for inspection
+            // Use innerHTML to render escaped text correctly
             emit(color, text, astNode) {
                 if (!text) return;
-
                 const span = document.createElement('span');
-                span.textContent = text;
+                span.innerHTML = this.escape(text);
                 span.className = 'token';
                 span.style.color = color;
-
-                // Attach the raw AST node to the DOM element for the tooltip
                 span.astNode = astNode;
-
                 this.fragment.appendChild(span);
             }
 
             // --- Overrides ---
 
             visitToken(node) {
+                const parent = this.getParent();
+
+                // 1. Whitespace
                 if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+
                 if (node.txt) {
                     let color = COLORS.NAME;
-                    if (KEYWORD_MAP.hasOwnProperty(node.txt)) color = KEYWORD_MAP[node.txt];
-                    else if (/^[0-9]/.test(node.txt)) color = COLORS.NUMBER;
-                    else if (/^["\[[]/.test(node.txt)) color = COLORS.STRING;
-                    else if (/^[&*]/.test(node.txt)) color = COLORS.REF;
+                    const txt = node.txt;
 
-                    this.emit(color, this.escape(node.txt), node);
+                    // 2. Contextual Coloring
+
+                    // Label Punctuation (' and :) in Loop/While/For
+                    if (parent && (parent.type === 'LoopStat' || parent.type === 'WhileStat' || parent.type === 'ForStat' || parent.type === 'BlockStat')) {
+                        if (txt === "'" || txt === ":") color = COLORS.NAME_LABEL;
+                    }
+
+                    // Comments (Generic check if not handled by specialized visitors)
+                    // Assuming single line comments might just be tokens if not specific AST nodes
+                    if (txt.startsWith('--') || txt.startsWith('[[')) {
+                        color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_OUTER;
+                    }
+
+                    // Pattern Restrict (= inside patterns)
+                    if (parent && parent.type === 'VarDestrPat' && txt === '=') {
+                        color = COLORS.PAT_RESTRICT;
+                    }
+
+                    // Standard Keyword Lookup (if not overridden above)
+                    if (color === COLORS.NAME && KEYWORD_MAP.hasOwnProperty(txt)) {
+                        color = KEYWORD_MAP[txt];
+                    }
+                    // Fallback defaults
+                    else if (color === COLORS.NAME) {
+                        if (/^[0-9]/.test(txt)) color = COLORS.NUMBER;
+                        else if (/^[&*]/.test(txt)) color = COLORS.REF;
+                    }
+
+                    this.emit(color, txt, node);
                 }
-                return node;
-            }
-
-            visitNum(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.NUMBER, this.escape(node.num), node);
-                return node;
-            }
-
-            visitStr(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.STRING, this.escape(node.str), node);
                 return node;
             }
 
             visitName(node) {
                 if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.NAME, this.escape(node.name), node);
+
+                const parent = this.getParent();
+                let color = COLORS.NAME;
+                const name = node.name;
+
+                // Context Specific Names
+                if (parent) {
+                    if (parent.type === 'NamedField') color = COLORS.NAME_TABLE;
+                    else if (parent.type === 'LifetimeSegment') color = COLORS.NAME_LIFETIME;
+                    else if (['LoopStat', 'WhileStat', 'ForStat', 'BlockStat', 'BreakStat', 'ContinueStat'].includes(parent.type)) {
+                        // Check if this Name is the label property
+                        // Simple check: if we are in one of these nodes, assume it's a label
+                        // (Structurally more robust checks possible if prop name known, but this covers standard usage)
+                        color = COLORS.NAME_LABEL;
+                    }
+                }
+
+                this.emit(color, name, node);
+                return node;
+            }
+
+            // --- Specialized Nodes ---
+
+            visitMutRefType(node) {
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.REF_MUT, node.kw.txt, node.kw);
+                return node; // Stop recursion
+            }
+
+            visitShareRefType(node) {
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.REF_SHARE, node.kw.txt, node.kw);
+                return node;
+            }
+
+            visitConstRefType(node) {
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.REF_CONST, node.kw.txt, node.kw);
+                return node;
+            }
+
+            visitLifetimeSegment(node) {
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                // The slash (/)
+                this.emit(COLORS.LIFETIME_SEP, node.kw.txt, node.kw);
+                // The name (handled by visitName, but we can force it here if needed, though visitName handles context)
+                this.visit(node.var);
+                return node;
+            }
+
+            // --- Complex Literals (Splitting logic) ---
+
+            visitNum(node) {
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+
+                // Split number into base and kind (e.g., 10px, 0xFFp+)
+                const numStr = node.num;
+                // Regex: captures base digits, then optional kind
+                // Heuristic: Match leading digits/dots/hex prefix.
+                const match = numStr.match(/^([0-9.oxba-fOXBA-F-]+)(.*)$/);
+
+                if (match) {
+                    const base = match[1];
+                    const kind = match[2];
+                    this.emit(COLORS.NUMBER, base, node);
+                    if (kind) this.emit(COLORS.NUMBER_KIND, kind, node);
+                } else {
+                    this.emit(COLORS.NUMBER, numStr, node);
+                }
+                return node;
+            }
+
+            visitStr(node) {
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+
+                const strStr = node.str;
+                // Lua-style long brackets or standard quotes
+                // Regex: 1. Open Delim, 2. Content, 3. Close Delim
+                const match = strStr.match(/^((?:\[{0,}\[)|["'])([\s\S]*?)((?:\]{0,}\])|["'])$/);
+
+                if (match) {
+                    const [_, open, content, close] = match;
+                    this.emit(COLORS.STRING_OUT, open, node);
+                    this.emit(COLORS.STRING, content, node);
+                    this.emit(COLORS.STRING_OUT, close, node);
+                } else {
+                    this.emit(COLORS.STRING, strStr, node);
+                }
                 return node;
             }
 
             visitDocLineAnnotation(node) {
                 if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.COMMENT_DOC, this.escape(node.txt + node.content), node);
+                const txt = node.txt + node.content;
+                const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC;
+                this.emit(color, txt, node);
                 return node;
             }
 
             visitOuterDocLineAnnotation(node) {
                 if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.COMMENT_DOC_OUTER, this.escape(node.txt + node.content), node);
+                const txt = node.txt + node.content;
+                const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC_OUTER;
+                this.emit(color, txt, node);
                 return node;
             }
 
             visitOptToken(node) {
                 if (node.present && node.txt) {
                     if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+
                     let color = COLORS.NAME;
+
+                    // Contextual checks for OptTokens
+                    const parent = this.getParent();
+
+                    // Pattern Restrict in OptToken contexts (if VarDestrPat uses OptToken for eq)
+                    if (parent && parent.type === 'VarDestrPat' && node.txt === '=') {
+                        color = COLORS.PAT_RESTRICT;
+                    }
+
+                    // Standard map
                     if (KEYWORD_MAP.hasOwnProperty(node.txt)) color = KEYWORD_MAP[node.txt];
-                    this.emit(color, this.escape(node.txt), node);
+                    else if (/^[0-9]/.test(node.txt)) color = COLORS.NUMBER;
+                    else if (/^[&*]/.test(node.txt)) color = COLORS.REF;
+
+                    this.emit(color, node.txt, node);
                 }
                 return node;
             }
@@ -499,7 +626,6 @@
         const statusEl = document.getElementById('statusBar');
         const previewContainer = document.getElementById('previewContainer');
 
-        // Tooltip Elements
         const tooltip = document.getElementById('ast-tooltip');
         const ttType = document.getElementById('tt-type');
         const ttContent = document.getElementById('tt-content');
@@ -517,7 +643,7 @@ ex unsafe fn main(x=4) {
 let u8 p = @aaple{h=4} poo ~ 4 ** ~[]2;
 return "atyyyy" ++ [[333]].*.:app | ! -0xFf00fp+44;
     } 
---wwwwewe
+--wwwwewe TODO
 else {
         x = crate::print("Small number" as 444);
     }
@@ -533,20 +659,14 @@ for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
 
         inputArea.value = DEMO_CODE.trim();
 
-        // --- Highlighting Function ---
-
         async function highlightCode() {
             const code = inputArea.value;
-
-            // Clear Output
             outputBlock.innerHTML = '';
             statusEl.textContent = "Parsing...";
             statusEl.className = "";
             statusEl.style.backgroundColor = "var(--bg-status)";
 
             try {
-                // 1. Parse
-                // Assuming Parser is globally available from ast.js
                 const parser = new Parser(code);
                 const ast = parser.parseChunk();
 
@@ -554,11 +674,9 @@ for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
                 statusEl.className = "success";
                 statusEl.style.backgroundColor = "var(--bg-status-success)";
 
-                // 2. Traverse
                 const visitor = new HighlighterVisitor();
                 visitor.visit(ast);
 
-                // 3. Render
                 outputBlock.appendChild(visitor.fragment);
 
             } catch (e) {
@@ -573,7 +691,6 @@ for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
             }
         }
 
-        // --- Line Numbers Sync ---
         function updateLineNumbers() {
             const lines = inputArea.value.split('\n').length;
             lineNumbers.innerHTML = Array(lines).fill(0).map((_, i) => i + 1).join('\n');
@@ -583,40 +700,29 @@ for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
             lineNumbers.scrollTop = inputArea.scrollTop;
         }
 
-        // --- Tooltip Interactions ---
-
-        // Show tooltip on hover
         outputBlock.addEventListener('mouseover', (e) => {
             if (e.target.classList.contains('token')) {
                 const node = e.target.astNode;
                 if (node) {
-                    // Format Node Data for display
-                    // We try to show relevant properties
                     let details = {};
                     for (let key in node) {
                         if (node.hasOwnProperty(key) && key !== 'type' && key !== 'preSpace') {
                             const val = node[key];
-                            // Avoid showing circular ref or huge objects
                             if (typeof val !== 'object' && typeof val !== 'function') {
                                 details[key] = val;
                             }
                         }
                     }
-
                     ttType.textContent = node.type;
                     ttContent.textContent = JSON.stringify(details, null, 2);
-
                     tooltip.style.display = 'block';
                 }
             }
         });
 
-        // Move tooltip
         outputBlock.addEventListener('mousemove', (e) => {
             const x = e.clientX + 15;
             const y = e.clientY + 15;
-
-            // Boundary checks
             if (x + 320 > window.innerWidth) {
                 tooltip.style.left = (e.clientX - 325) + 'px';
             } else {
@@ -625,14 +731,19 @@ for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
             tooltip.style.top = y + 'px';
         });
 
-        // Hide tooltip
         outputBlock.addEventListener('mouseout', (e) => {
             if (e.target.classList.contains('token')) {
                 tooltip.style.display = 'none';
             }
         });
 
-        // --- Event Listeners ---
+        let debounceTimer;
+        function debounce(func, wait) {
+            return function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(this, arguments), wait);
+            };
+        }
 
         inputArea.addEventListener('input', () => {
             updateLineNumbers();
@@ -641,20 +752,10 @@ for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
 
         inputArea.addEventListener('scroll', syncScroll);
 
-        // Initialize
         window.addEventListener('DOMContentLoaded', () => {
             updateLineNumbers();
             highlightCode();
         });
-
-        // Utility: Debounce
-        let debounceTimer;
-        function debounce(func, wait) {
-            return function () {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => func.apply(this, arguments), wait);
-            };
-        }
 
     </script>
 </body>

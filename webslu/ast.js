@@ -1549,6 +1549,45 @@ class Parser {
     // LEXER / TOKENIZER
     // ========================================================================
 
+    // Helper to handle Lua-style long brackets
+    handleLongBracket(isComment) {
+        const start = this.pos;
+        this.pos++; // Skip '['
+
+        const openBracketPos = this.pos;
+        let level = 0;
+
+        // Count '=' signs
+        while (this.pos < this.len && this.input[this.pos] === '=') {
+            this.pos++;
+            level++;
+        }
+
+        // Expect closing '['
+        if (this.pos >= this.len || this.input[this.pos] !== '[') {
+            this.pos = start; // Reset and let standard logic handle it
+            if (isComment)
+                throw new Error(`Expected second bracket for multi line comment: ${this.input[this.pos]} at ${this.pos}`);
+            return false;
+        }
+        this.pos++; // Consume the second '['
+
+        const openSeq = this.input.substring(openBracketPos - 1, this.pos);
+        const closeSeq = openSeq.replace(/\[/g, ']'); // [==[ becomes ]==]
+
+        // Scan for closing sequence
+        while (this.pos + closeSeq.length <= this.len) {
+            if (this.input.substring(this.pos, this.pos + closeSeq.length) === closeSeq) {
+                this.pos += closeSeq.length;
+                return true; // Success
+            }
+            this.pos++;
+        }
+        this.pos = this.len;
+
+        throw new Error(`Expected closing bracket for ${isComment ? "comment" : "string"}, but file ended`);
+    }
+
     tokenize() {
         // Define Keywords based on spec
         const keywords = new Set([
@@ -1592,45 +1631,6 @@ class Parser {
             ";", ",,", ",",
             "-~", "-|", "->", "-=", "-<", "-+", "-^", "-%", "-/", "-*", "-@", "-?", "--", "-"
         ]);
-
-        // Helper to handle Lua-style long brackets
-        const handleLongBracket = (isComment) => {
-            const start = this.pos;
-            this.pos++; // Skip '['
-
-            const openBracketPos = this.pos;
-            let level = 0;
-
-            // Count '=' signs
-            while (this.pos < this.len && this.input[this.pos] === '=') {
-                this.pos++;
-                level++;
-            }
-
-            // Expect closing '['
-            if (this.pos >= this.len || this.input[this.pos] !== '[') {
-                this.pos = start; // Reset and let standard logic handle it
-                if (isComment)
-                    throw new Error(`Expected second bracket for multi line comment: ${this.input[this.pos]} at ${this.pos}`);
-                return false;
-            }
-            this.pos++; // Consume the second '['
-
-            const openSeq = this.input.substring(openBracketPos - 1, this.pos);
-            const closeSeq = openSeq.replace(/\[/g, ']'); // [==[ becomes ]==]
-
-            // Scan for closing sequence
-            while (this.pos + closeSeq.length <= this.len) {
-                if (this.input.substring(this.pos, this.pos + closeSeq.length) === closeSeq) {
-                    this.pos += closeSeq.length;
-                    return true; // Success
-                }
-                this.pos++;
-            }
-            this.pos = this.len;
-
-            throw new Error(`Expected closing bracket for ${isComment ? "comment" : "string"}, but file ended`);
-        };
 
         let savedStart = null;
         let lastNonSpace = 0;
