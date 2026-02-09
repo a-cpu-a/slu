@@ -4,135 +4,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AST Syntax Highlighter</title>
+    <title>AST Studio: Syntax Highlighter & Inspector</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #1e1e1e;
-            --panel-bg: #252526;
+            /* Theme - Dark */
+            --bg-app: #1e1e1e;
+            --bg-panel: #252526;
+            --bg-header: #333333;
+            --bg-gutter: #1e1e1e;
             --border-color: #3e3e42;
-            --text-color: #cccccc;
-            --accent-color: #0e639c;
+            --border-focus: #007fd4;
+
+            /* Text */
+            --text-main: #cccccc;
+            --text-header: #ffffff;
+            --text-muted: #858585;
+
+            /* Status */
+            --bg-status: #007acc;
+            --bg-status-error: #f14c4c;
+            --bg-status-success: #4caf50;
+
+            /* Scrollbar */
             --scrollbar-bg: #1e1e1e;
             --scrollbar-thumb: #424242;
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            outline: none;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* Header */
+        /* --- Header --- */
         header {
-            height: 50px;
-            background-color: #333333;
+            height: 48px;
+            background-color: var(--bg-header);
             display: flex;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 16px;
             border-bottom: 1px solid var(--border-color);
             justify-content: space-between;
+            flex-shrink: 0;
         }
 
-        h1 {
-            font-size: 16px;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 600;
-            color: #ffffff;
+            color: var(--text-header);
+            font-size: 14px;
+            letter-spacing: 0.5px;
         }
 
-        .status {
+        .brand svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-main);
+        }
+
+        .actions button {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-main);
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 3px;
             font-size: 12px;
-            color: #888;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
         }
 
-        .status.error {
-            color: #f48771;
+        .actions button:hover {
+            background-color: #3e3e42;
         }
 
-        .status.success {
-            color: #89d185;
+        .actions button:active {
+            background-color: #4e4e52;
         }
 
-        /* Main Layout */
+        /* --- Main Workspace --- */
         main {
             flex: 1;
             display: flex;
-            height: calc(100vh - 50px);
+            overflow: hidden;
         }
 
         .panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--border-color);
             min-width: 0;
-            /* Prevent flex overflow */
+            /* Fix flex overflow */
         }
 
-        .panel:last-child {
-            border-right: none;
+        .panel:first-child {
+            border-right: 1px solid var(--border-color);
         }
 
         .panel-header {
-            background-color: var(--panel-bg);
-            padding: 8px 16px;
+            height: 28px;
+            background-color: var(--bg-panel);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
             font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #999;
-            border-bottom: 1px solid var(--border-color);
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            user-select: none;
+            flex-shrink: 0;
         }
 
-        /* Editor Area (Textarea) */
-        .editor-container {
+        /* --- Input Area --- */
+        .editor-wrapper {
             flex: 1;
+            display: flex;
             position: relative;
-            background-color: var(--bg-color);
-            overflow: hidden;
+            background-color: var(--bg-app);
         }
 
-        textarea {
-            width: 100%;
-            height: 100%;
+        .gutter {
+            width: 45px;
+            background-color: var(--bg-gutter);
+            color: #606060;
+            text-align: right;
+            padding: 10px 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            user-select: none;
+            overflow: hidden;
+            border-right: 1px solid var(--border-color);
+            flex-shrink: 0;
+            white-space: pre;
+        }
+
+        textarea#sourceInput {
+            flex: 1;
             background-color: transparent;
             color: #d4d4d4;
             border: none;
             resize: none;
-            padding: 15px;
-            font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+            padding: 10px;
+            font-family: 'Fira Code', monospace;
             font-size: 14px;
             line-height: 1.5;
-            outline: none;
             white-space: pre;
             overflow: auto;
+            tab-size: 4;
         }
 
-        /* Preview Area (Pre/Code) */
-        .preview-container {
+        /* --- Output Area --- */
+        .preview-wrapper {
             flex: 1;
             position: relative;
-            background-color: var(--bg-color);
+            background-color: var(--bg-app);
             overflow: auto;
         }
 
-        pre {
+        #codeBlock {
             margin: 0;
-            padding: 15px;
-            font-family: 'Fira Code', 'Consolas', 'Courier New', monospace;
+            padding: 10px;
+            font-family: 'Fira Code', monospace;
             font-size: 14px;
             line-height: 1.5;
             white-space: pre;
-            /* Preserve whitespace exactly as in AST */
+            color: #d4d4d4;
             min-height: 100%;
+        }
+
+        /* --- Interactive Tokens --- */
+        .token {
+            display: inline;
+            cursor: default;
+            border-radius: 2px;
+            transition: background-color 0.1s;
+        }
+
+        .token:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        /* --- Footer --- */
+        footer {
+            height: 22px;
+            background-color: var(--bg-status);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 11px;
+            justify-content: flex-end;
+            transition: background-color 0.3s;
+        }
+
+        footer.error {
+            background-color: var(--bg-status-error);
+        }
+
+        footer.success {
+            background-color: var(--bg-status-success);
+        }
+
+        /* --- Tooltip --- */
+        #ast-tooltip {
+            position: absolute;
+            background: #252526;
+            border: 1px solid #454545;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+            padding: 12px;
+            border-radius: 4px;
+            max-width: 320px;
+            z-index: 1000;
+            display: none;
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        #ast-tooltip h4 {
+            margin: 0 0 8px 0;
+            color: #fff;
+            font-size: 13px;
+            border-bottom: 1px solid #454545;
+            padding-bottom: 4px;
+        }
+
+        #ast-tooltip pre {
+            margin: 0;
+            background: #1e1e1e;
+            padding: 6px;
+            border-radius: 3px;
+            overflow-x: auto;
+            color: #9cdcfe;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
         }
 
         /* Scrollbar Styling */
@@ -153,267 +281,208 @@
             background: #555;
         }
 
-        /* Helper for highlighting */
-        .token {
-            display: inline;
-            /* Allows layout to follow text flow */
+        /* Mobile */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+
+            .panel {
+                height: 50%;
+            }
+
+            .panel:first-child {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
         }
     </style>
 
+    <!-- External Dependency: Parser and AST Definitions -->
     <script src="ast.js"></script>
 </head>
 
 <body>
 
     <header>
-        <h1>2D Web Tool: AST Colorizer</h1>
-        <span id="status" class="status">Ready</span>
+        <div class="brand">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M14.6,16.6L19.2,12L14.6,7.4L16,6L22,12L16,18L14.6,16.6M9.4,16.6L4.8,12L9.4,7.4L8,6L2,12L8,18L9.4,16.6Z" />
+            </svg>
+            AST Studio
+        </div>
+        <div class="actions">
+            <button onclick="document.getElementById('sourceInput').value = ''; highlightCode();">Clear</button>
+            <button onclick="highlightCode()">Force Parse</button>
+        </div>
     </header>
 
     <main>
         <!-- Input Panel -->
         <div class="panel">
             <div class="panel-header">Source Code</div>
-            <div class="editor-container">
+            <div class="editor-wrapper">
+                <div id="lineNumbers" class="gutter">1</div>
                 <textarea id="sourceInput" spellcheck="false" placeholder="Paste your code here..."></textarea>
             </div>
         </div>
 
         <!-- Output Panel -->
         <div class="panel">
-            <div class="panel-header">Highlighted Output (AST Render)</div>
-            <div class="preview-container">
-                <pre id="outputPreview"><code id="codeBlock"></code></pre>
+            <div class="panel-header">Highlighted AST</div>
+            <div class="preview-wrapper" id="previewContainer">
+                <div id="codeBlock"></div>
             </div>
         </div>
     </main>
 
+    <footer id="statusBar">Ready</footer>
+
+    <!-- Tooltip Element -->
+    <div id="ast-tooltip">
+        <h4 id="tt-type">Type</h4>
+        <pre id="tt-content">...</pre>
+    </div>
+
     <script>
         /**
          * ========================================================================
-         * COLOR MAPPINGS (Derived from provided C++ snippet)
+         * COLOR CONFIGURATION
          * ========================================================================
          */
         const COLORS = {
             // Types
-            GEN_OP: '#8E98A8', // + - / * ++ **
-            PUNCTUATION: '#A9B0BC',
-            BRACES: '#BFC4CC',
-
-            // Names
-            NAME: '#D8D8D8',
-            NAME_TABLE: '#9CA5B2',
-            NAME_TYPE: '#36A57E',
-            NAME_LABEL: '#72CC82',
-            NAME_LIFETIME: '#6a8c72',
-            BUILITIN_VAR: '#6582C1',
+            GEN_OP: '#8E98A8', PUNCTUATION: '#A9B0BC', BRACES: '#BFC4CC',
+            NAME: '#D8D8D8', NAME_TABLE: '#9CA5B2', NAME_TYPE: '#36A57E',
+            NAME_LABEL: '#72CC82', NAME_LIFETIME: '#6a8c72', BUILITIN_VAR: '#6582C1',
 
             // Literals
-            NUMBER: '#539BBD',
-            NUMBER_KIND: '#6B73A1', // 0x, p+, e-
-            STRING: '#7AA737',
-            STRING_OUT: '#ACD163',
+            NUMBER: '#539BBD', NUMBER_KIND: '#6B73A1', STRING: '#7AA737', STRING_OUT: '#ACD163',
 
             // Control Flow
-            COND_STAT: '#BD71C4', // if, else, while, for...
-            END_STAT: '#CE4C4C', // break
-            FN_STAT: '#CE4C4C', // fn
-            VAR_STAT: '#D87D7D', // let
-            ASSIGN: '#E5506F', // =
+            COND_STAT: '#BD71C4', END_STAT: '#CE4C4C', FN_STAT: '#CE4C4C', VAR_STAT: '#D87D7D',
+            ASSIGN: '#E5506F',
 
             // Comments / Misc
-            COMMENT_WIP: '#CCFF00', // any comment text with `TODO`
-            WHITESPACE: '#575763',
-            COMMENT_OUTER: '#3D3D44', // --, [[]]
-            COMMENT_DOC: '#378731', // the stuff in it
-            COMMENT_DOC_OUTER: '#196022', // --- or --<, also any [[]] for them
+            COMMENT_WIP: '#CCFF00', WHITESPACE: '#575763', COMMENT_OUTER: '#3D3D44',
+            COMMENT_DOC: '#378731', COMMENT_DOC_OUTER: '#196022',
 
             // Keywords / Annotations
-            AS: '#D8B770',
-            CON_STAT: '#D8B770',
-            PAT_RESTRICT: '#BFC4CC', // = inside patterns
-            DROP_STAT: '#666CCC',
-            EX_TINT: '#22275B',
-            COMP_TINT: '#C6C611',
-            ANNOTATION: '#A8A820',
+            AS: '#D8B770', CON_STAT: '#D8B770', PAT_RESTRICT: '#BFC4CC', DROP_STAT: '#666CCC',
+            EX_TINT: '#22275B', COMP_TINT: '#C6C611', ANNOTATION: '#A8A820',
 
             // Modifiers
-            REF_CONST: '#8AB6CE', // *const &const
-            REF: '#8AB6CE', // * &
-            REF_SHARE: '#E4C4FF',
-            REF_MUT: '#FF9647', // *mut, &mut
-            MUT: '#FF9647',
+            REF_CONST: '#8AB6CE', REF: '#8AB6CE', REF_SHARE: '#E4C4FF', REF_MUT: '#FF9647', MUT: '#FF9647',
 
             // Operators
-            RANGE: '#498CFF',
-            TRY: '#68997E',
-            DYN: '#BF87FF',
-            IMPL: '#CE905A',
-
-            AND: '#5787DB',
-            OR: '#B58055',
+            RANGE: '#498CFF', TRY: '#68997E', DYN: '#BF87FF', IMPL: '#CE905A', AND: '#5787DB', OR: '#B58055',
         };
 
-        // Mapping specific keywords to the colors provided above
         const KEYWORD_MAP = {
-            // Flow
-            'if': COLORS.COND_STAT, 'else': COLORS.COND_STAT,
-            'while': COLORS.COND_STAT, 'for': COLORS.COND_STAT, 'loop': COLORS.COND_STAT,
-            'match': COLORS.COND_STAT, 'try': COLORS.TRY,
+            'if': COLORS.COND_STAT, 'else': COLORS.COND_STAT, 'while': COLORS.COND_STAT,
+            'for': COLORS.COND_STAT, 'loop': COLORS.COND_STAT, 'match': COLORS.COND_STAT,
             'return': COLORS.END_STAT, 'break': COLORS.END_STAT, 'continue': COLORS.END_STAT,
-
-            // Declarations
             'fn': COLORS.FN_STAT, 'struct': COLORS.CON_STAT, 'enum': COLORS.CON_STAT,
-            'union': COLORS.CON_STAT, 'trait': COLORS.IMPL, 'impl': COLORS.IMPL,
-            'let': COLORS.VAR_STAT, 'const': COLORS.VAR_STAT, 'mod': COLORS.CON_STAT,
-            'drop': COLORS.DROP_STAT,
-
-            // Modifiers
-            'mut': COLORS.MUT, 'extern': COLORS.FN_STAT, 'unsafe': COLORS.FN_STAT,
-
-            // Types/Keywords
-            'self': COLORS.BUILITIN_VAR, 'crate': COLORS.NAME,
-
-            // Operators
-            '@': COLORS.ANNOTATION, 'dyn': COLORS.DYN,
-            '~': COLORS.TRY, 'as': COLORS.AS,
-            'and': COLORS.AND, 'or': COLORS.OR,
-            '|': COLORS.PUNCTUATION,
-            '..': COLORS.RANGE, '...': COLORS.ERROR,
-            '=': COLORS.ASSIGN, '->': COLORS.PUNCTUATION, '=>': COLORS.ASSIGN,
-            ':': COLORS.PUNCTUATION, '::': COLORS.PUNCTUATION, ';': COLORS.PUNCTUATION, ',': COLORS.PUNCTUATION,
-            '.': COLORS.PUNCTUATION, '.:': COLORS.PUNCTUATION, '?': COLORS.TRY,
-            '{': COLORS.BRACES, '}': COLORS.BRACES, '(': COLORS.BRACES, ')': COLORS.BRACES, '[': COLORS.BRACES, ']': COLORS.BRACES
+            'let': COLORS.VAR_STAT, 'const': COLORS.VAR_STAT, 'mut': COLORS.MUT,
+            'unsafe': COLORS.FN_STAT, 'self': COLORS.BUILITIN_VAR, 'crate': COLORS.NAME,
+            '@': COLORS.ANNOTATION, 'dyn': COLORS.DYN, 'as': COLORS.AS,
+            '..': COLORS.RANGE, '=': COLORS.ASSIGN, '->': COLORS.PUNCTUATION, '=>': COLORS.ASSIGN,
+            ':': COLORS.PUNCTUATION, '::': COLORS.PUNCTUATION, ';': COLORS.PUNCTUATION,
+            ',': COLORS.PUNCTUATION, '.': COLORS.PUNCTUATION, '?': COLORS.TRY,
+            '{': COLORS.BRACES, '}': COLORS.BRACES, '(': COLORS.BRACES, ')': COLORS.BRACES,
+            '[': COLORS.BRACES, ']': COLORS.BRACES
         };
 
         /**
          * ========================================================================
-         * HIGHLIGHTER VISITOR
+         * HIGHLIGHTER VISITOR (Extends base Visitor from ast.js)
          * ========================================================================
          */
         class HighlighterVisitor extends Visitor {
             constructor() {
                 super();
-                this.buffer = '';
-                this.indentLevel = 0;
+                this.fragment = document.createDocumentFragment();
             }
 
-            // Helper to escape HTML entities
+            // Helper to escape HTML
             escape(text) {
-                return text
-                    .replace(/&/g, "&amp;")
+                if (!text) return "";
+                return text.replace(/&/g, "&amp;")
                     .replace(/</g, "&lt;")
                     .replace(/>/g, "&gt;")
                     .replace(/"/g, "&quot;")
                     .replace(/'/g, "&#039;");
             }
 
-            // Helper to append colored span
-            emit(color, text) {
+            // Core emit function: Creates a DOM node instead of a string
+            // This allows us to attach the 'node' reference to the DOM element for inspection
+            emit(color, text, astNode) {
                 if (!text) return;
-                // Check if text is purely whitespace
-                if (/^\s+$/.test(text)) {
-                    this.buffer += `<span style="color:${COLORS.WHITESPACE}">${text}</span>`;
-                } else {
-                    this.buffer += `<span class="token" style="color:${color}">${text}</span>`;
-                }
+
+                const span = document.createElement('span');
+                span.textContent = text;
+                span.className = 'token';
+                span.style.color = color;
+
+                // Attach the raw AST node to the DOM element for the tooltip
+                span.astNode = astNode;
+
+                this.fragment.appendChild(span);
             }
 
-            // --- Generic Token Handling ---
+            // --- Overrides ---
+
             visitToken(node) {
-                // 1. Handle preSpace (whitespace before the token)
-                if (node.preSpace) {
-                    this.emit(COLORS.WHITESPACE, node.preSpace);
-                }
-
-                // 2. Handle the token text
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
                 if (node.txt) {
-                    const txt = node.txt;
-                    const escaped = this.escape(txt);
+                    let color = COLORS.NAME;
+                    if (KEYWORD_MAP.hasOwnProperty(node.txt)) color = KEYWORD_MAP[node.txt];
+                    else if (/^[0-9]/.test(node.txt)) color = COLORS.NUMBER;
+                    else if (/^["\[[]/.test(node.txt)) color = COLORS.STRING;
+                    else if (/^[&*]/.test(node.txt)) color = COLORS.REF;
 
-                    // Determine Color
-                    let color = COLORS.NAME; // Default
-
-                    if (KEYWORD_MAP.hasOwnProperty(txt)) {
-                        color = KEYWORD_MAP[txt];
-                    } else if (/^[0-9]/.test(txt)) {
-                        color = COLORS.NUMBER;
-                    } else if (/^["\[[]/.test(txt)) {
-                        color = COLORS.STRING;
-                    } else if (/^[&*]/.test(txt)) {
-                        // Ref/Ptr handling logic could be more nuanced based on AST
-                        // but simple check works for standalone tokens
-                        color = COLORS.REF;
-                    }
-
-                    this.emit(color, escaped);
+                    this.emit(color, this.escape(node.txt), node);
                 }
-                return node; // Visitor pattern expects return
+                return node;
             }
 
-            // --- Specific Literals ---
             visitNum(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace);
-                this.emit(COLORS.NUMBER, this.escape(node.num));
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.NUMBER, this.escape(node.num), node);
                 return node;
             }
 
             visitStr(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace);
-                this.emit(COLORS.STRING, this.escape(node.str));
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.STRING, this.escape(node.str), node);
                 return node;
             }
 
             visitName(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace);
-                this.emit(COLORS.NAME, this.escape(node.name));
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.NAME, this.escape(node.name), node);
                 return node;
             }
 
-            // --- Handling Tokens wrapped in specific classes (like keywords) ---
-            // e.g., IfStat has this.ifKw (Token), which will be caught by visitToken automatically.
-            // But sometimes we have specific contexts like Types.
-
-            // Example: Override to color types differently if we detect them
-            visitModPath(node) {
-                // Mod paths usually represent types or module names
-                // We let the generic visitor handle the internal segments (Name nodes),
-                // but we could force color here.
-                // For now, defaulting to visitChildren is safer as it respects structure.
-                return this.visitChildren(node);
-            }
-
-            // Example: Annotation styling
-            visitModPathAnnotation(node) {
-                // The '@' is a Token, the path is a ModPath
-                // We can inject color logic here if needed
-                return this.visitChildren(node);
-            }
-
-            // Capture specific AST node text that isn't a "Token" object but a string property
             visitDocLineAnnotation(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace);
-                // node.txt is the token "---", node.content is the string
-                this.emit(COLORS.COMMENT_DOC, this.escape(node.txt + node.content));
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.COMMENT_DOC, this.escape(node.txt + node.content), node);
                 return node;
             }
 
             visitOuterDocLineAnnotation(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace);
-                this.emit(COLORS.COMMENT_DOC_OUTER, this.escape(node.txt + node.content));
+                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                this.emit(COLORS.COMMENT_DOC_OUTER, this.escape(node.txt + node.content), node);
                 return node;
             }
 
-            // Ensure we don't output anything for Opt nodes that aren't present
             visitOptToken(node) {
                 if (node.present && node.txt) {
-                    // visitOptToken is a wrapper. The inner logic is similar to visitToken
-                    // but the Visitor base class handles recursion.
-                    // However, we need to intercept it to color it if it IS present.
-                    if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace);
+                    if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
                     let color = COLORS.NAME;
                     if (KEYWORD_MAP.hasOwnProperty(node.txt)) color = KEYWORD_MAP[node.txt];
-                    this.emit(color, this.escape(node.txt));
+                    this.emit(color, this.escape(node.txt), node);
                 }
                 return node;
             }
@@ -425,10 +494,16 @@
          * ========================================================================
          */
         const inputArea = document.getElementById('sourceInput');
-        const outputPre = document.getElementById('codeBlock');
-        const statusEl = document.getElementById('status');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const outputBlock = document.getElementById('codeBlock');
+        const statusEl = document.getElementById('statusBar');
+        const previewContainer = document.getElementById('previewContainer');
 
-        // Default Demo Code
+        // Tooltip Elements
+        const tooltip = document.getElementById('ast-tooltip');
+        const ttType = document.getElementById('tt-type');
+        const ttContent = document.getElementById('tt-content');
+
         const DEMO_CODE = `
 ex unsafe fn main(x=4) {
     -- Calculate fibonacci
@@ -454,57 +529,130 @@ else {
 --4444
 ---Kk
 for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
-}
-
-const fib = fn(**in s /a self,n=Fff5) {
-    if n <= 1 {
-        return n as 444;
-    }
-    return fib(n - 1) + fib(n - 2);
 }`;
 
-        inputArea.value = DEMO_CODE;
+        inputArea.value = DEMO_CODE.trim();
+
+        // --- Highlighting Function ---
 
         async function highlightCode() {
             const code = inputArea.value;
+
+            // Clear Output
+            outputBlock.innerHTML = '';
             statusEl.textContent = "Parsing...";
-            statusEl.className = "status";
+            statusEl.className = "";
+            statusEl.style.backgroundColor = "var(--bg-status)";
 
             try {
-                let ast;
-
+                // 1. Parse
+                // Assuming Parser is globally available from ast.js
                 const parser = new Parser(code);
-                ast = parser.parseChunk();
-                statusEl.textContent = "Parsed successfully (Real Parser)";
-                statusEl.className = "status success";
+                const ast = parser.parseChunk();
 
-                // 3. Traverse and Highlight
+                statusEl.textContent = "Parsed successfully";
+                statusEl.className = "success";
+                statusEl.style.backgroundColor = "var(--bg-status-success)";
+
+                // 2. Traverse
                 const visitor = new HighlighterVisitor();
                 visitor.visit(ast);
 
-                // 4. Render
-                outputPre.innerHTML = visitor.buffer;
+                // 3. Render
+                outputBlock.appendChild(visitor.fragment);
 
             } catch (e) {
                 console.error(e);
                 statusEl.textContent = "Error: " + e.message;
-                statusEl.className = "status error";
-                outputPre.textContent = "";
+                statusEl.className = "error";
+                statusEl.style.backgroundColor = "var(--bg-status-error)";
+                const errSpan = document.createElement('span');
+                errSpan.style.color = 'var(--bg-status-error)';
+                errSpan.textContent = e.message;
+                outputBlock.appendChild(errSpan);
             }
         }
 
-        // Event Listeners
-        inputArea.addEventListener('input', debounce(highlightCode, 500));
+        // --- Line Numbers Sync ---
+        function updateLineNumbers() {
+            const lines = inputArea.value.split('\n').length;
+            lineNumbers.innerHTML = Array(lines).fill(0).map((_, i) => i + 1).join('\n');
+        }
 
-        // Run once on load
-        window.addEventListener('DOMContentLoaded', highlightCode);
+        function syncScroll() {
+            lineNumbers.scrollTop = inputArea.scrollTop;
+        }
 
-        // Utility: Debounce to prevent parsing on every keystroke
+        // --- Tooltip Interactions ---
+
+        // Show tooltip on hover
+        outputBlock.addEventListener('mouseover', (e) => {
+            if (e.target.classList.contains('token')) {
+                const node = e.target.astNode;
+                if (node) {
+                    // Format Node Data for display
+                    // We try to show relevant properties
+                    let details = {};
+                    for (let key in node) {
+                        if (node.hasOwnProperty(key) && key !== 'type' && key !== 'preSpace') {
+                            const val = node[key];
+                            // Avoid showing circular ref or huge objects
+                            if (typeof val !== 'object' && typeof val !== 'function') {
+                                details[key] = val;
+                            }
+                        }
+                    }
+
+                    ttType.textContent = node.type;
+                    ttContent.textContent = JSON.stringify(details, null, 2);
+
+                    tooltip.style.display = 'block';
+                }
+            }
+        });
+
+        // Move tooltip
+        outputBlock.addEventListener('mousemove', (e) => {
+            const x = e.clientX + 15;
+            const y = e.clientY + 15;
+
+            // Boundary checks
+            if (x + 320 > window.innerWidth) {
+                tooltip.style.left = (e.clientX - 325) + 'px';
+            } else {
+                tooltip.style.left = x + 'px';
+            }
+            tooltip.style.top = y + 'px';
+        });
+
+        // Hide tooltip
+        outputBlock.addEventListener('mouseout', (e) => {
+            if (e.target.classList.contains('token')) {
+                tooltip.style.display = 'none';
+            }
+        });
+
+        // --- Event Listeners ---
+
+        inputArea.addEventListener('input', () => {
+            updateLineNumbers();
+            debounce(highlightCode, 500)();
+        });
+
+        inputArea.addEventListener('scroll', syncScroll);
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            updateLineNumbers();
+            highlightCode();
+        });
+
+        // Utility: Debounce
+        let debounceTimer;
         function debounce(func, wait) {
-            let timeout;
-            return function (...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
+            return function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => func.apply(this, arguments), wait);
             };
         }
 
