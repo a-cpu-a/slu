@@ -2707,6 +2707,13 @@ class Parser {
                 const attrs = this.parseRefAttrs();
                 e.selfParamRefs.push(new RefTypePreOp(star, attrs));
             }
+            else if (this.match('Symbol', '*/')) {
+                const op = new RefTypePreOp();
+                op.star = this.createAstToken(this.consume());
+                op.star.txt = "*";
+                op.attrs = this.parseRefAttrs(true);
+                e.selfParamRefs.push(op);
+            }
             else if (this.match('Symbol', '**')) {
                 const op = new RefTypePreOp();
                 op.star = this.createAstToken(this.consume());
