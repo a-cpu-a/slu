@@ -470,27 +470,22 @@
             processPreSpace(text, node) {
                 if (!text) return;
 
-                // 1. Split by Long Brackets
                 const longBracketRegex = /(\[=*\[)([\s\S]*?)(\]=*\])/g;
                 let lastIndex = 0;
                 let match;
                 let remaining = text;
 
                 while ((match = longBracketRegex.exec(text)) !== null) {
-                    // Text before the long bracket
                     const pre = text.substring(lastIndex, match.index);
                     this.processLineComments(pre, node);
 
-                    // The long bracket itself
-                    // In preSpace, long brackets are comments.
-                    this.emit(COLORS.COMMENT_OUTER, match[1], node); // Open
-                    this.emit(COLORS.WHITESPACE, match[2], node);      // Content
-                    this.emit(COLORS.COMMENT_OUTER, match[3], node); // Close
+                    this.emit(COLORS.COMMENT_OUTER, match[1], node);
+                    this.emit(COLORS.WHITESPACE, match[2], node);
+                    this.emit(COLORS.COMMENT_OUTER, match[3], node);
 
                     lastIndex = match.index + match[0].length;
                 }
 
-                // Remaining text after last long bracket
                 if (lastIndex < text.length) {
                     this.processLineComments(text.substring(lastIndex), node);
                 }
@@ -531,7 +526,7 @@
                 if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
                 if (node.txt) {
-                    // 'ex' is handled by visitExport and visitExPreOp, skip here
+                    // 'ex' is handled by visitExport and visitExPreOp
                     if (node.txt === 'ex' && (parent.type === 'Export' || parent.type === 'ExPreOp')) {
                         return node;
                     }
@@ -578,7 +573,37 @@
                 return node;
             }
 
-            // --- Reference Logic (Fixes & duplicates) ---
+            // --- 'ex' Tinting Logic (With present check) ---
+
+            visitExport(node) {
+                // node.kw is OptToken
+                if (node.kw && node.kw.present) {
+                    if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+                    const parent = this.getParent();
+                    let targetColor = COLORS.FN_STAT;
+                    if (parent) {
+                        if (parent.type === 'FunctionDecl') targetColor = COLORS.FN_STAT;
+                        else if (parent.type === 'StructDecl') targetColor = COLORS.CON_STAT;
+                        else if (parent.type === 'EnumDecl') targetColor = COLORS.CON_STAT;
+                        else if (parent.type === 'UnionDecl') targetColor = COLORS.CON_STAT;
+                        else if (parent.type === 'TraitDecl') targetColor = COLORS.IMPL;
+                        else if (parent.type === 'ImplDecl') targetColor = COLORS.IMPL;
+                    }
+                    const finalColor = blendColors(targetColor, COLORS.EX_TINT, 0.4);
+                    this.emit(finalColor, node.kw.txt, node.kw);
+                }
+                return node;
+            }
+
+            visitExPreOp(node) {
+                //TODO: prespace doesnt show!!!!
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                const finalColor = blendColors(COLORS.FN_STAT, COLORS.EX_TINT, 0.4);
+                this.emit(finalColor, node.kw.txt, node.kw);
+                return node;
+            }
+
+            // --- Reference Logic (RefAttrs, PreSpace, Colors) ---
 
             getRefColor(node) {
                 if (!node) return COLORS.REF;
@@ -588,17 +613,24 @@
                 return COLORS.REF;
             }
 
+            // Explicit traversal of RefAttrs to ensure order and correctness
+            visitRefAttrs(node) {
+                this.visit(node.addrspace);
+                this.visit(node.lifetime);
+                this.visit(node.refType);
+                return node;
+            }
+
             visitRefPreOp(node) {
                 const color = this.getRefColor(node.attrs.refType);
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
-                // Emit & manually
+                if (node.amp.preSpace) this.processPreSpace(node.amp.preSpace, node.amp);
+
                 this.emit(color, node.amp.txt, node.amp);
 
                 const oldColor = this.currentRefColor;
                 this.currentRefColor = color;
 
-                // Only visit attrs, NOT node itself (avoids visiting amp again)
                 this.visit(node.attrs);
 
                 this.currentRefColor = oldColor;
@@ -607,9 +639,9 @@
 
             visitRefTypePreOp(node) {
                 const color = this.getRefColor(node.attrs.refType);
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                //TODO: prespace doesnt show here either
+                if (node.star.preSpace) this.processPreSpace(node.star.preSpace, node.star);
 
-                // Emit * manually
                 this.emit(color, node.star.txt, node.star);
 
                 const oldColor = this.currentRefColor;
@@ -622,10 +654,11 @@
             }
 
             visitOptAddrSpace(node) {
-                if (node.present) {
-                    if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                // node.kw is OptToken
+                if (node.kw.present) {
+                    if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+
                     const color = this.currentRefColor || COLORS.REF;
-                    // Color 'in' with ref color
                     this.emit(color, node.kw.txt, node.kw);
                     this.visit(node.space);
                 }
@@ -633,59 +666,28 @@
             }
 
             visitMutRefType(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
                 const color = this.currentRefColor || COLORS.REF_MUT;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
             visitShareRefType(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
                 const color = this.currentRefColor || COLORS.REF_SHARE;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
             visitConstRefType(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
                 const color = this.currentRefColor || COLORS.REF_CONST;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
 
             visitLifetimeSegment(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
                 this.emit(COLORS.LIFETIME_SEP, node.kw.txt, node.kw);
                 this.visit(node.var);
-                return node;
-            }
-
-            // --- 'ex' Tinting Logic ---
-
-            visitExport(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
-                // Determine color based on parent
-                const parent = this.getParent();
-                let targetColor = COLORS.FN_STAT; // Default fallback
-
-                if (parent) {
-                    if (parent.type === 'FunctionDecl') targetColor = COLORS.FN_STAT;
-                    else if (parent.type === 'StructDecl') targetColor = COLORS.CON_STAT;
-                    else if (parent.type === 'EnumDecl') targetColor = COLORS.CON_STAT;
-                    else if (parent.type === 'UnionDecl') targetColor = COLORS.CON_STAT;
-                    else if (parent.type === 'TraitDecl') targetColor = COLORS.IMPL;
-                    else if (parent.type === 'ImplDecl') targetColor = COLORS.IMPL;
-                }
-
-                // Blend 40% EX_TINT with targetColor
-                const finalColor = blendColors(targetColor, COLORS.EX_TINT, 0.4);
-                this.emit(finalColor, node.kw.txt, node.kw);
-                return node;
-            }
-
-            visitExPreOp(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
-                // For the unary operator, blend with FN_STAT as requested
-                const finalColor = blendColors(COLORS.FN_STAT, COLORS.EX_TINT, 0.4);
-                this.emit(finalColor, node.kw.txt, node.kw);
                 return node;
             }
 
@@ -696,14 +698,12 @@
 
                 const s = node.num;
 
-                // 1. Hex/Oct/Bin Check: 0x, 0o, 0b
                 if (s.startsWith('0x') || s.startsWith('0o') || s.startsWith('0b')) {
                     const prefix = s.substring(0, 2);
                     const rest = s.substring(2);
 
                     this.emit(COLORS.NUMBER_KIND, prefix, node);
 
-                    // Check for exponent (p or P)
                     const pIndex = rest.search(/[pP]/);
                     if (pIndex !== -1) {
                         this.emit(COLORS.NUMBER, rest.substring(0, pIndex), node);
@@ -714,7 +714,6 @@
                     return node;
                 }
 
-                // 2. Decimal Scientific Notation: e or E
                 const sciMatch = s.match(/^([-+]?\d*\.?\d+)([eE][-+]?\d+)$/);
                 if (sciMatch) {
                     this.emit(COLORS.NUMBER, sciMatch[1], node);
@@ -722,7 +721,6 @@
                     return node;
                 }
 
-                // 3. Standard Decimal
                 this.emit(COLORS.NUMBER, s, node);
                 return node;
             }
@@ -731,7 +729,6 @@
                 if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
                 const s = node.str;
-                // Regex for Lua strings: quotes or long brackets
                 const match = s.match(/^((?:\[{0,}\[)|["'])([\s\S]*?)((?:\]{0,}\])|["'])$/);
 
                 if (match) {
@@ -811,6 +808,9 @@
         const ttContent = document.getElementById('tt-content');
 
         const DEMO_CODE = `
+ex struct x{} 
+
+
 ex unsafe fn main(x=4) {
     -- Calculate fibonacci
 --[[mul
@@ -825,12 +825,12 @@ return "atyyyy" ++ [[333]].*.:app | ! -0xFf00fp+44;
     } 
 --wwwwewe TODO
 else {
-        x = crate::print("Small number" as 444);
+        x = ex crate::print("Small number" as 444);
     }
-    const x = 5??? try {3=>..}
+    const x =  *5??? try {3=>..}
     unsafe {
         -- Do something unsafe
-        let *in g /apple ** ***mut ptr = &&&in g /apple const result;
+        let *in g /apple ** ***mut ptr = &&&in g /apple share result;
     }
 --4444
 ---Kk
