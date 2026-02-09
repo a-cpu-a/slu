@@ -2421,7 +2421,7 @@ class Parser {
         // --- Parse Prefix Operators ---
         while (true) {
             // Complex prefix operations
-            if (parseRefTypePreOps(prefixOps)) { }
+            if (this.parseRefTypePreOps(prefixOps)) { }
             else if (this.match('Symbol', '&')) {
                 const op = new RefPreOp();
                 op.amp = this.createAstToken(this.consume());
@@ -2708,7 +2708,7 @@ class Parser {
         e.openParen = this.createAstToken(this.expect('Symbol', '('));
 
         while (true) {
-            if (!parseRefTypePreOps(e.selfParamRefs))
+            if (!this.parseRefTypePreOps(e.selfParamRefs))
                 break;
         }
 
