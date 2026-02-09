@@ -2023,15 +2023,15 @@ class Parser {
     // TYPES & PATTERNS
     // ----------------------------------------------------------------
 
-    parseRefAttrs() {
+    parseRefAttrs(alrSlash = false) {
         const attrs = new RefAttrs();
-        if (this.match('Keyword', 'in')) {
+        if (!alrSlash && this.match('Keyword', 'in')) {
             attrs.addrspace = { kw: this.createAstToken(this.consume()), name: this.parseName() };
         }
-        if (this.match('Symbol', '/')) {
+        if (alrSlash || this.match('Symbol', '/')) {
             const names = [];
             do {
-                const slash = this.createAstToken(this.consume());
+                const slash = alrSlash ? new Token('/') : this.createAstToken(this.consume());
                 const n = this.parseName();
                 names.push({ kw: slash, l: n });
             } while (this.match('Symbol', '/'));
@@ -2425,6 +2425,13 @@ class Parser {
                 const op = new RefTypePreOp();
                 op.star = this.createAstToken(this.consume());
                 op.attrs = this.parseRefAttrs();
+                prefixOps.push(op);
+            }
+            else if (this.match('Symbol', '*/')) {
+                const op = new RefTypePreOp();
+                op.star = this.createAstToken(this.consume());
+                op.star.txt = "*";
+                op.attrs = this.parseRefAttrs(true);
                 prefixOps.push(op);
             }
             else if (this.match('Symbol', '**')) {

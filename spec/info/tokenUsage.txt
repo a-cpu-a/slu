@@ -212,7 +212,7 @@ S - suffix
 |   *+   |  |
 |   *^   |  |
 |   *%   |  |
-|   */   |  |
+|   */   |X |
 |   **   |XX| steals to-ptr meaning in suffix form (`x ** y`) not (`x * (*y)`)
 |   *?   |  |
 |   *!   |  |
