@@ -202,7 +202,7 @@ class DestrSpec extends CompoundNode {
 class SimplePatDestrSpec extends DestrSpec {
     constructor() {
         super("SimplePatDestrSpec");
-        this.type = new SimplePat();
+        this.ty = new SimplePat();
     }
 }
 class OpDestrSpec extends DestrSpec {
@@ -247,7 +247,7 @@ class UncondVarDestrPat extends UncondDestrPat {
 class UncondPatFieldDestrPat extends UncondDestrPat {
     constructor() {
         super("UncondPatFieldDestrPat");
-        this.type = new OptSimplePat();
+        this.ty = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("UncondFieldDestrField");
         this.extraFields = new OptToken("..");
@@ -257,7 +257,7 @@ class UncondPatFieldDestrPat extends UncondDestrPat {
 class UncondFieldDestrPat extends UncondDestrPat {
     constructor() {
         super("UncondFieldDestrPat");
-        this.type = new OptSimplePat();
+        this.ty = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("UncondPatFieldDestrPat");
         this.extraFields = new OptToken("..");
@@ -288,7 +288,7 @@ class VarDestrPat extends DestrPat {
 class PatFieldDestrPat extends DestrPat {
     constructor() {
         super("PatFieldDestrPat");
-        this.type = new OptSimplePat();
+        this.ty = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("Pat");
         this.extraFields = new OptToken("..");
@@ -298,7 +298,7 @@ class PatFieldDestrPat extends DestrPat {
 class FieldDestrPat extends DestrPat {
     constructor() {
         super("FieldDestrPat");
-        this.type = new OptSimplePat();
+        this.ty = new OptSimplePat();
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("FieldDestrField");
         this.extraFields = new OptToken("..");
@@ -546,7 +546,7 @@ class TypedParam extends CompoundNode {
         this.constKw = new OptToken("const");
         this.name = new Name();
         this.eq = new Token("=");
-        this.type = new Expr();
+        this.ty = new Expr();
     }
 }
 
@@ -1272,7 +1272,7 @@ class WhereClause extends CompoundNode {
         super("WhereClause");
         this.name = new Name(); // or "Self"
         this.colon = new Token(":");
-        this.type = new Expr();
+        this.ty = new Expr();
     }
 }
 
@@ -2055,7 +2055,7 @@ class Parser {
         p.constKw = this.parseOptToken('const');
         p.name = this.parseName();
         p.eq = this.createAstToken(this.expect('Symbol', '='));
-        p.type = this.parseExpr(0, false, specType);
+        p.ty = this.parseExpr(0, false, specType);
         return p;
     }
 
@@ -2096,11 +2096,11 @@ class Parser {
             if (this.match('Symbol', '|'))
                 actualPat = new UncondFieldDestrPat();
             actualPat.openBrace = openBrace;
-            actualPat.type = new OptSimplePat();
+            actualPat.ty = new OptSimplePat();
 
             if (dspec != null) {
-                actualPat.type.present = true;
-                actualPat.type.tbl = dspec;
+                actualPat.ty.present = true;
+                actualPat.ty.tbl = dspec;
             }
 
             const items = [];
@@ -2142,7 +2142,7 @@ class Parser {
             sp.expr = dspec;
 
             dspec = new SimplePatDestrSpec();
-            dspec.type = sp;
+            dspec.ty = sp;
         }
 
         const pat = new UncondVarDestrPat();
@@ -2170,11 +2170,11 @@ class Parser {
             if (this.match('Symbol', '|'))
                 actualPat = new FieldDestrPat();
             actualPat.openBrace = openBrace;
-            actualPat.type = new OptSimplePat();
+            actualPat.ty = new OptSimplePat();
 
             if (dspec != null) {
-                actualPat.type.present = true;
-                actualPat.type.tbl = dspec;
+                actualPat.ty.present = true;
+                actualPat.ty.tbl = dspec;
             }
             const items = [];
             while (!this.match('Symbol', '}')) {
@@ -2217,7 +2217,7 @@ class Parser {
                 return sp;
             }
             dspec = new SimplePatDestrSpec();
-            dspec.type = sp;
+            dspec.ty = sp;
         }
         const name = this.parseName();
         const upat = new UncondVarDestrPat();
@@ -3252,7 +3252,7 @@ class Parser {
             c.name = this.parseName();
         }
         c.colon = this.createAstToken(this.expect('Symbol', ':'));
-        c.type = this.parseExpr(0, true);
+        c.ty = this.parseExpr(0, true);
         return c;
     }
 
