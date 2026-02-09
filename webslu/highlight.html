@@ -196,7 +196,7 @@
          */
         const COLORS = {
             // Types
-            GEN_OP: '#8E98A8',
+            GEN_OP: '#8E98A8', // + - / * ++ **
             PUNCTUATION: '#A9B0BC',
             BRACES: '#BFC4CC',
 
@@ -210,75 +210,54 @@
 
             // Literals
             NUMBER: '#539BBD',
-            NUMBER_KIND: '#6B73A1',
-            NUMBER_TYPE: '#90BBCC',
+            NUMBER_KIND: '#6B73A1', // 0x, p+, e-
             STRING: '#7AA737',
             STRING_OUT: '#ACD163',
 
             // Control Flow
             COND_STAT: '#BD71C4', // if, else, while, for...
-            END_STAT: '#BD71C4',
-            FN_STAT: '#CE4C4C', // fn, return
+            END_STAT: '#CE4C4C', // break
+            FN_STAT: '#CE4C4C', // fn
             VAR_STAT: '#D87D7D', // let
             ASSIGN: '#E5506F', // =
 
             // Comments / Misc
-            COMMENT_WIP: '#CCFF00',
+            COMMENT_WIP: '#CCFF00', // any comment text with `TODO`
             WHITESPACE: '#575763',
-            COMMENT_OUTER: '#3D3D44',
-            COMMENT_DOC: '#378731',
-            COMMENT_DOC_OUTER: '#196022',
+            COMMENT_OUTER: '#3D3D44', // --, [[]]
+            COMMENT_DOC: '#378731', // the stuff in it
+            COMMENT_DOC_OUTER: '#196022', // --- or --<, also any [[]] for them
 
             // Keywords / Annotations
             AS: '#D8B770',
-            CON_STAT: '#D8B770', // const
-            PAT_RESTRICT: '#BFC4CC',
+            CON_STAT: '#D8B770',
+            PAT_RESTRICT: '#BFC4CC', // = inside patterns
             DROP_STAT: '#666CCC',
             EX_TINT: '#22275B',
             COMP_TINT: '#C6C611',
             ANNOTATION: '#A8A820',
 
             // Modifiers
-            PTR_CONST: '#8AB6CE',
-            REF_CONST: '#8AB6CE',
-            PTR: '#8AB6CE',
-            REF: '#8AB6CE',
-            PTR_SHARE: '#E4C4FF',
+            REF_CONST: '#8AB6CE', // *const &const
+            REF: '#8AB6CE', // * &
             REF_SHARE: '#E4C4FF',
-            PTR_MUT: '#FF9647',
-            REF_MUT: '#FF9647',
+            REF_MUT: '#FF9647', // *mut, &mut
             MUT: '#FF9647',
 
             // Operators
             RANGE: '#498CFF',
-            DEREF: '#BFC4CC',
-            REP: '#A6BC6D',
             TRY: '#68997E',
             DYN: '#BF87FF',
             IMPL: '#CE905A',
 
             AND: '#5787DB',
             OR: '#B58055',
-            MOD: '#B565AB',
-            ADD: '#AAFF71',
-            SUB: '#FF4242',
-            MUL: '#FFFF71',
-            DIV: '#FF60E4',
-            EXP: '#FFFFFF',
-            BIT_AND: '#74C2FF',
-            BIT_OR: '#4CFFDA',
-            BIT_XOR: '#FFAA72',
-            CONCAT: '#899EC4',
-            NEG: '#FF4242',
-
-            SHL: '#FFC6FF',
-            SHR: '#FFC6FF'
         };
 
         // Mapping specific keywords to the colors provided above
         const KEYWORD_MAP = {
             // Flow
-            'if': COLORS.COND_STAT, 'else': COLORS.END_STAT,
+            'if': COLORS.COND_STAT, 'else': COLORS.COND_STAT,
             'while': COLORS.COND_STAT, 'for': COLORS.COND_STAT, 'loop': COLORS.COND_STAT,
             'match': COLORS.COND_STAT, 'try': COLORS.TRY,
             'return': COLORS.END_STAT, 'break': COLORS.END_STAT, 'continue': COLORS.END_STAT,
@@ -287,20 +266,19 @@
             'fn': COLORS.FN_STAT, 'struct': COLORS.CON_STAT, 'enum': COLORS.CON_STAT,
             'union': COLORS.CON_STAT, 'trait': COLORS.IMPL, 'impl': COLORS.IMPL,
             'let': COLORS.VAR_STAT, 'const': COLORS.VAR_STAT, 'mod': COLORS.CON_STAT,
+            'drop': COLORS.DROP_STAT,
 
             // Modifiers
-            'mut': COLORS.MUT, 'ex': COLORS.EX_TINT, 'extern': COLORS.FN_STAT, 'unsafe': COLORS.FN_STAT,
+            'mut': COLORS.MUT, 'extern': COLORS.FN_STAT, 'unsafe': COLORS.FN_STAT,
 
             // Types/Keywords
             'self': COLORS.BUILITIN_VAR, 'crate': COLORS.NAME,
 
             // Operators
-            '@': COLORS.ANNOTATION, '+': COLORS.ADD, '-': COLORS.SUB, '*': COLORS.MUL, '/': COLORS.DIV, '//': COLORS.DIV,
-            '%': COLORS.MOD, '^': COLORS.EXP, '++': COLORS.CONCAT, '**': COLORS.REP, '.*': COLORS.DEREF,
-            '==': COLORS.AND, '<': COLORS.AND, '>': COLORS.AND, '~': COLORS.TRY, 'as': COLORS.AS,
-            '<=': COLORS.AND, '>=': COLORS.AND,
-            'and': COLORS.AND, 'or': COLORS.OR, '||': COLORS.PUNCTUATION,
-            '&': COLORS.REF, '|': COLORS.PUNCTUATION,
+            '@': COLORS.ANNOTATION, 'dyn': COLORS.DYN,
+            '~': COLORS.TRY, 'as': COLORS.AS,
+            'and': COLORS.AND, 'or': COLORS.OR,
+            '|': COLORS.PUNCTUATION,
             '..': COLORS.RANGE, '...': COLORS.ERROR,
             '=': COLORS.ASSIGN, '->': COLORS.PUNCTUATION, '=>': COLORS.ASSIGN,
             ':': COLORS.PUNCTUATION, '::': COLORS.PUNCTUATION, ';': COLORS.PUNCTUATION, ',': COLORS.PUNCTUATION,

@@ -3072,7 +3072,7 @@ class Parser {
         const exportKw = new Export();
         if (this.match('Keyword', 'ex')) {
             exportKw.kw.present = true;
-            exportKw.kw.txt = this.consume().txt;
+            exportKw.kw.preSpace = this.consume().preSpace;
         }
 
         if (this.match('Keyword', 'use')) {
