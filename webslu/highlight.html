@@ -400,10 +400,10 @@
             constructor() {
                 super();
                 this.fragment = document.createDocumentFragment();
-                this.parentStack = []; // To track context
+                this.parentStack = [];
+                this.currentRefColor = null; // Context for & * and address space
             }
 
-            // Push/Pop stack for context awareness
             visit(node) {
                 if (!node) return null;
                 this.parentStack.push(node);
@@ -425,7 +425,6 @@
                     .replace(/'/g, "&#039;");
             }
 
-            // Use innerHTML to render escaped text correctly
             emit(color, text, astNode) {
                 if (!text) return;
                 const span = document.createElement('span');
@@ -436,44 +435,111 @@
                 this.fragment.appendChild(span);
             }
 
+            /**
+             * Process PreSpace to handle inline comments (-- ...) and Long Brackets ([[...]])
+             * This logic matches the lexer's handling where comments are pushed into preSpace
+             */
+            processPreSpace(text, node) {
+                if (!text) return;
+
+                // 1. Split by Long Brackets (they span lines)
+                // Regex to match [=[...]=]
+                const longBracketRegex = /(\[=*\[)([\s\S]*?)(\]=*\])/g;
+                let lastIndex = 0;
+                let match;
+                let remaining = text;
+
+                // Process long brackets first
+                while ((match = longBracketRegex.exec(text)) !== null) {
+                    // Text before the long bracket
+                    const pre = text.substring(lastIndex, match.index);
+                    this.processLineComments(pre, node);
+
+                    // The long bracket itself
+                    this.emit(COLORS.STRING_OUT, match[1], node); // Open
+                    this.emit(COLORS.STRING, match[2], node);      // Content
+                    this.emit(COLORS.STRING_OUT, match[3], node); // Close
+
+                    lastIndex = match.index + match[0].length;
+                }
+
+                // Remaining text after last long bracket
+                if (lastIndex < text.length) {
+                    this.processLineComments(text.substring(lastIndex), node);
+                }
+            }
+
+            /**
+             * Process text for line comments (--). 
+             * Assumes input does NOT contain long brackets anymore.
+             */
+            processLineComments(text, node) {
+                if (!text) return;
+
+                // Split by newlines to handle comments per line
+                const lines = text.split(/\r?\n/);
+
+                lines.forEach((line, index) => {
+                    // Find --
+                    const dashIndex = line.indexOf('--');
+
+                    if (dashIndex !== -1) {
+                        // Whitespace before --
+                        const pre = line.substring(0, dashIndex);
+                        // The comment marker
+                        const marker = line.substring(dashIndex, dashIndex + 2);
+                        // The text after marker
+                        const content = line.substring(dashIndex + 2);
+
+                        this.emit(COLORS.WHITESPACE, pre, node);
+                        this.emit(COLORS.COMMENT_OUTER, marker, node);
+                        // Use WHITESPACE for comment text (or a specific comment color if preferred)
+                        const color = content.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.WHITESPACE;
+                        this.emit(color, content, node);
+                    } else {
+                        this.emit(COLORS.WHITESPACE, line, node);
+                    }
+
+                    // Re-add newline if not last line
+                    if (index < lines.length - 1) {
+                        this.emit(COLORS.WHITESPACE, '\n', node);
+                    }
+                });
+            }
+
             // --- Overrides ---
 
             visitToken(node) {
                 const parent = this.getParent();
 
-                // 1. Whitespace
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
                 if (node.txt) {
                     let color = COLORS.NAME;
                     const txt = node.txt;
 
-                    // 2. Contextual Coloring
+                    // Contextual Coloring
 
-                    // Label Punctuation (' and :) in Loop/While/For
-                    if (parent && (parent.type === 'LoopStat' || parent.type === 'WhileStat' || parent.type === 'ForStat' || parent.type === 'BlockStat')) {
+                    // Label Punctuation
+                    if (parent && (['LoopStat', 'WhileStat', 'ForStat', 'BlockStat', 'BreakStat', 'ContinueStat'].includes(parent.type))) {
                         if (txt === "'" || txt === ":") color = COLORS.NAME_LABEL;
                     }
 
-                    // Comments (Generic check if not handled by specialized visitors)
-                    // Assuming single line comments might just be tokens if not specific AST nodes
-                    if (txt.startsWith('--') || txt.startsWith('[[')) {
-                        color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_OUTER;
-                    }
-
-                    // Pattern Restrict (= inside patterns)
+                    // Pattern Restrict
                     if (parent && parent.type === 'VarDestrPat' && txt === '=') {
                         color = COLORS.PAT_RESTRICT;
                     }
 
-                    // Standard Keyword Lookup (if not overridden above)
+                    // Default Map
                     if (color === COLORS.NAME && KEYWORD_MAP.hasOwnProperty(txt)) {
                         color = KEYWORD_MAP[txt];
                     }
-                    // Fallback defaults
+                    // Defaults
                     else if (color === COLORS.NAME) {
                         if (/^[0-9]/.test(txt)) color = COLORS.NUMBER;
-                        else if (/^[&*]/.test(txt)) color = COLORS.REF;
+                        // & and * are handled by RefPreOp/RefTypePreOp overrides below
+                        // unless they are standalone (e.g. binary operator)
+                        else if (/^[&*]/.test(txt) && color === COLORS.NAME) color = COLORS.REF;
                     }
 
                     this.emit(color, txt, node);
@@ -482,100 +548,168 @@
             }
 
             visitName(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
                 const parent = this.getParent();
                 let color = COLORS.NAME;
                 const name = node.name;
 
-                // Context Specific Names
-                if (parent) {
-                    if (parent.type === 'NamedField') color = COLORS.NAME_TABLE;
-                    else if (parent.type === 'LifetimeSegment') color = COLORS.NAME_LIFETIME;
-                    else if (['LoopStat', 'WhileStat', 'ForStat', 'BlockStat', 'BreakStat', 'ContinueStat'].includes(parent.type)) {
-                        // Check if this Name is the label property
-                        // Simple check: if we are in one of these nodes, assume it's a label
-                        // (Structurally more robust checks possible if prop name known, but this covers standard usage)
-                        color = COLORS.NAME_LABEL;
-                    }
+                // Table Field
+                if (parent && parent.type === 'NamedField') color = COLORS.NAME_TABLE;
+                // Lifetime Segment
+                else if (parent && parent.type === 'LifetimeSegment') color = COLORS.NAME_LIFETIME;
+                // Label Name
+                else if (parent && ['LoopStat', 'WhileStat', 'ForStat', 'BlockStat', 'BreakStat', 'ContinueStat'].includes(parent.type)) {
+                    // Check if this is the 'label' property specifically
+                    // (Simplified: assume any name in these contexts is a label unless proven otherwise)
+                    color = COLORS.NAME_LABEL;
+                }
+                // Address Space Name (should use the Ref Color)
+                else if (parent && parent.type === 'OptAddrSpace' && this.currentRefColor) {
+                    color = this.currentRefColor;
                 }
 
                 this.emit(color, name, node);
                 return node;
             }
 
-            // --- Specialized Nodes ---
+            // --- References (Mut/Share/Const Context) ---
 
-            visitMutRefType(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.REF_MUT, node.kw.txt, node.kw);
-                return node; // Stop recursion
+            getRefColor(node) {
+                if (!node) return COLORS.REF;
+                if (node.type === 'MutRefType') return COLORS.REF_MUT;
+                if (node.type === 'ShareRefType') return COLORS.REF_SHARE;
+                if (node.type === 'ConstRefType') return COLORS.REF_CONST;
+                return COLORS.REF;
             }
 
-            visitShareRefType(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.REF_SHARE, node.kw.txt, node.kw);
+            visitRefPreOp(node) {
+                const color = this.getRefColor(node.attrs.refType);
+
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+
+                // Emit & with the calculated color
+                this.emit(color, node.amp.txt, node.amp);
+
+                // Set context for children (in, lifetime, mut, share, const)
+                const oldColor = this.currentRefColor;
+                this.currentRefColor = color;
+                this.visitChildren(node);
+                this.currentRefColor = oldColor;
+
                 return node;
             }
 
+            visitRefTypePreOp(node) {
+                const color = this.getRefColor(node.attrs.refType);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+
+                // Emit * with the calculated color
+                this.emit(color, node.star.txt, node.star);
+
+                const oldColor = this.currentRefColor;
+                this.currentRefColor = color;
+                this.visitChildren(node);
+                this.currentRefColor = oldColor;
+                return node;
+            }
+
+            visitMutRefType(node) {
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                const color = this.currentRefColor || COLORS.REF_MUT;
+                this.emit(color, node.kw.txt, node.kw);
+                return node;
+            }
+            visitShareRefType(node) {
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                const color = this.currentRefColor || COLORS.REF_SHARE;
+                this.emit(color, node.kw.txt, node.kw);
+                return node;
+            }
             visitConstRefType(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                this.emit(COLORS.REF_CONST, node.kw.txt, node.kw);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                const color = this.currentRefColor || COLORS.REF_CONST;
+                this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
 
             visitLifetimeSegment(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
-                // The slash (/)
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
                 this.emit(COLORS.LIFETIME_SEP, node.kw.txt, node.kw);
-                // The name (handled by visitName, but we can force it here if needed, though visitName handles context)
                 this.visit(node.var);
                 return node;
             }
 
-            // --- Complex Literals (Splitting logic) ---
+            // --- Literals ---
 
             visitNum(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
-                // Split number into base and kind (e.g., 10px, 0xFFp+)
-                const numStr = node.num;
-                // Regex: captures base digits, then optional kind
-                // Heuristic: Match leading digits/dots/hex prefix.
-                const match = numStr.match(/^([0-9.oxba-fOXBA-F-]+)(.*)$/);
+                const s = node.num;
 
-                if (match) {
-                    const base = match[1];
-                    const kind = match[2];
-                    this.emit(COLORS.NUMBER, base, node);
-                    if (kind) this.emit(COLORS.NUMBER_KIND, kind, node);
-                } else {
-                    this.emit(COLORS.NUMBER, numStr, node);
+                // 1. Hex/Bin/Oct Check: 0x, 0b, 0o
+                const hexMatch = s.match(/^(0[xob])([0-9a-fA-F]+)$/);
+                if (hexMatch) {
+                    this.emit(COLORS.NUMBER_KIND, hexMatch[1], node);
+                    this.emit(COLORS.NUMBER, hexMatch[2], node);
+                    return node;
                 }
+
+                // 2. Scientific Notation Check: e-... or p+...
+                // Matches 123e-456 or 0xFFp+10
+                const sciMatch = s.match(/^([0-9.]+)([eEpP][-+]?\d+)$/);
+                if (sciMatch) {
+                    this.emit(COLORS.NUMBER, sciMatch[1], node);
+                    this.emit(COLORS.NUMBER_KIND, sciMatch[2], node);
+                    return node;
+                }
+
+                // 3. Decimal/Int
+                this.emit(COLORS.NUMBER, s, node);
                 return node;
             }
 
             visitStr(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
-                const strStr = node.str;
-                // Lua-style long brackets or standard quotes
-                // Regex: 1. Open Delim, 2. Content, 3. Close Delim
-                const match = strStr.match(/^((?:\[{0,}\[)|["'])([\s\S]*?)((?:\]{0,}\])|["'])$/);
+                const s = node.str;
+                // Regex for Lua strings: quotes or long brackets
+                const match = s.match(/^((?:\[{0,}\[)|["'])([\s\S]*?)((?:\]{0,}\])|["'])$/);
 
                 if (match) {
                     const [_, open, content, close] = match;
+
+                    // Outer delimiters
                     this.emit(COLORS.STRING_OUT, open, node);
-                    this.emit(COLORS.STRING, content, node);
+
+                    // Content
+                    // Check for escapes ONLY if it's a quote string (not long bracket)
+                    if (open === '"' || open === "'") {
+                        // Split by escape sequences \.
+                        const parts = content.split(/(\\.)/);
+                        parts.forEach(part => {
+                            if (part.startsWith('\\')) {
+                                this.emit(COLORS.STRING_OUT, part, node);
+                            } else {
+                                this.emit(COLORS.STRING, part, node);
+                            }
+                        });
+                    } else {
+                        // Long brackets - no escapes (usually)
+                        this.emit(COLORS.STRING, content, node);
+                    }
+
                     this.emit(COLORS.STRING_OUT, close, node);
                 } else {
-                    this.emit(COLORS.STRING, strStr, node);
+                    this.emit(COLORS.STRING, s, node);
                 }
                 return node;
             }
 
+            // --- Docs ---
+
             visitDocLineAnnotation(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
                 const txt = node.txt + node.content;
                 const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC;
                 this.emit(color, txt, node);
@@ -583,7 +717,7 @@
             }
 
             visitOuterDocLineAnnotation(node) {
-                if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                if (node.preSpace) this.processPreSpace(node.preSpace, node);
                 const txt = node.txt + node.content;
                 const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC_OUTER;
                 this.emit(color, txt, node);
@@ -592,19 +726,16 @@
 
             visitOptToken(node) {
                 if (node.present && node.txt) {
-                    if (node.preSpace) this.emit(COLORS.WHITESPACE, node.preSpace, node);
+                    if (node.preSpace) this.processPreSpace(node.preSpace, node);
 
                     let color = COLORS.NAME;
-
-                    // Contextual checks for OptTokens
                     const parent = this.getParent();
 
-                    // Pattern Restrict in OptToken contexts (if VarDestrPat uses OptToken for eq)
+                    // Pattern Restrict in OptToken
                     if (parent && parent.type === 'VarDestrPat' && node.txt === '=') {
                         color = COLORS.PAT_RESTRICT;
                     }
 
-                    // Standard map
                     if (KEYWORD_MAP.hasOwnProperty(node.txt)) color = KEYWORD_MAP[node.txt];
                     else if (/^[0-9]/.test(node.txt)) color = COLORS.NUMBER;
                     else if (/^[&*]/.test(node.txt)) color = COLORS.REF;
