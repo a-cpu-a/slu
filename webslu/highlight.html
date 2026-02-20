@@ -595,6 +595,14 @@
                 return node;
             }
 
+            visitSafety(node) {
+                this.processPreSpace(node.preSpace, node);
+                if (node.kind != 'default') {
+                    this.emit(COLORS.FN_STAT, node.kind, node);
+                }
+                return node;
+            }
+
             visitExPreOp(node) {
                 this.processPreSpace(node.kw.preSpace, node);
                 const finalColor = blendColors(COLORS.FN_STAT, COLORS.EX_TINT, 0.4);
