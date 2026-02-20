@@ -523,7 +523,7 @@
             visitToken(node) {
                 const parent = this.getParent();
 
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                this.processPreSpace(node.preSpace, node);
 
                 if (node.txt) {
                     // 'ex' is handled by visitExport and visitExPreOp
@@ -555,7 +555,7 @@
             }
 
             visitName(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                this.processPreSpace(node.preSpace, node);
                 const parent = this.getParent();
                 let color = COLORS.NAME;
                 const name = node.name;
@@ -578,7 +578,7 @@
             visitExport(node) {
                 // node.kw is OptToken
                 if (node.kw && node.kw.present) {
-                    if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+                    this.processPreSpace(node.kw.preSpace, node);
                     const parent = this.getParent();
                     let targetColor = COLORS.FN_STAT;
                     if (parent) {
@@ -596,8 +596,7 @@
             }
 
             visitExPreOp(node) {
-                //TODO: prespace doesnt show!!!!
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                this.processPreSpace(node.kw.preSpace, node);
                 const finalColor = blendColors(COLORS.FN_STAT, COLORS.EX_TINT, 0.4);
                 this.emit(finalColor, node.kw.txt, node.kw);
                 return node;
@@ -624,7 +623,7 @@
             visitRefPreOp(node) {
                 const color = this.getRefColor(node.attrs.refType);
 
-                if (node.amp.preSpace) this.processPreSpace(node.amp.preSpace, node.amp);
+                this.processPreSpace(node.amp.preSpace, node.amp);
 
                 this.emit(color, node.amp.txt, node.amp);
 
@@ -640,7 +639,7 @@
             visitRefTypePreOp(node) {
                 const color = this.getRefColor(node.attrs.refType);
                 //TODO: prespace doesnt show here either
-                if (node.star.preSpace) this.processPreSpace(node.star.preSpace, node.star);
+                this.processPreSpace(node.star.preSpace, node.star);
 
                 this.emit(color, node.star.txt, node.star);
 
@@ -656,7 +655,7 @@
             visitOptAddrSpace(node) {
                 // node.kw is OptToken
                 if (node.kw.present) {
-                    if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+                    this.processPreSpace(node.kw.preSpace, node);
 
                     const color = this.currentRefColor || COLORS.REF;
                     this.emit(color, node.kw.txt, node.kw);
@@ -666,26 +665,26 @@
             }
 
             visitMutRefType(node) {
-                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+                this.processPreSpace(node.kw.preSpace, node);
                 const color = this.currentRefColor || COLORS.REF_MUT;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
             visitShareRefType(node) {
-                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+                this.processPreSpace(node.kw.preSpace, node);
                 const color = this.currentRefColor || COLORS.REF_SHARE;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
             visitConstRefType(node) {
-                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+                this.processPreSpace(node.kw.preSpace, node);
                 const color = this.currentRefColor || COLORS.REF_CONST;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
 
             visitLifetimeSegment(node) {
-                if (node.kw.preSpace) this.processPreSpace(node.kw.preSpace, node);
+                this.processPreSpace(node.kw.preSpace, node);
                 this.emit(COLORS.LIFETIME_SEP, node.kw.txt, node.kw);
                 this.visit(node.var);
                 return node;
@@ -694,7 +693,7 @@
             // --- Literals ---
 
             visitNum(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                this.processPreSpace(node.preSpace, node);
 
                 const s = node.num;
 
@@ -726,7 +725,7 @@
             }
 
             visitStr(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                this.processPreSpace(node.preSpace, node);
 
                 const s = node.str;
                 const match = s.match(/^((?:\[{0,}\[)|["'])([\s\S]*?)((?:\]{0,}\])|["'])$/);
@@ -756,7 +755,7 @@
             }
 
             visitDocLineAnnotation(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                this.processPreSpace(node.preSpace, node);
                 const txt = node.txt + node.content;
                 const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC;
                 this.emit(color, txt, node);
@@ -764,7 +763,7 @@
             }
 
             visitOuterDocLineAnnotation(node) {
-                if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                this.processPreSpace(node.preSpace, node);
                 const txt = node.txt + node.content;
                 const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC_OUTER;
                 this.emit(color, txt, node);
@@ -773,7 +772,7 @@
 
             visitOptToken(node) {
                 if (node.present && node.txt) {
-                    if (node.preSpace) this.processPreSpace(node.preSpace, node);
+                    this.processPreSpace(node.preSpace, node);
 
                     let color = COLORS.NAME;
                     const parent = this.getParent();
