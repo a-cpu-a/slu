@@ -380,9 +380,10 @@
             'if': COLORS.COND_STAT, 'else': COLORS.COND_STAT, 'while': COLORS.COND_STAT,
             'for': COLORS.COND_STAT, 'loop': COLORS.COND_STAT, 'match': COLORS.COND_STAT,
             'return': COLORS.END_STAT, 'break': COLORS.END_STAT, 'continue': COLORS.END_STAT,
-            'fn': COLORS.FN_STAT, 'struct': COLORS.CON_STAT, 'enum': COLORS.CON_STAT,
+            'fn': COLORS.FN_STAT, 'struct': COLORS.CON_STAT, 'enum': COLORS.CON_STAT, 'union': COLORS.CON_STAT,
             'let': COLORS.VAR_STAT, 'const': COLORS.VAR_STAT, 'mut': COLORS.MUT,
             'unsafe': COLORS.FN_STAT, 'self': COLORS.BUILITIN_VAR, 'crate': COLORS.NAME,
+            'drop': COLORS.DROP_STAT, 'impl': COLORS.IMPL, 'trait': COLORS.IMPL, 'where': COLORS.IMPL,
             '@': COLORS.ANNOTATION, 'dyn': COLORS.DYN, 'as': COLORS.AS,
             '..': COLORS.RANGE, '=': COLORS.ASSIGN, '->': COLORS.PUNCTUATION, '=>': COLORS.ASSIGN,
             ':': COLORS.PUNCTUATION, '::': COLORS.PUNCTUATION, ';': COLORS.PUNCTUATION,
@@ -742,7 +743,7 @@
                     const [_, open, content, close] = match;
                     this.emit(COLORS.STRING_OUT, open, node);
 
-                    if (open === '"' || open === "'") {
+                    if (open === '"') {
                         const parts = content.split(/(\\.)/);
                         parts.forEach(part => {
                             if (part.startsWith('\\')) {
@@ -825,6 +826,8 @@ ex unsafe fn main(x=4) {
     let n = 10;
     let result = fib(n);
     
+    drop 1111;
+
     if result > 100 {
         print("Big number",3);
 let u8 p = @aaple{h=4} poo ~ 4 ** ~[]2;
@@ -841,7 +844,13 @@ else {
     }
 --4444
 ---Kk
-for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
+while true {}
+'x: for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
+}
+
+trait Add {p = fn(*mut self){}}
+impl Add for X {
+ p = fn(*mut self){}
 }`;
 
         inputArea.value = DEMO_CODE.trim();
