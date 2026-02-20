@@ -2891,7 +2891,7 @@ class Parser {
             return s;
         }
 
-        if (this.match('Keyword', 'if')) return this.parseIfStat();
+        if (this.match('Keyword', 'if')) return this.parseIfStat(anns);
 
         if (this.match('Keyword', 'unsafe') && this.peek(1).txt == '{') {
             const s = new UnsafeStat(anns);
@@ -2913,8 +2913,8 @@ class Parser {
             throw new Error("Expected while/for after label");
         }
 
-        if (this.match('Keyword', 'while')) return this.parseWhileStat(new OptToken("'"), new Name(), new OptToken(":"));
-        if (this.match('Keyword', 'for')) return this.parseForStat(new OptToken("'"), new Name(), new OptToken(":"));
+        if (this.match('Keyword', 'while')) return this.parseWhileStat(anns, new OptToken("'"), new Name(), new OptToken(":"));
+        if (this.match('Keyword', 'for')) return this.parseForStat(anns, new OptToken("'"), new Name(), new OptToken(":"));
 
 
         if (this.match('Name') || this.match('Symbol', '(')) {
@@ -2956,8 +2956,8 @@ class Parser {
         return this.parseGlobStat(anns);
     }
 
-    parseIfStat() {
-        const s = new IfStat();
+    parseIfStat(anns) {
+        const s = new IfStat(anns);
         s.ifKw = this.createAstToken(this.consume());
         s.condition = this.parseExpr(0, true);
         s.consequent = this.parseBlockOrRet();
