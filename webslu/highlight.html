@@ -187,6 +187,7 @@
             margin: 0;
             padding: 10px;
             font-family: 'Fira Code', monospace;
+            font-variant-ligatures: none;
             font-size: 14px;
             line-height: 1.5;
             white-space: pre;
@@ -666,7 +667,7 @@
                 if (node.kw.present) {
                     this.processPreSpace(node.kw.preSpace, node);
 
-                    const color = this.currentRefColor || COLORS.REF;
+                    const color = this.currentRefColor;
                     this.emit(color, node.kw.txt, node.kw);
                     this.visit(node.space);
                 }
@@ -675,19 +676,19 @@
 
             visitMutRefType(node) {
                 this.processPreSpace(node.kw.preSpace, node);
-                const color = this.currentRefColor || COLORS.REF_MUT;
+                const color = COLORS.REF_MUT;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
             visitShareRefType(node) {
                 this.processPreSpace(node.kw.preSpace, node);
-                const color = this.currentRefColor || COLORS.REF_SHARE;
+                const color = COLORS.REF_SHARE;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
             visitConstRefType(node) {
                 this.processPreSpace(node.kw.preSpace, node);
-                const color = this.currentRefColor || COLORS.REF_CONST;
+                const color = COLORS.REF_CONST;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
