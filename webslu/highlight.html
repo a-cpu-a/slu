@@ -381,7 +381,7 @@
             'for': COLORS.COND_STAT, 'loop': COLORS.COND_STAT, 'match': COLORS.COND_STAT,
             'return': COLORS.END_STAT, 'break': COLORS.END_STAT, 'continue': COLORS.END_STAT,
             'fn': COLORS.FN_STAT, 'struct': COLORS.CON_STAT, 'enum': COLORS.CON_STAT, 'union': COLORS.CON_STAT,
-            'let': COLORS.VAR_STAT, 'const': COLORS.VAR_STAT, 'mut': COLORS.MUT,
+            'let': COLORS.VAR_STAT, 'const': COLORS.VAR_STAT, 'mut': COLORS.MUT, 'extern': COLORS.FN_STAT,
             'unsafe': COLORS.FN_STAT, 'self': COLORS.BUILITIN_VAR, 'crate': COLORS.NAME,
             'drop': COLORS.DROP_STAT, 'impl': COLORS.IMPL, 'trait': COLORS.IMPL, 'where': COLORS.IMPL,
             '@': COLORS.ANNOTATION, 'dyn': COLORS.DYN, 'as': COLORS.AS,
@@ -535,7 +535,7 @@
                     let color = COLORS.NAME;
                     const txt = node.txt;
 
-                    if (parent && (['LoopStat', 'WhileStat', 'ForStat', 'BlockStat', 'BreakStat', 'ContinueStat'].includes(parent.type))) {
+                    if (parent && (['LoopStat', 'WhileStat', 'ForStat', 'BlockStat'].includes(parent.type))) {
                         if (txt === "'" || txt === ":") color = COLORS.NAME_LABEL;
                     }
                     if (parent && parent.type === 'VarDestrPat' && txt === '=') {
@@ -791,6 +791,9 @@
                     if (parent && parent.type === 'VarDestrPat' && node.txt === '=') {
                         color = COLORS.PAT_RESTRICT;
                     }
+                    if (parent && (['BreakStat', 'ContinueStat'].includes(parent.type))) {
+                        if (node.txt === "'") color = COLORS.NAME_LABEL;
+                    }
 
                     if (KEYWORD_MAP.hasOwnProperty(node.txt)) color = KEYWORD_MAP[node.txt];
                     else if (/^[0-9]/.test(node.txt)) color = COLORS.NUMBER;
@@ -823,6 +826,8 @@
 ---[[aweaw]]
 ex struct x{} 
 
+@aaa{} unsafe extern "C" {
+}
 
 ex unsafe fn main(x=4) {
     -- Calculate fibonacci
@@ -850,7 +855,7 @@ else {
 --4444
 ---Kk
 while true {}
-'x: for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 {}
+'x: for *in g /a mut AaaX{a,b,{|a|_,|b|*mut u8 a}} in ..6+4 { break 'x }
 }
 
 trait Add {p = fn(*mut self){}}
