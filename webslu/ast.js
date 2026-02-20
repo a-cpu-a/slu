@@ -2925,14 +2925,12 @@ class Parser {
                 s.eq = this.createAstToken(this.consume());
                 s.expr = this.parseExpr();
                 return s;
-            }
-            if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
+            } else {
                 const s = new CallStat(anns);
                 s.var = v;
                 s.ops = this.parseVarLikeOps(false);
                 return s;
             }
-            return v;
         }
 
         if (this.match('Keyword', 'TODO!')) {
@@ -3046,7 +3044,9 @@ class Parser {
                 ops.push(new TrySubVar());
             }
             else if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
-                ops.push(new SelfableCall(null, null, this.parseArgs()));
+                const op = new SelfableCall()
+                op.args = this.parseArgs()
+                ops.push(op);
             } else break;
         }
         if (needsSubvar) {
