@@ -2690,9 +2690,10 @@ class Parser {
 
     parseRefTypePreOps(e) {
         if (this.match('Symbol', '*')) {
-            const star = this.createAstToken(this.consume());
-            const attrs = this.parseRefAttrs();
-            e.push(new RefTypePreOp(star, attrs));
+            const op = new RefTypePreOp();
+            op.star = this.createAstToken(this.consume());
+            op.attrs = this.parseRefAttrs();
+            e.push(op);
         }
         else if (this.match('Symbol', '*/')) {
             const op = new RefTypePreOp();
