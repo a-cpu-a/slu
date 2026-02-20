@@ -142,7 +142,7 @@ class ModPathAnnotation extends Annotation {
 class DocLineAnnotation extends Annotation {
     constructor() {
         super("DocLineAnnotation");
-        this.txt = new Token("---");
+        this.kw = new Token("---");
         this.content = "";
     }
 }
@@ -163,7 +163,7 @@ class OuterModPathAnnotation extends OuterAnnotation {
 class OuterDocLineAnnotation extends OuterAnnotation {
     constructor() {
         super("OuterDocLineAnnotation");
-        this.txt = new Token("--<");
+        this.kw = new Token("--<");
         this.content = "";
     }
 }
@@ -444,7 +444,7 @@ class IfPreOp extends PreOp {
 // ============================================================================
 
 class Stat extends CompoundNode {
-    constructor(type) { super(type); }
+    constructor(type, anns) { super(type); this.anns = anns; }
 }
 
 class Expr extends CompoundNode {
@@ -616,21 +616,21 @@ class TableConstructor extends Expr {
 // ============================================================================
 
 class GlobStat extends CompoundNode {
-    constructor(type) { super(type); }
+    constructor(type, anns) { super(type); this.anns = anns; }
 }
 
 // globstat ::= ";"
 class EmptyGlobStat extends GlobStat {
-    constructor() {
-        super("EmptyGlobStat");
+    constructor(anns) {
+        super("EmptyGlobStat", anns);
         this.semicol = new Token(";");
     }
 }
 
 // optexport "struct" Name ["(" params ")"] tableconstructor
 class StructDecl extends GlobStat {
-    constructor() {
-        super("StructDecl");
+    constructor(anns) {
+        super("StructDecl", anns);
         this.export = new Export();
         this.structKw = new Token("struct");
         this.name = new Name();
@@ -645,8 +645,8 @@ class StructDecl extends GlobStat {
 
 // optexport "enum" Name ["(" params ")"] "{" {enumfield fieldsep} [".."] "}"
 class EnumDecl extends GlobStat {
-    constructor() {
-        super("EnumDecl");
+    constructor(anns) {
+        super("EnumDecl", anns);
         this.export = new Export();
         this.enumKw = new Token("enum");
         this.name = new Name();
@@ -675,8 +675,8 @@ class EnumField extends CompoundNode {
 
 // optexport [safety] ["struct"] "fn" Name "(" [params] ")" ["->" basicExpr] ["{" block "}"]
 class FunctionDecl extends GlobStat {
-    constructor() {
-        super("FunctionDecl");
+    constructor(anns) {
+        super("FunctionDecl", anns);
         this.export = new Export();
         this.safety = new Safety();
         this.structKw = new OptToken("struct");
@@ -693,8 +693,8 @@ class FunctionDecl extends GlobStat {
 
 // optexport "trait" Name ["(" params ")"] [whereClauses] tableconstructor
 class TraitDecl extends GlobStat {
-    constructor() {
-        super("TraitDecl");
+    constructor(anns) {
+        super("TraitDecl", anns);
         this.export = new Export();
         this.traitKw = new Token("trait");
         this.name = new Name();
@@ -710,8 +710,8 @@ class TraitDecl extends GlobStat {
 
 // safety extern LiteralString "{" {globstat} "}"
 class ExternBlock extends GlobStat {
-    constructor() {
-        super("ExternBlock");
+    constructor(anns) {
+        super("ExternBlock", anns);
         this.safety = new Safety();
         this.externKw = new Token("extern");
         this.abiName = new Str();
@@ -723,8 +723,8 @@ class ExternBlock extends GlobStat {
 
 // optexport ["unsafe"] "impl" ["(" params ")"] [basicExpr "for"] basicExpr [whereClauses] tableconstructor
 class ImplDecl extends GlobStat {
-    constructor() {
-        super("ImplDecl");
+    constructor(anns) {
+        super("ImplDecl", anns);
         this.export = new Export();
         this.safety = new Safety();
         this.implKw = new Token("impl");
@@ -745,8 +745,8 @@ class ImplDecl extends GlobStat {
 
 // optexport "use" modpath useVariant
 class UseDecl extends GlobStat {
-    constructor() {
-        super("UseDecl");
+    constructor(anns) {
+        super("UseDecl", anns);
         this.export = new Export();
         this.useKw = new Token("use");
         this.path = new ModPath();
@@ -797,8 +797,8 @@ class BraceUseVariant extends UseVariant {
 
 // optexport "mod" Name ["{" chunk "}"]
 class ModDecl extends GlobStat {
-    constructor() {
-        super("ModDecl");
+    constructor(anns) {
+        super("ModDecl", anns);
         this.export = new Export();
         this.modKw = new Token("mod");
         this.name = new Name();
@@ -810,8 +810,8 @@ class ModDecl extends GlobStat {
 
 // optexport "const" uncondDestrPat "=" expr
 class ConstDecl extends GlobStat {
-    constructor() {
-        super("ConstDecl");
+    constructor(anns) {
+        super("ConstDecl", anns);
         this.export = new Export();
         this.constKw = new Token("const");
         this.pattern = new UncondDestrPat();
@@ -822,8 +822,8 @@ class ConstDecl extends GlobStat {
 
 // optexport "union" Name ["(" params ")"] tableconstructor
 class UnionDecl extends GlobStat {
-    constructor() {
-        super("UnionDecl");
+    constructor(anns) {
+        super("UnionDecl", anns);
         this.export = new Export();
         this.unionKw = new Token("union");
         this.name = new Name();
@@ -841,20 +841,20 @@ class UnionDecl extends GlobStat {
 // ============================================================================
 
 class RetStat extends CompoundNode {
-    constructor(type) { super(type); }
+    constructor(type, anns) { super(type); this.anns = anns; }
 }
 
 class ReturnStat extends RetStat {
-    constructor() {
-        super("ReturnStat");
+    constructor(anns) {
+        super("ReturnStat", anns);
         this.returnKw = new Token("return");
         this.expr = new OptExpr();
     }
 }
 
 class BreakStat extends RetStat {
-    constructor() {
-        super("BreakStat");
+    constructor(anns) {
+        super("BreakStat", anns);
         this.breakKw = new Token("break");
         this.label = new OptToken("'");
         this.labelName = new Name(); // $<Needs label>
@@ -863,8 +863,8 @@ class BreakStat extends RetStat {
 }
 
 class ContinueStat extends RetStat {
-    constructor() {
-        super("ContinueStat");
+    constructor(anns) {
+        super("ContinueStat", anns);
         this.continueKw = new Token("continue");
         this.label = new OptToken("'");
         this.labelName = new Name(); // $<Needs label>
@@ -873,8 +873,8 @@ class ContinueStat extends RetStat {
 }
 
 class ThrowStat extends RetStat {
-    constructor() {
-        super("ThrowStat");
+    constructor(anns) {
+        super("ThrowStat", anns);
         this.throwKw = new Token("throw");
         this.expr = new Expr();
     }
@@ -882,8 +882,8 @@ class ThrowStat extends RetStat {
 
 // [label] "loop" ["->" basicExpr] "{" block "}"
 class LoopStat extends Stat {
-    constructor() {
-        super("LoopStat");
+    constructor(anns) {
+        super("LoopStat", anns);
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
         this.labelColon = new OptToken(":"); // $<Needs labelStart>
@@ -897,8 +897,8 @@ class LoopStat extends Stat {
 
 // [label] "while" basicExpr "{" block "}"
 class WhileStat extends Stat {
-    constructor() {
-        super("WhileStat");
+    constructor(anns) {
+        super("WhileStat", anns);
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
         this.labelColon = new OptToken(":"); // $<Needs labelStart>
@@ -911,8 +911,8 @@ class WhileStat extends Stat {
 
 // [label] "for" ["const"] uncondDestrPat "in" basicExpr "{" block "}"
 class ForStat extends Stat {
-    constructor() {
-        super("ForStat");
+    constructor(anns) {
+        super("ForStat", anns);
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
         this.labelColon = new OptToken(":"); // $<Needs labelStart>
@@ -928,8 +928,8 @@ class ForStat extends Stat {
 
 // "let" uncondDestrPat ["=" expr]
 class LetStat extends Stat {
-    constructor() {
-        super("LetStat");
+    constructor(anns) {
+        super("LetStat", anns);
         this.letKw = new Token("let");
         this.pattern = new UncondDestrPat();
         this.eq = new OptToken("=");
@@ -949,8 +949,8 @@ class IfAlternate extends CompoundNode {
 }
 // "if" basicExpr blockOrRet {"else" "if" basicExpr blockOrRet} ["else" blockOrRet]
 class IfStat extends Stat {
-    constructor() {
-        super("IfStat");
+    constructor(anns) {
+        super("IfStat", anns);
         this.ifKw = new Token("if");
         this.condition = new Expr();
         this.consequent = new BlockOrRet();
@@ -962,8 +962,8 @@ class IfStat extends Stat {
 
 // "match" basicExpr matchtypeblock
 class MatchStat extends Stat {
-    constructor() {
-        super("MatchStat");
+    constructor(anns) {
+        super("MatchStat", anns);
         this.matchKw = new Token("match");
         this.argument = new Expr();
         this.block = new MatchTypeBlock();
@@ -972,8 +972,8 @@ class MatchStat extends Stat {
 
 // "drop" expr
 class DropStat extends Stat {
-    constructor() {
-        super("DropStat");
+    constructor(anns) {
+        super("DropStat", anns);
         this.dropKw = new Token("drop");
         this.expr = new Expr();
     }
@@ -981,8 +981,8 @@ class DropStat extends Stat {
 
 // [label] "{" block "}"
 class BlockStat extends Stat {
-    constructor() {
-        super("BlockStat");
+    constructor(anns) {
+        super("BlockStat", anns);
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
         this.labelColon = new OptToken(":"); // $<Needs labelStart>
@@ -992,16 +992,16 @@ class BlockStat extends Stat {
 
 // ";"
 class EmptyStat extends Stat {
-    constructor() {
-        super("EmptyStat");
+    constructor(anns) {
+        super("EmptyStat", anns);
         this.semicol = new Token(";");
     }
 }
 
 // "unsafe" "{" {stat} "}"
 class UnsafeStat extends Stat {
-    constructor() {
-        super("UnsafeStat");
+    constructor(anns) {
+        super("UnsafeStat", anns);
         this.unsafeKw = new Token("unsafe");
         this.openBrace = new Token("{");
         this.stats = []; // Array of Stat
@@ -1011,8 +1011,8 @@ class UnsafeStat extends Stat {
 
 // var "=" expr
 class AssignStat extends Stat {
-    constructor() {
-        super("AssignStat");
+    constructor(anns) {
+        super("AssignStat", anns);
         this.var = new Var();
         this.eq = new Token("=");
         this.expr = new Expr();
@@ -1021,8 +1021,8 @@ class AssignStat extends Stat {
 
 // var selfablecall
 class CallStat extends Stat {
-    constructor() {
-        super("CallStat");
+    constructor(anns) {
+        super("CallStat", anns);
         this.var = new Var();
         this.ops = []; // Array of SufOp
     }
@@ -1030,8 +1030,8 @@ class CallStat extends Stat {
 
 // "TODO!" LiteralString
 class TodoStat extends Stat {
-    constructor() {
-        super("TodoStat");
+    constructor(anns) {
+        super("TodoStat", anns);
         this.kw = new Token("TODO!");
         this.msg = new Expr();
     }
@@ -2808,24 +2808,25 @@ class Parser {
 
         while (!this.match('Symbol', '}')) {
             if (this.match('EOF')) break;
-            const tok = this.peek();
+
+            const anns = this.parseAnnotations();
             if (this.match('Keyword', 'return') || this.match('Keyword', 'break') || this.match('Keyword', 'continue') || this.match('Keyword', 'throw')) {
-                b.retStat = this.parseRetStat();
+                b.retStat = this.parseRetStat(anns);
                 if (this.match('Symbol', ';'))
                     b.semicol = this.createAstToken(this.consume());
                 break;
             }
-            b.stats.push(this.parseStat());
+            b.stats.push(this.parseStat(anns));
         }
 
         b.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
         return b;
     }
 
-    parseRetStat() {
+    parseRetStat(anns) {
         const tok = this.peek();
         if (this.match('Keyword', 'return')) {
-            const s = new ReturnStat();
+            const s = new ReturnStat(anns);
             s.returnKw = this.createAstToken(this.consume());
             s.expr = new OptExpr();
             if (!this.match('Symbol', ';') && !this.match('Symbol', '}')) {
@@ -2835,7 +2836,7 @@ class Parser {
             return s;
         }
         if (this.match('Keyword', 'break')) {
-            const s = new BreakStat();
+            const s = new BreakStat(anns);
             s.breakKw = this.createAstToken(this.consume());
             s.label = this.parseOptToken("'");
             if (s.label.present) s.labelName = this.parseName();
@@ -2847,7 +2848,7 @@ class Parser {
             return s;
         }
         if (this.match('Keyword', 'continue')) {
-            const s = new ContinueStat();
+            const s = new ContinueStat(anns);
             s.continueKw = this.createAstToken(this.consume());
             s.label = this.parseOptToken("'");
             if (s.label.present) s.labelName = this.parseName();
@@ -2859,7 +2860,7 @@ class Parser {
             return s;
         }
         if (this.match('Keyword', 'throw')) {
-            const s = new ThrowStat();
+            const s = new ThrowStat(anns);
             s.throwKw = this.createAstToken(this.consume());
             s.expr = this.parseExpr();
             return s;
@@ -2867,21 +2868,15 @@ class Parser {
         throw new Error("Expected return statement");
     }
 
-    parseStat() {
+    parseStat(anns) {
+
         if (this.match('Symbol', ';')) {
-            const s = new EmptyStat();
+            const s = new EmptyStat(anns);
             s.semicol = this.createAstToken(this.consume());
             return s;
         }
-
-        const anns = this.parseAnnotations();
-        if (anns.length > 0) {
-            const inner = this.parseStat();
-            return inner;//TODO: store anns
-        }
-
         if (this.match('Keyword', 'let')) {
-            const s = new LetStat();
+            const s = new LetStat(anns);
             s.letKw = this.createAstToken(this.consume());
             s.pattern = this.parseUncondDestrPat();
             s.eq = this.parseOptToken('=');
@@ -2890,7 +2885,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'drop')) {
-            const s = new DropStat();
+            const s = new DropStat(anns);
             s.dropKw = this.createAstToken(this.consume());
             s.expr = this.parseExpr();
             return s;
@@ -2899,10 +2894,12 @@ class Parser {
         if (this.match('Keyword', 'if')) return this.parseIfStat();
 
         if (this.match('Keyword', 'unsafe') && this.peek(1).txt == '{') {
-            const s = new UnsafeStat();
+            const s = new UnsafeStat(anns);
             s.unsafeKw = this.createAstToken(this.consume());
             s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
-            while (!this.match('Symbol', '}')) s.stats.push(this.parseStat());
+            while (!this.match('Symbol', '}')) {
+                s.stats.push(this.parseStat(this.parseAnnotations()));
+            }
             s.closeBrace = this.createAstToken(this.consume());
             return s;
         }
@@ -2911,8 +2908,8 @@ class Parser {
             const labelStart = this.createAstToken(this.consume());
             const label = this.parseName();
             const colon = this.createAstToken(this.expect('Symbol', ':'));
-            if (this.match('Keyword', 'while')) return this.parseWhileStat(labelStart, label, colon);
-            if (this.match('Keyword', 'for')) return this.parseForStat(labelStart, label, colon);
+            if (this.match('Keyword', 'while')) return this.parseWhileStat(anns, labelStart, label, colon);
+            if (this.match('Keyword', 'for')) return this.parseForStat(anns, labelStart, label, colon);
             throw new Error("Expected while/for after label");
         }
 
@@ -2923,14 +2920,14 @@ class Parser {
         if (this.match('Name') || this.match('Symbol', '(')) {
             const v = this.parseVar();
             if (this.match('Symbol', '=')) {
-                const s = new AssignStat();
+                const s = new AssignStat(anns);
                 s.var = v;
                 s.eq = this.createAstToken(this.consume());
                 s.expr = this.parseExpr();
                 return s;
             }
             if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
-                const s = new CallStat();
+                const s = new CallStat(anns);
                 s.var = v;
                 s.ops = parseVarLikeOps(false);
                 return s;
@@ -2938,11 +2935,17 @@ class Parser {
             return v;
         }
 
-        let isTd = this.match('Keyword', 'TODO!');
-        if (isTd || this.match('Keyword', 'loop') || this.match('Keyword', 'match') || isTd) {
-            const e = this.parseExpr(0, !isTd);
+        if (this.match('Keyword', 'TODO!')) {
+            const s = new TodoStat(anns);
+            s.kw = this.createAstToken(this.consume());
+            s.msg = this.parseExpr()
+            return s;
+        }
+
+        if (this.match('Keyword', 'loop') || this.match('Keyword', 'match')) {
+            const e = this.parseExpr(0, true);
             if (e instanceof LoopExpr) {
-                const s = new LoopStat();
+                const s = new LoopStat(anns);
                 s.labelStart = e.labelStart; s.label = e.label; s.labelColon = e.labelColon;
                 s.loopKw = e.loopKw; s.retArrow = e.retArrow; s.retType = e.retType; s.body = e.body;
                 return s;
@@ -2950,7 +2953,7 @@ class Parser {
             return e;
         }
 
-        return this.parseGlobStat();
+        return this.parseGlobStat(anns);
     }
 
     parseIfStat() {
@@ -2990,8 +2993,8 @@ class Parser {
         return r;
     }
 
-    parseWhileStat(labelStart, label, colon) {
-        const s = new WhileStat();
+    parseWhileStat(anns, labelStart, label, colon) {
+        const s = new WhileStat(anns);
         s.labelStart = labelStart; s.label = label; s.labelColon = colon;
         s.whileKw = this.createAstToken(this.expect('Keyword', 'while'));
         s.condition = this.parseExpr(0, true);
@@ -2999,8 +3002,8 @@ class Parser {
         return s;
     }
 
-    parseForStat(labelStart, label, colon) {
-        const s = new ForStat();
+    parseForStat(anns, labelStart, label, colon) {
+        const s = new ForStat(anns);
         s.labelStart = labelStart; s.label = label; s.labelColon = colon;
         s.forKw = this.createAstToken(this.expect('Keyword', 'for'));
         s.constKw = this.parseOptToken('const');
@@ -3072,8 +3075,14 @@ class Parser {
     // GLOBAL DECLARATIONS
     // ----------------------------------------------------------------
 
-    parseGlobStat() {
-        if (this.match('Symbol', ';')) return new EmptyGlobStat(this.createAstToken(this.consume()));
+    parseGlobStat(anns) {
+        if (anns === undefined) { anns = this.parseAnnotations(false); }
+
+        if (this.match('Symbol', ';')) {
+            const s = new EmptyGlobStat(anns)
+            s.semicol = this.createAstToken(this.consume());
+            return s;
+        }
 
         const exportKw = new Export();
         if (this.match('Keyword', 'ex')) {
@@ -3082,7 +3091,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'use')) {
-            const s = new UseDecl();
+            const s = new UseDecl(anns);
             s.export = exportKw;
             s.useKw = this.createAstToken(this.consume());
             s.path = this.parseModPath();
@@ -3091,7 +3100,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'struct') && this.peek(1).txt != 'fn') {
-            const s = new StructDecl();
+            const s = new StructDecl(anns);
             s.export = exportKw;
             s.structKw = this.createAstToken(this.consume());
             s.name = this.parseName();
@@ -3105,7 +3114,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'enum')) {
-            const s = new EnumDecl();
+            const s = new EnumDecl(anns);
             s.export = exportKw;
             s.enumKw = this.createAstToken(this.consume());
             s.name = this.parseName();
@@ -3122,7 +3131,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'trait')) {
-            const s = new TraitDecl();
+            const s = new TraitDecl(anns);
             s.export = exportKw;
             s.traitKw = this.createAstToken(this.consume());
             s.name = this.parseName();
@@ -3137,7 +3146,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'mod')) {
-            const s = new ModDecl();
+            const s = new ModDecl(anns);
             s.export = exportKw;
             s.modKw = this.createAstToken(this.consume());
             s.name = this.parseName();
@@ -3150,7 +3159,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'const')) {
-            const s = new ConstDecl();
+            const s = new ConstDecl(anns);
             s.export = exportKw;
             s.constKw = this.createAstToken(this.consume());
             s.pattern = this.parseUncondDestrPat();
@@ -3160,7 +3169,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'union')) {
-            const s = new UnionDecl();
+            const s = new UnionDecl(anns);
             s.export = exportKw;
             s.unionKw = this.createAstToken(this.consume());
             s.name = this.parseName();
@@ -3182,7 +3191,7 @@ class Parser {
 
         if (safetyKw.kind != 'default') {
             if (this.match('Keyword', 'extern')) {
-                const s = new ExternBlock();
+                const s = new ExternBlock(anns);
                 s.safety = safetyKw;
                 s.externKw = this.createAstToken(this.consume());
                 s.abiName = this.parseStr();
@@ -3194,7 +3203,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'fn') || (this.match('Keyword', 'struct') && this.peek(1).txt == 'fn')) {
-            const s = new FunctionDecl();
+            const s = new FunctionDecl(anns);
             s.export = exportKw;
             s.safety = safetyKw;
             s.structKw = this.parseOptToken('struct');
@@ -3215,7 +3224,7 @@ class Parser {
         }
 
         if (this.match('Keyword', 'impl')) {
-            const s = new ImplDecl();
+            const s = new ImplDecl(anns);
             s.export = exportKw;
             s.safety = safetyKw;
             s.implKw = this.createAstToken(this.expect('Keyword', 'impl'));
@@ -3378,13 +3387,13 @@ class Parser {
             if (this.match('LiteralString')) {
                 const strTok = this.consume();
                 const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
-                ann.txt = this.createAstToken(startTok);
+                ann.kw = this.createAstToken(startTok);
                 ann.content = strTok.txt;
                 return ann;
             } else if (this.match('LineOfText')) {
                 const txtTok = this.consume();
                 const ann = new (isOuter ? OuterDocLineAnnotation : DocLineAnnotation)();
-                ann.txt = this.createAstToken(startTok);
+                ann.kw = this.createAstToken(startTok);
                 ann.content = txtTok.txt;
                 return ann;
             }

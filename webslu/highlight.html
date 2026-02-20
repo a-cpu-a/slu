@@ -764,17 +764,19 @@
             }
 
             visitDocLineAnnotation(node) {
-                this.processPreSpace(node.preSpace, node);
-                const txt = node.txt + node.content;
+                this.processPreSpace(node.kw.preSpace, node);
+                this.emit(COLORS.COMMENT_DOC_OUTER, node.kw.txt, node.kw);
+                const txt = node.content;
                 const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC;
                 this.emit(color, txt, node);
                 return node;
             }
 
             visitOuterDocLineAnnotation(node) {
-                this.processPreSpace(node.preSpace, node);
-                const txt = node.txt + node.content;
-                const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC_OUTER;
+                this.processPreSpace(node.kw.preSpace, node);
+                this.emit(COLORS.COMMENT_DOC_OUTER, node.kw.txt, node.kw);
+                const txt = node.content;
+                const color = txt.toUpperCase().includes('TODO') ? COLORS.COMMENT_WIP : COLORS.COMMENT_DOC;
                 this.emit(color, txt, node);
                 return node;
             }
@@ -816,6 +818,9 @@
         const ttContent = document.getElementById('tt-content');
 
         const DEMO_CODE = `
+---W
+--W
+---[[aweaw]]
 ex struct x{} 
 
 
