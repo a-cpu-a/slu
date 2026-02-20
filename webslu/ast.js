@@ -2929,7 +2929,7 @@ class Parser {
             if (this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral') || this.match('Symbol', '{')) {
                 const s = new CallStat(anns);
                 s.var = v;
-                s.ops = parseVarLikeOps(false);
+                s.ops = this.parseVarLikeOps(false);
                 return s;
             }
             return v;
@@ -3016,15 +3016,15 @@ class Parser {
 
     parseVarLikeOps(needsSubvar) {
         let ops = [];
-        let lastValid = { pos: this.pos, s: 0 };
+        let lastValid = { pos: this.tokPos, s: 0 };
         while (true) {
             if (this.match('Symbol', '.*')) {
                 const op = new DerefSubVar(); op.op = this.createAstToken(this.consume()); ops.push(op);
-                lastValid = { pos: this.pos, s: ops.length };
+                lastValid = { pos: this.tokPos, s: ops.length };
             } else if (this.match('Symbol', '.')) {
                 this.handleDotAccess(false, ops);
                 if (ops.at(-1) instanceof DotSubVar)
-                    lastValid = { pos: this.pos, s: ops.length };
+                    lastValid = { pos: this.tokPos, s: ops.length };
             } else if (this.match('Symbol', '.:')) {
                 this.handleDotAccess(true, ops);
             } else if (this.match('Symbol', '[')) {
@@ -3033,7 +3033,7 @@ class Parser {
                 op.expr = this.parseExpr();
                 op.close = this.createAstToken(this.expect('Symbol', ']'));
                 ops.push(op);
-                lastValid = { pos: this.pos, s: ops.length };
+                lastValid = { pos: this.tokPos, s: ops.length };
             } else if (this.match('Symbol', '?')) {
                 const op = new TrySubVar();
                 op.kw = this.createAstToken(this.consume());
@@ -3050,7 +3050,7 @@ class Parser {
             } else break;
         }
         if (needsSubvar) {
-            this.pos = lastValid.pos;
+            this.tokPos = lastValid.pos;
             if (lastValid.s !== ops.length)
                 ops.splice(lastValid.s, ops.length - lastValid.s);
         }
