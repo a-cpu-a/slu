@@ -637,7 +637,7 @@ class StructDecl extends GlobStat {
 
         this.openParen = new OptToken("(");
         this.params = new DelimitedList("TypedParam"); // $<Needs openParen>
-        this.closeParen = new Token(")"); // $<Needs openParen>
+        this.closeParen = new OptToken(")"); // $<Needs openParen>
 
         this.body = new TableConstructor();
     }
@@ -653,7 +653,7 @@ class EnumDecl extends GlobStat {
 
         this.openParen = new OptToken("(");
         this.params = new DelimitedList("TypedParam"); // $<Needs openParen>
-        this.closeParen = new Token(")"); // $<Needs openParen>
+        this.closeParen = new OptToken(")"); // $<Needs openParen>
 
         this.openBrace = new Token("{");
         this.fields = new DelimitedList("EnumField");
@@ -701,9 +701,9 @@ class TraitDecl extends GlobStat {
 
         this.openParen = new OptToken("(");
         this.params = new DelimitedList("TypedParam"); // $<Needs openParen>
-        this.closeParen = new Token(")"); // $<Needs openParen>
+        this.closeParen = new OptToken(")"); // $<Needs openParen>
 
-        this.where = new WhereClauses();
+        this.where = new EmptyWhereClauses();
         this.body = new TableConstructor();
     }
 }
@@ -731,14 +731,14 @@ class ImplDecl extends GlobStat {
 
         this.openParen = new OptToken("(");
         this.params = new DelimitedList("TypedParam"); // $<Needs openParen>
-        this.closeParen = new Token(")"); // $<Needs openParen>
+        this.closeParen = new OptToken(")"); // $<Needs openParen>
 
         this.traitType = new Expr(); // $<Needs forKw>
         this.forKw = new OptToken("for");
 
         this.targetType = new Expr();
 
-        this.where = new WhereClauses();
+        this.where = new EmptyWhereClauses();
         this.body = new TableConstructor();
     }
 }
@@ -804,7 +804,7 @@ class ModDecl extends GlobStat {
         this.name = new Name();
         this.openBrace = new OptToken("{");
         this.chunk = []; // Array of globstat // $<Needs openBrace>
-        this.closeBrace = new Token("}"); // $<Needs openBrace>
+        this.closeBrace = new OptToken("}"); // $<Needs openBrace>
     }
 }
 
@@ -830,7 +830,7 @@ class UnionDecl extends GlobStat {
 
         this.openParen = new OptToken("(");
         this.params = new DelimitedList("TypedParam"); // $<Needs openParen>
-        this.closeParen = new Token(")"); // $<Needs openParen>
+        this.closeParen = new OptToken(")"); // $<Needs openParen>
 
         this.body = new TableConstructor();
     }
@@ -886,7 +886,7 @@ class LoopStat extends Stat {
         super("LoopStat");
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
-        this.labelColon = new Token(":"); // $<Needs labelStart>
+        this.labelColon = new OptToken(":"); // $<Needs labelStart>
 
         this.loopKw = new Token("loop");
         this.retArrow = new OptToken("->");
@@ -901,7 +901,7 @@ class WhileStat extends Stat {
         super("WhileStat");
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
-        this.labelColon = new Token(":"); // $<Needs labelStart>
+        this.labelColon = new OptToken(":"); // $<Needs labelStart>
 
         this.whileKw = new Token("while");
         this.condition = new Expr();
@@ -915,7 +915,7 @@ class ForStat extends Stat {
         super("ForStat");
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
-        this.labelColon = new Token(":"); // $<Needs labelStart>
+        this.labelColon = new OptToken(":"); // $<Needs labelStart>
 
         this.forKw = new Token("for");
         this.constKw = new OptToken("const");
@@ -985,7 +985,7 @@ class BlockStat extends Stat {
         super("BlockStat");
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
-        this.labelColon = new Token(":"); // $<Needs labelStart>
+        this.labelColon = new OptToken(":"); // $<Needs labelStart>
         this.block = new BlockNode();
     }
 }
@@ -1169,7 +1169,7 @@ class LoopExpr extends Expr {
         super("LoopExpr");
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
-        this.labelColon = new Token(":"); // $<Needs labelStart>
+        this.labelColon = new OptToken(":"); // $<Needs labelStart>
 
         this.loopKw = new Token("loop");
         this.retArrow = new OptToken("->");
@@ -1219,7 +1219,7 @@ class DoExpr extends Expr {
         super("DoExpr");
         this.labelStart = new OptToken("'");
         this.label = new Name(); // $<Needs labelStart>
-        this.labelColon = new Token(":"); // $<Needs labelStart>
+        this.labelColon = new OptToken(":"); // $<Needs labelStart>
 
         this.constKw = new OptToken("const");
         this.doKw = new Token("do");
@@ -1292,6 +1292,11 @@ class WhereClauses extends CompoundNode {
         super("WhereClauses");
         this.whereKw = new Token("where");
         this.clauses = new DelimitedList("WhereClause");
+    }
+}
+class EmptyWhereClauses extends CompoundNode {
+    constructor() {
+        super("EmptyWhereClauses");
     }
 }
 
@@ -1957,7 +1962,7 @@ class Parser {
         return opt;
     }
 
-    parseDelimitedList(parserFn, stopTokens) {
+    parseDelimitedList(parserFn, stopTokens, noSemicol = false) {
         const list = new DelimitedList();
         while (true) {
             const tok = this.peek();
@@ -1967,7 +1972,7 @@ class Parser {
             const item = new DelimitedListItem();
             item.value = parserFn();
 
-            if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
+            if (this.match('Symbol', ',') || (!noSemicol && this.match('Symbol', ';'))) {
                 item.sep = this.createAstToken(this.consume());
             }
             list.items.push(item);
@@ -2911,8 +2916,8 @@ class Parser {
             throw new Error("Expected while/for after label");
         }
 
-        if (this.match('Keyword', 'while')) return this.parseWhileStat(new OptToken(), new Name(), new Token(":"));
-        if (this.match('Keyword', 'for')) return this.parseForStat(new OptToken(), new Name(), new Token(":"));
+        if (this.match('Keyword', 'while')) return this.parseWhileStat(new OptToken("'"), new Name(), new OptToken(":"));
+        if (this.match('Keyword', 'for')) return this.parseForStat(new OptToken("'"), new Name(), new OptToken(":"));
 
 
         if (this.match('Name') || this.match('Symbol', '(')) {
@@ -3254,14 +3259,14 @@ class Parser {
     parseWhereClauses() {
         const w = new WhereClauses();
         w.whereKw = this.createAstToken(this.expect('Keyword', 'where'));
-        w.clauses = this.parseDelimitedList(() => this.parseWhereClause(), [{ type: 'Symbol', txt: '{' }]);
+        w.clauses = this.parseDelimitedList(() => this.parseWhereClause(), [{ type: 'Symbol', txt: '{' }], true);
         return w;
     }
 
     parseWhereClause() {
         const c = new WhereClause();
         if (this.match('Keyword', 'Self')) {
-            c.name = new Name(); c.name.name = this.consume().txt;
+            c.name.name = 'Self'; c.name.preSpace = this.consume().preSpace;
         } else {
             c.name = this.parseName();
         }
