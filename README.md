@@ -18,6 +18,7 @@ Builtin support for a result type `throw MyErr{"oh no"}`
 Compile-time code execution (todo: sandbox it to make it safe & deterministic: mlir->wasm?)  
 Less global state by default, requiring a function call to obtain access to time, files, logging, etc. (they are trait based, allowing you to wrap and intercept uses)  
 impl types are checked before any monomorphization, automatically support dyn types where possible.  
+Pure (using std::Impure for any impure effects)
 
 [Spec is located here](/spec/)  
 
@@ -25,14 +26,14 @@ impl types are checked before any monomorphization, automatically support dyn ty
 fn printHelloWorld(l = *mut impl std::Log) {
 	l.info("Hello world!", {}); -- The {} is for formatting arugments (no arguments in this example).
 }
-fn main() 
+fn main(impure) 
 {
 	--Panicking is not allways desirable, so it is explicit.
-	let *impl std::Panic p = &std::defaultPanicOrDummy();
+	let *impl std::Panic p = &std::defaultPanicOrDummy(impure);
 	-- Since logging is not always possible, you have to explicitly get a logger,
 	-- in this case we want the log message to always be shown, so we panic if there is no logger.
-	-- If logging can be thrown away, you can use `std::defaultLoggerOrDummy()` which may return a dummy implementation that voids your logs.
-	let mut impl std::Log l = std::defaultLogger().unwrap(p);
+	-- If the logs can be thrown away, you can use `std::defaultLoggerOrDummy()` which will return a dummy implementation that voids your logs.
+	let mut impl std::Log l = std::defaultLogger(impure).unwrap(p);
 	printHelloWorld(&mut l);
 }
 ```
