@@ -18,7 +18,7 @@ Builtin support for a result type `throw MyErr{"oh no"}`
 Compile-time code execution (todo: sandbox it to make it safe & deterministic: mlir->wasm?)  
 Less global state by default, requiring a function call to obtain access to time, files, logging, etc. (they are trait based, allowing you to wrap and intercept uses)  
 impl types are checked before any monomorphization, automatically support dyn types where possible.  
-Pure (using std::Impure for any impure effects)
+Pure (using a instance of `std::Impure` for any impure effects)
 
 [Spec is located here](/spec/)  
 
