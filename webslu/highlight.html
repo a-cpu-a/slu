@@ -876,6 +876,7 @@ impl Add for X {
             const temp = document.createElement('span');
             temp.style.font = getComputedStyle(inputArea).font;
             temp.style.visibility = 'hidden';
+            temp.style.width = 'fit-content';
             temp.textContent = 'm'; // Monospace char
             document.body.appendChild(temp);
             const width = temp.getBoundingClientRect().width;
@@ -886,14 +887,15 @@ impl Add for X {
         const charWidth = getCharWidth();
         const lineHeight = 21; // 14px * 1.5
 
-        function renderSquiggles(errors, text) {
+        function renderSquiggles(errors, text, lexerErrorCount) {
             errorOverlay.innerHTML = '';
 
-            errors.forEach(err => {
-                if (err.pos === undefined || err.pos < 0) return;
+            for (let i = 0; i < errors.length; i++) {
+                let err = errors[i];
+                const inLexer = i < lexerErrorCount;
 
                 // Calculate Row/Col
-                const textBefore = text.substring(0, err.pos);
+                const textBefore = text.substring(0, err.pos); // TODO: !lexer => token index
                 const lines = textBefore.split('\n');
                 const row = lines.length - 1;
                 const col = lines[row].length;
@@ -906,7 +908,7 @@ impl Add for X {
                 // Position
                 // top: (row * lineHeight) + padding(10)
                 // left: (col * charWidth) + padding(10)
-                const top = (row * lineHeight) + 10;
+                const top = ((row + 1) * lineHeight) + 10;
                 const left = (col * charWidth) + 10;
 
                 squiggle.style.top = `${top}px`;
@@ -915,7 +917,7 @@ impl Add for X {
                 squiggle.style.width = `${charWidth}px`;
 
                 errorOverlay.appendChild(squiggle);
-            });
+            }
         }
 
         async function highlightCode() {
@@ -930,6 +932,9 @@ impl Add for X {
 
             try {
                 const parser = new Parser(code);
+
+                const lexerErrorCount = parser.errors.length;
+
                 const ast = parser.parseChunk();
 
                 // --- FIX START: Always Highlight ---
@@ -944,12 +949,12 @@ impl Add for X {
                 // --- FIX END ---
 
                 if (parser.errors.length > 0) {
-                    statusEl.textContent = `Found ${parser.errors.length} error(s)`;
+                    statusEl.textContent = `Found ${parser.errors.length} error(s), ${lexerErrorCount} while lexing`;
                     statusEl.className = "error";
                     statusEl.style.backgroundColor = "var(--bg-status-error)";
 
                     // Render Squiggles on the input box
-                    renderSquiggles(parser.errors, code);
+                    renderSquiggles(parser.errors, code, lexerErrorCount);
 
                     // Render list of errors in output panel
                     parser.errors.forEach((err, idx) => {
