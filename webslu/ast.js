@@ -1611,7 +1611,7 @@ class Parser {
 
         this.error(`Expected closing bracket for ${isComment ? "comment" : "string"}, but file ended`, this.pos);
         this.pos = this.len; // Move to end to stop lexing
-        return false;
+        return true;
     }
 
     tokenize() {
@@ -1745,6 +1745,10 @@ class Parser {
                 const quote = ch;
                 this.pos++;
                 while (this.pos < this.len && this.input[this.pos] !== quote) {
+                    if (this.input[this.pos] === '\n' || this.input[this.pos] === '\r') {
+                        this.error('Expected end quote for string, but line ended', this.pos);
+                        break;
+                    }
                     if (this.input[this.pos] === '\\') this.pos++; // skip escape
                     this.pos++;
                 }
