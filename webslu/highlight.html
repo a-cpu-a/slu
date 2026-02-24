@@ -206,11 +206,23 @@
 
         .squiggle {
             position: absolute;
-            height: 4px;
-            width: 9px;
+            height: 3px;
+            width: 12px;
             /* Approx char width */
-            border-bottom: 2px solid red;
-            border-radius: 2px;
+            border-bottom: 2px dotted red;
+            border-radius: 0px;
+            opacity: 0.8;
+        }
+
+        .squiggle::after {
+            content: ' ';
+            position: absolute;
+            height: 2px;
+            width: 12px;
+            left: 2px;
+            /* Approx char width */
+            border-bottom: 2px dotted red;
+            border-radius: 0px;
             opacity: 0.8;
         }
 
@@ -925,7 +937,7 @@ impl Add for X {
                 squiggle.style.top = `${top}px`;
                 squiggle.style.left = `${left}px`;
                 // Width of one character
-                squiggle.style.width = `${charWidth}px`;
+                squiggle.style.width = `12px`;
 
                 errorOverlay.appendChild(squiggle);
             }
