@@ -9,6 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -114,7 +115,6 @@
             flex-direction: column;
             min-width: 0;
             position: relative;
-            /* For absolute positioning of children */
         }
 
         .panel:first-child {
@@ -145,7 +145,6 @@
             position: relative;
             background-color: var(--bg-app);
             overflow: hidden;
-            /* Scroll handled by children */
         }
 
         .gutter {
@@ -186,7 +185,6 @@
             line-height: 1.5;
             white-space: pre;
             overflow: auto;
-            /* Syncs with JS */
             color: transparent;
             /* Text is invisible, only colors show */
             z-index: 1;
@@ -201,11 +199,9 @@
             width: 100%;
             height: 100%;
             padding: 10px;
-            /* Match textarea padding */
             z-index: 2;
             pointer-events: none;
             overflow: hidden;
-            /* Hidden, we move contents */
         }
 
         .squiggle {
@@ -357,6 +353,7 @@
         }
     </style>
 
+    <!-- Assuming this file contains the Parser and Visitor base classes -->
     <script src="ast.js"></script>
 </head>
 
@@ -594,7 +591,6 @@
                 return node;
             }
 
-            // (Visitor methods truncated for brevity, functioning same as previous version)
             visitName(node) {
                 this.processPreSpace(node.preSpace, node);
                 let color = COLORS.NAME;
@@ -613,7 +609,6 @@
             }
 
             visitExport(node) {
-                // node.kw is OptToken
                 if (node.kw && node.kw.present) {
                     this.processPreSpace(node.kw.preSpace, node);
                     const parent = this.getParent();
@@ -647,8 +642,6 @@
                 return node;
             }
 
-            // --- Reference Logic (RefAttrs, PreSpace, Colors) ---
-
             getRefColor(node) {
                 if (!node) return COLORS.REF;
                 if (node.type === 'MutRefType') return COLORS.REF_MUT;
@@ -657,7 +650,6 @@
                 return COLORS.REF;
             }
 
-            // Explicit traversal of RefAttrs to ensure order and correctness
             visitRefAttrs(node) {
                 this.visit(node.addrspace);
                 this.visit(node.lifetime);
@@ -667,41 +659,31 @@
 
             visitRefPreOp(node) {
                 const color = this.getRefColor(node.attrs.refType);
-
-                this.processPreSpace(node.amp.preSpace, node.amp);
-
+                this.processPreSpace(node.amp.preSpace, node);
                 this.emit(color, node.amp.txt, node.amp);
 
                 const oldColor = this.currentRefColor;
                 this.currentRefColor = color;
-
                 this.visit(node.attrs);
-
                 this.currentRefColor = oldColor;
                 return node;
             }
 
             visitRefTypePreOp(node) {
                 const color = this.getRefColor(node.attrs.refType);
-                //TODO: prespace doesnt show here either
-                this.processPreSpace(node.star.preSpace, node.star);
-
+                this.processPreSpace(node.star.preSpace, node);
                 this.emit(color, node.star.txt, node.star);
 
                 const oldColor = this.currentRefColor;
                 this.currentRefColor = color;
-
                 this.visit(node.attrs);
-
                 this.currentRefColor = oldColor;
                 return node;
             }
 
             visitOptAddrSpace(node) {
-                // node.kw is OptToken
                 if (node.kw.present) {
                     this.processPreSpace(node.kw.preSpace, node);
-
                     const color = this.currentRefColor;
                     this.emit(color, node.kw.txt, node.kw);
                     this.visit(node.space);
@@ -715,12 +697,14 @@
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
+
             visitShareRefType(node) {
                 this.processPreSpace(node.kw.preSpace, node);
                 const color = COLORS.REF_SHARE;
                 this.emit(color, node.kw.txt, node.kw);
                 return node;
             }
+
             visitConstRefType(node) {
                 this.processPreSpace(node.kw.preSpace, node);
                 const color = COLORS.REF_CONST;
@@ -735,19 +719,13 @@
                 return node;
             }
 
-            // --- Literals ---
-
             visitNum(node) {
                 this.processPreSpace(node.preSpace, node);
-
                 const s = node.num;
-
                 if (s.startsWith('0x') || s.startsWith('0o') || s.startsWith('0b')) {
                     const prefix = s.substring(0, 2);
                     const rest = s.substring(2);
-
                     this.emit(COLORS.NUMBER_KIND, prefix, node);
-
                     const pIndex = rest.search(/[pP]/);
                     if (pIndex !== -1) {
                         this.emit(COLORS.NUMBER, rest.substring(0, pIndex), node);
@@ -757,28 +735,23 @@
                     }
                     return node;
                 }
-
                 const sciMatch = s.match(/^([-+]?\d*\.?\d+)([eE][-+]?\d+)$/);
                 if (sciMatch) {
                     this.emit(COLORS.NUMBER, sciMatch[1], node);
                     this.emit(COLORS.NUMBER_KIND, sciMatch[2], node);
                     return node;
                 }
-
                 this.emit(COLORS.NUMBER, s, node);
                 return node;
             }
 
             visitStr(node) {
                 this.processPreSpace(node.preSpace, node);
-
                 const s = node.str;
                 const match = s.match(/^((?:\[{0,}\[)|["'])([\s\S]*?)((?:\]{0,}\])|["'])$/);
-
                 if (match) {
                     const [_, open, content, close] = match;
                     this.emit(COLORS.STRING_OUT, open, node);
-
                     if (open === '"') {
                         const parts = content.split(/(\\.)/);
                         parts.forEach(part => {
@@ -791,7 +764,6 @@
                     } else {
                         this.emit(COLORS.STRING, content, node);
                     }
-
                     this.emit(COLORS.STRING_OUT, close, node);
                 } else {
                     this.emit(COLORS.STRING, s, node);
@@ -820,21 +792,17 @@
             visitOptToken(node) {
                 if (node.present && node.txt) {
                     this.processPreSpace(node.preSpace, node);
-
                     let color = COLORS.NAME;
                     const parent = this.getParent();
-
                     if (parent && parent.type === 'VarDestrPat' && node.txt === '=') {
                         color = COLORS.PAT_RESTRICT;
                     }
                     if (parent && (['BreakStat', 'ContinueStat'].includes(parent.type))) {
                         if (node.txt === "'") color = COLORS.NAME_LABEL;
                     }
-
                     if (KEYWORD_MAP.hasOwnProperty(node.txt)) color = KEYWORD_MAP[node.txt];
                     else if (/^[0-9]/.test(node.txt)) color = COLORS.NUMBER;
                     else if (/^[&*]/.test(node.txt)) color = COLORS.REF;
-
                     this.emit(color, node.txt, node);
                 }
                 return node;
@@ -964,6 +932,17 @@ impl Add for X {
                 const parser = new Parser(code);
                 const ast = parser.parseChunk();
 
+                // --- FIX START: Always Highlight ---
+                // We run the visitor and populate the backdrop BEFORE checking errors.
+                // This ensures that valid code is highlighted even if a syntax error exists later.
+                const visitor = new HighlighterVisitor();
+                visitor.visit(ast);
+
+                // Clone fragment for backdrop
+                const backdropClone = visitor.fragment.cloneNode(true);
+                backdrop.appendChild(backdropClone);
+                // --- FIX END ---
+
                 if (parser.errors.length > 0) {
                     statusEl.textContent = `Found ${parser.errors.length} error(s)`;
                     statusEl.className = "error";
@@ -972,7 +951,7 @@ impl Add for X {
                     // Render Squiggles on the input box
                     renderSquiggles(parser.errors, code);
 
-                    // Render list of errors in output panel (as requested implicitly by providing details)
+                    // Render list of errors in output panel
                     parser.errors.forEach((err, idx) => {
                         const errDiv = document.createElement('div');
                         errDiv.style.color = 'var(--bg-status-error)';
@@ -989,7 +968,7 @@ impl Add for X {
                         badge.textContent = `ERR ${idx + 1}`;
 
                         const msgSpan = document.createElement('span');
-                        msgSpan.textContent = err.msg; // Removed "Pos" from text as it's visual now
+                        msgSpan.textContent = err.msg;
 
                         errDiv.appendChild(badge);
                         errDiv.appendChild(msgSpan);
@@ -1000,13 +979,6 @@ impl Add for X {
                     statusEl.textContent = "Parsed successfully";
                     statusEl.className = "success";
                     statusEl.style.backgroundColor = "var(--bg-status-success)";
-
-                    const visitor = new HighlighterVisitor();
-                    visitor.visit(ast);
-
-                    // Clone fragment for backdrop
-                    const backdropClone = visitor.fragment.cloneNode(true);
-                    backdrop.appendChild(backdropClone);
 
                     // Show success in output
                     const successMsg = document.createElement('div');
@@ -1040,9 +1012,7 @@ impl Add for X {
 
             // Sync Error Overlay (Squiggles)
             // The overlay sits absolutely inside .input-stack.
-            // We need to translate it opposite to the scroll to keep squiggles over text?
-            // Actually, if we make errorOverlay scrollable or transform it, it works.
-            // Simplest: Transform the errorOverlay container
+            // We need to translate it opposite to the scroll to keep squiggles over text.
             errorOverlay.style.transform = `translate(-${inputArea.scrollLeft}px, -${inputArea.scrollTop}px)`;
         }
 
