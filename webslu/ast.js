@@ -780,21 +780,6 @@ class StarUseVariant extends UseVariant {
     }
 }
 
-// "::{" ("self"|Name) {fieldsep Name} [fieldsep] "}"
-class BraceUseVariant extends UseVariant {
-    constructor() {
-        super("BraceUseVariant");
-        this.colonColon = new Token("::");
-        this.openBrace = new Token("{");
-
-        this.selfKw = new OptToken("self");
-        this.selfDelim = new Token(""); // $<Needs selfKw>
-
-        this.items = new DelimitedList("Name");
-        this.closeBrace = new Token("}");
-    }
-}
-
 // optexport "mod" Name ["{" chunk "}"]
 class ModDecl extends GlobStat {
     constructor(anns) {
@@ -3295,22 +3280,6 @@ class Parser {
             const v = new StarUseVariant();
             v.kw = this.createAstToken(this.consume());
             return v;
-        }
-        if (this.match('Symbol', '::')) {
-            const cc = this.peek(1);
-            if (cc && cc.txt === '{') {
-                const v = new BraceUseVariant();
-                v.colonColon = this.createAstToken(this.consume());
-                v.openBrace = this.createAstToken(this.consume());
-                if (this.match('Keyword', 'self')) {
-                    v.selfKw.present = true;
-                    v.selfKw.txt = this.consume().txt;
-                    if (this.match('Symbol', ',') || this.match('Symbol', ';')) v.selfDelim = this.createAstToken(this.consume());
-                }
-                v.items = this.parseDelimitedList(() => this.parseName(), [{ type: 'Symbol', txt: '}' }]);
-                v.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
-                return v;
-            }
         }
         return new SimpleUseVariant();
     }
