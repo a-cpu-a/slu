@@ -3017,6 +3017,8 @@ class Parser {
                 const s = new CallStat(anns);
                 s.var = v;
                 s.ops = this.parseVarLikeOps(false);
+                if (s.ops.length === 0)
+                    this.error("Expected function call or assignment");
                 return s;
             }
         }
