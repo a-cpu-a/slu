@@ -2975,7 +2975,13 @@ class Parser {
             s.unsafeKw = this.createAstToken(this.consume());
             s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
             while (!this.match('Symbol', '}')) {
-                s.stats.push(this.parseStat(this.parseAnnotations()));
+                const stat = this.parseStat(this.parseAnnotations());
+                if (stat) {
+                    s.stats.push(stat);
+                } else {
+                    // Error recovery inside block
+                    this.skipToSync([{ type: 'Symbol', txt: '}' }, { type: 'Symbol', txt: ';' }]);
+                }
             }
             s.closeBrace = this.createAstToken(this.consume());
             return s;
