@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AST Studio: Syntax Highlighter</title>
+    <title>AST Studio: Syntax Highlighter (Updated Error Handling)</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -861,8 +861,8 @@ while true {}
 
 trait Add {p = fn(*mut self){}}
 impl Add for X {
- p = fn(*mut self){}
-}`;
+ p = fn(*mut self){}}
+`;
 
         inputArea.value = DEMO_CODE.trim();
 
@@ -874,21 +874,76 @@ impl Add for X {
             statusEl.style.backgroundColor = "var(--bg-status)";
 
             try {
+                // Instantiate Parser
                 const parser = new Parser(code);
+                // Parse
                 const ast = parser.parseChunk();
 
-                statusEl.textContent = "Parsed successfully";
-                statusEl.className = "success";
-                statusEl.style.backgroundColor = "var(--bg-status-success)";
+                // ========================================================================
+                // UPDATED ERROR HANDLING LOGIC
+                // ========================================================================
+                // Check the new 'errors' field instead of relying only on try/catch
+                if (parser.errors.length > 0) {
 
-                const visitor = new HighlighterVisitor();
-                visitor.visit(ast);
+                    // Update Footer to Error State
+                    statusEl.textContent = `Found ${parser.errors.length} error(s)`;
+                    statusEl.className = "error";
+                    statusEl.style.backgroundColor = "var(--bg-status-error)";
 
-                outputBlock.appendChild(visitor.fragment);
+                    // Render errors into the Preview Pane
+                    parser.errors.forEach((err, idx) => {
+                        const errDiv = document.createElement('div');
+                        errDiv.style.color = 'var(--bg-status-error)';
+                        errDiv.style.padding = '4px 8px';
+                        errDiv.style.borderBottom = '1px solid #3e3e42';
+                        errDiv.style.fontFamily = "'Inter', sans-serif";
+                        errDiv.style.fontSize = "13px";
+                        errDiv.style.display = "flex";
+                        errDiv.style.alignItems = "center";
+                        errDiv.style.gap = "10px";
+
+                        // Error Number Badge
+                        const badge = document.createElement('span');
+                        badge.style.background = "rgba(241, 76, 76, 0.2)";
+                        badge.style.color = "var(--bg-status-error)";
+                        badge.style.padding = "2px 6px";
+                        badge.style.borderRadius = "4px";
+                        badge.style.fontSize = "11px";
+                        badge.style.fontWeight = "bold";
+                        badge.textContent = `ERR ${idx + 1}`;
+
+                        // Error Message
+                        const msgSpan = document.createElement('span');
+                        msgSpan.textContent = `Pos ${err.pos}: ${err.msg}`;
+
+                        errDiv.appendChild(badge);
+                        errDiv.appendChild(msgSpan);
+                        outputBlock.appendChild(errDiv);
+                    });
+
+                    // Optional: Render the AST anyway if partial parse is desired, 
+                    // but for strict error stop, we leave it at just the errors.
+                    // const visitor = new HighlighterVisitor();
+                    // visitor.visit(ast);
+                    // outputBlock.appendChild(visitor.fragment);
+
+                } else {
+                    // Update Footer to Success State
+                    statusEl.textContent = "Parsed successfully";
+                    statusEl.className = "success";
+                    statusEl.style.backgroundColor = "var(--bg-status-success)";
+
+                    // Render Highlighted Code
+                    const visitor = new HighlighterVisitor();
+                    visitor.visit(ast);
+                    outputBlock.appendChild(visitor.fragment);
+                }
+                // ========================================================================
 
             } catch (e) {
+                // Fallback for unexpected runtime crashes
                 console.error(e);
-                statusEl.textContent = "Error: " + e.message;
+                statusEl.textContent = "Critical Error: " + e.message;
                 statusEl.className = "error";
                 statusEl.style.backgroundColor = "var(--bg-status-error)";
                 const errSpan = document.createElement('span');
