@@ -1532,7 +1532,41 @@ class Parser {
         this.len = input.length;
         this.tokens = [];
         this.tokPos = 0;
+        this.errors = []; // Error storage
         this.tokenize();
+    }
+
+    // ========================================================================
+    // ERROR HANDLING
+    // ========================================================================
+
+    error(msg, position = null) {
+        // If position is not provided, use current token position
+        const pos = position !== null ? position : (this.tokPos < this.tokens.length ? this.tokPos : this.tokens.length);
+        this.errors.push({ msg, pos });
+    }
+
+    // Helper to skip tokens until we find a synchronization point
+    skipToSync(stopTokens = []) {
+        // Define default stop tokens if none provided (block end, statement starts)
+        const defaultStops = [
+            { type: 'Symbol', txt: '}' },
+            { type: 'Symbol', txt: ';' },
+            { type: 'EOF' }
+        ];
+        const syncTokens = stopTokens.length > 0 ? stopTokens : defaultStops;
+
+        while (this.tokPos < this.tokens.length) {
+            const tok = this.peek();
+            // Check if we hit a stop token
+            if (syncTokens.some(t => tok.type === t.type && (t.txt === undefined || tok.txt === t.txt))) {
+                break;
+            }
+            // Check if we hit a keyword (often a statement start)
+            if (tok.type === 'Keyword' && !stopTokens.length) break;
+
+            this.consume();
+        }
     }
 
     // ========================================================================
@@ -1556,8 +1590,9 @@ class Parser {
         // Expect closing '['
         if (this.pos >= this.len || this.input[this.pos] !== '[') {
             this.pos = start; // Reset and let standard logic handle it
-            if (isComment)
-                throw new Error(`Expected second bracket for multi line comment: ${this.input[this.pos]} at ${this.pos}`);
+            if (isComment) {
+                this.error(`Expected second bracket for multi line comment at ${this.pos}`, this.pos);
+            }
             return false;
         }
         this.pos++; // Consume the second '['
@@ -1573,9 +1608,10 @@ class Parser {
             }
             this.pos++;
         }
-        this.pos = this.len;
 
-        throw new Error(`Expected closing bracket for ${isComment ? "comment" : "string"}, but file ended`);
+        this.error(`Expected closing bracket for ${isComment ? "comment" : "string"}, but file ended`, this.pos);
+        this.pos = this.len; // Move to end to stop lexing
+        return false;
     }
 
     tokenize() {
@@ -1596,7 +1632,6 @@ class Parser {
         ]);
 
         // Define Symbols based on spec
-        // Using a Set for O(1) lookup. We will check for length 3, then 2, then 1.
         const symbols = new Set([
             "|||", ">=<", "===", "<=>", "+++", "//=", "///", "***", "**-", "}<:", "]<:", ")<:", "...", "!=!",
             ":>~", ":>|", ":>>", ":>=", ":><", ":>+", ":>^", ":>%", ":>&", ":>/", ":>*", ":>@", ":>{", ":>[",
@@ -1660,7 +1695,6 @@ class Parser {
                         ch = this.input[this.pos];
                         // Long String Literal: [[...]] or [=[...]=]
                         if (ch === '[') {
-                            // We check if next char is [ or =
                             if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
                                 if (this.handleLongBracket(true)) {
                                     this.tokens.push({
@@ -1672,7 +1706,6 @@ class Parser {
                                     continue;
                                 }
                             }
-                            // If not a long bracket (or malformed), fall through to symbol handling
                         }
                     }
 
@@ -1693,24 +1726,17 @@ class Parser {
                 if (third === '[') {
                     if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
                         if (this.handleLongBracket(true)) {
-                            // Comment is whitespace, so we skip it (do not push token)
-
-                            // Preserve preSpace for the next token
                             savedStart = start;
                             continue;
                         }
                     }
-                    // Treat as line comment start if bracket invalid.
                 }
 
                 // Regular Single Line Comment: --
                 while (this.pos < this.len && !/[\r\n]/.test(this.input[this.pos])) {
                     this.pos++;
                 }
-                // Preserve preSpace for the next token
                 savedStart = start;
-
-                // Whitespace is ignored, so we just continue
                 continue;
             }
 
@@ -1722,8 +1748,14 @@ class Parser {
                     if (this.input[this.pos] === '\\') this.pos++; // skip escape
                     this.pos++;
                 }
-                if (this.pos >= this.len)
-                    throw new Error('Expected end quote for string, but file ended');
+                if (this.pos >= this.len) {
+                    this.error('Expected end quote for string, but file ended', this.pos);
+                    // Recover: treat rest of line or file as string content? Or just stop string.
+                    // For now, push what we have and stop.
+                    this.tokens.push({ type: 'LiteralString', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
+                    lastNonSpace = this.pos;
+                    continue;
+                }
                 this.pos++; // consume end quote
                 this.tokens.push({ type: 'LiteralString', txt: this.input.substring(tokenStart, this.pos), preSpace: preSpace });
                 lastNonSpace = this.pos;
@@ -1732,7 +1764,6 @@ class Parser {
 
             // Long String Literal: [[...]] or [=[...]=]
             if (ch === '[') {
-                // We check if next char is [ or =
                 if (this.pos + 1 < this.len && (this.input[this.pos + 1] === '[' || this.input[this.pos + 1] === '=')) {
                     if (this.handleLongBracket(false)) {
                         this.tokens.push({
@@ -1744,7 +1775,6 @@ class Parser {
                         continue;
                     }
                 }
-                // If not a long bracket (or malformed), fall through to symbol handling
             }
             {
                 let tmpFound = false;
@@ -1771,19 +1801,15 @@ class Parser {
                 let tokenStart = this.pos;
                 let isHex = false;
 
-                // Helper to parse digit lists based on grammar: digit [{digit|"_"}digit]
-                // Returns true if at least one digit was consumed.
                 const parseList = (hexMode) => {
                     const digitOrUscoreRegex = hexMode ? /[0-9_a-fA-F]/ : /[0-9_]/;
                     const start = this.pos;
                     let hasDigit = false;
 
-                    // Greedily consume all valid characters: digits and underscores
                     while (this.pos < this.len && digitOrUscoreRegex.test(this.input[this.pos])) {
                         this.pos++;
                     }
 
-                    // Backtrack if the sequence ends with an underscore.
                     while (this.pos > start && this.input[this.pos - 1] === '_') {
                         this.pos--;
                     }
@@ -1794,64 +1820,55 @@ class Parser {
                     return hasDigit;
                 };
 
-                // 1. Check for Hex Prefix (0x or 0X)
-                // Grammar: hexStart(hexDigList)
                 if (ch === '0' && this.pos + 1 < this.len && /[xX]/.test(this.input[this.pos + 1])) {
-                    this.pos += 2; // Consume '0x'
-                    // Attempt to parse hex digits. 
+                    this.pos += 2;
                     if (parseList(true)) {
                         isHex = true;
                     } else {
-                        let errCh = this.input[this.pos];
-                        throw new Error(`Expected hex digits, but found: ${errCh} at ${this.pos}`);
+                        this.error(`Expected hex digits, but found: ${this.input[this.pos]} at ${this.pos}`, this.pos);
+                        // Consume one bad char to avoid infinite loop
+                        this.pos++;
                     }
                 }
 
-                // 2. Parse Integer Part
-                // If not hex, parse the initial digits.
                 if (!isHex) {
                     parseList(false);
                 }
 
-                // 3. Parse Fractional Part (Optional)
-                // Grammar: ["." digList] or ["." hexDigList]
                 if (this.pos < this.len && this.input[this.pos] === '.') {
                     let nextChar = this.input[this.pos + 1];
                     let digitRegex = isHex ? /[0-9a-fA-F]/ : /[0-9]/;
 
                     if (nextChar && digitRegex.test(nextChar)) {
-                        this.pos++; // Consume '.'
+                        this.pos++;
                         parseList(isHex);
                     }
                 }
 
-                // 4. Parse Exponent Part (Optional)
-                // Grammar: [("e"|"E")[expSign]digList] or [("p"|"P")[expSign]hexDigList]
                 if (this.pos < this.len) {
                     let current = this.input[this.pos];
                     let isExp = isHex ? /[pP]/.test(current) : /[eE]/.test(current);
 
                     if (isExp) {
-                        this.pos++; // Consume 'e', 'E', 'p', or 'P'
+                        this.pos++;
 
-                        // Optional Sign
                         if (this.pos < this.len && /[+\-]/.test(this.input[this.pos])) {
                             this.pos++;
                         }
 
-                        // Mandatory digits after exponent marker
                         if (parseList(isHex)) {
                             // Success
                         } else {
-                            let errCh = this.input[this.pos];
-                            throw new Error(`Expected exponent digits, but found: ${errCh} at ${this.pos}`);
+                            this.error(`Expected exponent digits, but found: ${this.input[this.pos]} at ${this.pos}`, this.pos);
+                            this.pos++;
                         }
-                    }
 
-                    if (this.pos < this.len) {
-                        let nextCh = this.input[this.pos];
-                        if (/[0-9_a-zA-Z!]/.test(nextCh)) {
-                            throw new Error(`Unexpected character: ${nextCh} at ${this.pos}`);
+                        if (this.pos < this.len) {
+                            let nextCh = this.input[this.pos];
+                            if (/[0-9_a-zA-Z!]/.test(nextCh)) {
+                                this.error(`Unexpected character: ${nextCh} at ${this.pos}`, this.pos);
+                                //Just assume a space was ment to be here
+                            }
                         }
                     }
                 }
@@ -1866,7 +1883,6 @@ class Parser {
                 while (this.pos < this.len && /[a-zA-Z0-9_]/.test(this.input[this.pos])) {
                     this.pos++;
                 }
-                // Macro calls:
                 let macro = false;
                 if (this.pos < this.len && this.input[this.pos] == "!") {
                     this.pos++;
@@ -1875,7 +1891,7 @@ class Parser {
                 const txt = this.input.substring(tokenStart, this.pos);
                 this.tokens.push({
                     type:
-                        (/^_*$/.test(txt)) // Made of only underscores
+                        (/^_*$/.test(txt)) //Only underscores
                             ? 'Symbol'
                             : ((macro || keywords.has(txt))
                                 ? 'Keyword'
@@ -1888,7 +1904,8 @@ class Parser {
                 continue;
             }
 
-            throw new Error(`Unexpected character: ${ch} at ${this.pos}`);
+            this.error(`Unexpected character: ${ch} at ${this.pos}`, this.pos);
+            this.pos++; // Skip bad character
         }
 
         // EOF
@@ -1906,6 +1923,8 @@ class Parser {
     // ========================================================================
 
     peek(offset = 0) {
+        if (this.tokPos + offset >= this.tokens.length)
+            return { type: 'EOF', txt: '', preSpace: '' }
         return this.tokens[this.tokPos + offset];
     }
 
@@ -1926,8 +1945,9 @@ class Parser {
             return this.consume();
         }
         const tok = this.peek();
-        const msg = `Expected ${type} ${txt ? `"${txt}"` : ''}, found ${tok ? tok.type : 'EOF'} ${tok ? `"${tok.txt}"` : ''} at pos ${this.tokPos}`;
-        throw new Error(msg);
+        this.error(`Expected ${type} ${txt ? `"${txt}"` : ''}, found ${tok ? tok.type : 'EOF'} ${tok ? `"${tok.txt}"` : ''} at pos ${this.tokPos}`);
+        // Return a dummy token to prevent crashes
+        return { type: type, txt: txt, preSpace: '', error: true };
     }
 
     createAstToken(lexerToken) {
@@ -1957,6 +1977,17 @@ class Parser {
             const item = new DelimitedListItem();
             item.value = parserFn();
 
+            // If parsing failed, try to sync to next separator
+            if (item.value === null) {
+                this.skipToSync([...stopTokens, { type: 'Symbol', txt: ',' }, { type: 'Symbol', txt: ';' }]);
+                // If we are at a separator, consume it
+                if (this.match('Symbol', ',') || (!noSemicol && this.match('Symbol', ';'))) {
+                    this.createAstToken(this.consume());//Throw it away too
+                }
+                if (stopTokens.some(t => this.match(t.type, t.txt)) || this.match('EOF')) break;
+                continue;
+            }
+
             if (this.match('Symbol', ',') || (!noSemicol && this.match('Symbol', ';'))) {
                 item.sep = this.createAstToken(this.consume());
             }
@@ -1972,7 +2003,15 @@ class Parser {
     parseChunk() {
         const chunk = [];
         while (!this.match('EOF')) {
-            chunk.push(this.parseGlobStat());
+            const stat = this.parseGlobStat();
+            if (stat) {
+                chunk.push(stat);
+            } else {
+                // If global stat failed, skip to next likely global start
+                this.skipToSync([{ type: 'EOF' }, { type: 'Symbol', txt: ';' }]);
+                // Ensure we advance at least one token to avoid infinite loop on EOF
+                if (this.match('EOF')) break;
+            }
         }
         return chunk;
     }
@@ -1992,7 +2031,9 @@ class Parser {
             path.root = new ModPathRootOp();
             path.root.op = this.createAstToken(this.consume());
         } else {
-            throw new Error("Expected ModPath root");
+            this.error("Expected module path");
+            path.root = new ModPathRootOp();
+            return path;
         }
 
         while (this.match('Symbol', '::')) {
@@ -2005,14 +2046,17 @@ class Parser {
     }
 
     parseName() {
+        const n = new Name();
         if (this.match('Name')) {
-            const n = new Name();
             const tok = this.consume();
             n.name = tok.txt;
             n.preSpace = tok.preSpace;
             return n;
         }
-        throw new Error("Expected Name");
+        this.error("Expected a name");
+        // Return dummy node
+        n.name = "<missing>";
+        return n;
     }
 
     parseStr() {
@@ -2023,7 +2067,10 @@ class Parser {
             s.preSpace = tok.preSpace;
             return s;
         }
-        throw new Error("Expected String");
+        this.error("Expected String");
+        const s = new Str();
+        s.str = "\"<error>\"";
+        return s;
     }
 
     parseNum() {
@@ -2034,7 +2081,10 @@ class Parser {
             n.preSpace = tok.preSpace;
             return n;
         }
-        throw new Error("Expected Number");
+        this.error("Expected Number");
+        const n = new Num();
+        n.num = "0";
+        return n;
     }
 
     // ----------------------------------------------------------------
@@ -2110,7 +2160,7 @@ class Parser {
 
         if (this.match('Symbol', '{')) {
 
-            console.assert(dspec instanceof Expr); // Not OpDestrSpec
+            console.assert(dspec instanceof Expr);
 
             let actualPat = new UncondPatFieldDestrPat();
             const openBrace = this.createAstToken(this.consume());
@@ -2131,8 +2181,14 @@ class Parser {
                 }
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
-                    if (actualPat instanceof UncondPatFieldDestrPat)
-                        throw new Error(`Unexpected \`|\` in pattern at pos ${this.tokPos}`);
+                    if (actualPat instanceof UncondPatFieldDestrPat) {
+                        this.error(`Unexpected \`|\` in pattern at pos ${this.tokPos}`);
+                        this.skipToSync([{ type: 'Symbol', txt: '}' }, { type: 'Symbol', txt: ',' }]);
+
+                        if (this.match('Symbol', ','))
+                            continue;
+                        break;
+                    }
                     const f = new UncondFieldDestrField();
                     f.openPipe = this.createAstToken(this.consume());
                     f.var = this.parseTuplableName();
@@ -2140,8 +2196,14 @@ class Parser {
                     f.pat = this.parseUncondDestrPat();
                     li.value = f;
                 } else {
-                    if (actualPat instanceof UncondFieldDestrPat)
-                        throw new Error(`Expected \`|\` in pattern at pos ${this.tokPos}`);
+                    if (actualPat instanceof UncondFieldDestrPat) {
+                        this.error(`Expected \`|\` in pattern at pos ${this.tokPos}`);
+                        this.skipToSync([{ type: 'Symbol', txt: '}' }, { type: 'Symbol', txt: ',' }]);
+
+                        if (this.match('Symbol', ','))
+                            continue;
+                        break;
+                    }
                     li.value = this.parseUncondDestrPat();
                 }
                 if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
@@ -2184,7 +2246,7 @@ class Parser {
             dspec = this.parseExpr(0, true, "spat");
 
         if (this.match('Symbol', '{')) {
-            console.assert(dspec instanceof Expr); // Not OpDestrSpec
+            console.assert(dspec instanceof Expr);
 
             let actualPat = new PatFieldDestrPat();
             const openBrace = this.createAstToken(this.consume());
@@ -2204,8 +2266,14 @@ class Parser {
                 }
                 const li = new DelimitedListItem();
                 if (this.match('Symbol', '|')) {
-                    if (actualPat instanceof PatFieldDestrPat)
-                        throw new Error(`Unexpected \`|\` in pattern at pos ${this.tokPos}`);
+                    if (actualPat instanceof PatFieldDestrPat) {
+                        this.error(`Unexpected \`|\` in pattern at pos ${this.tokPos}`);
+                        this.skipToSync([{ type: 'Symbol', txt: '}' }, { type: 'Symbol', txt: ',' }]);
+
+                        if (this.match('Symbol', ','))
+                            continue;
+                        break;
+                    }
                     const f = new FieldDestrField();
                     f.openPipe = this.createAstToken(this.consume());
                     f.var = this.parseTuplableName();
@@ -2213,8 +2281,14 @@ class Parser {
                     f.pat = this.parsePat();
                     li.value = f;
                 } else {
-                    if (actualPat instanceof FieldDestrPat)
-                        throw new Error(`Expected \`|\` in pattern at pos ${this.tokPos}`);
+                    if (actualPat instanceof FieldDestrPat) {
+                        this.error(`Expected \`|\` in pattern at pos ${this.tokPos}`);
+                        this.skipToSync([{ type: 'Symbol', txt: '}' }, { type: 'Symbol', txt: ',' }]);
+
+                        if (this.match('Symbol', ','))
+                            continue;
+                        break;
+                    }
                     li.value = this.parsePat();
                 }
                 if (this.match('Symbol', ',') || this.match('Symbol', ';')) {
@@ -2252,8 +2326,9 @@ class Parser {
             pat.valPat = new SimplePat();
 
             pat.valPat.expr = this.parseExpr(0, true, "spat");
-            if (pat.valPat.expr instanceof OpDestrSpec)
-                throw new Error(`Unexpected simple expression in pattern at pos ${this.tokPos}`);
+            if (pat.valPat.expr instanceof OpDestrSpec) {
+                this.error(`Unexpected simple expression in pattern at pos ${this.tokPos}`);
+            }
             return pat;
         }
         return upat;
@@ -2362,7 +2437,8 @@ class Parser {
                 e.closeParen = this.createAstToken(this.expect('Symbol', ')'));
                 return e;
             }
-            throw new Error("Expected '(' after const in expression");
+            this.error("Expected '(' after const in expression");
+            return null;
         }
 
         if (this.match('Keyword', 'do')) {
@@ -2377,7 +2453,8 @@ class Parser {
             return this.parseLambdaExpr();
         }
 
-        throw new Error("Unexpected token in expression: " + this.peek().txt);
+        this.error("Unexpected token in expression: " + this.peek().txt);
+        return null;
     }
 
     parseLoopExpr(labelStart, label, colon) {
@@ -2441,7 +2518,6 @@ class Parser {
 
         // --- Parse Prefix Operators ---
         while (true) {
-            // Complex prefix operations
             if (this.parseRefTypePreOps(prefixOps)) { }
             else if (this.match('Symbol', '&')) {
                 const op = new RefPreOp();
@@ -2476,7 +2552,6 @@ class Parser {
                 op.arrow = this.createAstToken(this.expect('Symbol', '=>'));
                 prefixOps.push(op);
             }
-            // Simple prefix operations (helper used for DRY)
             else if (this.pushSimplePrefixOp('Keyword', 'dyn', DynPreOp, prefixOps)) { }
             else if (this.pushSimplePrefixOp('Keyword', 'impl', ImplPreOp, prefixOps)) { }
             else if (this.pushSimplePrefixOp('Keyword', 'union', UnionPreOp, prefixOps)) { }
@@ -2500,6 +2575,7 @@ class Parser {
         }
 
         let primary = this.parsePrimary(specType);
+        if (!primary) return null; // Recovery: propagate null
 
         // --- Special handling for Destructuring Patterns ---
         if (specType == "spat" && primary instanceof OpDestrSpec) {
@@ -2512,7 +2588,7 @@ class Parser {
                     primary.ops.push(op);
                 }
                 else {
-                    throw new Error(`Unexpected operator (${op.type}) for pattern at pos ${this.tokPos}`);
+                    this.error(`Unexpected operator (${op.type}) for pattern at pos ${this.tokPos}`);
                 }
                 isFirst = false;
             }
@@ -2548,9 +2624,9 @@ class Parser {
             else if (this.match('Symbol', '??')) {
                 const op1 = new TrySubVar();
                 op1.kw = this.createAstToken(this.consume());
-                op1.kw.txt = "?"; // Normalize text
+                op1.kw.txt = "?";
                 suffixOps.push(op1);
-                suffixOps.push(new TrySubVar()); // Add second implicit op
+                suffixOps.push(new TrySubVar());
             }
             else if (this.match('Keyword', 'try')) {
                 const op = new TryOp();
@@ -2606,12 +2682,9 @@ class Parser {
         const dot = this.createAstToken(this.consume());
         const n = this.parseTuplableName();
 
-        // Determine if this is a call or a field access based on lookahead
         const isCall = this.match('Symbol', '(') || this.match('LiteralString') || this.match('Numeral');
 
-        if (isCall) {
-            if (n instanceof NumTuplableName)
-                throw new Error(`Expected method name, found ${JSON.stringify(n.name)} before ${this.pos}`);
+        if (isCall && !(n instanceof NumTuplableName)) {
             const CallClass = isConst ? ConstSelfableCall : SelfableCall;
             const call = new CallClass();
             call.dot = dot;
@@ -2619,6 +2692,9 @@ class Parser {
             call.args = this.parseArgs();
             suffixOps.push(call);
         } else {
+            if (isCall)
+                this.error(`Expected method name, found ${n.name.name.num} before ${this.tokPos}`);
+
             const FieldClass = isConst ? ConstDotSubVar : DotSubVar;
             const op = new FieldClass();
             op.op = dot;
@@ -2650,13 +2726,21 @@ class Parser {
             a.args = this.parseTableConstructor();
             return a;
         }
-        throw new Error("Expected arguments");
+        this.error(`Expected arguments ${this.tokPos}`);
+        return new ParenArgs();
     }
 
     parseExpr(precedence = 0, basic = false, specType = "") {
         let left = this.parseUnary(basic, specType);
+        if (!left) {
+            if (specType == 'ret-null')
+                return null;
+            else
+                return new UnderscoreExpr(); // Recovery
+        }
+
         if (specType == "spat" && left instanceof OpDestrSpec)
-            return left; // Dont want to have it deep in BinExpr's
+            return left;
 
         while (true) {
             const opTok = this.peek();
@@ -2664,7 +2748,8 @@ class Parser {
                 const p = this.getPrecedence(opTok.txt);
                 if (p >= precedence) {
                     this.consume();
-                    const right = this.parseExpr(p + 1, basic);
+                    const right = this.parseExpr(p + 1, basic, 'ret-null');
+                    if (!right) return left; // Partial recovery
                     const bin = new BinExpr();
                     bin.left = left;
                     bin.op = this.createAstToken(opTok);
@@ -2712,9 +2797,9 @@ class Parser {
             e.push(op2);
         }
         else {
-            return false; // Break the loop if no match
+            return false;
         }
-        return true; // Continue the loop
+        return true;
     }
 
     parseFnExpr() {
@@ -2801,7 +2886,13 @@ class Parser {
                     b.semicol = this.createAstToken(this.consume());
                 break;
             }
-            b.stats.push(this.parseStat(anns));
+            const stat = this.parseStat(anns);
+            if (stat) {
+                b.stats.push(stat);
+            } else {
+                // Error recovery inside block
+                this.skipToSync([{ type: 'Symbol', txt: '}' }, { type: 'Symbol', txt: ';' }]);
+            }
         }
 
         b.closeBrace = this.createAstToken(this.expect('Symbol', '}'));
@@ -2850,7 +2941,8 @@ class Parser {
             s.expr = this.parseExpr();
             return s;
         }
-        throw new Error("Expected return statement");
+        this.error("Expected return statement");
+        return null;
     }
 
     parseStat(anns) {
@@ -2895,7 +2987,8 @@ class Parser {
             const colon = this.createAstToken(this.expect('Symbol', ':'));
             if (this.match('Keyword', 'while')) return this.parseWhileStat(anns, labelStart, label, colon);
             if (this.match('Keyword', 'for')) return this.parseForStat(anns, labelStart, label, colon);
-            throw new Error("Expected while/for after label");
+            this.error("Expected while/for after label");
+            return null;
         }
 
         if (this.match('Keyword', 'while')) return this.parseWhileStat(anns, new OptToken("'"), new Name(), new OptToken(":"));
@@ -3050,7 +3143,8 @@ class Parser {
             v.root = this.parseExpr();
             this.expect('Symbol', ')');
         } else {
-            throw new Error(`Expected variable name or expression with parenthesis, for variable at pos ${this.tokPos}`);
+            this.error(`Expected variable name or expression with parenthesis, for variable at pos ${this.tokPos}`);
+            return null;
         }
         v.suffixes = this.parseVarLikeOps(true);
         return v;
@@ -3137,7 +3231,15 @@ class Parser {
             s.name = this.parseName();
             if (this.match('Symbol', '{')) {
                 s.openBrace = this.createAstToken(this.consume());
-                while (!this.match('Symbol', '}')) s.chunk.push(this.parseGlobStat());
+                while (!(this.match('Symbol', '}') || this.match('EOF'))) {
+                    const stat = this.parseGlobStat();
+                    if (stat) {
+                        s.chunk.push(stat);
+                    } else {
+                        // If global stat failed, skip to next likely global start
+                        this.skipToSync();
+                    }
+                }
                 s.closeBrace = this.createAstToken(this.consume());
             }
             return s;
@@ -3181,7 +3283,15 @@ class Parser {
                 s.externKw = this.createAstToken(this.consume());
                 s.abiName = this.parseStr();
                 s.openBrace = this.createAstToken(this.expect('Symbol', '{'));
-                while (!this.match('Symbol', '}')) s.stats.push(this.parseGlobStat());
+                while (!(this.match('Symbol', '}') || this.match('EOF'))) {
+                    const stat = this.parseGlobStat();
+                    if (stat) {
+                        s.stats.push(stat);
+                    } else {
+                        // If global stat failed, skip to next likely global start
+                        this.skipToSync();
+                    }
+                }
                 s.closeBrace = this.createAstToken(this.consume());
                 return s;
             }
@@ -3231,7 +3341,8 @@ class Parser {
             return s;
         }
 
-        throw new Error("Unknown global declaration");
+        this.error("Unknown global declaration");
+        return null;
     }
 
     parseEnumField() {
@@ -3366,7 +3477,8 @@ class Parser {
                 ann.content = txtTok.txt;
                 return ann;
             }
-            throw new Error("Expected string or text after comment annotation");
+            this.error("Expected string or text after comment annotation");
+            return null;
         }
         return null;
     }
