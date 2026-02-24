@@ -887,7 +887,7 @@ impl Add for X {
         const charWidth = getCharWidth();
         const lineHeight = 21; // 14px * 1.5
 
-        function renderSquiggles(errors, text, lexerErrorCount) {
+        function renderSquiggles(errors, tokens, text, lexerErrorCount) {
             errorOverlay.innerHTML = '';
 
             for (let i = 0; i < errors.length; i++) {
@@ -895,7 +895,18 @@ impl Add for X {
                 const inLexer = i < lexerErrorCount;
 
                 // Calculate Row/Col
-                const textBefore = text.substring(0, err.pos); // TODO: !lexer => token index
+
+                let chPos = err.pos;
+                if (!inLexer) {
+                    chPos = 0;
+
+                    for (let j = 0; j < err.pos; j++) {
+                        chPos += tokens[j].preSpace.length;
+                        if (tokens[j].type == 'EOF') break;
+                        chPos += tokens[j].txt.length;
+                    }
+                }
+                const textBefore = text.substring(0, chPos);
                 const lines = textBefore.split('\n');
                 const row = lines.length - 1;
                 const col = lines[row].length;
@@ -903,7 +914,7 @@ impl Add for X {
                 // Create Squiggle Element
                 const squiggle = document.createElement('div');
                 squiggle.className = 'squiggle';
-                squiggle.title = `Error at pos ${err.pos}: ${err.msg}`; // Native tooltip for quick check
+                squiggle.title = `Error at pos ${chPos}: ${err.msg}`; // Native tooltip for quick check
 
                 // Position
                 // top: (row * lineHeight) + padding(10)
@@ -954,7 +965,7 @@ impl Add for X {
                     statusEl.style.backgroundColor = "var(--bg-status-error)";
 
                     // Render Squiggles on the input box
-                    renderSquiggles(parser.errors, code, lexerErrorCount);
+                    renderSquiggles(parser.errors, parser.tokens, code, lexerErrorCount);
 
                     // Render list of errors in output panel
                     parser.errors.forEach((err, idx) => {
