@@ -1,18 +1,17 @@
-// ============================================================================
-// MODULE TREE BUILDER
-// ============================================================================
 
-/**
- * Represents a node in the module tree (Module, Function, Impl, etc.)
- */
-class Module {
-    constructor(name, astNode) {
-        this.type = 'Module';
+class Local {
+    constructor(name) {
+        this.type = "Local"
         this.name = name;
-        this.astNode = astNode; // Reference to the original AST node
-        this.parent = null;
+    }
+}
 
-        // Lists of child items
+class Scope {
+    constructor(type, astNode) {
+        this.type = type;
+
+        this.astNode = astNode;
+
         this.uses = [];
         this.useStars = [];
         this.constants = [];
@@ -23,20 +22,49 @@ class Module {
         this.enums = [];
         this.unions = [];
         this.modules = [];
+
+        this.locals = []; // Array of Local
+        this.anonScopes = [];
+        this.labeledScopes = [];
+    }
+}
+class CrateScope extends Scope {
+    constructor(owner, name) {
+        super("CrateScope", null)
+        this.owner = owner;
+        this.name = name;
+    }
+}
+class ModuleScope extends Scope {
+    constructor(name, astNode) {
+        super("ModuleScope", astNode)
+        this.name = name
+    }
+}
+class AnonScope extends Scope {
+    constructor(id, astNode) {
+        super("AnonScope", astNode)
+        this.id = id
+    }
+}
+class LabeledScope extends Scope {
+    constructor(lbl, astNode) {
+        super("LabeledScope", astNode)
+        this.lbl = lbl
+    }
+}
+class NamedScope extends Scope {
+    constructor(name, astNode) {
+        super("NamedScope", astNode)
+        this.name = name
     }
 }
 
-/**
- * Visitor that builds a tree structure of module items.
- * - Treats functions as modules (nodes that can contain constants via params).
- * - Treats const params as constants.
- * - Extracts methods from Impl/Trait bodies.
- */
 class ModuleTreeVisitor extends Visitor {
     constructor(name, node) {
         super();
         // Create a virtual root node
-        this.root = new Module(name, node);
+        this.root = new ModuleScope(name, node);
         this.scopeStack = [this.root];
     }
 
@@ -50,22 +78,14 @@ class ModuleTreeVisitor extends Visitor {
      * Automatically sets the parent pointer.
      */
     addItem(category, item) {
-        if (this.currentScope && this.currentScope[category]) {
-            this.currentScope[category].push(item);
-            item.parent = this.currentScope;
-        }
+        this.currentScope[category].push(item);
     }
-
-    // ========================================================================
-    // HELPER: PROCESS FUNCTION SCOPES
-    // ========================================================================
-
     /**
      * Common logic for FunctionDecl (top-level) and FnExpr (inside Impl/Trait).
      * Creates a new function node, pushes it to the stack, and processes its contents.
      */
     processFunction(name, node) {
-        const fnNode = new Module(name, node);
+        const fnNode = new NamedScope(name, node);
         this.addItem('functions', fnNode);
 
         this.scopeStack.push(fnNode);
@@ -89,7 +109,7 @@ class ModuleTreeVisitor extends Visitor {
             else if (node.path.root.type === 'ModPathRootName') {
                 s = node.path.root.name.name;
             } else {
-                throw new Error(`Expected importable name, in use statement`);
+                throw new Error(`Expected importable name in use statement`);
             }
         } else // if (node.variant.type == 'StarUseVariant') 
         {
@@ -101,16 +121,17 @@ class ModuleTreeVisitor extends Visitor {
         this.addItem('uses', item);
     }
 
+    visitVarPat(p) {
+    }
+
     visitConstDecl(node) {
         let name = "anon";
-        // Try to extract name from pattern (UncondDestrPat)
-        // UncondVarDestrPat has a name property
-        if (node.pattern && node.pattern.name && node.pattern.name.name) {
-            name = node.pattern.name.name;
-        }
+
+        this.visitVarPat(node.pattern)
+
         const item = { name: name, node: node };
         this.addItem('constants', item);
-        this.visitChildren(node);
+        this.visit(node.value)
     }
 
     visitFunctionDecl(node) {
@@ -118,7 +139,7 @@ class ModuleTreeVisitor extends Visitor {
     }
 
     visitModDecl(node) {
-        const modNode = new Module(node.name.name, node);
+        const modNode = new ModuleScope(node.name.name, node);
         this.addItem('modules', modNode);
 
         this.scopeStack.push(modNode);
