@@ -4,12 +4,7 @@
 *.o
 *.a
 
-manual/manual.html
-
-ext/lua/testes/time.txt
-ext/lua/testes/time-debug.txt
-
-ext/lua/testes/libs/all
+slu/ext/llvm/**
 
 temp
 
