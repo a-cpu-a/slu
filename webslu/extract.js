@@ -122,6 +122,11 @@ class ModuleTreeVisitor extends Visitor {
     }
 
     visitVarPat(p) {
+        if (p.type == 'AlwaysDestrPat')
+            return;
+        if (p.type == 'UncondVarDestrPat') { }
+        if (p.type == 'UncondPatFieldDestrPat') { }
+        if (p.type == 'UncondFieldDestrPat') { }
     }
 
     visitConstDecl(node) {
